@@ -57,19 +57,11 @@ public:
      * @return mCryptLength
      */
     double GetCryptLength();
-    /**
-     * @return mCryptWidth
-     */
-    double GetCryptWidth();
 
     /**
      * Set mCryptLength.
      */
     void SetCryptLength(double);
-    /**
-     * Set mCryptWidth.
-     */
-    void SetCryptWidth(double);
 
     /**
      *  Reset all parameters to their defaults
@@ -104,12 +96,6 @@ private:
      */
     double mCryptLength;
 
-    /**
-    * The width of the crypt, non-dimensionalised with cell length.
-    * This determines when cells are sloughed from the crypt in 2D.
-    */
-    double mCryptWidth;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -124,7 +110,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mCryptLength;
-        archive & mCryptWidth;
     }
 };
 

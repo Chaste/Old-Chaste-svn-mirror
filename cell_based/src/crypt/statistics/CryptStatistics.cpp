@@ -44,21 +44,23 @@ CryptStatistics::CryptStatistics(MeshBasedCellPopulation<2>& rCrypt)
 
 std::vector<CellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
 {
+
+    double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
     // Fill in the default values - in a sequential manner
     if (xBottom == DBL_MAX)
     {
-        xBottom = RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth();
+        xBottom = RandomNumberGenerator::Instance()->ranf()*crypt_width;
     }
 
     if (xTop == DBL_MAX)
     {
-        xTop = RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth();
+        xTop = RandomNumberGenerator::Instance()->ranf()*crypt_width;
     }
 
     assert(yTop>0.0);
     std::list<std::pair<CellPtr, double> > cells_list; // the second entry is the y value (needed for sorting)
 
-    if (fabs(xTop-xBottom)<0.5*CellBasedConfig::Instance()->GetCryptWidth())
+    if (fabs(xTop-xBottom)<0.5*crypt_width)
     {
         // The periodic version isn't needed, ignore even if periodic was set to true
         periodic = false;
@@ -137,7 +139,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     bool is_in_section = false;
 
     c_vector<double,2> intercept;
-    double crypt_width = CellBasedConfig::Instance()->GetCryptWidth();
+    double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
 
     double m; // gradient of line
     double offset;

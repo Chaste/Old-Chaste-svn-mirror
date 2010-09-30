@@ -267,7 +267,13 @@ public:
 
         // Set up cell-based simulation
         boost::shared_ptr<CellBasedSimulation<2> > p_simulator(new CellBasedSimulationWithPdes<2>(cell_population, force_collection, pde_and_bc_collection));
-        TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "CellBasedSimulationWithPdes-2");
+
+        #if BOOST_VERSION >= 103400
+                TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        #else
+                TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
+        #endif // BOOST_VERSION >= 103400
+
         p_simulator->SetOutputDirectory("CellBasedSimulationWithOxygen");
         p_simulator->SetEndTime(0.5);
 
@@ -1356,7 +1362,11 @@ public:
         // Set up cell-based simulation
 		CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
 
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        #if BOOST_VERSION >= 103400
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        #else
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
+        #endif // BOOST_VERSION >= 103400
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);

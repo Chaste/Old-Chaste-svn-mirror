@@ -75,7 +75,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();

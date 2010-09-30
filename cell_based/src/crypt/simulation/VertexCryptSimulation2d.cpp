@@ -120,7 +120,7 @@ void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::v
 void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
 	// \TODO move crypt width and height from CellBasedConfig to this class #1496
-
+    *rParamsFile << "\t\t<CryptCircumference>"<< mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "</CryptCircumference>\n";
 	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
 	// Call direct parent class

@@ -54,7 +54,6 @@ private:
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 22.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 10.0, 1e-12);
      }
 
 public:

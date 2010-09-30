@@ -728,8 +728,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     // Output Extra Parameters from CellBasedConfig
     *parameter_file <<  "\n\t<CellBasedConfig>\n";
 	*parameter_file << "\t\t<CryptLength>"<< mpConfig->GetCryptLength() << "</CryptLength>\n";
-	*parameter_file << "\t\t<CryptWidth>"<< mpConfig->GetCryptWidth() << "</CryptWidth>\n";
-    *parameter_file <<  "\t</CellBasedConfig>\n";
+	*parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;
 
     parameter_file->close();

@@ -84,7 +84,6 @@ public:
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        CellBasedConfig::Instance()->SetCryptWidth((double)num_cells_width);
         CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
 
 
@@ -399,7 +398,6 @@ public:
         unsigned num_cells_depth = 2;
         unsigned num_cells_width = 2;
         double crypt_length = num_cells_depth-0.0;
-        double crypt_width = num_cells_width-0.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -407,7 +405,6 @@ public:
 
         CellBasedConfig* p_params = CellBasedConfig::Instance();
         p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -510,7 +507,6 @@ public:
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        CellBasedConfig::Instance()->SetCryptWidth((double)num_cells_width);
         CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
 
 
@@ -528,8 +524,11 @@ public:
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population, force_collection);
 
-        ///\todo uncomment see #1453
-        //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation<2>");
+        #if BOOST_VERSION >= 103400
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
+        #else
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
+        #endif // BOOST_VERSION >= 103400
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);

@@ -140,9 +140,7 @@ public:
     {
         // Create mesh
         double crypt_length = 10;
-        double crypt_width = 10;
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -364,7 +362,6 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
         double crypt_length = DBL_MAX; // so no sloughing
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
 
@@ -442,7 +439,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2)*crypt_width/cells_across);
 
         // Get location indices corresponding to real cells
@@ -552,7 +548,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -609,7 +604,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -672,7 +666,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -730,7 +723,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
@@ -804,7 +796,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
@@ -829,7 +820,13 @@ public:
 
         // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
+
+        #if BOOST_VERSION >= 103400
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
+        #else
+                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
+        #endif // BOOST_VERSION >= 103400
+
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
@@ -1099,7 +1096,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
@@ -1159,10 +1155,7 @@ public:
     {
         // Create mesh
         double crypt_length = 9.3;
-        double crypt_width = 10.0;
-
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -1724,7 +1717,6 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
 
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells

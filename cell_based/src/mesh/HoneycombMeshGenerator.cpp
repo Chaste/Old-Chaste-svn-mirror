@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, bool cylindrical, double scaleFactor)
   : mpMesh(NULL),
-    mCryptWidth(numNodesAlongWidth*scaleFactor),
+    mDomainWidth(numNodesAlongWidth*scaleFactor),
     mNumCellWidth(numNodesAlongWidth), //*1 because cells are considered to be size one
     mNumCellLength(numNodesAlongLength),
     mCylindrical(cylindrical)
@@ -44,8 +44,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     //The getpid code won't work in parallel
     assert(PetscTools::IsSequential());
     pid << getpid();
-    mMeshFilename = "2D_temporary_periodic_crypt_mesh_" + pid.str();
-    Make2dPeriodicCryptMesh(mCryptWidth, ghosts);
+    mMeshFilename = "2D_temporary_honeycomb_mesh_" + pid.str();
+    Make2dPeriodicMesh(mDomainWidth, ghosts);
     OutputFileHandler output_file_handler("");
     std::string output_dir = output_file_handler.GetOutputDirectoryFullPath();
 
@@ -58,7 +58,7 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     }
     else
     {
-        mpMesh = new Cylindrical2dMesh(mCryptWidth);
+        mpMesh = new Cylindrical2dMesh(mDomainWidth);
         mpMesh->ConstructFromMeshReader(mesh_reader);
         NodeMap map(mpMesh->GetNumNodes());
         mpMesh->ReMesh(map); // This makes the mesh cylindrical (uses Triangle library mode inside this ReMesh call).
@@ -158,7 +158,7 @@ MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
     return mpMesh;
 }
 
-void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghosts)
+void HoneycombMeshGenerator::Make2dPeriodicMesh(double width, unsigned ghosts)
 {
     OutputFileHandler output_file_handler("");
 
@@ -176,7 +176,7 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
         double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
 
         // This line needed to define ghost nodes later...
-        mCryptDepth = (double)(numNodesAlongLength) * vertical_spacing;
+        mDomainDepth = (double)(numNodesAlongLength) * vertical_spacing;
 
         // Add in the ghost nodes...
         if (!mCylindrical)
@@ -231,7 +231,7 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
                 double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ SmallPow(-1,i+1)));
                 double y = y0 + vertical_spacing*(double)i;
 
-                // Avoid floating point errors which upset CryptSimulation2d
+                // Avoid floating point errors which upset CellBasedSimulation
                 if ( (y<0.0) && (y>-1e-12) )
                 {
                     // Difficult to cover - just corrects floating point errors that have occurred from time to time!

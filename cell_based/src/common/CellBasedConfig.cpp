@@ -47,14 +47,12 @@ CellBasedConfig::CellBasedConfig()
 }
 
 /**
- * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
  * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  */
 void CellBasedConfig::Reset()
 {
     // Default parameter values
-    mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
 }
 
@@ -66,10 +64,6 @@ double CellBasedConfig::GetCryptLength()
 {
     return mCryptLength;
 }
-double CellBasedConfig::GetCryptWidth()
-{
-    return mCryptWidth;
-}
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -79,9 +73,4 @@ void CellBasedConfig::SetCryptLength(double cryptLength)
 {
     assert(cryptLength > 0.0);
     mCryptLength = cryptLength;
-}
-void CellBasedConfig::SetCryptWidth(double cryptWidth)
-{
-    assert(cryptWidth > 0.0);
-    mCryptWidth = cryptWidth;
 }

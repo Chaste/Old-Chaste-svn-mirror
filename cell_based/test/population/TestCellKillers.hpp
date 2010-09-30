@@ -231,9 +231,6 @@ public:
 
     void TestSloughingCellKillerTopAndSides() throw(Exception)
     {
-        // Set up singleton classes
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         MutableMesh<2,2> mesh;
@@ -248,14 +245,9 @@ public:
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-        p_params->SetCryptWidth(0.5);
-        p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&cell_population,
-                                                     CellBasedConfig::Instance()->GetCryptLength(),
-                                                     true,
-                                                     CellBasedConfig::Instance()->GetCryptWidth());
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, 0.5, true, 0.5);
 
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
@@ -296,9 +288,6 @@ public:
 
     void TestSloughingCellKillerTopOnly() throw(Exception)
     {
-        // Set up singleton classes
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         MutableMesh<2,2> mesh;
@@ -323,11 +312,8 @@ public:
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-        p_params->SetCryptWidth(0.5);
-        p_params->SetCryptLength(0.5);
-
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, 0.5);
 
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 

@@ -33,6 +33,5 @@
 
 	<CellBasedConfig>
 		<CryptLength>4.33013</CryptLength>
-		<CryptWidth>5</CryptWidth>
 	</CellBasedConfig>
 </Chaste>

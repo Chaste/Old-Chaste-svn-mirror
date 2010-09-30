@@ -89,7 +89,6 @@ public:
 
         // Set crypt dimensions
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -118,7 +117,7 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt,
                                                      CellBasedConfig::Instance()->GetCryptLength(),
                                                      true,
-                                                     CellBasedConfig::Instance()->GetCryptWidth());
+                                                     crypt_width);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -148,7 +147,6 @@ public:
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
-        double crypt_width = num_cells_width-1.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -157,7 +155,6 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -212,6 +209,7 @@ public:
     {
         // Create mesh
         unsigned num_cells_width = 7;
+
         unsigned num_cells_depth = 5;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
@@ -222,10 +220,8 @@ public:
 
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
-
         // Set crypt dimensions
         CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = location_indices.size();
@@ -278,10 +274,7 @@ public:
         simulator.SetEndTime(40); // hours
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt,
-                                                     CellBasedConfig::Instance()->GetCryptLength(),
-                                                     true,
-                                                     CellBasedConfig::Instance()->GetCryptWidth());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length, true, crypt_width);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -336,7 +329,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
@@ -386,7 +378,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -454,7 +445,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
         CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -539,7 +529,6 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 

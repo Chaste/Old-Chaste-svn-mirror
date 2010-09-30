@@ -97,8 +97,8 @@ public:
      * execute these in a sensible order.
      * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-     std::vector<CellPtr> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth(),
-                                                double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth(),
+     std::vector<CellPtr> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
+                                                double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
                                                 double yTop = CellBasedConfig::Instance()->GetCryptLength() + 2.0,
                                                 bool periodic = false);
 
@@ -120,8 +120,8 @@ public:
      *
      * @return an ordered list of CellPtrs from the bottom to the top of the crypt.
      */
-    std::vector<CellPtr> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth(),
-                                                       double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth(),
+    std::vector<CellPtr> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
+                                                       double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
                                                        double yTop = CellBasedConfig::Instance()->GetCryptLength() + 2.0);
 };
 
