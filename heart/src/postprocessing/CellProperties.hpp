@@ -120,7 +120,7 @@ public:
      *
      * @param &rVoltage a reference to the vector of voltages
      * @param &rTime a reference to the vector of times
-     * @param threshold is the thershold for determining if an AP started, defaults to -30
+     * @param threshold is the threshold for determining if an AP started, defaults to -30
      *
      */
     CellProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
