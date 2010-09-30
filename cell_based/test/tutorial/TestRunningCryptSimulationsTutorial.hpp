@@ -160,6 +160,10 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
+        /* Set the crypt length this will be used for sloughing.*/
+        CellBasedConfig::Instance()->SetCryptLength(8.0);
+
+
         /* Now we define the cell-based simulation object, passing in the cell population and collection
          * of force laws: */
         CryptSimulation2d simulator(cell_population, force_collection);
@@ -223,6 +227,7 @@ public:
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
@@ -247,6 +252,9 @@ public:
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
+
+        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
+        CellBasedConfig::Instance()->SetCryptLength(8.0);
 
         /* Create a simulator as before (except setting a different output directory). */
         CryptSimulation2d simulator(cell_population,force_collection);

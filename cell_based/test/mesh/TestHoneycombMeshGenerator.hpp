@@ -159,9 +159,8 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
-        TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), (double)num_cells_width, 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 21.6506, 1e-4);
     }
 
     void TestHoneycombMeshGeneratorCylindricalCompressed() throw(Exception)
@@ -237,10 +236,8 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
-        TS_ASSERT_DELTA(p_params->GetCryptLength(), x_factor*sqrt(3)*num_cells_depth/2.0, 1e-7);
-
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), x_factor*(double)num_cells_width, 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 18.9443, 1e-4);
     }
 
     void TestMonolayerHoneycombMeshGeneratorRelaxed() throw(Exception)
@@ -317,9 +314,8 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
-        TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), (width-1.0) + 2.0 * (double) ghosts + 0.5, 1e-7); // 11.5 as mesh is stagered and includes ghosts
+        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 21.6506, 1e-4); // includes ghosts
     }
 
     void TestMonolayerHoneycombMeshGeneratorCompressed() throw(Exception)
@@ -397,9 +393,8 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
-        TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0u),  11.6250 , 1e-4); // as mesh is staggered, compressed and includes ghosts
+        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 12.3408, 1e-4); // includes ghosts
     }
 
     void TestBoundaryNodes() throw(Exception)

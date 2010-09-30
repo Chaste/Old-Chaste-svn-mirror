@@ -84,6 +84,11 @@ public:
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        CellBasedConfig::Instance()->SetCryptWidth((double)num_cells_width);
+        CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
+
+
+
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -505,6 +510,9 @@ public:
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        CellBasedConfig::Instance()->SetCryptWidth((double)num_cells_width);
+        CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
+
 
         // Set up cells
         std::vector<CellPtr> cells;

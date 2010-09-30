@@ -54,6 +54,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 
+#include "Debug.hpp"
+
+
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
 private:
@@ -361,6 +364,10 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
+        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
+        double crypt_length = DBL_MAX; // so no sloughing
+        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
+
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
@@ -435,6 +442,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
+        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2)*crypt_width/cells_across);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -499,6 +508,37 @@ public:
         LogFile::Close();
     }
 
+    /*
+     * This test compares the visualizer output from the previous test, Test2DCylindricalMultipleDivisions,
+     * with a known file.
+     *
+     * The results of this should be a yellow crypt with a line of
+     * blue stem cells at the base, and four labelled cells of different
+     * colours in the centre. A couple of cells divide, the crypt stays
+     * periodic and a couple of cells swap sides.
+     *
+     * Note - if the previous test is changed we need to update the file this test refers to.
+     */
+    void TestVisualizerOutput() throw (Exception)
+    {
+        // Work out where one of the previous tests wrote its files
+        OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions", false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
+
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
+        TS_ASSERT(comp_ele.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements").c_str()), 0);
+
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizsetup").c_str()), 0);
+    }
+
+
     // This is a rubbish test - all cells start at birthTime = 0.
     // So bizarrely the crypt shrinks as the rest lengths are shortened!
     // But at least it uses Wnt cell cycle and runs reasonably quickly...
@@ -512,6 +552,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -568,6 +609,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -630,6 +672,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -687,6 +730,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
+        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -759,6 +804,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
+        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -1052,6 +1099,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
+        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -1105,36 +1154,6 @@ public:
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 76u);
         TS_ASSERT_EQUALS(number_of_nodes, 124u);
     }
-
-    /*
-     * This test compares the visualizer output from the previous test with a known file.
-     *
-     * The results of this should be a yellow crypt with a line of
-     * blue stem cells at the base, and four labelled cells of different
-     * colours in the centre. A couple of cells divide, the crypt stays
-     * periodic and a couple of cells swap sides.
-     *
-     * Note - if the previous test is changed we need to update the file this test refers to.
-     */
-    void TestVisualizerOutput() throw (Exception)
-    {
-        // Work out where one of the previous tests wrote its files
-        OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions", false);
-        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
-
-        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
-        TS_ASSERT(comp_ele.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements").c_str()), 0);
-
-        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
-        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
-
-        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
-        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
-
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizsetup").c_str()), 0);
-    }
-
 
     void TestAddCellKiller() throw (Exception)
     {
@@ -1699,8 +1718,14 @@ public:
     void TestWriteBetaCatenin() throw (Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator generator(5, 4, 1);
+        unsigned cells_across = 5;
+        unsigned cells_up = 4;
+        unsigned thickness_of_ghost_layer = 1;
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(p_mesh->GetWidth(0u));
+        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();

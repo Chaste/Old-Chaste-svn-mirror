@@ -865,8 +865,6 @@ public:
 
     void TestVoronoiTessellationUsesOverriddenMetric() throw (Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
@@ -876,7 +874,6 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         TS_ASSERT_EQUALS(p_mesh->CheckIsVoronoi(), true);
-        TS_ASSERT_DELTA(p_params->GetCryptWidth(), 6.0, 1e-6);
 
         // Create Voronoi tessellation
         VertexMesh<2, 2> tessellation(*p_mesh);

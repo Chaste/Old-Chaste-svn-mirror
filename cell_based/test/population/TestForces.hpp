@@ -412,6 +412,9 @@ public:
 
         HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CellBasedConfig::Instance()->SetCryptWidth(1.1*6.0);
+        CellBasedConfig::Instance()->SetCryptLength(1.1*12.0 *sqrt(3) /2.0);
+
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells

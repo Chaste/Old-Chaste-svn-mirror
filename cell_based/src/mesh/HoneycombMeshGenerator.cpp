@@ -74,9 +74,6 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");
         #undef COVERAGE_IGNORE
     }
-
-    CellBasedConfig::Instance()->SetCryptLength(mCryptDepth);
-    CellBasedConfig::Instance()->SetCryptWidth(mCryptWidth);
 }
 
 
