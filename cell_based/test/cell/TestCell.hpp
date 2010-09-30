@@ -83,7 +83,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(24, 3);
 
         // Create a cell mutation state
-        boost::shared_ptr<AbstractCellProperty> p_wild_type(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_wild_type(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         // Create a cell cycle model
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -176,6 +176,24 @@ public:
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellMutationState>(), true);
 
         TS_ASSERT(&(p_daughter_cell->rGetCellPropertyCollection()) != &(p_cell->rGetCellPropertyCollection()));
+
+        /// \todo #1285 Check that the registry gets updated...
+        TS_ASSERT_EQUALS(p_cell->HasCellProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->HasCellProperty<WildTypeCellMutationState>(), true);
+        //unsigned num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
+        //TS_ASSERT_EQUALS(num_wild_type, 3u);
+
+        p_daughter_cell->Kill();
+        //num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
+        //TS_ASSERT_EQUALS(num_wild_type, 2u);
+
+        p_cell->Kill();
+        //num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
+        //TS_ASSERT_EQUALS(num_wild_type, 1u);
+
+        p_cell2->Kill();
+        //num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
+        //TS_ASSERT_EQUALS(num_wild_type, 0u);
 
     }
 
