@@ -102,6 +102,8 @@ public:
         // Check that archiving of the CellBasedConfig singleton has not been affected
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 20.151744972676, 1e-12);
+        
+        //\TODO should also test the rest of the simulation setup now its moved out of CellBasedConfig #1496 
 
         // Tidy up
         SimulationTime::Destroy();
