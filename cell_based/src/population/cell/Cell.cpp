@@ -112,7 +112,10 @@ Cell::~Cell()
     {
         (*property_iter)->DecrementCellCount();
     }
-
+    if (!mIsDead)
+    {
+        Kill();
+    }
     delete mpCellCycleModel;
 }
 
@@ -224,7 +227,8 @@ void Cell::StartApoptosis(bool setDeathTime)
         mDeathTime = DBL_MAX;
     }
 
-    AddCellProperty(CellPropertyRegistry::Instance()->Get<ApoptoticCellProperty>());
+    AddCellProperty(mCellPropertyCollection.GetCellPropertyRegistry()->Get<ApoptoticCellProperty>());
+
 }
 
 bool Cell::HasApoptosisBegun() const
@@ -272,6 +276,13 @@ bool Cell::IsDead()
 
 void Cell::Kill()
 {
+//    // Decrement cell count for each cell property in mCellPropertyCollection
+//    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
+//         property_iter != mCellPropertyCollection.End();
+//         ++property_iter)
+//    {
+//        (*property_iter)->DecrementCellCount();
+//    }
     mIsDead = true;
 }
 

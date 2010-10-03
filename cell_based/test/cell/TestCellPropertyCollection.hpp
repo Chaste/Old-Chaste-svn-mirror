@@ -56,6 +56,9 @@ public:
         CellPropertyCollection collection;
         TS_ASSERT_EQUALS(collection.GetSize(), 0u);
 
+        // Test that the CellPropertyRegistry assigned to the CellPropertyCollection defaults to CellPropertyRegistry::Instance().
+        TS_ASSERT_EQUALS(collection.GetCellPropertyRegistry(),CellPropertyRegistry::Instance());
+
         // Add some properties
         NEW_PROP(WildTypeCellMutationState, p_wt_mutation);
 

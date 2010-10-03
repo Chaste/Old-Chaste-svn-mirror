@@ -89,6 +89,8 @@ private:
         TS_ASSERT_EQUALS(node_based_cell_population.rGetCells().size(), num_cells);
         TS_ASSERT_EQUALS(cells.size(), 0u);
 
+        boost::shared_ptr<CellPropertyRegistry> p_population_registry = node_based_cell_population.GetCellPropertyRegistry();
+
         unsigned counter = 0;
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = node_based_cell_population.Begin();
              cell_iter != node_based_cell_population.End();
@@ -100,10 +102,14 @@ private:
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
+            // Test that the cell property registry belonging to the population has made it into the cell's cell property collections.
+            CellPropertyRegistry* p_cell_registry = cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry();
+            TS_ASSERT_EQUALS(p_cell_registry,p_population_registry.get());
             counter++;
         }
 
         TS_ASSERT_EQUALS(counter, node_based_cell_population.GetNumRealCells());
+
     }
 
 public:

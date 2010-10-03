@@ -74,6 +74,9 @@ AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells
         unsigned index = locationIndices.empty() ? i : locationIndices[i]; // assume that the ordering matches
         mLocationCellMap[index] = *it;
         mCellLocationMap[(*it).get()] = index;
+
+        // Give each cell a pointer to the property registry (we have taken ownership in this constructor).
+        (*it)->rGetCellPropertyCollection().SetCellPropertyRegistry(mpCellPropertyRegistry.get());
     }
 
     // Initialise cell counts to zero

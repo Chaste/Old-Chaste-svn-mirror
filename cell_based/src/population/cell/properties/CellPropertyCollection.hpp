@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/set.hpp>
 
 #include "AbstractCellProperty.hpp"
+#include "CellPropertyRegistry.hpp"
 #include "Exception.hpp"
 
 /**
@@ -58,6 +59,9 @@ private:
     /** The properties stored in this collection. */
     CollectionType mProperties;
 
+    /** Cell property registry. */
+    CellPropertyRegistry* mpCellPropertyRegistry;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -72,6 +76,7 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & mProperties;
+        // archive & mpCellPropertyRegistry; Not required as archived by the CellPopulation.
     }
 
 public:
@@ -86,6 +91,18 @@ public:
      * @param rProp  the property to add
      */
     void AddProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
+
+    /**
+     * @return a pointer to the CellPropertyRegistry (as assigned to this cell in the AbstractCellPopulation constructor).
+     */
+    CellPropertyRegistry* GetCellPropertyRegistry();
+
+    /**
+     * Set the CellPropertyRegistry for this cell
+     *
+     * @param pRegistry  The cell property registry (assigned in the AbstractCellPopulation constructor).
+     */
+    void SetCellPropertyRegistry(CellPropertyRegistry* pRegistry);
 
     /**
      * Test whether this collection contains the given property @b object.
