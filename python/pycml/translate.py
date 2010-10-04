@@ -986,6 +986,7 @@ class CellMLTranslator(object):
                     tidx += 1
                     expr.xml_set_attribute((u'lut:table_index', NSS['lut']),
                                            doc.lookup_table_indexes[key])
+                doc.lookup_tables_num_per_index[doc.lookup_table_indexes[key]] = 0
             # Get a table name, unique over all tables with
             # this index variable
             if not hasattr(expr, u'table_name'):
@@ -993,19 +994,8 @@ class CellMLTranslator(object):
                 expr.xml_set_attribute((u'lut:table_name', NSS['lut']),
                                        unicode(tnum))
                 table_numbers[doc.lookup_table_indexes[key]] = tnum + 1
-        # Re-number table indices so they are contiguous starting from 0.
-        table_index_map = {}
-        tidx = 0
-        for key in sorted(doc.lookup_table_indexes.keys()):
-            idx = unicode(tidx)
-            table_index_map[doc.lookup_table_indexes[key]] = idx
-            doc.lookup_table_indexes[key] = idx
-            doc.lookup_tables_num_per_index[idx] = 0
-            tidx += 1
         # Make sure each lookup table is only listed once in doc.lookup_tables,
         # so we don't get 2 tables for the same expression!
-        # Also re-number table names so they are contiguous starting from 0
-        # for each table index.
         candidates = doc.lookup_tables[:]
         doc.lookup_tables = []
         listed = set()
@@ -1014,9 +1004,6 @@ class CellMLTranslator(object):
             if not tid in listed:
                 listed.add(tid)
                 doc.lookup_tables.append(expr)
-                # Renumber
-                expr.table_index = table_index_map[expr.table_index]
-                expr.table_name = unicode(doc.lookup_tables_num_per_index[expr.table_index])
                 # Increment count for this index variable
                 doc.lookup_tables_num_per_index[expr.table_index] += 1
         return
