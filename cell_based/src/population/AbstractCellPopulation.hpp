@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Node.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "Identifiable.hpp"
 
 // Needed here to avoid serialization errors (on Boost<1.37)
 #include "WildTypeCellMutationState.hpp"
@@ -61,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned DIM>
-class AbstractCellPopulation
+class AbstractCellPopulation : public Identifiable
 {
 private:
     /** Needed for serialization. */
@@ -516,20 +517,6 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputCellPopulationParameters(out_stream& rParamsFile)=0;
-
-    /**
-     * Return the unique identifier of the concrete class.
-     * This method uses Boost's serialization's
-     * extended_type_info and returns the identifier of the derived class
-     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
-     * derived class, and is usually just the name of the class).
-     *
-     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-     * method, or any other method that calls this method.
-     */
-    std::string GetIdentifier() const;
-
 
     /**
 	 * @return mDampingConstantNormal

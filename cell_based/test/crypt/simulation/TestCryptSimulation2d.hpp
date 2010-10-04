@@ -820,12 +820,7 @@ public:
 
         // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
-
-        #if BOOST_VERSION >= 103400
-                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
-        #else
-                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
-        #endif // BOOST_VERSION >= 103400
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
 
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
 

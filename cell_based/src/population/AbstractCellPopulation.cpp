@@ -30,11 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
 
-#include <boost/serialization/extended_type_info.hpp>
-#include <boost/serialization/extended_type_info_typeid.hpp>
-#include <boost/serialization/extended_type_info_no_rtti.hpp>
-#include <boost/serialization/type_info_implementation.hpp>
-
 template<unsigned DIM>
 AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
@@ -625,11 +620,7 @@ void AbstractCellPopulation<DIM>::WriteCellIdDataToFile()
 template<unsigned DIM>
 void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFile)
 {
-//    ///\todo This should be independent of boost version (#1453)
-//    std::string cell_population_type = "Should be CellPopulation type here see #1453";
-//#if BOOST_VERSION >= 103700
     std::string cell_population_type = GetIdentifier();
-//#endif
 
     *rParamsFile <<  "\t<" << cell_population_type << ">" "\n";
     OutputCellPopulationParameters(rParamsFile);
@@ -649,20 +640,6 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rPa
     *rParamsFile <<  "\t\t<OutputCellCyclePhases>"<<  mOutputCellCyclePhases << "</OutputCellCyclePhases> \n" ;
     *rParamsFile <<  "\t\t<OutputCellAges>"<<  mOutputCellAges << "</OutputCellAges> \n" ;
     *rParamsFile <<  "\t\t<OutputCellVolumes>"<<  mOutputCellVolumes << "</OutputCellVolumes> \n" ;
-}
-
-#include "TidyTemplatedExportIdentifier.hpp"
-
-template<unsigned DIM>
-std::string AbstractCellPopulation<DIM>::GetIdentifier() const
-{
-#if BOOST_VERSION >= 103700
-    std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-#else
-    std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_derived_extended_type_info(*this)->get_key();
-#endif
-
-    return TidyTemplatedExportIdentifier(identifier);
 }
 
 ///////////////////////////////////////////////////////////////////////

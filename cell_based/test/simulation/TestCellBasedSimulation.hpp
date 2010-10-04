@@ -523,12 +523,7 @@ public:
 
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population, force_collection);
-
-        #if BOOST_VERSION >= 103400
-                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
-        #else
-                TS_ASSERT_EQUALS(simulator.GetIdentifier(), "Unknown CellBasedSimulation subclass (see #1453)");
-        #endif // BOOST_VERSION >= 103400
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);

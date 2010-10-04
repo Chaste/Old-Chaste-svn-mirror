@@ -12,6 +12,12 @@
       <min>-150.0001</min>
       <max>199.9999</max>
     </lookup_table>
+    <lookup_table>
+      <var type="name">intracellular_calcium_concentration,Cai</var>
+      <min>0.00001</min><!-- Can't do log(0) -->
+      <max>30.00001</max>
+      <step>0.0005</step>
+    </lookup_table>
   </lookup_tables>
 </for_model>
 

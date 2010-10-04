@@ -31,11 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <typeinfo>
 
-#include <boost/serialization/extended_type_info.hpp>
-#include <boost/serialization/extended_type_info_typeid.hpp>
-#include <boost/serialization/extended_type_info_no_rtti.hpp>
-#include <boost/serialization/type_info_implementation.hpp>
-
 AbstractCellProperty::AbstractCellProperty()
     : mCellCount(0)
 {
@@ -76,11 +71,3 @@ unsigned AbstractCellProperty::GetCellCount() const
     return mCellCount;
 }
 
-std::string AbstractCellProperty::GetIdentifier() const
-{
-#if BOOST_VERSION >= 103700
-    return boost::serialization::type_info_implementation<AbstractCellProperty>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-#else
-    return boost::serialization::type_info_implementation<AbstractCellProperty>::type::get_derived_extended_type_info(*this)->get_key();
-#endif
-}

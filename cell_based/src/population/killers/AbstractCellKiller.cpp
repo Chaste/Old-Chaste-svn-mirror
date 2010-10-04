@@ -48,27 +48,10 @@ const AbstractCellPopulation<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetCellP
 template<unsigned DIM>
 void AbstractCellKiller<DIM>::OutputCellKillerInfo(out_stream& rParamsFile)
 {
-//	///\todo This should be independent of boost version (#1453)
-//	std::string cell_killer_type = "Should be cell killer type here see #1453";
-//#if BOOST_VERSION >= 103700
 	std::string cell_killer_type = GetIdentifier();
-//#endif
 
     *rParamsFile <<  "\t\t<" << cell_killer_type << ">" "\n";
     *rParamsFile <<  "\t\t</" << cell_killer_type << ">" "\n";
-}
-
-#include "TidyTemplatedExportIdentifier.hpp"
-
-template<unsigned DIM>
-std::string AbstractCellKiller<DIM>::GetIdentifier() const
-{
-#if BOOST_VERSION >= 103700
-    std::string identifier = boost::serialization::type_info_implementation<AbstractCellKiller>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-#else
-    std::string identifier = boost::serialization::type_info_implementation<AbstractCellKiller>::type::get_derived_extended_type_info(*this)->get_key();
-#endif
-    return TidyTemplatedExportIdentifier(identifier);
 }
 
 /////////////////////////////////////////////////////////////////////////////

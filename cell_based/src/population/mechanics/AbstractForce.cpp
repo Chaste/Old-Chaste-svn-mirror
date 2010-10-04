@@ -41,11 +41,7 @@ AbstractForce<DIM>::~AbstractForce()
 template<unsigned DIM>
 void AbstractForce<DIM>::OutputForceInfo(out_stream& rParamsFile)
 {
-//	///\todo This should be independent of boost version (#1453)
-//	std::string force_type = "Should be force type here see #1453";
-//#if BOOST_VERSION >= 103700
 	std::string force_type = GetIdentifier();
-//#endif
 
     *rParamsFile <<  "\t\t<" << force_type << ">" "\n";
     OutputForceParameters(rParamsFile);
@@ -56,19 +52,6 @@ template<unsigned DIM>
 void AbstractForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
     // No parameters to ouput
-}
-
-#include "TidyTemplatedExportIdentifier.hpp"
-
-template<unsigned DIM>
-std::string AbstractForce<DIM>::GetIdentifier() const
-{
-#if BOOST_VERSION >= 103700
-    std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-#else
-    std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_derived_extended_type_info(*this)->get_key();
-#endif
-    return TidyTemplatedExportIdentifier(identifier);
 }
 
 /////////////////////////////////////////////////////////////////////////////

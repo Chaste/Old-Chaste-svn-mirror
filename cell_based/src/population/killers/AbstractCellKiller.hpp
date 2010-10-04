@@ -32,17 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
-
-#include <boost/serialization/extended_type_info.hpp>
-#include <boost/serialization/extended_type_info_typeid.hpp>
-#include <boost/serialization/extended_type_info_no_rtti.hpp>
-#include <boost/serialization/type_info_implementation.hpp>
+#include "Identifiable.hpp"
 
 /**
  * An abstract cell killer class.
  */
 template <unsigned SPACE_DIM>
-class AbstractCellKiller
+class AbstractCellKiller : public Identifiable
 {
 private:
     /** Needed for serialization. */
@@ -109,18 +105,6 @@ public:
      * \todo implement this method or remove (#1453)
      */
     //virtual void OutputCellKillerParameters(out_stream& rParamsFile)=0;
-
-    /**
-     * Return the unique identifier. This method uses Boost's serialization's
-     * extended_type_info and returns the identifier of the derived class
-     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
-     * derived class, and is usually just the name of the class).
-     * 
-     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-     * method, or any other method that calls this method.
-     */
-    std::string GetIdentifier() const;
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller)

@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 #include "AbstractCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "Identifiable.hpp"
 
 /**
  * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based
@@ -55,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * objects to the CellBasedSimulation, which specify the conditions under which a Cell dies.
  */
 template<unsigned DIM>
-class CellBasedSimulation
+class CellBasedSimulation : public Identifiable
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
@@ -419,19 +420,19 @@ public:
      */
     virtual void OutputSimulationParameters(out_stream& rParamsFile);
 
-    /**
-     * Return the unique identifier of the concrete class.
-     * 
-     * This method uses Boost's serialization's
-     * extended_type_info and returns the identifier of the derived class
-     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
-     * derived class, and is usually just the name of the class).
-     *
-     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-     * method, or any other method that calls this method.
-     */
-    std::string GetIdentifier() const;
+//    /**
+//     * Return the unique identifier of the concrete class.
+//     *
+//     * This method uses Boost's serialization's
+//     * extended_type_info and returns the identifier of the derived class
+//     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
+//     * derived class, and is usually just the name of the class).
+//     *
+//     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
+//     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
+//     * method, or any other method that calls this method.
+//     */
+//    std::string GetIdentifier() const;
 };
 
 

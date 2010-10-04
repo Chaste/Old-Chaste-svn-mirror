@@ -29,9 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLPROPERTY_HPP_
 #define ABSTRACTCELLPROPERTY_HPP_
 
-#include <string>
 #include <boost/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
+#include "Identifiable.hpp"
 
 /**
  * Base class for cell properties.
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Each cell has a collection of cell properties, which may express such concepts as
  * mutation states, inherited labels, or per-cell data.
  */
-class AbstractCellProperty
+class AbstractCellProperty : public Identifiable
 {
 private:
 
@@ -136,17 +136,6 @@ public:
      */
     unsigned GetCellCount() const;
 
-    /**
-     * Return the unique identifier. This method uses Boost's serialization's
-     * extended_type_info and returns the identifier of the derived class
-     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
-     * derived class, and is usually just the name of the class).
-     * 
-     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-     * method, or any other method that calls this method.
-     */
-    std::string GetIdentifier() const;
 };
 
 #endif /* ABSTRACTCELLPROPERTY_HPP_ */
