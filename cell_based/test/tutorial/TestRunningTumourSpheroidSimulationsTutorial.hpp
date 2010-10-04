@@ -71,6 +71,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
+/* Any test in which the GetIdentifier method is used, 
+ * even via the main cell_based code ({{{AbstraceCellPopulation}}} output methods), must 
+ * include {{{CheckpointArchiveTypes.hpp}}} 
+ * or {{{CellBasedSimulationArchiver.hpp}}} as the first Chaste header included. 
+ */
+#include "CheckpointArchiveTypes.hpp" 
+
+
 /*
  * This header file defines a helper class for generating a suitable mesh:
  */

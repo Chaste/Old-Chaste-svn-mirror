@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include "CheckpointArchiveTypes.hpp" 
+
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
