@@ -38,7 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * All you need to do to use this is inherit from this class at the base of
  * your hierarchy, and provide a Boost Serialization export key for every
- * concrete class.
+ * concrete class.  Also, any test in which the GetIdentifier method is used,
+ * even via the main cell_based code, \b must include CheckpointArchiveTypes.hpp
+ * or CellBasedSimulationArchiver.hpp as the first Chaste header included.
+ * Failure to do so will result in a seg fault.
  */
 class Identifiable
 {
@@ -56,9 +59,8 @@ public:
      * CHASTE_CLASS_EXPORT is invoked in each derived class, and is usually just
      * the name of the class).
      *
-     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-     * method (or any other method that calls this method - seems not?).
+     * Note that you must include the header CheckpointArchiveTypes.hpp in any
+     * test suite that calls this method.
      */
     std::string GetIdentifier() const;
 
