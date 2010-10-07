@@ -563,6 +563,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -619,6 +620,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -682,6 +684,8 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -741,6 +745,7 @@ public:
         // so that the test runs quickly, but we test archiving of it!
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -812,6 +817,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -959,6 +965,8 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> force;
@@ -1728,6 +1736,8 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;

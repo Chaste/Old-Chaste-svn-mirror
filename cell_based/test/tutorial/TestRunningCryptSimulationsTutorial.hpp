@@ -247,23 +247,25 @@ public:
         /* Create the cell_population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
+        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
+        CellBasedConfig::Instance()->SetCryptLength(8.0);
+
         /* The other change needed: Cells with a Wnt-based cell cycle need to know
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
          * class. This is another singleton class (ie accessible from anywhere), so all
          * cells and cell cycle models can access it. We need to say what the profile of the
          * Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
          * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
-         * of the cell population.*/
+         * of the cell population and the length of the crpyt.*/
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         /* Create a force collection as above. */
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
-
-        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
-        CellBasedConfig::Instance()->SetCryptLength(8.0);
 
         /* Create a simulator as before (except setting a different output directory). */
         CryptSimulation2d simulator(cell_population,force_collection);

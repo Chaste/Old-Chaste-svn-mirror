@@ -425,6 +425,8 @@ public:
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         // As there is no cell-based simulation, we must explicitly initialise the cells
         crypt.InitialiseCells();

@@ -66,6 +66,16 @@ private:
     CellBasedConfig* mpCellBasedConfig;
 
     /**
+     *  The length of the crypt.
+     */
+    double mCryptLength;
+
+    /**
+     *  Whether this WntConcentration object has had its crypt length set.
+     */
+    bool mLengthSet;
+
+    /**
      * The type of WntConcentration current options are
      *  NONE - returns zero everywhere
      *  LINEAR - decreases from 1 to zero at height specified by mWntConcentrationParameter
@@ -133,6 +143,8 @@ private:
         mpCellBasedConfig = CellBasedConfig::Instance();
         archive & *mpCellBasedConfig;
         archive & mpCellBasedConfig;
+        archive & mCryptLength;
+        archive & mLengthSet;
         archive & mWntType;
         archive & mpCellPopulation;
         archive & mTypeSet;
@@ -215,6 +227,17 @@ public:
      *  @param rCellPopulation reference to the cell population
      */
     void SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation);
+
+
+    /**
+     * @return mCryptLength
+     */
+    double GetCryptLength();
+
+    /**
+     * Set mCryptLength. Must be called before GetWntLevel().
+     */
+    void SetCryptLength(double);
 
     /**
      *  Get the type of Wnt concentration.

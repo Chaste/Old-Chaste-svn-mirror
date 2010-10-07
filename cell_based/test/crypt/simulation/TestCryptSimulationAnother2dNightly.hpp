@@ -250,6 +250,7 @@ public:
 		// Set up instance of WntConcentration singleton and associate it with crypt
 		WntConcentration<2>::Instance()->SetType(LINEAR);
 		WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+		WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
 		// Set up force law
 		GeneralisedLinearSpringForce<2> meineke_force;

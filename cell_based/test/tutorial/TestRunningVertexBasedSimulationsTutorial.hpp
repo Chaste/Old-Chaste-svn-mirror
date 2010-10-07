@@ -321,6 +321,9 @@ public:
 	/* Create cell population, as before. */
 	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
+    /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
+    CellBasedConfig::Instance()->SetCryptLength(6.0);
+
 	/* The other change needed: Cells with a Wnt-based cell cycle need to know
 	* the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
 	* class. This is another singleton class (ie accessible from anywhere), so all
@@ -330,6 +333,7 @@ public:
 	* of the cell population.*/
 	WntConcentration<2>::Instance()->SetType(LINEAR);
 	WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+	WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
 	/* Create force law and force collection, as above. */
 	NagaiHondaForce<2> force_law;
@@ -342,7 +346,6 @@ public:
 	simulator.SetEndTime(1);
 
 	/* Before running the simulation, we add a cell killer, as before.*/
-	CellBasedConfig::Instance()->SetCryptLength(6.0);
 	SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
 	simulator.AddCellKiller(&sloughing_cell_killer);
 

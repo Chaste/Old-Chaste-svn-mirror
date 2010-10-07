@@ -105,6 +105,8 @@ public:
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);

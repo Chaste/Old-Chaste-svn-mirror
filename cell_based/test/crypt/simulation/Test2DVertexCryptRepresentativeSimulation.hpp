@@ -64,6 +64,10 @@ public:
         CylindricalHoneycombVertexMeshGenerator generator(crypt_width, crypt_height, true);
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
+
+        // Make crypt shorter for sloughing
+        CellBasedConfig::Instance()->SetCryptLength(20.0);
+
         // Create cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -88,6 +92,7 @@ public:
         // Set up Wnt gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -100,8 +105,6 @@ public:
         simulator.SetEndTime(30.0);
         simulator.SetOutputDirectory("Test2DVertexCryptRepresentativeSimulationForProfiling");
 
-        // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(20.0);
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 

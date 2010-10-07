@@ -44,6 +44,7 @@ WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 template<unsigned DIM>
 WntConcentration<DIM>::WntConcentration()
     : mpCellBasedConfig(CellBasedConfig::Instance()),
+      mLengthSet(false),
       mpCellPopulation(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
@@ -82,6 +83,7 @@ double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 
     assert(mpCellPopulation!=NULL);
     assert(mTypeSet);
+    assert(mLengthSet);
 
     double height;
 
@@ -121,6 +123,24 @@ void WntConcentration<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>& rCell
 }
 
 template<unsigned DIM>
+double WntConcentration<DIM>::GetCryptLength()
+{
+    return mCryptLength;
+}
+
+template<unsigned DIM>
+void WntConcentration<DIM>::SetCryptLength(double cryptLength)
+{
+    assert(cryptLength > 0.0);
+    if (mLengthSet==true)
+    {
+        EXCEPTION("Destroy has not been called");
+    }
+    mCryptLength = cryptLength;
+    mLengthSet = true;
+}
+
+template<unsigned DIM>
 WntConcentrationType WntConcentration<DIM>::GetType()
 {
     return mWntType;
@@ -146,14 +166,13 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     }
 
     double wnt_level = -1.0; // Test this is changed before leaving method.
-    double crypt_height = mpCellBasedConfig->GetCryptLength();
 
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
-        if ((height >= -1e-9) && (height < mWntConcentrationParameter*crypt_height))
+        if ((height >= -1e-9) && (height < mWntConcentrationParameter*GetCryptLength()))
         {
-            wnt_level = 1.0 - height/(mWntConcentrationParameter*crypt_height);
+            wnt_level = 1.0 - height/(mWntConcentrationParameter*GetCryptLength());
         }
         else
         {
@@ -163,9 +182,9 @@ double WntConcentration<DIM>::GetWntLevel(double height)
 
     if (mWntType==EXPONENTIAL)
     {
-        if ((height >= -1e-9) && (height < crypt_height))
+        if ((height >= -1e-9) && (height < GetCryptLength()))
         {
-            wnt_level = exp(-height/(crypt_height*mWntConcentrationParameter));
+            wnt_level = exp(-height/(GetCryptLength()*mWntConcentrationParameter));
         }
         else
         {
@@ -185,13 +204,11 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
 
     if (mWntType!=NONE)
     {
-        double crypt_height = mpCellBasedConfig->GetCryptLength();
-
         if (mWntType==LINEAR)
         {
-            if ((rLocation[DIM-1] >= -1e-9) && (rLocation[DIM-1] < mWntConcentrationParameter*crypt_height))
+            if ((rLocation[DIM-1] >= -1e-9) && (rLocation[DIM-1] < mWntConcentrationParameter*GetCryptLength()))
             {
-                wnt_gradient[DIM-1] = -1.0/(mWntConcentrationParameter*crypt_height);
+                wnt_gradient[DIM-1] = -1.0/(mWntConcentrationParameter*GetCryptLength());
             }
         }
         else if (mWntType==RADIAL) // RADIAL Wnt concentration
@@ -199,13 +216,13 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
             double a = GetCryptProjectionParameterA();
             double b = GetCryptProjectionParameterB();
             double r = norm_2(rLocation);
-            double r_critical = pow(mWntConcentrationParameter*crypt_height/a, 1.0/b);
+            double r_critical = pow(mWntConcentrationParameter*GetCryptLength()/a, 1.0/b);
 
             double dwdr = 0.0;
 
             if (r>=-1e-9 && r<r_critical)
             {
-                dwdr = -mWntConcentrationParameter*crypt_height*pow(r, b-1.0)/a;
+                dwdr = -mWntConcentrationParameter*GetCryptLength()*pow(r, b-1.0)/a;
             }
 
             for (unsigned i=0; i<DIM; i++)
@@ -225,7 +242,7 @@ template<unsigned DIM>
 bool WntConcentration<DIM>::IsWntSetUp()
 {
     bool result = false;
-    if (mTypeSet && mpCellPopulation!=NULL && mWntType!=NONE)
+    if (mTypeSet && mLengthSet && mpCellPopulation!=NULL && mWntType!=NONE)
     {
         result = true;
     }

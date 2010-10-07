@@ -1334,6 +1334,8 @@ public:
         // Check that the singleton can be set up
         p_wnt->SetType(LINEAR);
         p_wnt->SetCellPopulation(cell_population);
+        p_wnt->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
 
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
 
@@ -1341,11 +1343,14 @@ public:
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(NONE);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false); // not fully set up now it is a NONE type
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true); // set up again

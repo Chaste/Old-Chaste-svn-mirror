@@ -694,6 +694,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<1>::Instance()->SetType(LINEAR);
         WntConcentration<1>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<1>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;

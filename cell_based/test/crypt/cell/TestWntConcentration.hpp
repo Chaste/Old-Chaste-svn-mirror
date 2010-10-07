@@ -55,6 +55,7 @@ public:
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(NONE);
+        p_wnt->SetCryptLength(22.0);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // NONE does not register as a set up Wnt Gradient (so stem cells are not moved)
 
         TS_ASSERT_EQUALS(p_wnt->GetType(), NONE);
@@ -81,8 +82,8 @@ public:
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
+        double crypt_length = 22.0;
+        p_wnt->SetCryptLength(crypt_length);
 
         double height = 100;
         double wnt_level = 0.0;
@@ -97,16 +98,9 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level, 1.0-height/p_params->GetCryptLength(), 1e-9);
-
-        p_params->SetCryptLength(10.0);
-        wnt_level = p_wnt->GetWntLevel(height);
-
-        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0-height/crypt_length, 1e-9);
 
         // Test GetWntGradient() method
-
-        p_params->Reset();
         c_vector<double,2> location;
         location[0] = 1.5;
         location[1] = 2.3;
@@ -123,6 +117,8 @@ public:
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(EXPONENTIAL);
+        double crypt_length = 22.0;
+        p_wnt->SetCryptLength(crypt_length);
 
         TS_ASSERT_DELTA(p_wnt->GetWntConcentrationParameter(),1.0, 1e-9);
 
@@ -130,8 +126,6 @@ public:
         double wnt_level = 0.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        double crypt_length = 22.0;
-        TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetCryptLength(),crypt_length, 1e-9);
         // For heights above the top of the crypt (no Wnt)
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
@@ -145,8 +139,6 @@ public:
         TS_ASSERT_DELTA(wnt_level, exp(-height/crypt_length), 1e-9);
 
         // For a change in lambda
-        CellBasedConfig::Instance()->SetCryptLength(30.0);
-        crypt_length = 30.0;
         p_wnt->SetWntConcentrationParameter(0.5);
         TS_ASSERT_DELTA(p_wnt->GetWntConcentrationParameter(),0.5, 1e-9);
         wnt_level = p_wnt->GetWntLevel(height);
@@ -212,9 +204,10 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         p_wnt->SetType(RADIAL);
-        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a cell population is assigned
+        double crypt_length = 22.0;
+        p_wnt->SetCryptLength(crypt_length);
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a cell population is assigned
 
         // Test GetWntLevel(double) method
         double height = 100;
@@ -232,11 +225,6 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0454, 1e-4);
 
-        p_params->SetCryptLength(10.0);
-        wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
-
-        p_params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
@@ -266,18 +254,20 @@ public:
 
         // Create a crypt
         MeshBasedCellPopulation<2> crypt(mesh, cells);
-        p_params->SetCryptLength(1.0);
         p_wnt->SetCellPopulation(crypt);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(NONE);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        crypt_length = 1.0;
+        p_wnt->SetCryptLength(crypt_length);
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(RADIAL);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        p_wnt->SetCryptLength(crypt_length);
         p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
@@ -323,6 +313,8 @@ public:
         {
             WntConcentration<2>* p_wnt1 = WntConcentration<2>::Instance();
             p_wnt1->SetType(LINEAR);
+            double crypt_length = 22.0;
+            p_wnt1->SetCryptLength(crypt_length);
             p_wnt1->SetCryptProjectionParameterA(3.3);
             p_wnt1->SetCryptProjectionParameterB(4.4);
 
@@ -347,7 +339,8 @@ public:
             double height = 21.0;
             double wnt_level = p_wnt->GetWntLevel(height);
 
-            TS_ASSERT_DELTA(wnt_level, 1.0-height/CellBasedConfig::Instance()->GetCryptLength(), 1e-9);
+            TS_ASSERT_DELTA(wnt_level, 1.0-height/p_wnt->GetCryptLength(), 1e-9);
+            TS_ASSERT_DELTA(p_wnt->GetCryptLength(), 22.0, 1e-12);
             TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterA(), 3.3, 1e-12);
             TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterB(), 4.4, 1e-12);
         }
@@ -359,10 +352,10 @@ public:
 
     void TestSingletonnessOfWntConcentration()
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(NONE);
+        double crypt_length = 22.0;
+        p_wnt->SetCryptLength(crypt_length);
 
         double height = 5;
         double wnt_level = 0.0;
@@ -371,11 +364,12 @@ public:
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         TS_ASSERT_THROWS_THIS(p_wnt->SetType(NONE),"Destroy has not been called");
-
+        TS_ASSERT_THROWS_THIS(p_wnt->SetCryptLength(10.0),"Destroy has not been called");
         WntConcentration<2>::Destroy();
 
         p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(LINEAR);
+        p_wnt->SetCryptLength(crypt_length);
 
         height = 100;
         wnt_level = 0.0;
@@ -390,12 +384,7 @@ public:
         height = 21.0;
         wnt_level = p_wnt->GetWntLevel(height);
 
-        TS_ASSERT_DELTA(wnt_level, 1.0-height/p_params->GetCryptLength(), 1e-9);
-
-        p_params->SetCryptLength(10.0);
-        wnt_level = p_wnt->GetWntLevel(height);
-
-        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0-height/crypt_length, 1e-9);
 
         TS_ASSERT_THROWS_THIS(p_wnt->SetConstantWntValueForTesting(-10),"WntConcentration<DIM>::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");
 
@@ -430,9 +419,9 @@ public:
         // Create the crypt
         MeshBasedCellPopulation<2> crypt(mesh, cells);
 
-        CellBasedConfig::Instance()->SetCryptLength(1.0);
-
         WntConcentration<2>::Instance()->SetType(LINEAR);
+        double crypt_length = 1.0;
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // As there is no cell-based simulation we must explicitly initialise the cells
