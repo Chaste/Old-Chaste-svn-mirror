@@ -84,10 +84,9 @@ public:
      * Periodicity can be taken into account (if xTop and xBottom are more than half a crypt
      * width apart then a more realistic section will be across the periodic boundary), using the
      * final parameter. This obviously requires the mesh to be cylindrical.
-     *
+     * @param yTop the y coordinate of the top of the line
      * @param xBottom the x coordinate of the bottom of the line (defaults to a random number U[0,crypt_width])
      * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
-     * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
      * @param periodic whether periodicity is accounted for (defaults to false)
      *
      * @return  an ordered list of CellPtrs from the bottom to the top of the crypt.
@@ -97,10 +96,10 @@ public:
      * execute these in a sensible order.
      * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-     std::vector<CellPtr> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
-                                                double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
-                                                double yTop = CellBasedConfig::Instance()->GetCryptLength() + 2.0,
-                                                bool periodic = false);
+     std::vector<CellPtr> GetCryptSection(double yTop,
+                                          double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
+                                          double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
+                                          bool periodic = false);
 
     /**
      * Get all cells with a cell width of the line defined by the points (xBottom,0)
@@ -114,15 +113,15 @@ public:
      * execute these in a sensible order. It appears that Intel goes left-to-right and Gcc goes
      * right-to-left.
      *
+     * @param yTop the y coordinate of the top of the line
      * @param xBottom the x coordinate of the bottom of the line (defaults to a random number U[0,crypt_width])
      * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
-     * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
      *
      * @return an ordered list of CellPtrs from the bottom to the top of the crypt.
      */
-    std::vector<CellPtr> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
-                                                       double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
-                                                       double yTop = CellBasedConfig::Instance()->GetCryptLength() + 2.0);
+    std::vector<CellPtr> GetCryptSectionPeriodic(double yTop,
+                                                 double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*crypt_width,
+                                                 double xTop = DBL_MAX); //RandomNumberGenerator::Instance()->ranf()*crypt_width,
 };
 
 

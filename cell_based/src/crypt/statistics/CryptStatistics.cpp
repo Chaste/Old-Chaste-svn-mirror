@@ -42,7 +42,7 @@ CryptStatistics::CryptStatistics(MeshBasedCellPopulation<2>& rCrypt)
 {
 }
 
-std::vector<CellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
+std::vector<CellPtr> CryptStatistics::GetCryptSection(double yTop, double xBottom, double xTop, bool periodic)
 {
 
     double crypt_width = mrCrypt.rGetMesh().GetWidth(0u);
@@ -107,9 +107,9 @@ std::vector<CellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTo
     return ordered_cells;
 }
 
-std::vector<CellPtr> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
+std::vector<CellPtr> CryptStatistics::GetCryptSectionPeriodic(double yTop, double xBottom, double xTop)
 {
-   return GetCryptSection(xBottom, xTop, yTop, true);
+   return GetCryptSection(yTop, xBottom, xTop, true);
 }
 bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
 {

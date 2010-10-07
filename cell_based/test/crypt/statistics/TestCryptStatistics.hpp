@@ -90,7 +90,7 @@ public:
 
         CryptStatistics crypt_statistics(crypt);
 
-        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
+        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSection(sqrt(3),0.5,1.5);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section.size(), 6u);
@@ -103,7 +103,7 @@ public:
         }
 
         // Test that we get a valid section when the x-values are the same
-        std::vector<CellPtr> test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
+        std::vector<CellPtr> test_section_vertical = crypt_statistics.GetCryptSection(sqrt(3),0.5,0.5);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_vertical.size(), 5u);
@@ -115,7 +115,7 @@ public:
             TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_vertical[i]), expected_indices_vertical[i]);
         }
 
-        std::vector<CellPtr> test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
+        std::vector<CellPtr> test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(sqrt(3),0.5,2.5);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic.size(), 6u);
@@ -127,7 +127,7 @@ public:
             TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic[i]), expected_indices_periodic[i]);
         }
 
-        std::vector<CellPtr> test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
+        std::vector<CellPtr> test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(sqrt(3),2.5,0.5);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_2.size(), 6u);
@@ -140,7 +140,7 @@ public:
         }
 
         // Test an overwritten method
-        std::vector<CellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
+        std::vector<CellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_3.size(), 3u);
@@ -212,7 +212,7 @@ public:
 
         // TEST CryptStatistics::GetCryptSectionPeriodic by labelling a column of cells...
         CryptStatistics crypt_statistics(crypt);
-        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0,8.0);
 
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         for (unsigned i=0; i<test_section.size(); i++)
@@ -287,7 +287,7 @@ public:
 
         // Set cells which are not in the crypt section to be in state APC +/-, so that we can
         // see the section
-        test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+        test_section = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
 
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
@@ -311,7 +311,7 @@ public:
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();
 
-        std::vector<CellPtr> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
+        std::vector<CellPtr> crypt_section = crypt_statistics.GetCryptSection(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
         std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
@@ -432,7 +432,7 @@ public:
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
 
-            std::vector<CellPtr> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
+            std::vector<CellPtr> crypt_section = p_crypt_statistics->GetCryptSection(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
             labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
             // Store information from this simulation in a global vector
