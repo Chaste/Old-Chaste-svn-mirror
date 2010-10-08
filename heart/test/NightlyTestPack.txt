@@ -16,5 +16,7 @@ performance/Test1dBidomainProblemForEfficiency.hpp
 performance/TestPerformance.hpp
 performance/TestPerformanceOfAssembly.hpp
 postprocessing/TestPseudoEcgCalculatorNightly.hpp
-TestRunningBidomainSimulationsTutorial.hpp
+tutorials/TestRunningBidomainSimulationsTutorial.hpp
+tutorials/TestAnotherBidomainSimulationTutorial.hpp
+tutorials/TestBidomainWithBathTutorial.hpp
 TestStreeterFibreGeneratorNightly.hpp
