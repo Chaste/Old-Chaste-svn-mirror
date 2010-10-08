@@ -161,10 +161,11 @@ public:
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
+        double crypt_length = 22.0;
+        p_wnt->SetCryptLength(crypt_length);
         p_wnt->SetWntConcentrationParameter(1.0/3.0);
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         double height = 100;
         double wnt_level = 0.0;
@@ -181,14 +182,14 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
-        p_params->SetCryptLength(10.0);
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+
         // under a third of the way up the crypt.
-        p_params->SetCryptLength(22.0);
         height = 7.0;
         wnt_level = p_wnt->GetWntLevel(height);
-        TS_ASSERT_DELTA(wnt_level, 1.0 - height/((1.0/3.0)*p_params->GetCryptLength()), 1e-9);
+        TS_ASSERT_DELTA(wnt_level, 1.0 - height/((1.0/3.0)*crypt_length), 1e-9);
+
         // more than a third of the way up the crypt.
         height = 10.0;
         wnt_level = p_wnt->GetWntLevel(height);
@@ -197,16 +198,12 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-
     void TestRadialWntConcentration() throw(Exception)
     {
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
-
         p_wnt->SetType(RADIAL);
         double crypt_length = 22.0;
         p_wnt->SetCryptLength(crypt_length);
-
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a cell population is assigned
 
         // Test GetWntLevel(double) method
@@ -258,17 +255,19 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
 
         WntConcentration<2>::Destroy();
+
         WntConcentration<2>::Instance()->SetType(NONE);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         crypt_length = 1.0;
-        p_wnt->SetCryptLength(crypt_length);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(RADIAL);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        p_wnt->SetCryptLength(crypt_length);
+
         p_wnt = WntConcentration<2>::Instance();
+        p_wnt->SetCryptLength(crypt_length);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
         AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
@@ -346,7 +345,6 @@ public:
         }
 
         WntConcentration<2>::Destroy();
-
     }
 
 

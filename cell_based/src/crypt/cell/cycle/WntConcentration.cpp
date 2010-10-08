@@ -110,6 +110,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(CellPtr pCell)
     }
     assert(mpCellPopulation!=NULL);
     assert(mTypeSet);
+    assert(mLengthSet);
 
     c_vector<double, DIM> location_of_cell = mpCellPopulation->GetLocationOfCellCentre(pCell);
 
@@ -164,6 +165,9 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     {
         return 0.0;
     }
+
+    // Need to call SetCryptLength first
+    assert(mLengthSet);
 
     double wnt_level = -1.0; // Test this is changed before leaving method.
 
