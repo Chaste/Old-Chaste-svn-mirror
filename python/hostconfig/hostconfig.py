@@ -223,6 +223,11 @@ for name in dir():
         if type(item) == types.FunctionType:
             exec "conf.%s = item" % name
 
+def EnsureVariablesDefined():
+    """Ensure that the other_* variables are defined; default to empty lists if not."""
+    conf.other_libraries = getattr(conf, 'other_libraries', [])
+    conf.other_libpaths = getattr(conf, 'other_libpaths', [])
+    conf.other_includepaths = getattr(conf, 'other_includepaths', [])
 
 def DoPetsc(version, optimised, profile=False, production=False, includesOnly=False):
     """Determine PETSc include and library paths.
@@ -265,11 +270,11 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     
     def GetBuildName():
         if production:
-            build_name = conf.petsc_build_name_production
+            build_name = getattr(conf, 'petsc_build_name_production', conf.petsc_build_name)
         elif profile:
-            build_name = conf.petsc_build_name_profile
+            build_name = getattr(conf, 'petsc_build_name_profile', conf.petsc_build_name)
         elif optimised:
-            build_name = conf.petsc_build_name_optimized
+            build_name = getattr(conf, 'petsc_build_name_optimized', conf.petsc_build_name)
         else:
             build_name = conf.petsc_build_name
         return build_name
@@ -329,6 +334,7 @@ def DoDealii(build):
 
     Deal.II uses different library *names* to distinguish optimised versions.
     """
+    conf.dealii_path = getattr(conf, 'dealii_path', None)
     if conf.dealii_path is None:
         ConfigError('Deal.II required, but no path given in the host config.')
     base = os.path.abspath(conf.dealii_path)
@@ -372,6 +378,7 @@ def Configure(build):
         # The machine config has a method to do its configuration, so call that first.
         conf.Configure(prefs, build)
     if build.using_dealii:
+        EnsureVariablesDefined()
         DoDealii(build)
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
@@ -384,6 +391,7 @@ def Configure(build):
             petsc_version = prefs.get('petsc', '3.0')[:3]
         else:
             petsc_version = '3.0'
+        EnsureVariablesDefined()
         DoPetsc(petsc_version, build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         if build.is_production:
@@ -392,7 +400,10 @@ def Configure(build):
             libraries.extend(conf.blas_lapack)
     if build.CompilerType() == 'intel':
         intel_path = os.path.abspath(conf.intel_path)
-        libpaths.append(os.path.join(intel_path, 'lib'))
+        CheckPathExists(intel_path, 'Intel compilers')
+        intel_lib_path = os.path.join(intel_path, 'lib')
+        CheckPathExists(intel_lib_path, 'Intel compilers')
+        libpaths.append(intel_lib_path)
     incpaths.extend(conf.other_includepaths)
     libpaths.extend(map(os.path.abspath, conf.other_libpaths))
     # Needed for dynamically loaded cell models
@@ -404,8 +415,10 @@ def Configure(build):
         # Switch to use Intel toolchain
         if hasattr(conf, 'icpc'):
             build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
-        build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
-        build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
+        intel_bin_path = os.path.join(intel_path, 'bin')
+        CheckPathExists(intel_bin_path, 'Intel compilers')
+        build.tools['cxx'] = os.path.join(intel_bin_path, 'icpc')
+        build.tools['ar'] = os.path.join(intel_bin_path, 'xiar')
 
     if hasattr(conf, 'ModifyBuild') and callable(conf.ModifyBuild):
         conf.ModifyBuild(build)
