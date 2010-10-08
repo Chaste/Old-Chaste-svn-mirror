@@ -119,7 +119,7 @@ public: // Tests should be public!
          * until they are switched off. (Note that this test has a small range of
          * magnitudes that will work, perhaps because the electrodes are close to the tissue).
          */
-        //-1e4 is under thershold, -1.4e4 too high - crashes the cell model
+        //-1e4 is under threshold, -1.4e4 too high - crashes the cell model
         double magnitude = -1.1e4; // uA/cm^2
         double start_time = 0.0;
         double duration = 2; //ms
