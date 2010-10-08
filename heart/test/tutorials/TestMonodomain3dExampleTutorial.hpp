@@ -109,7 +109,7 @@ public:
          * 
          * Set the simulation duration, etc, and create an instance of the cell factory.
          * One thing that should be noted for monodomain problems, the ''intracellular
-         * conductivity'' is used as the monodomain effectively conductivity (not a
+         * conductivity'' is used as the monodomain effective conductivity (not a
          * harmonic mean of intra and extracellular conductivities). So if you want to
          * alter the monodomain conductivity call 
          * `HeartConfig::Instance()->SetIntracellularConductivities`
