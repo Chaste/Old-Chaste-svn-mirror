@@ -8,7 +8,6 @@ cell/TestCellsGenerator.hpp
 cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
 common/TestSimulationTime.hpp
-common/TestCellBasedConfig.hpp
 crypt/cell/TestCellsGeneratorForVertex.hpp
 crypt/cell/TestSingleOdeWntCellCycleModel.hpp
 crypt/cell/TestWntConcentration.hpp

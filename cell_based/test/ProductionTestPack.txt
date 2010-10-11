@@ -2,7 +2,6 @@ cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
 cell/TestCell.hpp
 common/TestSimulationTime.hpp
-common/TestCellBasedConfig.hpp
 crypt/cell/TestWntConcentration.hpp
 crypt/mesh/TestCylindrical2dMesh.hpp
 crypt/odes/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
