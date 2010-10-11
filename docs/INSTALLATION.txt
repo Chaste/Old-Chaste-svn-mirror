@@ -1,4 +1,4 @@
-CHASTE DEVELOPER INSTALLATION GUIDE
+CHASTE DEVELOPER INSTALLATION GUIDE (for SOURCE-CODE users only, NOT STANDALONE EXECUTABLE users)
 
 
 This guide walks you through a "standard" installation of Chaste and all its
@@ -27,9 +27,9 @@ mkdir $CHASTE_LIBS
 =
 ===================================================================================
 
-The following packages and libraries are all compulsory for Chaste to run 
-(the version numbers of packages and libraries might need updating). 
-Please install them as described below.
+The following packages and libraries are all compulsory for the Chaste code to run 
+(not required for the standalone executable) (the version numbers of packages and 
+libraries might need updating). Please install them as described below.
 
 
 ==========SCONS:=============

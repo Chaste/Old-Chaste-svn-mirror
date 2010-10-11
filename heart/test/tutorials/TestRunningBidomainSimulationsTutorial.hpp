@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * define a class called Cell<CELLMODEL>FromCellML.
  * For example, we will use the !LuoRudy1991 model, so we have to include the following, and 
  * later on use {{{CellLuoRudy1991FromCellML}}} as the cell model class.
- * See ["CodeGenerationFromCellML"] for more information on this process.
+ * See ["ChasteGuides/CodeGenerationFromCellML"] for more information on this process.
  */
 #include "LuoRudy1991.hpp"
 

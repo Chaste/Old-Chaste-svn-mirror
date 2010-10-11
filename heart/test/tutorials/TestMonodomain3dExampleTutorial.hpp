@@ -130,17 +130,22 @@ public:
          * a mesh using the `SetMesh` method (must be called before `Initialise`). */
         monodomain_problem.SetMesh(&mesh);
         
-        /* Now, we will output all the data, but for big simulations, sometimes this
+        /* By default data for all nodes is output, but for big simulations, sometimes this
          * might not be required, and the action potential only at certain nodes required.
-         * The following code, for example, makes the problem class only output the results
-         * at the first, middle and last nodes (written to the HDF5 file; no meshalyzer output
-         * will be made. HDF5 files can be read using Matlab)
+         * The following code shows how to output the results at the first, middle and last 
+         * nodes, for example. (The output is written to the HDF5 file; no meshalyzer output
+         * will be made. HDF5 files can be read using Matlab). We are not using this in this 
+         * simulation however (hence the boolean being set to false).
          */
-        //std::vector<unsigned> nodes_to_be_output;
-        //nodes_to_be_output.push_back(0);
-        //nodes_to_be_output.push_back((unsigned)round( (mesh.GetNumNodes()-1)/2 ));
-        //nodes_to_be_output.push_back(mesh.GetNumNodes()-1);
-        //monodomain_problem.SetOutputNodes(nodes_to_be_output);
+        bool partial_output = false;
+        if(partial_output)
+        {
+            std::vector<unsigned> nodes_to_be_output;
+            nodes_to_be_output.push_back(0);
+            nodes_to_be_output.push_back((unsigned)round( (mesh.GetNumNodes()-1)/2 ));
+            nodes_to_be_output.push_back(mesh.GetNumNodes()-1);
+            monodomain_problem.SetOutputNodes(nodes_to_be_output);
+        }
         
         /* `SetWriteInfo` is a useful method that means that the min/max voltage is
          * printed as the simulation runs (useful for verifying that cells are stimulated
