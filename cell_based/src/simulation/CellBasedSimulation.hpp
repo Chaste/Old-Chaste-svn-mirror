@@ -102,9 +102,6 @@ protected:
     /** Results file node velocities */
     out_stream mpNodeVelocitiesFile;
 
-    /** Pointer to CellBasedConfig singleton */
-    CellBasedConfig* mpConfig;
-
     /** The singleton RandomNumberGenerator */
     RandomNumberGenerator* mpRandomGenerator;
 
@@ -145,10 +142,6 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        mpConfig = CellBasedConfig::Instance();
-        archive & *mpConfig;
-        archive & mpConfig;
-
         mpRandomGenerator = RandomNumberGenerator::Instance();
         archive & *mpRandomGenerator;
         archive & mpRandomGenerator;

@@ -347,9 +347,6 @@ public:
 
     void TestSloughingCellKillerIn1d() throw(Exception)
     {
-        // Set up singleton classes
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         // Create 1D mesh
         unsigned num_cells = 14;
         MutableMesh<1,1> mesh;
@@ -375,10 +372,9 @@ public:
 
         // Set the crypt length so that 2 cells should be sloughed off
         double crypt_length = 12.5;
-        p_params->SetCryptLength(crypt_length);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<1> sloughing_cell_killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&cell_population, crypt_length);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly

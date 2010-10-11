@@ -616,6 +616,7 @@ public:
         unsigned cells_across = 4;
         unsigned cells_up = 25;
         double crypt_width = 4.1;
+        double crypt_length = 22.0;
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
@@ -643,8 +644,7 @@ public:
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetWntConcentrationParameter(1.0/3.0);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -656,7 +656,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
         simulator.AddCellKiller(&cell_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

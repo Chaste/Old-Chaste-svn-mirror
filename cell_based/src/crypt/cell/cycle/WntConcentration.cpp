@@ -43,8 +43,7 @@ WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 
 template<unsigned DIM>
 WntConcentration<DIM>::WntConcentration()
-    : mpCellBasedConfig(CellBasedConfig::Instance()),
-      mLengthSet(false),
+    : mLengthSet(false),
       mpCellPopulation(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
@@ -280,22 +279,26 @@ void WntConcentration<DIM>::SetWntConcentrationParameter(double wntConcentration
     assert(wntConcentrationParameter > 0.0);
     mWntConcentrationParameter = wntConcentrationParameter;
 }
+
 template<unsigned DIM>
 double WntConcentration<DIM>::GetCryptProjectionParameterA()
 {
     return mCryptProjectionParameterA;
 }
+
 template<unsigned DIM>
 double WntConcentration<DIM>::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
 }
+
 template<unsigned DIM>
 void WntConcentration<DIM>::SetCryptProjectionParameterA(double cryptProjectionParameterA)
 {
     assert(cryptProjectionParameterA >= 0.0);
     mCryptProjectionParameterA = cryptProjectionParameterA;
 }
+
 template<unsigned DIM>
 void WntConcentration<DIM>::SetCryptProjectionParameterB(double cryptProjectionParameterB)
 {

@@ -84,9 +84,8 @@ public:
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
 
-
+        double crypt_length = (double)num_cells_depth *sqrt(3)/2.0;
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -105,8 +104,7 @@ public:
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
@@ -399,14 +397,10 @@ public:
     {
         unsigned num_cells_depth = 2;
         unsigned num_cells_width = 2;
-        double crypt_length = num_cells_depth-0.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        p_params->SetCryptLength(crypt_length);
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -509,8 +503,6 @@ public:
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        CellBasedConfig::Instance()->SetCryptLength((double)num_cells_depth *sqrt(3) /2.0);
-
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -556,4 +548,5 @@ public:
 		info_file.close();
     }
 };
+
 #endif /*TESTCELLBASEDSIMULATION_HPP_*/

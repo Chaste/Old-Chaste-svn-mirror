@@ -115,12 +115,9 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools.hpp
 
         /*
-         * The first thing to do, as before, is to set up the start time and
-         * reset the parameters.
+         * The first thing to do, as before, is to set up the start time.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
-
 
         /*
          * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
@@ -129,6 +126,7 @@ public:
          * 0, i.e. no ghost nodes, and the {{{false}}} indicates not cylindrical.
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
+
         /*
          * Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
          * and that a {{{MutableMesh}}} is returned.

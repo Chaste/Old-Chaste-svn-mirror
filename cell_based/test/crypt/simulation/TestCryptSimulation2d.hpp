@@ -138,10 +138,6 @@ public:
      */
     void Test2DSpringSystem() throw (Exception)
     {
-        // Create mesh
-        double crypt_length = 10;
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -363,8 +359,6 @@ public:
         unsigned cells_up = 12;
         double crypt_width = 5.0;
         double crypt_length = DBL_MAX; // so no sloughing
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
@@ -397,7 +391,7 @@ public:
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
 
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -439,7 +433,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2)*crypt_width/cells_across);
+        double crypt_length = cells_up*(sqrt(3)/2)*crypt_width/cells_across;
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -447,7 +441,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-        cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
+        cells_generator.Generate(cells, p_mesh, location_indices, true); // true = mature cells
 
         for (unsigned i=0; i<cells.size(); i++)
         {
@@ -468,8 +462,7 @@ public:
         simulator.SetEndTime(0.6);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
-
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -542,6 +535,7 @@ public:
     void TestWithWntDependentCells() throw (Exception)
     {
         // Create mesh
+        double crypt_length = 22.0;
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 0;
@@ -563,7 +557,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -576,7 +570,7 @@ public:
         simulator.SetEndTime(0.3);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -599,6 +593,7 @@ public:
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
+        double crypt_length = 22.0;
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -620,7 +615,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -662,6 +657,7 @@ public:
     void TestMeshSurvivesSaveLoadWithVoronoiTessellation() throw (Exception)
     {
         // Create mesh
+        double crypt_length = 22.0;
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
@@ -684,8 +680,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -727,7 +722,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -745,7 +740,7 @@ public:
         // so that the test runs quickly, but we test archiving of it!
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -758,7 +753,7 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -801,7 +796,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -817,7 +812,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -834,7 +829,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -919,6 +914,7 @@ public:
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Create mesh
+        double crypt_length = 22.0;
         unsigned cells_across = 2;
         unsigned cells_up = 2;
         double crypt_width = 0.5; // Make this bigger if want to visualise output
@@ -965,8 +961,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> force;
@@ -1036,6 +1031,7 @@ public:
         Cell::ResetMaxCellId();
 
         // Create mesh
+        double crypt_length = 22.0;
         unsigned cells_across = 6;
         unsigned cells_up = 8;
         double crypt_width = 5.0;
@@ -1074,7 +1070,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -1099,7 +1095,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -1124,7 +1120,7 @@ public:
         simulator.SetDt(0.001);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -1158,7 +1154,6 @@ public:
     {
         // Create mesh
         double crypt_length = 9.3;
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -1183,7 +1178,7 @@ public:
         CryptSimulation2d simulator(crypt, force_collection);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -1197,9 +1192,6 @@ public:
 
     void TestCalculateCellDivisionVectorConfMesh() throw (Exception)
     {
-        // Set up model parameters
-        CellBasedConfig::Instance()->Reset();
-
         // Make a parent node
         c_vector<double,2> location;
         location[0] = 1.0;
@@ -1362,6 +1354,7 @@ public:
     void TestNoBirth() throw (Exception)
     {
         std::string output_directory = "Crypt2DCylindricalNoBirth";
+        double crypt_length = 22.0;
 
         // Create mesh
         unsigned cells_across = 2;
@@ -1399,7 +1392,7 @@ public:
         simulator.SetNoBirth(true);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -1720,7 +1713,7 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
 
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -1736,8 +1729,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -1814,6 +1806,7 @@ public:
     void TestAncestorCryptSimulations() throw (Exception)
     {
         std::string output_directory = "AncestorCrypt";
+        double crypt_length = 22.0;
 
         // Create mesh
         unsigned cells_across = 13;
@@ -1861,7 +1854,7 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> killer(&(simulator.rGetCellPopulation()), CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> killer(&(simulator.rGetCellPopulation()), crypt_length);
 
         simulator.AddCellKiller(&killer);
 
@@ -1893,8 +1886,11 @@ public:
         delete p_crypt;
     }
 
+    ///\todo uncomment test
     void xTest2DCylindricalMeshForVisualizationInParaview() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Create mesh
         unsigned cells_across = 12;
         unsigned cells_up = 12;
@@ -1931,14 +1927,13 @@ public:
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindricalForParaview");
 
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
         simulator.Solve();
     }
-
 
 };
 

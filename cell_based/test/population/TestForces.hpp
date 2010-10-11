@@ -408,11 +408,12 @@ public:
 
     void TestGeneralisedLinearSpringForceWithSpringConstantsForIngeBCatCells()
     {
+        double crypt_length = 1.1*12.0*sqrt(3)/2.0;
+
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(1.1*12.0 *sqrt(3) /2.0);
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -425,8 +426,7 @@ public:
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // As there is no cell-based simulation, we must explicitly initialise the cells
         crypt.InitialiseCells();
@@ -1005,12 +1005,11 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore force (and hence CellBasedConfig) from the archive
+            // Restore force from the archive
             ChemotacticForce<2>* p_chemotactic_force;
             input_arch >> p_chemotactic_force;
 
-            //\TODO need to test something here. For example
-            // Check member variables have been correctly archived
+            ///\todo test something here, for example that member variables have been correctly archived
 
             // Tidy up
             delete p_chemotactic_force;
@@ -1336,7 +1335,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore force (and hence CellBasedConfig) from the archive
+            // Restore force from the archive
             AbstractForce<2>* p_force;
             input_arch >> p_force;
 

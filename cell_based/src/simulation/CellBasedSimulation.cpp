@@ -60,8 +60,6 @@ CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCell
       mForceCollection(forceCollection),
       mOutputNodeVelocities(false)
 {
-    mpConfig = CellBasedConfig::Instance();
-
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
 
@@ -714,13 +712,8 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 	}
 	*parameter_file << "\t</CellKillers>\n";
 
-	// Loop over ccm's
+	///\todo Loop over cell cycle models (#1453)
 
-
-    // Output Extra Parameters from CellBasedConfig
-    *parameter_file <<  "\n\t<CellBasedConfig>\n";
-	*parameter_file << "\t\t<CryptLength>"<< mpConfig->GetCryptLength() << "</CryptLength>\n";
-	*parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;
 
     parameter_file->close();

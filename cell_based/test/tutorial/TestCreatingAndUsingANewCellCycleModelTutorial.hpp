@@ -108,7 +108,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The rate parameter is a constant, dependent on cell type, whose value is
  * chosen such that the mean of the distribution, 1/lambda, equals the mean
- * G1 duration as defined in the {{{CellBasedConfig}}} singleton class.
+ * G1 duration as defined in the {{{AbstractCellCycleModel}}} class.
  *
  * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
@@ -227,13 +227,12 @@ public:
     void TestMyCellCycleModel() throw(Exception)
     {
         /* We must first set the start time. In addition, it is advisable to reset
-         * the values of all model parameters. Recall that {{{SimulationTime}}} and
-         * {{{CellBasedConfig}}} are ''singleton'' classes; this means one and only
-         * one of each of these objects is instantiated at any time, and that single
+         * the values of all model parameters. Recall that {{{SimulationTime}}} is a 
+         * ''singleton'' class; this means one and only
+         * one of each of this object is instantiated at any time, and that single
          * object is accessible from anywhere in the code. As a result, we do not need
-         * to keep passing round the current time or model parameter values. */
+         * to keep passing round the current time. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
 
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
@@ -372,10 +371,8 @@ public:
      */
     void TestCellBasedSimulationWithMyCellCycleModel() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time and
-         * reset the parameters. */
+        /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh covering a
          * circular domain of given radius.

@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProliferativeTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
-#include "CellBasedConfig.hpp"
 #include "Cell.hpp"
 
 class Cell; // Circular definition (cells need to know about cycle models and vice-versa)
@@ -69,13 +68,10 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // Make sure the SimulationTime singleton get saved too
+        // Make sure the SimulationTime singleton gets saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        archive & *p_params;
-        archive & p_params;
 
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell
         // which knows this and it is handled in the load_construct of Cell.

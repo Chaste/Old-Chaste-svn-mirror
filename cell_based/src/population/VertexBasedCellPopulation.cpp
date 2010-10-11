@@ -52,7 +52,8 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
             contains_boundary_nodes = true;
         }
     }
-    //if(mrMesh.GetNumBoundaryNodes()==0) \TODO should be able to do this but mBoundaryNodes is not used in vertex meshes see #1558.
+    //if(mrMesh.GetNumBoundaryNodes()==0)
+    ///\todo we should be able to do this, but mBoundaryNodes is not used in vertex meshes (#1558)
     if(!contains_boundary_nodes)
     {
     	EXCEPTION("No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");

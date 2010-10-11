@@ -111,15 +111,8 @@ public:
 	void Test2DMonolayerSimulationForVisualizing() throw (Exception)
     {
         /* As in '''all''' cell-based simulations, we must first set the start time.
-         * In addition, it is advisable to reset the values of all model parameters.
-         * {{{SimulationTime}}} and {{{CellBasedConfig}}} are ''singleton'' classes; this
-         * means that one and only one of each of these objects is instantiated at
-         * any time, and that that single object is accessible from anywhere in the
-         * code. As a result, we do not need to keep passing round the current time or
-         * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-    	CellBasedConfig::Instance()->Reset();
 
         /* Next, we generate a mesh we use the {{{HoneycombMeshGenerator}}}. This
          * generates a honeycomb-shaped mesh, in which all nodes are equidistant.
@@ -234,9 +227,8 @@ public:
 	*/
 	void TestMonolayerFixedCellCycle() throw(Exception)
 	{
-		/* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
+		/* First re-initialize time to zero. */
 		SimulationTime::Instance()->SetStartTime(0.0);
-		CellBasedConfig::Instance()->Reset();
 
 		/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
 		* the {{{HoneycombMutableVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,

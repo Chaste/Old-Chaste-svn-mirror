@@ -56,7 +56,6 @@ private:
     {
         // Initialise singleton classes
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
     }
     void tearDown()
     {
@@ -68,6 +67,8 @@ public:
 
     void TestGetSection() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Create mesh
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -140,7 +141,7 @@ public:
         }
 
         // Test an overwritten method
-        std::vector<CellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0);
+        std::vector<CellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic(crypt_length + 2.0);
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_3.size(), 3u);
@@ -156,6 +157,8 @@ public:
     void TestMakeMeinekeGraphs() throw (Exception)
     {
         std::string output_directory = "MakeMeinekeGraphs";
+
+        double crypt_length = 22.0;
 
         // Create mesh
         unsigned cells_across = 13;
@@ -200,7 +203,7 @@ public:
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
@@ -209,10 +212,9 @@ public:
 
         // END OF UNUSUAL SET UP! //////////////////////////////////
 
-
         // TEST CryptStatistics::GetCryptSectionPeriodic by labelling a column of cells...
         CryptStatistics crypt_statistics(crypt);
-        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0,8.0);
+        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(crypt_length + 2.0, 8.0, 8.0);
 
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         for (unsigned i=0; i<test_section.size(); i++)
@@ -287,7 +289,7 @@ public:
 
         // Set cells which are not in the crypt section to be in state APC +/-, so that we can
         // see the section
-        test_section = crypt_statistics.GetCryptSectionPeriodic(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
+        test_section = crypt_statistics.GetCryptSectionPeriodic(crypt_length + 2.0, 8.0, 8.0);
 
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
@@ -311,7 +313,7 @@ public:
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();
 
-        std::vector<CellPtr> crypt_section = crypt_statistics.GetCryptSection(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
+        std::vector<CellPtr> crypt_section = crypt_statistics.GetCryptSection(crypt_length + 2.0, 8.0, 8.0);
         std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
@@ -338,6 +340,8 @@ public:
     void TestMultipleCryptSimulations() throw (Exception)
     {
         std::string output_directory = "MakeMoreMeinekeGraphs";
+
+        double crypt_length = 22.0;
 
         // Create mesh
         unsigned cells_across = 13;
@@ -417,7 +421,7 @@ public:
             simulator.SetEndTime(time_of_each_run);
 
             // Set up cell killer
-            p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), CellBasedConfig::Instance()->GetCryptLength());
+            p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);
             simulator.AddCellKiller(p_cell_killer);
 
             simulator.UseJiggledBottomCells();
@@ -432,7 +436,7 @@ public:
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
 
-            std::vector<CellPtr> crypt_section = p_crypt_statistics->GetCryptSection(CellBasedConfig::Instance()->GetCryptLength() + 2.0, 8.0, 8.0);
+            std::vector<CellPtr> crypt_section = p_crypt_statistics->GetCryptSection(crypt_length + 2.0, 8.0, 8.0);
             labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
             // Store information from this simulation in a global vector

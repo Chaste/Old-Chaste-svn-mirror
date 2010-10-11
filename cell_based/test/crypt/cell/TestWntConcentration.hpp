@@ -146,7 +146,6 @@ public:
 
         // Test GetWntGradient() method
 
-        CellBasedConfig::Instance()->Reset();
         c_vector<double,2> location;
         location[0] = 1.5;
         location[1] = 2.3;

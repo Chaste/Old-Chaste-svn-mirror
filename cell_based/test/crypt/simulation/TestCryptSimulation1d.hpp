@@ -128,6 +128,8 @@ public:
      */
     void Test1dCryptWithDeathButNoBirth() throw(Exception)
     {
+        double crypt_length = 22.0;
+
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(24);
@@ -160,7 +162,7 @@ public:
         simulator.SetEndTime(1.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 25u);
@@ -344,6 +346,8 @@ public:
      */
     void Test1dCryptWithBirthAndDeath() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
@@ -406,7 +410,7 @@ public:
         simulator.SetEndTime(10.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -521,10 +525,7 @@ public:
      */
     void Test1dChainCorrectCellNumbers()
     {
-        // Get pointers to singleton object
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        p_params->SetCryptLength(5.0);
+        double crypt_length = 5.0;
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -589,7 +590,7 @@ public:
         simulator.SetEndTime(40);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -637,10 +638,7 @@ public:
      */
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
-        // Get pointers to singleton object
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        p_params->SetCryptLength(5.0);
+        double crypt_length = 5.0;
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -694,7 +692,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<1>::Instance()->SetType(LINEAR);
         WntConcentration<1>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<1>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<1>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -740,6 +738,8 @@ public:
      */
     void TestSave() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Get pointers to singleton object
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
@@ -804,7 +804,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -889,6 +889,8 @@ public:
      */
     void TestCryptSimulation1DParameterOutput() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
@@ -952,7 +954,7 @@ public:
         simulator.SetEndTime(10.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Test Output methods

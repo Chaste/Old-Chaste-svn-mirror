@@ -218,10 +218,8 @@ public:
      */
     void TestMyCellBasedSimulation() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time and
-         * reset the parameters. */
+        /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(5, 5, 0, false);

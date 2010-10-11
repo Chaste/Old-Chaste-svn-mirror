@@ -34,8 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cylindrical2dMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
-#include "CellBasedConfig.hpp"
-
 #include "PetscTools.hpp"
 
 

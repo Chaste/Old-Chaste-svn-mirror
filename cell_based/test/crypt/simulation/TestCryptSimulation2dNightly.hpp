@@ -89,9 +89,6 @@ public:
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        // Set crypt dimensions
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
-
         // Set up cells
         std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
@@ -117,7 +114,7 @@ public:
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt,
-                                                     CellBasedConfig::Instance()->GetCryptLength(),
+                                                     crypt_length,
                                                      true,
                                                      crypt_width);
         simulator.AddCellKiller(&sloughing_cell_killer);
@@ -148,15 +145,13 @@ public:
         // Create mesh
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
-        double crypt_length = num_cells_depth-1.0;
+        double crypt_length = num_cells_depth - 1.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
 
         // Set up cells
         std::vector<CellPtr> cells;
@@ -222,8 +217,6 @@ public:
 
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
-        // Set crypt dimensions
-        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = location_indices.size();
@@ -331,7 +324,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -355,7 +349,7 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -380,7 +374,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -395,7 +390,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -408,7 +403,7 @@ public:
         simulator.SetEndTime(24.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -448,7 +443,8 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        CellBasedConfig::Instance()->SetCryptLength(cells_up*(sqrt(3)/2));
+
+        double crypt_length = cells_up*(sqrt(3)/2);
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -481,7 +477,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -494,7 +490,7 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation

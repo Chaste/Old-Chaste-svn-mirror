@@ -30,8 +30,4 @@
 
 	<CellKillers>
 	</CellKillers>
-
-	<CellBasedConfig>
-		<CryptLength>4.33013</CryptLength>
-	</CellBasedConfig>
 </Chaste>

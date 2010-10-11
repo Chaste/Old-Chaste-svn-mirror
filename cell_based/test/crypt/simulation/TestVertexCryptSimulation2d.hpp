@@ -271,6 +271,8 @@ public:
      */
     void TestCryptWithBirth() throw (Exception)
     {
+        double crypt_length = 5.0;
+
         // Create mesh
         CylindricalHoneycombVertexMeshGenerator generator(4, 6);
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
@@ -278,11 +280,12 @@ public:
         // Create cells, bottom row are STEM rest are DIFFERENTIATED.
         std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-        cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, 0.8,0.8,0.8,0.8);
+        cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, 0.8, 0.8, 0.8, 0.8);
 
         // Cell 1 should divide at time t=0.05
         cells[0]->SetBirthTime(-23.95);
-        // Cell 2-4 should divide later
+
+        // Cells 2-4 should divide later
         cells[1]->SetBirthTime(-23.0);
         cells[2]->SetBirthTime(-22.0);
         cells[3]->SetBirthTime(-21.0);
@@ -302,8 +305,7 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
         // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(5.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -321,6 +323,8 @@ public:
      */
     void noTestCryptSimulationLong() throw (Exception)
     {
+        double crypt_length = 20.0;
+
         // Create mesh
         unsigned crypt_width = 10;
         unsigned crypt_height = 20;
@@ -347,8 +351,7 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(20.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -367,6 +370,8 @@ public:
      */
     void TestShortWntBasedCryptSimulation() throw (Exception)
     {
+        double crypt_length = 10.0;
+
         // Create mesh
         unsigned crypt_width = 4;
         unsigned crypt_height = 6;
@@ -384,8 +389,7 @@ public:
         // Set up Wnt gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -399,8 +403,7 @@ public:
         simulator.SetOutputDirectory("TestShortWntBasedCryptSimulation");
 
         // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(10.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -419,6 +422,8 @@ public:
      */
     void noTestWntBasedCryptSimulationLong() throw (Exception)
     {
+        double crypt_length = 20.0;
+
         // Create mesh
         unsigned crypt_width = 10;
         unsigned crypt_height = 20;
@@ -436,8 +441,7 @@ public:
         // Set up Wnt gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -451,8 +455,7 @@ public:
         simulator.SetOutputDirectory("TestLongWntBasedVertexCryptSimulation");
 
         // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(20.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -470,6 +473,8 @@ public:
     // Test a crypt simulation with a boundary force on the crypt base.
     void TestCryptSimulationWithBoundaryForce() throw (Exception)
     {
+        double crypt_length = 6.0;
+
         // Create mesh
         unsigned crypt_width = 4;
         unsigned crypt_height = 6;
@@ -502,8 +507,7 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Make crypt shorter for sloughing
-        CellBasedConfig::Instance()->SetCryptLength(6.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -582,6 +586,8 @@ public:
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Create mesh
         unsigned crypt_width = 4;
         unsigned crypt_height = 6;
@@ -600,8 +606,7 @@ public:
         // so that the test runs quickly, but we test archiving of it!
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -614,7 +619,7 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -645,6 +650,8 @@ public:
 
     void TestVertexCryptSimulation2DParameterOutput() throw (Exception)
    	{
+        double crypt_length = 22.0;
+
         // Create mesh
         unsigned crypt_width = 4;
         unsigned crypt_height = 6;
@@ -668,7 +675,7 @@ public:
         VertexCryptSimulation2d simulator(crypt, force_collection);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
    		std::string output_directory = "TestVertexCryptSimulation2dOutputParameters";
@@ -680,13 +687,15 @@ public:
    		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
    		TS_ASSERT_EQUALS(system(("diff " + results_dir + "vertex_crypt_sim_2d_results.parameters			cell_based/test/data/TestVertexCryptSimulationOutputParameters/vertex_crypt_sim_2d_results.parameters").c_str()), 0);
 
-   		//\TODO check output of simulator.OutputSimulationSetup();
+   		///\todo check output of simulator.OutputSimulationSetup()
    	}
 
 
     // Testing Save
     void TestSave() throw (Exception)
     {
+        double crypt_length = 22.0;
+
         // Create mesh
         unsigned crypt_width = 4;
         unsigned crypt_height = 6;
@@ -704,7 +713,7 @@ public:
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -719,7 +728,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation

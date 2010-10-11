@@ -117,78 +117,71 @@ public:
 	*/
 	void TestMonolayerFixedCellCycle() throw(Exception)
 	{
-	/* As in '''all''' cell-based simulations, we must first set the start time.
-	* In addition, it is advisable to reset the values of all model parameters.
-	* {{{SimulationTime}}} and {{{CellBasedConfig}}} are ''singleton'' classes; this
-	* means that one and only one of each of these objects is instantiated at
-	* any time, and that that single object is accessible from anywhere in the
-	* code. As a result, we do not need to keep passing round the current time or
-	* model parameter values.
-	*/
-	SimulationTime::Instance()->SetStartTime(0.0);
-	CellBasedConfig::Instance()->Reset();
-
-	/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
-	* the {{{HoneycombMutableVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
-	* in which all nodes are equidistant. Here the first and second arguments
-	* define the size of the mesh - we have chosen a mesh that is 6 elements (i.e.
-	* cells) wide, and 9 elements high.
-	*/
-	HoneycombMutableVertexMeshGenerator generator(6, 9);	// Parameters are: cells across, cells up
-	MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
-
-	/* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-	* To do this, we the `CellsGenerator` helper class, which is templated over the type
-	* of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
-	* and the dimension. We create an empty vector of cells and pass this into the
-	* method along with the mesh. The second argument represents the size of that the vector
-	* {{{cells}}} should become - one cell for each element. */
-	std::vector<CellPtr> cells;
-	CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-	cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
-
-	/* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-	* In general, this class associates a collection of cells with a set of elements or a mesh.
-	* For this test, because we have a {{{MutableVertexMesh}}}, we use a particular type of
-	* cell population called a {{{VertexBasedCellPopulation}}}.
-	*/
-	VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-	/* We must now create one or more force laws, which determine the mechanics of the vertices
-	* of each cell in a cell population. For this test, we use one force law, based on the
-	* Nagai-Honda mechanics. We put a pointer to this force into a vector.
-	*/
-	NagaiHondaForce<2> force;
-	std::vector<AbstractForce<2>* > force_collection;
-	force_collection.push_back(&force);
-
-	/* Now we define the cell-based simulation object, passing in the cell population and collection
-	* of force laws:
-	*/
-	CellBasedSimulation<2> simulator(cell_population, force_collection);
-
-	/* Set the output directory on the simulator (relative to
-	* "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
-	*/
-	simulator.SetOutputDirectory("MonolayerFixedCellCycle");
-	simulator.SetEndTime(1.0);
-
-	/* For longer simulations, you may not want to output the results
-	* every time step. In this case you can use the following method,
-	* to print results every 10 time steps instead. As the time step
-	* used by the simulator, is 30 s, this method will cause the
-	* simulator to print results every 5 min.
-	*/
-	//simulator.SetSamplingTimestepMultiple(10);
-
-	/* To run the simulation, we call {{{Solve()}}}. */
-	simulator.Solve();
-
-	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-	* If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-	* at the beginning of the next test in this file, an assertion will be triggered.
-	*/
-	SimulationTime::Destroy();
+    	/* As in '''all''' cell-based simulations, we must first set the start time.
+    	*/
+    	SimulationTime::Instance()->SetStartTime(0.0);
+    
+    	/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
+    	* the {{{HoneycombMutableVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
+    	* in which all nodes are equidistant. Here the first and second arguments
+    	* define the size of the mesh - we have chosen a mesh that is 6 elements (i.e.
+    	* cells) wide, and 9 elements high.
+    	*/
+    	HoneycombMutableVertexMeshGenerator generator(6, 9);	// Parameters are: cells across, cells up
+    	MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+    
+    	/* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+    	* To do this, we the `CellsGenerator` helper class, which is templated over the type
+    	* of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
+    	* and the dimension. We create an empty vector of cells and pass this into the
+    	* method along with the mesh. The second argument represents the size of that the vector
+    	* {{{cells}}} should become - one cell for each element. */
+    	std::vector<CellPtr> cells;
+    	CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+    	cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+    
+    	/* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
+    	* In general, this class associates a collection of cells with a set of elements or a mesh.
+    	* For this test, because we have a {{{MutableVertexMesh}}}, we use a particular type of
+    	* cell population called a {{{VertexBasedCellPopulation}}}.
+    	*/
+    	VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+    
+    	/* We must now create one or more force laws, which determine the mechanics of the vertices
+    	* of each cell in a cell population. For this test, we use one force law, based on the
+    	* Nagai-Honda mechanics. We put a pointer to this force into a vector.
+    	*/
+    	NagaiHondaForce<2> force;
+    	std::vector<AbstractForce<2>* > force_collection;
+    	force_collection.push_back(&force);
+    
+    	/* Now we define the cell-based simulation object, passing in the cell population and collection
+    	* of force laws:
+    	*/
+    	CellBasedSimulation<2> simulator(cell_population, force_collection);
+    
+    	/* Set the output directory on the simulator (relative to
+    	* "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
+    	*/
+    	simulator.SetOutputDirectory("MonolayerFixedCellCycle");
+    	simulator.SetEndTime(1.0);
+    
+    	/* For longer simulations, you may not want to output the results
+    	* every time step. In this case you can use the following method,
+    	* to print results every 10 time steps instead. As the time step
+    	* used by the simulator, is 30 s, this method will cause the
+    	* simulator to print results every 5 min.
+    	*/
+    	//simulator.SetSamplingTimestepMultiple(10);
+    
+    	/* To run the simulation, we call {{{Solve()}}}. */
+    	simulator.Solve();
+    
+    	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+    	* If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+    	* at the beginning of the next test in this file, an assertion will be triggered.
+    	*/
+    	SimulationTime::Destroy();
 	}
 
 	/*
@@ -216,62 +209,61 @@ public:
 	*/
 	void TestVertexBasedCrypt() throw(Exception)
 	{
-	/* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
-	SimulationTime::Instance()->SetStartTime(0.0);
-	CellBasedConfig::Instance()->Reset();
+	    /* First re-initialize time to zero. */
+	    SimulationTime::Instance()->SetStartTime(0.0);
 
-	/* Create a cylindrical mesh, and get the cell location indices. To enforce
-	* periodicity at the left and right hand sides of the mesh, we use a subclass
-	* called {{{Cylindrical2dMesh}}}, which has extra methods for maintaining
-	* periodicity.
-	*/
-	CylindricalHoneycombVertexMeshGenerator generator(6, 9);
-	Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
+	    /* Create a cylindrical mesh, and get the cell location indices. To enforce
+	     * periodicity at the left and right hand sides of the mesh, we use a subclass
+	     * called {{{Cylindrical2dMesh}}}, which has extra methods for maintaining
+	     * periodicity.
+	     */
+  	    CylindricalHoneycombVertexMeshGenerator generator(6, 9);
+ 	    Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
-	/* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-	* To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
-	* of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
-	* and the dimension. We create an empty vector of cells and pass this into the
-	* method along with the mesh. The third argument 'true' indicates that the cells
-	* should be assigned random birth times, to avoid synchronous division. The
-	* {{{cells}}} vector is populated once the method {{{Generate}}} is
-	* called.
-	* The last four arguments represent the height below which cells belong to generations 0,
-	* 1, 2, 3 and 4, respectively.
-	*/
-	std::vector<CellPtr> cells;
-	CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-	cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, 1.0, 2.0, 3.0, 4.0);
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+    	 * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
+    	 * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
+    	 * and the dimension. We create an empty vector of cells and pass this into the
+    	 * method along with the mesh. The third argument 'true' indicates that the cells
+    	 * should be assigned random birth times, to avoid synchronous division. The
+    	 * {{{cells}}} vector is populated once the method {{{Generate}}} is
+    	 * called.
+	     * The last four arguments represent the height below which cells belong to generations 0,
+	     * 1, 2, 3 and 4, respectively.
+	     */
+	    std::vector<CellPtr> cells;
+	    CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+	    cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, 1.0, 2.0, 3.0, 4.0);
 
-	/* Create cell population, as before. */
-	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
+    	/* Create cell population, as before. */
+    	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
+    
+    	/* Create force law and force collection, as above. */
+    	NagaiHondaForce<2> force_law;
+	    std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&force_law);
 
-	/* Create force law and force collection, as above. */
-	NagaiHondaForce<2> force_law;
-	std::vector<AbstractForce<2>*> force_collection;
-	force_collection.push_back(&force_law);
+	    /* Create a simulator as before (except setting a different output directory). */
+	    VertexCryptSimulation2d simulator(crypt, force_collection);
+	    simulator.SetOutputDirectory("VertexCrypt");
+        simulator.SetEndTime(1);
 
-	/* Create a simulator as before (except setting a different output directory). */
-	VertexCryptSimulation2d simulator(crypt, force_collection);
-	simulator.SetOutputDirectory("VertexCrypt");
-	simulator.SetEndTime(1);
+        /* Before running the simulation, we add a cell killer. This object
+	     * dictates conditions under which cells die. For this test, we use
+	     * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
+	     */
+    	double crypt_length = 6.0;
+    	SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
+    	simulator.AddCellKiller(&sloughing_cell_killer);
 
-	/* Before running the simulation, we add a cell killer. This object
-	* dictates conditions under which cells die. For this test, we use
-	* a {{{SloughingCellKiller}}}, which kills cells above a certain height.
-	*/
-	CellBasedConfig::Instance()->SetCryptLength(6.0);
-	SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
-	simulator.AddCellKiller(&sloughing_cell_killer);
+	    /* To run the simulation, we call {{{Solve()}}}. */
+	    simulator.Solve();
 
-	/* To run the simulation, we call {{{Solve()}}}. */
-	simulator.Solve();
-
-	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-	* If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-	* at the beginning of the next test in this file, an assertion will be triggered.
-	*/
-	 SimulationTime::Destroy();
+        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+	     * at the beginning of the next test in this file, an assertion will be triggered.
+	     */
+        SimulationTime::Destroy();
 	}
 	/*
 	* EMPTYLINE
@@ -300,9 +292,8 @@ public:
 	*/
 	void TestVertexBasedCryptWithSimpleWntCellCycleModel() throw(Exception)
 	{
-	/* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
+	/* First re-initialize time to zero. */
 	SimulationTime::Instance()->SetStartTime(0.0);
-	CellBasedConfig::Instance()->Reset();
 
 	/* Create a cylindrical mesh, and get the cell location indices, as before.
 	*/
@@ -322,7 +313,7 @@ public:
 	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
     /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
-    CellBasedConfig::Instance()->SetCryptLength(6.0);
+    double crypt_length = 6.0;
 
 	/* The other change needed: Cells with a Wnt-based cell cycle need to know
 	* the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
@@ -333,7 +324,7 @@ public:
 	* of the cell population.*/
 	WntConcentration<2>::Instance()->SetType(LINEAR);
 	WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-	WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+	WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
 	/* Create force law and force collection, as above. */
 	NagaiHondaForce<2> force_law;
@@ -346,7 +337,7 @@ public:
 	simulator.SetEndTime(1);
 
 	/* Before running the simulation, we add a cell killer, as before.*/
-	SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
+	SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 	simulator.AddCellKiller(&sloughing_cell_killer);
 
 	/* Here we impose a boundary condition at the base: that cells

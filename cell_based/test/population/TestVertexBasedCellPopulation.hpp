@@ -1325,7 +1325,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(vertex_mesh, cells);
 
         // Set the top of this cell_population, for the purposes of computing the WntConcentration
-        CellBasedConfig::Instance()->SetCryptLength(4.0);
+        double crypt_length = 4.0;
 
         // Set up an instance of the WntConcentration singleton object
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
@@ -1334,8 +1334,7 @@ public:
         // Check that the singleton can be set up
         p_wnt->SetType(LINEAR);
         p_wnt->SetCellPopulation(cell_population);
-        p_wnt->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        p_wnt->SetCryptLength(crypt_length);
 
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
 
@@ -1343,14 +1342,14 @@ public:
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(NONE);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false); // not fully set up now it is a NONE type
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true); // set up again

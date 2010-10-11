@@ -97,15 +97,11 @@ public:
         // Load and run crypt simulation
         CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
-        delete p_simulator;
-
-        // Check that archiving of the CellBasedConfig singleton has not been affected
-        CellBasedConfig* p_inst = CellBasedConfig::Instance();
-        TS_ASSERT_DELTA(p_inst->GetCryptLength(), 20.151744972676, 1e-12);
         
-        //\TODO should also test the rest of the simulation setup now its moved out of CellBasedConfig #1496 
+        ///\todo we should also test the rest of the simulation setup 
 
         // Tidy up
+        delete p_simulator;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

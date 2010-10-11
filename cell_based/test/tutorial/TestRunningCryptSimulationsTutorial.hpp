@@ -115,15 +115,8 @@ public:
     void TestCryptFixedCellCycle() throw(Exception)
     {
         /* As in '''all''' cell-based simulations, we must first set the start time.
-         * In addition, it is advisable to reset the values of all model parameters.
-         * {{{SimulationTime}}} and {{{CellBasedConfig}}} are ''singleton'' classes; this
-         * means that one and only one of each of these objects is instantiated at
-         * any time, and that that single object is accessible from anywhere in the
-         * code. As a result, we do not need to keep passing round the current time or
-         * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CellBasedConfig::Instance()->Reset();
 
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left and right hand sides of the mesh, we
@@ -170,8 +163,7 @@ public:
         force_collection.push_back(&linear_force);
 
         /* Set the crypt length this will be used for sloughing.*/
-        CellBasedConfig::Instance()->SetCryptLength(8.0);
-
+        double crypt_length = 8.0;
 
         /* Now we define the cell-based simulation object, passing in the cell population and collection
          * of force laws: */
@@ -195,7 +187,7 @@ public:
          * a {{{SloughingCellKiller}}}, which kills cells above a certain
          * height which is passed in as a parameter.
          */
-        SloughingCellKiller<2> killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> killer(&cell_population, crypt_length);
         simulator.AddCellKiller(&killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
@@ -228,10 +220,9 @@ public:
      */
     void TestCryptWntCellCycle() throw(Exception)
     {
-        /* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
+        /* First re-initialize time to zero and reseed the random number generator. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
-        CellBasedConfig::Instance()->Reset();
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
@@ -248,7 +239,7 @@ public:
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
-        CellBasedConfig::Instance()->SetCryptLength(8.0);
+        double crypt_length = 8.0;
 
         /* The other change needed: Cells with a Wnt-based cell cycle need to know
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
@@ -259,8 +250,7 @@ public:
          * of the cell population and the length of the crpyt.*/
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(CellBasedConfig::Instance()->GetCryptLength());
-
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         /* Create a force collection as above. */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -273,7 +263,7 @@ public:
         simulator.SetEndTime(1);
 
         /* Create a killer, as before. */
-        SloughingCellKiller<2> killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
+        SloughingCellKiller<2> killer(&cell_population, crypt_length);
         simulator.AddCellKiller(&killer);
 
         /* Solve. */

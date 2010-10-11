@@ -274,13 +274,11 @@ void CryptSimulation2d::SetBottomCellAncestors()
 
 void CryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	// \TODO move crypt width and height from CellBasedConfig to this class #1496
     *rParamsFile << "\t\t<CryptCircumference>"<< mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "</CryptCircumference>\n";
 	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
-
 }
 
 

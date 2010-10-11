@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "AbstractCellPopulation.hpp"
-#include "CellBasedConfig.hpp"
 
 /**
  * Possible types of WntConcentration, currently:
@@ -61,9 +60,6 @@ private:
 
     /** Pointer to the singleton instance of WntConcentration */
     static WntConcentration* mpInstance;
-
-    /** Pointer to the CellBasedConfig singleton */
-    CellBasedConfig* mpCellBasedConfig;
 
     /**
      *  The length of the crypt.
@@ -140,9 +136,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        mpCellBasedConfig = CellBasedConfig::Instance();
-        archive & *mpCellBasedConfig;
-        archive & mpCellBasedConfig;
         archive & mCryptLength;
         archive & mLengthSet;
         archive & mWntType;
@@ -183,11 +176,8 @@ public:
      */
     static void Destroy();
 
-    ///\todo Include a Reset() method as in `CellBasedConfig`
-
     /**
-     *  Get the Wnt level at a given height in the crypt. Note the
-     *  CellBasedConfig::CryptLength() is used for this.
+     *  Get the Wnt level at a given height in the crypt.
      *
      *  @param height the height of the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this height in the crypt (dimensionless)
@@ -196,8 +186,7 @@ public:
 
     /**
      *  Get the Wnt level at a given cell in the crypt. The crypt
-     *  must be set for this. Note the CellBasedConfig::CryptLength()
-     *  is used for this.
+     *  must be set for this.
      *
      *  @param pCell the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this cell
@@ -205,17 +194,14 @@ public:
     double GetWntLevel(CellPtr pCell);
 
     /**
-     *  Get the Wnt gradient at a given location in the crypt. Note the
-     *  CellBasedConfig::CryptLength() is used for this.
+     *  Get the Wnt gradient at a given location in the crypt.
      *
      *  @param rLocation  the location at which we want the Wnt gradient
      */
     c_vector<double, DIM> GetWntGradient(c_vector<double, DIM>& rLocation);
 
     /**
-     *  Get the Wnt gradient at a given cell in the crypt. The crypt
-     *  must be set for this. Note the CellBasedConfig::CryptLength()
-     *  is used for this.
+     *  Get the Wnt gradient at a given cell in the crypt.
      *
      *  @param pCell the cell at which we want the Wnt gradient
      */
@@ -227,7 +213,6 @@ public:
      *  @param rCellPopulation reference to the cell population
      */
     void SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation);
-
 
     /**
      * @return mCryptLength
@@ -287,18 +272,25 @@ public:
      * @return mCryptProjectionParameterA
      */
     double GetCryptProjectionParameterA();
+
     /**
      * @return mCryptProjectionParameterB
      */
     double GetCryptProjectionParameterB();
+
     /**
      * Set mCryptProjectionParameterA.
+     * 
+     * @param cryptProjectionParameterA  the new value of mCryptProjectionParameterA
      */
-    void SetCryptProjectionParameterA(double);
+    void SetCryptProjectionParameterA(double cryptProjectionParameterA);
+
     /**
      * Set mCryptProjectionParameterB.
+     * 
+     * @param cryptProjectionParameterB  the new value of mCryptProjectionParameterB
      */
-    void SetCryptProjectionParameterB(double);
+    void SetCryptProjectionParameterB(double cryptProjectionParameterB);
 };
 
 #endif /*WNTCONCENTRATION_HPP_*/
