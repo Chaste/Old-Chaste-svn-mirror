@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NagaiHondaForce.hpp"
 #include "WelikyOsterForce.hpp"
 #include "CellwiseData.hpp"
-#include "WntConcentration.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"

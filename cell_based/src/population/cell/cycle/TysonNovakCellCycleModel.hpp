@@ -82,7 +82,7 @@ public:
      *
      * By the time this is called, a CellPopulation will have been set up, so the model
      * can know where its cell is located in space. If relevant to the simulation,
-     * the CellwiseData and WntConcentration singletons will also have been initialised.
+     * the CellwiseData and/or other singletons will also have been initialised.
      */
     void Initialise();
 

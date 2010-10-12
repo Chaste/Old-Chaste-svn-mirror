@@ -180,7 +180,7 @@ public:
     /**
      * Gives the cell cycle model a pointer to its host cell.
      *
-     * Some cell cycle models pass this pointer to other classes (e.g. WntConcentration),
+     * Some cell cycle models pass this pointer to other classes,
      * which use this information to determine other information based upon the location
      * of the cell (e.g. the Wnt concentration at this location).
      *
@@ -197,7 +197,7 @@ public:
      *
      * By the time this is called, a CellPopulation will have been set up, so the model
      * can know where its cell is located in space. If relevant to the simulation,
-     * the CellwiseData and WntConcentration singletons will also have been initialised.
+     * CellwiseData and/or other singletons will also have been initialised.
      */
     virtual void Initialise();
 
