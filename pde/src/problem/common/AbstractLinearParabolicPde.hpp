@@ -55,27 +55,21 @@ public:
     virtual double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
-     * Compute nonlinear source term.
+     * Compute source term.
      *
      * @param rX the point in space at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the point
      */
-    virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
+    virtual double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
     /**
-     * Compute nonlinear source term at a node.
+     * Compute source term at a node.
      *
      * @param rNode the node at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the node
      */
-    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u);
+    virtual double ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u);
 
-    /**
-     * Compute linear source term.
-     *
-     * @param rX the point in space at which the linear source term is computed
-     */
-    virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
      * Compute diffusion term. The diffusion tensor should be symmetric and positive definite.
@@ -85,14 +79,6 @@ public:
      * @return A matrix.
      */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, Element<ELEMENT_DIM,SPACE_DIM>* pElement=NULL)=0;
-
-    /**
-     * Compute linear source term at a node.
-     *
-     * @param rNode the node at which the nonlinear source term is computed
-     */
-    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode);
-
     /**
      * Destructor.
      */
@@ -106,16 +92,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>::ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode)
-{
-    return ComputeLinearSourceTerm(rNode.GetPoint());
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>::ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u)
+double AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>::ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u)
 {
-    return ComputeNonlinearSourceTerm(rNode.GetPoint(), u);
+    return ComputeSourceTerm(rNode.GetPoint(), u);
 }
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

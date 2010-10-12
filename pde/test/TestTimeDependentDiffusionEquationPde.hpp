@@ -46,9 +46,9 @@ public:
         HeatEquation<2> pde2;
         HeatEquation<3> pde3;
 
-        TS_ASSERT_DELTA(pde1.ComputeNonlinearSourceTerm(zero1,u), 0.0, 1e-12);
-        TS_ASSERT_DELTA(pde2.ComputeNonlinearSourceTerm(zero2,u), 0.0, 1e-12);
-        TS_ASSERT_DELTA(pde3.ComputeNonlinearSourceTerm(zero3,u), 0.0, 1e-12);
+        TS_ASSERT_DELTA(pde1.ComputeSourceTerm(zero1,u), 0.0, 1e-12);
+        TS_ASSERT_DELTA(pde2.ComputeSourceTerm(zero2,u), 0.0, 1e-12);
+        TS_ASSERT_DELTA(pde3.ComputeSourceTerm(zero3,u), 0.0, 1e-12);
 
         TS_ASSERT_DELTA(pde1.ComputeDuDtCoefficientFunction(zero1), 1.0, 1e-12);
         TS_ASSERT_DELTA(pde2.ComputeDuDtCoefficientFunction(zero2), 1.0, 1e-12);
@@ -73,8 +73,7 @@ public:
         TS_ASSERT_DELTA(diff3(1,2), 0, 1e-12);
 
         Node<1> node(0, zero1);
-        TS_ASSERT_DELTA(pde1.ComputeLinearSourceTermAtNode(node), 0.0, 1e-12);
-        TS_ASSERT_DELTA(pde1.ComputeNonlinearSourceTermAtNode(node,u), 0.0, 1e-12);
+        TS_ASSERT_DELTA(pde1.ComputeSourceTermAtNode(node,u), 0.0, 1e-12);
     }
 };
 

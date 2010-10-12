@@ -39,16 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <int SPACE_DIM>
 class HeatEquationWithSourceTerm : public AbstractLinearParabolicPde<SPACE_DIM>
 {
-
 public:
-    double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
+    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& , double )
     {
         return 1.0;
-    }
-
-    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
-    {
-        return 0.0;
     }
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)
