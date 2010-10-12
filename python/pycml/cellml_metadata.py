@@ -73,7 +73,8 @@ METADATA_NAMES = frozenset(
      'membrane_sodium_calcium_exchanger_current', 'membrane_sodium_calcium_exchanger_current_conductance',
      'membrane_delayed_rectifier_potassium_current', 'membrane_delayed_rectifier_potassium_current_conductance',
      'calcium_concentration_intracellular',
-     'diadicspace_calcium_concentration'
+     'diadicspace_calcium_concentration',
+     'SR_release_current'
 ])
 
 
