@@ -88,6 +88,7 @@ public:
         double edge_division_threshold = 2.0;
         MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of 0
         std::vector<CellPtr> cells;
@@ -147,6 +148,7 @@ public:
         double edge_division_threshold = 2.0;
         MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of 0
         std::vector<CellPtr> cells;
@@ -207,7 +209,6 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-
         // Create a force system
         NagaiHondaForce<2> force;
         std::vector<AbstractForce<2>* > force_collection;
@@ -242,6 +243,7 @@ public:
         HoneycombMutableVertexMeshGenerator generator(5, 5);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<CellPtr> cells;
@@ -305,7 +307,6 @@ public:
     // This test uses a larger timestep to run faster.
     void TestVertexMonolayerWithVoid() throw (Exception)
     {
-
         // Create a simple 2D MutableVertexMesh
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
@@ -318,6 +319,8 @@ public:
 
         p_mesh->ReMesh();
 
+        ///\todo use CellsGenerator? (#1583)
+       
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index-19, so its age is elem_index+19, so the first cell divides straight away.
         std::vector<CellPtr> cells;
@@ -380,6 +383,8 @@ public:
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
         p_mesh->SetT2Threshold(1.0); // so T2Swaps once it becomes a triangle
+
+        ///\todo use CellsGenerator? (#1583)
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
@@ -464,7 +469,9 @@ public:
 		HoneycombMutableVertexMeshGenerator generator(2, 2);
 		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-		// Set up cell.
+		///\todo use CellsGenerator? (#1583)
+
+		// Set up cell
 		std::vector<CellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 		boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
@@ -514,7 +521,6 @@ public:
 		Warnings::QuietDestroy();
 	}
 
-
     void TestSingleCellRelaxationAndApoptosis() throw (Exception)
     {
         // Construct a 2D vertex mesh consisting of a single element
@@ -531,6 +537,8 @@ public:
 
         MutableVertexMesh<2,2> mesh(nodes, elements);
         mesh.SetCellRearrangementThreshold(0.1);
+
+        ///\todo use CellsGenerator? (#1583)
 
         // Set up cells, one for each VertexElement
         std::vector<CellPtr> cells;
@@ -600,6 +608,8 @@ public:
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
+        ///\todo use CellsGenerator? (#1583)
+
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<CellPtr> cells;
@@ -667,6 +677,8 @@ public:
         // Create a simple 2D MutableVertexMesh
         HoneycombMutableVertexMeshGenerator generator(6, 6);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+
+        ///\todo use CellsGenerator? (#1583)
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
@@ -738,7 +750,6 @@ public:
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
-
     }
 };
 

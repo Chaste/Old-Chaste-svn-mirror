@@ -66,6 +66,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        ///\todo use CellsGenerator? (#1583)
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
@@ -225,6 +226,7 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(5);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -339,6 +341,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        ///\todo use CellsGenerator? (#1583)
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
@@ -575,6 +578,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        ///\todo use CellsGenerator? (#1583)
         std::vector<CellPtr> cells;
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -650,6 +654,7 @@ public:
             // SimulationTime is usually set up by a CellBasedSimulation
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
+            ///\todo use CellsGenerator? (#1583)
             // Create cells
             std::vector<CellPtr> cells;
             boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -841,6 +846,7 @@ public:
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         std::vector<unsigned> cell_location_indices;

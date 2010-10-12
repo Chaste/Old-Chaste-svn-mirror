@@ -76,6 +76,7 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Create a differentiated cell for each node
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -132,6 +133,7 @@ public:
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        ///\todo use CellsGenerator? (#1583)
         // Create a differentiated cell for each non-ghost node
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -182,6 +184,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -243,6 +246,7 @@ public:
 		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+		///\todo use CellsGenerator? (#1583)
 		// Set up cells, one for each node. Give each cell a random birth time.
 		std::vector<CellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -305,6 +309,7 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         cells.clear();
@@ -401,7 +406,6 @@ public:
         TS_ASSERT_LESS_THAN(3.1415, time);
     }
 
-
     void TestApoptosisSpringLengths() throw (Exception)
     {
         unsigned num_cells_depth = 2;
@@ -411,6 +415,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -568,6 +573,7 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells so that cell 10 divides at time t=0.5, cell 9 at time t=1.5, etc
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);

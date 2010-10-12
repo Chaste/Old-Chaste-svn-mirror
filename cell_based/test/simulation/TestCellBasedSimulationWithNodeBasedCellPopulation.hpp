@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCellBasedSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
+    ///\todo use CellsGenerator? (#1583)
     template<unsigned DIM>
     std::vector<CellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {

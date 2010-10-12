@@ -209,7 +209,6 @@ public:
 
 	    simulator.Solve();
 	}
-
 };
 
 #endif /*TEST3DTISSUEREPRESENTATIVESIMULATION_HPP_*/

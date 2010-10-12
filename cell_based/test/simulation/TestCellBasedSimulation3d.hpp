@@ -80,6 +80,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<CellPtr> cells;
@@ -122,6 +123,7 @@ public:
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
+        ///\todo use CellsGenerator? (#1583)
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -179,6 +181,7 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh", "StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<CellPtr> cells;
@@ -218,7 +221,6 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh", "EndMesh", false);
         mesh_writer2.WriteFilesUsingMesh(mesh);
     }
-
 
     void TestGhostNodesSpheroidSimulation3DandSave() throw (Exception)
     {
@@ -274,7 +276,7 @@ public:
 
             cells2.push_back(p_cell);
 
-            if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
+            if (norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0)
             {
                 location_indices.push_back(i);
                 cells.push_back(p_cell);

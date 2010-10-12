@@ -258,6 +258,8 @@ public:
         /* We now create a shared pointer to our new cell mutation state, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new P53GainOfFunctionCellMutationState);
 
+        ///\todo use CellsGenerator? (#1583)
+
         /* Next, we create some cells, as follows. */
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)

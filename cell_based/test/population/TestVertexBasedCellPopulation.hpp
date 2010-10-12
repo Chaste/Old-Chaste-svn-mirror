@@ -51,6 +51,7 @@ class TestVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
 
+    ///\todo use CellsGenerator? (#1583)
     /**
      * Set up cells, one for each VertexElement.
      * Give each cell a birth time of -elem_index,

@@ -107,6 +107,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -215,6 +216,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -327,6 +329,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -421,6 +424,7 @@ public:
 		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+		///\todo use CellsGenerator? (#1583)
 		// Set up cells
 		std::vector<CellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -525,6 +529,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -643,6 +648,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -833,6 +839,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -960,6 +967,7 @@ public:
         p_mesh->ConstructFromMeshReader(mesh_reader);
         p_mesh->Scale(5.0,1.0);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1046,6 +1054,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1160,6 +1169,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1248,7 +1258,6 @@ public:
         delete p_simulator;
         CellwiseData<2>::Destroy();
     }
-
 
     void Test3DCellBasedSimulationWithPdes() throw(Exception)
     {

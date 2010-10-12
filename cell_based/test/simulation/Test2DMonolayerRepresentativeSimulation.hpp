@@ -61,6 +61,7 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(3.5);
 
+        ///\todo use CellsGenerator? (#1583)
         // Create some cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);

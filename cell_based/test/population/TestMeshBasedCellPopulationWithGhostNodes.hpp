@@ -58,6 +58,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells, one for each node apart from one.
         // Give each a birth time of -node_index, so the age = node_index
         std::vector<CellPtr> cells;
@@ -249,6 +250,7 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;    
         cells.clear();
@@ -340,7 +342,6 @@ public:
             TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
         }
     }
-
 
     void TestRemoveDeadCellsAndReMeshWithGhostNodes()
     {
@@ -501,7 +502,6 @@ public:
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 71u);
     }
 
-
     void TestUpdateNodeLocations() throw(Exception)
     {
         HoneycombMeshGenerator generator(3, 3, 1, false);
@@ -511,6 +511,7 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;    
         cells.clear();
@@ -895,6 +896,7 @@ public:
             mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
         }
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;
@@ -955,6 +957,7 @@ public:
             mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
         }
 
+        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;
@@ -1000,6 +1003,5 @@ public:
         }
     }
 };
-
 
 #endif /*TESTMESHBASEDCELLPOPULATIONWITHGHOSTNODES_HPP_*/

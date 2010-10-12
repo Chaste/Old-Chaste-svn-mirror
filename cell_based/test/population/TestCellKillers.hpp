@@ -96,7 +96,6 @@ public:
             ++cell_it;
         }
 
-
         // Store 'locations' of cells which are not dead
         for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
@@ -245,7 +244,6 @@ public:
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-
         // Create cell killer and kill cells
         SloughingCellKiller<2> sloughing_cell_killer(&cell_population, 0.5, true, 0.5);
 
@@ -285,7 +283,6 @@ public:
         }
     }
 
-
     void TestSloughingCellKillerTopOnly() throw(Exception)
     {
         // Create mesh
@@ -298,6 +295,7 @@ public:
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
+        ///\todo use CellsGenerator? (#1583)
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -344,7 +342,6 @@ public:
         }
     }
 
-
     void TestSloughingCellKillerIn1d() throw(Exception)
     {
         // Create 1D mesh
@@ -356,6 +353,7 @@ public:
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
+        ///\todo use CellsGenerator? (#1583)
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -416,6 +414,7 @@ public:
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
+        ///\todo use CellsGenerator? (#1583)
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
