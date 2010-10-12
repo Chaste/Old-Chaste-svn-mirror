@@ -145,7 +145,7 @@ public:
         // Create mesh
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
-        double crypt_length = num_cells_depth - 1.0;
+        //double crypt_length = num_cells_depth - 1.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
