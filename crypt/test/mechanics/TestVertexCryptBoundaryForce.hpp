@@ -57,7 +57,7 @@ public:
 		boundary_force_parameter_file->close();
 
 		std::string boundary_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + boundary_force_results_dir + "boundary_results.parameters cell_based/test/data/TestForces/boundary_results.parameters").c_str()), 0);
+		TS_ASSERT_EQUALS(system(("diff " + boundary_force_results_dir + "boundary_results.parameters crypt/test/data/TestForcesForCrypt/boundary_results.parameters").c_str()), 0);
 
     }
 

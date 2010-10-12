@@ -517,7 +517,7 @@ public:
         projection_force_parameter_file->close();
 
         std::string projection_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + projection_force_results_dir + "projection_results.parameters notforrelease_cell_based/test/data/TestForcesNotForRelease/projection_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + projection_force_results_dir + "projection_results.parameters crypt/test/data/TestForcesForCrypt/projection_results.parameters").c_str()), 0);
     }
 
 };
