@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTCELLSGENERATOR_HPP_
 #define CRYPTCELLSGENERATOR_HPP_
 
-// Shoot me now, and put me out of my misery
 #include <boost/mpl/integral_c.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/if.hpp>

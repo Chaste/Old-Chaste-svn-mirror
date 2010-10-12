@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class LinearSpringWithVariableSpringConstantsForce : public GeneralisedLinearSpringForce<DIM>
 {
-    friend class TestForces;
+    friend class TestLinearSpringWithVariableSpringConstantsForce;
 
 private :
 

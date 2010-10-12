@@ -271,9 +271,7 @@ public:
         CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
 
         /*
-         * As with {{{CryptSimulation2d}}} (which inherits from the same base class
-         * as {{{CellBasedSimulationWithPdes}}}), we can set the output directory
-         * and end time.
+         * We next set the output directory and end time.
          */
         simulator.SetOutputDirectory("SpheroidTutorial");
         simulator.SetEndTime(10.0);

@@ -35,26 +35,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "CheckpointArchiveTypes.hpp"
-
 #include "CellBasedSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CryptCellsGenerator.hpp"
-#include "SimpleWntCellCycleModel.hpp"
+#include "CellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "LinearSpringWithVariableSpringConstantsForce.hpp"
+#include "CellwiseData.hpp"
+#include "ChemotacticForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "StochasticWntCellCycleModel.hpp"
-
 #include "CellBasedSimulationWithMyStoppingEvent.hpp"
 
-/**
- *  Note: Most tests of CellBasedSimulation are in TestCryptSimulation2d
- */
 class TestCellBasedSimulation : public AbstractCellBasedTestSuite
 {
 private:
@@ -74,72 +69,6 @@ private:
     }
 
 public:
-
-    void TestOutputStatistics() throw(Exception)
-    {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
-        // Set up mesh
-        unsigned num_cells_depth = 5;
-        unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-
-        double crypt_length = (double)num_cells_depth *sqrt(3)/2.0;
-
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        // Set up cells
-        std::vector<CellPtr> cells;
-        CryptCellsGenerator<StochasticWntCellCycleModel> cell_generator;
-        cell_generator.Generate(cells, p_mesh, location_indices, true);
-
-        // Set up cell population
-        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-        cell_population.SetOutputCellPopulationVolumes(true);
-        cell_population.SetOutputCellVariables(true);
-        cell_population.SetOutputCellCyclePhases(true);
-        cell_population.SetOutputCellAges(true);
-
-        // Set up Wnt Gradient
-        WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
-
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
-        simulator.SetOutputDirectory("CellBasedSimulationWritingProteins");
-        simulator.SetEndTime(0.5);
-
-        TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
-
-        // Run cell-based simulation
-        TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "CellBasedSimulationWritingProteins");
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        OutputFileHandler handler("CellBasedSimulationWritingProteins", false);
-
-        std::string cell_variables_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
-        NumericFileComparison comp_cell_variables(cell_variables_file, "cell_based/test/data/CellBasedSimulationWritingProteins/cellvariables.dat");
-        TS_ASSERT(comp_cell_variables.CompareFiles(1e-2));
-
-        std::string cell_cycle_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
-        NumericFileComparison comp_cell_cycle(cell_cycle_file, "cell_based/test/data/CellBasedSimulationWritingProteins/cellcyclephases.dat");
-        TS_ASSERT(comp_cell_cycle.CompareFiles(1e-2));
-
-        std::string cell_ages_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellages.dat";
-        NumericFileComparison comp_cell_ages(cell_ages_file, "cell_based/test/data/CellBasedSimulationWritingProteins/cellages.dat");
-        TS_ASSERT(comp_cell_ages.CompareFiles(1e-2));
-
-        // Tidy up
-        WntConcentration<2>::Destroy();
-    }
 
     void TestOutputNodeVelocities() throw(Exception)
     {
@@ -334,11 +263,23 @@ public:
 		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
 		// Create a force law system
-		std::vector<AbstractForce<2>* > force_collection;
 		GeneralisedLinearSpringForce<2> linear_force;
-		force_collection.push_back(&linear_force);
-		LinearSpringWithVariableSpringConstantsForce<2> variable_force;
-		force_collection.push_back(&variable_force);
+
+		// Create another force law system
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+        p_data->SetCellPopulation(&cell_population);
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            double x = p_mesh->GetNode(i)->rGetLocation()[0];
+            p_data->SetValue(x/50.0, p_mesh->GetNode(i)->GetIndex());
+        }
+		ChemotacticForce<2> chemotactic_force;
+
+		// Pass force laws into a collection
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&linear_force);
+		force_collection.push_back(&chemotactic_force);
 
 		// Set up cell-based simulation
 		CellBasedSimulation<2> simulator(cell_population, force_collection);
@@ -355,17 +296,85 @@ public:
 		TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
 	}
 
-
     void TestCellBasedSimulationWithStoppingEvent() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        // Set up cells, one for each node. Give each cell a random birth time.
+        CellPropertyRegistry::Instance()->Clear();   
+        RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
+
+        // Set up cells
         std::vector<CellPtr> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-        cells_generator.Generate(cells, p_mesh, location_indices, true);
+        cells.clear();
+        unsigned num_cells = location_indices.empty() ? p_mesh->GetNumNodes() : location_indices.size();
+        cells.reserve(num_cells);
+
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            CellProliferativeType cell_type;
+            unsigned generation;
+            double y = 0.0;
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
+            }
+    
+            FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
+            p_cell_cycle_model->SetDimension(2);
+    
+            double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
+            double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
+    
+            double birth_time = 0.0;
+            birth_time = -p_random_num_gen->ranf();
+    
+            if (y <= 0.3)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time *= typical_stem_cycle_time; // hours
+            }
+            else if (y < 2.0)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 3.0)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 4.0)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else
+            {
+                cell_type = p_cell_cycle_model->CanCellTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
+                generation = 4;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+    
+            p_cell_cycle_model->SetGeneration(generation);
+            p_cell_cycle_model->SetCellProliferativeType(cell_type);
+    
+            boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+    
+            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+            p_cell->SetBirthTime(birth_time);
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                cells.push_back(p_cell);
+            }
+        }
 
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -546,6 +555,61 @@ public:
 		info_file.open(command.c_str());
 		TS_ASSERT(info_file.is_open());
 		info_file.close();
+    }
+
+    /**
+     * The purpose of this test is to check that it is possible to construct and run
+     * a short 1D cell-based simulation without throwing any exceptions.
+     */
+    void Test1dCellBasedSimulation() throw (Exception)
+    {
+        // Create mesh
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        MutableMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells so that cell 10 divides at time t=0.5, cell 9 at time t=1.5, etc
+        std::vector<CellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
+            CellPtr p_cell(new Cell(p_state, p_model));
+
+            double birth_time = -13.5 - i;
+            p_cell->SetBirthTime(birth_time);
+
+            cells.push_back(p_cell);
+        }
+
+        // Create a cell population
+        MeshBasedCellPopulation<1> cell_population(mesh, cells);
+
+        // Coverage
+        cell_population.SetOutputCellIdData(true);
+
+        // Create a force law (no need for a cutoff as we're in 1D)
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>* > force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up cell-based simulation
+        CellBasedSimulation<1> simulator(cell_population, force_collection);
+        simulator.SetOutputDirectory("Test1DCellBasedSimulation");
+        simulator.SetEndTime(0.6);
+
+        unsigned initial_num_cells = simulator.rGetCellPopulation().GetNumRealCells();
+        unsigned initial_num_nodes = simulator.rGetCellPopulation().GetNumNodes();
+        unsigned initial_num_elements = (static_cast<MeshBasedCellPopulation<1>* >(&(simulator.rGetCellPopulation())))->rGetMesh().GetNumElements();
+
+        // Run simulation for a short time
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), initial_num_cells + 1);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), initial_num_nodes + 1);
+        TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<1>* >(&(simulator.rGetCellPopulation())))->rGetMesh().GetNumElements(), initial_num_elements + 1);
     }
 };
 

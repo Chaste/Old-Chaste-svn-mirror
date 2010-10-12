@@ -685,7 +685,7 @@ public:
    		parameter_file->close();
 
    		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-   		TS_ASSERT_EQUALS(system(("diff " + results_dir + "vertex_crypt_sim_2d_results.parameters			cell_based/test/data/TestVertexCryptSimulationOutputParameters/vertex_crypt_sim_2d_results.parameters").c_str()), 0);
+   		TS_ASSERT_EQUALS(system(("diff " + results_dir + "vertex_crypt_sim_2d_results.parameters  crypt/test/data/TestVertexCryptSimulationOutputParameters/vertex_crypt_sim_2d_results.parameters").c_str()), 0);
 
    		///\todo check output of simulator.OutputSimulationSetup()
    	}

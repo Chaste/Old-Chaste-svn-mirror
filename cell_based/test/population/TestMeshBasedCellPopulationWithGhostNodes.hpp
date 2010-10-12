@@ -33,10 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "CellsGenerator.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CryptCellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -246,10 +246,79 @@ public:
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        CellPropertyRegistry::Instance()->Clear();   
+        RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
+
         // Set up cells
-        std::vector<CellPtr> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-        cells_generator.Generate(cells, p_mesh, location_indices, true); // true = mature cells
+        std::vector<CellPtr> cells;    
+        cells.clear();
+        unsigned num_cells = location_indices.empty() ? p_mesh->GetNumNodes() : location_indices.size();
+        cells.reserve(num_cells);
+
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            CellProliferativeType cell_type;
+            unsigned generation;
+            double y = 0.0;
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
+            }
+    
+            FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
+            p_cell_cycle_model->SetDimension(2);
+    
+            double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
+            double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
+    
+            double birth_time = 0.0;
+            birth_time = -p_random_num_gen->ranf();
+    
+            if (y <= 0.3)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time *= typical_stem_cycle_time; // hours
+            }
+            else if (y < 2.0)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 3.0)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 4.0)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else
+            {
+                cell_type = p_cell_cycle_model->CanCellTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
+                generation = 4;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+    
+            p_cell_cycle_model->SetGeneration(generation);
+            p_cell_cycle_model->SetCellProliferativeType(cell_type);
+    
+            boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+    
+            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+            p_cell->SetBirthTime(birth_time);
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                cells.push_back(p_cell);
+            }
+        }
 
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
@@ -439,41 +508,109 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<CellPtr> cells2;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator2;
-        cells_generator2.Generate(cells2, p_mesh, location_indices, true);
+        CellPropertyRegistry::Instance()->Clear();   
+        RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-        MeshBasedCellPopulationWithGhostNodes<2> cell_population2(*p_mesh, cells2, location_indices);
+        // Set up cells
+        std::vector<CellPtr> cells;    
+        cells.clear();
+        unsigned num_cells = location_indices.empty() ? p_mesh->GetNumNodes() : location_indices.size();
+        cells.reserve(num_cells);
+
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            CellProliferativeType cell_type;
+            unsigned generation;
+            double y = 0.0;
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
+            }
+    
+            FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
+            p_cell_cycle_model->SetDimension(2);
+    
+            double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
+            double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
+    
+            double birth_time = 0.0;
+            birth_time = -p_random_num_gen->ranf();
+    
+            if (y <= 0.3)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time *= typical_stem_cycle_time; // hours
+            }
+            else if (y < 2.0)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 3.0)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else if (y < 4.0)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+            else
+            {
+                cell_type = p_cell_cycle_model->CanCellTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
+                generation = 4;
+                birth_time *= typical_transit_cycle_time; // hours
+            }
+    
+            p_cell_cycle_model->SetGeneration(generation);
+            p_cell_cycle_model->SetCellProliferativeType(cell_type);
+    
+            boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+    
+            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+            p_cell->SetBirthTime(birth_time);
+    
+            if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
+            {
+                cells.push_back(p_cell);
+            }
+        }
+
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         // Make up some forces
-        std::vector<c_vector<double, 2> > old_posns2(cell_population2.GetNumNodes());
-        std::vector<c_vector<double, 2> > forces_on_nodes2(cell_population2.GetNumNodes());
+        std::vector<c_vector<double, 2> > old_posns(cell_population.GetNumNodes());
+        std::vector<c_vector<double, 2> > forces_on_nodes(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<cell_population2.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
-            old_posns2[i][0] = cell_population2.GetNode(i)->rGetLocation()[0];
-            old_posns2[i][1] = cell_population2.GetNode(i)->rGetLocation()[1];
+            old_posns[i][0] = cell_population.GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = cell_population.GetNode(i)->rGetLocation()[1];
 
-            forces_on_nodes2[i][0] = i*0.01;
-            forces_on_nodes2[i][1] = 2*i*0.01;
+            forces_on_nodes[i][0] = i*0.01;
+            forces_on_nodes[i][1] = 2*i*0.01;
         }
 
         // Call method
         double time_step = 0.01;
-        cell_population2.UpdateNodeLocations(forces_on_nodes2, time_step);
+        cell_population.UpdateNodeLocations(forces_on_nodes, time_step);
 
         // Check that node locations were correctly updated
-        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population2.Begin();
-             cell_iter != cell_population2.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            unsigned i = cell_population2.GetLocationIndexUsingCell(*cell_iter);
-            TS_ASSERT_DELTA(cell_population2.GetNode(i)->rGetLocation()[0], old_posns2[i][0] +   i*0.01*0.01, 1e-9);
-            TS_ASSERT_DELTA(cell_population2.GetNode(i)->rGetLocation()[1], old_posns2[i][1] + 2*i*0.01*0.01, 1e-9);
+            unsigned i = cell_population.GetLocationIndexUsingCell(*cell_iter);
+            TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
+            TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
         }
     }
-
-
 
     void TestSpringIterator2d() throw(Exception)
     {

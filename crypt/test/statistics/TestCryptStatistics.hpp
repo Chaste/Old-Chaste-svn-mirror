@@ -228,10 +228,10 @@ public:
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler(output_directory, false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/MakeMeinekeGraphs/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/MakeMeinekeGraphs/results.viznodes").c_str()), 0);
 
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
-        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cell_based/test/data/MakeMeinekeGraphs/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " crypt/test/data/MakeMeinekeGraphs/results.vizcelltypes").c_str()), 0);
 
         // TEST crypt_statistics::LabelSPhaseCells
 
@@ -474,7 +474,7 @@ public:
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler(output_directory, false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
 
         RandomNumberGenerator::Destroy();
     }

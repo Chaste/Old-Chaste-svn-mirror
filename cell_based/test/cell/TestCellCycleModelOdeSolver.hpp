@@ -37,8 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellCycleModelOdeSolver.hpp"
 
 #include "TysonNovakCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
+#include "OutputFileHandler.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
@@ -228,7 +228,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ode_solver.arch";
 
-        typedef CellCycleModelOdeSolver<WntCellCycleModel, BackwardEulerIvpOdeSolver> EulerSolver;
+        typedef CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, BackwardEulerIvpOdeSolver> EulerSolver;
 
         // Create an output archive
         {
@@ -262,6 +262,5 @@ public:
         }
     }
 };
-
 
 #endif /*TESTCELLCYCLEMODELODESOLVER_HPP_*/

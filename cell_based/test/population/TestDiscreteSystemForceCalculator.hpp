@@ -33,14 +33,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "CryptSimulation2d.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "CellBasedSimulation.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
 
 class TestDiscreteSystemForceCalculator : public AbstractCellBasedTestSuite
 {

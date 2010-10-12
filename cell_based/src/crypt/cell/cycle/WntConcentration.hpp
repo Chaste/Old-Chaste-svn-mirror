@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Possible types of WntConcentration, currently:
  *  NONE - for testing and to remove Wnt dependence
- *  LINEAR - for CryptSimulation2d
+ *  LINEAR - for cylindrical crypt model
  *  RADIAL - for crypt projection model
  */
 typedef enum WntConcentrationType_

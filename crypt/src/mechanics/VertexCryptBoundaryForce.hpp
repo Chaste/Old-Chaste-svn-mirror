@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class VertexCryptBoundaryForce  : public AbstractForce<DIM>
 {
-friend class TestForcesNotForRelease;
+friend class TestVertexCryptBoundaryForce;
 
 private:
 

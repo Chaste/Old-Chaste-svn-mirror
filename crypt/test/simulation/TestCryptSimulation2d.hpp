@@ -188,13 +188,13 @@ public:
         OutputFileHandler handler("Crypt2DSprings", false);
 
         std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
-        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cell_based/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " crypt/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
 
         std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
-        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " cell_based/test/data/Crypt2DSpringsResults/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " crypt/test/data/Crypt2DSpringsResults/results.vizcelltypes").c_str()), 0);
 
         std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
-        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cell_based/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " crypt/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
     }
 
     void TestWithMultipleCellKillers() throw (Exception)
@@ -514,17 +514,17 @@ public:
         OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "crypt/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements crypt/test/data/Crypt2DCylindricalMultipleDivisions/results.vizelements").c_str()), 0);
 
-        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "crypt/test/data/Crypt2DCylindricalMultipleDivisions/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles(1e-15));
 
-        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "crypt/test/data/Crypt2DCylindricalMultipleDivisions/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/Crypt2DCylindricalMultipleDivisions/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup crypt/test/data/Crypt2DCylindricalMultipleDivisions/results.vizsetup").c_str()), 0);
     }
 
 
@@ -781,9 +781,9 @@ public:
         OutputFileHandler handler("Crypt2DPeriodicStandardResult", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
 
-        NumericFileComparison comp(results_file, "cell_based/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
+        NumericFileComparison comp(results_file, "crypt/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
         TS_ASSERT(comp.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
 
     // Testing Save
@@ -1017,7 +1017,7 @@ public:
         OutputFileHandler handler("Crypt2DWntMatureCells", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/voronoi.dat";
 
-        NumericFileComparison comp(results_file, "cell_based/test/data/Crypt2DWntMatureCells/voronoi.dat");
+        NumericFileComparison comp(results_file, "crypt/test/data/Crypt2DWntMatureCells/voronoi.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
 
         // Tidy up
@@ -1080,7 +1080,7 @@ public:
         OutputFileHandler handler("Crypt2DCylindricalCellIdLogged", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/loggedcell.dat";
 
-        NumericFileComparison comp(results_file, "cell_based/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
+        NumericFileComparison comp(results_file, "crypt/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
         TS_ASSERT(comp.CompareFiles(2e-4));
     }
 
@@ -1749,11 +1749,11 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
 
-        NumericFileComparison comp_bcat(results_file, "cell_based/test/data/CryptBetaCatenin/results.vizbetacatenin");
+        NumericFileComparison comp_bcat(results_file, "crypt/test/data/CryptBetaCatenin/results.vizbetacatenin");
         TS_ASSERT(comp_bcat.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/CryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/CryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
 
-        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cell_based/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " crypt/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);
 
         // Tidy up
         WntConcentration<2>::Destroy();
@@ -1797,7 +1797,7 @@ public:
 		parameter_file->close();
 
 		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters			cell_based/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters  crypt/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
 
 		///\todo check output of simulator.OutputSimulationSetup();
 	}
@@ -1870,16 +1870,16 @@ public:
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizancestors";
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
 
-        NumericFileComparison comp_nodes(results_file1, "cell_based/test/data/AncestorCrypt/results.viznodes");
+        NumericFileComparison comp_nodes(results_file1, "crypt/test/data/AncestorCrypt/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles());
-        NumericFileComparison comp_ans(results_file2, "cell_based/test/data/AncestorCrypt/results.vizancestors");
+        NumericFileComparison comp_ans(results_file2, "crypt/test/data/AncestorCrypt/results.vizancestors");
         TS_ASSERT(comp_ans.CompareFiles());
-        NumericFileComparison comp_celltypes(results_file3, "cell_based/test/data/AncestorCrypt/results.vizcelltypes");
+        NumericFileComparison comp_celltypes(results_file3, "crypt/test/data/AncestorCrypt/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles());
 
-        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " cell_based/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " cell_based/test/data/AncestorCrypt/results.vizancestors").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_file3 + " cell_based/test/data/AncestorCrypt/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " crypt/test/data/AncestorCrypt/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " crypt/test/data/AncestorCrypt/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file3 + " crypt/test/data/AncestorCrypt/results.vizcelltypes").c_str()), 0);
 
         // Tidy up
         WntConcentration<2>::Destroy();
@@ -1934,7 +1934,6 @@ public:
         // Run simulation
         simulator.Solve();
     }
-
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

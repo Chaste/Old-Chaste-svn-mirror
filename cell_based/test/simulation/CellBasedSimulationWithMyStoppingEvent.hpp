@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 
 /**
- *  Simple subclass of CellBasedSimulation which just overloads StoppingEventHasOccurred
+ * Simple subclass of CellBasedSimulation which just overloads StoppingEventHasOccurred
  * for testing the stopping event functionality..
  */
 class CellBasedSimulationWithMyStoppingEvent : public CellBasedSimulation<2>
@@ -45,7 +45,6 @@ public:
                                            std::vector<AbstractForce<2>* > forceCollection);
 };
 
-
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(CellBasedSimulationWithMyStoppingEvent)
@@ -56,7 +55,6 @@ namespace serialization
 {
 /**
  * Serialize information required to construct a CellBasedSimulationWithMyStoppingEvent.
- *
  */
 template<class Archive>
 inline void save_construct_data(

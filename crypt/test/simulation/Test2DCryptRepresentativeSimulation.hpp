@@ -79,10 +79,10 @@ public:
         // Create a new clean directory
         OutputFileHandler file_handler(test_to_profile, true);
 
-        // The archive must be copied from cell_based/test/data/<test_to_profile>
+        // The archive must be copied from crypt/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string test_data_directory = "cell_based/test/data/" + test_to_load +"/";
+        std::string test_data_directory = "crypt/test/data/" + test_to_load +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +"* "+ test_output_directory +"/" + test_to_profile + "/";
 
         // Test that the above command was implemented successfully
