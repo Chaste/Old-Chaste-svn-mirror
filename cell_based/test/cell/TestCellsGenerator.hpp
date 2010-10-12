@@ -99,6 +99,37 @@ public:
             TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
         }
     }
+
+    void TestGenerateBasicRandomWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
+    {
+        // Create mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
+
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            // Shold lie between -24 and 0
+            TS_ASSERT_LESS_THAN_EQUALS(cells[i]->GetBirthTime(), 0.0);
+            TS_ASSERT_LESS_THAN_EQUALS(-24.0, cells[i]->GetBirthTime());
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
+        }
+
+        //Test exact random numbers as test re-seeds random number generator.
+        TS_ASSERT_DELTA(cells[0]->GetBirthTime(), -20.1645, 1e-4);
+        TS_ASSERT_DELTA(cells[1]->GetBirthTime(), -9.4651, 1e-4);
+        TS_ASSERT_DELTA(cells[2]->GetBirthTime(), -18.7943, 1e-4);
+
+    }
+
 };
 
 #endif /*TESTCELLSGENERATOR_HPP_*/

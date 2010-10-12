@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "Cell.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "RandomNumberGenerator.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
@@ -58,6 +59,18 @@ public:
     void GenerateBasic(std::vector<CellPtr>& rCells,
                        unsigned numCells,
                        const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+
+    /**
+     * Fills a vector of cells with a specified cell cycle model, to match
+     * a given number of cells. Gives cells a random birth time drawn uniformly
+     * from 0 to the AverageStemCellCycleTime.
+     *
+     * @param rCells  An empty vector of cells to fill up.
+     * @param numCells  The number of cells to generate.
+     *
+     */
+    void GenerateBasicRandom(std::vector<CellPtr>& rCells,
+                             unsigned numCells);
 
     /**
      * Fills a vector of cells with birth times to match a given vector of location indices.
@@ -106,10 +119,38 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<CellPtr>& r
         {
             birth_time = 0.0 - i;
         }
+
         p_cell->SetBirthTime(birth_time);
         rCells.push_back(p_cell);
     }
 }
+
+
+template<class CELL_CYCLE_MODEL, unsigned DIM>
+void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasicRandom(std::vector<CellPtr>& rCells,
+                                                               unsigned numCells)
+{
+    CellPropertyRegistry::Instance()->Clear();
+    rCells.clear();
+    rCells.reserve(numCells);
+
+    // Create cells
+    for (unsigned i=0; i<numCells; i++)
+    {
+        CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        p_cell_cycle_model->SetDimension(DIM);
+        p_cell_cycle_model->SetCellProliferativeType(STEM);
+
+        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+        CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+
+        double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
+
+        p_cell->SetBirthTime(birth_time);
+        rCells.push_back(p_cell);
+    }
+}
+
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vector<CellPtr>& rCells,
