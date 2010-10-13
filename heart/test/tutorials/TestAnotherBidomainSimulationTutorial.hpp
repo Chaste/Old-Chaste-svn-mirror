@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = Another example showing how to run a bidomain simulation =
  * 
- * In this tutorial run another bidomain simulation, 
+ * In this tutorial we run another bidomain simulation, 
  * showing (i) an example using one of the source cell factories, (ii) how to define
  * and use fibre directions, and (iii) mentioning how to write other output file formats.
  *
