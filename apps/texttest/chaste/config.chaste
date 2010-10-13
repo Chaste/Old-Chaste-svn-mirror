@@ -2,7 +2,6 @@ binary:$TEXTTEST_CHECKOUT/apps/src/Chaste
 create_catalogues:true
 link_test_path:ChasteParameters.xsd
 link_test_path:ChasteParameters.xml
-link_test_path:ChasteDefaults.xml
 link_test_path:cube_1626_elements.ele
 link_test_path:cube_1626_elements.face
 link_test_path:cube_1626_elements.node

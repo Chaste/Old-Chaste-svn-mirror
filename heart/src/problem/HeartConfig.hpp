@@ -95,10 +95,11 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        //Only the Master should be writing the coonfiguration file
+        //Only the Master should be writing the configuration file
         if (PetscTools::AmMaster())
         {
-            mpInstance->Write( true );
+            // We don't write ChasteDefaults.xml out since it's not needed for resuming anymore.
+            mpInstance->Write(false, true);
         }
         PetscTools::Barrier("HeartConfig::save");
     }
@@ -123,9 +124,6 @@ private:
          */
         assert(mpUserParameters.use_count() > 0);
         boost::shared_ptr<cp::chaste_parameters_type> p_new_parameters = mpUserParameters;
-
-        std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
-        HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
 
         /*
          *  When we unarchive a simulation, we load the old parameters file in order to inherit things such
@@ -223,13 +221,14 @@ public:
      * and ChasteDefaults) as an XML file.
      * Note that the location of ChasteParameters.xsd (schema definition)
      * will be hard-coded in the XML file.
+     * @param writeFileWithDefaults if true, write default parameters to disc
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
      * @param subfolderName -- where to store with respect to GetOutputDirectory()
      *
      * @note This method is collective if useArchiveLocationInfo is false
      */
-    void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
+    void Write(bool writeFileWithDefaults, bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
     /**
      * Utility method to parse an XML parameters file.

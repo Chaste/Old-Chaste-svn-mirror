@@ -402,7 +402,7 @@ void HeartConfig::SetDefaultsFile(const std::string& rFileName)
     CheckTimeSteps();
 }
 
-void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
+void HeartConfig::Write(bool writeFileWithDefaults, bool useArchiveLocationInfo, std::string subfolderName)
 {
     //Output file
     std::string output_dirname;
@@ -420,10 +420,10 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
         //Only the master process is writing the configuration files
         return;
     }
-    out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
+
     out_stream p_parameters_file( new std::ofstream( (output_dirname+"ChasteParameters.xml").c_str() ) );
 
-    if (!p_defaults_file->is_open() || !p_parameters_file->is_open())
+    if (!p_parameters_file->is_open())
     {
         EXCEPTION("Could not open XML file in HeartConfig");
     }
@@ -444,7 +444,13 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     map["cp"].schema = absolute_path_to_xsd + "ChasteParameters_2_1.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
-    cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
+
+    if (writeFileWithDefaults)
+    {
+        out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
+        assert(p_defaults_file->is_open());
+        cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
+    }
 }
 
 void HeartConfig::SetDefaultSchemaLocations()

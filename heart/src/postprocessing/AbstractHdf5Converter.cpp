@@ -79,7 +79,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
 
     }
     //Write the parameters out
-    HeartConfig::Instance()->Write(false, subdirectoryName);
+    HeartConfig::Instance()->Write(true, false, subdirectoryName);
 
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
