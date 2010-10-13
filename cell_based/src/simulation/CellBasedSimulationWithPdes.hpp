@@ -188,13 +188,11 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param forceCollection The mechanics to use in the simulation
      * @param pdeAndBcCollection A vector of pointers to PdeAndBoundaryConditions objects (defaults to an empty vector0
      * @param deleteCellPopulationAndForceCollection Whether to delete the cell population on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
      CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
-                              std::vector<AbstractForce<DIM>*> forceCollection,
                               std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
                               bool deleteCellPopulationAndForceCollection=false,
                               bool initialiseCells=true);
@@ -275,8 +273,6 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<DIM> * p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
-    const std::vector<AbstractForce<DIM>*> force_collection = t->rGetForceCollection();
-    ar & force_collection;
 }
 
 /**
@@ -289,11 +285,9 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
-    std::vector<AbstractForce<DIM>*> force_collection;
-    ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulationWithPdes<DIM>(*p_cell_population, force_collection, std::vector<PdeAndBoundaryConditions<DIM>*>(), true, false);
+    ::new(t)CellBasedSimulationWithPdes<DIM>(*p_cell_population, std::vector<PdeAndBoundaryConditions<DIM>*>(), true, false);
 }
 }
 } // namespace ...

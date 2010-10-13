@@ -646,16 +646,17 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        CryptSimulation2d simulator(crypt, force_collection);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("IngeCellsNiceCryptSim_long");
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
+        // Add cell Killer
         SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
         simulator.AddCellKiller(&cell_killer);
 

@@ -93,15 +93,14 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DSloughingDeathNonPeriodic");
         simulator.SetEndTime(4.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, domain_height, true,domain_width);
@@ -134,15 +133,14 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DSloughingDeathPeriodic");
         simulator.SetEndTime(4.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> cell_killer(&crypt, crypt_length);
@@ -189,19 +187,19 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(sqrt(2)); // root2 is a sensible choice
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("MonolayerCutoffPointNoGhosts");
         simulator.SetEndTime(12.0);
 
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
         // Run simulation
         simulator.Solve();
+
+        //\TODO there are no Tests here!!
     }
 
     /*
@@ -250,21 +248,8 @@ public:
 		WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 		WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-		// Set up force law
-		GeneralisedLinearSpringForce<2> meineke_force;
-
-		// Unusual set-up here (corresponds to the Meineke crypt model parameters)
-		meineke_force.SetMeinekeSpringStiffness(30.0);
-
-		// Sets the MeinekeSpringGrowthDuration to be the default MPhase duration
-		meineke_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
-
-		// Pass force law into collection
-		std::vector<AbstractForce<2>*> force_collection;
-		force_collection.push_back(&meineke_force);
-
 		// Create crypt simulation
-		CryptSimulation2d simulator(crypt, force_collection);
+		CryptSimulation2d simulator(crypt);
 
 		// Set where to output simulation results
 		simulator.SetOutputDirectory(output_directory);
@@ -274,6 +259,15 @@ public:
 
 		// Only save results every tenth time step
 		simulator.SetSamplingTimestepMultiple(10);
+
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> meineke_force;
+        // Unusual set-up here (corresponds to the Meineke crypt model parameters)
+        meineke_force.SetMeinekeSpringStiffness(30.0);
+        // Sets the MeinekeSpringGrowthDuration to be the default MPhase duration
+        meineke_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
+        simulator.AddForce(&meineke_force);
 
 		// Set up sloughing cell killer and pass in to simulation
 		AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);

@@ -40,14 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
-					                                    std::vector<AbstractForce<DIM>*> forceCollection,
 					                                    std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
 					                                    bool deleteCellPopulationAndForceCollection,
 					                                    bool initialiseCells)
     : CellBasedSimulation<DIM>(rCellPopulation,
-                            forceCollection,
-                            deleteCellPopulationAndForceCollection,
-                            initialiseCells),
+                               std::vector<AbstractForce<DIM>*>(),
+                               deleteCellPopulationAndForceCollection,
+                               initialiseCells),
       mPdeAndBcCollection(pdeAndBcCollection),
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),

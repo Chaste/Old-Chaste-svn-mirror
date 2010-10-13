@@ -246,6 +246,18 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         /*
+         * The simulator object for these problems is
+         * {{{CellBasedSimulationWithPdes}}}. We pass in the cell_population, and the PDE.
+         */
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+
+        /*
+         * We next set the output directory and end time.
+         */
+        simulator.SetOutputDirectory("SpheroidTutorial");
+        simulator.SetEndTime(10.0);
+
+        /*
          * We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring. Since this
@@ -260,23 +272,12 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the spheroid boundary.
          */
+
+        /* We now create a force law and pass it to the {{{CellBasedSimulationWithPdes}}} */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
+        p_simulator->AddForce(&linear_force);
 
-        /*
-         * The simulator object for these problems is
-         * {{{CellBasedSimulationWithPdes}}}. We pass in the cell_population, the
-         * mechanics system, and the PDE.
-         */
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
-
-        /*
-         * We next set the output directory and end time.
-         */
-        simulator.SetOutputDirectory("SpheroidTutorial");
-        simulator.SetEndTime(10.0);
 
         /*
          * Solve.

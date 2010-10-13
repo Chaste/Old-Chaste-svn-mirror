@@ -237,16 +237,17 @@ public:
 
     	/* Create cell population, as before. */
     	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
-    
-    	/* Create force law and force collection, as above. */
-    	NagaiHondaForce<2> force_law;
-	    std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
 
 	    /* Create a simulator as before (except setting a different output directory). */
-	    VertexCryptSimulation2d simulator(crypt, force_collection);
+	    VertexCryptSimulation2d simulator(crypt);
 	    simulator.SetOutputDirectory("VertexCrypt");
         simulator.SetEndTime(1);
+
+        /* Before running the simulation, we add a one or more force laws, which determine the mechanics of
+         * the cell population.  For this test, we use a {{{NagaiHondaForce}}}.
+         */
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         /* Before running the simulation, we add a cell killer. This object
 	     * dictates conditions under which cells die. For this test, we use
@@ -326,15 +327,15 @@ public:
 	WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 	WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-	/* Create force law and force collection, as above. */
-	NagaiHondaForce<2> force_law;
-	std::vector<AbstractForce<2>*> force_collection;
-	force_collection.push_back(&force_law);
-
 	/* Create a simulator as before (except setting a different output directory). */
-	VertexCryptSimulation2d simulator(crypt, force_collection);
+	VertexCryptSimulation2d simulator(crypt);
 	simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
 	simulator.SetEndTime(1);
+
+    /* Before running the simulation, we add a one or more force laws, as before. */
+    NagaiHondaForce<2> nagai_honda_force;
+    simulator.AddForce(&nagai_honda_force);
+
 
 	/* Before running the simulation, we add a cell killer, as before.*/
 	SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);

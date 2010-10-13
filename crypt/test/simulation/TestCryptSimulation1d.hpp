@@ -84,15 +84,14 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dWithNoBirthAndNoDeath");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -151,15 +150,14 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dWithDeathButNoBirth");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Add sloughing cell killer to simulation
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
@@ -244,15 +242,14 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dWithCells");
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -312,15 +309,14 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("TestCalculateCellDivisionVector");
         simulator.SetEndTime(1.001);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -399,15 +395,14 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dWithCellsAndGrowth");
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Add sloughing cell killer to simulation
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
@@ -489,17 +484,17 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt);
+        simulator.SetOutputDirectory("CryptWithTysonNovakCells");
+        simulator.SetEndTime(1.35);
+
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<1> linear_force;
         // Sets the MeinekeSpringGrowthDuration to be the default MPhase Duration
         linear_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
+        simulator.AddForce(&linear_force);
 
-        // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
-        simulator.SetOutputDirectory("CryptWithTysonNovakCells");
-        simulator.SetEndTime(1.35);
 
         // Run simulation
         simulator.Solve();
@@ -579,15 +574,14 @@ public:
         MeshBasedCellPopulation<1> crypt(mesh, cells);
         crypt.SetOutputCellProliferativeTypes(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
         simulator.SetEndTime(40);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Add sloughing cell killer to simulation
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
@@ -694,15 +688,14 @@ public:
         WntConcentration<1>::Instance()->SetCellPopulation(crypt);
         WntConcentration<1>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation1d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1DWntMatureCells");
         simulator.SetEndTime(0.01);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -791,17 +784,16 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1DSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
@@ -943,15 +935,15 @@ public:
         // Create cell population
         MeshBasedCellPopulation<1> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
+        CryptSimulation1d simulator(crypt);
         simulator.SetOutputDirectory("Crypt1dWithCellsAndGrowth");
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
+
 
         // Add sloughing cell killer to simulation
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);

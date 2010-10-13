@@ -151,13 +151,13 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
 
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -215,14 +215,13 @@ public:
        // Create cell population
        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-       // Create force law
-       GeneralisedLinearSpringForce<2> linear_force;
-       std::vector<AbstractForce<2>*> force_collection;
-       force_collection.push_back(&linear_force);
-
        // Create crypt simulation from cell population and force law
-       CryptSimulation2d simulator(crypt, force_collection);
+       CryptSimulation2d simulator(crypt);
        simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
+
+       // Create a force law and pass it to the simulation
+       GeneralisedLinearSpringForce<2> linear_force;
+       simulator.AddForce(&linear_force);
 
        // Create cell killer and pass in to crypt simulation.
        // They kill the first and second available cell,
@@ -289,13 +288,13 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(cell_population);
 
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(cell_population, force_collection);
+        // No force law passed to simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
@@ -376,13 +375,8 @@ public:
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetOutputCellMutationStates(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        CryptSimulation2d simulator(crypt);
         simulator.SetEndTime(0.1);
 
         // These are for coverage and use the defaults
@@ -390,6 +384,10 @@ public:
         simulator.SetUpdateCellPopulationRule(true);
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 
@@ -451,15 +449,14 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");
         simulator.SetEndTime(0.6);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -559,15 +556,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         simulator.SetEndTime(0.3);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -617,15 +613,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Memory leak (unconditional jump) without the following line.
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
@@ -682,17 +677,15 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
-        linear_force.SetEdgeBasedSpringConstant(true);
-
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection, false, true);
+        CryptSimulation2d simulator(crypt, false, true);
         simulator.SetOutputDirectory("Crypt2DMeshArchive2");
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the simulation
+        LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+        variable_force.SetEdgeBasedSpringConstant(true);
+        simulator.AddForce(&variable_force);
 
         // Run simulation
         simulator.Solve();
@@ -742,15 +735,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicStandardResult");
         simulator.SetEndTime(0.25);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -814,19 +806,18 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
 
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -963,15 +954,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        LinearSpringWithVariableSpringConstantsForce<2> force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
         simulator.SetEndTime(0.01);
+
+        // Create a force law and pass it to the simulation
+        LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+        simulator.AddForce(&variable_force);
 
         // If you want to visualize this use the 'notcylindrical' option
         // (it is too small for it to figure out what's happening on its own)
@@ -1059,15 +1049,14 @@ public:
         // Cover writing logged cell
         crypt.SetOutputCellIdData(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DCylindricalCellIdLogged");
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -1108,16 +1097,15 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
         simulator.SetDt(0.001);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -1169,13 +1157,12 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(mesh, cells);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
 
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -1212,14 +1199,13 @@ public:
 
         AbstractCellPopulation<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        // Create force law
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(conf_crypt);
+
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetMeinekeDivisionRestingSpringLength(0.9); // coverage
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(conf_crypt, force_collection);
+        simulator.AddForce(&linear_force);
 
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
@@ -1248,13 +1234,8 @@ public:
 
         AbstractCellPopulation<2>::Iterator conf_iter = conf_crypt.Begin();
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(conf_crypt, force_collection);
+        CryptSimulation2d simulator(conf_crypt);
 
         // Repeat two times for coverage
         // need vector from parent to daughter to have both +ve and -ve y component
@@ -1295,13 +1276,8 @@ public:
 
         AbstractCellPopulation<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(cyl_crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(cyl_crypt);
 
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
@@ -1330,13 +1306,8 @@ public:
 
         AbstractCellPopulation<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(cyl_crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(cyl_crypt);
 
         c_vector<double,2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
@@ -1376,13 +1347,8 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
 
@@ -1390,6 +1356,10 @@ public:
         simulator.SetDt(1.0/120.0);
         simulator.SetUpdateCellPopulationRule(true);
         simulator.SetNoBirth(true);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -1431,16 +1401,16 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
 
         // Create cell killer and pass in to crypt simulation
         RandomCellKiller<2> random_cell_killer(&crypt, 0.999996771);
@@ -1471,17 +1441,16 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("Crypt2DJiggledBottomCells");
         simulator.SetEndTime(0.01);
         simulator.UseJiggledBottomCells();
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Move the first cell (which should be on y=0) down a bit
         AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
@@ -1564,17 +1533,16 @@ public:
         TS_ASSERT_EQUALS(cell_cycle_phase_count1[3], 0u);
         TS_ASSERT_EQUALS(cell_cycle_phase_count1[4], 0u);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("TestMutationStateCellCount");
         simulator.SetEndTime(1.0);
         simulator.UseJiggledBottomCells();
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -1731,15 +1699,15 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("CryptBetaCatenin");
         simulator.SetEndTime(0.01);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
 
         // Run simulation
         simulator.Solve();
@@ -1782,14 +1750,16 @@ public:
 		MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 		crypt.SetOutputCellMutationStates(true);
 
-		// Create force law
-		GeneralisedLinearSpringForce<2> linear_force;
-		std::vector<AbstractForce<2>*> force_collection;
-		force_collection.push_back(&linear_force);
+		// Create crypt simulation from cell population
+		CryptSimulation2d simulator(crypt);
 
-		// Create crypt simulation from cell population and force law
-		CryptSimulation2d simulator(crypt, force_collection);
 
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
+        // \TODO #1453 add an killer and test the output is correct
 		std::string output_directory = "TestCryptSimulation2dOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);
 		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_2d_results.parameters");
@@ -1839,19 +1809,18 @@ public:
         p_crypt->SetOutputCellMutationStates(true);
         p_crypt->SetOutputCellAncestors(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(*p_crypt, false, false);
         simulator.SetOutputDirectory(output_directory);
 
         // Set length of simulation here
         double time_of_each_run = 10.0*simulator.GetDt(); // for each run
         simulator.SetEndTime(time_of_each_run);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        simulator.AddForce(&linear_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> killer(&(simulator.rGetCellPopulation()), crypt_length);
@@ -1912,13 +1881,8 @@ public:
         crypt.SetOutputCellMutationStates(true);
         crypt.SetOutputVoronoiData(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt, force_collection);
+        CryptSimulation2d simulator(crypt);
         simulator.SetEndTime(0.1);
 
         // These are for coverage and use the defaults
@@ -1926,6 +1890,10 @@ public:
         simulator.SetUpdateCellPopulationRule(true);
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindricalForParaview");
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
 

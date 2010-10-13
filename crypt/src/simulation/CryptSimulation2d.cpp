@@ -33,11 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
-                  std::vector<AbstractForce<2>*> forceCollection,
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
     : CellBasedSimulation<2>(rCellPopulation,
-                          forceCollection,
+                          std::vector<AbstractForce<2>*>(),
                           deleteCellPopulationAndForceCollection,
                           initialiseCells),
       mUseJiggledBottomCells(false)

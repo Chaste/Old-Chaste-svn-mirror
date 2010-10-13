@@ -93,17 +93,17 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
         // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(30.0);
         simulator.SetOutputDirectory("Test2DVertexCryptRepresentativeSimulationForProfiling");
 
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<1> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
+
+        // Add a cell killer
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
         simulator.AddCellKiller(&sloughing_cell_killer);
 

@@ -31,11 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
-                  std::vector<AbstractForce<1>*> forceCollection,
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
     : CellBasedSimulation<1>(rCellPopulation,
-                          forceCollection,
+                          std::vector<AbstractForce<1>*>(),
                           deleteCellPopulationAndForceCollection,
                           initialiseCells)
 {

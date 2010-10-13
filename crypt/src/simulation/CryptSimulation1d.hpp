@@ -86,12 +86,10 @@ public:
      *  Constructor.
      *
      *  @param rCellPopulation A cell population object
-     *  @param forceCollection The mechanics to use in the simulation
      *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
     CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
-                      std::vector<AbstractForce<1>*> forceCollection,
                       bool deleteCellPopulationAndForceCollection=false,
                       bool initialiseCells=true);
 
@@ -136,8 +134,6 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<1>* p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
-    const std::vector<AbstractForce<1>*> force_collection = t->rGetForceCollection();
-    ar & force_collection;
 }
 
 /**
@@ -150,11 +146,9 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<1>* p_cell_population;
     ar & p_cell_population;
-    std::vector<AbstractForce<1>*> force_collection;
-    ar & force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CryptSimulation1d(*p_cell_population, force_collection, true, false);
+    ::new(t)CryptSimulation1d(*p_cell_population, true, false);
 }
 }
 } // namespace

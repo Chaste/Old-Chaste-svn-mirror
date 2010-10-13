@@ -190,19 +190,21 @@ public:
         // Set cell population to output cell types
         crypt.SetOutputCellMutationStates(true);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
 
-        CryptSimulation2d simulator(crypt, force_collection, false, false);
+
+        CryptSimulation2d simulator(crypt, false, false);
 
         simulator.SetOutputDirectory(output_directory);
         double time_of_each_run = simulator.GetDt(); // for each run
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
+
+        // Create a force laws and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        simulator.AddForce(&linear_force);
+
         SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
         simulator.AddCellKiller(&cell_killer);
 
@@ -406,19 +408,18 @@ public:
             // Set cell population to output cell types
             p_crypt->SetOutputCellMutationStates(true);
 
-            // Set up force law
-            GeneralisedLinearSpringForce<2> linear_force;
-            linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-            std::vector<AbstractForce<2>*> force_collection;
-            force_collection.push_back(&linear_force);
-
             // Set up crypt simulation
-            CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
+            CryptSimulation2d simulator(*p_crypt, false, false);
             simulator.SetOutputDirectory(output_directory);
 
             // Set length of simulation here
             time_of_each_run = 10.0*simulator.GetDt(); // for each run
             simulator.SetEndTime(time_of_each_run);
+
+            // Create a force laws and pass it to the simulation
+            GeneralisedLinearSpringForce<2> linear_force;
+            linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+            simulator.AddForce(&linear_force);
 
             // Set up cell killer
             p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);

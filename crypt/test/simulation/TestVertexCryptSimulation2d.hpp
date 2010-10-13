@@ -126,13 +126,8 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(cell_population, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(cell_population);
 
         std::vector<c_vector<double, 2> > old_node_locations(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
@@ -187,18 +182,17 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("VertexCrypt2DJiggledBottomCells");
         simulator.SetEndTime(0.01);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.UseJiggledBottomCells();
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Move the first node (which should be on y=0) down a bit
         TS_ASSERT_DELTA(crypt.GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
@@ -242,17 +236,16 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetEndTime(0.1);
         simulator.SetSamplingTimestepMultiple(50);
 
         simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // No cell killer
 
@@ -293,16 +286,15 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Make crypt shorter for sloughing
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -339,16 +331,15 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptLong");
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Make crypt shorter for sloughing
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -391,16 +382,15 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
         simulator.SetOutputDirectory("TestShortWntBasedCryptSimulation");
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Make crypt shorter for sloughing
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -443,16 +433,15 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(50.0);
         simulator.SetOutputDirectory("TestLongWntBasedVertexCryptSimulation");
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Make crypt shorter for sloughing
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -489,22 +478,18 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create boundary force law
-        VertexCryptBoundaryForce<2> boundary_force_law(150);
-
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-
-        force_collection.push_back(&boundary_force_law);
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         double end_time = 0.1;
         simulator.SetEndTime(end_time);
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
+
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
+        VertexCryptBoundaryForce<2> boundary_force_law(150);
+        simulator.AddForce(&boundary_force_law);
 
         // Make crypt shorter for sloughing
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -544,15 +529,14 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DArchive");
         simulator.SetEndTime(0.1);
+
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         /*
          * Memory leak (unconditional jump) without the following line. The
@@ -608,15 +592,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DPeriodicStandardResult");
         simulator.SetEndTime(0.25);
+
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -666,13 +649,12 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
 
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
@@ -715,17 +697,16 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt, force_collection);
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DPeriodicSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
         simulator.SetEndTime(0.1);
+
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);

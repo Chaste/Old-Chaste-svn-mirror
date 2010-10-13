@@ -154,19 +154,18 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
+        // Set up cell-based simulation
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("TestPostSolveMethod");
+        simulator.SetEndTime(2.0/120.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
         GeneralisedLinearSpringForce<2> linear_force;
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
         // (we need to call Solve to set up the .vizpdesolution file)
         linear_force.SetCutOffLength(0.0001);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestPostSolveMethod");
-        simulator.SetEndTime(2.0/120.0);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -261,18 +260,17 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        boost::shared_ptr<CellBasedSimulation<2> > p_simulator(new CellBasedSimulationWithPdes<2>(cell_population, force_collection, pde_and_bc_collection));
+        boost::shared_ptr<CellBasedSimulation<2> > p_simulator(new CellBasedSimulationWithPdes<2>(cell_population, pde_and_bc_collection));
         TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "CellBasedSimulationWithPdes-2");
 
         p_simulator->SetOutputDirectory("CellBasedSimulationWithOxygen");
         p_simulator->SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        p_simulator->AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -386,16 +384,15 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("CellBasedSimulationWithPdes");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -488,16 +485,15 @@ public:
 		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
 		pde_and_bc_collection.push_back(&pde_and_bc2);
 
-		// Set up force law
-		GeneralisedLinearSpringForce<2> linear_force;
-		linear_force.SetCutOffLength(1.5);
-		std::vector<AbstractForce<2>*> force_collection;
-		force_collection.push_back(&linear_force);
-
 		// Set up cell-based simulation
-		CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
 		simulator.SetOutputDirectory("CellBasedSimulationWithPointwiseSource");
 		simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
 		// Set up cell killer and pass into simulation
 		OxygenBasedCellKiller<2> killer(&cell_population);
@@ -578,17 +574,16 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialPdeSolution(5);
+#
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Add an oxygen-dependent cell killer to the cell-based simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -702,19 +697,18 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -892,19 +886,18 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -1012,17 +1005,16 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation to use a coarse PDE mesh
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
         simulator.SetEndTime(0.01);
         simulator.UseCoarsePdeMesh(2.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
         simulator.Solve();
@@ -1099,15 +1091,15 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("CellBasedSimulationWithPdesSaveAndLoad");
         simulator.SetEndTime(0.2);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
@@ -1212,16 +1204,15 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3.0);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(3.0);
+        simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
         simulator.Solve();
@@ -1305,16 +1296,15 @@ public:
         std::vector<PdeAndBoundaryConditions<3>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up force law
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<3>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<3> simulator(cell_population, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("CellBasedSimulationWithOxygen3d");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
         AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&cell_population);
@@ -1358,14 +1348,14 @@ public:
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Create a force law Collection
-		GeneralisedLinearSpringForce<2> linear_force;
-		std::vector<AbstractForce<2>*> force_collection;
-		force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-		CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
+		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);

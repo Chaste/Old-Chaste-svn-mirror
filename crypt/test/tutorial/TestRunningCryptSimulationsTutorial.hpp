@@ -153,21 +153,11 @@ public:
          */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring. We put a pointer
-         * to this force into a vector.
-         */
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         /* Set the crypt length this will be used for sloughing.*/
         double crypt_length = 8.0;
 
-        /* Now we define the cell-based simulation object, passing in the cell population and collection
-         * of force laws: */
-        CryptSimulation2d simulator(cell_population, force_collection);
+        /* Now we define the cell-based simulation object, passing in the cell population: */
+        CryptSimulation2d simulator(cell_population);
 
         /* Set the output directory on the simulator (relative to
          * "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
@@ -181,6 +171,14 @@ public:
          * simulator to print results every 5 min.
          */
         //simulator.SetSamplingTimestepMultiple(10);
+
+        /* Before running the simulation, we add a one or more force laws, which determine the mechanics of
+         * the cell population. For this test, we use a {{{GeneralisedLinearSpringForce}}} which assumes
+         * that a cell experiences a force from each neighbour that can be represented as a linear overdamped
+         * spring.
+         */
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         /* Before running the simulation, we add a cell killer. This object
          * dictates conditions under which cells die. For this test, we use
@@ -252,15 +250,14 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        /* Create a force collection as above. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         /* Create a simulator as before (except setting a different output directory). */
-        CryptSimulation2d simulator(cell_population,force_collection);
+        CryptSimulation2d simulator(cell_population);
         simulator.SetOutputDirectory("CryptTutorialWntCellCycle");
         simulator.SetEndTime(1);
+
+        /* Create a force law as before*/
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
 
         /* Create a killer, as before. */
         SloughingCellKiller<2> killer(&cell_population, crypt_length);
