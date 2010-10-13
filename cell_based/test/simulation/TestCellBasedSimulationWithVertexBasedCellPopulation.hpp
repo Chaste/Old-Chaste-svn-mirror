@@ -112,7 +112,7 @@ public:
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
         simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -175,7 +175,7 @@ public:
         simulator.SetOutputDirectory("TestSingleCellRelaxationWelikyOster");
         simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         WelikyOsterForce<2> weliky_oster_force;
         simulator.AddForce(&weliky_oster_force);
 
@@ -218,7 +218,7 @@ public:
         simulator.SetOutputDirectory("TestSingleCellDividing");
         simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -284,7 +284,7 @@ public:
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -347,7 +347,7 @@ public:
         simulator.SetOutputDirectory("TestVertexMonolayerWithVoid");
         simulator.SetEndTime(20.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -425,7 +425,7 @@ public:
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -501,7 +501,7 @@ public:
 		simulator.SetOutputDirectory("TestVertexMonolayerWithTwoMutationStates");
 		simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -561,7 +561,7 @@ public:
         simulator.SetOutputDirectory("TestVertexSingleCellApoptosis");
         simulator.SetEndTime(2.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -632,7 +632,7 @@ public:
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(end_time);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
@@ -699,11 +699,15 @@ public:
         force_collection.push_back(&force);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithVertexBasedCellPopulationSaveAndLoad");
         simulator.SetEndTime(end_time);
 
         TS_ASSERT_DELTA(simulator.GetDt(), 0.002, 1e-12);
+
+        // Create a force law and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run and save simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

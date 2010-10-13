@@ -116,13 +116,12 @@ public:
             TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section[i]), expected_indices[i]);
         }
 
-        // Create the force law and pass in to a std::list
-        CryptProjectionForce crypt_projection_force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&crypt_projection_force);
-
         // Make a cell-based simulation
-        CellBasedSimulation<2> crypt_projection_simulator(crypt, force_collection, false, false);
+        CellBasedSimulation<2> crypt_projection_simulator(crypt, false, false);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        CryptProjectionForce crypt_projection_force;
+        crypt_projection_simulator.AddForce(&crypt_projection_force);
 
         // Create a radial cell killer and pass it in to the cell-based simulation
         c_vector<double,2> centre = zero_vector<double>(2);

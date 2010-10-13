@@ -270,12 +270,10 @@ public:
      *  Constructor.
      *
      *  @param rCellPopulation A cell population object
-     *  @param forceCollection The mechanics to use in the simulation
-     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory defaults to empty
+     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
      *  @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                        std::vector<AbstractForce<DIM>*> forceCollection=std::vector<AbstractForce<DIM>*>(),
                         bool deleteCellPopulationAndForceCollection=false,
                         bool initialiseCells=true);
 
@@ -419,20 +417,6 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputSimulationParameters(out_stream& rParamsFile);
-
-//    /**
-//     * Return the unique identifier of the concrete class.
-//     *
-//     * This method uses Boost's serialization's
-//     * extended_type_info and returns the identifier of the derived class
-//     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
-//     * derived class, and is usually just the name of the class).
-//     *
-//     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
-//     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
-//     * method, or any other method that calls this method.
-//     */
-//    std::string GetIdentifier() const;
 };
 
 
@@ -456,8 +440,6 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
-    const std::vector<AbstractForce<DIM>*> force_collection = t->rGetForceCollection();
-    ar & force_collection;
 }
 
 /**
@@ -470,11 +452,9 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
-    std::vector<AbstractForce<DIM>*> force_collection;
-    ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulation<DIM>(*p_cell_population, force_collection, true, false);
+    ::new(t)CellBasedSimulation<DIM>(*p_cell_population, true, false);
 }
 }
 } // namespace

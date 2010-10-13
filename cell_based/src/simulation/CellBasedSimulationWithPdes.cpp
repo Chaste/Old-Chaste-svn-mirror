@@ -44,7 +44,6 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
 					                                    bool deleteCellPopulationAndForceCollection,
 					                                    bool initialiseCells)
     : CellBasedSimulation<DIM>(rCellPopulation,
-                               std::vector<AbstractForce<DIM>*>(),
                                deleteCellPopulationAndForceCollection,
                                initialiseCells),
       mPdeAndBcCollection(pdeAndBcCollection),

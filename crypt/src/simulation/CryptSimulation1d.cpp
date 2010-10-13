@@ -34,7 +34,6 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
     : CellBasedSimulation<1>(rCellPopulation,
-                          std::vector<AbstractForce<1>*>(),
                           deleteCellPopulationAndForceCollection,
                           initialiseCells)
 {

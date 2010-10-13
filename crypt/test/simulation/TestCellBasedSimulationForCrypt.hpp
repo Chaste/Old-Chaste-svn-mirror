@@ -103,16 +103,16 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
         simulator.SetOutputDirectory("CellBasedSimulationWritingProteins");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
 
@@ -199,13 +199,12 @@ public:
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        // Create the force law and pass in to a std::list
-        CryptProjectionForce crypt_projection_force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&crypt_projection_force);
-
         // Make a cell-based simulation
-        CellBasedSimulation<2> crypt_projection_simulator(crypt, force_collection, false, false);
+        CellBasedSimulation<2> crypt_projection_simulator(crypt, false, false);
+
+        // Create a force law and pass it to the simulation
+        CryptProjectionForce crypt_projection_force;
+        crypt_projection_simulator.AddForce(&crypt_projection_force);
 
         // Create a radial cell killer and pass it in to the cell-based simulation
         c_vector<double,2> centre = zero_vector<double>(2);

@@ -108,7 +108,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(10.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -153,7 +153,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(10.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -232,7 +232,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationCellPtrDeath");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -276,7 +276,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationStandardResult");
         simulator.SetEndTime(2.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -315,7 +315,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad");
         simulator.SetEndTime(0.1);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);

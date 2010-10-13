@@ -33,7 +33,6 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
     : CellBasedSimulation<2>(rCellPopulation,
-                          std::vector<AbstractForce<2>*>(),
                           deleteCellPopulationAndForceCollection,
                           initialiseCells),
       mUseJiggledBottomCells(false)

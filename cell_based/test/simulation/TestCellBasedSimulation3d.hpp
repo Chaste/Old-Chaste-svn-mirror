@@ -152,7 +152,7 @@ public:
         simulator.SetOutputDirectory("Test3DCellBirth");
         simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -200,7 +200,7 @@ public:
         CellBasedSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -289,7 +289,7 @@ public:
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -311,7 +311,7 @@ public:
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
         simulator2.SetEndTime(0.1);
 
-        // Pass force_law to the CellBasedSimulation
+        // Pass force_law to the simulation
         simulator2.AddForce(&linear_force);
 
         simulator2.Solve();

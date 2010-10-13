@@ -42,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                              std::vector<AbstractForce<DIM>*> forceCollection,
                                               bool deleteCellPopulationAndForceCollection,
                                               bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
@@ -57,7 +56,6 @@ CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCell
       mNumBirths(0),
       mNumDeaths(0),
       mSamplingTimestepMultiple(1),
-      mForceCollection(forceCollection),
       mOutputNodeVelocities(false)
 {
     // This line sets a random seed of 0 if it wasn't specified earlier.

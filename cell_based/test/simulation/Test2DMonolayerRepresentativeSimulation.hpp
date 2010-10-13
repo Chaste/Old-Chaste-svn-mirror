@@ -88,7 +88,7 @@ public:
         simulator.SetOutputDirectory("Test2DMonolayerRepresentativeSimulationForProfiling");
         simulator.SetEndTime(50.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);

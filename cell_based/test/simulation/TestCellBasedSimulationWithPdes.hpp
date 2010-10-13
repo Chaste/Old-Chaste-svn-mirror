@@ -159,7 +159,7 @@ public:
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
@@ -267,7 +267,7 @@ public:
         p_simulator->SetOutputDirectory("CellBasedSimulationWithOxygen");
         p_simulator->SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         p_simulator->AddForce(&linear_force);
@@ -389,7 +389,7 @@ public:
         simulator.SetOutputDirectory("CellBasedSimulationWithPdes");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -490,7 +490,7 @@ public:
 		simulator.SetOutputDirectory("CellBasedSimulationWithPointwiseSource");
 		simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -580,7 +580,7 @@ public:
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialPdeSolution(5);
 #
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -705,7 +705,7 @@ public:
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -894,7 +894,7 @@ public:
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -1011,7 +1011,7 @@ public:
         simulator.SetEndTime(0.01);
         simulator.UseCoarsePdeMesh(2.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -1096,7 +1096,7 @@ public:
         simulator.SetOutputDirectory("CellBasedSimulationWithPdesSaveAndLoad");
         simulator.SetEndTime(0.2);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -1209,7 +1209,7 @@ public:
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3.0);
         simulator.AddForce(&linear_force);
@@ -1301,7 +1301,7 @@ public:
         simulator.SetOutputDirectory("CellBasedSimulationWithOxygen3d");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -1352,7 +1352,7 @@ public:
 		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);

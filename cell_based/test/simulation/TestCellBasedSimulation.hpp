@@ -102,7 +102,7 @@ public:
         simulator.SetOutputDirectory("TestOutputNodeVelocities");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -155,7 +155,7 @@ public:
         simulator.SetOutputDirectory("TestOutputNodeVelocitiesWithGhostNodes");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -207,7 +207,7 @@ public:
         simulator.SetOutputDirectory("TestCellBasedSimulationWithCellDeath");
         simulator.SetEndTime(0.5);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -270,7 +270,7 @@ public:
 		simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
 		simulator.SetEndTime(0.5);
 
-		// Create some force laws and pass them to the CellBasedSimulation
+		// Create some force laws and pass them to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
@@ -387,7 +387,7 @@ public:
         // Set the end time to 10.0 - the stopping event is, however, t>3.1415.
         simulator.SetEndTime(10.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -437,7 +437,7 @@ public:
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -595,7 +595,7 @@ public:
         simulator.SetOutputDirectory("Test1DCellBasedSimulation");
         simulator.SetEndTime(0.6);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<1> linear_force;
         simulator.AddForce(&linear_force);
 
