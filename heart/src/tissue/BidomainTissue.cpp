@@ -58,7 +58,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         {
             case cp::media_type::Orthotropic:
             {
-                mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM,SPACE_DIM>;
                 FileFinder ortho_file(this->mpConfig->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
                 mpExtracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
@@ -66,14 +66,14 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
 
             case cp::media_type::Axisymmetric:
             {
-                mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+                mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM,SPACE_DIM>;
                 FileFinder axi_file(this->mpConfig->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
                 mpExtracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
             }
 
             case cp::media_type::NoFibreOrientation:
-                mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM,SPACE_DIM>;
                 break;
 
             default :
@@ -82,7 +82,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
     }
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
-        mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM,SPACE_DIM>;
     }
 
     c_vector<double, SPACE_DIM> extra_conductivities;
@@ -146,7 +146,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         mpExtracellularConductivityTensors->SetConstantConductivities(extra_conductivities);
     }
 
-    mpExtracellularConductivityTensors->Init();
+    mpExtracellularConductivityTensors->Init(this->mpMesh);
 }
 
 template <unsigned SPACE_DIM>

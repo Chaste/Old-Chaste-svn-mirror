@@ -49,15 +49,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Behavior of the Heart", Hooks et al. 2007
  *
  */
-template<unsigned SPACE_DIM>
-class OrthotropicConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class OrthotropicConductivityTensors : public AbstractConductivityTensors<ELEMENT_DIM, SPACE_DIM>
 {
 public:
 
     /**
      *  Computes the tensors based in all the info set
+     *  @param pMesh a pointer to the mesh on which these tensors are to be used
      */
-    void Init() throw (Exception);
+    void Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception);
 };
 
 #endif /*ORTHOTROPICCONDUCTIVITYTENSORS_HPP_*/

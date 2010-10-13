@@ -156,7 +156,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
         {
             case cp::media_type::Orthotropic:
             {
-                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
                 FileFinder ortho_file(this->mpConfig->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
@@ -164,7 +164,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
 
             case cp::media_type::Axisymmetric:
             {
-                mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
                 FileFinder axi_file(this->mpConfig->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
@@ -172,7 +172,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
 
             case cp::media_type::NoFibreOrientation:
                 /// \todo #1316 Create a class defining constant tensors to be used when no fibre orientation is provided.
-                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
                 break;
 
             default :
@@ -182,7 +182,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
         /// \todo #1316 Create a class defining constant tensors to be used when no fibre orientation is provided.
-        mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
+        mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
     }
 
     c_vector<double, SPACE_DIM> intra_conductivities;
@@ -233,7 +233,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
             }
         }
 
-        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        // freeing memory allocated by HeartConfig::Instance()->GetConductivityHeterogeneities
         for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
         {
             delete conductivities_heterogeneity_areas[region_index];
@@ -246,7 +246,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
     }
 
-    mpIntracellularConductivityTensors->Init();
+    mpIntracellularConductivityTensors->Init(this->mpMesh);
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 }
 

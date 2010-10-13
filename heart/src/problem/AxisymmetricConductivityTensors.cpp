@@ -32,8 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
-template<unsigned SPACE_DIM>
-AxisymmetricConductivityTensors<SPACE_DIM>::AxisymmetricConductivityTensors()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::AxisymmetricConductivityTensors()
 {
     if (SPACE_DIM != 3)
     {
@@ -41,8 +41,8 @@ AxisymmetricConductivityTensors<SPACE_DIM>::AxisymmetricConductivityTensors()
     }
 }
 
-template<unsigned SPACE_DIM>
-void AxisymmetricConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<double, 3> constantConductivities)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::SetConstantConductivities(c_vector<double, 3> constantConductivities)
 {
     //assert(SPACE_DIM == 3);//Otherwise constructor would have thrown
     if (constantConductivities[1] != constantConductivities[2])
@@ -54,9 +54,10 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vec
     this->mConstantConductivities = constantConductivities;
 }
 
-template<unsigned SPACE_DIM>
-void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception)
 {
+    this->mpMesh = pMesh;
     if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
     {
         // Constant tensor for every element
@@ -79,6 +80,7 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, AXISYM));
             this->mNumElements = this->mFileReader->GetNumLinesOfData();
+            assert(this->mNumElements == this->mpMesh->GetNumElements());
         }
         else
         {
@@ -160,8 +162,11 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-// only makes sense in 3d, but we need the other to compile
+// only makes sense for 3d elements in 3d, but we need the other to compile
 // AbstractCardiacTissue and BidomainTissue.
-template class AxisymmetricConductivityTensors<1>;
-template class AxisymmetricConductivityTensors<2>;
-template class AxisymmetricConductivityTensors<3>;
+template class AxisymmetricConductivityTensors<1,1>;
+template class AxisymmetricConductivityTensors<1,2>;
+template class AxisymmetricConductivityTensors<1,3>;
+template class AxisymmetricConductivityTensors<2,2>;
+template class AxisymmetricConductivityTensors<2,3>;
+template class AxisymmetricConductivityTensors<3,3>;

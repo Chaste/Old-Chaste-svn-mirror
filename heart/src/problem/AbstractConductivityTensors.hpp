@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include "UblasIncludes.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "FibreReader.hpp"
 #include "Exception.hpp"
 #include "FileFinder.hpp"
@@ -39,19 +40,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Base class for different representations of conductivity tensors.
  */
-template<unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractConductivityTensors
 {
 protected:
     unsigned mNumElements; /**< Number of elements (in the mesh) read from file in the derived classes*/
-
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh; /**< Mesh on which to apply*/
     bool mUseNonConstantConductivities; /**< Whether conductivities can be non-constant*/
     bool mUseFibreOrientation; /**< Set by SetFibreOrientationFile so that fibre orientation can be read*/
 
     /** Single constant conductivities for all space (when mUseNonConstantConductivities==false)*/
     c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
 
-    /** Non-constant conductivities for each elemenet (when mUseNonConstantConductivities==true)*/
+    /** Non-constant conductivities for each element (when mUseNonConstantConductivities==true)*/
     std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
 
     /** Container for conductivity tensors (single [one for all space] or multiple [one for each element]) */
@@ -115,8 +116,9 @@ public:
 
     /**
      *  Computes the tensors based in all the info set
+     * @param pMesh a pointer to the mesh on which these tensors are to be used
      */
-    virtual void Init() throw (Exception) = 0;
+    virtual void Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception) = 0;
 
     /**
      *  Returns the diffussion tensor of the element number "index"

@@ -118,7 +118,7 @@ protected:
 
     /** Intracellular conductivity tensors. Not archived, since it's loaded from the 
      *  HeartConfig singleton. */
-    AbstractConductivityTensors<SPACE_DIM>* mpIntracellularConductivityTensors;
+    AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>* mpIntracellularConductivityTensors;
 
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;

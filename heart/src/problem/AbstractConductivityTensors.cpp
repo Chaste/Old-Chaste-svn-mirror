@@ -31,9 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 
-template<unsigned SPACE_DIM>
-AbstractConductivityTensors<SPACE_DIM>::AbstractConductivityTensors()
-    : mNumElements(1),
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::AbstractConductivityTensors()
+    : mNumElements(0),///\todo remove
+      mpMesh(NULL),
       mUseNonConstantConductivities(false),
       mUseFibreOrientation(false),
       mInitialised(false)
@@ -46,20 +47,20 @@ AbstractConductivityTensors<SPACE_DIM>::AbstractConductivityTensors()
     }
 }
 
-template<unsigned SPACE_DIM>
-AbstractConductivityTensors<SPACE_DIM>::~AbstractConductivityTensors()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::~AbstractConductivityTensors()
 {
 }
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetFibreOrientationFile(const FileFinder &rFibreOrientationFile)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetFibreOrientationFile(const FileFinder &rFibreOrientationFile)
 {
     mUseFibreOrientation = true;
     mFibreOrientationFile = rFibreOrientationFile;
 }
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<double, 1> constantConductivities)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetConstantConductivities(c_vector<double, 1> constantConductivities)
 {
     if (SPACE_DIM != 1)
     {
@@ -70,8 +71,8 @@ void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<
     mConstantConductivities = constantConductivities;
 }
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<double, 2> constantConductivities)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetConstantConductivities(c_vector<double, 2> constantConductivities)
 {
     if (SPACE_DIM != 2)
     {
@@ -82,8 +83,8 @@ void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<
     mConstantConductivities = constantConductivities;
 }
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<double, 3> constantConductivities)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetConstantConductivities(c_vector<double, 3> constantConductivities)
 {
     if (SPACE_DIM != 3)
     {
@@ -94,15 +95,15 @@ void AbstractConductivityTensors<SPACE_DIM>::SetConstantConductivities(c_vector<
     mConstantConductivities = constantConductivities;
 }
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities)
 {
     mUseNonConstantConductivities = true;
     mpNonConstantConductivities = pNonConstantConductivities;
 }
 
-template<unsigned SPACE_DIM>
-c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<SPACE_DIM>::operator[](const unsigned index)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::operator[](const unsigned index)
 {
     assert(mInitialised);
 
@@ -121,6 +122,9 @@ c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<SPACE_DIM>::op
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class AbstractConductivityTensors<1>;
-template class AbstractConductivityTensors<2>;
-template class AbstractConductivityTensors<3>;
+template class AbstractConductivityTensors<1,1>;
+template class AbstractConductivityTensors<1,2>;
+template class AbstractConductivityTensors<1,3>;
+template class AbstractConductivityTensors<2,2>;
+template class AbstractConductivityTensors<2,3>;
+template class AbstractConductivityTensors<3,3>;

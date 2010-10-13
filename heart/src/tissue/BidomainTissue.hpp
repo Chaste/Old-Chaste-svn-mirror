@@ -71,7 +71,7 @@ private:
     }
 
     /** Extracellular conductivity tensors. */
-    AbstractConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
+    AbstractConductivityTensors<SPACE_DIM,SPACE_DIM> *mpExtracellularConductivityTensors;
 
     /**
      * Convenience method for extracellular conductivity tensors creation

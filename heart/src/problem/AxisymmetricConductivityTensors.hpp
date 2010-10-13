@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * However axisymmetric conductivity only makes sense in 3D, so we check in the constructor
  * for SPACE_DIM to be 3.
  */
-template<unsigned SPACE_DIM>
-class AxisymmetricConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class AxisymmetricConductivityTensors : public AbstractConductivityTensors<ELEMENT_DIM, SPACE_DIM>
 {
 public:
     /** Constructor */
@@ -52,8 +52,10 @@ public:
      * Set up the tensors.
      *
      * See extensive comments within the implementation of this method.
+     * @param pMesh a pointer to the mesh on which these tensors are to be used
+     * 
      */
-    void Init() throw (Exception);
+    void Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception);
 };
 
 

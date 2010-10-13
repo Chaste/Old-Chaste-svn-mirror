@@ -30,9 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
-template<unsigned SPACE_DIM>
-void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception)
 {
+    this->mpMesh = pMesh;
     if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
     {
         // Constant tensor for every element
@@ -55,6 +56,8 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, ORTHO));
             this->mNumElements = this->mFileReader->GetNumLinesOfData();
+            assert(this->mNumElements == this->mpMesh->GetNumElements());
+            
         }
         else
         {
@@ -128,6 +131,9 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class OrthotropicConductivityTensors<1>;
-template class OrthotropicConductivityTensors<2>;
-template class OrthotropicConductivityTensors<3>;
+template class OrthotropicConductivityTensors<1,1>;
+template class OrthotropicConductivityTensors<1,2>;
+template class OrthotropicConductivityTensors<1,3>;
+template class OrthotropicConductivityTensors<2,2>;
+template class OrthotropicConductivityTensors<2,3>;
+template class OrthotropicConductivityTensors<3,3>;
