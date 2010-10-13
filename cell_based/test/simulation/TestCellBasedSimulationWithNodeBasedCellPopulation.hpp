@@ -103,16 +103,15 @@ public:
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Create a mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population, force_collection);
+        CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         simulator.Solve();
 
@@ -149,16 +148,15 @@ public:
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Create a mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population, force_collection);
+        CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
@@ -185,6 +183,7 @@ public:
     //          => 2 hours real time to do 1hr simulation time
     //   run commented test before to see how meineke does with 10000 cells
     //
+    // \TODO this is out of date and needs to be updated with new force law system
 //    void TestSimpleMonolayer2() throw (Exception)
 //    {
 //        // Create a simple mesh
@@ -228,16 +227,15 @@ public:
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Create a mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population, force_collection);
+        CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationCellPtrDeath");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Add cell killer
         RandomCellKiller<2> random_cell_killer(&node_based_cell_population, 0.997877574);
@@ -273,16 +271,15 @@ public:
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Create a mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population, force_collection);
+        CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationStandardResult");
         simulator.SetEndTime(2.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Solve
         simulator.Solve();
@@ -313,16 +310,15 @@ public:
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Create a mechanics system
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population, force_collection);
+        CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad");
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Solve
         simulator.Solve();

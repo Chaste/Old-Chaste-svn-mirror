@@ -342,6 +342,13 @@ public:
         /* We now use the cell population to construct a cell killer object. */
         MyCellKiller my_cell_killer(&cell_population);
 
+        /* We pass in the cell population into a {{{CellBasedSimulation}}}. */
+        CellBasedSimulation<2> simulator(cell_population);
+
+        /* We set the output directory and end time. */
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellKiller");
+        simulator.SetEndTime(10.0);
+
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
@@ -354,17 +361,11 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the cell population boundary.
          */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        /* We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}. */
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
-
-        /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellKiller");
-        simulator.SetEndTime(10.0);
+        simulator.AddForce(&linear_force);
 
         /* We now pass the cell killer into the cell-based simulation. */
         MyCellKiller* p_killer = new MyCellKiller(&cell_population);

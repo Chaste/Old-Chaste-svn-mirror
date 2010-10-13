@@ -41,8 +41,7 @@ private:
     bool StoppingEventHasOccurred();
 
 public:
-    CellBasedSimulationWithMyStoppingEvent(AbstractCellPopulation<2>& rCellPopulation,
-                                           std::vector<AbstractForce<2>* > forceCollection);
+    CellBasedSimulationWithMyStoppingEvent(AbstractCellPopulation<2>& rCellPopulation);
 };
 
 // Serialization for Boost >= 1.36
@@ -63,8 +62,6 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<2>* p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
-    const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
-    ar & force_collection;
 }
 
 /**
@@ -77,11 +74,9 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<2>* p_cell_population;
     ar >> p_cell_population;
-    std::vector<AbstractForce<2>*> force_collection;
-    ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulationWithMyStoppingEvent(*p_cell_population, force_collection);
+    ::new(t)CellBasedSimulationWithMyStoppingEvent(*p_cell_population);
 }
 }
 } // namespace

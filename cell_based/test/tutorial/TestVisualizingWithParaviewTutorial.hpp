@@ -161,26 +161,27 @@ public:
          */
         cell_population.SetOutputVoronoiData(true);
 
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring. We put a pointer
-         * to this force into a vector. We use a cut-off point which represents that cells farther
-         * than 1.5 cell lengths apart, do not exert forces on one another.
-         */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
-        /* Now we define the cell-based simulation object, passing in the cell population and collection
-         * of force laws: */
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        /* Now we define the cell-based simulation object, passing in the cell population. */
+        CellBasedSimulation<2> simulator(cell_population);
 
         /* Set the output directory on the simulator (relative to
          * "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
          */
         simulator.SetOutputDirectory("Test2DMonolayerSimulationForVisualizing");
         simulator.SetEndTime(1.0);
+
+        /* We must now create one or more force laws, which determine the mechanics of
+         * the cell population. For this test, we assume that a cell experiences a force from each
+         * neighbour that can be represented as a linear overdamped spring. We put a pointer
+         * to this force into a vector. We use a cut-off point which represents that cells farther
+         * than 1.5 cell lengths apart, do not exert forces on one another.
+         */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
+
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
@@ -258,23 +259,24 @@ public:
 		*/
 		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		/* We must now create one or more force laws, which determine the mechanics of the vertices
-		* of each cell in a cell population. For this test, we use one force law, based on the
-		* Nagai-Honda mechanics. We put a pointer to this force into a vector.
-		*/
-		NagaiHondaForce<2> force;
-		std::vector<AbstractForce<2>* > force_collection;
-		force_collection.push_back(&force);
-
 		/* Now we define the cell-based simulation object, passing in the cell population and collection
 		* of force laws:
 		*/
-		CellBasedSimulation<2> simulator(cell_population, force_collection);
+		CellBasedSimulation<2> simulator(cell_population);
 
 		/* Set the output directory on the simulator and the end time (in hours).
 		*/
 		simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
 		simulator.SetEndTime(1.0);
+
+        /* We must now create one or more force laws, which determine the mechanics of the vertices
+         * of each cell in a cell population. For this test, we use one force law, based on the
+         * Nagai-Honda mechanics. We put a pointer to this force into a vector.
+         */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+		NagaiHondaForce<2> nagai_honda_force;
+		simulator.AddForce(&nagai_honda_force);
 
 		/* To run the simulation, we call {{{Solve()}}}. */
 		simulator.Solve();

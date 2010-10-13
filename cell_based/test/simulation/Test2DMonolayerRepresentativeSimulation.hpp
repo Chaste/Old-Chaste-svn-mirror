@@ -83,16 +83,15 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("Test2DMonolayerRepresentativeSimulationForProfiling");
         simulator.SetEndTime(50.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Run simulation
         simulator.Solve();

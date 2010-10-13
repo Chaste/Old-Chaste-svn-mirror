@@ -107,15 +107,14 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -172,9 +171,14 @@ public:
         force_collection.push_back(&force);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellRelaxationWelikyOster");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        WelikyOsterForce<2> weliky_oster_force;
+        simulator.AddForce(&weliky_oster_force);
+
 
         // Run simulation
         simulator.Solve();
@@ -209,15 +213,14 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellDividing");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -275,16 +278,15 @@ public:
         unsigned old_num_elements = cell_population.GetNumElements();
         unsigned old_num_cells = cell_population.GetNumRealCells();
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -340,15 +342,14 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithVoid");
         simulator.SetEndTime(20.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         ////////////////////////////////////////////
         /// Strange setup to speed up simulation ///
@@ -419,15 +420,14 @@ public:
         unsigned old_num_elements = cell_population.GetNumElements();
         unsigned old_num_cells = cell_population.GetNumRealCells();
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
         TargetedCellKiller<2> cell0_killer(&cell_population, 0);    // element on the SW corner
@@ -496,15 +496,14 @@ public:
 		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
         cell_population.SetOutputCellMutationStates(true);
 
-		// Create a force system
-		NagaiHondaForce<2> force;
-		std::vector<AbstractForce<2>* > force_collection;
-		force_collection.push_back(&force);
-
 		// Set up cell-based simulation
-		CellBasedSimulation<2> simulator(cell_population, force_collection);
+		CellBasedSimulation<2> simulator(cell_population);
 		simulator.SetOutputDirectory("TestVertexMonolayerWithTwoMutationStates");
 		simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
 		// Run simulation
 		simulator.Solve();
@@ -557,15 +556,14 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexSingleCellApoptosis");
         simulator.SetEndTime(2.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -628,18 +626,15 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
-
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(50);
-
         simulator.SetEndTime(end_time);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
         // Run simulation
         simulator.Solve();

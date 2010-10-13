@@ -102,12 +102,7 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&linear_force);
-
-        CellBasedSimulation<3> simulator(cell_population, force_collection);
+        CellBasedSimulation<3> simulator(cell_population);
 
         unsigned num_births = simulator.DoCellBirth();
 
@@ -149,18 +144,18 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&linear_force);
-
-        CellBasedSimulation<3> simulator(cell_population, force_collection);
+        CellBasedSimulation<3> simulator(cell_population);
 
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth", "StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
 
         simulator.SetOutputDirectory("Test3DCellBirth");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         simulator.Solve();
 
@@ -202,13 +197,13 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
+        CellBasedSimulation<3> simulator(cell_population);
+        simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
+
+        // Create a force law and pass it to the CellBasedSimulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<3>* > force_collection;
-        force_collection.push_back(&linear_force);
-
-        CellBasedSimulation<3> simulator(cell_population, force_collection);
-        simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
+        simulator.AddForce(&linear_force);
 
         // Test SetSamplingTimestepMultiple method
         TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 1u);
@@ -290,14 +285,15 @@ public:
         // Test Save with a MeshBasedCellPopulationWithGhostNodes
         MeshBasedCellPopulationWithGhostNodes<3> cell_population(*p_mesh, cells, location_indices);
 
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<3>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        CellBasedSimulation<3> simulator(cell_population, force_collection);
+        CellBasedSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
+
         simulator.Solve();
         CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Save(&simulator);
 
@@ -311,9 +307,13 @@ public:
 
         MeshBasedCellPopulationWithGhostNodes<3> cell_population2(*p_mesh, cells2);
 
-        CellBasedSimulation<3> simulator2(cell_population2, force_collection);
+        CellBasedSimulation<3> simulator2(cell_population2);
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
         simulator2.SetEndTime(0.1);
+
+        // Pass force_law to the CellBasedSimulation
+        simulator2.AddForce(&linear_force);
+
         simulator2.Solve();
         CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Save(&simulator2);
 

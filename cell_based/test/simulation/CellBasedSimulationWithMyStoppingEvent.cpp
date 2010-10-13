@@ -34,9 +34,8 @@ bool CellBasedSimulationWithMyStoppingEvent::StoppingEventHasOccurred()
 }
 
 CellBasedSimulationWithMyStoppingEvent::CellBasedSimulationWithMyStoppingEvent(
-        AbstractCellPopulation<2>& rCellPopulation,
-        std::vector<AbstractForce<2>* > forceCollection)
-    : CellBasedSimulation<2>(rCellPopulation, forceCollection)
+        AbstractCellPopulation<2>& rCellPopulation)
+    : CellBasedSimulation<2>(rCellPopulation)
 {
 }
 

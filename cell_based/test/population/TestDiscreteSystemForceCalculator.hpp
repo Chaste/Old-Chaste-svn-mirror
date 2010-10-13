@@ -237,14 +237,11 @@ public:
         // Run a simulation to generate some results.viz<other things> files
         // so the visualizer can display the results.vizstress file.
         // (These lines are not actually necessary for generating results.vizstress)
+        CellBasedSimulation<2> simulator(cell_population);
 
-        // This doesn't look very neat, but we need to pass in a std::vector of
-        // AbstractForces to CellBasedSimulation, compared with a std::vector of
-        // AbstractTwoBodyInteractionForces to DiscreteSystemForceCalculator
-        std::vector<AbstractForce<2>*> abstract_force_collection;
-        abstract_force_collection.push_back(&force);
+        // Add the force to to CellBasedSimulation
+        simulator.AddForce(&force);
 
-        CellBasedSimulation<2> simulator(cell_population, abstract_force_collection);
         simulator.SetEndTime(0.05);
         simulator.SetOutputDirectory(output_directory);
         simulator.Solve();

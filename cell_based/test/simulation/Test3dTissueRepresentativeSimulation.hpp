@@ -194,18 +194,15 @@ public:
 
 	    TS_ASSERT_EQUALS(ghost_node_indices.size(), cell_population.GetGhostNodeIndices().size());
 
-	    // Create force law
-	    GeneralisedLinearSpringForce<3> linear_force;
-	    linear_force.SetCutOffLength(1.5);
-	    std::vector<AbstractForce<3>*> force_collection;
-	    force_collection.push_back(&linear_force);
-
-	    CellBasedSimulation<3> simulator(cell_population, force_collection);
-
+	    CellBasedSimulation<3> simulator(cell_population);
 	    simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
-
 	    simulator.SetEndTime(1.0);
 	    simulator.SetSamplingTimestepMultiple(12);
+
+	    // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<3> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
 	    simulator.Solve();
 	}

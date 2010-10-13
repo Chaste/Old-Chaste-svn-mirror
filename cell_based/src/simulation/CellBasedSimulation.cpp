@@ -410,6 +410,12 @@ void CellBasedSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKille
     mCellKillers.push_back(pCellKiller);
 }
 
+template<unsigned DIM>
+void CellBasedSimulation<DIM>::AddForce(AbstractForce<DIM>* pForce)
+{
+    mForceCollection.push_back(pForce);
+}
+
 
 template<unsigned DIM>
 std::vector<double> CellBasedSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)

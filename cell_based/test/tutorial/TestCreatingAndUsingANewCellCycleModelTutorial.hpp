@@ -410,6 +410,11 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        /*
+         * We pass in the cell population into a {{{CellBasedSimulation}}}.
+         */
+        CellBasedSimulation<2> simulator(cell_population);
+
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
@@ -422,15 +427,11 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the cell population boundary.
          */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        /*
-         * We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}.
-         */
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        simulator.AddForce(&linear_force);
 
         /* We set the output directory and end time. */
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellCycleModel");

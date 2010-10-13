@@ -293,10 +293,21 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        /*
+         * We pass in the cell population into a {{{CellBasedSimulation}}}.
+         */
+        CellBasedSimulation<2> simulator(cell_population);
+
+        /* We set the output directory and end time. */
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMotileCellProperty");
+        simulator.SetEndTime(10.0);
+
+
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
-         * a {{{GeneralisedLinearSpringForce}}} object. Note that we have called the method {{{SetCutOffLength}}} on the
+         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
+         * into a vector. Note that we have called the method {{{SetCutOffLength}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
          * laws - this modifies the force law so that two neighbouring cells do not impose
          * a force on each other if they are located more than 3 units (=3 cell widths)
@@ -304,21 +315,11 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the cell population boundary.
          */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-
-        /* We then pass a pointer to the force into a vector. */
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        /*
-         * We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}.
-         */
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
-
-        /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMotileCellProperty");
-        simulator.SetEndTime(10.0);
+        simulator.AddForce(&linear_force);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

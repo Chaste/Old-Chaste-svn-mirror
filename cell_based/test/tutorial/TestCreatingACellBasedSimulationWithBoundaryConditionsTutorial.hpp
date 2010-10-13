@@ -100,18 +100,16 @@ class MyCellBasedSimulation : public CellBasedSimulation<2>
 {
 /* The first public method is a default constructor, which just calls the base
  * constructor. There are four input argument: a reference to a cell population object,
- * {{{rCellPopulation}}}; a collection of force laws governing cell mechanics,
- * {{{forceCollection}}}; an optional flag, {{{deleteCellPopulationAndForceCollection}}},
+ * {{{rCellPopulation}}}; an optional flag, {{{deleteCellPopulationAndForceCollection}}},
  * telling the simulation whether to delete the cell population and force collection
  * on destruction to free up memory; and another optional flag, {{{initialiseCells}}},
  * telling the simulation whether to initialise cells. */
 public:
 
     MyCellBasedSimulation(AbstractCellPopulation<2>& rCellPopulation,
-                       std::vector<AbstractForce<2>*> forceCollection,
                        bool deleteCellPopulationAndForceCollection=false,
                        bool initialiseCells=true)
-        : CellBasedSimulation<2>(rCellPopulation, forceCollection, deleteCellPopulationAndForceCollection, initialiseCells)
+        : CellBasedSimulation<2>(rCellPopulation, std::vector<AbstractForce<2>*>(), deleteCellPopulationAndForceCollection, initialiseCells)
     {
     }
 
@@ -153,8 +151,7 @@ public:
  * archive (save or load) the cell-based simulation. We start by including a
  * serialization header, then define {{{save_construct_data}}} and
  * {{{load_construct_data}}} methods, which archive the cell-based simulation
- * constructor input argument(s) (in this case, a cell population and a collection of
- * force laws). */
+ * constructor input argument(s) (in this case, a cell population). */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellBasedSimulation)
 
@@ -169,8 +166,6 @@ namespace boost
             // Save data required to construct instance
             const AbstractCellPopulation<2> * p_cell_population = &(t->rGetCellPopulation());
             ar & p_cell_population;
-            const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
-            ar & force_collection;
         }
 
         template<class Archive>
@@ -180,11 +175,9 @@ namespace boost
             // Retrieve data from archive required to construct new instance
             AbstractCellPopulation<2>* p_cell_population;
             ar >> p_cell_population;
-            std::vector<AbstractForce<2>*> force_collection;
-            ar >> force_collection;
 
             // Invoke inplace constructor to initialise instance
-            ::new(t)MyCellBasedSimulation(*p_cell_population, force_collection, true, false);
+            ::new(t)MyCellBasedSimulation(*p_cell_population, true, false);
         }
     }
 }
@@ -240,6 +233,14 @@ public:
          * constructor takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+
+        /* We pass in the cell population into a {{{CellBasedSimulation}}}. */
+        MyCellBasedSimulation simulator(cell_population);
+
+        /* We set the output directory and end time. */
+        simulator.SetOutputDirectory("TestMyCellBasedSimulation");
+        simulator.SetEndTime(30.0);
+
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
@@ -252,17 +253,11 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the cell population boundary.
          */
+
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&linear_force);
-
-        /* We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}. */
-        MyCellBasedSimulation simulator(cell_population, force_collection);
-
-        /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestMyCellBasedSimulation");
-        simulator.SetEndTime(30.0);
+        simulator.AddForce(&linear_force);
 
         /* Test that the Solve() method does not throw any exceptions: */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

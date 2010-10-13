@@ -97,16 +97,15 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocities");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Record node velocities
         TS_ASSERT_EQUALS(simulator.GetOutputNodeVelocities(), false);
@@ -151,16 +150,15 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        // Create a force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocitiesWithGhostNodes");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Record node velocities
         simulator.SetOutputNodeVelocities(true);
@@ -204,16 +202,15 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithCellDeath");
         simulator.SetEndTime(0.5);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Add cell killer
         RandomCellKiller<2> random_cell_killer(&cell_population, 0.997877574);
@@ -266,10 +263,18 @@ public:
 		// Create a cell population
 		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create a force law system
-		GeneralisedLinearSpringForce<2> linear_force;
 
-		// Create another force law system
+
+		// Set up cell-based simulation
+		CellBasedSimulation<2> simulator(cell_population);
+		simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
+		simulator.SetEndTime(0.5);
+
+		// Create some force laws and pass them to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
+        // Need to set this up for the chemotactic force.
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
         p_data->SetCellPopulation(&cell_population);
@@ -278,17 +283,8 @@ public:
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             p_data->SetValue(x/50.0, p_mesh->GetNode(i)->GetIndex());
         }
-		ChemotacticForce<2> chemotactic_force;
-
-		// Pass force laws into a collection
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-		force_collection.push_back(&chemotactic_force);
-
-		// Set up cell-based simulation
-		CellBasedSimulation<2> simulator(cell_population, force_collection);
-		simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
-		simulator.SetEndTime(0.5);
+        ChemotacticForce<2> chemotactic_force;
+        simulator.AddForce(&chemotactic_force);
 
 		simulator.Solve();
 
@@ -384,18 +380,17 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation WITH the stopping event
-        CellBasedSimulationWithMyStoppingEvent simulator(cell_population, force_collection);
+        CellBasedSimulationWithMyStoppingEvent simulator(cell_population);
         simulator.SetOutputDirectory("TestCellPopulationSimWithStoppingEvent");
 
         // Set the end time to 10.0 - the stopping event is, however, t>3.1415.
         simulator.SetEndTime(10.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
         simulator.Solve();
@@ -437,15 +432,15 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        // Create force law
-        GeneralisedLinearSpringForce<2> linear_force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Create crypt simulation from cell population and force law
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
 
         cell_population.GetCellUsingLocationIndex(14)->SetApoptosisTime(2.0);
         cell_population.GetCellUsingLocationIndex(15)->SetApoptosisTime(2.0);
@@ -526,12 +521,11 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Create a force law Collection
-        std::vector<AbstractForce<2>* > force_collection;
-
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population, force_collection);
+        CellBasedSimulation<2> simulator(cell_population);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
+
+        //#1453 should have forces and cell killer included here to make it a better test.
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);
@@ -596,15 +590,14 @@ public:
         // Coverage
         cell_population.SetOutputCellIdData(true);
 
-        // Create a force law (no need for a cutoff as we're in 1D)
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>* > force_collection;
-        force_collection.push_back(&linear_force);
-
         // Set up cell-based simulation
-        CellBasedSimulation<1> simulator(cell_population, force_collection);
+        CellBasedSimulation<1> simulator(cell_population);
         simulator.SetOutputDirectory("Test1DCellBasedSimulation");
         simulator.SetEndTime(0.6);
+
+        // Create a force law and pass it to the CellBasedSimulation
+        GeneralisedLinearSpringForce<1> linear_force;
+        simulator.AddForce(&linear_force);
 
         unsigned initial_num_cells = simulator.rGetCellPopulation().GetNumRealCells();
         unsigned initial_num_nodes = simulator.rGetCellPopulation().GetNumNodes();

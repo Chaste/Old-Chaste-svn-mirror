@@ -120,7 +120,7 @@ protected:
     /** List of cell killers */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
 
-    /** The mechanics used to determine the new location of the cells */
+    /** The mechanics used to determine the new location of the cells, a list of the forces.*/
     std::vector<AbstractForce<DIM>*> mForceCollection;
 
     /** Whether to write the node velocities to a file. */
@@ -271,11 +271,11 @@ public:
      *
      *  @param rCellPopulation A cell population object
      *  @param forceCollection The mechanics to use in the simulation
-     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
+     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory defaults to empty
      *  @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                        std::vector<AbstractForce<DIM>*> forceCollection,
+                        std::vector<AbstractForce<DIM>*> forceCollection=std::vector<AbstractForce<DIM>*>(),
                         bool deleteCellPopulationAndForceCollection=false,
                         bool initialiseCells=true);
 
@@ -363,6 +363,13 @@ public:
      * @param pCellKiller pointer to a cell killer
      */
     void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
+
+    /**
+     * Add a force to be used in this simulation (use this to set the mechanics system).
+     *
+     * @param pForce pointer to a force law
+     */
+    void AddForce(AbstractForce<DIM>* pForce);
 
     /**
      * Main solve method.
