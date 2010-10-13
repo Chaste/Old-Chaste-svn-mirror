@@ -82,7 +82,7 @@ public:
         bidomain_problem.Solve();
 
         /* To save the entire simulation, use the `CardiacSimulationArchiver` class, as shown in the following. 
-         * Note the `BidomainProblem<2> as the template parameter. The output directory is relative to 
+         * Note the `BidomainProblem<2>` as the template parameter. The output directory is relative to 
          * CHASTE_TEST_OUTPUT. */
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, "BidomainCheckpointingTutorial/saved_simulation"); 
     }

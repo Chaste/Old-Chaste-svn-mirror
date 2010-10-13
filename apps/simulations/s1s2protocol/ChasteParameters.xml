@@ -49,22 +49,7 @@
 					</Cuboid>
 				</Location>
 			</Stimulus>	
-
 		</Stimuli>
-
-		<CellHeterogeneities>
-		  	<CellHeterogeneity> <!-- #1 -->
-				<ScaleFactorGks unit="dimensionless">1.0</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">5.0</ScaleFactorGkr>				
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="4.0" y="4.0" z="0.0"/>
-						<UpperCoordinates x="4.0" y="4.0" z="0.0"/>
-					</Cuboid>
-				</Location>
-			</CellHeterogeneity>	
-		</CellHeterogeneities>		
 
 		
 		<!-- 
