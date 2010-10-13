@@ -113,7 +113,6 @@ public:
 
         // Test the content of one of them
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/AbstractCardiacProblem_mSolution.h5");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteDefaults.xml");
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteParameters.xml");
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.ele");
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.edge");
