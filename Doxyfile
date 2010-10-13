@@ -83,15 +83,16 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  =    heart/src \
-							global/src \
-							io/src \
-							linalg/src \
-							mesh/src \
-							ode/src \ 
-							pde/src \
-							cell_based/src \
-							notforrelease/src \
-							notforrelease_cell_based/src
+                            global/src \
+                            io/src \
+                            linalg/src \
+                            mesh/src \
+                            ode/src \ 
+                            pde/src \
+                            cell_based/src \
+                            crypt/src \
+                            notforrelease/src \
+                            notforrelease_cell_based/src
 
 FILE_PATTERNS          = *.cpp \
                          *.hpp
