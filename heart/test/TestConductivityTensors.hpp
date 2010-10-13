@@ -35,9 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AxisymmetricConductivityTensors.hpp"
 #include "TetrahedralMesh.hpp"
 
-typedef OrthotropicConductivityTensors<3,3> ORTHO_3D;
-typedef AxisymmetricConductivityTensors<3,3> AXI_3D;
-typedef OrthotropicConductivityTensors<2,2> ORTHO_2D;
+
 typedef AxisymmetricConductivityTensors<2,2> AXI_2D;
 
 class TestConductivityTensors : public CxxTest::TestSuite

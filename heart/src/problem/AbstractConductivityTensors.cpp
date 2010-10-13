@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <sstream>
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::AbstractConductivityTensors()
     : mNumElements(0),///\todo remove
@@ -114,6 +113,10 @@ c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SP
     else
     {
         assert(index < mNumElements);
+        //unsigned local_index = mpMesh->SolveElementMapping(index);
+        //mpMesh->SolveElementMapping(index); //This will throw if we don't own the element
+        
+        ///\todo #1342 Should be a local index
         return mTensors[index];
     }
 }

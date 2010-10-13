@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
-#include "Debug.hpp"
 
 template <unsigned DIM>
 void BidomainProblem<DIM>::AnalyseMeshForBath()

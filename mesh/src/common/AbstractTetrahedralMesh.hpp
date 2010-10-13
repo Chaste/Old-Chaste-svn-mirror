@@ -46,13 +46,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "ArchiveLocationInfo.hpp"
 
+/// Forward declaration which is going to be used for friendship
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class AbstractConductivityTensors;
 
 /**
  * Abstract base class for all tetrahedral meshes (inherits from AbstractMesh).
  */
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
+    friend class AbstractConductivityTensors<ELEMENT_DIM, SPACE_DIM>; //A class which needs a global to local element mapping
+    
 protected:
     /**
      * Most tet meshes are linear (set to true).  Set to false in quadratics.
