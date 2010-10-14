@@ -109,7 +109,7 @@ public:
     MyCellBasedSimulation(AbstractCellPopulation<2>& rCellPopulation,
                        bool deleteCellPopulationAndForceCollection=false,
                        bool initialiseCells=true)
-        : CellBasedSimulation<2>(rCellPopulation, std::vector<AbstractForce<2>*>(), deleteCellPopulationAndForceCollection, initialiseCells)
+        : CellBasedSimulation<2>(rCellPopulation, deleteCellPopulationAndForceCollection, initialiseCells)
     {
     }
 
