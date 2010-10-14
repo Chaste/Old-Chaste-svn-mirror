@@ -158,7 +158,7 @@ public:
     	/* Now we define the cell-based simulation object, passing in the cell population and collection
     	* of force laws:
     	*/
-    	CellBasedSimulation<2> simulator(cell_population, force_collection);
+    	CellBasedSimulation<2> simulator(cell_population);
     
     	/* Set the output directory on the simulator (relative to
     	* "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
