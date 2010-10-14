@@ -768,7 +768,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[2], 0u);
     }
 
-    void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)
+    void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCellAndGetWidth() throw (Exception)
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -796,6 +796,13 @@ public:
             TS_ASSERT_DELTA(node_location[0], cell_population.GetLocationOfCellCentre(*cell_iter)[0], 1e-9);
             TS_ASSERT_DELTA(node_location[1], cell_population.GetLocationOfCellCentre(*cell_iter)[1], 1e-9);
         }
+
+        // Test GetWidth() method
+        double width_x = cell_population.GetWidth(0);
+        TS_ASSERT_DELTA(width_x, 1.0, 1e-6);
+
+        double width_y = cell_population.GetWidth(1);
+        TS_ASSERT_DELTA(width_y, 1.0, 1e-6);
     }
 
     // This test checks that the cells and nodes are correctly archived.

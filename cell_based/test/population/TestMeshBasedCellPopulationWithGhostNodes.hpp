@@ -45,11 +45,9 @@ class TestMeshBasedCellPopulationWithGhostNodes : public AbstractCellBasedTestSu
 {
 public:
     /*
-     * Here we set up a test with 5 nodes, make a cell for each.
-     * We then set cell 0 to be associated with node 1 instead of node 0
-     * Validate throws an exception.
-     * We then set node 0 to be a ghost node
-     * Validate passes.
+     * Here we set up a test with 5 nodes, make a cell for each. We then set cell
+     * 0 to be associated with node 1 instead of node 0, and Validate() throws an
+     * exception. We then set node 0 to be a ghost node, and Validate() passes.
      */
     void TestValidateMeshBasedCellPopulationWithGhostNodes()
     {
@@ -58,22 +56,14 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells, one for each node apart from one.
-        // Give each a birth time of -node_index, so the age = node_index
+        // Create cells
         std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes()-1);
+
         std::vector<unsigned> cell_location_indices;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_cell_cycle_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-            double birth_time = 0.0 - i;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
             cell_location_indices.push_back(i);
         }
 

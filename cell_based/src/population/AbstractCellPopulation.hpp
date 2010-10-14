@@ -187,14 +187,16 @@ protected:
 
     /**
      * Check consistency of our internal data structures.
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
      */
     virtual void Validate()=0;
 
     /**
      * Constructor for use by archiving only. Please use the other constructor.
      *
-     * Doesn't take in cells, since these are dealt
-     * with by the serialize method.
+     * Doesn't take in cells, since these are dealt with by the serialize method.
      */
     AbstractCellPopulation()
     {
@@ -246,18 +248,21 @@ public:
     /**
      * Find where a given cell is in space.
      *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     * 
      * @param pCell the cell
-     *
      * @return the location of the cell
      */
     virtual c_vector<double, DIM> GetLocationOfCellCentre(CellPtr pCell)=0;
 
     /**
+     * Get a pointer to the node with a given index.
+     * 
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
      * @param index  global index of the specified node
-     *
      * @return a pointer to the node with a given index.
      */
     virtual Node<DIM>* GetNode(unsigned index)=0;
@@ -269,7 +274,6 @@ public:
      * in subclasses.
      *
      * @param pNewNode pointer to the new node
-     *
      * @return global index of new node in cell population.
      */
     virtual unsigned AddNode(Node<DIM>* pNewNode)=0;
@@ -292,7 +296,6 @@ public:
      * in subclasses.
      *
      * @param pCell the cell
-     *
      * @return whether a given cell is associated with a deleted
      *         node (cell-centre models) or element (vertex models).
      */
@@ -300,8 +303,8 @@ public:
 
     /**
      * Update the location of each node in the cell population given
-     * a vector of forces on nodes and a time step over which
-     * to integrate the equations of motion.
+     * a vector of forces on nodes and a time step over which to
+     * integrate the equations of motion.
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -318,7 +321,6 @@ public:
      * in subclasses.
      *
      * @param nodeIndex the global index of this node
-     *
      * @return the damping constant at the node.
      */
     virtual double GetDampingConstant(unsigned nodeIndex)=0;
@@ -453,6 +455,16 @@ public:
     void SetDefaultMutationStateOrdering();
 
     /**
+     * Calculate the 'width' of any dimension of the cell population.
+     *
+     * This method is overridden in some daughter classes.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     */
+    virtual double GetWidth(const unsigned& rDimension)=0;
+
+    /**
      * Use an output file handler to create output files for visualizer and post-processing.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
@@ -569,13 +581,17 @@ public:
 
     /**
  	 * Set mDampingConstantNormal.
+ 	 * 
+ 	 * @param dampingConstantNormal  the new value of mDampingConstantNormal
 	 */
-	void SetDampingConstantNormal(double);
+	void SetDampingConstantNormal(double dampingConstantNormal);
 
 	/**
 	 * Set mDampingConstantMutant.
+	 * 
+     * @param dampingConstantMutant  the new value of mDampingConstantMutant
 	 */
-	void SetDampingConstantMutant(double);
+	void SetDampingConstantMutant(double dampingConstantMutant);
 
     /**
      * Set mOutputCellIdData.

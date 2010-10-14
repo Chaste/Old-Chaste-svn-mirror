@@ -35,10 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "CellwiseData.hpp"
+#include "CellsGenerator.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "HoneycombMutableVertexMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "CellwiseData.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -49,43 +49,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
-private:
-
-    ///\todo use CellsGenerator? (#1583)
-    /**
-     * Set up cells, one for each VertexElement.
-     * Give each cell a birth time of -elem_index,
-     * so its age is elem_index.
-     */
-    template<unsigned DIM>
-    std::vector<CellPtr> SetUpCells(MutableVertexMesh<DIM,DIM>& rMesh)
-    {
-        std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-        for (unsigned i=0; i<rMesh.GetNumElements(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = 0.0 - i;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
-        return cells;
-    }
-
 public:
 
     // Test construction, accessors and iterator
-    void TestCreateSmallVertexBasedCellPopulation() throw (Exception)
+    void TestCreateSmallVertexBasedCellPopulationAndGetWidth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         HoneycombMutableVertexMeshGenerator generator(5, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
         // Create cell population
         unsigned num_cells = cells.size();
@@ -118,6 +94,13 @@ public:
 
         // Test GetNumNodes() method
         TS_ASSERT_EQUALS(cell_population.GetNumNodes(), p_mesh->GetNumNodes());
+
+        // Test GetWidth() method
+        double width_x = cell_population.GetWidth(0);
+        TS_ASSERT_DELTA(width_x, 5.5000, 1e-4);
+
+        double width_y = cell_population.GetWidth(1);
+        TS_ASSERT_DELTA(width_y, 2.8867, 1e-4);
     }
 
     // Test that exception is thrown if no boundary nodes are defined in the mesh.
@@ -144,160 +127,122 @@ public:
 		// Make a vertex mesh with no boundary nodes
 		MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
-		// Set up cells
-		std::vector<CellPtr> cells = SetUpCells(basic_vertex_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, basic_vertex_mesh.GetNumElements());
 
 		// Create cell population
 		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(basic_vertex_mesh, cells),
 				"No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");
 	}
 
-
     void TestValidate() throw (Exception)
     {
-    	{
-    		// Create a simple vertex-based mesh
+		// Create a simple vertex-based mesh
+		HoneycombMutableVertexMeshGenerator generator(3, 3);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-			HoneycombMutableVertexMeshGenerator generator(3, 3);
-			MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements()-1);
 
-			// Set up cells, one for each element.
-			// Give each a birth time of -element_index, so the age = element_index.
-			std::vector<CellPtr> cells;
-			std::vector<unsigned> cell_location_indices;
-			boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-			for (unsigned i=0; i<p_mesh->GetNumElements()-1; i++)
+        std::vector<unsigned> cell_location_indices;
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cell_location_indices.push_back(i);
+        }
+
+		// This should throw an exception as the number of cells does not equal the number of elements
+		std::vector<CellPtr> cells_copy(cells);
+		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy),
+				"Element 8 does not appear to have a cell associated with it");
+
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+		FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+		p_model->SetCellProliferativeType(STEM);
+		CellPtr p_cell(new Cell(p_state, p_model));
+
+		double birth_time = 0.0 - p_mesh->GetNumElements()-1;
+		p_cell->SetBirthTime(birth_time);
+
+		cells.push_back(p_cell);
+		cell_location_indices.push_back(p_mesh->GetNumElements()-1);
+
+		// This should pass as the number of cells equals the number of elements
+		std::vector<CellPtr> cells_copy2(cells);
+		TS_ASSERT_THROWS_NOTHING(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy2));
+
+		// Create cell population
+		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+		// Check correspondence between elements and cells
+		for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+			 iter != p_mesh->GetElementIteratorEnd();
+			 ++iter)
+		{
+			std::set<unsigned> expected_node_indices;
+			unsigned expected_index = iter->GetIndex();
+
+			for (unsigned i=0; i<iter->GetNumNodes(); i++)
 			{
-				FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-				p_model->SetCellProliferativeType(STEM);
-
-				CellPtr p_cell(new Cell(p_state, p_model));
-
-				double birth_time = 0.0 - i;
-				p_cell->SetBirthTime(birth_time);
-
-				cells.push_back(p_cell);
-				cell_location_indices.push_back(i);
+				expected_node_indices.insert(iter->GetNodeGlobalIndex(i));
 			}
 
-			// This should throw an exception as the number of cells
-			// does not equal the number of elements
-			std::vector<CellPtr> cells_copy(cells);
-			TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy),
-					"Element 8 does not appear to have a cell associated with it");
+			std::set<unsigned> actual_node_indices;
+			unsigned elem_index = iter->GetIndex();
+			CellPtr p_cell = cell_population.GetCellUsingLocationIndex(elem_index);
+			VertexElement<2,2>* p_actual_element = cell_population.GetElementCorrespondingToCell(p_cell);
+			unsigned actual_index = p_actual_element->GetIndex();
 
-			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-			p_model->SetCellProliferativeType(STEM);
-
-			CellPtr p_cell(new Cell(p_state, p_model));
-
-			double birth_time = 0.0 - p_mesh->GetNumElements()-1;
-			p_cell->SetBirthTime(birth_time);
-
-			cells.push_back(p_cell);
-			cell_location_indices.push_back(p_mesh->GetNumElements()-1);
-
-			// This should pass as the number of cells equals the number of elements
-			std::vector<CellPtr> cells_copy2(cells);
-			TS_ASSERT_THROWS_NOTHING(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy2));
-
-			// Create cell population
-			VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-			// Check correspondence between elements and cells
-
-			for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-				 iter != p_mesh->GetElementIteratorEnd();
-				 ++iter)
+			for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
 			{
-				std::set<unsigned> expected_node_indices;
-				unsigned expected_index = iter->GetIndex();
-
-				for (unsigned i=0; i<iter->GetNumNodes(); i++)
-				{
-					expected_node_indices.insert(iter->GetNodeGlobalIndex(i));
-				}
-
-				std::set<unsigned> actual_node_indices;
-				unsigned elem_index = iter->GetIndex();
-				CellPtr p_cell = cell_population.GetCellUsingLocationIndex(elem_index);
-				VertexElement<2,2>* p_actual_element = cell_population.GetElementCorrespondingToCell(p_cell);
-				unsigned actual_index = p_actual_element->GetIndex();
-
-				for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
-				{
-					actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
-				}
-
-				TS_ASSERT_EQUALS(actual_index, expected_index);
-				TS_ASSERT_EQUALS(actual_node_indices, expected_node_indices);
+				actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
 			}
+
+			TS_ASSERT_EQUALS(actual_index, expected_index);
+			TS_ASSERT_EQUALS(actual_node_indices, expected_node_indices);
 		}
 
+		// Create anoter simple vertex-based mesh
+		HoneycombMutableVertexMeshGenerator generator2(3, 3);
+		MutableVertexMesh<2,2>* p_mesh2 = generator.GetMutableMesh();
 
-    	{
-			// Create a simple vertex-based mesh
+        // Create cells
+        std::vector<CellPtr> cells2;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
+        cells_generator2.GenerateBasic(cells2, p_mesh2->GetNumElements()+1);
 
-			HoneycombMutableVertexMeshGenerator generator(3, 3);
-			MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        std::vector<unsigned> cell_location_indices2;
+        for (unsigned i=0; i<cells2.size(); i++)
+        {
+            cell_location_indices2.push_back(i%p_mesh2->GetNumElements()); // Element 0 will have 2 cells
+        }
 
-			// Set up cells, one for each element.
-			// Give each a birth time of -element_index, so the age = element_index.
-			std::vector<CellPtr> cells;
-			std::vector<unsigned> cell_location_indices;
-			boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-			for (unsigned i=0; i<p_mesh->GetNumElements()+1; i++)
-			{
-				FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-				p_model->SetCellProliferativeType(STEM);
-
-				CellPtr p_cell(new Cell(p_state, p_model));
-
-				double birth_time = 0.0 - i;
-				p_cell->SetBirthTime(birth_time);
-
-				cells.push_back(p_cell);
-				cell_location_indices.push_back(i%p_mesh->GetNumElements());		// Element 0 will have 2 cells
-			}
-
-			// This should throw an exception as the number of cells
-			// does not equal the number of elements
-			TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells, false, true, cell_location_indices),
-					"Element 0 appears to have 2 cells associated with it");
-		}
+		// This should throw an exception as the number of cells
+		// does not equal the number of elements
+		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population2(*p_mesh2, cells2, false, true, cell_location_indices2),
+				"Element 0 appears to have 2 cells associated with it");
     }
-
 
     void TestGetDampingConstant()
     {
-
-
         // Create mesh
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // Set up cells
-        std::vector<CellPtr> cells;
-        std::vector<unsigned> cell_location_indices;
         boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            double birth_time = 0.0 - i;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
-            cell_location_indices.push_back(i);
-        }
         cells[0]->SetMutationState(p_apc1);
         cells[6]->SetMutationState(p_apc2);
         cells[7]->SetMutationState(p_bcat1);
@@ -338,7 +283,6 @@ public:
         TS_ASSERT_DELTA(damping_constant_at_node_25, mutant_damping_constant, 1e-6);
     }
 
-
     void TestUpdateWithoutBirthOrDeath() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -348,8 +292,10 @@ public:
         HoneycombMutableVertexMeshGenerator generator(4, 6);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -361,7 +307,6 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(cell_population.Update());
     }
-
 
     void TestAddCellWithSimpleMesh() throw (Exception)
     {
@@ -397,7 +342,9 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
 
         // Create cells
-        std::vector<CellPtr> cells = SetUpCells(vertex_mesh);
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, vertex_mesh.GetNumElements());
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(vertex_mesh, cells);
@@ -482,7 +429,6 @@ public:
         // Check the index of the new cell
         TS_ASSERT_EQUALS(cell_population.GetLocationIndexUsingCell(p_new_cell), old_num_elements);
     }
-
 
     void TestAddCellWithGivenDivisionVector() throw (Exception)
     {
@@ -697,8 +643,10 @@ public:
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
         p_mesh->GetElement(5)->MarkAsDeleted();
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
         // Create cell population but do not try to validate
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells, false, false);
@@ -709,15 +657,9 @@ public:
              ++cell_iter)
         {
             bool is_deleted = cell_population.IsCellAssociatedWithADeletedLocation(*cell_iter);
+            bool cell_has_index_5 = (cell_population.GetLocationIndexUsingCell(*cell_iter) == 5);
 
-            if (cell_population.GetLocationIndexUsingCell(*cell_iter) == 5)
-            {
-                TS_ASSERT_EQUALS(is_deleted, true);
-            }
-            else
-            {
-                TS_ASSERT_EQUALS(is_deleted, false);
-            }
+            TS_ASSERT_EQUALS(is_deleted, cell_has_index_5);
         }
     }
 
@@ -730,8 +672,11 @@ public:
         HoneycombMutableVertexMeshGenerator generator(4, 6);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
         cells[5]->StartApoptosis();
 
         // Create cell population
@@ -789,7 +734,6 @@ public:
         TS_ASSERT_EQUALS(element_indices, expected_elem_indices);
     }
 
-
     void TestVertexBasedCellPopulationOutputWriters() throw (Exception)
     {
         // Set up SimulationTime (needed if VTK is used)
@@ -799,8 +743,15 @@ public:
         HoneycombMutableVertexMeshGenerator generator(4, 6);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+        }
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -900,7 +851,6 @@ public:
 
     }
 
-
     void TestArchiving2dVertexBasedCellPopulation() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
@@ -921,8 +871,10 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
-            // Set up cells
-            std::vector<CellPtr> cells = SetUpCells(mesh);
+            // Create cells
+            std::vector<CellPtr> cells;
+            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+            cells_generator.GenerateBasic(cells, mesh.GetNumElements());
 
             // Create cell population
             VertexBasedCellPopulation<2>* const p_cell_population = new VertexBasedCellPopulation<2>(mesh, cells);
@@ -1019,8 +971,10 @@ public:
 
                 for (unsigned local_index=0; local_index<mesh.GetElement(elem_index)->GetNumNodes(); local_index++)
                 {
-                    TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(local_index),
-                                     loaded_mesh.GetElement(elem_index)->GetNodeGlobalIndex(local_index));
+                    unsigned this_index = mesh.GetElement(elem_index)->GetNodeGlobalIndex(local_index);
+                    unsigned loaded_index = loaded_mesh.GetElement(elem_index)->GetNodeGlobalIndex(local_index);
+
+                    TS_ASSERT_EQUALS(this_index, loaded_index);
                 }
             }
 
@@ -1028,7 +982,6 @@ public:
             delete p_cell_population;
         }
     }
-
 
     void TestArchiving3dVertexBasedCellPopulation() throw(Exception)
     {
@@ -1122,8 +1075,10 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
-            // Set up cells
-            std::vector<CellPtr> cells = SetUpCells(mesh);
+            // Create cells
+            std::vector<CellPtr> cells;
+            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+            cells_generator.GenerateBasic(cells, mesh.GetNumElements());
 
             // Create cell population
             VertexBasedCellPopulation<3>* const p_cell_population = new VertexBasedCellPopulation<3>(mesh, cells);
@@ -1240,8 +1195,10 @@ public:
         // Impose a larger cell rearrangement threshold so that motion is uninhibited (see #1376)
         p_mesh->SetCellRearrangementThreshold(0.1);
 
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(*p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -1267,98 +1224,6 @@ public:
         {
             TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
             TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
-        }
-    }
-
-    ///\todo When vertex models are released, move this test into TestCellwiseData (see also #1419)
-    void TestArchiveCellwiseDataWithVertexBasedCellPopulation()
-    {
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
-        std::string archive_file = "vertex_cellwise.arch";
-        // The following line is required because the loading of a cell population
-        // is usually called by the method CellBasedSimulation::Load()
-        ArchiveLocationInfo::SetMeshFilename("vertex_cellwise");
-
-        // Create mesh
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
-        MutableVertexMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Need to set up time
-        unsigned num_steps = 10;
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
-
-        // Set up cells
-        std::vector<CellPtr> cells = SetUpCells(mesh);
-
-        // Create cell population
-        VertexBasedCellPopulation<2>* const p_cell_population = new VertexBasedCellPopulation<2>(mesh, cells);
-
-        // Cells have been given birth times of 0 and -1.
-        // Loop over them to run to time 0.0;
-        for (AbstractCellPopulation<2>::Iterator cell_iter = p_cell_population->Begin();
-             cell_iter != p_cell_population->End();
-             ++cell_iter)
-        {
-            cell_iter->ReadyToDivide();
-        }
-
-        {
-            // Set up the data store
-            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-            p_data->SetNumCellsAndVars(p_cell_population->GetNumRealCells(), 1);
-            p_data->SetCellPopulation(p_cell_population);
-
-            // Put some data in
-            unsigned i = 0;
-            for (AbstractCellPopulation<2>::Iterator cell_iter = p_cell_population->Begin();
-                 cell_iter != p_cell_population->End();
-                 ++cell_iter)
-            {
-                p_data->SetValue((double) i, p_cell_population->GetLocationIndexUsingCell(*cell_iter), 0);
-                i++;
-            }
-
-            TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
-
-            // Create output archive
-            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
-            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
-
-            // Write to the archive
-            (*p_arch) << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
-
-            CellwiseData<2>::Destroy();
-            delete p_cell_population;
-        }
-
-        {
-            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-
-            // Create an input archive
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
-            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
-
-            (*p_arch) >> *p_data;
-
-            // Check the data
-            TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
-            TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
-
-            // We will have constructed a new cell population on load, so use the new cell population
-            AbstractCellPopulation<2>& cell_population = p_data->rGetCellPopulation();
-
-            for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-                 cell_iter != cell_population.End();
-                 ++cell_iter)
-            {
-                TS_ASSERT_DELTA(p_data->GetValue(*cell_iter, 0u), (double) cell_population.GetLocationIndexUsingCell(*cell_iter), 1e-12);
-            }
-
-            // Tidy up
-            CellwiseData<2>::Destroy();
-            delete (&cell_population);
         }
     }
 };

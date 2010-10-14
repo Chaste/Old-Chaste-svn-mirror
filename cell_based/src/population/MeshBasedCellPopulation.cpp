@@ -1079,18 +1079,24 @@ void MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rP
 
 	// Call direct parent class
 	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+}
 
+template<unsigned DIM>
+double MeshBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
+{
+    // Call GetWidth() on the mesh
+    double width = mrMesh.GetWidth(rDimension);
+
+    return width;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-
 template class MeshBasedCellPopulation<1>;
 template class MeshBasedCellPopulation<2>;
 template class MeshBasedCellPopulation<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

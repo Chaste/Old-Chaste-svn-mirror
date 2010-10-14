@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "NodeBasedCellPopulation.hpp"
 
-
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes,
                                       std::vector<CellPtr>& rCells,
@@ -55,7 +54,6 @@ NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM
 {
     // No Validate() because the cells are not associated with the cell population yet in archiving
 }
-
 
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const AbstractMesh<DIM,DIM>& rMesh,
@@ -94,7 +92,6 @@ NodeBasedCellPopulation<DIM>::~NodeBasedCellPopulation()
     }
 }
 
-
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Clear()
 {
@@ -104,7 +101,6 @@ void NodeBasedCellPopulation<DIM>::Clear()
     mDeletedNodeIndices.clear();
     mAddedNodes = false;
 }
-
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Validate()
@@ -132,20 +128,17 @@ void NodeBasedCellPopulation<DIM>::Validate()
     }
 }
 
-
 template<unsigned DIM>
 std::vector<Node<DIM>* >& NodeBasedCellPopulation<DIM>::rGetNodes()
 {
     return mNodes;
 }
 
-
 template<unsigned DIM>
 const std::vector<Node<DIM>* >& NodeBasedCellPopulation<DIM>::rGetNodes() const
 {
     return mNodes;
 }
-
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
@@ -159,7 +152,6 @@ void NodeBasedCellPopulation<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vecto
         mpBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
     }
 }
-
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::FindMaxAndMin()
@@ -199,20 +191,17 @@ void NodeBasedCellPopulation<DIM>::FindMaxAndMin()
     }
 }
 
-
 template<unsigned DIM>
 Node<DIM>* NodeBasedCellPopulation<DIM>::GetNode(unsigned index)
 {
     return mNodes[index];
 }
 
-
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
 {
     mNodes[nodeIndex]->SetPoint(rNewLocation);
 }
-
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
@@ -295,7 +284,6 @@ void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
     mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 }
 
-
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::RemoveDeadCells()
 {
@@ -318,7 +306,6 @@ unsigned NodeBasedCellPopulation<DIM>::RemoveDeadCells()
     return num_removed;
 }
 
-
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::AddNode(Node<DIM>* pNewNode)
 {
@@ -339,20 +326,17 @@ unsigned NodeBasedCellPopulation<DIM>::AddNode(Node<DIM>* pNewNode)
     return pNewNode->GetIndex();
 }
 
-
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::GetNumNodes()
 {
     return mNodes.size() - mDeletedNodeIndices.size();
 }
 
-
 template<unsigned DIM>
 BoxCollection<DIM>* NodeBasedCellPopulation<DIM>::GetBoxCollection()
 {
     return mpBoxCollection;
 }
-
 
 template<unsigned DIM>
 std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedCellPopulation<DIM>::rGetNodePairs()
@@ -389,7 +373,17 @@ double NodeBasedCellPopulation<DIM>::GetMechanicsCutOffLength()
     return mMechanicsCutOffLength;
 }
 
+template<unsigned DIM>
+double NodeBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
+{
+    // Update the member variables mMinSpatialPositions and mMaxSpatialPositions
+    FindMaxAndMin();
 
+    // Compute the maximum distance between any nodes in this dimension
+    double width = mMaxSpatialPositions(rDimension) - mMinSpatialPositions(rDimension);
+
+    return width;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -398,7 +392,6 @@ double NodeBasedCellPopulation<DIM>::GetMechanicsCutOffLength()
 template class NodeBasedCellPopulation<1>;
 template class NodeBasedCellPopulation<2>;
 template class NodeBasedCellPopulation<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

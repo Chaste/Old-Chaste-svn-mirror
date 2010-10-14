@@ -400,6 +400,17 @@ public:
     double GetVoronoiEdgeLength(unsigned index1, unsigned index2);
 
     /**
+     * Overridden GetWidth() method.
+     * 
+     * Calculate the 'width' of any dimension of the cell population by calling
+     * GetWidth() on the mesh.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     */
+    double GetWidth(const unsigned& rDimension);
+
+    /**
      * Iterator over edges in the mesh, which correspond to springs between cells.
      *
      * This class takes care of the logic to make sure that you consider each edge exactly once.

@@ -266,10 +266,22 @@ public:
 
     /**
      * Set mMechanicsCutOffLength.
+     * 
+     * @param mechanicsCutOffLength  the new value of mMechanicsCutOffLength
      */
-    void SetMechanicsCutOffLength(double);
-};
+    void SetMechanicsCutOffLength(double mechanicsCutOffLength);
 
+    /**
+     * Overridden GetWidth() method.
+     * 
+     * Calculate the 'width' of any dimension of the cell population by computing
+     * the maximum distance between any nodes in this dimension.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     */
+    double GetWidth(const unsigned& rDimension);
+};
 
 #include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(NodeBasedCellPopulation)
@@ -311,7 +323,6 @@ inline void load(
     #undef COVERAGE_IGNORE
 }
 
-
 /**
  * Non-intrusive serialization for Node - serialize method.
  * This calls save or load as appropriate.
@@ -324,7 +335,6 @@ inline void serialize(
 {
     boost::serialization::split_free(ar, rNode, file_version);
 }
-
 
 /**
  * Serialize information required to construct a Node.
@@ -375,7 +385,6 @@ inline void load_construct_data(
     ::new(t)Node<DIM>(index, loc, is_boundary);
 }
 
-
 /**
  * Serialize information required to construct a NodeBasedCellPopulation.
  */
@@ -409,6 +418,5 @@ inline void load_construct_data(
 }
 
 }} // close namespaces
-
 
 #endif /*NODEBASEDCELLPOPULATION_HPP_*/

@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "NodeBasedCellPopulation.hpp"
+#include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
@@ -49,27 +50,6 @@ class TestNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
 
-    ///\todo use CellsGenerator? (#1583)
-    template<unsigned DIM>
-    std::vector<CellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
-    {
-        std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            double birth_time = 0.0 - i;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
-        }
-        return cells;
-    }
-
     template<unsigned DIM>
     void TestSimpleNodeBasedCellPopulation(std::string meshFilename)
     {
@@ -78,14 +58,16 @@ private:
         TetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, DIM> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         unsigned num_cells = cells.size();
 
         // Create the cell population
         NodeBasedCellPopulation<DIM> node_based_cell_population(mesh, cells);
 
+        // Test we have the correct numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_cell_population.rGetCells().size(), num_cells);
         TS_ASSERT_EQUALS(cells.size(), 0u);
@@ -110,7 +92,6 @@ private:
         }
 
         TS_ASSERT_EQUALS(counter, node_based_cell_population.GetNumRealCells());
-
     }
 
 public:
@@ -130,13 +111,13 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Get a std::vector of nodes from the mesh
         std::vector<Node<2>* > nodes;
-
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
@@ -170,23 +151,10 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node apart from one.
-        // Give each a birth time of -node_index,
-        // so the age = node_index
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_cell_cycle_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-
-            double birth_time = 0.0 - i;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes()-1);
 
         // Get a std::vector of nodes from the mesh
         std::vector<Node<2>* > nodes;
@@ -202,6 +170,7 @@ public:
                               "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
         FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_cycle_model->SetCellProliferativeType(STEM);
         CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
@@ -282,15 +251,15 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
         NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Test SetNode() by moving node 0 by a small amount
-
         AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
         c_vector<double,2> new_location = node_based_cell_population.GetLocationOfCellCentre(*cell_iter);
         new_location[0] += 1e-2;
@@ -380,10 +349,12 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
+        // Make one cell start apoptosis
         cells[27]->StartApoptosis();
 
         // Create a cell population
@@ -428,9 +399,10 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Make one cell start apoptosis
         cells[27]->StartApoptosis();
@@ -491,9 +463,10 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
         NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
@@ -528,16 +501,17 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
     }
 
-    void TestGetLocationOfCellCentre() throw (Exception)
+    void TestGetLocationOfCellCentreAndGetWidth() throw (Exception)
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
         NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
@@ -554,6 +528,13 @@ public:
             TS_ASSERT_DELTA(node_location[0], node_based_cell_population.GetLocationOfCellCentre(*cell_iter)[0], 1e-9);
             TS_ASSERT_DELTA(node_location[1], node_based_cell_population.GetLocationOfCellCentre(*cell_iter)[1], 1e-9);
         }
+
+        // Test GetWidth() method
+        double width_x = node_based_cell_population.GetWidth(0);
+        TS_ASSERT_DELTA(width_x, 1.0, 1e-6);
+
+        double width_y = node_based_cell_population.GetWidth(1);
+        TS_ASSERT_DELTA(width_y, 1.0, 1e-6);
     }
 
     void TestNodeBasedCellPopulationOutputWriters()
@@ -563,9 +544,10 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Give each a birth time of -node_index,
-        // so the age = node_index
-        std::vector<CellPtr> cells = SetUpCells(&mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
         NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
@@ -653,37 +635,16 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            double birth_time;
-            if (i==1)
-            {
-                birth_time = -0.5;
-            }
-            else if (i==2)
-            {
-                birth_time = -1.5;
-            }
-            else if (i==3)
-            {
-                birth_time = -15.5;
-            }
-            else
-            {
-                birth_time = -23.5;
-            }
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
-        }
-
+        cells[0]->SetBirthTime(-23.5);
+        cells[1]->SetBirthTime(-0.5);
+        cells[2]->SetBirthTime(-1.5);
+        cells[3]->SetBirthTime(-15.5);
+        cells[4]->SetBirthTime(-23.5);
         cells[0]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
 
         // Create a cell population
@@ -691,8 +652,7 @@ public:
 
         TS_ASSERT_EQUALS(node_based_cell_population.GetIdentifier(), "NodeBasedCellPopulation-2");
 
-        // Cells have been given birth times of 0, -1, -2, -3, -4.
-        // loop over them to run to time 0.0;
+        // Loop over cells to run to time 0
         for (AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
              cell_iter != node_based_cell_population.End();
              ++cell_iter)
@@ -735,9 +695,10 @@ public:
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
-            // Set up cells, one for each node. Give each a birth time of -node_index,
-            // so the age = node_index
-            std::vector<CellPtr> cells = SetUpCells(&mesh);
+            // Create cells
+            std::vector<CellPtr> cells;
+            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+            cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
             // Create a cell population
             NodeBasedCellPopulation<2>* const p_cell_population = new NodeBasedCellPopulation<2>(mesh, cells);
@@ -823,7 +784,6 @@ public:
             delete p_cell_population;
         }
     }
-
 };
 
 #endif /*TESTNODEBASEDCELLPOPULATION_HPP_*/

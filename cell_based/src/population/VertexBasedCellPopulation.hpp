@@ -306,6 +306,16 @@ public:
      */
     void OutputCellPopulationParameters(out_stream& rParamsFile);
 
+    /**
+     * Overridden GetWidth() method.
+     * 
+     * Calculate the 'width' of any dimension of the cell population by calling
+     * GetWidth() on the mesh.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     */
+    double GetWidth(const unsigned& rDimension);
 };
 
 #include "SerializationExportWrapper.hpp"

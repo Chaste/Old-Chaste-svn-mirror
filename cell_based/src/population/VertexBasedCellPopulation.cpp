@@ -637,16 +637,22 @@ void VertexBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& 
 
 }
 
+template<unsigned DIM>
+double VertexBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
+{
+    // Call GetWidth() on the mesh
+    double width = mrMesh.GetWidth(rDimension);
+
+    return width;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-
 template class VertexBasedCellPopulation<1>;
 template class VertexBasedCellPopulation<2>;
 template class VertexBasedCellPopulation<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
