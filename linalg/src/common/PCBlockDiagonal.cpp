@@ -193,9 +193,9 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     /* Full AMG in the block */
     PCSetType(mPCContext.PC_amg_A22, PCHYPRE);
-    PCHYPRESetType(mPCContext.PC_amg_A22, "boomeramg");
+    //PCHYPRESetType(mPCContext.PC_amg_A22, "boomeramg");
+    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
 
-    //    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
     PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
