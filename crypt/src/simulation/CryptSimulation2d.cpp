@@ -31,23 +31,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
-
 CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
-                  bool deleteCellPopulationAndForceCollection,
-                  bool initialiseCells)
+                                     bool deleteCellPopulationAndForceCollection,
+                                     bool initialiseCells)
     : CellBasedSimulation<2>(rCellPopulation,
-                          deleteCellPopulationAndForceCollection,
-                          initialiseCells),
-      mUseJiggledBottomCells(false)
+                             deleteCellPopulationAndForceCollection,
+                             initialiseCells),
+      mUseJiggledBottomCells(false),
+      mWriteBetaCatenin(false)
 {
     mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulationWithGhostNodes<2>*>(&mrCellPopulation);
-}
 
+    /*
+     * To check if beta-catenin results will be written to file, we test if the first
+     * cell has a cell cycle model that is a subclass of AbstractVanLeeuwen2009WntSwatCellCycleModel.
+     * In doing so, we assume that all cells in the simulation have the same cell cycle
+     * model.
+     */
+    if (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrCellPopulation.Begin()->GetCellCycleModel()))
+    {
+        mWriteBetaCatenin = true;
+    }
+}
 
 c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
 {
     // Location of parent and daughter cells
-    c_vector<double, 2> parent_coords = mpStaticCastCellPopulation->GetLocationOfCellCentre(pParentCell);
+    c_vector<double, 2> parent_coords = mrCellPopulation.GetLocationOfCellCentre(pParentCell);
     c_vector<double, 2> daughter_coords;
 
     // Get separation parameter
@@ -71,8 +81,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pPare
     c_vector<double, 2> proposed_new_parent_coords = parent_coords - random_vector;
     c_vector<double, 2> proposed_new_daughter_coords = parent_coords + random_vector;
 
-    if (   (proposed_new_parent_coords(1) >= 0.0)
-        && (proposed_new_daughter_coords(1) >= 0.0))
+    if ((proposed_new_parent_coords(1) >= 0.0) && (proposed_new_daughter_coords(1) >= 0.0))
     {
         // We are not too close to the bottom of the cell population, so move parent
         parent_coords = proposed_new_parent_coords;
@@ -99,18 +108,16 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pPare
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(pParentCell);
+    unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(pParentCell);
     mrCellPopulation.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
 }
 
-
 void CryptSimulation2d::WriteVisualizerSetupFile()
 {
-    *mpVizSetupFile << "MeshWidth\t" << mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "\n";// get furthest distance between nodes in the x-direction
+    *mpVizSetupFile << "MeshWidth\t" << mrCellPopulation.GetWidth(0) << "\n";
 }
-
 
 void CryptSimulation2d::SetupWriteBetaCatenin()
 {
@@ -118,7 +125,6 @@ void CryptSimulation2d::SetupWriteBetaCatenin()
     mVizBetaCateninResultsFile = output_file_handler.OpenOutputFile("results.vizbetacatenin");
     *mpVizSetupFile << "BetaCatenin\n";
 }
-
 
 void CryptSimulation2d::WriteBetaCatenin(double time)
 {
@@ -135,14 +141,14 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-        global_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-        x = mpStaticCastCellPopulation->GetLocationOfCellCentre(*cell_iter)[0];
-        y = mpStaticCastCellPopulation->GetLocationOfCellCentre(*cell_iter)[1];
+        global_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+        x = mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
+        y = mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
 
-        // If writing beta-catenin, the model has to be an VanLeeuwen2009WntSwatCellCycleModel
+        // We should only be calling this code block if mWriteBetaCatenin has been set to true in the constructor
+        assert(mWriteBetaCatenin);
+
         AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
-        assert(p_model); // if this fails, it wasn't a VanLeeuwen2009WntSwatCellCycleModel!!
-
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
         b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
         b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
@@ -153,11 +159,15 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
     *mVizBetaCateninResultsFile << "\n";
 }
 
-
 void CryptSimulation2d::SetupSolve()
 {
-    if (   (mrCellPopulation.Begin() != mrCellPopulation.End()) // there are any cells
-        && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrCellPopulation.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+    /*
+     * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+     * to true in the constructor, then set up the beta-catenin results file and
+     * write the initial conditions to file.
+     */
+    bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+    if (any_cells_present && mWriteBetaCatenin)
     {
         SetupWriteBetaCatenin();
         double current_time = SimulationTime::Instance()->GetTime();
@@ -171,8 +181,13 @@ void CryptSimulation2d::PostSolve()
 
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
     {
-        if (   (mrCellPopulation.Begin() != mrCellPopulation.End()) // there are any cells
-            && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrCellPopulation.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+        /*
+         * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+         * to true in the constructor, then set up the beta-catenin results file and
+         * write the initial conditions to file.
+         */
+        bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+        if (any_cells_present && mWriteBetaCatenin)
         {
             double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
             WriteBetaCatenin(time_next_step);
@@ -180,22 +195,23 @@ void CryptSimulation2d::PostSolve()
     }
 }
 
-
 void CryptSimulation2d::AfterSolve()
 {
-    if (   (mrCellPopulation.Begin() != mrCellPopulation.End()) // there are any cells
-        && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrCellPopulation.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+    /*
+     * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+     * to true in the constructor, then close the beta-catenin results file.
+     */
+    bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+    if (any_cells_present && mWriteBetaCatenin)
     {
         mVizBetaCateninResultsFile->close();
     }
 }
 
-
 void CryptSimulation2d::UseJiggledBottomCells()
 {
     mUseJiggledBottomCells = true;
 }
-
 
 void CryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
 {
@@ -212,10 +228,10 @@ void CryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector<
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+        unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<2>* p_node = mpStaticCastCellPopulation->GetNodeCorrespondingToCell(*cell_iter);
+        Node<2>* p_node = mrCellPopulation.GetNode(node_index);
 
         if (!is_wnt_included)
         {
@@ -255,15 +271,14 @@ void CryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector<
     }
 }
 
-
 void CryptSimulation2d::SetBottomCellAncestors()
 {
     unsigned index = 0;
-    for (AbstractCellPopulation<2>::Iterator cell_iter = mpStaticCastCellPopulation->Begin();
-         cell_iter != mpStaticCastCellPopulation->End();
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
+         cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-        if (mpStaticCastCellPopulation->GetLocationOfCellCentre(*cell_iter)[1] < 0.5)
+        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < 0.5)
         {
             cell_iter->SetAncestor(index++);
         }
@@ -272,13 +287,12 @@ void CryptSimulation2d::SetBottomCellAncestors()
 
 void CryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>"<< mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "</CryptCircumference>\n";
+    *rParamsFile << "\t\t<CryptCircumference>"<< mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
 	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
 	// Call method on direct parent class
 	CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

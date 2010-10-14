@@ -54,13 +54,34 @@ private :
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
         archive & mUseJiggledBottomCells;
+        archive & mWriteBetaCatenin;
     }
-
-    /** Helper member that is a static cast of the cell population. */
-    VertexBasedCellPopulation<2>* mpStaticCastCellPopulation;
 
     /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
     bool mUseJiggledBottomCells;
+
+    /**
+     * Whether the simulation includes the cell cycle models
+     * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne or
+     * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, and
+     * hence whether beta catenin results are written to file.
+     */
+    bool mWriteBetaCatenin;
+
+    /** The file that the values of beta catenin is written out to. */
+    out_stream mVizBetaCateninResultsFile;
+
+    /**
+     * By default this method returns the zero vector. If the parent cell
+     * is a stem cell, then this method returns the vector (0,1). This is
+     * then used by the VertexBasedCellPopulation method AddCell() as the axis along
+     * which the cell divides.
+     *
+     * @param pParentCell the parent cell
+     *
+     * @return daughter_coords the coordinates for the daughter cell.
+     */
+    c_vector<double, 2> CalculateCellDivisionVector(CellPtr pParentCell);
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -70,16 +91,38 @@ private :
     void WriteVisualizerSetupFile();
 
     /**
-     * Overridden CalculateCellDivisionVector() method.
-     *
-     * By default this method returns the zero vector. If the parent cell
-     * is a stem cell, then this method returns the vector (0,1). This is
-     * then used by the VertexBasedCellPopulation method AddCell() as the axis along
-     * which the cell divides.
-     *
-     * @param pParentCell the parent cell
+     * Use an output file handler to reate a beta catenin results file.
      */
-    c_vector<double, 2> CalculateCellDivisionVector(CellPtr pParentCell);
+    void SetupWriteBetaCatenin();
+
+    /**
+     * Write beta catenin results to file.
+     *
+     * @param time the current time
+     */
+    void WriteBetaCatenin(double time);
+
+    /**
+     * Overridden SetupSolve() method.
+     *
+     * Write initial beta catenin results to file if required.
+     */
+    void SetupSolve();
+
+    /**
+     * Overridden PostSolve() method.
+     *
+     * Write current beta catenin results to file if required.
+     */
+    void PostSolve();
+
+    /**
+     * Overridden AfterSolve() method.
+     *
+     * Closes beta catenin results file if required, then calls
+     * the base class method.
+     */
+    void AfterSolve();
 
 public :
 
@@ -111,6 +154,12 @@ public :
     void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
 
     /**
+     * Sets the Ancestor index of all the cells at the bottom in order,
+     * can be used to trace clonal populations.
+     */
+    void SetBottomCellAncestors();
+
+    /**
      * Outputs Simulation Parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
@@ -120,7 +169,6 @@ public :
      */
     void OutputSimulationParameters(out_stream& rParamsFile);
 };
-
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"

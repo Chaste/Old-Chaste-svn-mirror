@@ -62,10 +62,19 @@ protected:
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
         archive & mUseJiggledBottomCells;
+        archive & mWriteBetaCatenin;
     }
 
     /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
     bool mUseJiggledBottomCells;
+
+    /**
+     * Whether the simulation includes the cell cycle models
+     * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne or
+     * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, and
+     * hence whether beta catenin results are written to file.
+     */
+    bool mWriteBetaCatenin;
 
     /** The file that the values of beta catenin is written out to. */
     out_stream mVizBetaCateninResultsFile;
@@ -93,7 +102,7 @@ protected:
     void WriteVisualizerSetupFile();
 
     /**
-     * Use an output file handler to reate a beta catenin results file.
+     * Use an output file handler to create a beta catenin results file.
      */
     void SetupWriteBetaCatenin();
 

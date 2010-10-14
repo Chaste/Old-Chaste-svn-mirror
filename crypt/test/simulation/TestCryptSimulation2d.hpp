@@ -54,9 +54,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 
-#include "Debug.hpp"
-
-
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
 private:
@@ -1671,7 +1668,6 @@ public:
         delete p_simulator;
     }
 
-
     void TestWriteBetaCatenin() throw (Exception)
     {
         // Create mesh
@@ -1707,7 +1703,6 @@ public:
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
-
 
         // Run simulation
         simulator.Solve();

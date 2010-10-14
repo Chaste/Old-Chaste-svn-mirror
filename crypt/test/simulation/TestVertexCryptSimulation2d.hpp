@@ -38,12 +38,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NagaiHondaForce.hpp"
 #include "VertexCryptBoundaryForce.hpp"
 #include "CryptCellsGenerator.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "Warnings.hpp"
+#include "NumericFileComparison.hpp"
 
 class TestVertexCryptSimulation2d : public AbstractCellBasedTestSuite
 {
@@ -672,7 +674,6 @@ public:
    		///\todo check output of simulator.OutputSimulationSetup()
    	}
 
-
     // Testing Save
     void TestSave() throw (Exception)
     {
@@ -726,7 +727,6 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
-
 
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)
@@ -784,6 +784,59 @@ public:
         // Tidy up
         delete p_simulator1;
         delete p_simulator2;
+        WntConcentration<2>::Destroy();
+    }
+
+    void TestWriteBetaCatenin() throw (Exception)
+    {
+        // Create mesh
+        unsigned crypt_width = 6;
+        unsigned crypt_height = 4;
+        double crypt_length = crypt_height*(sqrt(3)/2);
+        CylindricalHoneycombVertexMeshGenerator generator(crypt_width, crypt_height);
+        Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
+        cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
+
+        // Create cell population
+        VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
+
+        // Create an instance of a Wnt concentration
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+
+        // Create crypt simulation from cell population
+        VertexCryptSimulation2d simulator(crypt);
+        simulator.SetOutputDirectory("VertexCryptBetaCatenin");
+        simulator.SetEndTime(0.1);
+
+        // Create a force laws and pass it to the simulation
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
+
+        // Create cell killer and pass in to crypt simulation
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check writing of beta-catenin data
+        OutputFileHandler handler("VertexCryptBetaCatenin", false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
+        std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
+
+        NumericFileComparison comp_bcat(results_file, "crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin");
+        TS_ASSERT(comp_bcat.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
+
+        TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizsetup").c_str()), 0);
+
+        // Tidy up
         WntConcentration<2>::Destroy();
     }
 };

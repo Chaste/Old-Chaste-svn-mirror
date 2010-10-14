@@ -28,30 +28,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexCryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
-                  bool deleteCellPopulationAndForceCollection,
-                  bool initialiseCells)
+                                                 bool deleteCellPopulationAndForceCollection,
+                                                 bool initialiseCells)
     : CellBasedSimulation<2>(rCellPopulation,
-                          deleteCellPopulationAndForceCollection,
-                          initialiseCells),
-      mUseJiggledBottomCells(false)
+                             deleteCellPopulationAndForceCollection,
+                             initialiseCells),
+      mUseJiggledBottomCells(false),
+      mWriteBetaCatenin(false)
 {
-    mpStaticCastCellPopulation = static_cast<VertexBasedCellPopulation<2>*>(&mrCellPopulation);
+    /*
+     * To check if beta-catenin results will be written to file, we test if the first
+     * cell has a cell cycle model that is a subclass of AbstractVanLeeuwen2009WntSwatCellCycleModel.
+     * In doing so, we assume that all cells in the simulation have the same cell cycle
+     * model.
+     */
+    if (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrCellPopulation.Begin()->GetCellCycleModel()))
+    {
+        mWriteBetaCatenin = true;
+    }
 }
-
-
-void VertexCryptSimulation2d::UseJiggledBottomCells()
-{
-    mUseJiggledBottomCells = true;
-}
-
-
-void VertexCryptSimulation2d::WriteVisualizerSetupFile()
-{
-    *mpVizSetupFile << "MeshWidth\t" << mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "\n";
-}
-
 
 c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
 {
@@ -71,6 +70,103 @@ c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(CellPtr
     return axis_of_division;
 }
 
+void VertexCryptSimulation2d::WriteVisualizerSetupFile()
+{
+    *mpVizSetupFile << "MeshWidth\t" << mrCellPopulation.GetWidth(0) << "\n";
+}
+
+void VertexCryptSimulation2d::SetupWriteBetaCatenin()
+{
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
+    mVizBetaCateninResultsFile = output_file_handler.OpenOutputFile("results.vizbetacatenin");
+    *mpVizSetupFile << "BetaCatenin\n";
+}
+
+void VertexCryptSimulation2d::WriteBetaCatenin(double time)
+{
+    *mVizBetaCateninResultsFile <<  time << "\t";
+
+    unsigned global_index;
+    double x;
+    double y;
+    double b_cat_membrane;
+    double b_cat_cytoplasm;
+    double b_cat_nuclear;
+
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
+         cell_iter != mrCellPopulation.End();
+         ++cell_iter)
+    {
+        global_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+        x = mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
+        y = mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
+
+        // We should only be calling this code block if mWriteBetaCatenin has been set to true in the constructor
+        assert(mWriteBetaCatenin);
+
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
+        b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
+        b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
+
+        *mVizBetaCateninResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
+    }
+
+    *mVizBetaCateninResultsFile << "\n";
+}
+
+void VertexCryptSimulation2d::SetupSolve()
+{
+    /*
+     * If there are any cells in the simulation, and mWriteBetaCatenin has been set to true in the constructor,
+     * then set up the beta-catenin results file and write the initial conditions to file.
+     */
+    bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+    if (any_cells_present && mWriteBetaCatenin)
+    {
+        SetupWriteBetaCatenin();
+        double current_time = SimulationTime::Instance()->GetTime();
+        WriteBetaCatenin(current_time);
+    }
+}
+
+void VertexCryptSimulation2d::PostSolve()
+{
+    SimulationTime* p_time = SimulationTime::Instance();
+
+    if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
+    {
+        /*
+         * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+         * to true in the constructor, then set up the beta-catenin results file and
+         * write the initial conditions to file.
+         */
+        bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+        if (any_cells_present && mWriteBetaCatenin)
+        {
+            double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
+            WriteBetaCatenin(time_next_step);
+        }
+    }
+}
+
+void VertexCryptSimulation2d::AfterSolve()
+{
+    /*
+     * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+     * to true in the constructor, then close the beta-catenin results file.
+     */
+    bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
+    if (any_cells_present && mWriteBetaCatenin)
+    {
+        mVizBetaCateninResultsFile->close();
+    }
+}
+
+void VertexCryptSimulation2d::UseJiggledBottomCells()
+{
+    mUseJiggledBottomCells = true;
+}
 
 void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
 {
@@ -81,9 +177,10 @@ void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::v
     }
 
     // Iterate over all nodes and update their positions according to the boundary conditions
-    for (unsigned node_index=0; node_index<this->mrCellPopulation.GetNumNodes(); node_index++)
+    unsigned num_nodes = mrCellPopulation.GetNumNodes();
+    for (unsigned node_index=0; node_index<num_nodes; node_index++)
     {
-        Node<2>* p_node = this->mrCellPopulation.GetNode(node_index);
+        Node<2>* p_node = mrCellPopulation.GetNode(node_index);
         c_vector<double, 2> old_location = rOldLocations[node_index];
 
         if (!is_wnt_included)
@@ -114,16 +211,28 @@ void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::v
     }
 }
 
+void VertexCryptSimulation2d::SetBottomCellAncestors()
+{
+    unsigned index = 0;
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
+         cell_iter != mrCellPopulation.End();
+         ++cell_iter)
+    {
+        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < 0.5)
+        {
+            cell_iter->SetAncestor(index++);
+        }
+    }
+}
 
 void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>"<< mpStaticCastCellPopulation->rGetMesh().GetWidth(0u) << "</CryptCircumference>\n";
+    *rParamsFile << "\t\t<CryptCircumference>"<< mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
 	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
 	// Call method on direct parent class
 	CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
