@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before any other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CryptSimulation1d.hpp"
@@ -43,9 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-//#include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
-//#include "CellPropertyRegistry.hpp"
 
 class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
@@ -803,7 +801,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        CellBasedSimulationArchiver<1, CryptSimulation1d>::Save(&simulator);
+        CryptSimulationArchiver<1, CryptSimulation1d>::Save(&simulator);
     }
 
 
@@ -816,16 +814,16 @@ public:
         // run it from 0.1 to 0.2
         CryptSimulation1d* p_simulator1;
 
-        p_simulator1 = CellBasedSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
+        p_simulator1 = CryptSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
         // Save then reload and run from 0.2 to 0.25
         MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedCellPopulation<1>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
-        CellBasedSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
+        CryptSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
 
-        CryptSimulation1d* p_simulator2 = CellBasedSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
+        CryptSimulation1d* p_simulator2 = CryptSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
         MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedCellPopulation<1>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         TS_ASSERT_EQUALS(r_mesh1.GetNumAllNodes(), r_mesh2.GetNumAllNodes());

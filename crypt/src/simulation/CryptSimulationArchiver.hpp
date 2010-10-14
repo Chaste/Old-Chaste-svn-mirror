@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CELLBASEDSIMULATIONARCHIVER_HPP_
-#define CELLBASEDSIMULATIONARCHIVER_HPP_
+#ifndef CRYPTSIMULATIONARCHIVER_HPP_
+#define CRYPTSIMULATIONARCHIVER_HPP_
 
 // Must be included before any other serialisation headers
 #include "CheckpointArchiveTypes.hpp"
@@ -37,18 +37,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "SimulationTime.hpp"
+#include "WntConcentration.hpp"
 #include "CellwiseData.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "ArchiveOpener.hpp"
 #include "FileFinder.hpp"
 
 /**
- * CellBasedSimulationArchiver handles the checkpointing (saving and loading)
- * of all the various CellBasedSimulation objects. It has no explicit constructor
- * (just uses a default one) and no member variables.
+ * CryptSimulationArchiver handles the checkpointing (saving and loading)
+ * of all CryptSimulation1d, CryptSimulation2d and VertexCryptSimulation2d
+ * objects. It has no explicit constructor (just uses a default one) and
+ * no member variables.
+ * 
+ * \todo reduce code duplication with CellBasedSimulationArchiver (#1568)
  */
 template<unsigned DIM, class SIM>
-class CellBasedSimulationArchiver
+class CryptSimulationArchiver
 {
 public:
 
@@ -79,7 +83,7 @@ public:
 
 
 template<unsigned DIM, class SIM>
-SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+SIM* CryptSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     /**
      * Find the right archive (and mesh) to load.  The files are contained within
@@ -106,6 +110,15 @@ SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDire
     assert(p_simulation_time->IsStartTimeSetUp());
     (*p_arch) & *p_simulation_time;
 
+    // - Wnt concentration (if used)
+    bool archive_wnt;
+    (*p_arch) & archive_wnt;
+    if (archive_wnt)
+    {
+        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
+        (*p_arch) & *p_wnt;
+    }
+
     // - CellwiseData (if used)
     bool archive_cellwise_data;
     (*p_arch) & archive_cellwise_data;
@@ -122,7 +135,7 @@ SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDire
 }
 
 template<unsigned DIM, class SIM>
-void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
+void CryptSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
 {
     // Get the simulation time as a string
     const SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -143,7 +156,16 @@ void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     // singleton-ness on load.
     (*p_arch) << *p_sim_time;
 
-    // Archive the CellwiseData if it is used
+    // Archive the Wnt concentration if it's used
+    bool archive_wnt = WntConcentration<DIM>::Instance()->IsWntSetUp();
+    (*p_arch) & archive_wnt;
+    if (archive_wnt)
+    {
+        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
+        (*p_arch) & *p_wnt;
+    }
+
+    // Archive the CellwiseData if it's used
     bool archive_cellwise_data = CellwiseData<DIM>::Instance()->IsSetUp();
     (*p_arch) & archive_cellwise_data;
     if (archive_cellwise_data)
@@ -156,4 +178,4 @@ void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     (*p_arch) & pSim; // const-ness would be a pain here
 }
 
-#endif /*CELLBASEDSIMULATIONARCHIVER_HPP_*/
+#endif /*CRYPTSIMULATIONARCHIVER_HPP_*/

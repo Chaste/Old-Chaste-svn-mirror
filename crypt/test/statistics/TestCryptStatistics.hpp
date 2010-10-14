@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
@@ -225,7 +225,7 @@ public:
         }
 
         simulator.Solve();
-        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler(output_directory, false);

@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before any other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "VertexCryptSimulation2d.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
@@ -113,7 +113,6 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
-
 };
 
 #endif /*TEST2DMONOLAYERREPRESENTATIVESIMULATION_HPP_*/

@@ -33,8 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-// Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include <cstdio>
 

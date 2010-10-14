@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
@@ -115,14 +115,14 @@ public:
         // END OF UNUSUAL SET UP! //////////////////////////////////
 
         simulator.Solve();
-        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
-            CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
+            CryptSimulation2d* p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
-            CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator);
+            CryptSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator);
             delete p_simulator;
         }
 
@@ -130,7 +130,6 @@ public:
         RandomNumberGenerator::Destroy();
         WntConcentration<2>::Destroy();
     }
-
 };
 
 #endif /*TESTGENERATESTEADYSTATECRYPT_HPP_*/

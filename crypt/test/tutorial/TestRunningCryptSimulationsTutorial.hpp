@@ -60,8 +60,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "CheckpointArchiveTypes.hpp" 
 
-
-
 /* The next header file defines a helper class for generating
  * cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"

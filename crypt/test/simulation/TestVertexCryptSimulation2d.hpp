@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before any other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
@@ -501,9 +501,9 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // Coverage
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        CryptSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
         VertexCryptSimulation2d* p_simulator;
-        p_simulator = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", end_time);
+        p_simulator = CryptSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", end_time);
         delete p_simulator;
 
         // Test Warnings
@@ -549,11 +549,11 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
         // Save
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        CryptSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
 
         // Load
         VertexCryptSimulation2d* p_simulator;
-        p_simulator = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DArchive", 0.0);
+        p_simulator = CryptSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DArchive", 0.0);
 
         // Create an identical mesh for comparison purposes
         Cylindrical2dVertexMesh* p_mesh2 = generator.GetCylindricalMesh();
@@ -717,7 +717,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        CryptSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
@@ -738,7 +738,7 @@ public:
         WntConcentration<2>::Instance();   // Make sure there is no existing Wnt Gradient before load
         WntConcentration<2>::Destroy();
 
-        p_simulator1 = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = CryptSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.1);
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
@@ -746,9 +746,9 @@ public:
         MutableVertexMesh<2,2>& r_mesh1 = (static_cast<VertexBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
 
         // Save then reload, compare meshes either side
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(p_simulator1);
+        CryptSimulationArchiver<2, VertexCryptSimulation2d>::Save(p_simulator1);
 
-        VertexCryptSimulation2d* p_simulator2 = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.2);
+        VertexCryptSimulation2d* p_simulator2 = CryptSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.2);
         MutableVertexMesh<2,2>& r_mesh2 = (static_cast<VertexBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);

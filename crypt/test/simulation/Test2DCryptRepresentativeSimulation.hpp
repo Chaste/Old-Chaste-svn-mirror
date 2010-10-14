@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+// Must be included before any other cell_based or crypt headers
+#include "CryptSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "StochasticWntCellCycleModel.hpp"
@@ -90,7 +90,7 @@ public:
         TS_ASSERT_EQUALS(return_value, 0);
 
         // Load and run crypt simulation
-        CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
+        CryptSimulation2d* p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t+run_for); // start time + duration
         p_simulator->Solve();
 

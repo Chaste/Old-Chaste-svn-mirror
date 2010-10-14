@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "ApoptoticCellProperty.hpp"
-#include "Cylindrical2dVertexMesh.hpp"
 #include "Cylindrical2dMesh.hpp"
 
 template<unsigned DIM>
@@ -837,17 +836,14 @@ void MeshBasedCellPopulation<2>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
 
-    bool is_periodic = false;
-
-    // Check if mesh is cylindrical, add in boolean
-
-    if ( (dynamic_cast<Cylindrical2dVertexMesh*>(&mrMesh)) ||
-    		(dynamic_cast<Cylindrical2dMesh*>(&mrMesh)) )
+    // Check if the mesh associated with this cell population is periodic
+    bool is_mesh_periodic = false;
+    if (dynamic_cast<Cylindrical2dMesh*>(&mrMesh))
     {
-    	is_periodic = true;
+    	is_mesh_periodic = true;
     }
 
-    mpVoronoiTessellation = new VertexMesh<2, 2>(mrMesh, is_periodic);
+    mpVoronoiTessellation = new VertexMesh<2, 2>(mrMesh, is_mesh_periodic);
 }
 
 /**
@@ -992,7 +988,7 @@ std::pair<CellPtr,CellPtr> MeshBasedCellPopulation<DIM>::CreateCellPair(CellPtr 
 
     std::pair<CellPtr,CellPtr> cell_pair;
 
-    if(pCell1->GetCellId() < pCell2->GetCellId())
+    if (pCell1->GetCellId() < pCell2->GetCellId())
     {
         cell_pair.first = pCell1;
         cell_pair.second = pCell2;
@@ -1072,10 +1068,10 @@ void MeshBasedCellPopulation<DIM>::SetOutputCellPopulationVolumes(bool outputCel
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t<UseAreaBasedDampingConstant>"<<  mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant> \n" ;
-    *rParamsFile <<  "\t\t<AreaBasedDampingConstantParameter>"<<  mAreaBasedDampingConstantParameter << "</AreaBasedDampingConstantParameter> \n" ;
-	*rParamsFile <<  "\t\t<OutputVoronoiData>"<<  mOutputVoronoiData << "</OutputVoronoiData> \n" ;
-	*rParamsFile <<  "\t\t<OutputCellPopulationVolumes>"<<  mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes> \n" ;
+	*rParamsFile << "\t\t<UseAreaBasedDampingConstant>"<< mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant> \n";
+    *rParamsFile << "\t\t<AreaBasedDampingConstantParameter>"<<  mAreaBasedDampingConstantParameter << "</AreaBasedDampingConstantParameter> \n";
+	*rParamsFile << "\t\t<OutputVoronoiData>"<<  mOutputVoronoiData << "</OutputVoronoiData> \n";
+	*rParamsFile << "\t\t<OutputCellPopulationVolumes>"<< mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes> \n";
 
 	// Call direct parent class
 	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
@@ -1086,7 +1082,6 @@ double MeshBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
 {
     // Call GetWidth() on the mesh
     double width = mrMesh.GetWidth(rDimension);
-
     return width;
 }
 

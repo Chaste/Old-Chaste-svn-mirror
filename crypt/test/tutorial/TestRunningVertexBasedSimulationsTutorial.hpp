@@ -62,7 +62,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "CheckpointArchiveTypes.hpp" 
 
-
 /* The next header file defines a helper class for generating
  * a vector of cells for a given mesh. */
 #include "CellsGenerator.hpp"
