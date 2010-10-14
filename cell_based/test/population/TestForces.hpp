@@ -66,30 +66,15 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        ///\todo use CellsGenerator? (#1583)
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
 
-            if (i==60)
-            {
-                CellPtr p_cell(new Cell(p_apc2, p_model));
-                p_cell->SetBirthTime(-10);
-                cells.push_back(p_cell);
-            }
-            else
-            {
-                CellPtr p_cell(new Cell(p_state, p_model));
-                p_cell->SetBirthTime(-10);
-                cells.push_back(p_cell);
-            }
-        }
-
+        // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
+
+        // Create force
         GeneralisedLinearSpringForce<2> linear_force;
 
         // Test set/get method
@@ -225,22 +210,14 @@ public:
         // Create a 1D mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(5);
-
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells
+        
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 1> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            double birth_time = 0.0 - node_index;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
         }
 
         // Create cell population
@@ -341,18 +318,13 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        ///\todo use CellsGenerator? (#1583)
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        for (unsigned i=0; i<cells.size(); i++)
         {
-	        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-	        p_model->SetCellProliferativeType(STEM);
-
-	        CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(-50.0);
-            cells.push_back(p_cell);
+            cells[i]->SetBirthTime(-50.0);
         }
 
         std::vector<CellPtr> cells_copy(cells);
@@ -578,24 +550,16 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        ///\todo use CellsGenerator? (#1583)
+        // Create cells
         std::vector<CellPtr> cells;
-
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
 
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-        CellPropertyCollection collection;
-        collection.AddProperty(p_label);
-
-        for (unsigned i=0; i<location_indices.size(); i++)
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_model, false, collection));
-            p_cell->SetBirthTime(-10);
-
-            cells.push_back(p_cell);
+            cells[i]->SetBirthTime(-10);
+            cells[i]->AddCellProperty(p_label);
         }
 
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
@@ -654,19 +618,13 @@ public:
             // SimulationTime is usually set up by a CellBasedSimulation
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            ///\todo use CellsGenerator? (#1583)
             // Create cells
             std::vector<CellPtr> cells;
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+            cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+            for (unsigned i=0; i<cells.size(); i++)
             {
-                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-                p_model->SetCellProliferativeType(STEM);
-
-                CellPtr p_cell(new Cell(p_state, p_model));
-                p_cell->SetBirthTime(-50.0);
-                cells.push_back(p_cell);
+                cells[i]->SetBirthTime(-50);
             }
 
             // Create cell population
@@ -886,7 +844,7 @@ public:
             CellPtr p_cell = cell_population.GetCellUsingLocationIndex(elem_index);
             double expected_area = force.GetMatureCellTargetArea();
 
-            if (elem_index!=4 && elem_index<=7u)
+            if (elem_index!=4 && elem_index<=7)
             {
                 expected_area *= 0.5*(1 + ((double)elem_index)/7.0);
             }

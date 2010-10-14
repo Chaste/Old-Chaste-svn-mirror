@@ -336,24 +336,38 @@ public:
 
     /**
 	 * Set mStemCellG1Duration.
+	 * 
+	 * @param stemCellG1Duration  the new value of mStemCellG1Duration
 	 */
-	void SetStemCellG1Duration(double);
+	void SetStemCellG1Duration(double stemCellG1Duration);
+
 	/**
 	 * Set mTransitCellG1Duration.
+	 * 
+     * @param transitCellG1Duration  the new value of mTransitCellG1Duration
 	 */
-	void SetTransitCellG1Duration(double);
+	void SetTransitCellG1Duration(double transitCellG1Duration);
+
 	/**
 	 * Set mSDuration.
+	 * 
+     * @param sDuration  the new value of mSDuration
 	 */
-	void SetSDuration(double);
+	void SetSDuration(double sDuration);
+
 	/**
 	 * Set mG2Duration.
+	 * 
+     * @param g2Duration  the new value of mG2Duration
 	 */
-	void SetG2Duration(double);
+	void SetG2Duration(double g2Duration);
+
 	/**
 	 * Set mMDuration.
+	 * 
+	 * @param mDuration  the new value of mMDuration
 	 */
-	void SetMDuration(double);
+	void SetMDuration(double mDuration);
 
     /**
      * Return the typical cell cycle duration for a transit cell, in hours.

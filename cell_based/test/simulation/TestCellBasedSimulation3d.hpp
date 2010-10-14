@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before other cell_based headers
 #include "CellBasedSimulationArchiver.hpp"
 
+#include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "CellBasedSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
@@ -80,25 +81,17 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<num_cells; i++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-            p_model->SetGeneration(0);
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            if (i == 50)
-            {
-                p_cell->SetBirthTime(-50.0);
-            }
-
-            cells.push_back(p_cell);
+            dynamic_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->SetGeneration(0);
+            cells[i]->SetBirthTime(0.0);
         }
+        cells[50]->SetBirthTime(-50.0);
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
@@ -116,28 +109,17 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-        ///\todo use CellsGenerator? (#1583)
+        // Create cells
         std::vector<CellPtr> cells;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        for (unsigned i=0; i<cells.size(); i++)
         {
-	        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-	        p_model->SetCellProliferativeType(STEM);
-
-        	CellPtr p_cell(new Cell(p_state, p_model));
-
-            if (i == mesh.GetNumNodes()-1)
-            {
-            	// Setting last cell to undergo cell birth
-            	p_cell->SetBirthTime(-50.0);
-            }
-            else
-            {
-            	p_cell->SetBirthTime(0.0);
-            }
-            cells.push_back(p_cell);
+            dynamic_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->SetGeneration(0);
+            cells[i]->SetBirthTime(0.0);
         }
+        cells[mesh.GetNumNodes()-1]->SetBirthTime(-50.0);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
@@ -176,23 +158,14 @@ public:
         TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh", "StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<num_cells; i++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
+
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-            p_model->SetGeneration(0);
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                               ( p_model->GetStemCellG1Duration()
-                                 + p_model->GetSG2MDuration()   ));
-
-            cells.push_back(p_cell);
+            dynamic_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->SetGeneration(0);
         }
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
@@ -266,8 +239,7 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                                (  p_model->GetStemCellG1Duration() +
-                                   p_model->GetSG2MDuration()  ));
+                                 (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration()));
 
             cells2.push_back(p_cell);
 

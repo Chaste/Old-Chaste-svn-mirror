@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before other cell_based headers
 #include "CellBasedSimulationArchiver.hpp"
 
+#include "CellsGenerator.hpp"
 #include "CellBasedSimulation.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
@@ -48,7 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "Warnings.hpp"
 #include "LogFile.hpp"
-
 
 class TestCellBasedSimulationWithVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -88,20 +88,15 @@ public:
         double edge_division_threshold = 2.0;
         MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of 0
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = -1.0;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+            cells[i]->SetBirthTime(-1.0);
         }
 
         // Create cell population
@@ -147,19 +142,15 @@ public:
         double edge_division_threshold = 2.0;
         MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of 0
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(-1.0);
-            cells.push_back(p_cell);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+            cells[i]->SetBirthTime(-1.0);
         }
 
         // Create cell population
@@ -178,7 +169,6 @@ public:
         // Create a force law and pass it to the simulation
         WelikyOsterForce<2> weliky_oster_force;
         simulator.AddForce(&weliky_oster_force);
-
 
         // Run simulation
         simulator.Solve();
@@ -246,29 +236,22 @@ public:
         HoneycombMutableVertexMeshGenerator generator(5, 5);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index, so its age is elem_index
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            CellProliferativeType cell_type = DIFFERENTIATED;
-            double birth_time = 0.0 - elem_index;
-
-            // Cell should divide at time t=0.05
-            if (elem_index==12) //(elem_index==6 ||elem_index==7 || elem_index==8 || elem_index==11 ||elem_index==12 || elem_index==13 ||elem_index==16 ||elem_index==17 || elem_index==18)
+            if (i==12)
             {
-                cell_type = STEM;
-                birth_time = -23.95;
+                cells[i]->GetCellCycleModel()->SetCellProliferativeType(STEM);
+                cells[i]->SetBirthTime(-23.95);
             }
-
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(cell_type);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
+            else
+            {
+                cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+            }
         }
 
         // Create cell population
@@ -313,7 +296,7 @@ public:
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        // create a horseshoe shaped mesh
+        // Create a horseshoe-shaped mesh
         p_mesh->DeleteElementPriorToReMesh(0);
         p_mesh->DeleteElementPriorToReMesh(1);
         p_mesh->DeleteElementPriorToReMesh(4);
@@ -321,22 +304,14 @@ public:
 
         p_mesh->ReMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-       
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index-19, so its age is elem_index+19, so the first cell divides straight away.
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time;
-            birth_time = -(double)elem_index -19.0;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->SetBirthTime(-(double)i -19.0);
         }
 
         // Create cell population
@@ -469,28 +444,20 @@ public:
 		HoneycombMutableVertexMeshGenerator generator(2, 2);
 		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-		///\todo use CellsGenerator? (#1583)
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-		// Set up cell
-		std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(TRANSIT);
+            cells[i]->SetBirthTime(-2.0);
+        }
 
-		for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-		{
-			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-			p_model->SetCellProliferativeType(TRANSIT);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = -2.0;
-            p_cell->SetBirthTime(birth_time);
-
-			if (elem_index == 0 || elem_index == 2)
-			{
-				p_cell->AddCellProperty(p_label);
-			}
-            cells.push_back(p_cell);
-		}
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        cells[0]->AddCellProperty(p_label);
+        cells[2]->AddCellProperty(p_label);
 
 		// Create cell population
 		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -511,7 +478,6 @@ public:
 		///\todo test against a saved simulation or something similar, i.e check the positions of some vertices.
 		TS_ASSERT_EQUALS(p_mesh->GetNode(13)->IsBoundaryNode(), true);
 		TS_ASSERT_EQUALS(p_mesh->GetNumElements(),4u);
-		TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
 		TS_ASSERT_EQUALS(cells[0]->HasCellProperty<CellLabel>(), true);
 
 		// Test Warnings
@@ -537,20 +503,15 @@ public:
         MutableVertexMesh<2,2> mesh(nodes, elements);
         mesh.SetCellRearrangementThreshold(0.1);
 
-        ///\todo use CellsGenerator? (#1583)
-
-        // Set up cells, one for each VertexElement
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = -1.0;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+            cells[i]->SetBirthTime(-1.0);
         }
 
         // Create cell population
@@ -606,22 +567,10 @@ public:
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index, so its age is elem_index
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-        {
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = -(double)elem_index;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -673,21 +622,14 @@ public:
         HoneycombMutableVertexMeshGenerator generator(6, 6);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index, so its age is elem_index
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = 0.0 - elem_index;
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
         }
 
         // Create cell population

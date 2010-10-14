@@ -82,7 +82,7 @@ public:
         // Check that some of the vector of cells reach apotosis
         single_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        std::set< double > old_locations;
+        std::set<double> old_locations;
 
         std::list<CellPtr>::iterator cell_it = r_cells.begin();
         TS_ASSERT(!(*cell_it)->IsDead());
@@ -293,19 +293,8 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
-        ///\todo use CellsGenerator? (#1583)
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->SetBirthTime(0.0);
-
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
@@ -321,7 +310,7 @@ public:
              ++cell_iter)
         {
             double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
-            if (y>0.5)
+            if (y > 0.5)
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
@@ -351,19 +340,8 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
-        ///\todo use CellsGenerator? (#1583)
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->SetBirthTime(0.0);
-
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create cell population
         MeshBasedCellPopulation<1> cell_population(mesh, cells);
@@ -403,7 +381,6 @@ public:
         }
     }
 
-
     void TestSloughingCellKillerIn3d() throw(Exception)
     {
         // Create 3D mesh
@@ -412,19 +389,8 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
-        ///\todo use CellsGenerator? (#1583)
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->SetBirthTime(0.0);
-
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create cell population
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
@@ -432,11 +398,9 @@ public:
         // Create cell killer
         SloughingCellKiller<3> sloughing_cell_killer(&cell_population, 1.0); // number is irrelevent as long as its positive.
 
-
         // Check that an exception is thrown, as this method is not yet implemented in 3D
         TS_ASSERT_THROWS_THIS(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath(), "SloughingCellKiller is not yet implemented in 3D");
     }
-
 
     void TestOxygenBasedCellKiller() throw(Exception)
     {
@@ -612,7 +576,6 @@ public:
         }
     }
 
-
     void TestArchivingOfSloughingCellKiller() throw (Exception)
     {
         // Set up singleton classes
@@ -653,7 +616,6 @@ public:
             delete p_cell_killer;
         }
     }
-
 
     void TestArchivingOfOxygenBasedCellKiller() throw (Exception)
     {

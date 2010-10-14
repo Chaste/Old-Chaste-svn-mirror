@@ -221,8 +221,10 @@ public:
 
     /**
      * Set mCryptLength. Must be called before GetWntLevel().
+     * 
+     * @param cryptLength  the new value of mCryptLength
      */
-    void SetCryptLength(double);
+    void SetCryptLength(double cryptLength);
 
     /**
      *  Get the type of Wnt concentration.

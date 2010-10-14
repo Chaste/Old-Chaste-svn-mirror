@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before other cell_based headers
 #include "CellBasedSimulationArchiver.hpp"
 
+#include "CellsGenerator.hpp"
 #include "CellBasedSimulation.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -46,27 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCellBasedSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
-    ///\todo use CellsGenerator? (#1583)
-    template<unsigned DIM>
-    std::vector<CellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
-    {
-        std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (p_model->GetStemCellG1Duration() +
-                                 p_model->GetSG2MDuration() );
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
-        return cells;
-    }
 
     double mLastStartTime;
     void setUp()
@@ -96,8 +76,10 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Give each a random birth time.
-        std::vector<CellPtr> cells = SetUpCells(p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         // Create a node-based cell population
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
@@ -141,8 +123,10 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Give each a random birth time.
-        std::vector<CellPtr> cells = SetUpCells(p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         // Create a node-based cell population
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
@@ -220,8 +204,10 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Give each a random birth time.
-        std::vector<CellPtr> cells = SetUpCells(p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         // Create a node based cell population
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
@@ -264,8 +250,10 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Give each a random birth time.
-        std::vector<CellPtr> cells = SetUpCells(p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         // Create a node based cell population
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
@@ -303,8 +291,10 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Give each a random birth time.
-        std::vector<CellPtr> cells = SetUpCells(p_mesh);
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         // Create a node based cell population
         NodeBasedCellPopulation<2> node_based_cell_population(*p_mesh, cells);
@@ -365,8 +355,6 @@ public:
         delete p_simulator1;
         delete p_simulator2;
     }
-
 };
 
 #endif /*TESTCELLBASEDSIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_*/
-
