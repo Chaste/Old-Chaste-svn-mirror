@@ -100,7 +100,7 @@ public:
         simulator.SetOutputDirectory("Test2DVertexCryptRepresentativeSimulationForProfiling");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<1> nagai_honda_force;
+        NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
         // Add a cell killer
