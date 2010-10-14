@@ -264,6 +264,13 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalSetUp()
     // Set up amg preconditioner for block A22_B2
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A22_B2));
     PCSetType(mPCContext.PC_amg_A22_B2, PCHYPRE);
+    PCHYPRESetType(mPCContext.PC_amg_A22_B2, "boomeramg");
+
+    //    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
+
     PCSetOperators(mPCContext.PC_amg_A22_B2, mPCContext.A22_B2_matrix_subblock, mPCContext.A22_B2_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A22_B2);
     PCSetUp(mPCContext.PC_amg_A22_B2);

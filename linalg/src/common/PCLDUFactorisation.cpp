@@ -187,13 +187,24 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
      * Experimental (#1082): in PP removing the mass matrix from the A22 block seems to work better.
      *                       This is equivalent to do A22 = A22 + B in this implementation. 
      */
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    PetscScalar petsc_one = 1.0;
-    MatAXPY(&petsc_one, mPCContext.B_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
-#else
-    MatAXPY(mPCContext.A22_matrix_subblock, 1.0, mPCContext.B_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
-#endif    
+// #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+//     PetscScalar petsc_one = 1.0;
+//     MatAXPY(&petsc_one, mPCContext.B_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
+// #else
+//     MatAXPY(mPCContext.A22_matrix_subblock, 1.0, mPCContext.B_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
+// #endif    
     
+//     // Shift the block
+// #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+//     PetscScalar shift = -1e-8;
+//     MatShift(&shift, mPCContext.A22_matrix_subblock);
+// #else
+//     PetscScalar shift = -1e-8;
+//     MatShift(mPCContext.A22_matrix_subblock, shift);
+// #endif    
+
+
+
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     // Register PC context and call-back function
@@ -223,7 +234,10 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     // Choose between the two following blocks in order to approximate inv(A11) with one AMG cycle
     // or with an CG solve with high tolerance
 ////////
-    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
+    //PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    //PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+
 ////////
 //    PCSetType(mPCContext.PC_amg_A11, PCKSP);
 //    KSP ksp1;

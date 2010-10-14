@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PCBlockDiagonal.hpp"
 #include "Exception.hpp"
 
+		//#include "Timer.hpp"
+
 PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {
     PCBlockDiagonalCreate(rKspObject);
@@ -178,14 +180,63 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
-    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
+//     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+//     PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
 
     // Set up amg preconditioner for block A22
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A22));
+
+    /* Full AMG in the block */
     PCSetType(mPCContext.PC_amg_A22, PCHYPRE);
+    PCHYPRESetType(mPCContext.PC_amg_A22, "boomeramg");
+
+    //    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+    PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
+    //    PetscOptionsSetValue("-pc_hypre_boomeramg_relax_type_all","Jacobi");
+    //PetscOptionsSetValue("-pc_hypre_boomeramg_max_levels","10");
+    //PetscOptionsSetValue("-pc_hypre_boomeramg_agg_nl", "1");
+    //    PetscOptionsSetValue("-pc_hypre_boomeramg_print_statistics","");
+    //    PetscOptionsSetValue("-pc_hypre_boomeramg_interp_type","standard");
+
+    //    PCHYPRESetType(mPCContext.PC_amg_A22, "euclid");
+
+
+
+    /* Block Jacobi with AMG at each block */
+    //     PCSetType(mPCContext.PC_amg_A22, PCBJACOBI);
+    
+    //     PetscOptionsSetValue("-sub_pc_type", "hypre");
+    
+    //     PetscOptionsSetValue("-sub_pc_hypre_type", "boomeramg");
+    //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_max_iter", "1");
+    //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_strong_threshold", "0.0");
+    
+    //     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+    //     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+    //     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+
+    /* Additive Schwarz with AMG at each block */
+//     PCSetType(mPCContext.PC_amg_A22, PCASM);
+    
+//     PetscOptionsSetValue("-pc_asm_type", "basic");
+//     PetscOptionsSetValue("-pc_asm_overlap", "1");
+
+//     PetscOptionsSetValue("-sub_ksp_type", "preonly");    
+
+//     PetscOptionsSetValue("-sub_pc_type", "hypre");
+    
+//     PetscOptionsSetValue("-sub_pc_hypre_type", "boomeramg");
+//     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_max_iter", "1");
+//     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_strong_threshold", "0.0");
+ 
+
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A22);
     PCSetUp(mPCContext.PC_amg_A22);
@@ -210,6 +261,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
      * Scatter x = [x1 x2]'
      */
 //PETSc-3.x.x or PETSc-2.3.3
+//    Timer::Reset();
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
@@ -226,13 +278,16 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
     VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
 #endif
+    //    Timer::PrintAndReset("scatter");
 
     /*
      *  y1 = AMG(A11)*x1
      *  y2 = AMG(A22)*x2
      */
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->y1_subvector);
+    //    Timer::PrintAndReset("first prec");    
     PCApply(block_diag_context->PC_amg_A22, block_diag_context->x2_subvector, block_diag_context->y2_subvector);
+    //    Timer::PrintAndReset("second prec");        
 
     /*
      * Gather y = [y1 y2]'
@@ -254,6 +309,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
     VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
 #endif
+    //    Timer::PrintAndReset("gather");
 
     return 0;
 }
