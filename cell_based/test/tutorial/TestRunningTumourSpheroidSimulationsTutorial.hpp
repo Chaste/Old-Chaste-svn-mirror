@@ -276,8 +276,7 @@ public:
         /* We now create a force law and pass it to the {{{CellBasedSimulationWithPdes}}} */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
-        p_simulator->AddForce(&linear_force);
-
+        simulator.AddForce(&linear_force);
 
         /*
          * Solve.
