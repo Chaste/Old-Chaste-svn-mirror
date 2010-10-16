@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "SimulationTime.hpp"
 #include "WntConcentration.hpp"
-#include "CellwiseData.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "ArchiveOpener.hpp"
 #include "FileFinder.hpp"
@@ -81,7 +80,6 @@ public:
     static void Save(SIM* pSim);
 };
 
-
 template<unsigned DIM, class SIM>
 SIM* CryptSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
@@ -119,15 +117,6 @@ SIM* CryptSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirector
         (*p_arch) & *p_wnt;
     }
 
-    // - CellwiseData (if used)
-    bool archive_cellwise_data;
-    (*p_arch) & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        (*p_arch) & *p_cellwise_data;
-    }
-
     // Load the simulation
     SIM* p_sim;
     (*p_arch) >> p_sim;
@@ -163,15 +152,6 @@ void CryptSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     {
         WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
         (*p_arch) & *p_wnt;
-    }
-
-    // Archive the CellwiseData if it's used
-    bool archive_cellwise_data = CellwiseData<DIM>::Instance()->IsSetUp();
-    (*p_arch) & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        (*p_arch) & *p_cellwise_data;
     }
 
     // Archive the simulation itself

@@ -12,6 +12,7 @@ odes/TestMirams2010WntOdeSystem.hpp
 odes/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
 odes/TestWntCellCycleOdeSystem.hpp
 population/TestRadialSloughingCellKiller.hpp
+population/TestSloughingCellKiller.hpp
 population/TestVertexBasedCellPopulationForCrypt.hpp
 simulation/TestCellBasedSimulationForCrypt.hpp
 simulation/TestArchiveFormat.hpp

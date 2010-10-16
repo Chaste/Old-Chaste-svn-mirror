@@ -241,8 +241,7 @@ public:
 	       }
        }
 
-
-       // Just enough time to kill off the cells (and watch ghost mesh use force laws),
+       // Just enough time to kill off the cells (and watch ghost mesh use force laws)
        double dt = 0.01;
 
        simulator.SetDt(dt);
@@ -831,7 +830,6 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)
     {
@@ -839,11 +837,11 @@ public:
         // run it from 0.1 to 0.2
         CryptSimulation2d* p_simulator1;
 
-        WntConcentration<2>::Instance();   // Make sure there is no existing Wnt Gradient before load.
+        // Make sure there is no existing WntConcentration instance before load
+        WntConcentration<2>::Instance();
         WntConcentration<2>::Destroy();
 
         p_simulator1 = CryptSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
-
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
@@ -874,10 +872,10 @@ public:
         TS_ASSERT_DELTA(node_120_location[0], 4.2035, 1e-4);
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
-        // Test Wnt concentration was set up correctly
+        // Test WntConcentration was set up correctly
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), true);
 
-        // Test the Wnt concentration result
+        // Test the WntConcentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(28)), 1.0, 1e-9);
         TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(120)), 0.9900, 1e-4);

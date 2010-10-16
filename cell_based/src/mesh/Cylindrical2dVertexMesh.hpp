@@ -47,7 +47,7 @@ class Cylindrical2dVertexMesh : public MutableVertexMesh<2,2>
 
 private:
 
-    /** The circumference of the cylinder */
+    /** The circumference of the cylinder. */
     double mWidth;
 
     /** Needed for serialization. */
@@ -70,11 +70,9 @@ private:
     }
 
     /**
-     * Constructor - used for serialization only
+     * Constructor - used for serialization only.
      */
-    Cylindrical2dVertexMesh()
-    {
-    }
+    Cylindrical2dVertexMesh();
 
 public:
 
@@ -123,10 +121,12 @@ public:
 
     /**
      * Overridden GetWidth() method.
+     * 
+     * Calculate the 'width' of any dimension of the mesh, taking periodicity
+     * into account.
      *
-     * @param rDimension must be 0 (x) or 1 (y)
-     *
-     * @return width the CryptWidth or current height
+     * @param rDimension a dimension (0 or 1)
+     * @return The maximum distance between any nodes in this dimension.
      */
     double GetWidth(const unsigned& rDimension) const;
 

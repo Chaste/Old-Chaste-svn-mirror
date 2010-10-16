@@ -8,9 +8,9 @@ cell/TestCellsGenerator.hpp
 cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
 common/TestSimulationTime.hpp
-crypt/mesh/TestCylindrical2dMesh.hpp
-crypt/mesh/TestCylindrical2dVertexMesh.hpp
-crypt/mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
+mesh/TestCylindrical2dMesh.hpp
+mesh/TestCylindrical2dVertexMesh.hpp
+mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp

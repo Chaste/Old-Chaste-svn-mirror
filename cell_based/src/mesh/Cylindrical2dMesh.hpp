@@ -50,43 +50,43 @@ class Cylindrical2dMesh : public MutableMesh<2,2>
     friend class TestCylindrical2dMesh;
 private:
 
-    /** The circumference of the cylinder */
+    /** The circumference of the cylinder. */
     double mWidth;
 
-    /** The top of the cylinder (y coordinate) */
+    /** The top of the cylinder (y coordinate). */
     double mTop;
 
-    /** The bottom of the cylinder (y coordinate) */
+    /** The bottom of the cylinder (y coordinate). */
     double mBottom;
 
-    /** The left nodes which have been mirrored during the remesh */
+    /** The left nodes which have been mirrored during the remesh. */
     std::vector<unsigned> mLeftOriginals;
 
-    /** The image nodes corresponding to these left nodes (on right of mesh) */
+    /** The image nodes corresponding to these left nodes (on right of mesh). */
     std::vector<unsigned> mLeftImages;
 
-    /** A map from image node index (on right of mesh) to original node index (on left of mesh) */
+    /** A map from image node index (on right of mesh) to original node index (on left of mesh). */
     std::map<unsigned, unsigned> mImageToLeftOriginalNodeMap;
 
-    /** The right nodes which have been mirrored during the remesh */
+    /** The right nodes which have been mirrored during the remesh. */
     std::vector<unsigned> mRightOriginals;
 
-    /** The image nodes corresponding to these right nodes (on left of mesh) */
+    /** The image nodes corresponding to these right nodes (on left of mesh). */
     std::vector<unsigned> mRightImages;
 
-    /** A map from image node index (on left of mesh) to original node index (on right of mesh) */
+    /** A map from image node index (on left of mesh) to original node index (on right of mesh). */
     std::map<unsigned, unsigned> mImageToRightOriginalNodeMap;
 
-    /** The indices of elements which straddle the left periodic boundary */
+    /** The indices of elements which straddle the left periodic boundary. */
     std::set<unsigned> mLeftPeriodicBoundaryElementIndices;
 
-    /** The indices of elements which straddle the right periodic boundary */
+    /** The indices of elements which straddle the right periodic boundary. */
     std::set<unsigned> mRightPeriodicBoundaryElementIndices;
 
-    /** The indices of nodes on the top boundary */
+    /** The indices of nodes on the top boundary. */
     std::vector<unsigned > mTopHaloNodes;
 
-    /** The indices of nodes on the bottom boundary */
+    /** The indices of nodes on the bottom boundary. */
     std::vector<unsigned > mBottomHaloNodes;
 
     /**
@@ -101,7 +101,7 @@ private:
      * This method creates a compressed row of nodes, just above and below the main mesh
      * at a constant height (a 'halo'). These will mesh to a known configuration
      * (each one on the boundary), this avoids boundary elements of lengths over
-     * half a crypt width which prevent the process of cylindrical meshing.
+     * half the mesh width, which prevent the process of cylindrical meshing.
      *
      * The nodes which are created are later removed by DeleteHaloNodes().
      */
@@ -109,7 +109,7 @@ private:
 
     /**
      * Creates a set of mirrored nodes for a cylindrical re-mesh. Updates
-     * mRightImages and mLeftImages. All mesh points should be 0<x<mWidth.
+     * mRightImages and mLeftImages. All mesh points should be 0 < x < mWidth.
      *
      * This method should only ever be called by the public ReMesh() method.
      */
@@ -165,17 +165,20 @@ private:
      * This method should only ever be called by the public ReMesh() method.
      *
      * @param nodeIndex  The index of an original/mirrored node
-     * @return the index of the corresponding mirror image of that node (can be either an original or mirror node)
+     * @return the index of the corresponding mirror image of that node 
+     *         (can be either an original or mirror node)
      */
     unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
 
     /**
-     * This method takes in two elements which are not meshed in the same way on the opposite boundary.
-     * It deletes the corresponding two elements (connecting the same four nodes) and makes two new
-     * elements which are connected in the same way. We should then be able to reconstruct
-     * the cylindrical mesh properly.
+     * This method takes in two elements which are not meshed in the same way
+     * on the opposite boundary. It deletes the corresponding two elements
+     * (connecting the same four nodes) and makes two new elements which are
+     * connected in the same way. We should then be able to reconstruct the
+     * cylindrical mesh properly.
      *
-     * @param rMainSideElements  two elements (usually in a square) which have been meshed differently on the opposite boundary
+     * @param rMainSideElements two elements (usually in a square) which have
+     *                          been meshed differently on the opposite boundary
      */
     void UseTheseElementsToDecideMeshing(std::set<unsigned>& rMainSideElements);
 
@@ -189,16 +192,16 @@ private:
      * by each ReMesh() call so they do not need to be archived.
      *
      * @param archive the archive
-     * @param version the current version of this class the current version of this class
+     * @param version the current version of this class the current version 
+     *                of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        archive & boost::serialization::base_object<MutableMesh<2,2> >(*this);
         archive & mWidth;
         archive & mTop;
         archive & mBottom;
-
-        archive & boost::serialization::base_object<MutableMesh<2,2> >(*this);
     }
 
 public:
@@ -214,10 +217,10 @@ public:
      * A constructor which reads in a width and collection of nodes, then
      * calls a ReMesh() command to create the elements of the mesh.
      *
-     * @param width  the periodic length scale.
-     * @param nodes  a collection of nodes to construct the mesh with.
+     * @param width the periodic length scale
+     * @param nodes a collection of nodes to construct the mesh with
      */
-    Cylindrical2dMesh(double width, std::vector<Node<2> *> nodes);
+    Cylindrical2dMesh(double width, std::vector<Node<2>*> nodes);
 
     /**
      * Destructor.
@@ -225,62 +228,60 @@ public:
     ~Cylindrical2dMesh();
 
     /**
-     * Conducts a cylindrical remesh (OVERRIDDEN constructor of main ReMesh function)
+     * Overridden ReMesh() method.
+     * 
+     * Conduct a cylindrical remesh by calling CreateMirrorNodes() to create
+     * mirror image nodes, then calling ReMesh() on the parent class, then
+     * mapping the new node indices and calling ReconstructCylindricalMesh()
+     * to remove surplus nodes, leaving a fully periodic mesh.
      *
-     * Firstly calls CreateMirrorNodes to create mirror image nodes
-     * Then calls remesher
-     * Maps new node indices
-     * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
-     *
-     * @param &map a reference to a nodemap which should be created with the required number of nodes.
+     * @param rMap a reference to a nodemap which should be created with the required number of nodes.
      */
-    void ReMesh(NodeMap &map);
+    void ReMesh(NodeMap& rMap);
 
     /**
-     * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
+     * Overridden GetVectorFromAtoB() method.
+     * 
+     * Evaluates the (surface) distance between two points in a 2D cylindrical
+     * geometry.
      *
      * @param rLocation1 the x and y co-ordinates of point 1
      * @param rLocation2 the x and y co-ordinates of point 2
-     *
      * @return the vector from location1 to location2
      */
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
 
     /**
-     * OVERRIDDEN function to set the location of a node.
+     * Overridden SetNode() method.
      *
-     * If the location should be set outside a cylindrical boundary
-     * move it back onto the cylinder.
-     *
-     * SetNode moves the node with a particular index to a new point in space and
-     * verifies that the signed areas of the supporting Elements are positive
+     * If the location should be set outside a cylindrical boundary, it is moved
+     * back onto the cylinder.
+     * 
      * @param index is the index of the node to be moved
      * @param point is the new target location of the node
      * @param concreteMove is set to false if we want to skip the signed area tests
-     *
      */
     void SetNode(unsigned index, ChastePoint<2> point, bool concreteMove);
 
     /**
-     * OVERRIDDEN FUNCTION
-     * @param rDimension must be 0 (x) or 1 (y)
-     * @return width the CryptWidth or current height
+     * Overridden GetWidth() method.
+     * 
+     * Calculate the 'width' of any dimension of the mesh, taking periodicity
+     * into account.
+     *
+     * @param rDimension a dimension (0 or 1)
+     * @return The maximum distance between any nodes in this dimension.
      */
     double GetWidth(const unsigned& rDimension) const;
 
     /**
-     * Add a node to the mesh.
-     *
-     * After calling this method one or more times, you must then call ReMesh.
+     * Overridden AddNode() method.
      *
      * @param pNewNode the node to be added to the mesh
-     *
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2>* pNewNode);
-
 };
-
 
 namespace boost
 {

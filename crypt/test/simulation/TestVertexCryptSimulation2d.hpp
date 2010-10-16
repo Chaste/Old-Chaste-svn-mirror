@@ -787,7 +787,7 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-    void TestWriteBetaCatenin() throw (Exception)
+    void TestWriteBetaCateninAndAncestors() throw (Exception)
     {
         // Create mesh
         unsigned crypt_width = 6;
@@ -801,8 +801,12 @@ public:
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
 
-        // Create cell population
+        // Create crypt
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
+
+        // Set crypt to output cell types and cell ancestors
+        crypt.SetOutputCellMutationStates(true);
+        crypt.SetOutputCellAncestors(true);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -813,6 +817,7 @@ public:
         VertexCryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCryptBetaCatenin");
         simulator.SetEndTime(0.1);
+        simulator.SetBottomCellAncestors();
 
         // Create a force laws and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
@@ -827,13 +832,14 @@ public:
 
         // Check writing of beta-catenin data
         OutputFileHandler handler("VertexCryptBetaCatenin", false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
+        std::string beta_catenin_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
+        std::string ancestor_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
 
-        NumericFileComparison comp_bcat(results_file, "crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin");
+        NumericFileComparison comp_bcat(beta_catenin_results_file, "crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin");
         TS_ASSERT(comp_bcat.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
-
+        TS_ASSERT_EQUALS(system(("diff " + beta_catenin_results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + ancestor_results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizsetup").c_str()), 0);
 
         // Tidy up

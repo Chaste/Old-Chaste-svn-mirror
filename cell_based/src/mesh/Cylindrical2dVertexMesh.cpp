@@ -39,6 +39,10 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(double width,
     ReMesh();
 }
 
+Cylindrical2dVertexMesh::Cylindrical2dVertexMesh()
+{
+}
+
 Cylindrical2dVertexMesh::~Cylindrical2dVertexMesh()
 {
 }
@@ -188,7 +192,6 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index
 
     return centroid;
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
