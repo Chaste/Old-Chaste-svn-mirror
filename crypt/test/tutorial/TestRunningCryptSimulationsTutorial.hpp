@@ -44,57 +44,67 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how Chaste is used to run crypt simulations.
- * Full details of the computational model can be found in the paper by
+ * In this tutorial we show how Chaste can be used to simulate a cylindrical model of an
+ * intestinal crypt. Full details of the computational model can be found in the paper by
  * van Leeuwen ''et al'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  *
  * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test).
+ * to use certain methods in our test. This header file should be included
+ * in any Chaste test.
  */
 #include <cxxtest/TestSuite.h>
-/* Any test in which the {{{GetIdentifier()}}} method is used, 
- * even via the main cell_based code ({{{AbstraceCellPopulation}}} output methods), must 
- * include {{{CheckpointArchiveTypes.hpp}}} 
- * or {{{CellBasedSimulationArchiver.hpp}}} as the first Chaste header included. 
+/*
+ * Any test in which the {{{GetIdentifier()}}} method is used, even via the main
+ * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
+ * must include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
+ * as the first Chaste header included.
  */
 #include "CheckpointArchiveTypes.hpp" 
 
-/* The next header file defines a helper class for generating
- * cells for crypt simulations. */
+/* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
 /*
- * The next two header files define two different types of cell-cycle model,
- * one with fixed cell-cycle times and one where the cell-cycle time depends
- * on the Wnt concentration.
+ * The next two header files define two different types of cell-cycle model.
+ * In a {{{FixedDurationGenerationBasedCellCycleModel}}}, the duration of each phase
+ * of the cell cycle is fixed. In a {{{WntCellCycleModel}}}, the duration of G1 phase
+ * is determined by a system of nonlinear ODEs describing a cell's response to Wnt,
+ * a secreted cell–cell signalling molecule that is known to play a key role in cell
+ * proliferation in the crypt.
  */
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-/* The next header file defines a helper class for generating a suitable mesh. */
+/* The next header file defines a helper class for generating a suitable mesh
+ * for the crypt simulation, such that the cell corresponding to each node is initially
+ * in mechanical equilibrium with its neighours. */
 #include "HoneycombMeshGenerator.hpp"
-/* The next header file defines a {{{CellPopulation}}} class that uses a mesh, and allows
- * for the inclusion ghost nodes. These are nodes in the mesh that do not correspond
+/* The next header file defines a {{{CellPopulation}}} class that uses a tetrahedral mesh, and allows
+ * for the inclusion of 'ghost nodes'. These are nodes in the mesh that do not correspond
  * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
  * at each timestep (since the triangulation algorithm requires a convex hull). */
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-/* The next header file defines a force law, based on a linear spring, for describing
- * the mechanical interactions between neighbouring cells in the cell population.
+/*
+ * The next header file defines a force law, based on a linear spring, for describing
+ * the mechanical interactions between neighbouring cells in the crypt.
  */
 #include "GeneralisedLinearSpringForce.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
+/*
+ * The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
  * specialized to deal with the cylindrical crypt model.
  */
 #include "CryptSimulation2d.hpp"
-/* The next header file defines a Wnt singleton class, which (if used) deals with the
- * imposed Wnt gradient in our crypt model.
+/*
+ * The next header file defines a Wnt singleton class, which (if used) deals with the
+ * imposed Wnt gradient in our crypt model. This affects cell proliferation in the case
+ * where we construct each cell with a {{{WntCellCycleModel}}.
  */
 #include "WntConcentration.hpp"
-/* The final header file defines a cell killer class, which implements sloughing of cells
+/*
+ * The final header file defines a cell killer class, which implements sloughing of cells
  * into the lumen once they reach the top of the crypt.
  */
 #include "SloughingCellKiller.hpp"
-
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
+/*
+ * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
  */
 class TestRunningCryptSimulationsTutorial : public CxxTest::TestSuite
@@ -106,9 +116,9 @@ public:
      *
      * EMPTYLINE
      *
-     * In the first test, we run a simple crypt simulation, in which we use
-     * a cylindrical mesh, give each cell a fixed cell-cycle model, and enforce
-     * sloughing at the top of the crypt.
+     * In the first test, we demonstrate how to create a crypt simulation using a
+     * cylindrical mesh, with each cell progressing through a fixed cell-cycle model,
+     * and sloughing enforced at the top of the crypt.
      */
     void TestCryptFixedCellCycle() throw(Exception)
     {
@@ -117,73 +127,84 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
-         * To enforce periodicity at the left and right hand sides of the mesh, we
+         * To enforce periodicity at the left- and right-hand sides of the mesh, we
          * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use
          * the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh,
-         * in which all nodes are equidistant. Here the first and second arguments
+         * in which all nodes are equidistant to their neighbours. Here the first and second arguments
          * define the size of the mesh - we have chosen a mesh that is 6 nodes (i.e.
          * cells) wide, and 9 nodes high. The third argument indicates that we require
          * a double layer of ghost nodes around the mesh (technically, just above
-         * and below the mesh, since it is periodic).
+         * and below the mesh, since it is periodic). The fourth argument, {{{true}}},
+         * tells the {{{HoneycombMeshGenerator}}} to generate a mesh that is periodic.
+         * We call {{{GetCylindricalMesh()}}} on the {{{HoneycombMeshGenerator}}} to
+         * return our {{{Cylindrical2dMesh}}}, and call {{{ GetCellLocationIndices()}}}
+         * to return a {{{std::vector}}} of indices of nodes in the mesh that correspond to real cells (as opposed
+         * to ghost nodes).
          */
-        HoneycombMeshGenerator generator(6, 9, 2, true); // parameters are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
+        HoneycombMeshGenerator generator(6, 9, 2, true);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+        /*
+         * Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
-         * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
+         * of cell-cycle model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
-         * method along with the mesh. The third argument 'true' indicates that the cells
+         * method {{{Generate()}}} along with the mesh. The third argument 'true' indicates that the cells
          * should be assigned random birth times, to avoid synchronous division. The
-         * {{{cells}}} vector is populated once the method {{{Generate}}} is
+         * {{{cells}}} vector is populated once the method {{{Generate()}}} is
          * called. */
         std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
-         * we can create a ''CellPopulation''. In general, this class associates a collection
-         * of cells with a set of nodes or a mesh. For this test, because we have a
-         * mesh and ghost nodes, we use a particular type of cell population called a
-         * {{{MeshBasedCellPopulationWithGhostNodes}}}.
+        /* 
+         * Now we have a mesh, a set of cells to go with it, and a vector of node indices
+         * corresponding to real cells, we can create a {{{CellPopulation}}} object. In general,
+         * this class associates a collection of cells with a set of nodes or a mesh.
+         * For this test, because we have a mesh and ghost nodes, we use a particular type of
+         * cell population called a {{{MeshBasedCellPopulationWithGhostNodes}}}.
          */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        /* Set the crypt length this will be used for sloughing.*/
-        double crypt_length = 8.0;
-
-        /* Now we define the cell-based simulation object, passing in the cell population: */
+        /*
+         * Next we use the ''CellPopulation'' object to construct a {{{CryptSimulation2d}}} object,
+         * which will be used to simulate the crypt model. */
         CryptSimulation2d simulator(cell_population);
 
-        /* Set the output directory on the simulator (relative to
+        /*
+         * We must set the output directory on the simulator (relative to
          * "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
          */
         simulator.SetOutputDirectory("CryptTutorialFixedCellCycle");
         simulator.SetEndTime(1);
-        /* For longer simulations, you may not want to output the results
+        /*
+         * For longer simulations, you may not want to output the results
          * every time step. In this case you can use the following method,
          * to print results every 10 time steps instead. As the time step
-         * used by the simulator, is 30 s, this method will cause the
-         * simulator to print results every 5 min.
+         * used by the simulator, is 30 seconds, this method will cause the
+         * simulator to print results every 5 minutes.
          */
-        //simulator.SetSamplingTimestepMultiple(10);
+        simulator.SetSamplingTimestepMultiple(10);
 
-        /* Before running the simulation, we add a one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we use a {{{GeneralisedLinearSpringForce}}} which assumes
-         * that a cell experiences a force from each neighbour that can be represented as a linear overdamped
+        /*
+         * Before running the simulation, we must add one or more force laws, which determine the mechanical
+         * behaviour of the cell population. For this test, we use a {{{GeneralisedLinearSpringForce}}}, which assumes
+         * that every cell experiences a force from each of its neighbours that can be represented as a linear overdamped
          * spring.
          */
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
-        /* Before running the simulation, we add a cell killer. This object
-         * dictates conditions under which cells die. For this test, we use
+        /*
+         * We also add a cell killer to the simulator. This object
+         * dictates under what conditions cells die. For this test, we use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain
-         * height which is passed in as a parameter.
+         * height (passed as an argument to the constructor).
          */
-        SloughingCellKiller<2> killer(&cell_population, crypt_length);
+        double crypt_height = 8.0;
+        SloughingCellKiller<2> killer(&cell_population, crypt_height);
         simulator.AddCellKiller(&killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
@@ -199,20 +220,20 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * Finally, to visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
      * You may have to do: {{{javac Visualize2dCells.java}}} beforehand to create the
      * java executable.
      *
      * EMPTYLINE
      *
-     * == Test 2 - using Wnt based cell-cycle models ==
+     * == Test 2 - a Wnt-dependent crypt simulation ==
      *
      * EMPTYLINE
      *
-     * The next test is very similar (almost identical in fact), except instead of
-     * using a fixed cell cycle model, we use a Wnt (a protein) based cell cycle model,
-     * with the Wnt concentration depending on the position of the cell within the crypt.
+     * The next test is very similar to Test 1, except that instead of
+     * using a fixed cell-cycle model, we use a Wnt-dependent cell cycle model,
+     * with the Wnt concentration varying within the crypt in a predefined manner.
      */
     void TestCryptWntCellCycle() throw(Exception)
     {
@@ -234,40 +255,50 @@ public:
         /* Create the cell_population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
-        double crypt_length = 8.0;
+        /*
+         * Set the height of the crypt. As well as passing this variable into the {{{sloughingCellKiller}}},
+         * we will pass it to the {{{WntConcentration}}} object (see below).
+         */
+        double crypt_height = 8.0;
 
-        /* The other change needed: Cells with a Wnt-based cell cycle need to know
-         * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
-         * class. This is another singleton class (ie accessible from anywhere), so all
-         * cells and cell cycle models can access it. We need to say what the profile of the
-         * Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
-         * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
-         * of the cell population and the length of the crpyt.*/
+        /*
+         * When using a {{{WntCellCycleModel}}}, we need a way of telling each cell what the Wnt concentration
+         * is at its location. To do this, we set up a {{{WntConcentration}}} object. Like {{{SimulationTime}}},
+         * {{{WntConcentration}}} is a singleton class, so when instantiated it is accessible from anywhere in
+         * the code (and in particular, all cells and cell cycle models can access it). We need to say what 
+         * the profile of the Wnt concentation should be up the crypt: here, we say it is {{{LINEAR}}} (linear
+         * decreasing from 1 to 0 from the bottom of the crypt to the top). We also need to inform the
+         * {{{WntConcentration}}} of the cell population and the height of the crypt.
+         */
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
-        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_height);
 
         /* Create a simulator as before (except setting a different output directory). */
         CryptSimulation2d simulator(cell_population);
         simulator.SetOutputDirectory("CryptTutorialWntCellCycle");
         simulator.SetEndTime(1);
 
-        /* Create a force law as before*/
+        /* As before, we create a force law and cell killer and pass these objects to the simulator, then call
+         * Solve(). */
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
-
-        /* Create a killer, as before. */
-        SloughingCellKiller<2> killer(&cell_population, crypt_length);
+        SloughingCellKiller<2> killer(&cell_population, crypt_height);
         simulator.AddCellKiller(&killer);
 
-        /* Solve. */
         simulator.Solve();
 
-        /* Finally, tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}} singleton objects.
-         * The solution can be visualised using the visualizer as before, just with the different output directory. */
+        /*
+         * Finally, we must tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}}
+         * singleton objects. This avoids memory leaks occurring. */
         WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
     }
+
+    /*
+     * EMPTYLINE
+     *
+     * The results of this test can be visualized as in Test 1, just with the different output directory.
+     */
 };
 #endif /*TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_*/
