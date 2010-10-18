@@ -240,9 +240,8 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
-        std::vector<CellPtr> cells;    
+        std::vector<CellPtr> cells;
         cells.clear();
         unsigned num_cells = location_indices.empty() ? p_mesh->GetNumNodes() : location_indices.size();
         cells.reserve(num_cells);
@@ -501,7 +500,6 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;    
         cells.clear();
@@ -886,7 +884,6 @@ public:
             mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
         }
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;
@@ -947,7 +944,6 @@ public:
             mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
         }
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;

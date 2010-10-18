@@ -91,11 +91,10 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
             cells[i]->SetBirthTime(-1.0);
         }
 
@@ -145,11 +144,10 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
             cells[i]->SetBirthTime(-1.0);
         }
 
@@ -239,7 +237,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
@@ -247,10 +245,6 @@ public:
             {
                 cells[i]->GetCellCycleModel()->SetCellProliferativeType(STEM);
                 cells[i]->SetBirthTime(-23.95);
-            }
-            else
-            {
-                cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
             }
         }
 
@@ -359,34 +353,14 @@ public:
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
         p_mesh->SetT2Threshold(1.0); // so T2Swaps once it becomes a triangle
-
-        ///\todo use CellsGenerator? (#1583)
-
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index, so its age is elem_index
+        
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
-            CellPtr p_cell(new Cell(p_state, p_model));
-            double birth_time = 0.0 - elem_index;
-            p_cell->SetBirthTime(birth_time);
-
-            if (elem_index==6)
-            {
-                p_cell->StartApoptosis(false);
-            }
-
-            if (elem_index==14)
-			{
-				p_cell->StartApoptosis(true);
-			}
-
-            cells.push_back(p_cell);
-        }
+        cells[6]->StartApoptosis(false);
+        cells[14]->StartApoptosis(true);
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -447,11 +421,10 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), TRANSIT);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(TRANSIT);
             cells[i]->SetBirthTime(-2.0);
         }
 
@@ -506,11 +479,10 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumElements());
+        cells_generator.GenerateBasic(cells, mesh.GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
             cells[i]->SetBirthTime(-1.0);
         }
 
@@ -625,12 +597,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
-
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
-        }
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);

@@ -228,7 +228,7 @@ public:
 		cell_generator.Generate(cells, p_mesh, location_indices, true);
 
 		// Set some model parameters for the cell cycle model
-		for(unsigned index=0; index < cells.size(); index++)
+		for (unsigned index=0; index < cells.size(); index++)
 		{
 		   cells[index]->GetCellCycleModel()->SetSDuration(7.4);
 		   cells[index]->GetCellCycleModel()->SetG2Duration(1.4);

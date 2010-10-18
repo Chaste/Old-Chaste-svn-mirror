@@ -237,8 +237,6 @@ public:
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
 
-        ///\todo use CellsGenerator? (#1583)
-
         /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
         unsigned num_cells = 1e5;

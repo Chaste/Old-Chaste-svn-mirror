@@ -198,11 +198,8 @@ unsigned MeshBasedCellPopulation<DIM>::RemoveDeadCells()
                  ++it1)
             {
                 const std::pair<CellPtr,CellPtr>& r_pair = *it1;
-//                for (std::pair<CellPtr,CellPtr>::iterator it2 = r_pair.begin();
-//                     it2 != r_pair.end();
-//                     ++it2)
-//                {
-                for(unsigned i=0; i<2; i++)
+
+                for (unsigned i=0; i<2; i++)
                 {
                     CellPtr p_cell = (i==0 ? r_pair.first : r_pair.second);
 
@@ -942,7 +939,7 @@ void MeshBasedCellPopulation<DIM>::CheckCellPointers()
     {
         const std::pair<CellPtr,CellPtr>& r_pair = *it1;
 
-        for(unsigned i=0; i<2; i++)
+        for (unsigned i=0; i<2; i++)
         {
             CellPtr p_cell = (i==0 ? r_pair.first : r_pair.second);
 

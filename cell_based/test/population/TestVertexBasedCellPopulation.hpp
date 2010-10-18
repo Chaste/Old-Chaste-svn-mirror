@@ -746,12 +746,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
-
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
-        }
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);

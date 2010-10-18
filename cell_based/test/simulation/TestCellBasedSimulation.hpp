@@ -76,23 +76,10 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-        // Create a differentiated cell for each node
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                ( p_model->GetStemCellG1Duration()
-                                + p_model->GetSG2MDuration() );
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), DIFFERENTIATED);
 
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -135,12 +122,11 @@ public:
         // Create a differentiated cell for each non-ghost node
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
+        cells_generator.GenerateBasic(cells, location_indices.size(), location_indices, DIFFERENTIATED);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
             cells[i]->SetBirthTime(-1.0);
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
         }
 
         // Create cell population
@@ -275,7 +261,6 @@ public:
         CellPropertyRegistry::Instance()->Clear();   
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         cells.clear();
@@ -380,24 +365,10 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells
+        // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(TRANSIT);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (  p_model->GetTransitCellG1Duration()
-                                 + p_model->GetSG2MDuration());
-
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
 
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);

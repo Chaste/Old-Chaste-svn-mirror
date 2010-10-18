@@ -214,11 +214,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 1> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            cells[i]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
-        }
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes(), std::vector<unsigned>(), DIFFERENTIATED);
 
         // Create cell population
         std::vector<CellPtr> cells_copy(cells);
@@ -804,28 +800,17 @@ public:
         HoneycombMutableVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
 
-        ///\todo use CellsGenerator? (#1583)
-        // Set up cells
+        // Create cells
         std::vector<CellPtr> cells;
-        std::vector<unsigned> cell_location_indices;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
+        cells[0]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+        cells[4]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+        for (unsigned i=0; i<cells.size(); i++)
         {
-            CellProliferativeType cell_type = STEM;
-
-            if ((i==0) || (i==4))
-            {
-                cell_type = DIFFERENTIATED;
-            }
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(cell_type);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = 0.0 - 2*i;
-            p_cell->SetBirthTime(birth_time);
-
-            cells.push_back(p_cell);
-            cell_location_indices.push_back(i);
+            cells[i]->SetBirthTime(birth_time);
         }
 
         // Create cell population

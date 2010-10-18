@@ -256,8 +256,6 @@ public:
         /* We now create a shared pointer to our new property, as follows. */
         boost::shared_ptr<AbstractCellProperty> p_motile(new MotileCellProperty);
 
-        ///\todo use CellsGenerator? (#1583)
-
         /* Next, we create some cells, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         std::vector<CellPtr> cells;

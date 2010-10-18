@@ -190,8 +190,6 @@ public:
         // Set cell population to output cell types
         crypt.SetOutputCellMutationStates(true);
 
-
-
         CryptSimulation2d simulator(crypt, false, false);
 
         simulator.SetOutputDirectory(output_directory);
@@ -209,9 +207,7 @@ public:
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
-
         simulator.UseJiggledBottomCells();
-
         // END OF UNUSUAL SET UP! //////////////////////////////////
 
         // TEST CryptStatistics::GetCryptSectionPeriodic by labelling a column of cells...

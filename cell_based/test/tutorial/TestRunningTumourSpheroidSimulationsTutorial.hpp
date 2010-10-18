@@ -146,8 +146,6 @@ public:
          */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
-        ///\todo use CellsGenerator? (#1583)
-
         /*
          * Now loop over the nodes...
          */

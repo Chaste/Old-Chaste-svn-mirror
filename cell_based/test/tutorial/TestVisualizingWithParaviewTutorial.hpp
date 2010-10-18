@@ -127,8 +127,6 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        ///\todo use CellsGenerator? (#1583)
-
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * Then we loop over the number of real nodes in the mesh and assign a cell
          * to each node. Each cell will have a randomly chosen birth time. */

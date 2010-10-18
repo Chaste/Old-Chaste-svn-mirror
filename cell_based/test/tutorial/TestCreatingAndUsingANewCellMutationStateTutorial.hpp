@@ -258,28 +258,10 @@ public:
         /* We now create a shared pointer to our new cell mutation state, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new P53GainOfFunctionCellMutationState);
 
-        ///\todo use CellsGenerator? (#1583)
-
         /* Next, we create some cells, as follows. */
         std::vector<CellPtr> cells;
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            /* For each node we create a cell with our cell cycle model and the cell mutation state. */
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-            CellPtr p_cell(new Cell(p_state, p_model));
-
-            /* Now, we define a random birth time, chosen from [-T,0], where
-             * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
-             * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
-             */
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (p_model->GetStemCellG1Duration()
-                                        + p_model->GetSG2MDuration());
-            /* We then set the birth time and push the cell back into the vector of cells. */
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
         /* Now that we have defined the mesh and cells, we can define the cell population. The constructor
          * takes in the mesh and the cells vector. */

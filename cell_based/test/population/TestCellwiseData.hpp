@@ -199,7 +199,7 @@ public:
             p_data->SetCellPopulation(&cell_population);
 
             // Put some data in
-            unsigned i=0;
+            unsigned i = 0;
             for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
                  cell_iter != cell_population.End();
                  ++cell_iter)

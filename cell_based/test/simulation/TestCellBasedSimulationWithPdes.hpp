@@ -107,7 +107,6 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -122,7 +121,6 @@ public:
             //Use non default G1Durations
 			p_model->SetStemCellG1Duration(8.0);
 			p_model->SetTransitCellG1Duration(8.0);
-
 
             CellPtr p_cell(new Cell(p_state, p_model));
 
@@ -215,7 +213,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -327,7 +324,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -421,7 +417,6 @@ public:
 		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-		///\todo use CellsGenerator? (#1583)
 		// Set up cells
 		std::vector<CellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -525,7 +520,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -643,7 +637,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -833,7 +826,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -960,7 +952,6 @@ public:
         p_mesh->ConstructFromMeshReader(mesh_reader);
         p_mesh->Scale(5.0,1.0);
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1046,7 +1037,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1161,7 +1151,6 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        ///\todo use CellsGenerator? (#1583)
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -1267,7 +1256,7 @@ public:
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Set some model parameters for the cell cycle model
-		for(unsigned index=0; index < cells.size(); index++)
+		for (unsigned index=0; index < cells.size(); index++)
 		{
 			cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
 			cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
