@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 #include "Exception.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception)
 {
@@ -62,6 +61,13 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
         else
         {
             this->mNumElements = this->mpNonConstantConductivities->size();
+            
+            assert(this->mNumElements == this->mpMesh->GetNumElements());
+        }
+        if (this->mUseNonConstantConductivities)
+        {
+            ///\todo #1342 Most of these checks should be redundant or exceptions
+            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumElements());
         }
 
         // reserve() allocates all the memory at once, more efficient than relying

@@ -250,12 +250,14 @@ public:
         non_constant_conductivities.push_back(Create_c_vector(100,10,1));
         non_constant_conductivities.push_back(Create_c_vector(200,20,2));
         non_constant_conductivities.push_back(Create_c_vector(300,30,3));
+        non_constant_conductivities.push_back(Create_c_vector(400,40,4));
+        non_constant_conductivities.push_back(Create_c_vector(500,50,5));
 
         OrthotropicConductivityTensors<3,3> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
         ortho_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
         {
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), 100*tensor_index);
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,1), 0.0);
@@ -272,7 +274,7 @@ public:
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
         axi_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
         {
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,0), 100*tensor_index);
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,1), 0.0);
@@ -321,6 +323,8 @@ public:
         non_constant_conductivities.push_back(Create_c_vector(100,10));
         non_constant_conductivities.push_back(Create_c_vector(200,20));
         non_constant_conductivities.push_back(Create_c_vector(300,30));
+        non_constant_conductivities.push_back(Create_c_vector(400,40));
+        non_constant_conductivities.push_back(Create_c_vector(500,50));
 
         OrthotropicConductivityTensors<2,2> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
@@ -328,7 +332,7 @@ public:
         ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
         {
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), 100*tensor_index);
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,1), 0.0);
@@ -347,6 +351,8 @@ public:
         non_constant_conductivities.push_back(Create_c_vector(100,10,1));
         non_constant_conductivities.push_back(Create_c_vector(200,20,2));
         non_constant_conductivities.push_back(Create_c_vector(300,30,3));
+        non_constant_conductivities.push_back(Create_c_vector(400,40,4));
+        non_constant_conductivities.push_back(Create_c_vector(500,50,5));
 
         OrthotropicConductivityTensors<3,3> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
@@ -354,7 +360,7 @@ public:
         ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
         {
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), 100*tensor_index);
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,1), 0.0);
@@ -377,7 +383,7 @@ public:
         axi_tensors.SetFibreOrientationFile(axi_file);
         axi_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
+        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
         {
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,0), 100*tensor_index);
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,1), 0.0);
