@@ -494,7 +494,7 @@ public:
         // calc IIonic using initial conditions
         CellLuoRudy1991FromCellML lr91(p_solver, p_stimulus);
         CellLuoRudy1991FromCellMLBackwardEuler backward_lr91(p_solver, p_stimulus);
-        TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-6);
+        TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-3);
 
 		// Reset for next test
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);

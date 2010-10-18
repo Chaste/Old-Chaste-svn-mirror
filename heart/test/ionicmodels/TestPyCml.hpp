@@ -283,7 +283,7 @@ public:
         double opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tOptimised: " << opt_time << std::endl;
 
-        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 1e-4, true);
+        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 2e-3, true);
 
         RunOdeSolverWithIonicModel(&opt,
                                    i_ionic_end_time,
@@ -302,7 +302,7 @@ public:
         double be_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tBackward Euler: " << be_time << std::endl;
 
-        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEuler", 1e-2, true);
+        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEuler", 2e-2, true);
 
         RunOdeSolverWithIonicModel(&be,
                                    i_ionic_end_time,
@@ -315,7 +315,7 @@ public:
         RunOdeSolverWithIonicModel(&be,
                                    end_time,
                                    "Lr91BEFromPyCmlZeroGna");
-        CheckCellModelResults("Lr91BEFromPyCmlZeroGna", "Lr91FromPyCmlZeroGna", 1e-2);
+        CheckCellModelResults("Lr91BEFromPyCmlZeroGna", "Lr91FromPyCmlZeroGna", 2e-2);
 
 #ifdef CHASTE_CVODE
         // CVODE
@@ -385,7 +385,7 @@ public:
             RunOdeSolverWithIonicModel(p_opt_cell,
                                        end_time,
                                        "Lr91FromPyCmlOptAfterArchive");
-            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOptAfterArchive", 1e-4, true);
+            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOptAfterArchive", 2e-3, true);
 
             RunOdeSolverWithIonicModel(p_be_cell,
                                        end_time,

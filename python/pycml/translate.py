@@ -1230,7 +1230,7 @@ class CellMLTranslator(object):
             else:
                 self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY));')
             self.writeln('#undef COVERAGE_IGNORE', indent=False)
-            self.close_block()
+            self.close_block(blank_line=False)
             self.writeln('double ', offset, ' = ', varname, ' - ', min, ';')
             self.writeln('double ', offset_over_step, ' = ', offset, ' * ',
                          step_inverse, ';')
@@ -2330,6 +2330,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
+        if self.use_lookup_tables:
+            self.output_table_index_generation(indexes_as_member=True,
+                                               nodeset=nodeset)
         self.output_equations(nodeset)
         self.writeln()
         # Fill in residual
@@ -2365,6 +2368,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
+        if self.use_lookup_tables:
+            self.output_table_index_generation(indexes_as_member=True,
+                                               nodeset=nodeset)
         if self.conversion_factor:
             self.writeln('const double dt = ', self.conversion_factor, ' * mDt;\n');
         else:
