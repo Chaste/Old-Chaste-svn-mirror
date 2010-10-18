@@ -294,11 +294,10 @@ public:
         WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
     }
-
+};
     /*
      * EMPTYLINE
      *
      * The results of this test can be visualized as in Test 1, just with the different output directory.
      */
-};
 #endif /*TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_*/
