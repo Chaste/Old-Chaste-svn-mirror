@@ -186,12 +186,22 @@ public:
         // Check that the tables exist!
         double v = opt.GetVoltage();
         opt.SetVoltage(-100000);
-        TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "V outside lookup table range");
+        TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "membrane_voltage outside lookup table range");
         opt.SetVoltage(v);
         
         be.SetVoltage(-100000);
-        TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "V outside lookup table range");
+        TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "membrane_voltage outside lookup table range");
         be.SetVoltage(v);
+        
+        unsigned cai_index = opt.GetStateVariableIndex("cytosolic_calcium_concentration");
+        double cai = opt.GetStateVariable(cai_index);
+        opt.SetStateVariable(cai_index, -1.0);
+        TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
+        opt.SetStateVariable(cai_index, cai);
+        
+        be.SetStateVariable(cai_index, -1.0);
+        TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
+        be.SetStateVariable(cai_index, cai);
         
         // Single parameter
         CheckParameter(normal);
@@ -213,8 +223,12 @@ public:
         // Check that the tables exist!
         v = opt.GetVoltage();
         cvode_opt.SetVoltage(-100000);
-        TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "V outside lookup table range");
+        TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "membrane_voltage outside lookup table range");
         cvode_opt.SetVoltage(v);
+        
+        cvode_opt.SetStateVariable(cai_index, -1.0);
+        TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
+        cvode_opt.SetStateVariable(cai_index, cai);
         
         // Single parameter
         CheckParameter(cvode_cell);

@@ -250,22 +250,22 @@ public:
         n98_ode_system.rGetStateVariables()[0] = 70.0;
         TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 70.0);
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
-                err.GetShortMessage().find("V outside lookup table range",0), 0u);
+                err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = 71.0;
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
-                err.GetShortMessage().find("V outside lookup table range",0), 0u);
+                err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = 69.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
         n98_ode_system.rGetStateVariables()[0] = -100.1;
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
-                err.GetShortMessage().find("V outside lookup table range",0), 0u);
+                err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = -100.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
 
         n98_ode_system.rGetStateVariables()[0] = -100.1;
 
         TS_ASSERT_THROWS_EQUALS( RunOdeSolverWithIonicModel(&n98_ode_system, 150.0, "DoNotRun"),
-                const Exception &err, err.GetShortMessage().find("V outside lookup table range",0), 0u);
+                const Exception &err, err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
     }
 
 

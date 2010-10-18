@@ -439,6 +439,20 @@ class CellMLTranslator(object):
         else:
             name = prefix + var.component.name + '__' + var.name
         return name
+    
+    def var_display_name(self, var):
+        """Return a display name for the given variable.
+        
+        If it has an oxmeta name, uses that.  Otherwise uses the cmeta:id if present, or the name
+        attribute if not.
+        """
+        if var.oxmeta_name:
+            name = var.oxmeta_name
+        elif hasattr(var, u'id') and var.id:
+            name = var.id
+        else:
+            name = var.name
+        return name
 
     @property
     def include_guard(self):
@@ -1228,7 +1242,7 @@ class CellMLTranslator(object):
                              ' = ', max, ';')
                 self.writeln('else ', varname, ' = ', max, ';')
             else:
-                self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY));')
+                self.writeln('EXCEPTION(DumpState("', self.var_display_name(var), ' outside lookup table range", rY));')
             self.writeln('#undef COVERAGE_IGNORE', indent=False)
             self.close_block(blank_line=False)
             self.writeln('double ', offset, ' = ', varname, ' - ', min, ';')
@@ -2539,12 +2553,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('this->mSystemName', self.EQ_ASSIGN, '"', self.model.name, '"', self.STMT_END)
         self.writeln()
         def output_var(vector, var):
-            if var.oxmeta_name:
-                self.writeln('this->m', vector, 'Names.push_back("', var.oxmeta_name, '");')   
-            elif hasattr(var, u'id') and var.id:
-                self.writeln('this->m', vector, 'Names.push_back("', var.id, '");') 
-            else:
-                self.writeln('this->m', vector, 'Names.push_back("', var.name, '");')
+            self.writeln('this->m', vector, 'Names.push_back("', self.var_display_name(var), '");')
             self.writeln('this->m', vector, 'Units.push_back("', var.units, '");')
         for var in self.state_vars:
             output_var('Variable', var)
