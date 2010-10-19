@@ -832,13 +832,9 @@ public:
 
         // Check writing of beta-catenin data
         OutputFileHandler handler("VertexCryptBetaCatenin", false);
-        std::string beta_catenin_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
         std::string ancestor_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizancestors";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
 
-        NumericFileComparison comp_bcat(beta_catenin_results_file, "crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin");
-        TS_ASSERT(comp_bcat.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + beta_catenin_results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizbetacatenin").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + ancestor_results_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " crypt/test/data/VertexCryptBetaCatenin/results.vizsetup").c_str()), 0);
 

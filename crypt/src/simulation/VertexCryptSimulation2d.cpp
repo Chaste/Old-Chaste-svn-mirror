@@ -218,7 +218,7 @@ void VertexCryptSimulation2d::SetBottomCellAncestors()
          cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < 0.5)
+        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < 1.0)
         {
             cell_iter->SetAncestor(index++);
         }
@@ -227,8 +227,8 @@ void VertexCryptSimulation2d::SetBottomCellAncestors()
 
 void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>"<< mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
-	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
+    *rParamsFile << "\t\t<CryptCircumference>" << mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
+	*rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
 	// Call method on direct parent class
 	CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
