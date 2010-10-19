@@ -30,13 +30,14 @@ This module abstracts the interface to RDF metadata about CellML models.
 
 import logging
 import types
+from cStringIO import StringIO
 
 # We support 2 RDF libraries
 RDF = rdflib = None
-#try:
-#    import rdflib
-#except ImportError:
-import RDF
+try:
+    import rdflib
+except ImportError:
+    import RDF
 
 import pycml
 
@@ -141,6 +142,18 @@ def find_variables(cellml_model, property, value=None):
     _debug("find_variables(", property, ",", value, ")")
     return _wrapper.find_variables(cellml_model, property, value)
 
+def namespace_member(node, nsuri, not_uri_ok=False, wrong_ns_ok=False):
+    """Given a URI reference RDF node and namespace URI, return the local part.
+    
+    Will raise an exception if node is not a URI reference unless not_uri_ok is True.
+    Will raise an exception if the node doesn't live in the given namespace, unless
+    wrong_ns_ok is True.  In both cases, if the error is suppressed the empty string
+    will be returned instead.
+    """
+    local_part = _wrapper.namespace_member(node, nsuri, not_uri_ok, wrong_ns_ok)
+    _debug("namespace_member(", node, ",", nsuri, ") = ", local_part)
+    return local_part
+
 ################################################################################
 # Implementation
 ################################################################################
@@ -238,6 +251,10 @@ class RdfWrapper(object):
     def find_variables(self, cellml_model, property, value=None):
         raise NotImplementedError
     find_variables.__doc__ = globals()['find_variables'].__doc__ + _must_provide
+
+    def namespace_member(self, node, nsuri, not_uri_ok=False, wrong_ns_ok=False):
+        raise NotImplementedError
+    namespace_member.__doc__ = globals()['namespace_member'].__doc__ + _must_provide
 
 
 ####################################################################################
@@ -355,13 +372,135 @@ class RedlandWrapper(RdfWrapper):
             vars.append(var_objs[0])
         return vars
     find_variables.__doc__ = globals()['find_variables'].__doc__
+    
+    def namespace_member(self, node, nsuri, not_uri_ok=False, wrong_ns_ok=False):
+        if not node.is_resource():
+            if not_uri_ok:
+                return ""
+            else:
+                raise ValueError("Cannot extract namespace member for a non-URI RDF node.")
+        uri = str(node.uri)
+        if uri.startswith(nsuri):
+            return uri[len(nsuri):]
+        elif wrong_ns_ok:
+            return ""
+        else:
+            raise ValueError("Node is not in correct namespace.")
+    namespace_member.__doc__ = globals()['namespace_member'].__doc__
+
+####################################################################################
+# Wrapper using the RDFLib library
+####################################################################################
+
+class RdflibWrapper(RdfWrapper):
+    """Implements CellML metadata functionality using the RDFLib library."""
+    def __init__(self):
+        """Create the wrapper."""
+        assert rdflib is not None, "RDFLib library is not available."
+        super(RdflibWrapper, self).__init__()
+        # Cope with differences in API?
+        self.Graph = rdflib.ConjunctiveGraph
+        self.URIRef = rdflib.URIRef
+        self.Literal = rdflib.Literal
+        self.BNode = rdflib.BNode
+        self.Namespace = rdflib.Namespace
+
+    def _create_new_store(self, cellml_model):
+        """Create a new RDF store for the given CellML model.
+        The new store will be available as self._models[cellml_model].
+        """
+        self._models[cellml_model] = self.Graph()
+    
+    def _add_rdf_element(self, cellml_model, rdf_text):
+        """Add statements to the model's graph from the given serialized RDF."""
+        g = self.Graph()
+        g.parse(StringIO(rdf_text))
+        rdf_model = self._models[cellml_model]
+        for stmt in g:
+            rdf_model.add(stmt)
+    
+    def _serialize(self, cellml_model):
+        """Serialize the RDF model for this CellML model to XML."""
+        return self._models[cellml_model].serialize()
+    
+    def create_rdf_node(self, node_content=None, fragment_id=None):
+        if fragment_id:
+            node = self.URIRef(str('#'+fragment_id))
+        elif node_content:
+            if type(node_content) == types.TupleType:
+                qname, nsuri = node_content
+                if nsuri[-1] not in ['#', '/']:
+                    nsuri = nsuri + '#'
+                ns = self.Namespace(nsuri)
+                prefix, local_name = pycml.SplitQName(qname)
+                node = ns[local_name]
+            elif type(node_content) in types.StringTypes:
+                node = self.Literal(node_content)
+            else:
+                raise ValueError("Don't know how to make a node from " + str(node_content)
+                                 + " of type " + type(node_content))
+        else:
+            node = self.BNode()
+        return node
+    create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__
+
+    def replace_statement(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        rdf_model.set((source, property, target))
+    replace_statement.__doc__ = globals()['replace_statement'].__doc__
+
+    def remove_statements(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        rdf_model.remove((source, property, target))
+    remove_statements.__doc__ = globals()['remove_statements'].__doc__
+
+    def get_target(self, cellml_model, source, property):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        try:
+            target = rdf_model.value(subject=source, predicate=property, any=False)
+        except rdflib.exceptions.UniquenessError:
+            raise ValueError("Too many targets for source " + str(source) + " and property " + str(property))
+        _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
+        return target
+    get_target.__doc__ = globals()['get_target'].__doc__
+
+    def find_variables(self, cellml_model, property, value=None):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        property = self.create_rdf_node(property)
+        if value:
+            value = self.create_rdf_node(value)
+        vars = []
+        for result in rdf_model.subjects(property, value):
+            assert isinstance(result, self.URIRef), "Non-resource annotated."
+            uri = str(result)
+            assert uri[0] == '#', "Annotation found on non-local URI"
+            var_id = uri[1:] # Strip '#'
+            var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
+            assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
+            vars.append(var_objs[0])
+        return vars
+    find_variables.__doc__ = globals()['find_variables'].__doc__
+
+    def namespace_member(self, node, nsuri, not_uri_ok=False, wrong_ns_ok=False):
+        if not isinstance(node, self.URIRef):
+            if not_uri_ok:
+                return ""
+            else:
+                raise ValueError("Cannot extract namespace member for a non-URI RDF node.")
+        if node.startswith(nsuri):
+            return node[len(nsuri):]
+        elif wrong_ns_ok:
+            return ""
+        else:
+            raise ValueError("Node is not in correct namespace.")
+    namespace_member.__doc__ = globals()['namespace_member'].__doc__
 
 ####################################################################################
 # Finally, instantiate a suitable wrapper instance
 ####################################################################################
 
-#if rdflib:
-#    _wrapper = RdflibWrapper()
-#else:
-_wrapper = RedlandWrapper()
+if rdflib:
+    _wrapper = RdflibWrapper()
+else:
+    _wrapper = RedlandWrapper()
 

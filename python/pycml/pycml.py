@@ -1959,8 +1959,8 @@ class cellml_variable(Colourable, element_base):
         for it with value self.fullname(cellml=True).
 
         The actual RDF will be added to the main RDF block in the model, which
-        will be created if it does not exist.  Any existing annotations with
-        the same source and property will be removed.
+        will be created if it does not exist.  Any existing annotations of this
+        variable with the same property will be removed.
         """
         meta_id = self.cmeta_id
         if not meta_id:
@@ -1977,9 +1977,10 @@ class cellml_variable(Colourable, element_base):
         
         property must be a tuple (qname, namespace_uri).
         
-        Will return the first annotation found with source being this variable's id,
+        Will return the unique annotation found with source being this variable's id,
         and the given property.  If no annotation is found (or if the variable does
-        not have a cmeta:id), returns None.
+        not have a cmeta:id), returns None.  Throws an error if more than one
+        annotation is found.
         """
         meta_id = self.cmeta_id
         if not meta_id:
@@ -2201,18 +2202,12 @@ class cellml_variable(Colourable, element_base):
         Returns the empty string if no annotation is given.
         
         TODO: Assumes that at most one bqbiol:is annotation exists for this variable.
-        TODO: Depends on the RDF library used.
         """
         annotation = self.get_rdf_annotation(('bqbiol:is', NSS['bqbiol']))
         if annotation is None:
             return ""
         # Check that it is Oxford metadata
-        assert annotation.is_resource(), "Variable annotated with bqbiol:is that doesn't give a URI."
-        uri = str(annotation.uri)
-        if uri.startswith(NSS['oxmeta']):
-            return uri[len(NSS['oxmeta']):]
-        else:
-            return ""
+        return cellml_metadata.namespace_member(annotation, NSS['oxmeta'], wrong_ns_ok=True)
     def set_oxmeta_name(self, name):
         """Set method for the oxmeta_name property.
         
