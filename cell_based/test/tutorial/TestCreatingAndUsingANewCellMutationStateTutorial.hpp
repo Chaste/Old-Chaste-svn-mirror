@@ -85,6 +85,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "CellBasedSimulation.hpp"
+#include "CellsGenerator.hpp"
 
 /*
  * EMPTYLINE
