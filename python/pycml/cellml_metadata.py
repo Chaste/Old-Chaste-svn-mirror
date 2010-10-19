@@ -31,18 +31,14 @@ This module abstracts the interface to RDF metadata about CellML models.
 import logging
 import types
 
+# We support 2 RDF libraries
+RDF = rdflib = None
+#try:
+#    import rdflib
+#except ImportError:
 import RDF
 
 import pycml
-
-# Map from cellml_model instances to RDF.Model instances
-_models = {}
-
-# Base URI to use for models.  Unfortunately the RDF library won't let
-# us use an empty URI, so we use a dummy URI then strip it out when
-# serializing the RDF.
-_base_uri = 'urn:chaste-pycml:dummy-rdf-base-uri'
-
 
 # Allowed metadata names, more to come
 # TODO #1209: Use a proper ontology!
@@ -78,34 +74,13 @@ METADATA_NAMES = frozenset(
 ])
 
 
-
-def _debug(*args):
-    pycml.DEBUG('cellml-metadata', *args)
-
-
-def _get_rdf_from_model(cellml_model):
-    """Get the RDF model of the given CellML model.
-    
-    If this model is already in our map, return the existing RDF store.
-    Otherwise, extract metadata from all RDF elements in the cellml_model,
-    create a new RDF model from these, and delete the original elements.
-    """
-    if not cellml_model in _models:
-        rdf_blocks = cellml_model.xml_xpath(u'//rdf:RDF')
-        m = RDF.Model()
-        p = RDF.Parser()
-        for rdf_block in rdf_blocks:
-            rdf_text = rdf_block.xml()
-            p.parse_string_into_model(m, rdf_text, _base_uri)
-            rdf_block.xml_parent.xml_remove_child(rdf_block)
-        _models[cellml_model] = m
-    return _models[cellml_model]
+################################################################################
+# The public interface to this module
+################################################################################
 
 def remove_model(cellml_model):
     """The given model is being deleted / no longer needed."""
-    if cellml_model in _models:
-        del _models[cellml_model]
-        _debug('Clearing RDF state for model', cellml_model.name)
+    return _wrapper.remove_model(cellml_model)
 
 def update_serialized_rdf(cellml_model):
     """Ensure the RDF serialized into the given CellML model is up-to-date.
@@ -113,19 +88,7 @@ def update_serialized_rdf(cellml_model):
     If we have done any metadata processing on the given model, will serialize
     our RDF store into the rdf:RDF element child of the model.
     """
-    if cellml_model in _models:
-        # Paranoia: ensure it doesn't already contain serialized RDF
-        if hasattr(cellml_model, u'RDF'):
-            pycml.LOG('cellml-metadata', logging.WARNING, 'Removing existing RDF in model.')
-            old_rdf_block = cellml_model.RDF
-            old_rdf_block.xml_parent.xml_remove_child(old_rdf_block)
-        # Serialize the rdf model into cellml_model.RDF
-        m = _models[cellml_model]
-        rdf_text = m.to_string().replace(_base_uri, '')
-        rdf_doc = pycml.amara.parse(rdf_text)
-        cellml_model.xml_append(rdf_doc.RDF)
-        # Remove the RDF model
-        remove_model(cellml_model)
+    return _wrapper.update_serialized_rdf(cellml_model)
 
 def create_rdf_node(node_content=None, fragment_id=None):
     """Create an RDF node.
@@ -138,23 +101,7 @@ def create_rdf_node(node_content=None, fragment_id=None):
     
     If neither are given, a blank node is created.
     """
-    if fragment_id:
-        node = RDF.Node(uri_string=str(_base_uri+'#'+fragment_id))
-    elif node_content:
-        if type(node_content) == types.TupleType:
-            qname, nsuri = node_content
-            if nsuri[-1] not in ['#', '/']:
-                nsuri = nsuri + '#'
-            prefix, local_name = pycml.SplitQName(qname)
-            node = RDF.Node(uri_string=str(nsuri+local_name))
-        elif type(node_content) in types.StringTypes:
-            node = RDF.Node(str(node_content))
-        else:
-            raise ValueError("Don't know how to make a node from " + str(node_content)
-                             + " of type " + type(node_content))
-    else:
-        node = RDF.Node()
-    return node
+    return _wrapper.create_rdf_node(node_content, fragment_id)
 
 def replace_statement(cellml_model, source, property, target):
     """Add a statement to the model, avoiding duplicates.
@@ -163,14 +110,7 @@ def replace_statement(cellml_model, source, property, target):
     removed.
     """
     _debug("replace_statement(", source, ",", property, ",", target, ")")
-    rdf_model = _get_rdf_from_model(cellml_model)
-    # Check for existing statements
-    query = RDF.Statement(subject=source, predicate=property, object=None)
-    for statement in rdf_model.find_statements(query):
-        del rdf_model[statement]
-    # Add the new statement
-    statement = RDF.Statement(subject=source, predicate=property, object=target)
-    rdf_model.append(statement)
+    return _wrapper.replace_statement(cellml_model, source, property, target)
 
 def remove_statements(cellml_model, source, property, target):
     """Remove all statements matching (source,property,target).
@@ -178,10 +118,7 @@ def remove_statements(cellml_model, source, property, target):
     Any of these may be None to match anything.
     """
     _debug("remove_statements(", source, ",", property, ",", target, ")")
-    rdf_model = _get_rdf_from_model(cellml_model)
-    query = RDF.Statement(subject=source, predicate=property, object=target)
-    for statement in rdf_model.find_statements(query):
-        del rdf_model[statement]
+    return _wrapper.remove_statements(cellml_model, source, property, target)
 
 def get_target(cellml_model, source, property):
     """Get the target of property from source.
@@ -192,18 +129,7 @@ def get_target(cellml_model, source, property):
     If the target is a literal node, returns its string value.  Otherwise returns
     an RDF node.
     """
-    rdf_model = _get_rdf_from_model(cellml_model)
-    targets = list(rdf_model.targets(source, property))
-    if len(targets) > 1:
-        raise ValueError("Too many targets for source " + str(source) + " and property " + str(property))
-    elif len(targets) == 1:
-        target = targets[0]
-    else:
-        target = None
-    if target and target.is_literal():
-        target = str(target)
-    _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
-    return target
+    return _wrapper.get_target(cellml_model, source, property)
 
 def find_variables(cellml_model, property, value=None):
     """Find variables in the cellml_model with the given property, and optionally value.
@@ -213,22 +139,229 @@ def find_variables(cellml_model, property, value=None):
     Will return a list of cellml_variable instances.
     """
     _debug("find_variables(", property, ",", value, ")")
-    rdf_model = _get_rdf_from_model(cellml_model)
-    property = create_rdf_node(property)
-    if value:
-        value = create_rdf_node(value)
-    query = RDF.Statement(None, property, value)
-    results = rdf_model.find_statements(query)
-    vars = []
-    for result in results:
-        assert result.subject.is_resource(), "Non-resource annotated."
-        uri = str(result.subject.uri)
-        if uri.startswith(_base_uri):
-            # Strip the base URI part
-            uri = uri[len(_base_uri):]
-        assert uri[0] == '#', "Annotation found on non-local URI"
-        var_id = uri[1:] # Strip '#'
-        var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
-        assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
-        vars.append(var_objs[0])
-    return vars
+    return _wrapper.find_variables(cellml_model, property, value)
+
+################################################################################
+# Implementation
+################################################################################
+
+
+def _debug(*args):
+    pycml.DEBUG('cellml-metadata', *args)
+
+_must_provide = "\n    Must be implemented by subclasses.\n"
+
+class RdfWrapper(object):
+    """Base class for wrappers around particular RDF libraries."""
+    
+    def __init__(self):
+        """Create the RDF handler."""
+        # Map from cellml_model instances to RDF stores
+        self._models = {}
+        
+    def _create_new_store(self, cellml_model):
+        """Create a new RDF store for the given CellML model.
+        The new store will be available as self._models[cellml_model].
+        
+        Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+    
+    def _add_rdf_element(self, cellml_model, rdf_text):
+        """Add statements to the model's graph from the given serialized RDF.
+        
+        Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+    
+    def _serialize(self, cellml_model):
+        """Serialize the RDF model for this CellML model to XML.
+        
+        Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+
+    def get_rdf_from_model(self, cellml_model):
+        """Get the RDF graph of the given CellML model.
+    
+        If this model is already in our map, return the existing RDF store.
+        Otherwise, extract metadata from all RDF elements in the cellml_model,
+        create a new RDF graph from these, and delete the original elements.
+        """
+        if not cellml_model in self._models:
+            rdf_blocks = cellml_model.xml_xpath(u'//rdf:RDF')
+            self._create_new_store(cellml_model)
+            for rdf_block in rdf_blocks:
+                rdf_text = rdf_block.xml()
+                self._add_rdf_element(cellml_model, rdf_text)
+                rdf_block.xml_parent.xml_remove_child(rdf_block)
+        return self._models[cellml_model]
+    
+    def remove_model(self, cellml_model):
+        if cellml_model in self._models:
+            del self._models[cellml_model]
+            _debug('Clearing RDF state for model', cellml_model.name)
+    remove_model.__doc__ = globals()['remove_model'].__doc__
+
+    def update_serialized_rdf(self, cellml_model):
+        if cellml_model in self._models:
+            # Paranoia: ensure it doesn't already contain serialized RDF
+            rdf_blocks = cellml_model.xml_xpath(u'//rdf:RDF')
+            if rdf_blocks:
+                pycml.LOG('cellml-metadata', logging.WARNING, 'Removing existing RDF in model.')
+                for rdf_block in rdf_blocks:
+                    rdf_block.xml_parent.xml_remove_child(rdf_block)
+            # Serialize the RDF model into cellml_model.RDF
+            rdf_text = self._serialize(cellml_model)
+            rdf_doc = pycml.amara.parse(rdf_text)
+            cellml_model.xml_append(rdf_doc.RDF)
+            # Remove the RDF model
+            self.remove_model(cellml_model)
+    update_serialized_rdf = globals()['update_serialized_rdf'].__doc__
+
+    def create_rdf_node(self, node_content=None, fragment_id=None):
+        raise NotImplementedError
+    create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__ + _must_provide
+
+    def replace_statement(self, cellml_model, source, property, target):
+        raise NotImplementedError
+    replace_statement.__doc__ = globals()['replace_statement'].__doc__ + _must_provide
+
+    def remove_statements(self, cellml_model, source, property, target):
+        raise NotImplementedError
+    remove_statements.__doc__ = globals()['remove_statements'].__doc__ + _must_provide
+
+    def get_target(self, cellml_model, source, property):
+        raise NotImplementedError
+    get_target.__doc__ = globals()['get_target'].__doc__ + _must_provide
+
+    def find_variables(self, cellml_model, property, value=None):
+        raise NotImplementedError
+    find_variables.__doc__ = globals()['find_variables'].__doc__ + _must_provide
+
+
+####################################################################################
+# Wrapper using the Redland RDF library
+####################################################################################
+
+class RedlandWrapper(RdfWrapper):
+    """Implements CellML metadata functionality using the Redland RDF library."""
+
+    # Base URI to use for models.  Unfortunately the RDF library won't let
+    # us use an empty URI, so we use a dummy URI then strip it out when
+    # serializing the RDF.
+    _base_uri = 'urn:chaste-pycml:dummy-rdf-base-uri'
+    
+    def __init__(self):
+        """Create the wrapper."""
+        assert RDF is not None, "Redland RDF library is not available."
+        super(RedlandWrapper, self).__init__()
+        self._parser = None
+
+    def _create_new_store(self, cellml_model):
+        """Create a new RDF store for the given CellML model.
+        The new store will be available as self._models[cellml_model].
+        """
+        self._models[cellml_model] = RDF.Model()
+        if not self._parser:
+            self._parser = RDF.Parser()
+
+    def remove_model(self, cellml_model):
+        super(RedlandWrapper, self).remove_model(cellml_model)
+        if self._parser:
+            del self._parser
+            self._parser = None
+    remove_model.__doc__ = globals()['remove_model'].__doc__
+    
+    def _add_rdf_element(self, cellml_model, rdf_text):
+        """Add statements to the model's graph from the given serialized RDF."""
+        self._parser.parse_string_into_model(self._models[cellml_model], rdf_text, self._base_uri)
+    
+    def _serialize(self, cellml_model):
+        """Serialize the RDF model for this CellML model to XML."""
+        return self._models[cellml_model].to_string().replace(self._base_uri, '')
+    
+    def create_rdf_node(self, node_content=None, fragment_id=None):
+        if fragment_id:
+            node = RDF.Node(uri_string=str(self._base_uri+'#'+fragment_id))
+        elif node_content:
+            if type(node_content) == types.TupleType:
+                qname, nsuri = node_content
+                if nsuri[-1] not in ['#', '/']:
+                    nsuri = nsuri + '#'
+                prefix, local_name = pycml.SplitQName(qname)
+                node = RDF.Node(uri_string=str(nsuri+local_name))
+            elif type(node_content) in types.StringTypes:
+                node = RDF.Node(str(node_content))
+            else:
+                raise ValueError("Don't know how to make a node from " + str(node_content)
+                                 + " of type " + type(node_content))
+        else:
+            node = RDF.Node()
+        return node
+    create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__
+
+    def replace_statement(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        # Check for existing statements
+        query = RDF.Statement(subject=source, predicate=property, object=None)
+        for statement in rdf_model.find_statements(query):
+            del rdf_model[statement]
+        # Add the new statement
+        statement = RDF.Statement(subject=source, predicate=property, object=target)
+        rdf_model.append(statement)
+    replace_statement.__doc__ = globals()['replace_statement'].__doc__
+
+    def remove_statements(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        query = RDF.Statement(subject=source, predicate=property, object=target)
+        for statement in rdf_model.find_statements(query):
+            del rdf_model[statement]
+    remove_statements.__doc__ = globals()['remove_statements'].__doc__
+
+    def get_target(self, cellml_model, source, property):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        targets = list(rdf_model.targets(source, property))
+        if len(targets) > 1:
+            raise ValueError("Too many targets for source " + str(source) + " and property " + str(property))
+        elif len(targets) == 1:
+            target = targets[0]
+        else:
+            target = None
+        if target and target.is_literal():
+            target = str(target)
+        _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
+        return target
+    get_target.__doc__ = globals()['get_target'].__doc__
+
+    def find_variables(self, cellml_model, property, value=None):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        property = self.create_rdf_node(property)
+        if value:
+            value = self.create_rdf_node(value)
+        query = RDF.Statement(None, property, value)
+        results = rdf_model.find_statements(query)
+        vars = []
+        for result in results:
+            assert result.subject.is_resource(), "Non-resource annotated."
+            uri = str(result.subject.uri)
+            if uri.startswith(self._base_uri):
+                # Strip the base URI part
+                uri = uri[len(self._base_uri):]
+            assert uri[0] == '#', "Annotation found on non-local URI"
+            var_id = uri[1:] # Strip '#'
+            var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
+            assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
+            vars.append(var_objs[0])
+        return vars
+    find_variables.__doc__ = globals()['find_variables'].__doc__
+
+####################################################################################
+# Finally, instantiate a suitable wrapper instance
+####################################################################################
+
+#if rdflib:
+#    _wrapper = RdflibWrapper()
+#else:
+_wrapper = RedlandWrapper()
+
