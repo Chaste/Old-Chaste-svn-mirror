@@ -58,6 +58,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception)
 {
     this->mpMesh = pMesh;
+
     if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
     {
         // Constant tensor for every element
@@ -93,8 +94,12 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
 
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
-        for (unsigned element_index=0; element_index<this->mNumElements; element_index++)
+
+       for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
+             it != this->mpMesh->GetElementIteratorEnd();
+             ++it)
         {
+            unsigned global_element_index = it->GetIndex();
             /*
              *  For every element of the mesh we compute its tensor like (from
              * "Laminar Arrangement of VentricularMyocites Influences Electrical
@@ -124,7 +129,7 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
             {
                 for (unsigned dim=0; dim<SPACE_DIM; dim++)
                 {
-                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[element_index][dim];
+                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[global_element_index][dim];
                 }
             }
             else

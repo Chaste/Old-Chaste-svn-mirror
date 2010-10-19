@@ -113,11 +113,8 @@ c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SP
     else
     {
         assert(index < mNumElements);
-        //unsigned local_index = mpMesh->SolveElementMapping(index);
-        //mpMesh->SolveElementMapping(index); //This will throw if we don't own the element
-        
-        ///\todo #1342 Should be a local index
-        return mTensors[index];
+        unsigned local_index = mpMesh->SolveElementMapping(index); //This will throw if we don't own the element
+        return mTensors[local_index];
     }
 }
 
