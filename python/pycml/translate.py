@@ -1714,7 +1714,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Reduce intra-run variation
         self.derived_quantities.sort(key=lambda v: v.fullname())
                 
-    def output_default_stimulus(self, ):
+    def output_default_stimulus(self):
         """
         Output a default cell stimulus from the metadata specification
         as long as the following metadata exists:
