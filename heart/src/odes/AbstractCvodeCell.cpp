@@ -200,7 +200,7 @@ OdeSolution AbstractCvodeCell::Solve(realtype tStart,
                                      realtype maxDt,
                                      realtype tSamp)
 {
-    assert(tEnd > tStart);
+    assert(tEnd >= tStart);
     assert(tSamp > 0.0);
 
     SetupCvode(mStateVariables, tStart, maxDt);
@@ -256,7 +256,7 @@ void AbstractCvodeCell::Solve(realtype tStart,
                               realtype tEnd,
                               realtype maxDt)
 {
-    assert(tEnd > tStart);
+    assert(tEnd >= tStart);
 
     SetupCvode(mStateVariables, tStart, maxDt);
 
@@ -320,7 +320,7 @@ void AbstractCvodeCell::SetupCvode(N_Vector initialConditions,
                                    realtype maxDt)
 {
     assert(NV_LENGTH_S(initialConditions) == GetNumberOfStateVariables());
-    assert(maxDt > 0.0);
+    assert(maxDt >= 0.0);
 
     mpCvodeMem = CVodeCreate(CV_BDF, CV_NEWTON);
     if (mpCvodeMem == NULL) EXCEPTION("Failed to SetupCvode CVODE");
