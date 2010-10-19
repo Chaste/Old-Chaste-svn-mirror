@@ -45,20 +45,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how Chaste is used to run discrete tumour
- * spheroid simulations. Like crypt simulations, tumour spheroid simulations
- * include cell cycle models and force laws to determine how cells divide and
+ * In this tutorial we show how Chaste can be used to simulate a growing cell monolayer culture or
+ * multicellular tumour spheroid. Like the crypt simulations, tumour spheroid simulations
+ * include cell-cycle models and force laws to determine how cells divide and
  * move. In tumour spheroid simulations, however, these are also coupled to a
  * system of partial differential equations that determine the concentration
  * of specified nutrients (e.g. oxygen) throughout the cell population. Also, unlike
- * in crypt simulation, the cell population grows substantially as the cell-based simulation
+ * in a crypt simulation, the cell population grows substantially as the cell-based simulation
  * progresses.
  *
  * In summary, the main differences between this tutorial and the crypt simulation
- * tutorials are
- *
- *  * a PDE is defined, to be used in the simulation, and
- *  * a non-periodic mesh is used.
+ * tutorials are: a PDE is defined, to be used in the simulation; and a non-periodic mesh is used.
  *
  * EMPTYLINE
  *
@@ -66,42 +63,49 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test):
+ * As in the crypt simulation tutorial, we begin by including the necessary header files. We have
+ * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}} 
+ * or {{{CellBasedSimulationArchiver.hpp}}} must be included the first Chaste header.
  */
 #include <cxxtest/TestSuite.h>
-/* Any test in which the {{{GetIdentifier()}}} method is used, 
- * even via the main cell_based code ({{{AbstraceCellPopulation}}} output methods), must 
- * include {{{CheckpointArchiveTypes.hpp}}} 
- * or {{{CellBasedSimulationArchiver.hpp}}} as the first Chaste header included. 
- */
 #include "CheckpointArchiveTypes.hpp" 
-
-
-/*
- * This header file defines a helper class for generating a suitable mesh:
- */
 #include "HoneycombMeshGenerator.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 /*
- * These are the classes that will be used in these tests (note that we use a
- * cell-based simulation subclass called {{{CellBasedSimulationWithPdes}}}):
+ * The {{{SimpleOxygenBasedCellCycleModel}}} header file defines a cell-cycle model in which
+ * a cell's rate of progress through G1 phase changes over time in a simple manner, according
+ * to the local oxygen concentration. We also include the {{{WildTypeCellMutationState}}}
+ * header file, which defines a wild type cell mutation state that we will use to construct
+ * cells. A cell mutation state is always required when constructing a cell, however
+ * in the crypt simulation tutorial we used a helper class ({{{CryptCellsGenerator}}}) that
+ * allowed us to avoid having to construct cells directly.
+ */
+ #include "SimpleOxygenBasedCellCycleModel.hpp"
+#include "WildTypeCellMutationState.hpp"
+/* 
+ * The next header file defines a PDE that describes how oxygen is transported via through the
+ * domain via diffusion and is consumed by live cells.
+ */
+#include "CellwiseSourcePde.hpp"
+/*
+ * We also include a header file defining a cell killer, which implements the process of
+ * hypoxia (low oxygen)-induced cell death.
+ */
+#include "OxygenBasedCellKiller.hpp"
+/*
+ * The extra functionality required for the solution of one or more PDEs at each timestep
+ * is implemented in a subclass of {{{CellBasedSimulation}}} called {{{CellBasedSimulationWithPdes}}}.
  */
 #include "CellBasedSimulationWithPdes.hpp"
-#include "SimpleOxygenBasedCellCycleModel.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
-#include "OxygenBasedCellKiller.hpp"
-#include "CellwiseSourcePde.hpp"
-#include "WildTypeCellMutationState.hpp"
 /*
- * !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is
+ * The header file {{{PetscSetupAndFinalize.hpp}}} must be included in all tests which use Petsc. This is
  * a suite of data structures and routines that are used in the finite element
- * PDE solvers, which is how we solve the nutrient PDE(s).
+ * PDE solvers, which is how we solve the oxygen transport PDE.
  */
 #include "PetscSetupAndFinalize.hpp"
 
 /*
- * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * Having included all the necessary header files, we proceed by defining the test class.
  */
 class TestRunningTumourSpheroidSimulationsTutorial : public CxxTest::TestSuite
 {
@@ -112,7 +116,7 @@ public:
          * This first line can be ignored, it's a macro which just says
          * don't run this test if in parallel.
          */
-        EXIT_IF_PARALLEL; // defined in PetscTools.hpp
+        EXIT_IF_PARALLEL;
 
         /*
          * The first thing to do, as before, is to set up the start time.
@@ -120,23 +124,21 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /*
-         * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
+         * Now we want to create a '''non-periodic''' 'honeycomb' mesh.
          * We use the honeycomb mesh generator, as before, saying 10 cells wide
          * and 10 cells high. Note that the thickness of the ghost nodes layer is
-         * 0, i.e. no ghost nodes, and the {{{false}}} indicates not cylindrical.
+         * 0, i.e. there are no ghost nodes, and the {{{false}}} indicates that the
+         * returned mesh is '''not''' cylindrical. In contrast to the crypt simulation
+         * tutorial, here we call {{{GetMesh()}}} on the {{{HoneycombMeshGenerator}}}
+         * object to return the mesh, which is of type {{{MutableMesh}}}.
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
-
-        /*
-         * Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
-         * and that a {{{MutableMesh}}} is returned.
-         */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /*
-         * Next, we need to create some cells. Unlike before, we don't just use
-         * a {{{CellsGenerator}}} class, but do it manually, in a loop. First,
-         * define the cells vector.
+         * Next, we need to create some cells. Unlike in the the crypt simulation
+         * tutorial, we don't just use a {{{CellsGenerator}}} class, but do it manually,
+         * in a loop. First, we define a {{{std::vector}}} of cell pointers.
          */
         std::vector<CellPtr> cells;
 
@@ -152,10 +154,10 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /*
-             * ...then create a cell, giving it a particular cell cycle model
-             * - {{{SimpleOxygenBasedCellCycleModel}}}. The spatial dimension (1, 2 or 3) and
+             * ...then create a cell, giving it a {{{SimpleOxygenBasedCellCycleModel}}}.
+             * The spatial dimension (1, 2 or 3) and
              * cell proliferative type (STEM, TRANSIT or DIFFERENTIATED) needs to be
-             * set on the cell cycle model before being passed to the cell.
+             * set on the cell cycle model before it is passed to the cell.
              */
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
@@ -163,7 +165,7 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
-			 * ...then alter the default cell cycle times
+			 * We also alter the default cell-cycle times.
 			 */
             p_model->SetStemCellG1Duration(8.0);
             p_model->SetTransitCellG1Duration(8.0);
@@ -171,7 +173,7 @@ public:
             /*
              * We now define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
-             * of a 'stem' cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
+             * of a 'stem' cell, and t,,2,, is the basic S+G,,2,,+M phases duration...
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                                  (  p_model->GetStemCellG1Duration()
@@ -185,19 +187,19 @@ public:
         }
 
         /*
-         * Now that we have defined the cells, we can define the CellPopulation. This time it
-         * is just a mesh-based cell population (i.e. not a {{{MeshBasedCellPopulationWithGhostNodes()}}}.
-         * Again, the constructor takes in the mesh and the cells vector.
+         * Now that we have defined the cells, we can define the {{{CellPopulation}}}. We use a
+         * {{{MeshBasedCellPopulation}}} since although the cell population is mesh-based, it does
+         * not include any ghost nodes. The constructor takes in the mesh and the cells vector.
          */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /*
-         * Recall that in the Wnt based crypt simulation, we defined a singleton class
-         * which cell-cycles used to get the wnt concentration. Here, we do the same kind
-         * of thing, but using the singletom {{{CellwiseData}}} class, which stores the
-         * value of the current nutrient concentration, for each cell. We have to
+         * Recall that in the Wnt-based crypt simulation tutorial, we defined a singleton class
+         * which cell-cycles used to get the Wnt concentration. Here, we do something similar
+         * using the {{{CellwiseData}}} singleton class, which stores the
+         * value of the current nutrient concentration for each cell. We have to
          * tell the {{{CellwiseData}}} object how many cells and variables per cell there
-         * are (in this case, 1 variable per cell, i.e. the oxygen concentration), and
+         * are (in this case, one variable per cell, namely the oxygen concentration), and
          * the cell population.
          */
         CellwiseData<2>::Instance()->SetNumCellsAndVars(cell_population.GetNumRealCells(),1);
@@ -214,10 +216,15 @@ public:
 
         /*
          * Next we instantiate an instance of the PDE class which we defined above.
-         * This will be passed into the simulator. The !CellwiseSourcePde is
-         * a Pde class which inherits from !AbstractLinearEllipticPde, and represents
-         * the PDE: u_xx + u_yy = k(x) u, where k(x) = -0.03 (the coefficient below)
-         * if x is in a live cell, and k(x)=0 if x is within a apoptotic cell
+         * This will be passed into the {{{CellBasedSimulationWithPdes}}} object. The
+         * {{{CellwiseSourcePde}}} is a {{{PDE}}} class which inherits from
+         * {{{AbstractLinearEllipticPde}}} and represents
+         * the PDE ''u_xx'' + ''u_yy'' = ''k''(''x'',''y'') u'', where ''u''(''x'',''y'') denotes
+         * the oxygen concentration at
+         * position (''x'',''y'') and the function ''k(x,y)'' specifies the rate of consumption by live cells
+         * there. Here ''k''(''x'',''y'')'' takes the value -0.03 (the coefficient below) if
+         * the cell located at (''x'',''y'') is a live cell, and zero if the cell has died due
+         * to oxygen deprivation.
          */
         CellwiseSourcePde<2> pde(cell_population, -0.03);
 
@@ -237,15 +244,14 @@ public:
         /*
          * After having created a {{{PdeAndBoundaryConditions}}} object, we then pass it
          * into a vector of pointers. This allows us to define any number of PDEs within
-         * the cell-based simulation, in a similar way to how we create a vector of force laws
-         * (see below).
+         * the cell-based simulation.
          */
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         /*
-         * The simulator object for these problems is
-         * {{{CellBasedSimulationWithPdes}}}. We pass in the cell_population, and the PDE.
+         * We are now in a position to construct a {{{CellBasedSimulationWithPdes}}} object,
+         * using the cell population and the PDE collection.
          */
         CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
 
@@ -257,33 +263,29 @@ public:
 
         /*
          * We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring. Since this
-         * model was first proposed in the context of crypt modelling by Meineke ''et al''
-         * (Cell Prolif. 34:253-266, 2001), we call this object a
-         * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector.
+         * the cell population. As in the crypt simulation tutorial, we assume that a cell
+         * experiences a force from each neighbour that can be represented as a linear overdamped
+         * spring, so we use a {{{GeneralisedLinearSpringForce}}} object.
          * Note that we have called the method {{{SetCutOffLength}}} on the
-         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
-         * laws - this modifies the force law so that two neighbouring cells do not impose
+         * {{{GeneralisedLinearSpringForce}}} before passing it to the simulator: this call
+         * modifies the force law so that two neighbouring cells do not impose
          * a force on each other if they are located more than 3 units (=3 cell widths)
          * away from each other. This modification is necessary when no ghost nodes are used,
          * for example to avoid artificially large forces between cells that lie close together
          * on the spheroid boundary.
          */
-
-        /* We now create a force law and pass it to the {{{CellBasedSimulationWithPdes}}} */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);
 
         /*
-         * Solve.
+         * Call {{{Solve()}}} on the simulator to run the simulation.
          */
         simulator.Solve();
 
         /*
          * Finally, call {{{Destroy()}}} on the singleton classes. The results
-         * can be visualised as in the previous test.
+         * can be visualised as in the crypt simulation tutorial.
          */
         SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
