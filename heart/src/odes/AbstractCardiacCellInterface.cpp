@@ -40,7 +40,8 @@ AbstractCardiacCellInterface::AbstractCardiacCellInterface(
       mpOdeSolver(pOdeSolver),
       mpIntracellularStimulus(pIntracellularStimulus),
       mSetVoltageDerivativeToZero(false),
-      mIsUsedInTissue(false)
+      mIsUsedInTissue(false),
+      mHasDefaultStimulusFromCellML(false)
 {
 }
 
@@ -95,16 +96,20 @@ double AbstractCardiacCellInterface::GetIntracellularAreaStimulus(double time)
     return stim;
 }
 
-
 void AbstractCardiacCellInterface::SetUsedInTissueSimulation(bool tissue)
 {
     mIsUsedInTissue = tissue;
 }
 
-
 void AbstractCardiacCellInterface::UseCellMLDefaultStimulus()
 {
+    assert(!mHasDefaultStimulusFromCellML);
     EXCEPTION("This class has no default stimulus from CellML metadata.");
+}
+
+bool AbstractCardiacCellInterface::HasCellMLDefaultStimulus()
+{
+    return mHasDefaultStimulusFromCellML;
 }
 
 boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCellInterface::GetStimulusFunction()
@@ -113,7 +118,6 @@ boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCellInterface::GetSti
 }
 
 // Methods needed by boost serialization.
-
 const boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCellInterface::GetStimulusFunction() const
 {
     return mpIntracellularStimulus;

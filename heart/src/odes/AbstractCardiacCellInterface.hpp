@@ -194,6 +194,11 @@ public:
     virtual void UseCellMLDefaultStimulus();
     
     /**
+     * @return Whether the cell was generated from a CellML file with stimulus metadata.
+     */
+    bool HasCellMLDefaultStimulus();
+
+    /**
      *  Empty method which can be over-ridden in concrete cell class which should
      *  go through the current state vector and go range checking on the values
      *  (eg check that concentrations are positive and gating variables are between
@@ -244,6 +249,9 @@ protected:
 
     /** Whether this cell exists in a tissue, or is an isolated cell. */
     bool mIsUsedInTissue;
+
+    /** Whether this cell has a default stimulus specified by CellML metadata */
+    bool mHasDefaultStimulusFromCellML;
 
 private:
     /** Needed for serialization. */

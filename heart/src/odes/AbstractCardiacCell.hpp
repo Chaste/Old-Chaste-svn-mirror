@@ -91,6 +91,7 @@ private:
             // false by our constructor.  So we should get a consistent (wrong) answer
             // with previous versions of Chaste when in tissue.
             archive & this->mIsUsedInTissue;
+            archive & this->mHasDefaultStimulusFromCellML;
         }
         // archive & mVoltageIndex; - always set by constructor - called by concrete class
         // archive & mpOdeSolver; - always set by constructor - called by concrete class

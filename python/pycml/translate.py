@@ -1714,7 +1714,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Reduce intra-run variation
         self.derived_quantities.sort(key=lambda v: v.fullname())
                 
-    def output_default_stimulus(self):
+    def output_default_stimulus(self, ):
         """
         Output a default cell stimulus from the metadata specification
         as long as the following metadata exists:
@@ -1902,6 +1902,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
                      self.class_name, '>::Instance();')
         self.writeln('Init();\n')
+        
+        #1463 - default cellML stimulus
+        mandatory_stim_args = set('membrane_stimulus_current_'+v for v in ['duration', 'amplitude', 'period'])
+        stim_var_names = set(v.oxmeta_name for v in self.metadata_vars)
+        if len(stim_var_names & mandatory_stim_args) == 3:
+            self.output_comment('We have a default stimulus specified in the CellML file metadata')
+            self.writeln('this->mHasDefaultStimulusFromCellML = true', self.STMT_END)
+            
         #1464 - cleverer modifiers...
         if self.use_modifiers and self.modifier_vars:
             self.output_comment('These will get initialised to DummyModifiers in the base class method.')

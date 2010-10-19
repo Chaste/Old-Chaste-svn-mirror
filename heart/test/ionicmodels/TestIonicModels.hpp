@@ -132,6 +132,7 @@ public:
         TS_ASSERT_THROWS_THIS(n98_ode_system.GetSlowValues(slows), error_should_be);
         TS_ASSERT_THROWS_THIS(n98_ode_system.SetSlowValues(slows), error_should_be);
 
+        TS_ASSERT_EQUALS(n98_ode_system.HasCellMLDefaultStimulus(),false);
         TS_ASSERT_THROWS_THIS(n98_ode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
     }
      
@@ -821,9 +822,10 @@ public:
          //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(purkinje_ode_system.GetIIonic(), -0.0141, 1e-3);
 
-	// This model has no stimulus metadata so this method should not exist:
-	TS_ASSERT_THROWS_THIS(purkinje_ode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
-     }
+        // This model has no stimulus metadata so this method should not exist:
+        TS_ASSERT_EQUALS(purkinje_ode_system.HasCellMLDefaultStimulus(),false);
+        TS_ASSERT_THROWS_THIS(purkinje_ode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
+    }
 
     void TestMahajan2008(void) throw (Exception)
     {

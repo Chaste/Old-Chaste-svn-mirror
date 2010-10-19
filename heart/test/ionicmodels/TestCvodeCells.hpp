@@ -242,6 +242,7 @@ public:
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 	
 	// This should work now that metadata has been added to the LuoRudy1991 cellML.
+        TS_ASSERT_EQUALS(lr91_cvode_system.HasCellMLDefaultStimulus(), true);
         lr91_cvode_system.UseCellMLDefaultStimulus();
 #else
         std::cout << "Cvode is not enabled.\n";
