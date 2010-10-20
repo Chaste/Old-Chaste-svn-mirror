@@ -1,31 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ChasteParameters_2_0.xsd">
 
 	<ResumeSimulation>
 		<ArchiveDirectory>save_bidomain</ArchiveDirectory>
 		<SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Bi</Domain>
-            <OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
+        <OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 	</ResumeSimulation>
 	
-	<Physiological>
-	    <!--
-	        Conductivities
-	    -->
-	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
-	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
-	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
-	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>
-	</Physiological>
+	<Physiological/>
 
-	<Numerical>
-		<TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
-		<KSPTolerances>
-			<KSPAbsolute>2e-4</KSPAbsolute>
-		</KSPTolerances>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
-	</Numerical>		
+	<Numerical/>		
 		    
 </ChasteParameters>
