@@ -294,67 +294,78 @@ public:
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
 
-        c_matrix<double, 2, 2> intra_tensor_before_archiving;
-        c_matrix<double, 2, 2> extra_tensor_before_archiving;
+        std::vector<cp::media_type> media_types;
+        media_types.push_back(cp::media_type::Orthotropic);
+        media_types.push_back(cp::media_type::Axisymmetric);
+        media_types.push_back(cp::media_type::NoFibreOrientation);
+
+        for (std::vector<cp::media_type>::iterator it = media_types.begin();
+             it != media_types.end();
+             ++it)
         {
-            // This call is only required to set the appropriate conductivity media.
-            HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_800_elements", cp::media_type::Orthotropic);
+            c_matrix<double, 3, 3> intra_tensor_before_archiving;
+            c_matrix<double, 3, 3> extra_tensor_before_archiving;
+            {
+                // This call is required to set the appropriate conductivity media and to make sure that HeartConfig
+                // knows the mesh filename despite we use our own mesh reader.
+                HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_Single_tetrahedron_element", *it);
 
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
-            TetrahedralMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
+                TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
+                TetrahedralMesh<3,3> mesh;
+                mesh.ConstructFromMeshReader(mesh_reader);
 
-            MyCardiacCellFactory<2> cell_factory;
-            cell_factory.SetMesh(&mesh);
+                MyCardiacCellFactory<3> cell_factory;
+                cell_factory.SetMesh(&mesh);
 
-            BidomainTissue<2> bidomain_tissue( &cell_factory );
-            bidomain_tissue.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
+                BidomainTissue<3> bidomain_tissue( &cell_factory );
+                bidomain_tissue.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
-            // Some checks to make sure HeartConfig is being saved and loaded by this too.
-            HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
-            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+                // Some checks to make sure HeartConfig is being saved and loaded by this too.
+                HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
+                TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
 
-            intra_tensor_before_archiving = bidomain_tissue.rGetIntracellularConductivityTensor(1);
-            extra_tensor_before_archiving = bidomain_tissue.rGetExtracellularConductivityTensor(1);
+                intra_tensor_before_archiving = bidomain_tissue.rGetIntracellularConductivityTensor(0);
+                extra_tensor_before_archiving = bidomain_tissue.rGetExtracellularConductivityTensor(0);
 
-            // Save
-            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
-            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+                // Save
+                ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+                boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacTissue<2>* const p_archive_bidomain_tissue = &bidomain_tissue;
-            (*p_arch) << p_archive_bidomain_tissue;
+                AbstractCardiacTissue<3>* const p_archive_bidomain_tissue = &bidomain_tissue;
+                (*p_arch) << p_archive_bidomain_tissue;
 
-            HeartConfig::Reset();
-            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
-            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep);
-        }
+                HeartConfig::Reset();
+                TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
+                TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep);
+            }
 
-        {
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
-            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            {
+                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+                boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacTissue<2>* p_bidomain_tissue;
-            (*p_arch) >> p_bidomain_tissue;
+                AbstractCardiacTissue<3>* p_bidomain_tissue;
+                (*p_arch) >> p_bidomain_tissue;
 
-            assert(p_bidomain_tissue!=NULL);
+                assert(p_bidomain_tissue!=NULL);
 
-            const c_matrix<double, 2, 2>& intra_tensor_after_archiving = p_bidomain_tissue->rGetIntracellularConductivityTensor(1);
-            TS_ASSERT_DELTA(intra_tensor_before_archiving(0,0), intra_tensor_after_archiving(0,0), 1e-9);
-            TS_ASSERT_DELTA(intra_tensor_before_archiving(0,1), intra_tensor_after_archiving(0,1), 1e-9);
-            TS_ASSERT_DELTA(intra_tensor_before_archiving(1,0), intra_tensor_after_archiving(1,0), 1e-9);
-            TS_ASSERT_DELTA(intra_tensor_before_archiving(1,1), intra_tensor_after_archiving(1,1), 1e-9);
+                const c_matrix<double, 3, 3>& intra_tensor_after_archiving = p_bidomain_tissue->rGetIntracellularConductivityTensor(0);
+                const c_matrix<double, 3, 3>& extra_tensor_after_archiving = dynamic_cast<BidomainTissue<3>*>(p_bidomain_tissue)->rGetExtracellularConductivityTensor(0); //Naughty Gary using dynamic cast, but only for testing...
 
-            const c_matrix<double, 2, 2>& extra_tensor_after_archiving = dynamic_cast<BidomainTissue<2>*>(p_bidomain_tissue)->rGetExtracellularConductivityTensor(1); //Naughty Gary using dynamic cast, but only for testing...
-            TS_ASSERT_DELTA(extra_tensor_before_archiving(0,0), extra_tensor_after_archiving(0,0), 1e-9);
-            TS_ASSERT_DELTA(extra_tensor_before_archiving(0,1), extra_tensor_after_archiving(0,1), 1e-9);
-            TS_ASSERT_DELTA(extra_tensor_before_archiving(1,0), extra_tensor_after_archiving(1,0), 1e-9);
-            TS_ASSERT_DELTA(extra_tensor_before_archiving(1,1), extra_tensor_after_archiving(1,1), 1e-9);
+                for(unsigned i=0; i<3; i++)
+                {
+                    for(unsigned j=0; j<3; j++)
+                    {
+                        TS_ASSERT_DELTA(intra_tensor_before_archiving(i,j), intra_tensor_after_archiving(i,j), 1e-9);
+                        TS_ASSERT_DELTA(extra_tensor_before_archiving(i,j), extra_tensor_after_archiving(i,j), 1e-9);
+                    }
+                }
 
-            TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_tissue->GetDoCacheReplication());
-            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
-            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
+                TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_tissue->GetDoCacheReplication());
+                TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+                TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
-            delete p_bidomain_tissue;
+                delete p_bidomain_tissue;
+            }
         }
     }
 };
