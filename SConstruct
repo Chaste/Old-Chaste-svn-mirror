@@ -312,15 +312,15 @@ env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 
 # Builder for generating C++ code from XML Schema files
-if dyn_libs_only and (not SCons.__version__.startswith('0.97') or
-                      (SCons.__version__[-9] == 'd' and int(SCons.__version__[-8:]) >= 20071203)):
-    # Avoid unnecessary rebuilds caused by using a different .sconsign file
-    # But only possible for scons >= 0.98
-    xsd_env = env.Clone()
-    xsd_env.Decider('timestamp-newer')
-else:
-    xsd_env = env
-SConsTools.CreateXsdBuilder(build, xsd_env)
+#if dyn_libs_only and (not SCons.__version__.startswith('0.97') or
+#                      (SCons.__version__[-9] == 'd' and int(SCons.__version__[-8:]) >= 20071203)):
+#    # Avoid unnecessary rebuilds caused by using a different .sconsign file
+#    # But only possible for scons >= 0.98
+#    xsd_env = env.Clone()
+#    xsd_env.Decider('timestamp-newer')
+#else:
+#    xsd_env = env
+SConsTools.CreateXsdBuilder(build, env)
 
 # Builder for generating C++ code from CellML files
 SConsTools.CreatePyCmlBuilder(build, env)
