@@ -253,57 +253,22 @@ cp rvp $CHASTE_LIBS/bin/
 cd ..
 rm RNV.ZIP
 
-Redland RDF library
--------------------
+RDFLib
+------
 
-The installation of this is not straightforward, so if it is included
-in your distribution it is worthwhile to install from there, e.g.
+If this is installed in your Linux distribution, it may be easiest to install from there, e.g.
   sudo aptitude install python-librdf
 
-Otherwise, the following will hopefully work...
+Otherwise, it is also available via easy_install:
+  easy_install rdflib
 
-wget http://download.librdf.org/source/redland-1.0.10.tar.gz 
-wget http://download.librdf.org/source/redland-bindings-1.0.10.1.tar.gz 
-wget http://download.librdf.org/source/rasqal-0.9.19.tar.gz 
-wget http://download.librdf.org/source/raptor-1.4.21.tar.gz
-
-tar -zxf raptor-1.4.21.tar.gz
-cd raptor-1.4.21/
-./configure --prefix=$CHASTE_LIBS/rdf
-make install
-cd ..
-
-export PKG_CONFIG_PATH=$CHASTE_LIBS/rdf/lib/pkgconfig/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/rdf/lib
-
-tar -zxf rasqal-0.9.19.tar.gz
-cd rasqal-0.9.19/
-./configure --prefix=$CHASTE_LIBS/rdf
-make install
-cd ..
-
-# You may find you need the mysql development headers before this will build (eg. on Fedora: 
-# sudo yum install mysql-devel.x86_64. Debian: sudo aptitude install libmysqlclient-dev. 
-# Alternatively (and untested): http://dev.mysql.com/downloads/mysql/)
-tar -zxf redland-1.0.10.tar.gz
-cd redland-1.0.10
-./configure --prefix=$CHASTE_LIBS/rdf
-make install
-cd ..
-
-tar -zxf redland-bindings-1.0.10.1.tar.gz
-cd redland-bindings-1.0.10.1
-./configure --with-python --prefix=$CHASTE_LIBS/rdf --without-perl --without-php --without-ruby
-make
-mkdir -p $CHASTE_LIBS/lib/python
-cp python/RDF.py python/Redland.so $CHASTE_LIBS/lib/python/
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
 If you always use Chaste from within the Eclipse IDE, and do not wish
-to use PyCml, this step is probably not needed.  If you ever wish to
-use Chaste from the command line, however, you will need these
-configuration settings.
+to use PyCml (i.e. will not use the cardiac functionality), this step
+is probably not needed.  If you ever wish to use Chaste from the command
+line, however, you will need these configuration settings.
 
 Edit the ~/.bashrc file in the home directory and append the following:
 
