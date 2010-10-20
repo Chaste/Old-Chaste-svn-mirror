@@ -88,17 +88,26 @@ public:
     }
 
 
-
-//#1580 - SEG FAULTS HERE    
+ 
     /* This is how to restart the test. */
-    void xxTestRestarting() throw(Exception)
+    void TestRestarting() throw(Exception)
     {
-        /* '''add comment''' */
-        BidomainProblem<3>* p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load("BidomainCheckpointingTutorial/saved_simulation");
+        /* To restart from the saved simulation directory we  use the `CardiacSimulationArchiver` class, as shown in the following. 
+         * Note the `BidomainProblem<2>` as the template parameter again.  The dimension (2) must match the one given in the 
+         * saved archive directory.  
+         * The output directory is again relative to CHASTE_TEST_OUTPUT. */*/
+        BidomainProblem<2>* p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load("BidomainCheckpointingTutorial/saved_simulation");
 
-        /* '''add comment - is this running from 5 to 10, or 5 to 15? '''*/
+        /* The simulation duration has to be amended.
+         * Note that the duration is always given with respect to the origin of the first solve.
+         * This means that we are running from {{{t=5 ms}}} (the end of the previous simulation) to {{{t=10 ms}}}.
+         * The output files are concatenated so that they appear to be made by a single simulation running from
+         * {{{t=0 ms}}} to {{{t=10 ms}}}.
+         */
         HeartConfig::Instance()->SetSimulationDuration(10); //ms
-        /* '''add comment''' */
+        
+        /* The point of checkpointing and restarting is that there may be something which we want to change
+         * during the course of experiment.  Here we change the conductivity. */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(3.0, 0.3));
 
         p_bidomain_problem->Solve();
