@@ -80,13 +80,18 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
         {
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, AXISYM));
-            assert(this->mFileReader->GetNumLinesOfData() == this->mpMesh->GetNumElements());
+            if(this->mFileReader->GetNumLinesOfData() != this->mpMesh->GetNumElements())
+            {
+                EXCEPTION("The size of the fibre file does not match the number of elements in the mesh");
+            }
         }
 
         if (this->mUseNonConstantConductivities)
         {
-            ///\todo #1342 Most of these checks should be redundant or exceptions
-            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumLocalElements());
+            if(this->mpNonConstantConductivities->size() != this->mpMesh->GetNumLocalElements())
+            {
+                EXCEPTION("The size of the conductivities vector does not match the number of elements in the mesh");
+            }
         }
 
         // reserve() allocates all the memory at once, more efficient than relying

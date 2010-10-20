@@ -98,7 +98,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         try
         {
             assert(hetero_extra_conductivities.size()==0);
-            //initialise with the values of teh default conductivity tensor 
+            //initialise with the values of the default conductivity tensor 
             hetero_extra_conductivities.resize(num_local_elements, extra_conductivities);
         }
         catch(std::bad_alloc &r_bad_alloc)

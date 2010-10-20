@@ -147,6 +147,31 @@ public:
             ortho_tensors.SetFibreOrientationFile(file);
             TS_ASSERT_THROWS_CONTAINS(ortho_tensors.Init(&mesh),"End of file"); // short file
         }
+        
+        {
+            std::vector<c_vector<double, 3> > non_constant_conductivities;
+            non_constant_conductivities.push_back(Create_c_vector(0,0,0));
+    
+            OrthotropicConductivityTensors<3,3> ortho_tensors;
+            ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities); //1 element
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(&mesh),  "The size of the conductivities vector does not match the number of elements in the mesh"); //Mesh has 6 elements
+
+            AxisymmetricConductivityTensors<3,3> axi_tensors;
+            axi_tensors.SetNonConstantConductivities(&non_constant_conductivities); //1 element
+            TS_ASSERT_THROWS_THIS(axi_tensors.Init(&mesh),  "The size of the conductivities vector does not match the number of elements in the mesh"); //Mesh has 6 elements
+        }
+        {
+    
+            OrthotropicConductivityTensors<3,3> ortho_tensors;
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D4Elements.fibres", RelativeTo::ChasteSourceRoot);
+            ortho_tensors.SetFibreOrientationFile(file);
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(&mesh),  "The size of the fibre file does not match the number of elements in the mesh"); //Mesh has 6 elements
+            
+            AxisymmetricConductivityTensors<3,3> axi_tensors;
+            axi_tensors.SetFibreOrientationFile(file);
+            TS_ASSERT_THROWS_THIS(axi_tensors.Init(&mesh),  "The size of the fibre file does not match the number of elements in the mesh"); //Mesh has 6 elements
+        }
+   
     }
 
     void TestFibreOrientationTensor3D()

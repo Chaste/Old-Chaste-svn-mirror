@@ -33,7 +33,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception)
 {
     this->mpMesh = pMesh;
-    //assert(0);
+
     if (!this->mUseNonConstantConductivities && !this->mUseFibreOrientation)
     {
         // Constant tensor for every element
@@ -55,14 +55,18 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
         {
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, ORTHO));
-            assert(this->mFileReader->GetNumLinesOfData() == this->mpMesh->GetNumElements());
-            
+            if(this->mFileReader->GetNumLinesOfData() != this->mpMesh->GetNumElements())
+            {
+                EXCEPTION("The size of the fibre file does not match the number of elements in the mesh");
+            }
         }
  
         if (this->mUseNonConstantConductivities)
         {
-            ///\todo #1342 Most of these checks should be redundant or exceptions
-            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumLocalElements());
+            if(this->mpNonConstantConductivities->size() != this->mpMesh->GetNumLocalElements())
+            {
+                EXCEPTION("The size of the conductivities vector does not match the number of elements in the mesh");
+            }
         }
 
         // reserve() allocates all the memory at once, more efficient than relying

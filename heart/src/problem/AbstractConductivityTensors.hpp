@@ -126,9 +126,9 @@ public:
     /**
      *  Returns the diffussion tensor of the element number "index"
      *
-     *  @param index Index of the global element of the mesh
+     *  @param index Global index of the element of the mesh
      */
-    c_matrix<double,SPACE_DIM,SPACE_DIM>& operator[](const unsigned index);
+    c_matrix<double,SPACE_DIM,SPACE_DIM>& operator[](const unsigned global_index);
 };
 
 

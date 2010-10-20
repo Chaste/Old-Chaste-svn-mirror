@@ -101,7 +101,7 @@ void AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::SetNonConstantConductiv
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::operator[](const unsigned index)
+c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::operator[](const unsigned global_index)
 {
     assert(mInitialised);
 
@@ -111,8 +111,8 @@ c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SP
     }
     else
     {
-        assert(index < mpMesh->GetNumElements());
-        unsigned local_index = mpMesh->SolveElementMapping(index); //This will throw if we don't own the element
+        assert(global_index < this->mpMesh->GetNumElements());
+        unsigned local_index = mpMesh->SolveElementMapping(global_index); //This will throw if we don't own the element
         return mTensors[local_index];
     }
 }

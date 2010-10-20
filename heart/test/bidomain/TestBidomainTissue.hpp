@@ -145,68 +145,9 @@ public:
         VecDestroy(bidomain_vec);
     }
     
-    void TestBidomainTissueWithHeterogeneousConductivities() throw (Exception)
-    {
-        HeartConfig::Instance()->Reset();
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        std::vector<ChasteCuboid<3> > heterogeneity_area;
-        std::vector< c_vector<double,3> > intra_conductivities;
-        std::vector< c_vector<double,3> > extra_conductivities;
-        
-        //first cuboid include element 0
-        ChastePoint<3> cornerA(-1, -1, 0);
-        ChastePoint<3> cornerB(0.1, 0.2, 0.2);
-        ChasteCuboid<3> cuboid_1(cornerA, cornerB);
-        heterogeneity_area.push_back(cuboid_1);
-        
-        //second cuboid include element 4
-        ChastePoint<3> cornerC(0.11, 0.0, 0);
-        ChastePoint<3> cornerD(0.2, 0.11, 0.2);
-        ChasteCuboid<3> cuboid_2(cornerC, cornerD);
-        
-        heterogeneity_area.push_back(cuboid_2);
-        
-        //within the first area
-        intra_conductivities.push_back( Create_c_vector(1.0, 2.0, 3.0) );   
-        extra_conductivities.push_back( Create_c_vector(51.0, 52.0, 53.0) );
-
-        //within the second area
-        intra_conductivities.push_back( Create_c_vector(11.0, 22.0, 33.0) );   
-        extra_conductivities.push_back( Create_c_vector(151.0, 152.0, 153.0) );
-              
-        HeartConfig::Instance()->SetConductivityHeterogeneities(heterogeneity_area, intra_conductivities, extra_conductivities); 
-        
-        
-        //elsewhere
-        double isotropic_intra_conductivity=15.0;
-        double isotropic_extra_conductivity=65.0;
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(isotropic_intra_conductivity, isotropic_intra_conductivity, isotropic_intra_conductivity));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(isotropic_extra_conductivity, isotropic_extra_conductivity, isotropic_extra_conductivity));
-        
-        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,3> cell_factory_for_het;
-        cell_factory_for_het.SetMesh(&mesh);
-        
-        //CreateIntracellularConductivityTensor called in the constructor
-        BidomainTissue<3> bidomain_tissue( &cell_factory_for_het );
-        
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
-        
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetExtracellularConductivityTensor(0u)(0,0),51.0);//within first cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetExtracellularConductivityTensor(4u)(0,0),151.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetExtracellularConductivityTensor(4u)(1,1),152.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_tissue.rGetExtracellularConductivityTensor(8u)(0,0),65.0);//elsewhere, e.g. element 8
-         
-    }
     
     void TestBidomainTissueWithHeterogeneousConductivitiesDistributed() throw (Exception)
     {
-        ///\todo #1342 This is a copy of the test above (wth DistributedTetrahedralMesh) -- delete previous...
         HeartConfig::Instance()->Reset();
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         DistributedTetrahedralMesh<3,3> mesh;
