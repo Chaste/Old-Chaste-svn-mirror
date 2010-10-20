@@ -38,6 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 
 
+bool FileFinder::msFaking = false;
+
+RelativeTo::Value FileFinder::msFakeWhat = RelativeTo::Absolute;
+
+std::string FileFinder::msFakePath = "";
+
+
 FileFinder::FileFinder()
     : mAbsPath("UNSET!")
 {
@@ -84,6 +91,12 @@ void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value rel
             // Getting here is impossible
             NEVER_REACHED;
             break;
+    }
+    
+    if (msFaking && msFakeWhat == relativeTo)
+    {
+        // Fake the resulting path
+        mAbsPath = msFakePath + "/" + rRelativePath;
     }
     
     if (IsDir())
@@ -154,4 +167,16 @@ bool FileFinder::IsNewerThan(const FileFinder& rOtherEntity) const
 bool FileFinder::IsAbsolutePath(const std::string& rPath)
 {
     return rPath[0]=='/';
+}
+
+void FileFinder::FakePath(RelativeTo::Value fakeWhat, const std::string& rFakePath)
+{
+    msFakeWhat = fakeWhat;
+    msFakePath = rFakePath;
+    msFaking = true;
+}
+
+void FileFinder::StopFaking()
+{
+    msFaking = false;
 }

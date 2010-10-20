@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "ChasteBuildRoot.hpp"
 #include "OutputFileHandler.hpp"
+#include "GetCurrentWorkingDirectory.hpp"
 
 class TestFileFinder : public CxxTest::TestSuite
 {
@@ -148,6 +149,24 @@ public:
         TS_ASSERT(!missing_dir.IsDir());
         TS_ASSERT(!missing_dir.IsFile());
         TS_ASSERT_EQUALS(missing_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath() + "SubDir");
+    }
+    
+    void TestFaking()
+    {
+        FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "test");
+        FileFinder path("file", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_EQUALS(path.GetAbsolutePath(), "test/file");
+        
+        FileFinder::FakePath(RelativeTo::CWD, "test1");
+        FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "test2");
+        path.SetPath("file", RelativeTo::CWD);
+        TS_ASSERT_EQUALS(path.GetAbsolutePath(), GetCurrentWorkingDirectory() + "/file");
+        path.SetPath("file", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_EQUALS(path.GetAbsolutePath(), "test2/file");
+        
+        FileFinder::StopFaking();
+        path.SetPath("file", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_EQUALS(path.GetAbsolutePath(), std::string(ChasteBuildRootDir()) + "file");
     }
 };
 

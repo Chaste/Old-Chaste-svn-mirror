@@ -448,24 +448,29 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     // If we're archiving, try to save a copy of the latest schema too
     if (useArchiveLocationInfo)
     {
-        std::string schema_name("ChasteParameters_2_1.xsd");
-        FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
+        CopySchema(output_dirname); 
+    }
+}
+
+void HeartConfig::CopySchema(const std::string& rToDirectory)
+{
+    std::string schema_name("ChasteParameters_2_1.xsd");
+    FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
+    if (!schema_location.Exists())
+    {
+        // Try a relative path instead
+        schema_location.SetPath(schema_name, RelativeTo::CWD);
         if (!schema_location.Exists())
         {
-            // Try a relative path instead
-            schema_location.SetPath(schema_name, RelativeTo::CWD);
-            if (!schema_location.Exists())
-            {
-                // Warn the user
-                std::string message("Unable to locate schema file " + schema_name +
-                                    ". You will need to ensure it is available when resuming from the checkpoint.");
-                WARN_ONCE_ONLY(message);
-            }
+            // Warn the user
+            std::string message("Unable to locate schema file " + schema_name +
+                                ". You will need to ensure it is available when resuming from the checkpoint.");
+            WARN_ONCE_ONLY(message);
         }
-        if (schema_location.Exists())
-        {
-            system(("cp " + schema_location.GetAbsolutePath() + " " + output_dirname).c_str());
-        } 
+    }
+    if (schema_location.Exists())
+    {
+        system(("cp " + schema_location.GetAbsolutePath() + " " + rToDirectory).c_str());
     }
 }
 

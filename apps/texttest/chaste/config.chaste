@@ -1,4 +1,4 @@
-binary:$TEXTTEST_CHECKOUT/apps/src/Chaste
+binary:$TEXTTEST_CHECKOUT/apps/texttest/chaste/wrapper
 create_catalogues:true
 link_test_path:ChasteParameters.xml
 link_test_path:ChasteParameters_2_0.xsd

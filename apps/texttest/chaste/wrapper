@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source_root="`dirname $0`/../../.."
+
+# For some tests, we want to simulate not having the source tree, containing the XML schemas,
+# available.  So we remove the execute permission from the 'heart' folder while running Chaste.
+hide="no"
+if [ "$1" == "--hide-schema" ]; then
+	shift
+	hide="yes"
+	chmod a-x "$source_root/heart"
+fi
+
+"$source_root/apps/src/Chaste" "$@"
+
+if [ "$hide" == "yes" ]; then
+	chmod a+x "$source_root/heart"
+fi

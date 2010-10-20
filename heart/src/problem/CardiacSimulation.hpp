@@ -250,7 +250,9 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     OutputFileHandler handler(rOutputDirectory, false);
     out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
     (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1'>" << std::endl;
+    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1' "
+              << "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
+              << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ChasteParameters_2_1.xsd'>" << std::endl;
     (*p_file) << std::endl;
     (*p_file) << "    <ResumeSimulation>" << std::endl;
     (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
@@ -271,6 +273,7 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     (*p_file) << "    <Numerical/>" << std::endl;
     (*p_file) << "</ChasteParameters>" << std::endl;
     p_file->close();
+    HeartConfig::Instance()->CopySchema(handler.GetOutputDirectoryFullPath());
 }
 
 CardiacSimulation::CardiacSimulation(std::string parameterFileName,

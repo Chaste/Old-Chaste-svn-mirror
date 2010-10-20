@@ -61,6 +61,15 @@ class FileFinder
 private:
     /** The absolute path to our file */
     std::string mAbsPath;
+    
+    /** Whether to fake one of the fixed paths, e.g. ChasteSourceRoot */
+    static bool msFaking;
+    
+    /** Which path to fake */
+    static RelativeTo::Value msFakeWhat;
+    
+    /** The fake value of the faked path */
+    static std::string msFakePath;
 
 public:
     /**
@@ -121,6 +130,18 @@ public:
      * @param rPath The path to test
      */
     static bool IsAbsolutePath(const std::string& rPath);
+    
+    /**
+     * For testing purposes, fake the value of one of the normally fixed paths, e.g. ChasteSourceRoot.
+     * @param fakeWhat  which path to fake
+     * @param rFakePath  its fake value
+     */
+    static void FakePath(RelativeTo::Value fakeWhat, const std::string& rFakePath);
+    
+    /**
+     * Stop faking one of the fixed paths.
+     */
+    static void StopFaking();
 };
 
 #endif /*FILEFINDER_HPP_*/

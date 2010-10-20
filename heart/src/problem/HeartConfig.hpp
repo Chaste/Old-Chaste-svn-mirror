@@ -232,6 +232,13 @@ public:
     void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
     /**
+     * Try to copy the latest version of the schema to the given directory.
+     * If we can't find the latest version of the schema, generate a warning.
+     * @param rToDirectory  directory to copy to
+     */
+    void CopySchema(const std::string& rToDirectory);
+
+    /**
      * Utility method to parse an XML parameters file.
      * @param rFileName  Name of XML file
      */

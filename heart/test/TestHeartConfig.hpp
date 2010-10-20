@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 #include "TetrahedralMesh.hpp"
 #include "HeartFileFinder.hpp"
+#include "Warnings.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -1157,6 +1158,26 @@ public:
         //Reload the other XML
         HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath()+"ChasteParameters.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
+        
+        // If we Write when the schema fixed location doesn't exist, and the schema isn't in
+        // the current directory, we should get a warning.  This could occur if an executable
+        // user doesn't have the corresponding source tree.
+        HeartConfig::Reset();
+        FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "/not-there");
+        try
+        {
+            output_file_handler.SetArchiveDirectory();
+            HeartConfig::Instance()->Write(true);
+            FileFinder::StopFaking();
+        }
+        catch (...)
+        {
+            FileFinder::StopFaking();
+            throw;
+        }
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
+                         "Unable to locate schema file ChasteParameters_2_1.xsd. You will need to ensure it is available when resuming from the checkpoint.");
     }
 
     void TestArchiving() throw (Exception)
