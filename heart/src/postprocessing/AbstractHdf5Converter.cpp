@@ -47,11 +47,11 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     // check the data file read has one, two or three variables
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     mNumVariables = variable_names.size();
-    if(mNumVariables==0 || mNumVariables>3)
+    if(mNumVariables==0)
     {
         delete mpReader;
         delete mpOutputFileHandler;
-        EXCEPTION("Data has zero or more than three variables - doesn't appear to be mono, bidomain or extended bidomain");//see #1499 and #1502
+        EXCEPTION("Data has zero variables to write");
     }
 
     if (mpReader->GetNumberOfRows() != mpMesh->GetNumNodes())

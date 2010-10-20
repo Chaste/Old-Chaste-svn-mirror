@@ -41,8 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
-    //assert(type=="V" || type=="Phi_e");
-
     out_stream p_file=out_stream(NULL);
     if (PetscTools::AmMaster())
     {
@@ -87,16 +85,10 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
                      AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "output")
 {
-
-    Write(this->mpReader->GetVariableNames()[0]);//V
-    if (this->mNumVariables == 2)//if it is a bidomain problem
+    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
+    for (unsigned i=0; i<variable_names.size(); i++)
     {
-        Write(this->mpReader->GetVariableNames()[1]);//Phi_e
-    }
-    if (this->mNumVariables == 3)//for extended bidomain problems
-    {
-    	Write(this->mpReader->GetVariableNames()[1]);//V for the second cell
-        Write(this->mpReader->GetVariableNames()[2]);//then Phi_e
+        Write(variable_names[i]);
     }
 
     //Write mesh in a suitable form for meshalyzer

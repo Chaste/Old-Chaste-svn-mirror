@@ -173,6 +173,79 @@ public :
                          + "heart/test/data/three_variables/extended_bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
+    
+    //This test covers the case when the hdf5 file contains more than 3 variables
+    void TestMeshalyzerConversionLotsOfVariables() throw(Exception)
+    {
+        std::string output_dir = "TestHdf5ToMeshalyzerConversionManyVariables";
+        OutputFileHandler handler(output_dir);
+
+        // firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/many_variables/many_variables.h5",
+                                  output_dir);
+
+        TrianglesMeshReader<1,1> mesh_reader("heart/test/data/many_variables/1D_65_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory(output_dir);
+        Hdf5ToMeshalyzerConverter<1,1> converter(output_dir,  "many_variables", &mesh);
+
+        std::vector<std::string> variable_names;
+        variable_names.push_back("V");
+        variable_names.push_back("I_ks");
+        variable_names.push_back("I_kr");
+        variable_names.push_back("I_Ca_tot");
+        variable_names.push_back("I_tot");
+        variable_names.push_back("I_Na_tot");
+               
+        
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command;        
+        for (unsigned i=0; i<variable_names.size(); i++)
+        {
+            // compare the results files
+            command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir + "/output/many_variables_" + variable_names[i] + ".dat "
+                                         + "heart/test/data/many_variables/many_variables_" + variable_names[i] + ".dat";
+            TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        }
+       
+        // compare the time information file
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + output_dir + "/output/many_variables_times.info "
+                         + "heart/test/data/many_variables/many_variables_times.info";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+    }
+    
+    //This test covers the case when the hdf5 file contains more than 3 variables
+    void TestCmguiConversionLotsOfVariables() throw(Exception)
+    {
+        std::string output_dir = "TestHdf5ToCmguiConversionManyVariables";
+        OutputFileHandler handler(output_dir);
+
+        // firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/many_variables/many_variables.h5",
+                                  output_dir);
+
+        TrianglesMeshReader<1,1> mesh_reader("heart/test/data/many_variables/1D_65_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory(output_dir);
+        Hdf5ToCmguiConverter<1,1> converter(output_dir,  "many_variables", &mesh);
+      
+        
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+     
+        // compare the results files
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir + "/cmgui_output/many_variables_0.exnode "
+                                     + "heart/test/data/many_variables/many_variables_0.exnode";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+       
+    }
 
     void TestMonodomainCmguiConversion3D() throw(Exception)
     {
@@ -464,9 +537,6 @@ public :
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions until number of nodes is checked
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_THROWS_THIS( MESHA_3D converter(directory, "hdf5_4vars", &mesh),
-                "Data has zero or more than three variables - doesn't appear to be mono, bidomain or extended bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
                                   directory);

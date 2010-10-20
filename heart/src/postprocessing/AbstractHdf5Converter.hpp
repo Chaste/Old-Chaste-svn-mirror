@@ -43,7 +43,7 @@ class AbstractHdf5Converter
 {
 protected:
     Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
-    unsigned mNumVariables; /**< Read from the reader -- ought to be 1 (mono) or 2 (bi)*/
+    unsigned mNumVariables; /**< Read from the reader - number of variables to output*/
     std::string mFileBaseName; /**< Base name for the files [basename].vtu, [basename].dat etc.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
     OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/
