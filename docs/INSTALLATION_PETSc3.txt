@@ -61,6 +61,9 @@ We have not been able to verify these however.
 PETSc 3.0 and later versions can install some of our dependencies for us (OpenMPI, HDF5,
 ParMETIS, hypre):
 
+# You need to install a fortran compiler for the petsc configure to be able to compile hypre.
+# The following works assuming you have the gnu fortran and c compilers installed.
+
 cd $CHASTE_LIBS
 wget http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.0.0-p8.tar.gz
 tar xzvf petsc-3.0.0-p8.tar.gz 
@@ -68,13 +71,13 @@ rm -f petsc-3.0.0-p8.tar.gz
 cd petsc-3.0.0-p8/
 export PETSC_DIR=`pwd`
 export PETSC_ARCH=linux-gnu
-./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS=-fPIC --CFLAGS=-fPIC --download-hdf5=yes -download-parmetis=yes
+./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS=-fPIC --CFLAGS=-fPIC --download-hdf5=yes --download-parmetis=yes
 make all test
 
 # (optional) Build an optimised version of PETSc
 export PETSC_ARCH=linux-gnu-opt
 # ** note 'ifneeded' not 'yes' below **
-./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded -download-parmetis=ifneeded
+./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded --download-parmetis=ifneeded
 make all test
 
 
@@ -87,6 +90,9 @@ Most modern Linux distributions have Boost libraries installed.  Please
 check before compiling since this step can be lengthy.
 A simple check would be to see if the include files are in the "usual place":
 ls /usr/include/boost/serialization/
+
+Please don't use Boost versions 1.35 or 1.36 as serialization in these versions is broken.
+Note that archives created by a newer version of Boost may be unreadable by older versions.
 
 cd $CHASTE_LIBS
 wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz
@@ -235,7 +241,8 @@ edit the path if not.
 Amara
 -----
 export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python
-
+cd $CHASTE_LIBS
+mkdir python
 wget http://peak.telecommunity.com/dist/ez_setup.py
 python ez_setup.py
 cd bin
