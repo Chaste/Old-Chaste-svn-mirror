@@ -252,14 +252,13 @@ void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringGrowthDuration(double sp
 template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t\t<MeinekeSpringStiffness>"<<  mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n" ;
-	*rParamsFile <<  "\t\t\t<MeinekeDivisionRestingSpringLength>"<<  mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n" ;
-	*rParamsFile <<  "\t\t\t<MeinekeSpringGrowthDuration>"<<  mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n" ;
+	*rParamsFile << "\t\t\t<MeinekeSpringStiffness>" << mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n";
+	*rParamsFile << "\t\t\t<MeinekeDivisionRestingSpringLength>" << mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n";
+	*rParamsFile << "\t\t\t<MeinekeSpringGrowthDuration>" << mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n";
 
 	// Call direct parent class
 	AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -268,7 +267,6 @@ void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParam
 template class GeneralisedLinearSpringForce<1>;
 template class GeneralisedLinearSpringForce<2>;
 template class GeneralisedLinearSpringForce<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

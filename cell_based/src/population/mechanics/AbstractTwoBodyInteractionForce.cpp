@@ -134,8 +134,8 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t\t<UseCutOffLength>"<<  mUseCutOffLength << "</UseCutOffLength> \n" ;
-	*rParamsFile <<  "\t\t\t<CutOffLength>"<<  mMechanicsCutOffLength << "</CutOffLength> \n" ;
+	*rParamsFile << "\t\t\t<UseCutOffLength>" << mUseCutOffLength << "</UseCutOffLength> \n";
+	*rParamsFile << "\t\t\t<CutOffLength>" << mMechanicsCutOffLength << "</CutOffLength> \n";
 
 	// Call direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);
