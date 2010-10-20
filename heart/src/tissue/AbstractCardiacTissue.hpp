@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/string.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include "AbstractCardiacCell.hpp"
 #include "FakeBathCell.hpp"
@@ -50,9 +51,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "AbstractDynamicallyLoadableEntity.hpp"
 #include "DynamicModelLoaderRegistry.hpp"
-
-
-
 
 /**
  * Class containing "tissue-like" functionality used in monodomain and bidomain
@@ -80,7 +78,69 @@ private:
      * @param version
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
+    {
+        // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
+        // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
+        if (HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
+        {
+            switch (HeartConfig::Instance()->GetConductivityMedia())
+            {
+                case cp::media_type::Orthotropic:
+                {
+                    FileFinder source_file(HeartConfig::Instance()->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
+                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);
+                    EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    break;
+                }
+
+                case cp::media_type::Axisymmetric:
+                {
+                    FileFinder source_file(HeartConfig::Instance()->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
+                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".axi", RelativeTo::ChasteTestOutput);
+                    EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    break;
+                }
+
+                case cp::media_type::NoFibreOrientation:
+                    break;
+
+                default :
+                    NEVER_REACHED;
+
+            }
+        }
+
+        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
+        // archive & mIionicCacheReplicated; // will be regenerated
+        // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
+        archive & mDoCacheReplication;
+
+
+        // we no longer have a bool mDoOneCacheReplication, but to maintain backwards compatibility
+        // we archive something if version==0
+        if(version==0)
+        {
+            bool do_one_cache_replication = true;
+            archive & do_one_cache_replication;
+        }
+
+        (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
+
+        // Paranoia: check we agree with the mesh on who owns what
+        assert(mpDistributedVectorFactory->GetLow()==mpMesh->GetDistributedVectorFactory()->GetLow());
+        assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
+        // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
+    }
+
+    /**
+     * Unarchive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
     {
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
@@ -105,6 +165,7 @@ private:
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Convenience method for intracellular conductivity tensor creation
