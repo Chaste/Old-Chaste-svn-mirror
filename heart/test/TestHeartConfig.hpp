@@ -1149,7 +1149,7 @@ public:
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
         HeartConfig::Instance()->SetOutputDirectory("Xml");
-        HeartConfig::Instance()->Write(true);
+        HeartConfig::Instance()->Write();
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
         HeartConfig::Reset();
@@ -1247,14 +1247,14 @@ public:
         //Can't open a directory
         HeartConfig::Reset();
         HeartConfig::Instance()->SetOutputDirectory("../../../");
-        TS_ASSERT_THROWS_CONTAINS(HeartConfig::Instance()->Write(true), "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
+        TS_ASSERT_THROWS_CONTAINS(HeartConfig::Instance()->Write(), "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
 
         // Can't open a file for writing
         std::string command = OutputFileHandler::GetChasteTestOutputDirectory() + "no_write_access";
         mkdir(command.c_str(), 0);
         chmod(command.c_str(), 0); // in case the directory already exists
         HeartConfig::Instance()->SetOutputDirectory("no_write_access");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(true, false, ""),
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(false, ""),
                               "Could not open XML file in HeartConfig");
         chmod(command.c_str(), 0755);
         rmdir(command.c_str());

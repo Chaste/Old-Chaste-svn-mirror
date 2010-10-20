@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 #include "AbstractChasteRegion.hpp"
 #include "HeartFileFinder.hpp"
+#include "Warnings.hpp"
 
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
@@ -402,7 +403,7 @@ void HeartConfig::SetDefaultsFile(const std::string& rFileName)
     CheckTimeSteps();
 }
 
-void HeartConfig::Write(bool writeFileWithDefaults, bool useArchiveLocationInfo, std::string subfolderName)
+void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
 {
     //Output file
     std::string output_dirname;
@@ -420,10 +421,10 @@ void HeartConfig::Write(bool writeFileWithDefaults, bool useArchiveLocationInfo,
         //Only the master process is writing the configuration files
         return;
     }
-
+    out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
     out_stream p_parameters_file( new std::ofstream( (output_dirname+"ChasteParameters.xml").c_str() ) );
 
-    if (!p_parameters_file->is_open())
+    if (!p_defaults_file->is_open() || !p_parameters_file->is_open())
     {
         EXCEPTION("Could not open XML file in HeartConfig");
     }
@@ -431,25 +432,40 @@ void HeartConfig::Write(bool writeFileWithDefaults, bool useArchiveLocationInfo,
     //Schema map
     //Note - this location is relative to where we are storing the xml
     ::xml_schema::namespace_infomap map;
-    std::string absolute_path_to_xsd = EscapeSpaces(ChasteBuildInfo::GetRootDir());
-    absolute_path_to_xsd += "/heart/src/io/";
     // Release 1.1 (and earlier) didn't use a namespace
-    map[""].schema = absolute_path_to_xsd + "ChasteParameters_1_1.xsd";
+    map[""].schema = "ChasteParameters_1_1.xsd";
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
     map["cp20"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0";
-    map["cp20"].schema = absolute_path_to_xsd + "ChasteParameters_2_0.xsd";
+    map["cp20"].schema = "ChasteParameters_2_0.xsd";
     // We use 'cp' as prefix for the latest version to avoid having to change saved
     // versions for comparison at every release.
     map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1";
-    map["cp"].schema = absolute_path_to_xsd + "ChasteParameters_2_1.xsd";
+    map["cp"].schema = "ChasteParameters_2_1.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
-
-    if (writeFileWithDefaults)
+    cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
+    
+    // If we're archiving, try to save a copy of the latest schema too
+    if (useArchiveLocationInfo)
     {
-        out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
-        assert(p_defaults_file->is_open());
-        cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
+        std::string schema_name("ChasteParameters_2_1.xsd");
+        FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
+        if (!schema_location.Exists())
+        {
+            // Try a relative path instead
+            schema_location.SetPath(schema_name, RelativeTo::CWD);
+            if (!schema_location.Exists())
+            {
+                // Warn the user
+                std::string message("Unable to locate schema file " + schema_name +
+                                    ". You will need to ensure it is available when resuming from the checkpoint.");
+                WARN_ONCE_ONLY(message);
+            }
+        }
+        if (schema_location.Exists())
+        {
+            system(("cp " + schema_location.GetAbsolutePath() + " " + output_dirname).c_str());
+        } 
     }
 }
 

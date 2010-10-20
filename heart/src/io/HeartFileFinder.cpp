@@ -51,5 +51,5 @@ HeartFileFinder::HeartFileFinder(const cp::path_type& rPath)
             NEVER_REACHED;
             break;
     }
-    SetAbsolutePath(relative_path, relative_to);
+    SetPath(relative_path, relative_to);
 }

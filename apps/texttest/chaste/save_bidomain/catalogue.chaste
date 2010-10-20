@@ -38,7 +38,9 @@ The following new files/directories were created:
 ------------ChasteResults_10ms
 ----------------.chaste_deletable_folder
 ----------------AbstractCardiacProblem_mSolution.h5
+----------------ChasteDefaults.xml
 ----------------ChasteParameters.xml
+----------------ChasteParameters_2_1.xsd
 ----------------archive.arch
 ----------------archive.arch.0
 ----------------archive.info
@@ -65,7 +67,9 @@ The following new files/directories were created:
 ------------ChasteResults_6ms
 ----------------.chaste_deletable_folder
 ----------------AbstractCardiacProblem_mSolution.h5
+----------------ChasteDefaults.xml
 ----------------ChasteParameters.xml
+----------------ChasteParameters_2_1.xsd
 ----------------archive.arch
 ----------------archive.arch.0
 ----------------archive.info
@@ -92,7 +96,9 @@ The following new files/directories were created:
 ------------ChasteResults_8ms
 ----------------.chaste_deletable_folder
 ----------------AbstractCardiacProblem_mSolution.h5
+----------------ChasteDefaults.xml
 ----------------ChasteParameters.xml
+----------------ChasteParameters_2_1.xsd
 ----------------archive.arch
 ----------------archive.arch.0
 ----------------archive.info

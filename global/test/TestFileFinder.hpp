@@ -59,12 +59,12 @@ public:
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
 
             // file_name is relative
-            FileFinder file_finder3(file_name, RelativeTo::AbsoluteOrCwd);
-            TS_ASSERT(file_finder3.Exists());
-            TS_ASSERT(file_finder3.IsFile());
-            TS_ASSERT(!file_finder3.IsDir());
+            file_finder2.SetPath(file_name, RelativeTo::AbsoluteOrCwd);
+            TS_ASSERT(file_finder2.Exists());
+            TS_ASSERT(file_finder2.IsFile());
+            TS_ASSERT(!file_finder2.IsDir());
             // Check the path is as expected
-            TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
+            TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
         }
 
         {
@@ -130,11 +130,11 @@ public:
         TS_ASSERT(!dir2.IsFile());
         TS_ASSERT_EQUALS(dir2.GetAbsolutePath(), dir.GetAbsolutePath());
         
-        FileFinder dir3(dir.GetAbsolutePath(), RelativeTo::Absolute);
-        TS_ASSERT(dir3.Exists());
-        TS_ASSERT(dir3.IsDir());
-        TS_ASSERT(!dir3.IsFile());
-        TS_ASSERT_EQUALS(dir3.GetAbsolutePath(), dir.GetAbsolutePath());
+        dir2.SetPath(dir.GetAbsolutePath(), RelativeTo::Absolute);
+        TS_ASSERT(dir2.Exists());
+        TS_ASSERT(dir2.IsDir());
+        TS_ASSERT(!dir2.IsFile());
+        TS_ASSERT_EQUALS(dir2.GetAbsolutePath(), dir.GetAbsolutePath());
         
         OutputFileHandler handler("TestFileFinder");
         FileFinder new_dir("TestFileFinder", RelativeTo::ChasteTestOutput);

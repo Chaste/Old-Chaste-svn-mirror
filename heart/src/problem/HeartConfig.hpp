@@ -98,8 +98,7 @@ private:
         //Only the Master should be writing the configuration file
         if (PetscTools::AmMaster())
         {
-            // We don't write ChasteDefaults.xml out since it's not needed for resuming anymore.
-            mpInstance->Write(false, true);
+            mpInstance->Write( true );
         }
         PetscTools::Barrier("HeartConfig::save");
     }
@@ -125,6 +124,9 @@ private:
         assert(mpUserParameters.use_count() > 0);
         boost::shared_ptr<cp::chaste_parameters_type> p_new_parameters = mpUserParameters;
 
+        std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
+        HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
+
         /*
          *  When we unarchive a simulation, we load the old parameters file in order to inherit things such
          *  as default cell model, stimuli, heterogeneities, ... This has the side effect of inheriting the
@@ -138,7 +140,7 @@ private:
 
         HeartConfig::Instance()->SetCheckpointSimulation(false);
 
-        // If we are resuming a simulation, update the simulation duration (and any other parameters to come...)
+        // If we are resuming a simulation, some parameters can be altered at this point.
         if (p_new_parameters->ResumeSimulation().present())
         {
         	UpdateParametersFromResumeSimulation(p_new_parameters);
@@ -221,14 +223,13 @@ public:
      * and ChasteDefaults) as an XML file.
      * Note that the location of ChasteParameters.xsd (schema definition)
      * will be hard-coded in the XML file.
-     * @param writeFileWithDefaults if true, write default parameters to disc
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
      * @param subfolderName -- where to store with respect to GetOutputDirectory()
      *
      * @note This method is collective if useArchiveLocationInfo is false
      */
-    void Write(bool writeFileWithDefaults, bool useArchiveLocationInfo=false, std::string subfolderName="output");
+    void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
     /**
      * Utility method to parse an XML parameters file.

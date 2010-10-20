@@ -45,11 +45,11 @@ FileFinder::FileFinder()
 
 FileFinder::FileFinder(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {
-    SetAbsolutePath(rRelativePath, relativeTo);
+    SetPath(rRelativePath, relativeTo);
 }
 
 
-void FileFinder::SetAbsolutePath(const std::string& rRelativePath, RelativeTo::Value relativeTo)
+void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {
     switch (relativeTo)
     {

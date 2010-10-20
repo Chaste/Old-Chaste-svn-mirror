@@ -62,17 +62,6 @@ private:
     /** The absolute path to our file */
     std::string mAbsPath;
 
-protected:
-    /**
-     * Determine the absolute path to this file/dir.
-     * Used by constructor and HeartFileFinder.
-     *
-     * @param rRelativePath  the relative path to the file to find
-     * @param relativeTo  what it's relative to
-     */
-    void SetAbsolutePath(const std::string& rRelativePath,
-                         RelativeTo::Value relativeTo);
-
 public:
     /**
      * Default constructor for subclasses to use.  They @b must call
@@ -89,6 +78,13 @@ public:
      * @param relativeTo  how to interpret this path
      */
     FileFinder(const std::string& rPath, RelativeTo::Value relativeTo);
+    
+    /**
+     * Change this FileFinder to point at a new location.
+     * @param rPath  the path to the file/dir to find
+     * @param relativeTo  how to interpret this path
+     */
+    void SetPath(const std::string& rPath, RelativeTo::Value relativeTo);
 
     /**
      * Test whether we exist.
