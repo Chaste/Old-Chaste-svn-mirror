@@ -95,7 +95,7 @@ public:
         /* To restart from the saved simulation directory we  use the `CardiacSimulationArchiver` class, as shown in the following. 
          * Note the `BidomainProblem<2>` as the template parameter again.  The dimension (2) must match the one given in the 
          * saved archive directory.  
-         * The output directory is again relative to CHASTE_TEST_OUTPUT. */*/
+         * The output directory is again relative to CHASTE_TEST_OUTPUT. */
         BidomainProblem<2>* p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load("BidomainCheckpointingTutorial/saved_simulation");
 
         /* The simulation duration has to be amended.
