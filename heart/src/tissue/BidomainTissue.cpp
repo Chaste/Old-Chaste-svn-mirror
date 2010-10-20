@@ -90,7 +90,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
 
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
-    unsigned num_elements = this->mpMesh->GetNumElements();
+    unsigned num_local_elements = this->mpMesh->GetNumLocalElements();
     std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities;
 
     if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
@@ -99,14 +99,14 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         {
             assert(hetero_extra_conductivities.size()==0);
             //initialise with the values of teh default conductivity tensor 
-            hetero_extra_conductivities.resize(num_elements, extra_conductivities);
+            hetero_extra_conductivities.resize(num_local_elements, extra_conductivities);
         }
-        catch(std::bad_alloc &badAlloc)
+        catch(std::bad_alloc &r_bad_alloc)
         {
 #define COVERAGE_IGNORE
-            std::cout << "Failed to allocate std::vector of size " << num_elements << std::endl;
+            std::cout << "Failed to allocate std::vector of size " << num_local_elements << std::endl;
             PetscTools::ReplicateException(true);
-            throw badAlloc;
+            throw r_bad_alloc;
 #undef COVERAGE_IGNORE
         }
         PetscTools::ReplicateException(false);
@@ -118,11 +118,12 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
+        unsigned local_element_index = 0;
+        
         for (typename AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>::ElementIterator iter = (this->mpMesh)->GetElementIteratorBegin();
              iter != (this->mpMesh)->GetElementIteratorEnd();
              ++iter)
         {
-            unsigned element_index = iter->GetIndex();
             // if element centroid is contained in the region
             ChastePoint<SPACE_DIM> element_centroid(iter->CalculateCentroid());
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
@@ -130,10 +131,12 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
                 // if element centroid is contained in the region
                 if ( conductivities_heterogeneity_areas[region_index]->DoesContain( element_centroid ) )
                 {
-                    hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
+                    hetero_extra_conductivities[local_element_index] = extra_h_conductivities[region_index];
                 }
             }
+            local_element_index++;
         }
+        
         // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
         for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
         {

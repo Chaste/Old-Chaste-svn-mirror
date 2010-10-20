@@ -112,6 +112,7 @@ public:
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984u);
+        TS_ASSERT_EQUALS(mesh.GetNumLocalElements(), 984u);
 
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);

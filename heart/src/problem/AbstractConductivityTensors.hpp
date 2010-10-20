@@ -44,7 +44,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractConductivityTensors
 {
 protected:
-    unsigned mNumElements; /**< Number of elements (in the mesh) read from file in the derived classes*/
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh; /**< Mesh on which to apply*/
     bool mUseNonConstantConductivities; /**< Whether conductivities can be non-constant*/
     bool mUseFibreOrientation; /**< Set by SetFibreOrientationFile so that fibre orientation can be read*/
@@ -52,7 +51,10 @@ protected:
     /** Single constant conductivities for all space (when mUseNonConstantConductivities==false)*/
     c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
 
-    /** Non-constant conductivities for each element (when mUseNonConstantConductivities==true)*/
+    /** 
+     * Non-constant conductivities for each element (when mUseNonConstantConductivities==true)
+     * The size of this vector should match the number of local elements in the mesh
+     */
     std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
 
     /** Container for conductivity tensors 
@@ -111,7 +113,7 @@ public:
 
     /**
      *
-     *  @param pNonConstantConductivities pointer to vector of conductivities (one per element)
+     *  @param pNonConstantConductivities pointer to vector of conductivities (one per local element)
      */
     void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities);
 

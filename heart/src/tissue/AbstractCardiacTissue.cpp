@@ -190,7 +190,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
 
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
-    unsigned num_elements = mpMesh->GetNumElements();
+    unsigned num_local_elements = mpMesh->GetNumLocalElements();
     std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities;
 
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
@@ -198,14 +198,14 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
         try
         {
             assert(hetero_intra_conductivities.size()==0);
-            hetero_intra_conductivities.resize(num_elements, intra_conductivities);
+            hetero_intra_conductivities.resize(num_local_elements, intra_conductivities);
         }
-        catch(std::bad_alloc &badAlloc)
+        catch(std::bad_alloc &r_bad_alloc)
         {
 #define COVERAGE_IGNORE
-            std::cout << "Failed to allocate std::vector of size " << num_elements << std::endl;
+            std::cout << "Failed to allocate std::vector of size " << num_local_elements << std::endl;
             PetscTools::ReplicateException(true);
-            throw badAlloc;
+            throw r_bad_alloc;
 #undef COVERAGE_IGNORE
         }
         PetscTools::ReplicateException(false);
@@ -217,20 +217,23 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
+        unsigned local_element_index = 0;
+        
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = mpMesh->GetElementIteratorBegin();
              it != mpMesh->GetElementIteratorEnd();
              ++it)
         {
-            unsigned element_index = it->GetIndex();
+//            unsigned element_index = it->GetIndex();
             // if element centroid is contained in the region
             ChastePoint<SPACE_DIM> element_centroid(it->CalculateCentroid());
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 if ( conductivities_heterogeneity_areas[region_index]->DoesContain(element_centroid) )
                 {
-                    hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
+                    hetero_intra_conductivities[local_element_index] = intra_h_conductivities[region_index];
                 }
             }
+            local_element_index++;
         }
 
         // freeing memory allocated by HeartConfig::Instance()->GetConductivityHeterogeneities

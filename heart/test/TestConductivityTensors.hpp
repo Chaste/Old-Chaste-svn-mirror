@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 
 typedef AxisymmetricConductivityTensors<2,2> AXI_2D;
@@ -290,6 +292,63 @@ public:
 
     }
 
+    void TestHeterogeneousConductivitiesTensorDistributed3D()
+    {
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(1,1,2);
+        
+        std::vector<c_vector<double, 3> > non_constant_conductivities;
+        //for (unsigned global_element_index=0; global_element_index<12; global_element_index++)
+        for (DistributedTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
+        {
+            unsigned global_element_index=it->GetIndex();
+            non_constant_conductivities.push_back(Create_c_vector(global_element_index*100,global_element_index*10,global_element_index));
+        }
+        
+        OrthotropicConductivityTensors<3,3> ortho_tensors;
+        ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
+        ortho_tensors.Init(&mesh);
+
+        for (DistributedTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
+        {
+            unsigned tensor_index=it->GetIndex();
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), 100*tensor_index);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,1), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,2), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,0), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,1), 10*tensor_index);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,2), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,0), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,1), 0.0);
+            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), tensor_index);
+        }
+
+        AxisymmetricConductivityTensors<3,3> axi_tensors;
+        axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
+        axi_tensors.Init(&mesh);
+
+        for (DistributedTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
+        {
+            unsigned tensor_index=it->GetIndex();
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,0), 100*tensor_index);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,1), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,2), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,0), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,1), 10*tensor_index);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,2), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,0), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,1), 0.0);
+            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,2), 10*tensor_index);
+        }
+
+
+    }
     void TestHeterogeneousCondPlusFibreOrientationTensor1D()
     {
         TetrahedralMesh<1,1> mesh;

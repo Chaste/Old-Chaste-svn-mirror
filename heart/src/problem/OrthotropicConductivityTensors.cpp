@@ -55,33 +55,27 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
         {
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, ORTHO));
-            this->mNumElements = this->mFileReader->GetNumLinesOfData();
-            assert(this->mNumElements == this->mpMesh->GetNumElements());
+            assert(this->mFileReader->GetNumLinesOfData() == this->mpMesh->GetNumElements());
             
         }
-        else
-        {
-            this->mNumElements = this->mpNonConstantConductivities->size();
-            
-            assert(this->mNumElements == this->mpMesh->GetNumElements());
-        }
+ 
         if (this->mUseNonConstantConductivities)
         {
             ///\todo #1342 Most of these checks should be redundant or exceptions
-            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumElements());
+            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumLocalElements());
         }
 
         // reserve() allocates all the memory at once, more efficient than relying
         // on the automatic reallocation scheme.
-        this->mTensors.reserve(this->mNumElements);
+        this->mTensors.reserve(this->mpMesh->GetNumLocalElements());
 
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
-      for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
+        unsigned local_element_index = 0;
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
         {
-            unsigned global_element_index = it->GetIndex();
             /*
              *  For every element of the mesh we compute its tensor like (from
              * "Laminar Arrangement of VentricularMyocites Influences Electrical
@@ -104,7 +98,7 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
             {
                 for (unsigned dim=0; dim<SPACE_DIM; dim++)
                 {
-                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[global_element_index][dim];
+                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[local_element_index][dim];
                 }
             }
             else
@@ -124,7 +118,11 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
             c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
             noalias(temp) = prod(orientation_matrix, conductivity_matrix);
             this->mTensors.push_back( prod(temp, trans(orientation_matrix) ) );
+            
+            local_element_index++;
         }
+        assert(this->mTensors.size() == this->mpMesh->GetNumLocalElements());
+        assert(this->mTensors.size() == local_element_index);
 
         if (this->mUseFibreOrientation)
         {

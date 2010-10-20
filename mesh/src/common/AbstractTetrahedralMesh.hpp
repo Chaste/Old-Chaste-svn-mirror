@@ -243,6 +243,11 @@ public:
      * Get the number of elements that are actually in use.
      */
     virtual unsigned GetNumElements() const;
+    
+    /**
+     * Get the number of local elements that are in use on this process (only over-ridden when the mesh is distributed).
+     */
+    virtual unsigned GetNumLocalElements() const;
 
     /**
      * Get the number of boundary elements that are actually in use.

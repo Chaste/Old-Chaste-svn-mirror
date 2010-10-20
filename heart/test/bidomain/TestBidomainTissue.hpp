@@ -212,6 +212,13 @@ public:
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        // Check that if we're in parallel no single process owns every element (to ensure that the conductivities
+        // really are distributed).
+        if (PetscTools::GetNumProcs() > 1)
+        {
+            TS_ASSERT_DIFFERS( mesh.GetNumElements(), mesh.GetNumLocalElements() );
+        }
+        
         std::vector<ChasteCuboid<3> > heterogeneity_area;
         std::vector< c_vector<double,3> > intra_conductivities;
         std::vector< c_vector<double,3> > extra_conductivities;

@@ -32,8 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>::AbstractConductivityTensors()
-    : mNumElements(0),///\todo remove
-      mpMesh(NULL),
+    : mpMesh(NULL),
       mUseNonConstantConductivities(false),
       mUseFibreOrientation(false),
       mInitialised(false)
@@ -112,7 +111,7 @@ c_matrix<double,SPACE_DIM,SPACE_DIM>& AbstractConductivityTensors<ELEMENT_DIM,SP
     }
     else
     {
-        assert(index < mNumElements);
+        assert(index < mpMesh->GetNumElements());
         unsigned local_index = mpMesh->SolveElementMapping(index); //This will throw if we don't own the element
         return mTensors[local_index];
     }

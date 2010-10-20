@@ -80,26 +80,27 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
         {
             // open file
             this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, AXISYM));
-            this->mNumElements = this->mFileReader->GetNumLinesOfData();
-            assert(this->mNumElements == this->mpMesh->GetNumElements());
+            assert(this->mFileReader->GetNumLinesOfData() == this->mpMesh->GetNumElements());
         }
-        else
+
+        if (this->mUseNonConstantConductivities)
         {
-            this->mNumElements = this->mpNonConstantConductivities->size();
+            ///\todo #1342 Most of these checks should be redundant or exceptions
+            assert(this->mpNonConstantConductivities->size() == this->mpMesh->GetNumLocalElements());
         }
 
         // reserve() allocates all the memory at once, more efficient than relying
         // on the automatic reallocation scheme.
-        this->mTensors.reserve(this->mNumElements);
+        this->mTensors.reserve(this->mpMesh->GetNumLocalElements());
 
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
+       unsigned local_element_index = 0;
 
        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
         {
-            unsigned global_element_index = it->GetIndex();
             /*
              *  For every element of the mesh we compute its tensor like (from
              * "Laminar Arrangement of VentricularMyocites Influences Electrical
@@ -129,7 +130,7 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
             {
                 for (unsigned dim=0; dim<SPACE_DIM; dim++)
                 {
-                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[global_element_index][dim];
+                    conductivity_matrix(dim,dim) = (*this->mpNonConstantConductivities)[local_element_index][dim];
                 }
             }
             else
@@ -149,7 +150,12 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
 
             this->mTensors.push_back( conductivity_matrix(1,1) * identity_matrix<double>(SPACE_DIM) +
                                       (conductivity_matrix(0,0) - conductivity_matrix(1,1)) * outer_prod(fibre_vector,fibre_vector));
+                                      
+            local_element_index++;
         }
+
+        assert(this->mTensors.size() == this->mpMesh->GetNumLocalElements());
+        assert(this->mTensors.size() == local_element_index);
 
         if (this->mUseFibreOrientation)
         {
