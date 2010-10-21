@@ -88,16 +88,20 @@ private:
             {
                 case cp::media_type::Orthotropic:
                 {
-                    FileFinder source_file(HeartConfig::Instance()->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
-                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);
+                    FileFinder source_file(mFibreFilePathNoExtension + ".ortho", RelativeTo::AbsoluteOrCwd);
+                    assert(source_file.Exists());
+                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);                    
+                                       
                     EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
                     break;
                 }
 
                 case cp::media_type::Axisymmetric:
                 {
-                    FileFinder source_file(HeartConfig::Instance()->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
+                    FileFinder source_file(mFibreFilePathNoExtension + ".axi", RelativeTo::AbsoluteOrCwd);
+                    assert(source_file.Exists());
                     FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".axi", RelativeTo::ChasteTestOutput);
+
                     EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
                     break;
                 }
@@ -224,6 +228,11 @@ protected:
      * Whether the mesh was unarchived or got from elsewhere.
      */
     bool mMeshUnarchived;
+    
+    /**
+     * Path to the location of the fibre file without extension. 
+     */
+    std::string mFibreFilePathNoExtension;
 
 public:
     /**

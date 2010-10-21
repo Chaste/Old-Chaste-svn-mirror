@@ -94,6 +94,10 @@ public:
 
     void TestBidomainTissueSolveCellSystems( void )
     {
+        // This call is required to set the appropriate conductivity media and to make sure that 
+        // HeartConfig knows the mesh filename despite we use our own mesh reader.
+        HeartConfig::Instance()->SetMeshFileName("linear_mesh", cp::media_type::NoFibreOrientation);        
+        
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
 
@@ -150,6 +154,11 @@ public:
     void TestBidomainTissueWithHeterogeneousConductivitiesDistributed() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
+
+        // This call is required to set the appropriate conductivity media and to make sure that 
+        // HeartConfig knows the mesh filename despite we use our own mesh reader.
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_2mm_12_elements", cp::media_type::NoFibreOrientation);        
+        
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -227,6 +236,11 @@ public:
     void TestBidomainTissueWithHeterogeneousConductivitiesEllipsoid() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
+
+        // This call is required to set the appropriate conductivity media and to make sure that 
+        // HeartConfig knows the mesh filename despite we use our own mesh reader.
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_2mm_12_elements", cp::media_type::NoFibreOrientation);                
+        
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

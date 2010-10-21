@@ -91,6 +91,15 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 
+    if(HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
+    {
+        mFibreFilePathNoExtension = "./" + HeartConfig::Instance()->GetMeshName();
+    }
+    else
+    {
+        // As of 10671 fibre orientation can only be defined when loading a mesh from disc.
+        mFibreFilePathNoExtension = "";
+    }
     CreateIntracellularConductivityTensor();
 }
 
@@ -107,6 +116,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(std::vector<
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
 
+    mFibreFilePathNoExtension = ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename();
     CreateIntracellularConductivityTensor();
 }
 
@@ -152,12 +162,15 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
 
     if (mpConfig->IsMeshProvided() && mpConfig->GetLoadMesh())
     {
+        assert(mFibreFilePathNoExtension != "");
+        
         switch (mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
             {
                 mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
-                FileFinder ortho_file(this->mpConfig->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
+                FileFinder ortho_file(mFibreFilePathNoExtension + ".ortho", RelativeTo::AbsoluteOrCwd);
+                assert(ortho_file.Exists());                
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
             }
@@ -165,7 +178,8 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
             case cp::media_type::Axisymmetric:
             {
                 mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
-                FileFinder axi_file(this->mpConfig->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
+                FileFinder axi_file(mFibreFilePathNoExtension + ".axi", RelativeTo::AbsoluteOrCwd);
+                assert(axi_file.Exists());                
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
             }

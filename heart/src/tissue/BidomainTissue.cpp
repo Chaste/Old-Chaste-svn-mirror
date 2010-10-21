@@ -54,12 +54,15 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
 {
     if (this->mpConfig->IsMeshProvided() && this->mpConfig->GetLoadMesh())
     {
+        assert(this->mFibreFilePathNoExtension != "");        
+        
         switch (this->mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
             {
                 mpExtracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM,SPACE_DIM>;
-                FileFinder ortho_file(this->mpConfig->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
+                FileFinder ortho_file(this->mFibreFilePathNoExtension + ".ortho", RelativeTo::AbsoluteOrCwd);
+                assert(ortho_file.Exists());
                 mpExtracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
             }
@@ -67,7 +70,8 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
             case cp::media_type::Axisymmetric:
             {
                 mpExtracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM,SPACE_DIM>;
-                FileFinder axi_file(this->mpConfig->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
+                FileFinder axi_file(this->mFibreFilePathNoExtension + ".axi", RelativeTo::AbsoluteOrCwd);
+                assert(axi_file.Exists());
                 mpExtracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
             }
