@@ -69,11 +69,14 @@ double CellCycleModelOdeHandler::GetDt()
 {
     if (mDt == DOUBLE_UNSET)
     {
-#ifdef CHASTE_CVODE
-        mDt = SimulationTime::Instance()->GetTimeStep();
-#else
-        mDt = 0.0001; // Some models need this, so let's pick a safe default
-#endif // CHASTE_CVODE
+        if (mpOdeSolver->IsAdaptive())
+        {
+            mDt = SimulationTime::Instance()->GetTimeStep();
+        }
+        else
+        {
+            mDt = 0.0001; // Some models need this, so let's pick a safe default
+        }
     }
     return mDt;
 }

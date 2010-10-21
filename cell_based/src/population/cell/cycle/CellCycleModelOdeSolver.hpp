@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLCYCLEMODELODESOLVER_HPP_
 #define CELLCYCLEMODELODESOLVER_HPP_
 
+#include <boost/utility.hpp>
+
 #include "ChasteSerialization.hpp"
 
 #include "AbstractCellCycleModelOdeSolver.hpp"
@@ -36,17 +38,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A concrete implementation of AbstractCellCycleModelOdeSolver, that uses templates
- * to provide an implementation for any cell cycle model ODE solver class.
+ * to provide an implementation for any pair of cell cycle model and ODE solver classes.
  *
- * All ODE-based cell cycle model developers need to do is provide a specialisation of
- * the Initialise method of this class, and set mpOdeSolver in their constructor:
- *   mpOdeSolver = CellCycleModelOdeSolver<CLASS>::Instance();
+ * All ODE-based cell cycle model developers need to do is set mpOdeSolver in their constructor:
+ *   mpOdeSolver = CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::Instance();
  *
  * This class contains all the machinery to make it a singleton, hence providing
- * exactly one instance per value of the template parameter.
+ * exactly one instance per pair of values of the template parameters.
  */
 template <class CELL_CYCLE_MODEL, class ODE_SOLVER>
-class CellCycleModelOdeSolver : public AbstractCellCycleModelOdeSolver
+class CellCycleModelOdeSolver : public AbstractCellCycleModelOdeSolver, private boost::noncopyable
 {
 private:
     /** The single instance of this class, for this ODE_SOLVER. */
@@ -71,17 +72,6 @@ private:
     }
 
 public:
-
-    /** Copy constructor. */
-    CellCycleModelOdeSolver(const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>&);
-
-    /**
-     * Overloaded assignment operator.
-     * 
-     * @param rOtherCellCycleModelOdeSolver another CellCycleModelOdeSolver
-     */
-    CellCycleModelOdeSolver& operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& rOtherCellCycleModelOdeSolver);
-
     /** Return a pointer to the singleton instance, creating it if necessary. */
     static boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > Instance();
 
@@ -90,11 +80,21 @@ public:
 
     /** Initialise the ODE solver. */
     void Initialise();
+    
+    /**
+     * Return true iff this is an adaptive solver such as CVODE for which it is safe to set the 'timestep'
+     * to be the outer simulation timestep, because the ODE solver will use this as its maximum, not actual,
+     * timestep.
+     * 
+     * By default calls the base class version; it is defined here so that specializations can override it.
+     */
+    virtual bool IsAdaptive();
 };
 
 /** Definition of the instance static member. */
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::mpInstance;
+
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
@@ -110,14 +110,6 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
 }
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
-CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& rOtherCellCycleModelOdeSolver)
-{
-    mpInstance = rOtherCellCycleModelOdeSolver.mpInstance;
-    mpOdeSolver = rOtherCellCycleModelOdeSolver.mpOdeSolver;
-    mSizeOfOdeSystem = rOtherCellCycleModelOdeSolver.mSizeOfOdeSystem;
-}
-
-template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::Instance()
 {
     if (!mpInstance)
@@ -130,13 +122,19 @@ boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > CellCy
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 bool CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::IsSetUp()
 {
-    return mpInstance && mpOdeSolver;
+    return mpOdeSolver;
 }
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 void CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::Initialise()
 {
-    mpOdeSolver = boost::shared_ptr<AbstractIvpOdeSolver>(new ODE_SOLVER);
+    mpOdeSolver.reset(new ODE_SOLVER);
+}
+
+template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
+bool CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::IsAdaptive()
+{
+    return AbstractCellCycleModelOdeSolver::IsAdaptive();
 }
 
 
@@ -146,10 +144,9 @@ void CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::Initialise()
  * \todo there must be an easier way to deal with this peculiarity (#1427)
  */
 template<class CELL_CYCLE_MODEL>
-class CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> : public AbstractCellCycleModelOdeSolver
+class CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> : public AbstractCellCycleModelOdeSolver, private boost::noncopyable
 {
 private:
-
     /** The single instance of this class, for this ODE_SOLVER. */
     static boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> > mpInstance;
 
@@ -172,13 +169,6 @@ private:
     }
 
 public:
-
-    /** Copy constructor. */
-    CellCycleModelOdeSolver(const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>&);
-
-    /** Overloaded assignment operator. */
-    CellCycleModelOdeSolver& operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>&);
-
     /** Return a pointer to the singleton instance, creating it if necessary. */
     static boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> > Instance();
 
@@ -199,11 +189,6 @@ template<class CELL_CYCLE_MODEL>
 CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>::CellCycleModelOdeSolver()
     : AbstractCellCycleModelOdeSolver()
 {
-    // Make sure there's only one instance - enforces correct serialization
-    if (mpInstance)
-    {
-        mpInstance.reset();
-    }
 }
 
 template<class CELL_CYCLE_MODEL>
@@ -219,7 +204,7 @@ boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeS
 template<class CELL_CYCLE_MODEL>
 bool CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>::IsSetUp()
 {
-    return (mpInstance!=NULL) && (mpOdeSolver!=NULL) && (mSizeOfOdeSystem != UNSIGNED_UNSET);
+    return mpOdeSolver && (mSizeOfOdeSystem != UNSIGNED_UNSET);
 }
 
 template<class CELL_CYCLE_MODEL>
@@ -229,7 +214,7 @@ void CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>::Initi
     {
         EXCEPTION("SetSizeOfOdeSystem() must be called before calling Initialise()");
     }
-    mpOdeSolver = boost::shared_ptr<AbstractIvpOdeSolver>(new BackwardEulerIvpOdeSolver(mSizeOfOdeSystem));
+    mpOdeSolver.reset(new BackwardEulerIvpOdeSolver(mSizeOfOdeSystem));
 }
 
 template<class CELL_CYCLE_MODEL>
