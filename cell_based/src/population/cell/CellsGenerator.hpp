@@ -141,7 +141,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasicRandom(std::vector<CellP
     {
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
-        p_cell_cycle_model->SetCellProliferativeType(STEM);
+        p_cell_cycle_model->SetCellProliferativeType(cellProliferativeType);
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
         CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
