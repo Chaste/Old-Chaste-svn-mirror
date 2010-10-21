@@ -222,8 +222,8 @@ public:
      * EMPTYLINE
      *
      * Finally, to visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
-     * You may have to do: {{{javac Visualize2dCells.java}}} beforehand to create the
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
+     * You may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
      * java executable.
      *
      * EMPTYLINE

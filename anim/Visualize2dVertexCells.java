@@ -44,7 +44,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
 {
     private Thread updateThread;
 
-    static CustomCanvas2D canvas;
+    static CustomVertexCanvas2D canvas;
 
     Button run;
     
@@ -119,7 +119,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         frame.setSize(700, 700);
         frame.setLayout(new BorderLayout());
         
-        canvas = new CustomCanvas2D(this);
+        canvas = new CustomVertexCanvas2D(this);
         canvas.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
         canvas.addMouseMotionListener(canvas);
         
@@ -925,7 +925,7 @@ class PlotPoint
 }
 
 
-class CustomCanvas2D extends Canvas implements MouseMotionListener 
+class CustomVertexCanvas2D extends Canvas implements MouseMotionListener 
 {
     private static final long serialVersionUID = 6997195399856046957L;
 
@@ -946,7 +946,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     Color apoptotic_grey = new Color(80,80,80);
     Color purple = new Color(121,126,234);
     
-    public CustomCanvas2D(Visualize2dVertexCells v) 
+    public CustomVertexCanvas2D(Visualize2dVertexCells v) 
     {
         vis = v;
         setBackground(background_white);

@@ -42,11 +42,11 @@ import javax.swing.JLabel;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
+public class Visualize2dCentreCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
 {
     private Thread updateThread;
 
-    static CustomCanvas2D canvas;
+    static CustomCentreCanvas2D canvas;
 
     Button run;
 
@@ -138,12 +138,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
     public static Button refresh;
 
-    public Visualize2dCells()
+    public Visualize2dCentreCells()
     {
         frame.setSize(700, 700);
         frame.setLayout(new BorderLayout());
 
-        canvas = new CustomCanvas2D(this);
+        canvas = new CustomCentreCanvas2D(this);
         canvas.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
         canvas.addMouseMotionListener(canvas);
 
@@ -746,7 +746,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
         }
 
-        final Visualize2dCells vis = new Visualize2dCells();
+        final Visualize2dCentreCells vis = new Visualize2dCentreCells();
 
         LoadAllFiles();
 
@@ -1406,11 +1406,11 @@ class PlotPoint
 }
 
 
-class CustomCanvas2D extends Canvas implements MouseMotionListener
+class CustomCentreCanvas2D extends Canvas implements MouseMotionListener
 {
     private static final long serialVersionUID = 6997195399856046957L;
 
-    Visualize2dCells vis;
+    Visualize2dCentreCells vis;
 
     boolean imageReady = false;
     boolean imageDrawing = false;
@@ -1428,7 +1428,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     Color apoptotic_grey = new Color(80,80,80);
     Color purple = new Color(121,126,234);
 
-    public CustomCanvas2D(Visualize2dCells v)
+    public CustomCentreCanvas2D(Visualize2dCentreCells v)
     {
         vis = v;
         setBackground(background_white);
@@ -1501,13 +1501,15 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 
         if (vis.drawCircles)
         {
+        	double scaling = 0.4;
+        	
             // Draw cell circle interiors
             for (int i=0; i<vis.numCells[vis.timeStep]; i++ )
             {
                 SetCellColour(i);
                 PlotPoint p = scale(vis.positions[vis.timeStep][i]);
-                int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
-                int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+                int rx = (int) (scaling * width /(vis.max_x - vis.min_x));
+                int ry = (int) (scaling * height /(vis.max_y - vis.min_y));
 
                 if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not a ghost node
                 {
@@ -1520,8 +1522,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             {
                 g2.setColor(Color.black);
                 PlotPoint p=scale(vis.positions[vis.timeStep][i]);
-                int rx = (int) (0.5* width /(vis.max_x - vis.min_x));
-                int ry = (int) (0.5 * height /(vis.max_y - vis.min_y));
+                int rx = (int) (scaling * width /(vis.max_x - vis.min_x));
+                int ry = (int) (scaling * height /(vis.max_y - vis.min_y));
 
                 if (vis.cell_type[vis.timeStep][i] != INVISIBLE_COLOUR) // if not ghost
                 {
