@@ -201,6 +201,11 @@ private:
         //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
+        if (mpMesh == NULL)
+        {
+            //Loading mesh has failed (with a Chaste EXCEPTION) so Boost has given up on the mesh
+            EXCEPTION("Failed to load mesh from checkpoint.  Does the dimension of the archive match the object it's being read into?");
+        }
         if (has_solution)
         {
             /// \todo #1317 code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem

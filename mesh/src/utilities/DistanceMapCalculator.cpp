@@ -168,7 +168,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             {
                 unsigned global_index=index_exchange[index];
                 //Is it a better answer?
-                if (dist_exchange[index] < rNodeDistances[global_index]*(1.0-DBL_EPSILON) )
+                if (dist_exchange[index] < rNodeDistances[global_index]*(1.0-2*DBL_EPSILON) )
                 {
                     //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
                     rNodeDistances[global_index] = dist_exchange[index];
@@ -235,7 +235,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                         double updated_distance = rNodeDistances[current_node_index] +
                                                   norm_2(p_neighbour_node->rGetLocation() - p_current_node->rGetLocation())
                                                   - current_heuristic + neighbour_heuristic;
-                        if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
+                        if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-2*DBL_EPSILON) )
                         {
                             rNodeDistances[neighbour_node_index] = updated_distance;
                             PushLocal(updated_distance, neighbour_node_index);

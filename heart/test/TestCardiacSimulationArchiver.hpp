@@ -179,6 +179,16 @@ public:
             TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(empty_dir),
                                       "Unable to open archive information file: ");
         }
+        // Load into the wrong dimension
+        {
+            //When you try to load into the wrong dimension, the mesh reader (unarchiver)
+            //will throw an exception.  Boost will eat this exception and set the mesh pointer
+            //to NULL.  Your mileage may vary depending on Boost version.
+            //We detect a NULL pointer and turn it back into an exception.
+            TS_ASSERT_THROWS_THIS(CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir),
+                "Failed to load mesh from checkpoint.  Does the dimension of the archive match the object it's being read into?");
+ 
+        }
     }
 
     /**
