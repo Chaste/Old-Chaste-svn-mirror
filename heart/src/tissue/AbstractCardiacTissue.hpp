@@ -129,15 +129,6 @@ private:
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
 
-
-        // we no longer have a bool mDoOneCacheReplication, but to maintain backwards compatibility
-        // we archive something if version==0
-        if(version==0)
-        {
-            bool do_one_cache_replication = true;
-            archive & do_one_cache_replication;
-        }
-
         (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
 
         // Paranoia: check we agree with the mesh on who owns what
@@ -161,7 +152,6 @@ private:
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
-
 
         // we no longer have a bool mDoOneCacheReplication, but to maintain backwards compatibility
         // we archive something if version==0
