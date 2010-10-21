@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * It sets up an object equivalent to the following XML file:
  * \verbatim
+<?xml version="1.0" encoding="UTF-8"?>
+<ChasteParameters>
     <Simulation>
         <SpaceDimension>3</SpaceDimension>
         <Domain>Mono</Domain>
@@ -71,7 +73,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     
     <PostProcessing>
     </PostProcessing>
- * \endverbatim
+</ChasteParameters>
+\endverbatim
  */
 boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
 {
