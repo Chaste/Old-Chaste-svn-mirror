@@ -1,0 +1,143 @@
+################
+# Suppressions of library errors in Ubuntu Lucid
+################
+
+{
+   HDF5 file close
+   Memcheck:Param
+   write(buf)
+   fun:__write_nocancel
+   fun:ADIOI_GEN_WriteContig
+   fun:MPIOI_File_write
+   fun:mca_io_romio_dist_MPI_File_write_at
+   fun:PMPI_File_write_at
+   obj:/usr/lib/libhdf5.so.6.0.3
+   fun:H5FD_write
+   fun:H5F_block_write
+   obj:/usr/lib/libhdf5.so.6.0.3
+   obj:/usr/lib/libhdf5.so.6.0.3
+   fun:H5C_flush_cache
+   fun:H5AC_flush
+   fun:H5F_flush
+   fun:H5F_try_close
+   obj:/usr/lib/libhdf5.so.6.0.3
+   fun:H5I_dec_ref
+   fun:H5Fclose
+}
+{
+   HDF5 file create (main)
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PMPI_File_open
+   obj:/usr/lib/libhdf5.so.*
+   fun:H5FD_open
+   fun:H5F_open
+   fun:H5Fcreate
+}
+{
+   HDF5 open (malloc)
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PMPI_File_open
+   obj:/usr/lib/libhdf5.so.*
+   fun:H5FD_open
+   fun:H5F_open
+   fun:H5Fopen
+}
+
+#{
+#   petsc vec create
+#   Memcheck:Leak
+#   fun:malloc
+#   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+#   fun:ompi_attr_create_keyval
+#   fun:PMPI_Keyval_create
+#   fun:PetscCommDuplicate
+#   fun:PetscHeaderCreate_Private
+#   fun:VecCreate
+#   ...
+#   fun:main
+#}
+
+{
+   boost serialization error
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK5boost13serialization16void_cast_detail11void_caster18recursive_registerEb
+}
+
+{
+   mpi_init (malloc)
+   Memcheck:Leak
+   fun:malloc
+   ...
+   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   fun:PMPI_Init
+   fun:PetscInitialize
+   fun:_ZN10PetscSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+{
+   mpi_init (realloc)
+   Memcheck:Leak
+   fun:realloc
+   ...
+   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   fun:PMPI_Init
+   fun:PetscInitialize
+   fun:_ZN10PetscSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+{
+   mpi_init (calloc)
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:PMPI_Init
+   fun:PetscInitialize
+   fun:_ZN10PetscSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+{
+   mpi_init (sched)
+   Memcheck:Param
+   sched_setaffinity(mask)
+   ...
+   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   fun:PMPI_Init
+   fun:PetscInitialize
+   fun:_ZN10PetscSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+
+{
+   petsc finalize (malloc)
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PetscFinalize
+   fun:_ZN10PetscSetup13tearDownWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription8tearDownEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
