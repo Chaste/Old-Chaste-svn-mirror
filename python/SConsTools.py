@@ -394,8 +394,15 @@ def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
         build_info += ', no Chaste libraries'
     env['CHASTE_BUILD_INFO'] = build_info
 
-def CreateXsdBuilder(build, buildenv):
-    """'Builder' for running xsd to generate parser code from an XML schema."""
+def CreateXsdBuilder(build, buildenv, fakeIt=False):
+    """Add a 'builder' for running xsd to generate parser code from an XML schema.
+    
+    Adds the converter as a source action to the C/C++ builders.
+    
+    If fakeIt is True, doesn't actually run the converter, just touches the output
+    .cpp file.  This means that inner SCons runs for generating dynamically loadable
+    cell models don't try regenerating it unnecessarily.
+    """
     # Check if  'xsd' is really CodeSynthesis xsd...
     if not SCons.Script.GetOption('clean'):
         command = build.tools['xsd'] + ' version 2>&1'
@@ -431,12 +438,17 @@ def CreateXsdBuilder(build, buildenv):
         rc = subprocess.call(command)
         return rc
 
-    XsdAction = buildenv.Action(RunXsd)
+    if fakeIt:
+        XsdAction = SCons.Script.Touch('$TARGET')
+    else:
+        XsdAction = buildenv.Action(RunXsd)
     def XsdEmitter(target, source, env):
         hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
         t = env.Install(os.path.join(env['INSTALL_PREFIX'], 'include'), hpp)
         env.Alias('install', t)
-        return (target + [hpp], source)
+        target = target + [hpp]
+        env.Precious(target)
+        return (target, source)
     # Add XSD as a source of .cpp files
     c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
     cxx_file.add_action('.xsd', XsdAction)

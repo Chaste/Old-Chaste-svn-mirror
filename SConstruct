@@ -182,8 +182,7 @@ if not dyn_libs_only:
     else:
         SConsignFile('.sconsign')
 else:
-    # Use a .sconsign file in the folder we're building.
-    # This causes issues if building in parallel on older versions of SCons 0.97 - if this troubles you, upgrade!
+    # Use a .sconsign file in the folder we're building to avoid conflicts.
     assert(len(COMMAND_LINE_TARGETS) == 1)
     SConsignFile(os.path.join(COMMAND_LINE_TARGETS[0], '.sconsign'))
 
@@ -312,15 +311,7 @@ env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 
 # Builder for generating C++ code from XML Schema files
-#if dyn_libs_only and (not SCons.__version__.startswith('0.97') or
-#                      (SCons.__version__[-9] == 'd' and int(SCons.__version__[-8:]) >= 20071203)):
-#    # Avoid unnecessary rebuilds caused by using a different .sconsign file
-#    # But only possible for scons >= 0.98
-#    xsd_env = env.Clone()
-#    xsd_env.Decider('timestamp-newer')
-#else:
-#    xsd_env = env
-SConsTools.CreateXsdBuilder(build, env)
+SConsTools.CreateXsdBuilder(build, env, dyn_libs_only)
 
 # Builder for generating C++ code from CellML files
 SConsTools.CreatePyCmlBuilder(build, env)
