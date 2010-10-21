@@ -90,6 +90,11 @@ if os.path.exists('/usr/lib/liblapack-3.so'):
 else:
     blas_lapack = ['lapack', 'blas']
 
+# Is CVODE installed?
+if os.path.exists('/usr/lib/libsundials_cvode.so'):
+    use_cvode = True
+    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
+
 tools = {'xsd': '/usr/bin/xsdcxx',
          'mpirun': '/usr/bin/mpirun.openmpi',
          'mpicxx': '/usr/bin/mpic++.openmpi'}

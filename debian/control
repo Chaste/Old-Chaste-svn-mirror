@@ -8,8 +8,8 @@ Standards-Version: 3.7.2
 Package: chaste-source
 Architecture: all
 Depends: scons, g++, libopenmpi-dev, libblas-3gf.so | libblas-dev, liblapack-3gf.so | liblapack-dev, petsc-dev (>= 2.3.3-14), libhdf5-openmpi-dev, xsdcxx, libboost-serialization-dev, libparmetis-dev, libpetsc2.3.3-dbg|libpetsc3.0.0-dbg, libxerces-c2-dev, rnv (= 1.7.10-1chaste1), python-amara, python-rdflib | python-librdf
-Recommends: valgrind, tetgen
-Suggests: libgoogle-perftools-dev, libsundials-serial-dev, doxygen, graphviz, eclipse-cdt, sun-java6-jre
+Recommends: valgrind, libsundials-serial-dev
+Suggests: libgoogle-perftools-dev, doxygen, graphviz, eclipse-cdt, sun-java6-jre
 Description: general purpose computational biology simulation package
  Chaste (Cancer, Heart and Soft Tissue Environment) is a general purpose
  simulation package aimed at multi-scale, computationally demanding problems
@@ -26,8 +26,8 @@ Description: general purpose computational biology simulation package
 Package: chaste-dependencies
 Architecture: all
 Depends: scons, g++, libopenmpi-dev, libblas-3gf.so | libblas-dev, liblapack-3gf.so | liblapack-dev, petsc-dev (>= 2.3.3-14), libhdf5-openmpi-dev, xsdcxx, libboost-serialization-dev, libparmetis-dev, libpetsc2.3.3-dbg|libpetsc3.0.0-dbg, libxerces-c2-dev, rnv (= 1.7.10-1chaste1), python-amara, python-rdflib | python-librdf
-Recommends: valgrind, tetgen
-Suggests: libgoogle-perftools-dev, libsundials-serial-dev, doxygen, graphviz, eclipse-cdt, sun-java6-jre, subversion
+Recommends: valgrind, libsundials-serial-dev
+Suggests: libgoogle-perftools-dev, doxygen, graphviz, eclipse-cdt, sun-java6-jre, subversion
 Description: metapackage for installing the dependencies of Chaste
  Chaste (Cancer, Heart and Soft Tissue Environment) is a general purpose
  simulation package aimed at multi-scale, computationally demanding problems
