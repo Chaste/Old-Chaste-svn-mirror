@@ -78,10 +78,15 @@ class BuildType(object):
                       'gprof': 'gprof', 'pprof': 'pprof',
                       'rm': 'rm', 'cat': 'cat'}
 
-    def SetNumProcesses(self, np):
-        """Set the number of parallel processes to run."""
-        assert np > 0, 'Cannot run fewer than 1 process!'
-        self._num_processes = np
+    def DumpDebugInfo(self):
+        """Print out some useful build system debugging information."""
+        print "Build class", self.__class__.__name__, "from build type", self.build_type
+        print "Tool locations:", self.tools
+        print "Compiler type:", self._compiler_type
+        print "CC flags:", self.CcFlags()
+        print "LD flags:", self.LinkFlags()
+        print "Test packs:", self.TestPacks()
+        print "Library preferences:", self.GetPreferedVersions()
 
     def CompilerType(self):
         """
@@ -110,7 +115,6 @@ class BuildType(object):
         """
         return ' '.join(self._include_flag)
 
-    
     def TestPacks(self):
         """
         Return a list of the test packs to run as part of this build.
@@ -222,6 +226,11 @@ class BuildType(object):
         Note2: the builder script also has this path hardcoded.
         """
         return 'testoutput/'
+
+    def SetNumProcesses(self, np):
+        """Set the number of parallel processes to run."""
+        assert np > 0, 'Cannot run fewer than 1 process!'
+        self._num_processes = np
     
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         """Return the command to be used to run a test suite.
@@ -341,6 +350,7 @@ class BuildType(object):
         {'petsc': '2.3', 'boost': '1.34'}
         """
         return self._hostConfigSettings
+    
 
 class Gcc(BuildType):
     """gcc compiler with default options."""

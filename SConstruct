@@ -80,6 +80,7 @@ Export('debug')
 build_type = ARGUMENTS.get('build', ARGUMENTS.get('b','default'))
 build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
+build.debug = debug
 Export('build')
 
 # Whether to use static or shared libraries

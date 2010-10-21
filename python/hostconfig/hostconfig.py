@@ -90,10 +90,6 @@ except ImportError:
     except (ImportError, IOError):
         import default as conf
 
-# For debugging
-#for name in dir(conf):
-#    if name[0] != '_':
-#        print name, '=', getattr(conf, name)
 
 # This is a bit ugly at present: SConstruct calls configure() to fill
 # these global variables in, then reads them directly.
@@ -219,9 +215,9 @@ def TryRemove(pathGlob):
 # Supply the above functions to the config module
 for name in dir():
     if name[0] != '_':
-        exec "item = " + name
+        item = globals()[name]
         if type(item) == types.FunctionType:
-            exec "conf.%s = item" % name
+            setattr(conf, name, item)
 
 def EnsureVariablesDefined():
     """Ensure that the other_* variables are defined; default to empty lists if not."""
@@ -422,6 +418,17 @@ def Configure(build):
 
     if hasattr(conf, 'ModifyBuild') and callable(conf.ModifyBuild):
         conf.ModifyBuild(build)
+    
+    if build.debug:
+        print "Using hostconfig settings from", conf.__name__, ":"
+        for name in dir(conf):
+            item = getattr(conf, name)
+            if name[0] != '_' and type(item) != types.FunctionType:
+                print name, '=', item
+        print "Libraries:", libraries
+        print "Library paths:", libpaths
+        print "Include paths:", incpaths
+        build.DumpDebugInfo()
 
 def CppDefines():
     """Return a list of extra C preprocessor defines."""
