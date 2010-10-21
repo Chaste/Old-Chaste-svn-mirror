@@ -92,7 +92,11 @@ private:
                     assert(source_file.Exists());
                     FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);                    
                                        
-                    EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    if (PetscTools::AmMaster())
+                    {
+                        MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    }
+                    PetscTools::Barrier();
                     break;
                 }
 
@@ -102,7 +106,12 @@ private:
                     assert(source_file.Exists());
                     FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".axi", RelativeTo::ChasteTestOutput);
 
-                    EXPECT0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    if (PetscTools::AmMaster())
+                    {
+                        MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                    }
+                    PetscTools::Barrier();
+                    
                     break;
                 }
 
