@@ -52,9 +52,9 @@ struct null_deleter
 };
 
 Cell::Cell(boost::shared_ptr<AbstractCellProperty> pMutationState,
-                       AbstractCellCycleModel* pCellCycleModel,
-                       bool archiving,
-                       CellPropertyCollection cellPropertyCollection)
+           AbstractCellCycleModel* pCellCycleModel,
+           bool archiving,
+           CellPropertyCollection cellPropertyCollection)
     : mCanDivide(false),
       mCellPropertyCollection(cellPropertyCollection),
       mpCellCycleModel(pCellCycleModel),
@@ -105,13 +105,6 @@ Cell::Cell(boost::shared_ptr<AbstractCellProperty> pMutationState,
 
 Cell::~Cell()
 {
-    // Decrement cell count for each cell property in mCellPropertyCollection
-    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
-         property_iter != mCellPropertyCollection.End();
-         ++property_iter)
-    {
-        (*property_iter)->DecrementCellCount();
-    }
     if (!mIsDead)
     {
         Kill();
@@ -226,9 +219,7 @@ void Cell::StartApoptosis(bool setDeathTime)
     {
         mDeathTime = DBL_MAX;
     }
-
     AddCellProperty(mCellPropertyCollection.GetCellPropertyRegistry()->Get<ApoptoticCellProperty>());
-
 }
 
 bool Cell::HasApoptosisBegun() const
@@ -264,11 +255,11 @@ double Cell::GetTimeUntilDeath() const
 
 bool Cell::IsDead()
 {
-    if (mUndergoingApoptosis)
+    if (mUndergoingApoptosis && !mIsDead)
     {
         if (SimulationTime::Instance()->GetTime() >= mDeathTime)
         {
-            this->Kill();
+        	this->Kill();
         }
     }
     return mIsDead;
@@ -276,13 +267,13 @@ bool Cell::IsDead()
 
 void Cell::Kill()
 {
-//    // Decrement cell count for each cell property in mCellPropertyCollection
-//    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
-//         property_iter != mCellPropertyCollection.End();
-//         ++property_iter)
-//    {
-//        (*property_iter)->DecrementCellCount();
-//    }
+	// Decrement cell count for each cell property in mCellPropertyCollection
+    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
+         property_iter != mCellPropertyCollection.End();
+         ++property_iter)
+    {
+        (*property_iter)->DecrementCellCount();
+    }
     mIsDead = true;
 }
 

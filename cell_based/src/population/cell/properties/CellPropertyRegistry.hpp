@@ -154,12 +154,11 @@ boost::shared_ptr<AbstractCellProperty> CellPropertyRegistry::Get()
     }
     if (!p_property)
     {
-        // Create a new mutation state
+        // Create a new cell property
         p_property.reset(new SUBCLASS);
         mCellProperties.push_back(p_property);
     }
     return p_property;
 }
-
 
 #endif /* CELLPROPERTYREGISTRY_HPP_ */

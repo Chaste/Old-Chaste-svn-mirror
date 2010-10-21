@@ -29,15 +29,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellPropertyCollection.hpp"
 
 CellPropertyCollection::CellPropertyCollection()
- : mpCellPropertyRegistry(NULL)
+    : mpCellPropertyRegistry(NULL)
 {
 }
 
 CellPropertyRegistry* CellPropertyCollection::GetCellPropertyRegistry()
 {
-    if (!mpCellPropertyRegistry )
-    {   /// If no cell population has taken ownership of the registry
-        /// and assigned this class a pointer, then store a pointer to the singleton.
+    if (!mpCellPropertyRegistry)
+    {
+    	/*
+    	 * If no cell population has taken ownership of the registry and assigned
+    	 * this class a pointer, then store a pointer to the singleton.
+    	 */
         mpCellPropertyRegistry = CellPropertyRegistry::Instance();
     }
     return mpCellPropertyRegistry;
