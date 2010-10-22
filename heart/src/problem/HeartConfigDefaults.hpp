@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @file
- * This file is designed to be #included within HeartConfig.cpp, and defines a single function,
+ * This file is designed to be included within HeartConfig.cpp, and defines a single function,
  * CreateDefaultParameters.  The only reason it is a separate file is for easy identification
  * of what the default parameters are.
  */

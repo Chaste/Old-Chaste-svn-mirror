@@ -2227,7 +2227,7 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
     }
 
     XSD_SEQUENCE_TYPE(cp::output_variables_type::Var)&
-    var_type_sequence = mpUserParameters->Simulation().get().OutputVariables()->Var();
+        var_type_sequence = mpUserParameters->Simulation().get().OutputVariables()->Var();
     //Erase or create a sequence
     var_type_sequence.clear();
 
@@ -2240,11 +2240,13 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
     if (rOutputVariables.size() > 0)
     {
         // Turn off Meshalyzer etc. output, to avoid errors
+        /// \todo #1596 is this no longer needed?
         SetVisualizeWithMeshalyzer(false);
         SetVisualizeWithCmgui(false);
         SetVisualizeWithVtk(false);
     }
 }
+
 void  HeartConfig::SetOutputUsingOriginalNodeOrdering(bool useOriginal)
 {
     //What if it doesn't exist?
