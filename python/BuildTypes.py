@@ -642,10 +642,14 @@ class MemoryTesting(GccDebug):
         #self._cc_flags.append('-DPETSC_MEMORY_TRACING')
         #self.build_dir += '_mem'
         # Figure out the valgrind version
-        version = os.popen(self.tools['valgrind'] + ' --version').readline().strip()
-        version = filter(lambda c: c.isdigit() or c == '.', version)
-        if map(int, version.split('.')[:3]) >= [3,5,0]:
-            self._valgrind_flags += " --suppressions=chaste-lucid.supp"
+        try:
+            version = os.popen(self.tools['valgrind'] + ' --version').readline().strip()
+            version = filter(lambda c: c.isdigit() or c == '.', version)
+            if map(int, version.split('.')[:3]) >= [3,5,0]:
+                self._valgrind_flags += " --suppressions=chaste-lucid.supp"
+        except:
+            # Probably means valgrind isn't installed, so don't add extra suppressions
+            pass
 
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         "Run all tests using valgrind to check for memory leaks."
