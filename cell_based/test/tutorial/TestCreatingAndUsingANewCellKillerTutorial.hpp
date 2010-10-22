@@ -149,7 +149,7 @@ public:
         *rParamsFile << "\t\t\t<height>" << mCentre[0] << "</height> \n";
 
         /* You now call the parent class to output any parameters stored there */
-        AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
+        AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);
     }
 
 };
