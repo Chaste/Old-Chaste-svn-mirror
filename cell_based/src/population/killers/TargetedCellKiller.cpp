@@ -58,6 +58,16 @@ void TargetedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 	mBloodLust = false;
 }
 
+template<unsigned DIM>
+void TargetedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
+{
+    *rParamsFile << "\t\t\t<TargetIndex>" << mTargetIndex << "</TargetIndex> \n";
+    *rParamsFile << "\t\t\t<BloodLust>" << mBloodLust << "</BloodLust> \n";
+
+    // Call direct parent class
+    AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

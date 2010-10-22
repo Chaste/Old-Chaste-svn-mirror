@@ -96,15 +96,14 @@ public:
     void OutputCellKillerInfo(out_stream& rParamsFile);
 
     /**
-     * Outputs force Parameters to file
+     * Outputs cell killer Parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
      * param rParamsFile the file stream to which the parameters are output
-     * \todo implement this method or remove (#1453)
      */
-    //virtual void OutputCellKillerParameters(out_stream& rParamsFile)=0;
+    virtual void OutputCellKillerParameters(out_stream& rParamsFile)=0;
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller)

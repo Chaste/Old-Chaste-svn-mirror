@@ -54,6 +54,15 @@ void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
     }
 }
 
+template<unsigned DIM>
+void OxygenBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
+{
+    // No parameters to output
+
+    // Call direct parent class
+    AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

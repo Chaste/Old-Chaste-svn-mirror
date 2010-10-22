@@ -1847,54 +1847,6 @@ public:
         WntConcentration<2>::Destroy();
         delete p_crypt;
     }
-
-    ///\todo uncomment test
-    void xTest2DCylindricalMeshForVisualizationInParaview() throw (Exception)
-    {
-        double crypt_length = 22.0;
-
-        // Create mesh
-        unsigned cells_across = 12;
-        unsigned cells_up = 12;
-        unsigned thickness_of_ghost_layer = 0;
-
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-
-        // Get location indices corresponding to real cells
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        // Create cells
-        std::vector<CellPtr> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-        cells_generator.Generate(cells, p_mesh, location_indices,true); //true = mature cells
-
-        // Create cell population
-        MeshBasedCellPopulation<2> crypt(*p_mesh, cells, location_indices);
-        crypt.SetOutputCellMutationStates(true);
-        crypt.SetOutputVoronoiData(true);
-
-        // Create crypt simulation from cell population and force law
-        CryptSimulation2d simulator(crypt);
-        simulator.SetEndTime(0.1);
-
-        // These are for coverage and use the defaults
-        simulator.SetDt(1.0/120.0);
-        simulator.SetUpdateCellPopulationRule(true);
-        simulator.SetNoBirth(false);
-        simulator.SetOutputDirectory("Crypt2DCylindricalForParaview");
-
-        // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
-
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
-
-        // Run simulation
-        simulator.Solve();
-    }
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/
