@@ -222,13 +222,16 @@ public:
      * or derived quantity.
      * 
      * Note that if the variable is a derived quantity, this method will compute
-     * all derived quantities, so may not be very efficient.
+     * all derived quantities, so may not be very efficient.  To avoid this, pass
+     * a pre-computed vector of derived quantities as the optional third argument.
      *
      * @param index the index of the variable, as given by GetAnyVariableIndex.
      * @param time  the current simulation time, possibly needed if the variable
-     *     is a derived quantity
+     *     is a derived quantity.
+     * @param pDerivedQuantities  optional vector of pre-computed derived quantity values.
      */
-    double GetAnyVariable(unsigned index, double time=0.0);
+    double GetAnyVariable(unsigned index, double time=0.0,
+                          VECTOR* pDerivedQuantities=NULL);
 
     /**
      * Get the index of a variable, whether a state variable, parameter,

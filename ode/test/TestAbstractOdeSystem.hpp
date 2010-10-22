@@ -30,19 +30,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTABSTRACTODESYSTEM_HPP_
 #define _TESTABSTRACTODESYSTEM_HPP_
 
-// TestAbstractOdeSystem.hpp
-
 #include <cmath>
 #include <iostream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include "Ode1.hpp"
 #include "Ode2.hpp"
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
 #include "VanDerPolOde.hpp"
 #include "ParameterisedOde.hpp"
+
 #include "OutputFileHandler.hpp"
+
 // Tolerance for tests
 const double tol = 0.01;
 
@@ -265,6 +266,7 @@ public:
         TS_ASSERT_EQUALS(a, 0.0);
         TS_ASSERT_DELTA(derived[0], 2*a, 1e-4);
         TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 0.0), 2*a, 1e-4);
+        TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 0.0, &derived), 2*a, 1e-4);
         a = 1.0;
         ode.SetParameter(0, a);
         derived = ode.ComputeDerivedQuantities(0.0, ode.GetInitialConditions());

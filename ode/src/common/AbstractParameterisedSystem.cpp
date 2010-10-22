@@ -199,7 +199,8 @@ std::string AbstractParameterisedSystem<VECTOR>::GetParameterUnits(unsigned inde
 //
 
 template<typename VECTOR>
-double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index, double time)
+double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index, double time,
+                                                           VECTOR* pDerivedQuantities)
 {
     if (index < mNumberOfStateVariables)
     {
@@ -214,9 +215,17 @@ double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index, doubl
         unsigned offset = mNumberOfStateVariables + GetVectorSize(mParameters);
         if (index - offset < GetNumberOfDerivedQuantities())
         {
-            VECTOR dqs = ComputeDerivedQuantitiesFromCurrentState(time);
-            double value = GetVectorComponent(dqs, index - offset);
-            DeleteVector(dqs);
+            VECTOR dqs;
+            if (pDerivedQuantities == NULL)
+            {
+                dqs = ComputeDerivedQuantitiesFromCurrentState(time);
+                pDerivedQuantities = &dqs;
+            }
+            double value = GetVectorComponent(*pDerivedQuantities, index - offset);
+            if (pDerivedQuantities == &dqs)
+            {
+                DeleteVector(dqs);
+            }
             return value;
         }
         else
