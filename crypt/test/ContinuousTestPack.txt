@@ -1,5 +1,4 @@
 cell/TestCellForCrypt.hpp
-cell/TestCellsGeneratorForVertex.hpp
 cell/TestCryptCellsGenerator.hpp
 cell/TestOdeBasedCellCycleModelsForCrypt.hpp
 cell/TestSimpleCellCycleModelsForCrypt.hpp

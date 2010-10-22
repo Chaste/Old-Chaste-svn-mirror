@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "HoneycombMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
@@ -110,7 +111,7 @@ public:
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), TRANSIT);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
@@ -121,14 +122,48 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(cells[i]->GetBirthTime(), 0.0);
             TS_ASSERT_LESS_THAN_EQUALS(-24.0, cells[i]->GetBirthTime());
             TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(),TRANSIT);
         }
 
         //Test exact random numbers as test re-seeds random number generator.
-        TS_ASSERT_DELTA(cells[0]->GetBirthTime(), -20.1645, 1e-4);
-        TS_ASSERT_DELTA(cells[1]->GetBirthTime(), -9.4651, 1e-4);
-        TS_ASSERT_DELTA(cells[2]->GetBirthTime(), -18.7943, 1e-4);
+        TS_ASSERT_DELTA(cells[0]->GetBirthTime(), -4.7325, 1e-4);
+        TS_ASSERT_DELTA(cells[1]->GetBirthTime(), -9.5812, 1e-4);
+        TS_ASSERT_DELTA(cells[2]->GetBirthTime(), -2.3706, 1e-4);
 
     }
+
+
+    void TestGenerateBasicRandomWithFixedDurationGenerationBasedCellCycleModelandVertexCells() throw(Exception)
+    {
+        // Create mesh
+        HoneycombVertexMeshGenerator mesh_generator(2, 2);
+        VertexMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), TRANSIT);
+
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumElements());
+
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            // Shold lie between -24 and 0
+            TS_ASSERT_LESS_THAN_EQUALS(cells[i]->GetBirthTime(), 0.0);
+            TS_ASSERT_LESS_THAN_EQUALS(-24.0, cells[i]->GetBirthTime());
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(),TRANSIT);
+        }
+
+        //Test exact random numbers as test re-seeds random number generator.
+        TS_ASSERT_DELTA(cells[0]->GetBirthTime(), -4.7325, 1e-4);
+        TS_ASSERT_DELTA(cells[1]->GetBirthTime(), -9.5812, 1e-4);
+        TS_ASSERT_DELTA(cells[2]->GetBirthTime(), -2.3706, 1e-4);
+
+    }
+
 
 };
 

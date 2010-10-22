@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombVertexMeshGenerator.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
@@ -286,6 +287,83 @@ public:
             TS_ASSERT_DELTA(new_cells[i]->GetBirthTime(), -(double)(i), 1e-9);
         }
     }
+
+    void TestCryptCellsGeneratorWithStochasticDurationGenerationBasedCellCycleModelAndVertexMesh() throw(Exception)
+      {
+          // Create mesh
+          unsigned crypt_width = 4;
+          unsigned crypt_height = 6;
+          CylindricalHoneycombVertexMeshGenerator mesh_generator(crypt_width, crypt_height);
+          Cylindrical2dVertexMesh* p_mesh = mesh_generator.GetCylindricalMesh();
+
+          double y0 = 1.0;
+          double y1 = 2.0;
+          double y2 = 3.0;
+          double y3 = 4.0;
+
+          // Create cells
+          std::vector<CellPtr> fixed_cells, stochastic_cells;
+          CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> fixed_cells_generator;
+          fixed_cells_generator.Generate(fixed_cells, p_mesh, std::vector<unsigned>(), true, y0, y1, y2, y3, true);
+
+          CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> stochastic_cells_generator;
+          stochastic_cells_generator.Generate(stochastic_cells, p_mesh, std::vector<unsigned>(), true, y0, y1, y2, y3, true);
+
+          TS_ASSERT_EQUALS(fixed_cells.size(), p_mesh->GetNumElements());
+          TS_ASSERT_EQUALS(stochastic_cells.size(), p_mesh->GetNumElements());
+
+          // Test that cells were generated correctly
+          for (unsigned i=0; i<fixed_cells.size(); i++)
+          {
+              double height = p_mesh->GetCentroidOfElement(i)[1];
+              unsigned fixed_generation = static_cast<FixedDurationGenerationBasedCellCycleModel*>(fixed_cells[i]->GetCellCycleModel())->GetGeneration();
+              unsigned stochastic_generation = static_cast<StochasticDurationGenerationBasedCellCycleModel*>(stochastic_cells[i]->GetCellCycleModel())->GetGeneration();
+
+              if (height <= y0)
+              {
+                  TS_ASSERT_EQUALS(fixed_generation, 0u);
+                  TS_ASSERT_EQUALS(stochastic_generation, 0u);
+              }
+              else if (height < y1)
+              {
+                  TS_ASSERT_EQUALS(fixed_generation, 1u);
+                  TS_ASSERT_EQUALS(stochastic_generation, 1u);
+              }
+              else if (height < y2)
+              {
+                  TS_ASSERT_EQUALS(fixed_generation, 2u);
+                  TS_ASSERT_EQUALS(stochastic_generation, 2u);
+              }
+              else if (height < y3)
+              {
+                  TS_ASSERT_EQUALS(fixed_generation, 3u);
+                  TS_ASSERT_EQUALS(stochastic_generation, 3u);
+              }
+              else
+              {
+                  TS_ASSERT_EQUALS(fixed_generation, 4u);
+                  TS_ASSERT_EQUALS(stochastic_generation, 4u);
+              }
+          }
+      }
+
+
+      void TestCryptCellsGeneratorWithSimpleWntCellCycleModelAndVertexMesh() throw(Exception)
+      {
+          // Create mesh
+          unsigned crypt_width = 4;
+          unsigned crypt_height = 6;
+          CylindricalHoneycombVertexMeshGenerator mesh_generator(crypt_width, crypt_height);
+          Cylindrical2dVertexMesh* p_mesh = mesh_generator.GetCylindricalMesh();
+
+          // Create cells
+          std::vector<CellPtr> cells;
+          CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
+          cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, true);
+
+          // Test that the correct number cells was generated
+          TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumElements());
+      }
 };
 
 #endif /*TESTCRYPTCELLSGENERATOR_HPP_*/
