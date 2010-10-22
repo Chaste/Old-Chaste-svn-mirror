@@ -1,6 +1,7 @@
 bidomain/TestBidomainDistributedMesh.hpp
 bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
+bidomain/TestBidomainWithBathProblem.hpp
 convergence/TestConvergenceTester.hpp
 TestCardiacSimulationArchiver.hpp
 TestElectrodes.hpp

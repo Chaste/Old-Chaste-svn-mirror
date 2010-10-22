@@ -73,9 +73,9 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
             }
         }
 
-        if (!any_bath_element_found)
+        if (!PetscTools::ReplicateBool(any_bath_element_found))
         {
-            EXCEPTION("No bath element found");
+           EXCEPTION("No bath element found");
         }
     }
 }

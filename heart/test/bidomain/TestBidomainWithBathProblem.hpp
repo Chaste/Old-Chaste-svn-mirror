@@ -104,6 +104,37 @@ public:
         HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
     }
 
+    void TestCheckForBathElementsNoDeadlock() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
+        BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
+
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
+        DistributedTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        try
+        {
+            mesh.GetElement(0)->SetRegion(HeartRegionCode::BATH);
+        }
+        catch(Exception& e)
+        {
+            // I don't own element 0
+        }
+
+        bidomain_problem.SetMesh(&mesh);
+
+        // Fails because no bath
+        TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
+
+        // Prevent an EventHandling exception in later tests
+        HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
+    }
+
 
     void TestBathIntracellularStimulation() throw (Exception)
     {
