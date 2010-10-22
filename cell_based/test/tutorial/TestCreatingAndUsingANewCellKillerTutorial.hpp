@@ -139,14 +139,14 @@ public:
         }
     }
 
-    /* The final public method overrides {{{OutputCellKillerParameters()}}}.
+    /* The final public method you need to include overrides {{{OutputCellKillerParameters()}}}.
      * This method allow you to output parameters to the results.params file in the
      * results directory.
      */
     void OutputCellKillerParameters(out_stream& rParamsFile)
     {
-        /* this outputs the parameter height to the file*/
-        *rParamsFile << "\t\t\t<height>" << mCentre[0] << "</height> \n";
+        /* This outputs any parameters if any to the file*/
+        //*rParamsFile << "\t\t\t<radius>" << radius << "</radius> \n";
 
         /* You now call the parent class to output any parameters stored there */
         AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);
