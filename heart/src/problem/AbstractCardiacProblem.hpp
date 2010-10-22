@@ -78,7 +78,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainTissue.hpp"
 #include "BidomainTissue.hpp"
 
-
 /**
  * Empty untemplated base class so that CardiacSimulation::GetSavedProblem can work.
  */
@@ -118,6 +117,15 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
+        if (version == 1)
+        {
+            const unsigned element_dim=ELEMENT_DIM;
+            archive & element_dim;
+            const unsigned space_dim=SPACE_DIM;
+            archive & space_dim;
+            const unsigned problem_dim=PROBLEM_DIM;
+            archive & problem_dim;
+        }
         archive & mMeshFilename;
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacTissue
@@ -185,13 +193,28 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
+        if (version == 1)
+        {
+            unsigned element_dim;
+            unsigned space_dim;
+            unsigned problem_dim;
+            archive & element_dim;
+            archive & space_dim;
+            archive & problem_dim;
+            if ( (element_dim != ELEMENT_DIM) ||(space_dim != SPACE_DIM) ||(problem_dim != PROBLEM_DIM) )
+            {
+                /*If we carry on from this point then the mesh produced by unarchiving from the
+                 * archive is templated as AbstractTetrahedralMesh<element_dim, space_dim>
+                 * which doesn't match AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*  mpMesh.
+                 * Boost will through away the unarchived one, without deleting it properly and
+                 * then set mpMesh=NULL.  We need to avoid this happening by bailing out.
+                 */
+                EXCEPTION("Failed to load from checkpoint because the dimensions of the archive do not match the object it's being read into.");
+            }
+        }
         archive & mMeshFilename;
         archive & mpMesh;
-        if (mpMesh == NULL)
-        {
-            //Loading mesh has failed (with a Chaste EXCEPTION) so Boost has given up on the mesh
-            EXCEPTION("Failed to load mesh from checkpoint.  Does the dimension of the archive match the object it's being read into?");
-        }
+        assert(mpMesh != NULL); //If NULL then loading mesh has failed without an exception so Boost has given up on the mesh.  This would happen if a 2-dimensional mesh was successfully unarchived but mpMesh was expecting a 3-d mesh etc.
         //archive & mAllocatedMemoryForMesh; // Will always be true after a load
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
@@ -726,5 +749,20 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     }
 }
 
-
+namespace boost {
+namespace serialization {
+/**
+ * Specify a version number for archive backwards compatibility.
+ *
+ * This is how to do BOOST_CLASS_VERSION(AbstractCardiacProblem, 1)
+ * with a templated class.
+ */
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM,  unsigned PROBLEM_DIM>
+struct version<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
+{
+    /** Version number */
+    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+};
+} // namespace serialization
+} // namespace boost
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

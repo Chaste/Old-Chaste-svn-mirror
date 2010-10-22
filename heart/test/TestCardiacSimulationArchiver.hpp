@@ -156,6 +156,8 @@ public:
             TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
             TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
+            TS_ASSERT_EQUALS(solution_replicated.GetSize(), mSolutionReplicated1d2ms.size()); //This in to make sure that the first test in the suite has been run!
+            
             for (unsigned index=0; index<solution_replicated.GetSize(); index++)
             {
                 //Shouldn't differ from the original run at all
@@ -186,7 +188,7 @@ public:
             //to NULL.  Your mileage may vary depending on Boost version.
             //We detect a NULL pointer and turn it back into an exception.
             TS_ASSERT_THROWS_THIS(CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir),
-                "Failed to load mesh from checkpoint.  Does the dimension of the archive match the object it's being read into?");
+                "Failed to load from checkpoint because the dimensions of the archive do not match the object it's being read into.");
  
         }
     }
