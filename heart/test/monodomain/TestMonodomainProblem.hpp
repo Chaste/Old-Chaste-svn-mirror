@@ -178,7 +178,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         // Set extra variable (to cover extension of HDF5 with named variables) in a later test
         std::vector<std::string> output_variables;
-        output_variables.push_back("CaI");
+        output_variables.push_back("cytosolic_calcium_concentration");
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
@@ -951,13 +951,13 @@ public:
         std::vector<double> node_5_v = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5_v.size(), 11u);
 
-        std::vector<double> node_5_cai = data_reader1.GetVariableOverTime("CaI", 5);
+        std::vector<double> node_5_cai = data_reader1.GetVariableOverTime("cytosolic_calcium_concentration", 5);
         TS_ASSERT_EQUALS( node_5_cai.size(), 11U);
 
-        std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
+        std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("ionic_concentrations__Nai", 5);
         TS_ASSERT_EQUALS( node_5_nai.size(), 11U);
 
-        std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
+        std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("ionic_concentrations__Ki", 5);
         TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
     }
 
@@ -1043,7 +1043,7 @@ public:
             HeartConfig::Instance()->SetCapacitance(1.0);
             // Set extra variable (to cover extension of HDF5 with named variables) - in a later test
             std::vector<std::string> output_variables;
-            output_variables.push_back("CaI");
+            output_variables.push_back("cytosolic_calcium_concentration");
             HeartConfig::Instance()->SetOutputVariables( output_variables );
 
             PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
@@ -1124,7 +1124,7 @@ public:
 
         // Set extra variable (to cover extension of HDF5 with named variables)
         std::vector<std::string> output_variables;
-        output_variables.push_back("CaI");
+        output_variables.push_back("cytosolic_calcium_concentration");
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;

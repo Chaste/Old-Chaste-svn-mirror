@@ -729,10 +729,10 @@ public:
 
         // Override the variables we are interested in writing.
         std::vector<std::string> output_variables;
-        output_variables.push_back("Ca_NSR");
-        output_variables.push_back("Nai");
-        output_variables.push_back("j");
-        output_variables.push_back("Ki");
+        output_variables.push_back("calcium_dynamics__Ca_NSR");
+        output_variables.push_back("ionic_concentrations__Nai");
+        output_variables.push_back("fast_sodium_current_j_gate__j");
+        output_variables.push_back("ionic_concentrations__Ki");
 
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
@@ -745,34 +745,37 @@ public:
         bidomain_problem.Solve();
 
         // Get a reference to a reader object for the simulation results
-        Hdf5DataReader data_reader1=bidomain_problem.GetDataReader();
+        Hdf5DataReader data_reader1 = bidomain_problem.GetDataReader();
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
-        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...)
-        TS_ASSERT_EQUALS( times.size(), 11u);
+        // Check there is information about 11 timesteps (0, 0.01, 0.02, ...)
+        unsigned num_steps = 11u;
+        TS_ASSERT_EQUALS( times.size(), num_steps);
         TS_ASSERT_DELTA( times[0], 0.0, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.02, 1e-12);
         TS_ASSERT_DELTA( times[3], 0.03, 1e-12);
 
-        // There should be 101 values per variable and node.
+        // There should be 11 values per variable and node.
         std::vector<double> node_5_v = data_reader1.GetVariableOverTime("V", 5);
-        TS_ASSERT_EQUALS( node_5_v.size(), 11u);
+        TS_ASSERT_EQUALS( node_5_v.size(), num_steps);
 
         std::vector<double> node_5_phi = data_reader1.GetVariableOverTime("Phi_e", 5);
-        TS_ASSERT_EQUALS( node_5_phi.size(), 11u);
+        TS_ASSERT_EQUALS( node_5_phi.size(), num_steps);
 
-        std::vector<double> node_5_cansr = data_reader1.GetVariableOverTime("Ca_NSR", 5);
-        TS_ASSERT_EQUALS( node_5_cansr.size(), 11U);
-
-        std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
-        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);
-
-        std::vector<double> node_5_j = data_reader1.GetVariableOverTime("j", 5);
-        TS_ASSERT_EQUALS( node_5_j.size(), 11U);
-
-        std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
-        TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
+        for (unsigned i=0; i<output_variables.size(); i++)
+        {
+            unsigned global_index = 2+i*2;
+            std::vector<double> values = data_reader1.GetVariableOverTime(output_variables[i], global_index);
+            TS_ASSERT_EQUALS( values.size(), num_steps);
+        
+            // Check the last values match the cells' state
+            if (bidomain_problem.rGetMesh().GetDistributedVectorFactory()->IsGlobalIndexLocal(global_index))
+            {
+                AbstractCardiacCell* p_cell = bidomain_problem.GetTissue()->GetCardiacCell(global_index);
+                TS_ASSERT_DELTA(values.back(), p_cell->GetAnyVariable(p_cell->GetAnyVariableIndex(output_variables[i])), 1e-12);
+            }
+        }
     }
 
     /*

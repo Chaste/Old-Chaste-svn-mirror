@@ -556,15 +556,18 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineWriterColu
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVariablesWriterColumns(bool extending)
 {
+    mExtraVariablesId.clear();
     // Check if any extra output variables have been requested
     if (HeartConfig::Instance()->GetOutputVariablesProvided())
     {
         // Get their names in a vector
         std::vector<std::string> output_variables;
         HeartConfig::Instance()->GetOutputVariables(output_variables);
+        const unsigned num_vars = output_variables.size();
+        mExtraVariablesId.reserve(num_vars);
 
         // Loop over them
-        for (unsigned var_index=0; var_index<output_variables.size(); var_index++)
+        for (unsigned var_index=0; var_index<num_vars; var_index++)
         {
             // Get variable name
             std::string var_name = output_variables[var_index];
@@ -589,8 +592,17 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVaria
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariablesOneStep()
 {
-    // Loop over the requested state variables
-    for (unsigned var_index=0; var_index<mExtraVariablesId.size(); var_index++)
+    // Get the variable names in a vector
+    std::vector<std::string> output_variables;
+    unsigned num_vars = mExtraVariablesId.size();
+    if (num_vars > 0)
+    {
+        HeartConfig::Instance()->GetOutputVariables(output_variables);
+    }
+    assert(output_variables.size() == num_vars);
+    
+    // Loop over the requested variables
+    for (unsigned var_index=0; var_index<num_vars; var_index++)
     {
         // Create vector for storing values over the local nodes
         Vec variable_data =  this->mpMesh->GetDistributedVectorFactory()->CreateVec();
@@ -601,8 +613,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
              index!= distributed_var_data.End();
              ++index)
         {
-            // Store value for node "index"
-            distributed_var_data[index] = this->mpCardiacTissue->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
+            // Find the variable in the cell model
+            AbstractCardiacCell* p_cell = this->mpCardiacTissue->GetCardiacCell(index.Global);
+            unsigned cell_id = p_cell->GetAnyVariableIndex(output_variables[var_index]);
+            // Store its value
+            distributed_var_data[index] = p_cell->GetAnyVariable(cell_id);
         }
         distributed_var_data.Restore();
 
@@ -650,7 +665,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
     //Possibility of applying a permutation
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering())
     {
-        bool success=mpWriter->ApplyPermutation(mpMesh->rGetNodePermutation());
+        bool success = mpWriter->ApplyPermutation(mpMesh->rGetNodePermutation());
         if (success == false)
         {
             //It's not really a permutation, so reset

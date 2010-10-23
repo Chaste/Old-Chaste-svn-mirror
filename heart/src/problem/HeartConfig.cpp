@@ -1338,22 +1338,23 @@ bool HeartConfig::GetOutputVariablesProvided() const
     }
 }
 
-void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) const
+void HeartConfig::GetOutputVariables(std::vector<std::string>& rOutputVariables) const
 {
     CheckSimulationIsDefined("OutputVariables");
     XSD_SEQUENCE_TYPE(cp::output_variables_type::Var)&
          output_variables = DecideLocation( & mpUserParameters->Simulation().get().OutputVariables(),
                                             & mpDefaultParameters->Simulation().get().OutputVariables(),
                                             "OutputVariables")->get().Var();
+    rOutputVariables.clear();
 
     for (XSD_ITERATOR_TYPE(cp::output_variables_type::Var) i = output_variables.begin();
          i != output_variables.end();
          ++i)
     {
-        cp::var_type var(*i);
+        cp::var_type& r_var(*i);
 
         // Add to outputVariables the string returned by var.name()
-        outputVariables.push_back(var.name());
+        rOutputVariables.push_back(r_var.name());
     }
 }
 bool HeartConfig::GetOutputUsingOriginalNodeOrdering()
@@ -2220,14 +2221,14 @@ void HeartConfig::SetOutputFilenamePrefix(const std::string& rOutputFilenamePref
 
 void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVariables)
 {
-    if ( ! mpUserParameters->Simulation().get().OutputVariables().present())
+    if ( ! mpUserParameters->Simulation()->OutputVariables().present())
     {
         cp::output_variables_type variables_requested;
-        mpUserParameters->Simulation().get().OutputVariables().set(variables_requested);
+        mpUserParameters->Simulation()->OutputVariables().set(variables_requested);
     }
 
     XSD_SEQUENCE_TYPE(cp::output_variables_type::Var)&
-        var_type_sequence = mpUserParameters->Simulation().get().OutputVariables()->Var();
+        var_type_sequence = mpUserParameters->Simulation()->OutputVariables()->Var();
     //Erase or create a sequence
     var_type_sequence.clear();
 

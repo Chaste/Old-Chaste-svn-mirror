@@ -27,9 +27,9 @@
                 -->
                 <OutputDirectory>MultipleVariablesMonodomain</OutputDirectory>
                 <OutputVariables>
-                    <Var name="CaI"/>
-                    <Var name="Nai"/>
-                    <Var name="Ki"/>
+                    <Var name="cytosolic_calcium_concentration"/>
+                    <Var name="ionic_concentrations__Nai"/>
+                    <Var name="ionic_concentrations__Ki"/>
                 </OutputVariables>
                 <OutputVisualizer meshalyzer="no" vtk="no" cmgui="no"/>
         </Simulation>
