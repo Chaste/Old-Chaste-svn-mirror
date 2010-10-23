@@ -36,11 +36,28 @@
         <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
     </ResumeSimulation>
 
-    <!-- These elements must exist, but their contents are ignored -->
+    <!-- This element must exist, but its contents are ignored -->
     <Physiological/>
-    <Numerical/>
+     
+    <!-- The Numerical element must exist, but its contents are optional.  If supplied, they will
+         override the options specified in the original simulation. -->
+    <Numerical>
+        <TimeSteps ode="0.01" pde="0.01" printing="0.01" unit="ms"/>
+        <KSPTolerances>
+            <KSPAbsolute>1e-5</KSPAbsolute>
+        </KSPTolerances>
+        <KSPSolver>cg</KSPSolver>
+        <KSPPreconditioner>none</KSPPreconditioner>
+        <AdaptivityParameters target_error="0" sigma="0" max_edge_length="0" min_edge_length="0" gradation="0" max_nodes="0" num_sweeps="0"/>
+    </Numerical>
     
-    <!-- This element is optional, but in a resumed simulation its contents are ignored -->
-    <PostProcessing/>
+    <!-- This element and contents are optional.  If supplied, they will
+         override the options specified in the original simulation. -->
+    <PostProcessing>
+        <ActionPotentialDurationMap repolarisation_percentage="70" threshold="-20" threshold_unit="mV"/>
+        <UpstrokeTimeMap threshold="-20" threshold_unit="mV"/>
+        <MaxUpstrokeVelocityMap threshold="-20" threshold_unit="mV"/>
+        <ConductionVelocityMap origin_node="1"/>
+    </PostProcessing>
 
 </ChasteParameters>

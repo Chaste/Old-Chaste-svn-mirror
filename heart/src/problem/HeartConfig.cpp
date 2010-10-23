@@ -563,37 +563,37 @@ void HeartConfig::SetParametersFile(const std::string& rFileName)
 void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::chaste_parameters_type> pResumeParameters)
 {
     // Check for user foolishness
-    if ( (pResumeParameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
-         ||(pResumeParameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
+    if ( (pResumeParameters->ResumeSimulation()->SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
+         ||(pResumeParameters->ResumeSimulation()->Domain() != HeartConfig::Instance()->GetDomain()))
     {
         EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
     }
 
     // New simulation duration
-    HeartConfig::Instance()->SetSimulationDuration(pResumeParameters->ResumeSimulation().get().SimulationDuration());
+    HeartConfig::Instance()->SetSimulationDuration(pResumeParameters->ResumeSimulation()->SimulationDuration());
     
     // Stimulus definition.  For these we always replace any previous definitions (at least for now...)
-    if (pResumeParameters->ResumeSimulation().get().Stimuli().present())
+    if (pResumeParameters->ResumeSimulation()->Stimuli().present())
     {
-    	mpUserParameters->Simulation().get().Stimuli().set(pResumeParameters->ResumeSimulation().get().Stimuli().get());
+    	mpUserParameters->Simulation()->Stimuli().set(pResumeParameters->ResumeSimulation()->Stimuli().get());
     }
 
     // Cell heterogeneities.  Note that while we copy the elements here, other code in CardiacSimulation actually updates
     // the loaded simulation to take account of the new settings.
-    if (pResumeParameters->ResumeSimulation().get().CellHeterogeneities().present())
+    if (pResumeParameters->ResumeSimulation()->CellHeterogeneities().present())
     {
-    	if (!mpUserParameters->Simulation().get().CellHeterogeneities().present())
+    	if (!mpUserParameters->Simulation()->CellHeterogeneities().present())
     	{
     		// Original parameters had no heterogeneities, so just copy the whole element
-    		mpUserParameters->Simulation().get().CellHeterogeneities().set(pResumeParameters->ResumeSimulation().get().CellHeterogeneities().get());
+    		mpUserParameters->Simulation()->CellHeterogeneities().set(pResumeParameters->ResumeSimulation()->CellHeterogeneities().get());
     	}
     	else
     	{
     		// Need to append the new heterogeneity defitions to the original sequence
 	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
-	    	    new_seq = pResumeParameters->ResumeSimulation().get().CellHeterogeneities().get().CellHeterogeneity();
+	    	    new_seq = pResumeParameters->ResumeSimulation()->CellHeterogeneities()->CellHeterogeneity();
 	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
-	    		orig_seq = mpUserParameters->Simulation().get().CellHeterogeneities().get().CellHeterogeneity();
+	    		orig_seq = mpUserParameters->Simulation()->CellHeterogeneities()->CellHeterogeneity();
 	    	for (XSD_ITERATOR_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) i = new_seq.begin();
     	         i != new_seq.end();
     	         ++i)
@@ -604,17 +604,71 @@ void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::cha
     }
     
     // Whether to checkpoint the resumed simulation
-    if (pResumeParameters->ResumeSimulation().get().CheckpointSimulation().present())
+    if (pResumeParameters->ResumeSimulation()->CheckpointSimulation().present())
     {
         HeartConfig::Instance()->SetCheckpointSimulation(true,
-                                                         pResumeParameters->ResumeSimulation().get().CheckpointSimulation().get().timestep(),
-                                                         pResumeParameters->ResumeSimulation().get().CheckpointSimulation().get().max_checkpoints_on_disk());
+                                                         pResumeParameters->ResumeSimulation()->CheckpointSimulation()->timestep(),
+                                                         pResumeParameters->ResumeSimulation()->CheckpointSimulation()->max_checkpoints_on_disk());
     }
 
     //Visualization parameters are compulsory
-    HeartConfig::Instance()->SetVisualizeWithVtk(pResumeParameters->ResumeSimulation().get().OutputVisualizer().vtk() == cp::yesno_type::yes);
-    HeartConfig::Instance()->SetVisualizeWithCmgui(pResumeParameters->ResumeSimulation().get().OutputVisualizer().cmgui() == cp::yesno_type::yes);
-    HeartConfig::Instance()->SetVisualizeWithMeshalyzer(pResumeParameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
+    HeartConfig::Instance()->SetVisualizeWithVtk(pResumeParameters->ResumeSimulation()->OutputVisualizer().vtk() == cp::yesno_type::yes);
+    HeartConfig::Instance()->SetVisualizeWithCmgui(pResumeParameters->ResumeSimulation()->OutputVisualizer().cmgui() == cp::yesno_type::yes);
+    HeartConfig::Instance()->SetVisualizeWithMeshalyzer(pResumeParameters->ResumeSimulation()->OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
+
+    // Numerical parameters may be overridden
+    {
+        cp::numerical_type& r_resume = pResumeParameters->Numerical();
+        cp::numerical_type& r_user = mpUserParameters->Numerical();
+        if (r_resume.TimeSteps().present())
+        {
+            r_user.TimeSteps().set(r_resume.TimeSteps().get());
+        }
+        if (r_resume.KSPTolerances().present())
+        {
+            r_user.KSPTolerances().set(r_resume.KSPTolerances().get());
+        }
+        if (r_resume.KSPSolver().present())
+        {
+            r_user.KSPSolver().set(r_resume.KSPSolver().get());
+        }
+        if (r_resume.KSPPreconditioner().present())
+        {
+            r_user.KSPPreconditioner().set(r_resume.KSPPreconditioner().get());
+        }
+        if (r_resume.AdaptivityParameters().present())
+        {
+            r_user.AdaptivityParameters().set(r_resume.AdaptivityParameters().get());
+        }
+    }
+
+    // Post-processing parameters may be overridden
+    if (pResumeParameters->PostProcessing().present())
+    {
+        if (!mpUserParameters->PostProcessing().present())
+        {
+            cp::postprocessing_type postproc;
+            mpUserParameters->PostProcessing().set(postproc);
+        }
+        cp::postprocessing_type& r_resume = pResumeParameters->PostProcessing().get();
+        cp::postprocessing_type& r_user = mpUserParameters->PostProcessing().get();
+        if (!r_resume.ActionPotentialDurationMap().empty())
+        {
+            r_user.ActionPotentialDurationMap() = r_resume.ActionPotentialDurationMap();
+        }
+        if (!r_resume.UpstrokeTimeMap().empty())
+        {
+            r_user.UpstrokeTimeMap() = r_resume.UpstrokeTimeMap();
+        }
+        if (!r_resume.MaxUpstrokeVelocityMap().empty())
+        {
+            r_user.MaxUpstrokeVelocityMap() = r_resume.MaxUpstrokeVelocityMap();
+        }
+        if (!r_resume.ConductionVelocityMap().empty())
+        {
+            r_user.ConductionVelocityMap() = r_resume.ConductionVelocityMap();
+        }
+    }
 }
 
 

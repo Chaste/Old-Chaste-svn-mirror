@@ -616,8 +616,8 @@ public:
     bool IsApdMapsRequested() const;
     /**
      * @param rApdMaps  each entry is a request for a map with
-     *  - a threshold (in mV)
      *  - a percentage in the range [1, 100)
+     *  - a threshold (in mV)
      */
     void GetApdMaps(std::vector<std::pair<double,double> >& rApdMaps) const;
 
@@ -649,7 +649,7 @@ public:
 
     /**
      * @param rConductionVelocityMaps  each entry is a request for a map with
-     *  - an index to treat as ths source for wave propagation
+     *  - an index to treat as the source for wave propagation
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps) const;
 

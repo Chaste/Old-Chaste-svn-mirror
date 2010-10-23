@@ -1228,6 +1228,24 @@ public:
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
             TS_ASSERT(p_heart_config->GetDefaultIonicModel().Hardcoded().present());
             TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel().Hardcoded().get());
+
+            // Check that the resume parameters have overridden everything they should have
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetOdeTimeStep(), 0.01, 1e-12);
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPdeTimeStep(), 0.01, 1e-12);
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), 0.01, 1e-12);
+            TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance());
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-5, 1e-12);
+            TS_ASSERT_EQUALS(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg"), 0);
+            TS_ASSERT_EQUALS(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none"), 0);
+            TS_ASSERT(HeartConfig::Instance()->IsAdaptivityParametersPresent());
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetTargetErrorForAdaptivity(), 0.0);
+            TS_ASSERT(HeartConfig::Instance()->IsPostProcessingRequested());
+            TS_ASSERT(HeartConfig::Instance()->IsApdMapsRequested());
+            std::vector<std::pair<double,double> > apd_maps;
+            HeartConfig::Instance()->GetApdMaps(apd_maps);
+            TS_ASSERT_EQUALS(apd_maps.size(), 1u);
+            TS_ASSERT_DELTA(apd_maps[0].first, 70.0, 1e-12);
+            TS_ASSERT_DELTA(apd_maps[0].second, -20.0, 1e-12);
         }
 
         {
