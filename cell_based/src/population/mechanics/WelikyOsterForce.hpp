@@ -123,7 +123,7 @@ public:
     void SetWelikyOsterPerimeterParameter(double welikyOsterPerimeterParameter);
 
     /**
-     * Outputs force Parameters to file
+     * Outputs force parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -132,7 +132,6 @@ public:
      */
     void OutputForceParameters(out_stream& rParamsFile);
 };
-
 
 #include "SerializationExportWrapper.hpp"
 

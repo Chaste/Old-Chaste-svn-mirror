@@ -192,7 +192,7 @@ public:
     void SetMeinekeDivisionSeparation(double divisionSeparation);
 
     /**
-     * Outputs CellPopulation Parameters to file
+     * Outputs CellPopulation parameters to file
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

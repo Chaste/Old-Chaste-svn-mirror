@@ -169,7 +169,7 @@ public :
     void SetBottomCellAncestors();
 
     /**
-     * Outputs Simulation Parameters to file
+     * Outputs simulation parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

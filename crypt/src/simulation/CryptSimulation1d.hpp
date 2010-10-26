@@ -105,7 +105,7 @@ public:
     void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,1> >& rOldLocations);
 
     /**
-     * Outputs Simulation Parameters to file
+     * Outputs simulation parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

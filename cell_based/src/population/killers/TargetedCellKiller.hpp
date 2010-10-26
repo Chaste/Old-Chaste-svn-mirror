@@ -105,7 +105,7 @@ public:
     void TestAndLabelCellsForApoptosisOrDeath();
 
     /**
-     * Outputs cell killer Parameters to file
+     * Outputs cell killer parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -113,7 +113,6 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputCellKillerParameters(out_stream& rParamsFile);
-
 };
 
 #include "SerializationExportWrapper.hpp"

@@ -409,7 +409,7 @@ public:
     void SetOutputNodeVelocities(bool outputNodeVelocities);
 
     /**
-     * Outputs Simulation Parameters to file
+     * Outputs simulation parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -422,7 +422,6 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
-
 
 
 namespace boost

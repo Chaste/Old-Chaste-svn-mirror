@@ -88,7 +88,7 @@ public:
                               AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
-     * Outputs force Parameters to file
+     * Outputs force parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

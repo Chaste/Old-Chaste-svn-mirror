@@ -244,7 +244,7 @@ public:
     void UseCoarsePdeMesh(double coarseGrainScaleFactor=10.0);
 
     /**
-     * Outputs Simulation Parameters to file
+     * Outputs simulation parameters to file
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -252,7 +252,6 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputSimulationParameters(out_stream& rParamsFile);
-
 };
 
 

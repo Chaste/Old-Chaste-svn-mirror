@@ -205,7 +205,7 @@ public:
     void WriteVtkResultsToFile();
 
     /**
-     * Outputs CellPopulation Parameters to file
+     * Outputs CellPopulation parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
