@@ -645,11 +645,7 @@ void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::cha
     // Post-processing parameters may be overridden
     if (pResumeParameters->PostProcessing().present())
     {
-        if (!mpUserParameters->PostProcessing().present())
-        {
-            cp::postprocessing_type postproc;
-            mpUserParameters->PostProcessing().set(postproc);
-        }
+        EnsurePostProcessingSectionPresent();
         cp::postprocessing_type& r_resume = pResumeParameters->PostProcessing().get();
         cp::postprocessing_type& r_user = mpUserParameters->PostProcessing().get();
         if (!r_resume.ActionPotentialDurationMap().empty())
@@ -1851,6 +1847,15 @@ bool HeartConfig::IsPostProcessingSectionPresent() const
     }
 }
 
+void HeartConfig::EnsurePostProcessingSectionPresent()
+{
+    if (!mpUserParameters->PostProcessing().present())
+    {
+        cp::postprocessing_type postproc;
+        mpUserParameters->PostProcessing().set(postproc);
+    }
+}
+
 bool HeartConfig::IsPostProcessingRequested() const
 {
     if (IsPostProcessingSectionPresent() == false)
@@ -2681,6 +2686,7 @@ void HeartConfig::SetNumberOfAdaptiveSweeps(unsigned numSweeps)
 
 void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apdMaps)
 {
+    EnsurePostProcessingSectionPresent();
     XSD_SEQUENCE_TYPE(cp::postprocessing_type::ActionPotentialDurationMap)& apd_maps_sequence
         = mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
     //Erase or create a sequence
@@ -2698,6 +2704,7 @@ void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apdMa
 
 void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps)
 {
+    EnsurePostProcessingSectionPresent();
     XSD_SEQUENCE_TYPE(cp::postprocessing_type::UpstrokeTimeMap)& var_type_sequence
         = mpUserParameters->PostProcessing()->UpstrokeTimeMap();
 
@@ -2715,6 +2722,7 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps)
 
 void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps)
 {
+    EnsurePostProcessingSectionPresent();
     XSD_SEQUENCE_TYPE(cp::postprocessing_type::MaxUpstrokeVelocityMap)& max_upstroke_velocity_maps_sequence
         = mpUserParameters->PostProcessing()->MaxUpstrokeVelocityMap();
 
@@ -2735,6 +2743,7 @@ void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVe
 
 void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps)
 {
+    EnsurePostProcessingSectionPresent();
     XSD_SEQUENCE_TYPE(cp::postprocessing_type::ConductionVelocityMap)& conduction_velocity_maps_sequence
         = mpUserParameters->PostProcessing()->ConductionVelocityMap();
 

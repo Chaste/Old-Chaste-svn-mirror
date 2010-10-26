@@ -604,6 +604,11 @@ public:
      * @return true if there is a post-processing section
      */
     bool IsPostProcessingSectionPresent() const;
+    
+    /**
+     * Create a PostProcessing section in the user parameters if one doesn't exist.
+     */
+    void EnsurePostProcessingSectionPresent();
 
     /**
      * @return true if any post-processing information has been requested
