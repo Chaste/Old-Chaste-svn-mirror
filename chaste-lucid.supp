@@ -1,6 +1,9 @@
-################
-# Suppressions of library errors in Ubuntu Lucid
-################
+##################################################
+# Suppressions of library errors in Ubuntu Lucid #
+##################################################
+
+# HDF5
+######
 
 {
    HDF5 file close
@@ -47,19 +50,8 @@
    fun:H5Fopen
 }
 
-#{
-#   petsc vec create
-#   Memcheck:Leak
-#   fun:malloc
-#   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
-#   fun:ompi_attr_create_keyval
-#   fun:PMPI_Keyval_create
-#   fun:PetscCommDuplicate
-#   fun:PetscHeaderCreate_Private
-#   fun:VecCreate
-#   ...
-#   fun:main
-#}
+# Boost
+#######
 
 {
    boost serialization error
@@ -67,6 +59,9 @@
    fun:_Znwm
    fun:_ZNK5boost13serialization16void_cast_detail11void_caster18recursive_registerEb
 }
+
+# PETSc/OpenMPI
+###############
 
 {
    mpi_init (malloc)
@@ -140,4 +135,98 @@
    fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
    fun:_ZN7CxxTest14ErrorFormatter3runEv
    fun:main
+}
+
+# VTK
+#####
+
+{
+   VTK-ExpandTable 1
+   Memcheck:Cond
+   fun:_ZN14vtkInformation11ExpandTableEv
+   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
+   ...
+   fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
+   ...
+   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN12vtkXMLWriter5WriteEv
+   fun:*MeshWriter*
+}
+
+{
+   VTK-ExpandTable 2
+   Memcheck:Cond
+   fun:_ZN14vtkInformation11ExpandTableEv
+   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
+   fun:_ZN13vtkDataObject10InitializeEv
+   fun:_ZN10vtkDataSet10InitializeEv
+   fun:_ZN11vtkPointSet10InitializeEv
+   fun:_ZN19vtkUnstructuredGrid10InitializeEv
+   fun:_ZN19vtkUnstructuredGridD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN16VertexMeshWriter*
+}
+
+{  
+   VTK-ExpandTable 3
+   Memcheck:Cond
+   fun:_ZN14vtkInformation11ExpandTableEv
+   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
+   ...
+   fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
+   ...
+   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN13VtkMeshReader*
+}
+
+
+{
+   VTK-information vertex 1
+   Memcheck:Cond
+   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   ...
+   fun:_ZN23vtkGarbageCollectorImpl16CollectComponentEPNS_13ComponentTypeE
+   fun:_ZN23vtkGarbageCollectorImpl15CollectInternalEP13vtkObjectBase
+   fun:_ZN19vtkGarbageCollector7CollectEP13vtkObjectBase
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN16VertexMeshWriter*
+}
+
+{
+   VTK-information vertex 2
+   Memcheck:Cond
+   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN13vtkDataObject14SetInformationEP14vtkInformation
+   fun:_ZN13vtkDataObjectD2Ev
+   fun:_ZN19vtkUnstructuredGridD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN16VertexMeshWriter*
+}
+
+{
+   VTK-information
+   Memcheck:Cond
+   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   ...
+   fun:_ZN23vtkGarbageCollectorImpl16CollectComponentEPNS_13ComponentTypeE
+   fun:_ZN23vtkGarbageCollectorImpl15CollectInternalEP13vtkObjectBase
+   fun:_ZN19vtkGarbageCollector7CollectEP13vtkObjectBase
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN13VtkMesh*
+}
+
+{  
+   VTK-information-copy
+   Memcheck:Cond
+   fun:_ZN14vtkInformation4CopyEPS_i
+   fun:_ZN34vtkInformationInformationVectorKey8DeepCopyEP14vtkInformationS1_
+   fun:_ZN13vtkDataObject25CopyInformationToPipelineEP14vtkInformationS1_S1_i
+   fun:_ZN23vtkDemandDrivenPipeline18ExecuteInformationEP14vtkInformationPP20vtkInformationVectorS3_
+   fun:_ZN32vtkStreamingDemandDrivenPipeline18ExecuteInformationEP14vtkInformationPP20vtkInformationVectorS3_
+   fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
+   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN13VtkMeshReader*
 }
