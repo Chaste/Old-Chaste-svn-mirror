@@ -64,9 +64,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if you want to be able to archive (save or load) the new cell killer object
  * in a cell-based simulation (in this case, these headers must be included before
- * any other serialisation headers). */
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+ * any other serialisation headers). To use archiving uncomment these lines. Note it
+ * will not work on boost 1.40.*/
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
 
 /* The next header defines a base class for simple generation-based cell
  * cycle models.
@@ -127,16 +128,17 @@ private:
      * {{{SetG1Duration()}}} method. Note that serialization of singleton objects
      * must be done with care. Before the object is serialized via a pointer, it must
      * be serialized directly, or an assertion will trip when a second instance of the
-     * class is created on de-serialization. */
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        archive & *p_gen;
-        archive & p_gen;
-    }
+     * class is created on de-serialization. To use archiving uncomment these lines. Note it
+     * will not work on boost 1.40.*/
+//    friend class boost::serialization::access;
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {
+//        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
+//        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+//        archive & *p_gen;
+//        archive & p_gen;
+//    }
 
     /* We override the {{{SetG1Duration()}}} method as follows. */
     void SetG1Duration()
@@ -195,9 +197,10 @@ public:
 };
 
 /* You only need to include the next block of code if you want to be able to
- * archive (save or load) the cell cycle model object in a cell-based simulation. */
-#include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(MyCellCycleModel)
+ * archive (save or load) the cell cycle model object in a cell-based simulation.
+ * To use archiving uncomment these lines. Note it will not work on boost 1.40.*/
+//#include "SerializationExportWrapper.hpp"
+//CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
 /*
  * This completes the code for {{{MyCellCycleModel}}}. Note that usually this code would
@@ -288,68 +291,70 @@ public:
 
         /* Lastly, we briefly test that archiving of {{{MyCellCycleModel}}} has
          * been implemented correctly. Create an {{{OutputFileHandler}}} and use
-         * this to define a filename for the archive. */
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
-
-        /* Create an output archive. */
-        {
-            /* Destroy the current instance of {{{SimulationTime}}} and create another instance.
-             * Set the start time, end time and number of time steps. */
-            SimulationTime::Destroy();
-            SimulationTime::Instance()->SetStartTime(0.0);
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
-
-            /* Create a cell with associated cell cycle model. */
-            MyCellCycleModel* p_model = new MyCellCycleModel;
-            p_model->SetCellProliferativeType(TRANSIT);
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->InitialiseCellCycleModel();
-
-            /* Move forward two time steps. */
-            p_simulation_time->IncrementTimeOneStep();
-            p_simulation_time->IncrementTimeOneStep();
-
-            /* Set the birth time of the cell and update the cell cycle phase. */
-            p_model->SetBirthTime(-1.0);
-            p_model->ReadyToDivide();
-
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
-
-            /* Now archive the cell cycle model through its cell. */
-            CellPtr const p_const_cell = p_cell;
-
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-            output_arch << p_const_cell;
-        }
+         * this to define a filename for the archive. To test archiving uncomment
+         * these lines. Note it will not work on boost 1.40. */
+//        OutputFileHandler handler("archive", false);
+//        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
+//
+//        /* Create an output archive. */
+//        {
+//            /* Destroy the current instance of {{{SimulationTime}}} and create another instance.
+//             * Set the start time, end time and number of time steps. */
+//            SimulationTime::Destroy();
+//            SimulationTime::Instance()->SetStartTime(0.0);
+//            SimulationTime* p_simulation_time = SimulationTime::Instance();
+//            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
+//
+//            /* Create a cell with associated cell cycle model. */
+//            MyCellCycleModel* p_model = new MyCellCycleModel;
+//            p_model->SetCellProliferativeType(TRANSIT);
+//            CellPtr p_cell(new Cell(p_state, p_model));
+//            p_cell->InitialiseCellCycleModel();
+//
+//            /* Move forward two time steps. */
+//            p_simulation_time->IncrementTimeOneStep();
+//            p_simulation_time->IncrementTimeOneStep();
+//
+//            /* Set the birth time of the cell and update the cell cycle phase. */
+//            p_model->SetBirthTime(-1.0);
+//            p_model->ReadyToDivide();
+//
+//            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
+//
+//            /* Now archive the cell cycle model through its cell. */
+//            CellPtr const p_const_cell = p_cell;
+//
+//            std::ofstream ofs(archive_filename.c_str());
+//            boost::archive::text_oarchive output_arch(ofs);
+//            output_arch << p_const_cell;
+//        }
 
         /* Now create an input archive. Begin by again destroying the current
          * instance of {{{SimulationTime}}} and creating another instance. Set
-         * the start time, end time and number of time steps. */
-        {
-            SimulationTime::Destroy();
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-
-            /* Create a pointer to a cell. */
-            CellPtr p_cell;
-
-            /* Create an input archive and restore the cell from the archive. */
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-
-            input_arch >> p_cell;
-
-            /* Test that the private data has been restored correctly. */
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
-
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
-        }
+         * the start time, end time and number of time steps. To test archiving
+         * uncomment these lines. Note it will not work on boost 1.40. */
+//        {
+//            SimulationTime::Destroy();
+//            SimulationTime* p_simulation_time = SimulationTime::Instance();
+//            p_simulation_time->SetStartTime(0.0);
+//            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+//
+//            /* Create a pointer to a cell. */
+//            CellPtr p_cell;
+//
+//            /* Create an input archive and restore the cell from the archive. */
+//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+//            boost::archive::text_iarchive input_arch(ifs);
+//
+//            input_arch >> p_cell;
+//
+//            /* Test that the private data has been restored correctly. */
+//            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+//
+//            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
+//            TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
+//            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
+//        }
 
         /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
          * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
