@@ -7,6 +7,81 @@
 
 <h1>Chaste Release Notes</h1>
 
+<h2>Release 2.1 (changes since Release 2.0)</h2>
+
+<h3>General</h3>
+<ul>
+  <li>Cardiac PDE classes (which longer contain PDE information) have now been renamed to be tissues, e.g. BidomainPde is now BidomainTissue. <b>Archives that used to contain a PDE will also change (and will not be backward compatible giving the error unregistered class).</b> Old archives can be converted to the new format by replacing anything that says Pde with Tissue  and by incrementing the integer immediately before the PDE name by 3. This can be done by typing the following two commands in the archive directory.</li>
+  
+   <pre>
+   sed -i s/'39 pack&lt;void (MonodomainPde&lt;'/'42 pack&lt;void (MonodomainTissue&lt;'/ archive.arch
+   sed -i s/'35 pack&lt;void (BidomainPde&lt;'/'38 pack&lt;void (BidomainTissue&lt;/'/ archive.arch
+   </pre>
+   
+   If you have the source, you can just run the sed script, archive_convert.sed located in the main Chaste directory, that can convert archives to the new format. Run it as 
+   
+   <pre>
+   sed -i -f archive_convert.sed archive_file1 archive_file2 ...
+   </pre>
+  <li>APD calculation has changed so that it detects the resting potential, and therefore upstroke, more accurately. APDs will change slightly when run with the new version of the code.</li> 
+   
+</ul>
+
+<h3>Library compatibility</h3>
+<ul>
+  <li>PyCml can now use RDFLib (http://www.rdflib.net/) as RDF library, which is a lot easier to install than the Redland library. </ul>
+</ul>
+
+<h3>Code changes</h3>
+
+<h4>New functionality</h4>
+<ul>
+  <li>Cardiac:<ul>
+    <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint.</li>
+    <li>The OutputVariables functionality has been fixed to actually output the variables requested! It can now output any state variable, or any variable annotated as a parameter or derived quantity in the cell model.</li>
+    <li>The use of multiple lookup tables should now actually work. The LuoRudy1991  model uses both V and Ca_i as table keys as an example. This leads to slight changes to results when using an optimised LR91 model.</li>
+  </ul>
+  </li>
+  <li>Cancer:<ul>
+    <li></li>
+  </ul>
+  </li>
+</ul>
+
+<h4>Interface changes that may require changes to user code</h4>
+<ul>
+  <li>General:<ul>
+     <li>Assembler hierarchy completely changed and replaced with new assemblers and new solvers. See ChasteGuides/FiniteElementAssemblersAndSolvers.</li>
+     <li>The mesh classes Face, VoronoiCell, VoronoiTessellation and InventorVoronoiWriter have been deleted. This is because they are no longer used in the code. Now, when a MeshBasedTissue is required to construct the Voronoi tessellation that is dual to its mesh, this is stored as a VertexMesh. The main difference is how the MeshBasedTissue then accesses information about the Voronoi tessellation. Users should replace MeshBasedTissue calls to rGetVoronoiTessellation().GetFaceArea() with GetAreaOfVoronoiElement(), calls to rGetVoronoiTessellation().GetFacePerimeter() with GetPerimeterOfVoronoiElement(), and calls to rGetVoronoiTessellation().GetEdgeLength() with GetVoronoiEdgeLength(). </li>
+     <li>In AbstractLinearParabolicPde, ComputeLinearSourceTerm(x) and ComputeNonlinearSourceTerm(x,u) have been merged into one method ComputeSourceTerm(x,u).</li>
+  </ul>
+  </li>
+  <li>Cardiac:</li>
+  <li>Cancer:<ul>
+      <li>To reflect the general nature of the classes, we have renamed TissueCell to Cell, Tissue to CellPopulation and TissueSimulation to CellBasedSimulation.</li>
+      <li>All CellKiller classes now require a OutputCellKillerParameters method.</li>
+      <li>CellBasedSimulation and inherited classes now do not take in a force collection. To set the mechanics system call the AddForce Method.</li>
+      <li>Prior to restructuring how model parameters are accessed in the cell-based code, all of the TissueConfig members have been moved into the classes in which they are used. </li>
+      <li>The variables in TissueConfig.hpp relating to cell centre models have had the prefix Meineke added this may affect some user projects.</li>
+      <li>TissueConfig members mOutputCellAreas and mOutputTissueAreas renamed to mOutputCellVolumes and mOutputTissueVolumes respectively; similarly for their get/set methods. MeshBasedTissue methods SetOutputTissueAreas(), WriteTissueAreaResultsToFile(), WriteCellAreaResultsToFile() similarly renamed. VertexMesh method SolveVoronoiElementIndexMapping() renamed to GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex().</li>
+      <li>When a MeshBasedTissue creates a Voronoi tessellation, this is constructed out of all nodes in the mesh, including ghost nodes. </li>
+      <li>Merged VertexMesh method GetPerimeterOfVoronoiElement() into GetSurfaceAreaOfVoronoiElement() and GetAreaOfVoronoiElement() into GetVolumeOfVoronoiElement().</li>
+      <li>Changed MeshBasedTissue method rGetVoronoiTessellation() to GetVoronoiTessellation() (i.e. return a pointer rather than a reference) in order to avoid memory issues. </li>
+      <li>APOPTOTIC is no longer a CellProliferativeType but has been replaced with a new class ApoptoticCellMutationState (this will eventually become a cell property). </li>
+      <li>CellwiseData has been generalised to cope with vertex-based tissues; some of its methods have changed names or arguments.</li>
+      <li>We now create and access TissueCell objects via Boost shared pointers, and have created the shorthand TissueCellPtr; the TissueCell copy constructor, operator= and method CommonCopy() have been removed, and many methods that previously took in or returned TissueCells now deal with TissueCellPtrs.</li>
+      <li>The classes Alarcon2004OxygenBasedCellCycleOdeSystem and Alarcon2004OxygenBasedCellCycleModel have been modified (instead of storing a cell's mutation state, now they just store whether it has the cell property CellLabel).</li>
+      <li>Added classes AbstractCellProperty, CellPropertyCollection and CellPropertyRegistry (which replaces CellMutationStateRegistry). A TissueCell now has a CellPropertyCollection member, in which it stores its mutation state (which now inherits from AbstractCellProperty) as well as any other cell property the user chooses. Cell properties can be passed into the TissueCell constructor or using the new method AddCellProperty(). Similarly there are new methods RemoveCellProperty() and rGetCellPropertyCollection() on TissueCell. The mutation states LabelledCellMutationState and ApoptoticCellMutationState have been replaced with new cell property classes CellLabel and ApoptoticCellProperty. The output of some Tissue methods, such as GetCellMutationStateCount(), have been changed.</li>
+      <li>If writing cell mutation states to the file cellmutationstates.dat in a TissueSimulation, the name of each mutation state present is now taken from its extended type ID info using a new method AbstractCellProperty::GetIdentifier()</li>
+      <li>Added AbstractCellCycleModelOdeSolver and concrete singleton implementation CellCycleModelOdeSolver and use in ODE-based cell cycle models (r9839, r9905); default ODE-based cell cycle model constructors now take in an optional shared_ptr<AbstractCellCycleModelOdeSolver>, allowing the user to specify what ODE solver to use.</li>
+      <li>Cell cycle models have been made noncopyable, since cells are noncopyable.</li>
+      <li>Removed unused Alarcon2004OxygenBasedCellCycleModel member variable mIsLabelled.</li>
+      <li>All tissue classes now require a OutputTissueParameters method.</li>
+      <li>All force classes now require a OutputForceParameters method.</li>
+  </ul>
+  </li>
+</ul>
+
 <h2>Release 2.0 (changes since Release 1.1)</h2>
 
 <h3>Headline features</h3>
