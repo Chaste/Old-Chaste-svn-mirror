@@ -64,8 +64,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if you intend to archive (save or load) a cell-based simulation in this test
  * suite. In this case, these headers must be included before any other
- * serialisation headers. To use archiving uncomment these lines. Note it
- * will not work on boost 1.40.*/
+ * serialisation headers. Note, on machines running boost 1.40 you
+ * need to split the code between a cpp and hpp file for archiving to work,
+ * therefore it is commented here.*/
 //#include <boost/archive/text_oarchive.hpp>
 //#include <boost/archive/text_iarchive.hpp>
 
@@ -112,7 +113,9 @@ private:
      * in a cell-based simulation. The code consists of a serialize() method, in which we first
      * archive the cell property using the serialization code defined in the base class
      * {{{AbstractCellProperty}}}, then archive the member variable {{{mColour}}}.
-     * To use archiving uncomment these lines. Note it will not work on boost 1.40.*/
+     * To use archiving uncomment these lines. Note, on machines running boost 1.40 you
+     * need to split the code between a cpp and hpp file for archiving to work,
+     * therefore it is commented here.*/
 //    friend class boost::serialization::access;
 //    template<class Archive>
 //    void serialize(Archive & archive, const unsigned int version)
@@ -143,8 +146,9 @@ public:
 
 /* Together with the serialize() method defined within the class above, the next
  * block of code allows you to archive (save or load) the cell property object
- * in a cell-based simulation. To use archiving uncomment these lines note it
- * will not work on boost 1.40.*/
+ * in a cell-based simulation. To use archiving uncomment these lines.
+ * Note, on machines running boost 1.40 you need to split the code between a
+ * cpp and hpp file for archiving to work, therefore it is commented here. */
 //#include "SerializationExportWrapper.hpp"
 //CHASTE_CLASS_EXPORT(MotileCellProperty)
 
@@ -199,7 +203,9 @@ public:
         /* We can also test that archiving is implemented correctly for our cell
          * property, as follows (further details on how to implement and
          * test archiving can be found on the BoostSerialization page). To test
-         * archiving uncomment these lines. Note it will not work on boost 1.40. */
+         * archiving uncomment these lines. Note, on machines running boost 1.40 you
+         * need to split the code between a cpp and hpp file for archiving to work,
+         * therefore it is commented here. */
 //        OutputFileHandler handler("archive", false);
 //        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "property.arch";
 //

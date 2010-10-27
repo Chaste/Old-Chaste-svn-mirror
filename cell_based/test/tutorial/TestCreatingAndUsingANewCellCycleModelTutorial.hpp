@@ -64,8 +64,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if you want to be able to archive (save or load) the new cell killer object
  * in a cell-based simulation (in this case, these headers must be included before
- * any other serialisation headers). To use archiving uncomment these lines. Note it
- * will not work on boost 1.40.*/
+ * any other serialisation headers). To use archiving uncomment these lines.
+ * Note, on machines running boost 1.40 you need to split the code between a
+ * cpp and hpp file for archiving to work, therefore it is commented here. */
 //#include <boost/archive/text_oarchive.hpp>
 //#include <boost/archive/text_iarchive.hpp>
 
@@ -128,8 +129,9 @@ private:
      * {{{SetG1Duration()}}} method. Note that serialization of singleton objects
      * must be done with care. Before the object is serialized via a pointer, it must
      * be serialized directly, or an assertion will trip when a second instance of the
-     * class is created on de-serialization. To use archiving uncomment these lines. Note it
-     * will not work on boost 1.40.*/
+     * class is created on de-serialization. To use archiving uncomment these lines.
+     * Note, on machines running boost 1.40 you need to split the code between a
+     * cpp and hpp file for archiving to work, therefore it is commented here. */
 //    friend class boost::serialization::access;
 //    template<class Archive>
 //    void serialize(Archive & archive, const unsigned int version)
@@ -198,7 +200,7 @@ public:
 
 /* You only need to include the next block of code if you want to be able to
  * archive (save or load) the cell cycle model object in a cell-based simulation.
- * To use archiving uncomment these lines. Note it will not work on boost 1.40.*/
+ * To use archiving uncomment these lines. Note, on machines running boost 1.40 you need to split the code between a cpp and hpp file for archiving to work, therefore it is commented here.*/
 //#include "SerializationExportWrapper.hpp"
 //CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
@@ -292,7 +294,9 @@ public:
         /* Lastly, we briefly test that archiving of {{{MyCellCycleModel}}} has
          * been implemented correctly. Create an {{{OutputFileHandler}}} and use
          * this to define a filename for the archive. To test archiving uncomment
-         * these lines. Note it will not work on boost 1.40. */
+         * these lines. Note, on machines running boost 1.40 you need to split the
+         * code between a cpp and hpp file for archiving to work, therefore it is
+         * commented here. */
 //        OutputFileHandler handler("archive", false);
 //        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
 //
@@ -332,7 +336,9 @@ public:
         /* Now create an input archive. Begin by again destroying the current
          * instance of {{{SimulationTime}}} and creating another instance. Set
          * the start time, end time and number of time steps. To test archiving
-         * uncomment these lines. Note it will not work on boost 1.40. */
+         * uncomment these lines. Note, on machines running boost 1.40 you need
+         * to split the code between a cpp and hpp file for archiving to work,
+         * therefore it is commented here. */
 //        {
 //            SimulationTime::Destroy();
 //            SimulationTime* p_simulation_time = SimulationTime::Instance();
