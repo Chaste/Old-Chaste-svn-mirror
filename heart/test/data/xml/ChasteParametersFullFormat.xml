@@ -281,7 +281,7 @@
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 		<!-- Set to "yes" for writing data from parallel simulations with the original mesh
           ordering.  This slows down parallel simulations, but means that the output data are unpermuted and
-          could be visualised on the original mesh.  Default value in "no" -->
+          could be visualised on the original mesh.  Default value is "no" -->
 		<OutputUsingOriginalNodeOrdering>yes</OutputUsingOriginalNodeOrdering>
 		<!-- Optional list of variables to output alongside Vm etc.  These names should match those in the CellML -->  
 		<OutputVariables>
