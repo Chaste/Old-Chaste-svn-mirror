@@ -162,10 +162,9 @@ public:
      */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values
-         * from !ChasteDefaults.xml (in the base Chaste directory) (except the values in the 'Simulation' block of the XML file,
-         * which is only used by the Chaste executable). Parameters in this file can be re-set
-         * with {{{HeartConfig}}} if the user wishes, and other paramters such as end time must be set
+        /* The {{{HeartConfig}}} class is used to set various parameters (see the main ChasteGuides page 
+         * for information on default parameter values. Parameters in this file can be re-set
+         * with {{{HeartConfig}}} if the user wishes, and other parameters such as end time must be set
          * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
          * output directory and filename-prefix. Note that the spatial units in cardiac Chaste is CENTIMETRES,
          * so that mesh 2D_0_to_1mm_800_elements is a mesh over [0,0.1]x[0,0.1]. 
