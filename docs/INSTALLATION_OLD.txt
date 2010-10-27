@@ -1,5 +1,8 @@
 CHASTE DEVELOPER INSTALLATION GUIDE (for SOURCE-CODE users only, NOT STANDALONE EXECUTABLE users)
 
+Note, this guide is deprecated.  See INSTALLATION.txt for newer details.  The new guide
+uses PETSc 3 which (a) gives better performance and (b) allows you to install more of the other
+dependencies automatically.
 
 This guide walks you through a "standard" installation of Chaste and all its
 dependencies.  Other guides can be found on the developer wiki at
@@ -27,8 +30,8 @@ mkdir $CHASTE_LIBS
 =
 ===================================================================================
 
-The following packages and libraries are all compulsory for the Chaste code to run 
-(not required for the standalone executable) (the version numbers of packages and 
+The following packages and libraries are all compulsory for the Chaste code to run,
+but not required for the standalone executable (the version numbers of packages and 
 libraries might need updating). Please install them as described below.
 
 
@@ -97,6 +100,9 @@ Most modern Linux distributions have Boost libraries installed.  Please
 check before compiling since this step can be lengthy.
 A simple check would be to see if the include files are in the "usual place":
 ls /usr/include/boost/serialization/
+
+Please don't use Boost versions 1.35 or 1.36 as serialization in these versions is broken.
+Note that archives created by a newer version of Boost may be unreadable by older versions.
 
 cd $CHASTE_LIBS
 wget http://fastbull.dl.sourceforge.net/sourceforge/boost/boost-jam-3.1.17-1-linuxx86.tgz
@@ -176,6 +182,7 @@ for your system according to http://xerces.apache.org/xerces-c/build-3.html
 
 
 Installing XSD:
+
 #32-bit binary
 cd $CHASTE_LIBS
 wget http://codesynthesis.com/download/xsd/3.2/linux-gnu/i686/xsd-3.2.0-i686-linux-gnu.tar.bz2
@@ -294,7 +301,8 @@ edit the path if not.
 Amara
 -----
 export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python
-
+cd $CHASTE_LIBS
+mkdir python
 wget http://peak.telecommunity.com/dist/ez_setup.py
 python ez_setup.py
 cd bin
@@ -334,7 +342,7 @@ Edit the ~/.bashrc file in the home directory and append the following:
 export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
 export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu:$CHASTE_LIBS/rdf/lib
-export PYTHONPATH=$CHASTE_LIBS/python
+export PYTHONPATH=$CHASTE_LIBS/python:$CHASTE_LIBS/lib/python
 
 Note that the above settings assume that PATH already has a value but that
 LD_LIBRARY_PATH has not.  If LD_LIBRARY_PATH is set elsewhere in ~/.bashrc
@@ -357,7 +365,6 @@ export CHASTE_TEST_OUTPUT=<YOUR CHOICE OF DIRECTORY>
 
 NB. You will need to logout and in again for the above to take effect (or instead do 
 "source ~/.bashrc" to implement the above changes for that particular terminal).
-
 
 
 ===================================================================================
@@ -471,3 +478,10 @@ a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as describ
 variable is not set, results will be found relative to the 'testoutput' folder in the main 
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
 file as described above, to change this location.
+
+If you want to run Chaste in parallel on "N" processors, type 
+
+mpirun -np "N" apps/src/Chaste ChasteParameters.xml
+
+Please note that the number of processors "N" should be less or equal to the number of the prcessors
+ existing on your machine.
