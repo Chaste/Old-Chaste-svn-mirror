@@ -118,16 +118,10 @@ rm -rf boost_1_34_1 boost-jam-3.1.17-1-linuxx86
 ==============HDF5:====================
 
 cd $CHASTE_LIBS
-wget ftp://ftp.hdfgroup.org/HDF5/prev-releases/hdf5-1.6.6/src/hdf5-1.6.6.tar.gz
-tar -zxf hdf5-1.6.6.tar.gz
-cd hdf5-1.6.6
+wget http://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.3/src/hdf5-1.8.3.tar.gz
+tar xzf hdf5-1.8.3.tar.gz
+cd hdf5-1.8.3
 CC=${CHASTE_LIBS}/mpi/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
-#If you are compiling with a modern gcc (4.3 and higher) then you will need
-#to fix a known bug in hdf5-1.6.6.
-# At line 548 of perform/zip_perf.c 
-#    output = open(filename, O_RDWR | O_CREAT);
-# should be edited to 
-#    output = open(filename, O_RDWR | O_CREAT, S_IRWXU);
 make
 cd test
 make check
@@ -136,8 +130,8 @@ make check
 cd ..
 make install
 cd ..
-rm -f hdf5-1.6.6.tar.gz
-rm -rf hdf5-1.6.6
+rm -f hdf5-1.8.3.tar.gz
+rm -rf hdf5-1.8.3
 
 ================parMETIS:==================
 

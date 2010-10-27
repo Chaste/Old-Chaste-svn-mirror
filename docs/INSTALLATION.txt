@@ -58,6 +58,11 @@ We have not been able to verify these however.
 
 ========PETSC:=======
 
+Note that the version of HDF5 installed by PETSc (HDF5 v 1.6.6) has a known bug when extending large files in 
+parallel.  If you wish to avoid this bug then you will need to leave out the "--download-hdf5=yes".  Then follow the
+install HDF5 instructions from INSTALLATION_OLD.txt.  The configure line will look like:
+CC=$CHASTE_LIBS/linux-gnu/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
+
 PETSc 3.0 and later versions can install some of our dependencies for us (OpenMPI, HDF5,
 ParMETIS, hypre):
 
@@ -71,17 +76,14 @@ rm -f petsc-3.0.0-p8.tar.gz
 cd petsc-3.0.0-p8/
 export PETSC_DIR=`pwd`
 export PETSC_ARCH=linux-gnu
-./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS=-fPIC --CFLAGS=-fPIC --download-hdf5=yes --download-parmetis=yes
+./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --with-static-mpi=1 --CXXFLAGS=-fPIC --CFLAGS=-fPIC --download-parmetis=yes
 make all test
 
 # (optional) Build an optimised version of PETSc
 export PETSC_ARCH=linux-gnu-opt
 # ** note 'ifneeded' not 'yes' below **
-./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded --download-parmetis=ifneeded
+./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --with-static-mpi=1 --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded --download-parmetis=ifneeded
 make all test
-
-
-
 
 
 =========BOOSTJAM and BOOST:===========
@@ -426,10 +428,10 @@ variable is not set, results will be found relative to the 'testoutput' folder i
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
 file as described above, to change this location.
 
-If you want to run Caste in parallel manner you have to add mpirun to your PATH. 
+If you want to run Chaste in parallel manner you have to add mpirun to your PATH. 
 You can for example  type:
 
-ln -s $CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu-opt/bin/mpirun ~/bin/
+ln -s $CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu/bin/mpirun ~/bin/
 
 Now you can run Chaste in parallel on "N" processors, by typing 
 
