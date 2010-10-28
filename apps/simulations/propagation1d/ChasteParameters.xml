@@ -9,7 +9,7 @@
 			Problem definition 
 		-->
 		<SpaceDimension>1</SpaceDimension>
-	    <SimulationDuration unit="ms">1000.0</SimulationDuration>
+	    <SimulationDuration unit="ms">500.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
@@ -19,7 +19,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Fibre x="4.0" inter_node_space="0.1"/>    
+			<Fibre x="4.0" inter_node_space="0.01"/>    
 	  	</Mesh>
 	
 	    <!-- 
@@ -59,8 +59,6 @@
 
 	<Numerical>
 		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
 
 </ChasteParameters>
