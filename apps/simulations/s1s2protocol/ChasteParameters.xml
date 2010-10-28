@@ -16,7 +16,8 @@
     	</IonicModels>
 	    
 		<!-- 
-			Mesh definition 
+			Mesh definition - note: very coarse mesh, should be 
+			finer in real examples
 		-->
 		<Mesh unit="cm">
 			<Sheet x="4.0" y="6.0" inter_node_space="0.1"/>    
@@ -71,11 +72,6 @@
 
 	<Numerical>
 		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
-		<KSPTolerances>
-			<KSPAbsolute>2e-4</KSPAbsolute>
-		</KSPTolerances>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
 
 </ChasteParameters>
