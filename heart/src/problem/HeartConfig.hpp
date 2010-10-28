@@ -143,7 +143,7 @@ private:
         // If we are resuming a simulation, some parameters can be altered at this point.
         if (p_new_parameters->ResumeSimulation().present())
         {
-        	UpdateParametersFromResumeSimulation(p_new_parameters);
+            UpdateParametersFromResumeSimulation(p_new_parameters);
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()

@@ -66,6 +66,11 @@ private:
 
     std::vector<double> mSolutionReplicated1d2ms;///<Used to test differences between tests
 
+    void setUp()
+    {
+        HeartConfig::Instance()->Reset();
+    }
+
 public:
 
     /*
@@ -233,6 +238,9 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
         bidomain_problem.Solve();
 
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
+
+        // For coverage, pretend we're resuming
+        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/resume_bidomain/ChasteParameters.xml");
 
         if (PetscTools::IsSequential())
         {
