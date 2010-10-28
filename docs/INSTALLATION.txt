@@ -61,7 +61,8 @@ We have not been able to verify these however.
 Note that the version of HDF5 installed by PETSc (HDF5 v 1.6.6) has a known bug when extending large files in 
 parallel.  If you wish to avoid this bug then you will need to leave out the "--download-hdf5=yes".  Then follow the
 install HDF5 instructions from INSTALLATION_OLD.txt.  The configure line will look like:
-CC=$CHASTE_LIBS/linux-gnu/bin/mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
+export PATH=$CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu/bin/:${PATH}
+CC=mpicc ./configure --enable-parallel --prefix=$CHASTE_LIBS/hdf5
 
 PETSc 3.0 and later versions can install some of our dependencies for us (OpenMPI, HDF5,
 ParMETIS, hypre):
