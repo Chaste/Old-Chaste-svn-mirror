@@ -92,6 +92,8 @@ public:
         TysonNovakCellCycleModel* p_other_cell_model = new TysonNovakCellCycleModel(p_solver);
         p_other_cell_model->SetBirthTime(p_simulation_time->GetTime());
         p_other_cell_model->SetCellProliferativeType(STEM);
+        // Timestep for non-adaptive solvers defaults to 0.0001
+        TS_ASSERT_EQUALS(p_other_cell_model->GetDt(), 0.0001);
         p_other_cell_model->SetDt(0.1/60.0);
 
         CellPtr p_other_cell(new Cell(p_healthy_state, p_other_cell_model));

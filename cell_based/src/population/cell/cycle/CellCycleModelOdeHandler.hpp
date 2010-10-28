@@ -66,12 +66,6 @@ private:
         archive & mLastTime;
         archive & mDt;
     }
-    
-    /**
-     * Get method for #mDt, which sets it to a default value if it hasn't
-     * been set by calling SetDt.
-     */
-    double GetDt();
 
 protected:
 
@@ -140,6 +134,12 @@ public:
      * @param lastTime the new value of mLastTime
      */
     void SetLastTime(double lastTime);
+
+    /**
+     * Get method for #mDt, which sets it to a default value if it hasn't
+     * been set by calling SetDt.
+     */
+    double GetDt();
 
     /**
      * Set the time step to use to solve the ODE system.
