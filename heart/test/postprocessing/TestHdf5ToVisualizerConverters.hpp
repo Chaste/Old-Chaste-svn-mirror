@@ -528,10 +528,6 @@ public :
     void TestExceptions() throw(Exception)
     {
         std::string directory = "TestHdf5ConverterExceptions";
-
-        CopyToTestOutputDirectory("heart/test/data/hdf5_4vars.h5", // doesn't have one, two or three variables (it has 4)
-                                  directory);
-
         HeartConfig::Instance()->SetOutputDirectory(directory);
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions until number of nodes is checked
