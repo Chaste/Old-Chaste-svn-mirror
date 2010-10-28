@@ -48,8 +48,6 @@
 		<!-- Postprocess for possible visualizers --> 
 		<OutputVisualizer meshalyzer="yes" vtk="no" cmgui="yes"/> 		
 		
-		<CheckpointSimulation timestep="1.0" unit="ms" max_checkpoints_on_disk="2"/>
-		
 	</Simulation>
 	
 	<Physiological>
