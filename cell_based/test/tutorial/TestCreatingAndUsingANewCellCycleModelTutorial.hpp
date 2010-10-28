@@ -300,32 +300,32 @@ public:
 //        OutputFileHandler handler("archive", false);
 //        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
 //
-//        /* Create an output archive. */
+//        // Create an output archive.
 //        {
-//            /* Destroy the current instance of {{{SimulationTime}}} and create another instance.
-//             * Set the start time, end time and number of time steps. */
+//            //Destroy the current instance of {{{SimulationTime}}} and create another instance.
+//            // Set the start time, end time and number of time steps.
 //            SimulationTime::Destroy();
 //            SimulationTime::Instance()->SetStartTime(0.0);
 //            SimulationTime* p_simulation_time = SimulationTime::Instance();
 //            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
 //
-//            /* Create a cell with associated cell cycle model. */
+//            // Create a cell with associated cell cycle model.
 //            MyCellCycleModel* p_model = new MyCellCycleModel;
 //            p_model->SetCellProliferativeType(TRANSIT);
 //            CellPtr p_cell(new Cell(p_state, p_model));
 //            p_cell->InitialiseCellCycleModel();
 //
-//            /* Move forward two time steps. */
+//            // Move forward two time steps.
 //            p_simulation_time->IncrementTimeOneStep();
 //            p_simulation_time->IncrementTimeOneStep();
 //
-//            /* Set the birth time of the cell and update the cell cycle phase. */
+//            // Set the birth time of the cell and update the cell cycle phase.
 //            p_model->SetBirthTime(-1.0);
 //            p_model->ReadyToDivide();
 //
 //            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
 //
-//            /* Now archive the cell cycle model through its cell. */
+//            // Now archive the cell cycle model through its cell.
 //            CellPtr const p_const_cell = p_cell;
 //
 //            std::ofstream ofs(archive_filename.c_str());
@@ -345,16 +345,16 @@ public:
 //            p_simulation_time->SetStartTime(0.0);
 //            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 //
-//            /* Create a pointer to a cell. */
+//            // Create a pointer to a cell.
 //            CellPtr p_cell;
 //
-//            /* Create an input archive and restore the cell from the archive. */
+//            // Create an input archive and restore the cell from the archive.
 //            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
 //            boost::archive::text_iarchive input_arch(ifs);
 //
 //            input_arch >> p_cell;
 //
-//            /* Test that the private data has been restored correctly. */
+//            // Test that the private data has been restored correctly.
 //            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 //
 //            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
