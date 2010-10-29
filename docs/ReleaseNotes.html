@@ -36,6 +36,10 @@
 
 <h4>New functionality</h4>
 <ul>
+  <li>General:<ul>
+    <li>A new Warnings class has been introduced to keep track of issues that don't prevent the simulation completing but may need investigation to verify the results. All unexpected warnings are printed at the end of the simulation or test-suite. If logging is switch on, then warnings appear in the log file as they happen.</li>
+  </ul>
+  </li>
   <li>Cardiac:<ul>
     <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint.</li>
     <li>
@@ -67,10 +71,30 @@
      <li>Assembler hierarchy completely changed and replaced with new assemblers and new solvers. See ChasteGuides/FiniteElementAssemblersAndSolvers.</li>
      <li>The mesh classes Face, VoronoiCell, VoronoiTessellation and InventorVoronoiWriter have been deleted. This is because they are no longer used in the code. Now, when a MeshBasedTissue is required to construct the Voronoi tessellation that is dual to its mesh, this is stored as a VertexMesh. The main difference is how the MeshBasedTissue then accesses information about the Voronoi tessellation. Users should replace MeshBasedTissue calls to rGetVoronoiTessellation().GetFaceArea() with GetAreaOfVoronoiElement(), calls to rGetVoronoiTessellation().GetFacePerimeter() with GetPerimeterOfVoronoiElement(), and calls to rGetVoronoiTessellation().GetEdgeLength() with GetVoronoiEdgeLength(). </li>
      <li>In AbstractLinearParabolicPde, ComputeLinearSourceTerm(x) and ComputeNonlinearSourceTerm(x,u) have been merged into one method ComputeSourceTerm(x,u).</li>
+     <li>The macro NEVER_REACHED has become a termination error and will always terminate (sequential/parallel and debug/NDEBUG). This is a level 4 error according to our exception strategy (search for ExceptionStrategy in our public wiki for more details). NEVER_REACHED now relies on PetscTools (so that it can either exit or abort in parallel) -- compilation may fail if you are missing #include "PetscTools.hpp"</li>
+     <li>Providing an estimate of the maximum number of nonzero entries expected on any row is now compulsory and is done via an additional argument to PetscTools::SetupMat(), rather than by a call to PetscTools::SetMaxNumNonzerosIfMatMpiAij().PetscTools::SetupMat() no longer has a MatType argument. Code that uses the old method in the problem class will no longer compile or may interpret extra arguments incorrectly. Instead, changes must be made to the InitializeForSolve() method of the assembler. Instead of instantiating the linear system by this->mpLinearSystem = new LinearSystem(template_vec);, we must add an extra argument: this->mpLinearSystem = new LinearSystem(template_vec, *NNZ*);. </li>     
   </ul>
   </li>
   <li>Cardiac:<ul>
+     <li>
+       More cell models are generated on the fly from CellML, which will break code previously using these. Please update the following 
+       <ul>
+         <li>#include directives:
+           <ul>
+             <li>luo_rudy_1991.hpp -> LuoRudy1991.hpp, luo_rudy_1991Opt.hpp -> LuoRudy1991Opt.hpp, luo_rudy_1991BackwardEuler.hpp and BackwardEulerLuoRudyIModel1991.hpp -> LuoRudy1991BackwardEuler.hpp, luo_rudy_1991Cvode.hpp -> LuoRudy1991Cvode.hpp, luo_rudy_1991CvodeOpt.hpp -> LuoRudy1991CvodeOpt.hpp</li>
+             <li>noble_varghese_kohl_noble_1998_a.hpp -> NobleVargheseKohlNoble1998a.hpp, noble_varghese_kohl_noble_1998_aOpt.hpp -> NobleVargheseKohlNoble1998aOpt.hpp</li>
+             <li>tentusscher_model_2006_epi_corrected_flooristim.hpp -> TenTusscher2006Epi.hpp, tentusscher_model_2006_epi_corrected_flooristimOpt.hpp -> TenTusscher2006EpiOpt.hpp, tentusscher_model_2006_epi_corrected_flooristimBackwardEuler.hpp and BackwardEulerTenTusscher2006.hpp -> TenTusscher2006EpiBackwardEuler.hpp</li>
+           </ul>
+         <li>Class names: New names all take the form "Cell<FileBaseName>FromCellML<Modifiers>", e.g. CellLuoRudy1991FromCellML, CellTenTusscher2006EpiFromCellMLOpt, CellLuoRudy1991FromCellMLCvodeOpt, CellTenTusscher2006EpiFromCellMLBackwardEuler.</li>
+       </ul>
+     </li>
      <li>#include "Maleckar2009OdeSystem.hpp" should be replaced with #include "Maleckar2008.hpp" to reflect year of publication.</li>
+     <li>Renamed various methods on AbstractOdeSystem and AbstractOdeSystemInformation for clarity. We want to stress that these methods do not change the state variables of the instance of an ODE on which they are called, but the values considered default.
+       <ul>
+         <li> SetInitialConditions -> SetDefaultInitialConditions </li>
+         <li> SetInitialCondition -> SetDefaultInitialCondition </li>
+       </ul> 
+     </li>
   </ul>
   </li>
   <li>Cancer:<ul>
