@@ -765,7 +765,9 @@ public:
 
     void TestSetFunctions() throw (Exception)
     {
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
+        // Start with a file that doesn't have much in it
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
+        
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
 
@@ -1073,9 +1075,9 @@ public:
                 "Unknown preconditioner type provided");
 
         // Tests for set functions of postprocessing
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
         std::vector<std::pair<double,double> > apds, apd_maps;
         apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
         HeartConfig::Instance()->SetApdMaps(apds);

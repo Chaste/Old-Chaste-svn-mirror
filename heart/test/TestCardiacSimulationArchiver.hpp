@@ -240,12 +240,12 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
 
         // For coverage, pretend we're resuming
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/resume_bidomain/ChasteParameters.xml");
 
         if (PetscTools::IsSequential())
         {
             FileFinder archive_dir("apps/texttest/chaste/resume_bidomain/save_bidomain", RelativeTo::ChasteSourceRoot);
-            // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, "archive.arch");
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 

@@ -117,6 +117,17 @@ using namespace xsd::cxx::tree;
 #define X(str) xsd::cxx::xml::string(str).c_str()
 
 /**
+ * This gets used by various set methods.
+ */
+#define ENSURE_SECTION_PRESENT(location, type) \
+    if (!location.present())                   \
+    {                                          \
+        type empty_item;                       \
+        location.set(empty_item);              \
+    }
+
+
+/**
  * A class of utility methods for processing XML files.
  */
 class XmlTools
@@ -1849,11 +1860,7 @@ bool HeartConfig::IsPostProcessingSectionPresent() const
 
 void HeartConfig::EnsurePostProcessingSectionPresent()
 {
-    if (!mpUserParameters->PostProcessing().present())
-    {
-        cp::postprocessing_type postproc;
-        mpUserParameters->PostProcessing().set(postproc);
-    }
+    ENSURE_SECTION_PRESENT(mpUserParameters->PostProcessing(), cp::postprocessing_type);
 }
 
 bool HeartConfig::IsPostProcessingRequested() const
@@ -2486,16 +2493,18 @@ void HeartConfig::CheckTimeSteps() const
 
 void HeartConfig::SetUseRelativeTolerance(double relativeTolerance)
 {
+    ENSURE_SECTION_PRESENT(mpUserParameters->Numerical().KSPTolerances(), cp::ksp_tolerances_type);
     //Remove any reference to tolerances is user parameters
-    mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().reset();
-    mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().set(relativeTolerance);
+    mpUserParameters->Numerical().KSPTolerances()->KSPAbsolute().reset();
+    mpUserParameters->Numerical().KSPTolerances()->KSPRelative().set(relativeTolerance);
 }
 
 void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
 {
+    ENSURE_SECTION_PRESENT(mpUserParameters->Numerical().KSPTolerances(), cp::ksp_tolerances_type);
     //Remove any reference to tolerances is user parameters
-    mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().reset();
-    mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().set(absoluteTolerance);
+    mpUserParameters->Numerical().KSPTolerances()->KSPRelative().reset();
+    mpUserParameters->Numerical().KSPTolerances()->KSPAbsolute().set(absoluteTolerance);
 }
 
 void HeartConfig::SetKSPSolver(const char* kspSolver)
@@ -2584,6 +2593,7 @@ void HeartConfig::SetAdaptivityParameters(double targetError,
     {
         EXCEPTION("AdaptivityParameters: maxEdgeLength must be greater than minEdgeLength.");
     }
+    ///\todo I think you can just do the 'if' clause regardless.
     if (!IsAdaptivityParametersPresent())
     {
         cp::adaptivity_parameters_type element(targetError,
@@ -2763,11 +2773,7 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
 
 void HeartConfig::EnsureOutputVisualizerExists()
 {
-    if (!IsOutputVisualizerPresent())
-    {
-        cp::output_visualizer_type element;
-        mpUserParameters->Simulation().get().OutputVisualizer().set(element);
-    }
+    ENSURE_SECTION_PRESENT(mpUserParameters->Simulation()->OutputVisualizer(), cp::output_visualizer_type);
 }
 
 void HeartConfig::SetVisualizeWithMeshalyzer(bool useMeshalyzer)
