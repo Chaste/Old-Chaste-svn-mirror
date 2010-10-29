@@ -636,7 +636,7 @@ class MemoryTesting(GccDebug):
     """
     _petsc_flags = "-malloc_debug -malloc_dump -memory_info"
     _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes --num-callers=50 --suppressions=chaste.supp"
-#    _valgrind_flags +=" --gen-suppressions=all"
+    #_valgrind_flags +=" --gen-suppressions=all"
     def __init__(self, *args, **kwargs):
         GccDebug.__init__(self, *args, **kwargs)
         #self._cc_flags.append('-DPETSC_MEMORY_TRACING')
@@ -734,23 +734,19 @@ class MemoryTesting(GccDebug):
             if m:
                 # Check we have really lost some memory
                 # (i.e. ignore 'still reachable' memory)
-                status = 'OK'
                 lineno += 1
                 match = lost.match(outputLines[lineno])
                 while match:
                     blocks = int(match.group(3).replace(',', ''))
                     if blocks > 0:
-                        # Hack for chaste-bob; also HDF5 tests which
-                        # fail to open a file.
-                        bytes = int(match.group(2).replace(',', ''))
-                        if match.group(1) == 'indirectly' and \
-                           ((bytes == 240 and blocks == 10) or
-                            (bytes == 248 and blocks == 12) or
-                            (bytes == 256 and blocks == 14)):
+                        # Indirectly lost memory should only be a warning, unless we also have
+                        # directly lost memory, since indirect losses could be due to library
+                        # errors that we're suppressing.
+                        if match.group(1) == 'indirectly' and status == 'Unknown':
                             status = 'Warn'
                         else:
                             status = 'Leaky'
-                        break
+                            break
                     lineno += 1
                     match = lost.match(outputLines[lineno])
                 break
@@ -764,8 +760,7 @@ class MemoryTesting(GccDebug):
                 if not outputLines[lineno+1].strip().endswith("<inherited from parent>"):
                     status = 'Openfile'
                     break
-        else:
-            # No leak summary found
+        if status == 'Unknown':
             status = 'OK'
         return status
 
