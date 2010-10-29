@@ -22,6 +22,9 @@
 </pre>
   </li>
   <li>APD calculation has changed so that it detects the resting potential, and therefore upstroke, more accurately. APDs will change slightly when run with the new version of the code.</li> 
+
+  <li>External calls to TetGen binary for MutableMesh::ReMesh() and for constructing instances of QuadraticMesh have been replaced by library calls. The TetGen source 1.4.2 is now included with the release. These changes will affect the results of 3D cell based simulations (slightly).</li> 
+
 </ul>
 
 <h3>Library compatibility</h3>
@@ -43,10 +46,17 @@
       The use of multiple lookup tables should now work.  The LuoRudy1991 model uses both V and Ca_i as table keys as an example.  This leads to slight changes to
       results when using an optimised LR91 model.
     </li>
+    <li>
+      A new class AbstractCardiacCellInterface has been introduced as a common parent of AbstractCardiacCell and AbstractCvodeCell. This shouldn't have any impact on existing code,
+      but will make it easier to switch between the two.    
+    </li
   </ul>
   </li>
   <li>Cancer:<ul>
-    <li></li>
+    <li>
+      If writing cell mutation states to the file cellmutationstates.dat in a TissueSimulation, the name of each mutation state present is now taken from its extended type ID info 
+      using a new method AbstractCellProperty::GetIdentifier()
+    </li>
   </ul>
   </li>
 </ul>
@@ -59,7 +69,10 @@
      <li>In AbstractLinearParabolicPde, ComputeLinearSourceTerm(x) and ComputeNonlinearSourceTerm(x,u) have been merged into one method ComputeSourceTerm(x,u).</li>
   </ul>
   </li>
-  <li>Cardiac:</li>
+  <li>Cardiac:<ul>
+     <li>#include "Maleckar2009OdeSystem.hpp" should be replaced with #include "Maleckar2008.hpp" to reflect year of publication.</li>
+  </ul>
+  </li>
   <li>Cancer:<ul>
       <li>To reflect the general nature of the classes, we have renamed TissueCell to Cell, Tissue to CellPopulation and TissueSimulation to CellBasedSimulation.</li>
       <li>All CellKiller classes now require a OutputCellKillerParameters method.</li>
@@ -75,7 +88,6 @@
       <li>We now create and access TissueCell objects via Boost shared pointers, and have created the shorthand TissueCellPtr; the TissueCell copy constructor, operator= and method CommonCopy() have been removed, and many methods that previously took in or returned TissueCells now deal with TissueCellPtrs.</li>
       <li>The classes Alarcon2004OxygenBasedCellCycleOdeSystem and Alarcon2004OxygenBasedCellCycleModel have been modified (instead of storing a cell's mutation state, now they just store whether it has the cell property CellLabel).</li>
       <li>Added classes AbstractCellProperty, CellPropertyCollection and CellPropertyRegistry (which replaces CellMutationStateRegistry). A TissueCell now has a CellPropertyCollection member, in which it stores its mutation state (which now inherits from AbstractCellProperty) as well as any other cell property the user chooses. Cell properties can be passed into the TissueCell constructor or using the new method AddCellProperty(). Similarly there are new methods RemoveCellProperty() and rGetCellPropertyCollection() on TissueCell. The mutation states LabelledCellMutationState and ApoptoticCellMutationState have been replaced with new cell property classes CellLabel and ApoptoticCellProperty. The output of some Tissue methods, such as GetCellMutationStateCount(), have been changed.</li>
-      <li>If writing cell mutation states to the file cellmutationstates.dat in a TissueSimulation, the name of each mutation state present is now taken from its extended type ID info using a new method AbstractCellProperty::GetIdentifier()</li>
       <li>Added AbstractCellCycleModelOdeSolver and concrete singleton implementation CellCycleModelOdeSolver and use in ODE-based cell cycle models (r9839, r9905); default ODE-based cell cycle model constructors now take in an optional shared_ptr<AbstractCellCycleModelOdeSolver>, allowing the user to specify what ODE solver to use.</li>
       <li>Cell cycle models have been made noncopyable, since cells are noncopyable.</li>
       <li>Removed unused Alarcon2004OxygenBasedCellCycleModel member variable mIsLabelled.</li>
