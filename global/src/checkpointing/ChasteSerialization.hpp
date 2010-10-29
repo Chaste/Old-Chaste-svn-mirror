@@ -68,9 +68,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // missing at the end of <boost/serialization/export.hpp>
 // It's probably not worth fixing.
 #error "Chaste won't work with Boost 1.35 due to a bug in its serialization library."
-#elif BOOST_VERSION == 104100
-// Something goes wrong compiling TestCardiacSimulationArchiver with 1.41
-#error "Chaste does not support Boost 1.41; use an earlier or later version."
 #endif
 
 #endif // CHASTESERIALIZATION_HPP_
