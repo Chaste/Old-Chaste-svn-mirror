@@ -22,7 +22,7 @@ For an XX bits machine and release name YYYY, type
 
 tar xvfz StandaloneChaste_YYYY_XXbit.tgz
 
-There are 9 items:
+There are 12 items:
 StandaloneChaste_YYYY_XXbit/README.txt (this file)
 StandaloneChaste_YYYY_XXbit/Chaste	(the executable file)
 StandaloneChaste_YYYY_XXbit/Chaste.sh (A wrapper for running the executable Chaste with the correct libraries)
