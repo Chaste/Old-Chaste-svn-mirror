@@ -11,25 +11,22 @@
 
 <h3>General</h3>
 <ul>
-  <li>Cardiac PDE classes (which longer contain PDE information) have now been renamed to be tissues, e.g. BidomainPde is now BidomainTissue. <b>Archives that used to contain a PDE will also change (and will not be backward compatible giving the error unregistered class).</b> Old archives can be converted to the new format by replacing anything that says Pde with Tissue  and by incrementing the integer immediately before the PDE name by 3. This can be done by typing the following two commands in the archive directory.</li>
-  
-   <pre>
-   sed -i s/'39 pack&lt;void (MonodomainPde&lt;'/'42 pack&lt;void (MonodomainTissue&lt;'/ archive.arch
-   sed -i s/'35 pack&lt;void (BidomainPde&lt;'/'38 pack&lt;void (BidomainTissue&lt;/'/ archive.arch
-   </pre>
-   
-   If you have the source, you can just run the sed script, archive_convert.sed located in the main Chaste directory, that can convert archives to the new format. Run it as 
-   
-   <pre>
-   sed -i -f archive_convert.sed archive_file1 archive_file2 ...
-   </pre>
+  <li>TODO: documentation improvements</li>
+  <li>
+    Cardiac PDE classes (which longer contain PDE information) have now been renamed to be tissues, e.g. <tt>BidomainPde</tt> is now <tt>BidomainTissue</tt>.
+    This change means that <b>archives that used to contain such a class must also change, and so are not backwards compatible</b> (an &quot;unregistered class&quot; error will
+    be generated).  A script <tt>archive_convert.sed</tt> is provided in both the source and executable releases of Chaste to migrate archives to the new naming.
+    You can run it as follows:
+<pre>
+    sed -i -f archive_convert.sed path_to_checkpoint_data_folder/*.arch*
+</pre>
+  </li>
   <li>APD calculation has changed so that it detects the resting potential, and therefore upstroke, more accurately. APDs will change slightly when run with the new version of the code.</li> 
-   
 </ul>
 
 <h3>Library compatibility</h3>
 <ul>
-  <li>PyCml can now use RDFLib (http://www.rdflib.net/) as RDF library, which is a lot easier to install than the Redland library. </ul>
+  <li>PyCml can now use <a href="http://www.rdflib.net/">RDFLib</a> as the RDF library, which is a lot easier to install than the Redland library.</li>
 </ul>
 
 <h3>Code changes</h3>
@@ -38,8 +35,14 @@
 <ul>
   <li>Cardiac:<ul>
     <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint.</li>
-    <li>The OutputVariables functionality has been fixed to actually output the variables requested! It can now output any state variable, or any variable annotated as a parameter or derived quantity in the cell model.</li>
-    <li>The use of multiple lookup tables should now actually work. The LuoRudy1991  model uses both V and Ca_i as table keys as an example. This leads to slight changes to results when using an optimised LR91 model.</li>
+    <li>
+      The <tt>OutputVariables</tt> functionality has been fixed to actually output the variables requested!  It can now output any state variable, or any variable annotated
+      as a parameter or derived quantity in the cell model.
+    </li>
+    <li>
+      The use of multiple lookup tables should now work.  The LuoRudy1991 model uses both V and Ca_i as table keys as an example.  This leads to slight changes to
+      results when using an optimised LR91 model.
+    </li>
   </ul>
   </li>
   <li>Cancer:<ul>
