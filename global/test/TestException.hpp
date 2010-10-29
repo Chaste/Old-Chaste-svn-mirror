@@ -55,7 +55,7 @@ public:
                         err.GetShortMessage(), "Hello. I'm an exception" );
         //NB The following test will fail if the number of lines above is changed drastically... (that's why method GetShortMessage() was introduced).
         TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
-                                err.GetMessage().find("Hello. I\'m an exception",0), 50u); // This appears at position 51 in full message (a bit more robust?!)
+                                err.GetMessage().find("Hello. I\'m an exception",0), 51u); // This appears at position 51 in full message (a bit more robust?!)
     }
 
     void TestCheckMethods()

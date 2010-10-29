@@ -37,7 +37,7 @@ Exception::Exception(const std::string& rMessage,
 {
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
-    mMessage = std::string("Chaste error: ") + rFilename + ":"  + line_number_stream.str()  + ": " + mShortMessage;
+    mMessage = std::string("\nChaste error: ") + rFilename + ":"  + line_number_stream.str()  + ": " + mShortMessage;
     ///// The following would write the error message to the log file, if one exists.
     ///// It's commented out because you end up with 100s of errors in the log from
     ///// element nodes being swapped around when the mesh is read in.
