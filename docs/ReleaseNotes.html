@@ -9,11 +9,39 @@
 
 <h2>Release 2.1 (changes since Release 2.0)</h2>
 
-<h3>General</h3>
+<h3>Headline changes</h3>
+
+<h4>General</h4>
+
 <ul>
-  <li>TODO: documentation improvements</li>
   <li>
-    Cardiac PDE classes (which longer contain PDE information) have now been renamed to be tissues, e.g. <tt>BidomainPde</tt> is now <tt>BidomainTissue</tt>.
+    The user documentation has been significantly extended, and tutorials written for the cardiac executable.  Static versions of user guides and tutorials are available
+    for this release <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/">here</a>.
+  </li>
+  <li>
+    External calls to the TetGen binary for <tt>MutableMesh::ReMesh()</tt> and for constructing instances of <tt>QuadraticMesh</tt> have been replaced by library calls.
+    There is thus no longer a need to install TetGen, and the TetGen source version 1.4.2 is now included with the release.
+    These changes will affect the results of 3D cell based simulations (slightly).
+  </li>
+</ul>
+
+<h4>Cardiac</h4>
+
+<ul>
+  <li>
+    The integration of CellML models of cardiac cells has been significantly improved.  Code for all cell models shipped with Chaste is now generated on-the-fly from CellML,
+    leading to some naming changes which will affect users of the source distribution (see below for details).  The process is highly configurable; see our
+    <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for details.  In particular, variables
+    within the model may be annotated as modifiable parameters or derived quantities, and are then made available for access by name, both in the source release and via the
+    executable.
+    There is also improved support for units conversions, so that models can use any convention for the ionic currents and stimulus.
+  </li>
+  <li>
+    Various simulation parameters can now be changed via the XML file when resuming from a checkpoint.  These include cell model parameters, stimuli definitions, numerical
+    parameters, and post-processing specifications.
+  </li>
+  <li>
+    Cardiac PDE classes (which no longer contain PDE information) have now been renamed to be tissues, e.g. <tt>BidomainPde</tt> is now <tt>BidomainTissue</tt>.
     This change means that <b>archives that used to contain such a class must also change, and so are not backwards compatible</b> (an &quot;unregistered class&quot; error will
     be generated).  A script <tt>archive_convert.sed</tt> is provided in both the source and executable releases of Chaste to migrate archives to the new naming.
     You can run it as follows:
@@ -21,23 +49,72 @@
     sed -i -f archive_convert.sed path_to_checkpoint_data_folder/*.arch*
 </pre>
   </li>
-  <li>APD calculation has changed so that it detects the resting potential, and therefore upstroke, more accurately. APDs will change slightly when run with the new version of the code.</li> 
-
-  <li>External calls to TetGen binary for MutableMesh::ReMesh() and for constructing instances of QuadraticMesh have been replaced by library calls. The TetGen source 1.4.2 is now included with the release. These changes will affect the results of 3D cell based simulations (slightly).</li> 
-
 </ul>
 
 <h3>Library compatibility</h3>
 <ul>
   <li>PyCml can now use <a href="http://www.rdflib.net/">RDFLib</a> as the RDF library, which is a lot easier to install than the Redland library.</li>
+  <li>Chaste should now work with Boost versions 1.41 and above, although it does not yet receive as thorough testing on these.</li>
 </ul>
 
 <h3>Code changes</h3>
 
-<h4>New functionality</h4>
+<h4>New functionality and major changes</h4>
 <ul>
   <li>General:<ul>
-    <li>A new Warnings class has been introduced to keep track of issues that don't prevent the simulation completing but may need investigation to verify the results. All unexpected warnings are printed at the end of the simulation or test-suite. If logging is switch on, then warnings appear in the log file as they happen.</li>
+    <li>
+      A new <tt>Warnings</tt> class has been introduced to keep track of issues that don't prevent the simulation completing but may need investigation to verify the results.
+      All unexpected warnings are printed at the end of the simulation or test-suite. If logging is switched on, then warnings appear in the log file as they happen.
+    </li>
+    <li>
+      The finite element assembler hierarchy has been completely changed and replaced with new assemblers and new solvers.
+      See <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/FiniteElementAssemblersAndSolvers.html">ChasteGuides/FiniteElementAssemblersAndSolvers</a> for details.
+    </li>
+    <li>
+      Some SCons synonyms for common developer options have been provided (e.g. <tt>scons cl=1 b=_2 up=0 ts=mesh/test/TestDistributedTetrahedralMesh.hpp</tt>).
+      See the <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/UserBuildGuide.html">build guide</a> for details.
+    </li>
+    <li>
+      The <tt>DistanceMapCalculator</tt> calculates in-mesh path distances along mesh edges rather than Euclidean distances.  The underlying algorithm is Dijkstra/A*
+      which produces partition-dependent solutions to the Euclidean distance problem but reliable solutions to the edge-based distance problem.
+    </li>
+    <li>
+      There have been several changes to the ODE system hierarchy, primarily related to providing information about the ODE system.  As well as information about state variables,
+      we now support named parameters and derived quantities.
+      <ul>
+        <li>A new base class <tt>AbstractParameterisedSystem</tt> has been created for <tt>AbstractOdeSystem</tt> and <tt>AbstractCvodeCell</tt> to contain the system information state and methods.</li>
+        <li>Renamed various methods on <tt>AbstractOdeSystem</tt> (now moved to <tt>AbstractParameterisedSystem</tt>) and <tt>AbstractOdeSystemInformation</tt> for clarity and consistency:
+          <ul>
+            <li><tt>rGetVariableNames/Units -> rGetStateVariableNames/Units</tt></li>
+            <li><tt>SetInitialConditionsComponent -> SetInitialCondition</tt></li>
+            <li><tt>GetStateVariableNumberByName -> GetStateVariableIndex</tt></li>
+            <li><tt>GetStateVariableValueByNumber -> GetStateVariable</tt></li>
+            <li><tt>GetStateVariableUnitsByNumber -> GetStateVariableUnits</tt></li>
+          </ul>
+        </li>
+        <li>
+          For named parameters, added methods <tt>GetParameterIndex</tt>, <tt>GetParameterUnits</tt>, <tt>rGetParameterNames</tt>, and <tt>rGetParameterUnits</tt> on <tt>AbstractParameterisedSystem</tt>
+          and <tt>AbstractOdeSystemInformation</tt>, and also methods <tt>Get/SetParameter</tt> and <tt>GetNumberOfParameters</tt> on <tt>AbstractParameterisedSystem</tt>.
+        </li>
+        <li>
+          For derived quantities, added methods <tt>GetDerivedQuantityIndex</tt>, <tt>GetDerivedQuantityUnits</tt>, <tt>rGetDerivedQuantityNames</tt>, and <tt>rGetDerivedQuantityUnits</tt>
+          on <tt>AbstractParameterisedSystem</tt> and <tt>AbstractOdeSystemInformation</tt>.  <tt>AbstractParameterisedSystem</tt> also has <tt>GetNumberOfDerivedQuantities</tt>,
+          <tt>ComputeDerivedQuantities</tt>, and <tt>ComputeDerivedQuantitiesFromCurrentState</tt>.  Note that these latter methods require the current time as input (just in case)
+          and may not be very efficient.  Concrete ODE system classes should define <tt>ComputeDerivedQuantities</tt> if they provide any derived quantities. The <tt>OdeSolution</tt>
+          class also has support for writing derived quantities to disk.
+        </li>
+        <li>
+          Finally, there is also "any variable" functionality, with similarly named methods (e.g. <tt>GetAnyVariableIndex</tt>) which try first state variables, then parameters,
+          then derived quantities, until a matching name is found.  To support derived quantities, <tt>GetAnyVariable</tt> can optionally take the current time as a second parameter
+          (it default to zero).
+        </li>
+      </ul>
+    </li>
+    <li>
+      A new class <tt>FileFinder</tt> has been created to specify file locations (particularly for input) throughout the code (and in the XML cardiac parameters file) allowing for
+      greater flexibility.  Various locations that used to use plain strings now use this class instead, which may require small changes to code using these.
+    </li>
+    <li>In order to compare files with provenance data <tt>NumericFileComparison</tt> now ignores lines which begin with "# ".</li>
   </ul>
   </li>
   <li>Cardiac:<ul>
@@ -47,19 +124,71 @@
       as a parameter or derived quantity in the cell model.
     </li>
     <li>
-      The use of multiple lookup tables should now work.  The LuoRudy1991 model uses both V and Ca_i as table keys as an example.  This leads to slight changes to
+      The use of multiple lookup tables should now work.  The LuoRudy1991 model uses both <i>V</i> and <i>Ca_i</i> as table keys as an example.  This leads to slight changes to
       results when using an optimised LR91 model.
     </li>
     <li>
-      A new class AbstractCardiacCellInterface has been introduced as a common parent of AbstractCardiacCell and AbstractCvodeCell. This shouldn't have any impact on existing code,
-      but will make it easier to switch between the two.    
+      Backward Euler cell models are now also optimised using partial evaluation and lookup tables, and the latter optimisations have also been improved.
+      This has lead to slight changes in results when using optimised models.
+    </li>
+    <li>
+      APD calculation has changed so that it detects the resting potential, and therefore upstroke, more accurately. APDs will change slightly when run with the new version of the code.
+    </li>
+    <li>
+      A new class <tt>AbstractCardiacCellInterface</tt> has been introduced as a common parent of <tt>AbstractCardiacCell</tt> and <tt>AbstractCvodeCell</tt>.
+      This shouldn't have any impact on existing code, but will make it easier to switch between the two.
     </li
+    <li>The deprecated <tt>ScaleFactor*</tt> elements are now optional in the XML schema.  Use of <tt>SetParameter</tt> is preferred.</li>
+    <li>
+      The <tt>DistanceMapCalculator</tt> calculates in-mesh path distances along mesh edges rather than Euclidean distances.  The underlying algorithm is Dijkstra/A*
+      which produces partition-dependent solutions to the Euclidean distance problem but reliable solutions to the edge-based distance problem.  This change affects:
+      <ul>
+        <li>Calculation of conduction velocities - distances might now be overestimated, but will preserve detours around cavities.</li>
+        <li>Calculation of transmural Epi/Mid/Endo layers - relative position in wall may vary from previous.</li>
+        <li>Algorithmic generation of fibre directions (Streeter method) - relative position in wall may vary from previous.</li>
+      </ul>
+    </li>
   </ul>
   </li>
-  <li>Cancer:<ul>
+  <li>Cell-based:<ul>
     <li>
-      If writing cell mutation states to the file cellmutationstates.dat in a TissueSimulation, the name of each mutation state present is now taken from its extended type ID info 
-      using a new method AbstractCellProperty::GetIdentifier()
+      If writing cell mutation states to the file <tt>cellmutationstates.dat</tt> in a <tt>TissueSimulation</tt>, the name of each mutation state present is now taken from its extended type ID info 
+      using a new method <tt>Identifiable::GetIdentifier</tt>.
+    </li>
+    <li>
+      Work is in progress on restructuring how model parameters are accessed in the cell-based code.
+      As part of this, all of the <tt>TissueConfig</tt> members have been moved into the classes in which they are used.
+      Simulations will now output a file containing the parameters used for that simulation.
+      In order to implement this:<ul>
+        <li>All <tt>CellKiller</tt> classes now require a <tt>OutputCellKillerParameters</tt> method.</li>
+		<li>All tissue classes now require a <tt>OutputTissueParameters</tt> method.</li>
+		<li>All force classes now require a <tt>OutputForceParameters</tt> method.</li>
+		<li>All such classes (and simulation subclasses) must have an archiving export key defined correctly.</li>
+      </ul>
+      See the tutorials for more information on how to write these.
+    </li>
+    <li>
+      The principles behind the cell mutation state refactor have now been applied more generally to cell properties, enabling the creation of arbitrary properties
+      that can be attached to cells.  There are new classes <tt>AbstractCellProperty</tt> and <tt>CellPropertyCollection</tt>, and <tt>CellMutationStateRegistry</tt>
+      has been replaced by <tt>CellPropertyRegistry</tt>.  A <tt>TissueCell</tt> now has a <tt>CellPropertyCollection</tt> member, in which it stores its mutation state
+      as well as any other cell property the user chooses.  Cell properties can be passed into the <tt>TissueCell</tt> constructor or by using the new method
+      <tt>AddCellProperty</tt>.  Similarly there are new methods <tt>RemoveCellProperty</tt> and <tt>rGetCellPropertyCollection</tt> on <tt>TissueCell</tt>.  Also,
+      <ul>
+        <li>The mutation state <tt>LabelledCellMutationState</tt> has been replaced with a new cell property class <tt>CellLabel</tt>.</li>
+        <li><tt>APOPTOTIC</tt> is no longer a <tt>CellProliferativeType</tt> but has been replaced with a new class <tt>ApoptoticCellProperty</tt>.</li>
+        <li>The output of some <tt>Tissue</tt> methods, such as <tt>GetCellMutationStateCount</tt>, have been changed.</li>
+        <li>
+          The classes <tt>Alarcon2004OxygenBasedCellCycleOdeSystem</tt> and <tt>Alarcon2004OxygenBasedCellCycleModel</tt> have been modified, so that instead of storing
+          a cell's mutation state, now they just store whether it has the cell property <tt>CellLabel</tt>.
+        </li>
+        <li>Removed unused <tt>Alarcon2004OxygenBasedCellCycleModel</tt> member variable <tt>mIsLabelled</tt>.</li>
+      </ul>
+    </li>
+    <li>
+      The creation of ODE-based cell cycle models has been eased.  There is now a wrapper around ODE solvers, <tt>AbstractCellCycleModelOdeSolver</tt> (with concrete singleton
+      implementation <tt>CellCycleModelOdeSolver</tt>) and ODE-based cell cycle model constructors now take an optional <tt>shared_ptr&lt;AbstractCellCycleModelOdeSolver></tt>
+      allowing the user to specify what solver to use.  A mixin base class for cell cycle models, <tt>CellCycleModelOdeHandler</tt>, has been created which cell cycle models
+      that solve a system of ODEs to determine progress through the cell cycle can inherit from.
     </li>
   </ul>
   </li>
@@ -68,58 +197,89 @@
 <h4>Interface changes that may require changes to user code</h4>
 <ul>
   <li>General:<ul>
-     <li>Assembler hierarchy completely changed and replaced with new assemblers and new solvers. See ChasteGuides/FiniteElementAssemblersAndSolvers.</li>
-     <li>The mesh classes Face, VoronoiCell, VoronoiTessellation and InventorVoronoiWriter have been deleted. This is because they are no longer used in the code. Now, when a MeshBasedTissue is required to construct the Voronoi tessellation that is dual to its mesh, this is stored as a VertexMesh. The main difference is how the MeshBasedTissue then accesses information about the Voronoi tessellation. Users should replace MeshBasedTissue calls to rGetVoronoiTessellation().GetFaceArea() with GetAreaOfVoronoiElement(), calls to rGetVoronoiTessellation().GetFacePerimeter() with GetPerimeterOfVoronoiElement(), and calls to rGetVoronoiTessellation().GetEdgeLength() with GetVoronoiEdgeLength(). </li>
-     <li>In AbstractLinearParabolicPde, ComputeLinearSourceTerm(x) and ComputeNonlinearSourceTerm(x,u) have been merged into one method ComputeSourceTerm(x,u).</li>
-     <li>The macro NEVER_REACHED has become a termination error and will always terminate (sequential/parallel and debug/NDEBUG). This is a level 4 error according to our exception strategy (search for ExceptionStrategy in our public wiki for more details). NEVER_REACHED now relies on PetscTools (so that it can either exit or abort in parallel) -- compilation may fail if you are missing #include "PetscTools.hpp"</li>
-     <li>Providing an estimate of the maximum number of nonzero entries expected on any row is now compulsory and is done via an additional argument to PetscTools::SetupMat(), rather than by a call to PetscTools::SetMaxNumNonzerosIfMatMpiAij().PetscTools::SetupMat() no longer has a MatType argument. Code that uses the old method in the problem class will no longer compile or may interpret extra arguments incorrectly. Instead, changes must be made to the InitializeForSolve() method of the assembler. Instead of instantiating the linear system by this->mpLinearSystem = new LinearSystem(template_vec);, we must add an extra argument: this->mpLinearSystem = new LinearSystem(template_vec, *NNZ*);. </li>     
+    <li>In <tt>AbstractLinearParabolicPde</tt>, <tt>ComputeLinearSourceTerm(x)</tt> and <tt>ComputeNonlinearSourceTerm(x,u)</tt> have been merged into one method <tt>ComputeSourceTerm(x,u)</tt>.</li>
+    <li>
+      The macro <tt>NEVER_REACHED</tt> has become a termination error and will always terminate (sequential/parallel and debug/NDEBUG).  This is a level 4 error according to our
+      <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ExceptionStrategy">exception strategy</a>.  <tt>NEVER_REACHED</tt> now relies on <tt>PetscTools</tt> (so that it
+      can either exit or abort in parallel) -- compilation may fail if you are missing <tt>#include "PetscTools.hpp"</tt>.
+    </li>
+    <li>
+      Providing an estimate of the maximum number of nonzero entries expected on any row is now compulsory and is done via an additional argument to <tt>PetscTools::SetupMat()</tt>,
+      rather than by a call to <tt>PetscTools::SetMaxNumNonzerosIfMatMpiAij()</tt>.  <tt>PetscTools::SetupMat()</tt> no longer has a <tt>MatType</tt> argument.  Code that uses the old
+      method in the problem class will no longer compile or may interpret extra arguments incorrectly.  Instead, changes must be made to the <tt>InitializeForSolve()</tt> method of the
+      assembler.  Instead of instantiating the linear system by <tt>this->mpLinearSystem = new LinearSystem(template_vec);</tt>, we must add an extra argument:
+      <tt>this->mpLinearSystem = new LinearSystem(template_vec, *NNZ*);</tt>.
+    </li>
+    <li>
+      Replaced all mesh functionality for getting extremes of meshes with <tt>AbstractMesh::CalculateBoundingBox</tt> returning a <tt>ChasteCuboid</tt>.  The parallel specialisation in
+      <tt>DistributedTetrahedralMesh</tt> gets the bounding box of the global mesh.
+    </li>     
+    <li>Renamed various methods on <tt>AbstractOdeSystem</tt> and <tt>AbstractOdeSystemInformation</tt> for clarity.  We want to stress that these methods do not change
+        the state variables of the instance of an ODE on which they are called, but the values considered default.
+      <ul>
+        <li> <tt>SetInitialConditions</tt> -> <tt>SetDefaultInitialConditions</tt> </li>
+        <li> <tt>SetInitialCondition</tt> -> <tt>SetDefaultInitialCondition</tt> </li>
+      </ul> 
+    </li>
+    <li>
+      <tt>PetscTools::CreateVec(int size, double value)</tt> method renamed to <tt>CreateAndSetVec</tt>.  The removal of this overload allows for the new interface method
+      <tt>PetscTools::CreateVec(int size, int localSize)</tt>.
+    </li>
+    <li>Distributed mesh <tt>GetAnyNode</tt> method renamed to <tt>GetNodeOrHaloNode</tt>.</li>
   </ul>
   </li>
   <li>Cardiac:<ul>
-     <li>
-       More cell models are generated on the fly from CellML, which will break code previously using these. Please update the following 
-       <ul>
-         <li>#include directives:
-           <ul>
-             <li>luo_rudy_1991.hpp -> LuoRudy1991.hpp, luo_rudy_1991Opt.hpp -> LuoRudy1991Opt.hpp, luo_rudy_1991BackwardEuler.hpp and BackwardEulerLuoRudyIModel1991.hpp -> LuoRudy1991BackwardEuler.hpp, luo_rudy_1991Cvode.hpp -> LuoRudy1991Cvode.hpp, luo_rudy_1991CvodeOpt.hpp -> LuoRudy1991CvodeOpt.hpp</li>
-             <li>noble_varghese_kohl_noble_1998_a.hpp -> NobleVargheseKohlNoble1998a.hpp, noble_varghese_kohl_noble_1998_aOpt.hpp -> NobleVargheseKohlNoble1998aOpt.hpp</li>
-             <li>tentusscher_model_2006_epi_corrected_flooristim.hpp -> TenTusscher2006Epi.hpp, tentusscher_model_2006_epi_corrected_flooristimOpt.hpp -> TenTusscher2006EpiOpt.hpp, tentusscher_model_2006_epi_corrected_flooristimBackwardEuler.hpp and BackwardEulerTenTusscher2006.hpp -> TenTusscher2006EpiBackwardEuler.hpp</li>
-           </ul>
-         <li>Class names: New names all take the form "Cell<FileBaseName>FromCellML<Modifiers>", e.g. CellLuoRudy1991FromCellML, CellTenTusscher2006EpiFromCellMLOpt, CellLuoRudy1991FromCellMLCvodeOpt, CellTenTusscher2006EpiFromCellMLBackwardEuler.</li>
-       </ul>
-     </li>
-     <li>#include "Maleckar2009OdeSystem.hpp" should be replaced with #include "Maleckar2008.hpp" to reflect year of publication.</li>
-     <li>Renamed various methods on AbstractOdeSystem and AbstractOdeSystemInformation for clarity. We want to stress that these methods do not change the state variables of the instance of an ODE on which they are called, but the values considered default.
-       <ul>
-         <li> SetInitialConditions -> SetDefaultInitialConditions </li>
-         <li> SetInitialCondition -> SetDefaultInitialCondition </li>
-       </ul> 
-     </li>
+    <li>
+      All cell models are generated on the fly from CellML, which will break code previously using these. Please update the following 
+      <ul>
+        <li><tt>#include</tt> directives:
+          <ul>
+            <li><tt>luo_rudy_1991.hpp -> LuoRudy1991.hpp, luo_rudy_1991Opt.hpp -> LuoRudy1991Opt.hpp, luo_rudy_1991BackwardEuler.hpp and BackwardEulerLuoRudyIModel1991.hpp -> LuoRudy1991BackwardEuler.hpp, luo_rudy_1991Cvode.hpp -> LuoRudy1991Cvode.hpp, luo_rudy_1991CvodeOpt.hpp -> LuoRudy1991CvodeOpt.hpp</tt></li>
+            <li><tt>noble_varghese_kohl_noble_1998_a.hpp -> NobleVargheseKohlNoble1998a.hpp, noble_varghese_kohl_noble_1998_aOpt.hpp -> NobleVargheseKohlNoble1998aOpt.hpp</tt></li>
+            <li><tt>tentusscher_model_2006_epi_corrected_flooristim.hpp -> TenTusscher2006Epi.hpp, tentusscher_model_2006_epi_corrected_flooristimOpt.hpp -> TenTusscher2006EpiOpt.hpp, tentusscher_model_2006_epi_corrected_flooristimBackwardEuler.hpp and BackwardEulerTenTusscher2006.hpp -> TenTusscher2006EpiBackwardEuler.hpp</tt></li>
+          </ul></li>
+        <li>Class names: New names all take the form "<tt>Cell&lt;FileBaseName>FromCellML&lt;Modifiers></tt>", e.g. <tt>CellLuoRudy1991FromCellML</tt>,
+            <tt>CellTenTusscher2006EpiFromCellMLOpt</tt>, <tt>CellLuoRudy1991FromCellMLCvodeOpt</tt>, <tt>CellTenTusscher2006EpiFromCellMLBackwardEuler</tt>.</li>
+      </ul>
+      See the <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for more details.
+    </li>
+    <li><tt>#include "Maleckar2009OdeSystem.hpp"</tt> should be replaced with <tt>#include "Maleckar2008.hpp"</tt> to reflect year of publication.</li>
   </ul>
   </li>
-  <li>Cancer:<ul>
-      <li>To reflect the general nature of the classes, we have renamed TissueCell to Cell, Tissue to CellPopulation and TissueSimulation to CellBasedSimulation.</li>
-      <li>All CellKiller classes now require a OutputCellKillerParameters method.</li>
-      <li>CellBasedSimulation and inherited classes now do not take in a force collection. To set the mechanics system call the AddForce Method.</li>
-      <li>Prior to restructuring how model parameters are accessed in the cell-based code, all of the TissueConfig members have been moved into the classes in which they are used. </li>
-      <li>The variables in TissueConfig.hpp relating to cell centre models have had the prefix Meineke added this may affect some user projects.</li>
-      <li>TissueConfig members mOutputCellAreas and mOutputTissueAreas renamed to mOutputCellVolumes and mOutputTissueVolumes respectively; similarly for their get/set methods. MeshBasedTissue methods SetOutputTissueAreas(), WriteTissueAreaResultsToFile(), WriteCellAreaResultsToFile() similarly renamed. VertexMesh method SolveVoronoiElementIndexMapping() renamed to GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex().</li>
-      <li>When a MeshBasedTissue creates a Voronoi tessellation, this is constructed out of all nodes in the mesh, including ghost nodes. </li>
-      <li>Merged VertexMesh method GetPerimeterOfVoronoiElement() into GetSurfaceAreaOfVoronoiElement() and GetAreaOfVoronoiElement() into GetVolumeOfVoronoiElement().</li>
-      <li>Changed MeshBasedTissue method rGetVoronoiTessellation() to GetVoronoiTessellation() (i.e. return a pointer rather than a reference) in order to avoid memory issues. </li>
-      <li>APOPTOTIC is no longer a CellProliferativeType but has been replaced with a new class ApoptoticCellMutationState (this will eventually become a cell property). </li>
-      <li>CellwiseData has been generalised to cope with vertex-based tissues; some of its methods have changed names or arguments.</li>
-      <li>We now create and access TissueCell objects via Boost shared pointers, and have created the shorthand TissueCellPtr; the TissueCell copy constructor, operator= and method CommonCopy() have been removed, and many methods that previously took in or returned TissueCells now deal with TissueCellPtrs.</li>
-      <li>The classes Alarcon2004OxygenBasedCellCycleOdeSystem and Alarcon2004OxygenBasedCellCycleModel have been modified (instead of storing a cell's mutation state, now they just store whether it has the cell property CellLabel).</li>
-      <li>Added classes AbstractCellProperty, CellPropertyCollection and CellPropertyRegistry (which replaces CellMutationStateRegistry). A TissueCell now has a CellPropertyCollection member, in which it stores its mutation state (which now inherits from AbstractCellProperty) as well as any other cell property the user chooses. Cell properties can be passed into the TissueCell constructor or using the new method AddCellProperty(). Similarly there are new methods RemoveCellProperty() and rGetCellPropertyCollection() on TissueCell. The mutation states LabelledCellMutationState and ApoptoticCellMutationState have been replaced with new cell property classes CellLabel and ApoptoticCellProperty. The output of some Tissue methods, such as GetCellMutationStateCount(), have been changed.</li>
-      <li>Added AbstractCellCycleModelOdeSolver and concrete singleton implementation CellCycleModelOdeSolver and use in ODE-based cell cycle models (r9839, r9905); default ODE-based cell cycle model constructors now take in an optional shared_ptr<AbstractCellCycleModelOdeSolver>, allowing the user to specify what ODE solver to use.</li>
-      <li>Cell cycle models have been made noncopyable, since cells are noncopyable.</li>
-      <li>Removed unused Alarcon2004OxygenBasedCellCycleModel member variable mIsLabelled.</li>
-      <li>All tissue classes now require a OutputTissueParameters method.</li>
-      <li>All force classes now require a OutputForceParameters method.</li>
+  <li>Cell-based:<ul>
+    <li>
+      To reflect the general nature of the classes, we have renamed <tt>TissueCell</tt> to <tt>Cell</tt>, <tt>Tissue</tt> to <tt>CellPopulation</tt> and
+      <tt>TissueSimulation</tt> to <tt>CellBasedSimulation</tt>.
+    </li>
+    <li>
+      We now create and access <tt>Cell</tt> objects via Boost shared pointers, and disallow copying of <tt>Cell</tt>s, since this doesn't make biological sense and is inefficient.
+      The type alias <tt>CellPtr</tt> is available to ease transition and save typing!  Many methods that previously took in or returned <tt>Cell</tt>s now deal
+      with <tt>CellPtr</tt>s.  Copying of cell cycle models has also been disallowed.
+    </li>
+    <li><tt>CellBasedSimulation</tt> and inherited classes now do not take in a force collection. To set the mechanics system call the <tt>AddForce</tt> method.</li>
+    <li>
+      The mesh classes <tt>Face</tt>, <tt>VoronoiCell</tt>, <tt>VoronoiTessellation</tt> and <tt>InventorVoronoiWriter</tt> have been deleted.  This is because they are no longer
+      used in the code.  Now, when a <tt>MeshBasedTissue</tt> is required to construct the Voronoi tessellation that is dual to its mesh, this is stored as a <tt>VertexMesh</tt>.
+      The main difference is how the <tt>MeshBasedTissue</tt> then accesses information about the Voronoi tessellation.  Users should replace <tt>MeshBasedTissue</tt> calls to
+      <tt>rGetVoronoiTessellation().GetFaceArea()</tt> with <tt>GetAreaOfVoronoiElement()</tt>, calls to <tt>rGetVoronoiTessellation().GetFacePerimeter()</tt> with
+      <tt>GetPerimeterOfVoronoiElement()</tt>, and calls to <tt>rGetVoronoiTessellation().GetEdgeLength()</tt> with <tt>GetVoronoiEdgeLength()</tt>.
+    </li>
+    <li>Changed <tt>MeshBasedTissue</tt> method <tt>rGetVoronoiTessellation</tt> to <tt>GetVoronoiTessellation</tt> (i.e. return a pointer rather than a reference) in order to avoid memory issues.</li>
+    <li>Various renamings have occurred.
+      <li>
+        <tt>MeshBasedTissue</tt> methods <tt>SetOutputTissueAreas</tt>, <tt>WriteTissueAreaResultsToFile</tt>, <tt>WriteCellAreaResultsToFile</tt> renamed to use
+        <tt>Volume</tt> instead of <tt>Area</tt>.  Similarly merged the <tt>VertexMesh</tt> method <tt>GetPerimeterOfVoronoiElement</tt> into
+        <tt>GetSurfaceAreaOfVoronoiElement</tt> and <tt>GetAreaOfVoronoiElement</tt> into <tt>GetVolumeOfVoronoiElement</tt>.
+      </li>
+      <li><tt>VertexMesh</tt> method <tt>SolveVoronoiElementIndexMapping</tt> renamed to <tt>GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex</tt>.</li>
+    </li>
+    <li>When a <tt>MeshBasedTissue</tt> creates a Voronoi tessellation, this is constructed out of all nodes in the mesh, including ghost nodes.</li>
+    <li><tt>CellwiseData</tt> has been generalised to cope with vertex-based tissues; some of its methods have changed names or arguments.</li>
   </ul>
   </li>
 </ul>
+
+<hr />
 
 <h2>Release 2.0 (changes since Release 1.1)</h2>
 
