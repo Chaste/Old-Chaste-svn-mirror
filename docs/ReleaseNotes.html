@@ -28,6 +28,8 @@
 <h4>Cardiac</h4>
 
 <ul>
+  <li> 
+    The standalone binary now has a folder of dependency libraries and a wrapper script <tt>Chaste.sh</tt> which ensures that these libraries are linked when the program is run.  The binary used to be a single monolithic file with all the dependencies compiled into it but this was known to cause run-time problems for some Linux distributions. </li>
   <li>
     The integration of CellML models of cardiac cells has been significantly improved.  Code for all cell models shipped with Chaste is now generated on-the-fly from CellML,
     leading to some naming changes which will affect users of the source distribution (see below for details).  The process is highly configurable; see our
