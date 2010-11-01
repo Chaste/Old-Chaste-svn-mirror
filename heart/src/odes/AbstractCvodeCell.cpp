@@ -107,7 +107,7 @@ void AbstractCvodeCell::Init()
         mParameters = NULL;
     }
     mParameters = N_VNew_Serial(rGetParameterNames().size());
-    for (unsigned i=0; i<NV_LENGTH_S(mParameters); i++)
+    for (int i=0; i<NV_LENGTH_S(mParameters); i++)
     {
         NV_Ith_S(mParameters, i) = 0.0;
     }
@@ -319,7 +319,7 @@ void AbstractCvodeCell::SetupCvode(N_Vector initialConditions,
                                    realtype tStart,
                                    realtype maxDt)
 {
-    assert(NV_LENGTH_S(initialConditions) == GetNumberOfStateVariables());
+    assert((unsigned)NV_LENGTH_S(initialConditions) == GetNumberOfStateVariables());
     assert(maxDt >= 0.0);
 
     mpCvodeMem = CVodeCreate(CV_BDF, CV_NEWTON);
@@ -381,7 +381,7 @@ std::string AbstractCvodeCell::DumpState(const std::string& message,
     {
         Y = mStateVariables;
     }
-    for (unsigned i=0; i<NV_LENGTH_S(Y); i++)
+    for (int i=0; i<NV_LENGTH_S(Y); i++)
     {
         res << "\t" << rGetStateVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
     }
