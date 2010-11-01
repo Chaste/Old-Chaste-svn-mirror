@@ -32,6 +32,9 @@ install-indep:
 		  -path './testoutput/*' -o \
 		  -path './.*' -o \
 		  -name '.svn' -o \
+		  -name '*.patch' -o \
+		  -name '*.log' -o \
+		  -name '*~' -o \
                   -path './*/build/*' -o \
 		  -path './heart/src/io/ChasteParameters.?pp' -o \
 		  -name 'notforrelease*' -o \
