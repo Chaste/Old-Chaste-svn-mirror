@@ -40,20 +40,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = An example showing how to create a new cell cycle model and use it in a cell-based simulation =
  *
- * EMPTYLINE
- *
  * == Introduction ==
- *
- * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell cycle model class and how this
  * can be used in a cell-based simulation.
  *
- * EMPTYLINE
- *
  * == 1. Including header files ==
- *
- * EMPTYLINE
  *
  * The first thing to do is include the following header, which allows us
  * to use certain methods in our test (this header file should be included
@@ -83,6 +75,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Our new cell cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
+
 /* The remaining header files define classes that will be used in the cell population
  * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
  * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines
@@ -98,8 +91,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 
 /*
- * EMPTYLINE
- *
  * == Defining the cell cycle model class ==
  *
  * As an example, let us consider a cell cycle model in which the durations
@@ -113,6 +104,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
+ * 
+ * Note that usually this code would be separated out into a separate declaration in
+ * a .hpp file and definition in a .cpp file.
  */
 class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
@@ -148,7 +142,7 @@ private:
         /* We now set the G1 duration based on cell type.
          *
          * For stem and transit cells, we use the {{{RandomNumberGenerator}}}
-         * singleton class to generate a random number U drawn from U[0,1], and
+         * singleton class to generate a random number U drawn from U![0,1], and
          * transform this into a random number T drawn from Exp(lambda) using
          * the transformation T = -log(U)/lambda.
          *
@@ -194,20 +188,28 @@ public:
     }
 };
 
-/* You only need to include the next block of code if you want to be able to
- * archive (save or load) the cell cycle model object in a cell-based simulation. */
+/* You need to include the next block of code if you want to be able to archive (save or load)
+ * the cell cycle model object in a cell-based simulation.  It is also required for writing out
+ * the parameters file describing the settings for a simulation - it provides the unique
+ * identifier for our new cell cycle model.  Thus every cell cycle model class must provide this,
+ * or you'll get errors when running simulations. */
 #include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(MyCellCycleModel)
+
+/* Since we're defining the new cell cycle model within the test file, we need to include the
+ * following stanza as well, to make the code work with newer versions of the Boost libraries.
+ * Normally the above export declaration would occur in the cell cycle model's .hpp file, and
+ * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
+ * more information.
+ */
+#include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
 /*
  * This completes the code for {{{MyCellCycleModel}}}. Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
  *
- * EMPTYLINE
- *
  * === The Tests ===
- *
- * EMPTYLINE
  *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
@@ -216,11 +218,7 @@ class TestCreatingAndUsingANewCellCycleModelTutorial : public CxxTest::TestSuite
 public:
 
     /*
-     * EMPTYLINE
-     *
      * == Testing the cell cycle model ==
-     *
-     * EMPTYLINE
      *
      * We begin by testing that our new cell cycle model is implemented correctly.
      */
@@ -289,11 +287,7 @@ public:
         /* Lastly, we briefly test that archiving of {{{MyCellCycleModel}}} has
          * been implemented correctly. Create an {{{OutputFileHandler}}} and use
          * this to define a filename for the archive.
-         *
-         * EMPTYLINE
-         * 
-         * Note, on machines running boost versions 1.37 and above you need to split the
-         * code between a cpp and hpp file for archiving and parameters file output to work. */
+         */
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
 
@@ -333,11 +327,7 @@ public:
         /* Now create an input archive. Begin by again destroying the current
          * instance of {{{SimulationTime}}} and creating another instance. Set
          * the start time, end time and number of time steps.
-         *
-         * EMPTYLINE
-         *
-         * Note, on machines running boost version 1.37 and newer you need
-         * to split the code between a cpp and hpp file for archiving to work. */
+         */
         {
             SimulationTime::Destroy();
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -370,11 +360,7 @@ public:
     }
 
     /*
-     * EMPTYLINE
-     *
      * == Using the cell cycle model in a cell-based simulation ==
-     *
-     * EMPTYLINE
      *
      * We conclude with a brief test demonstrating how {{{MyCellCycleModel}}} can be used
      * in a cell-based simulation.

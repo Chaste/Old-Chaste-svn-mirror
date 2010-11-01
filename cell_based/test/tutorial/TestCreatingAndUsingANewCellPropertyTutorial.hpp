@@ -40,20 +40,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = An example showing how to create a new cell property and use it in a cell-based simulation =
  *
- * EMPTYLINE
- *
  * == Introduction ==
- *
- * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell property class and how this
  * can be used in a cell-based simulation.
  *
- * EMPTYLINE
- *
  * == 1. Including header files ==
- *
- * EMPTYLINE
  *
  * The first thing to do is include the following header, which allows us
  * to use certain methods in our test (this header file should be included
@@ -87,8 +79,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 
 /*
- * EMPTYLINE
- *
  * == Defining the cell property class ==
  *
  * As an example, let us consider a cell property class that is used to label
@@ -98,6 +88,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * concentrations of the vascular endothelial growth factor VEGF; for further
  * details, see for example Owen et al, J. Theor. Biol.
  * 226: 377-391 (2004).
+ * 
+ * Note that usually this code would be separated out into a separate declaration
+ * in a .hpp file and definition in a .cpp file.
  */
 class MotileCellProperty : public AbstractCellProperty
 {
@@ -141,16 +134,26 @@ public:
 
 /* Together with the serialize() method defined within the class above, the next
  * block of code allows you to archive (save or load) the cell property object
- * in a cell-based simulation. */
+ * in a cell-based simulation.  It is also required for writing out
+ * the parameters file describing the settings for a simulation - it provides the unique
+ * identifier for our new cell property.  Thus every cell property class must provide this,
+ * or you'll get errors when running simulations. */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MotileCellProperty)
 
-/* This completes the code for {{{MotileCellProperty}}}. Note that usually this code would
+/* Since we're defining the new cell property within the test file, we need to include the
+ * following stanza as well, to make the code work with newer versions of the Boost libraries.
+ * Normally the above export declaration would occur in the cell property's .hpp file, and
+ * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
+ * more information.
+ */
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(MotileCellProperty)
+
+/* This completes the code for {{{MotileCellProperty}}}.  Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
  *
  * === The Tests ===
- *
- * EMPTYLINE
  *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
@@ -159,11 +162,7 @@ class TestCreatingAndUsingANewCellPropertyTutorial : public CxxTest::TestSuite
 public:
 
     /*
-     * EMPTYLINE
-     *
      * == Testing the cell property ==
-     *
-     * EMPTYLINE
      *
      * We begin by testing that our new cell property is implemented correctly.
      */
@@ -234,11 +233,7 @@ public:
     }
 
     /*
-     * EMPTYLINE
-     *
      * == Using the cell property in a cell-based simulation ==
-     *
-     * EMPTYLINE
      *
      * We conclude with a brief test demonstrating how {{{MotileCellProperty}}} can be used
      * in a cell-based simulation.
@@ -299,7 +294,6 @@ public:
         /* We set the output directory and end time. */
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMotileCellProperty");
         simulator.SetEndTime(10.0);
-
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each

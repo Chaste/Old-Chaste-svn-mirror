@@ -40,20 +40,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = An example showing how to create a new cell killer and use it in a cell-based simulation =
  *
- * EMPTYLINE
- *
  * == Introduction ==
- *
- * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell killer class and how this
  * can be used in a cell-based simulation.
  *
- * EMPTYLINE
- *
  * == 1. Including header files ==
- *
- * EMPTYLINE
  *
  * The first thing to do is include the following header, which allows us
  * to use certain methods in our test (this header file should be included
@@ -86,8 +78,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 #include "CellsGenerator.hpp"
 /*
- * EMPTYLINE
- *
  * == Defining the cell killer class ==
  *
  * As an example, let us consider a cell killer which labels any cells in a
@@ -96,6 +86,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * implement this we define a new cell killer class, {{{MyCellKiller}}},
  * which inherits from {{{AbstractCellKiller}}} and overrides the
  * {{{TestAndLabelCellsForApoptosisOrDeath()}}} method.
+ * 
+ * Note that usually this code would be separated out into a separate declaration in
+ * a .hpp file and definition in a .cpp file.
  */
 class MyCellKiller : public AbstractCellKiller<2>
 {
@@ -154,15 +147,28 @@ public:
 
 };
 
-/* You only need to include the next block of code if you want to be able to
- * archive (save or load) the cell killer object in a cell-based simulation. We
- * start by including a serialization header, then define {{{save_construct_data}}}
- * and {{{load_construct_data}}} methods, which archive the cell killer
- * constructor input argument(s) (in this case, a {{{CellPopulation}}}). */
+/* You need to include the next block of code if you want to be able to archive (save or load)
+ * the cell killer object in a cell-based simulation.  It is also required for writing out
+ * the parameters file describing the settings for a simulation - it provides the unique
+ * identifier for our new cell killer.  Thus every cell killer class must provide this,
+ * or you'll get errors when running simulations. */
 
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellKiller)
 
+/* Since we're defining the new cell killer within the test file, we need to include the
+ * following stanza as well, to make the code work with newer versions of the Boost libraries.
+ * Normally the above export declaration would occur in the cell killer's .hpp file, and
+ * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
+ * more information.
+ */
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(MyCellKiller)
+
+/* You only need to include the next block of code if you want to be able to archive (save or load)
+ * the cell killer object in a cell-based simulation. We define `save_construct_data` and
+ * `load_construct_data` methods, which archive the cell killer constructor input argument(s)
+ * (in this case, a `CellPopulation`). */
 namespace boost
 {
     namespace serialization
@@ -194,14 +200,9 @@ namespace boost
 /*
  * This completes the code for {{{MyCellKiller}}}. Note that usually this code
  * would be separated out into a separate declaration in a .hpp file and definition
- * in a .cpp file.  In this case, serialization has to be handled slightly more
- * carefully; see BoostSerialization for details.
- *
- * EMPTYLINE
+ * in a .cpp file.
  *
  * === The Tests ===
- *
- * EMPTYLINE
  *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
@@ -210,11 +211,7 @@ class TestCreatingAndUsingANewCellKillerTutorial : public CxxTest::TestSuite
 public:
 
     /*
-     * EMPTYLINE
-     *
      * == Testing the cell killer ==
-     *
-     * EMPTYLINE
      *
      * We begin by testing that our new cell cycle model is implemented correctly.
      */
@@ -320,11 +317,7 @@ public:
     }
 
     /*
-     * EMPTYLINE
-     *
      * == Using the cell killer in a cell-based simulation ==
-     *
-     * EMPTYLINE
      *
      * We now provide a test demonstrating how {{{MyCellKiller}}} can be used
      * in a cell-based simulation.
