@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cassert>
+#include <algorithm>
 
 #include "AbstractOdeSystemInformation.hpp"
 #include "Exception.hpp"
@@ -79,31 +80,19 @@ const std::vector<std::string>& AbstractOdeSystemInformation::rGetStateVariableU
 unsigned AbstractOdeSystemInformation::GetStateVariableIndex(const std::string& rName) const
 {
     assert(mInitialised);
-    unsigned index = 0u;
-    std::vector<std::string>::const_iterator it = mVariableNames.begin();
-    for ( ; it != mVariableNames.end() && *it != rName; ++it, ++index);
+    std::vector<std::string>::const_iterator it = find(mVariableNames.begin(), mVariableNames.end(), rName);
     if (it == mVariableNames.end())
     {
         EXCEPTION("No state variable named '" + rName + "'.");
     }
-    return index;
+    return (unsigned)(it - mVariableNames.begin());
 }
 
 bool AbstractOdeSystemInformation::HasStateVariable(const std::string& rName) const
 {
     assert(mInitialised);
-    std::vector<std::string>::const_iterator it = mVariableNames.begin();
-    for (// You get "error: name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
-         ; it != mVariableNames.end() && *it != rName;
-         ++it);
-    if (it == mVariableNames.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    std::vector<std::string>::const_iterator it = find(mVariableNames.begin(), mVariableNames.end(), rName);
+    return (it != mVariableNames.end());
 }
 
 std::string AbstractOdeSystemInformation::GetStateVariableUnits(unsigned index) const
@@ -131,31 +120,19 @@ const std::vector<std::string>& AbstractOdeSystemInformation::rGetParameterUnits
 unsigned AbstractOdeSystemInformation::GetParameterIndex(const std::string& rName) const
 {
     assert(mInitialised);
-    unsigned index = 0u;
-    std::vector<std::string>::const_iterator it = mParameterNames.begin();
-    for ( ; it != mParameterNames.end() && *it != rName; ++it, ++index);
+    std::vector<std::string>::const_iterator it = find(mParameterNames.begin(), mParameterNames.end(), rName);
     if (it == mParameterNames.end())
     {
         EXCEPTION("No parameter named '" + rName + "'.");
     }
-    return index;
+    return (unsigned)(it - mParameterNames.begin());
 }
 
 bool AbstractOdeSystemInformation::HasParameter(const std::string& rName) const
 {
     assert(mInitialised);
-    std::vector<std::string>::const_iterator it = mParameterNames.begin();
-    for (// You get "error: name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
-         ; it != mParameterNames.end() && *it != rName;
-         ++it);
-    if (it == mParameterNames.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    std::vector<std::string>::const_iterator it = find(mParameterNames.begin(), mParameterNames.end(), rName);
+    return (it != mParameterNames.end());
 }
 
 std::string AbstractOdeSystemInformation::GetParameterUnits(unsigned index) const
@@ -193,22 +170,7 @@ unsigned AbstractOdeSystemInformation::GetAnyVariableIndex(const std::string& rN
 bool AbstractOdeSystemInformation::HasAnyVariable(const std::string& rName) const
 {
     assert(mInitialised);
-    if (HasStateVariable(rName))
-    {
-        return true;
-    }
-    else if (HasParameter(rName))
-    {
-        return true;
-    }
-    else if (HasDerivedQuantity(rName))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (HasStateVariable(rName) || HasParameter(rName) || HasDerivedQuantity(rName));
 }
 
 std::string AbstractOdeSystemInformation::GetAnyVariableUnits(unsigned index) const
@@ -256,31 +218,19 @@ const std::vector<std::string>& AbstractOdeSystemInformation::rGetDerivedQuantit
 unsigned AbstractOdeSystemInformation::GetDerivedQuantityIndex(const std::string& rName) const
 {
     assert(mInitialised);
-    unsigned index = 0u;
-    std::vector<std::string>::const_iterator it = mDerivedQuantityNames.begin();
-    for ( ; it != mDerivedQuantityNames.end() && *it != rName; ++it, ++index);
+    std::vector<std::string>::const_iterator it = find(mDerivedQuantityNames.begin(), mDerivedQuantityNames.end(), rName);
     if (it == mDerivedQuantityNames.end())
     {
         EXCEPTION("No derived quantity named '" + rName + "'.");
     }
-    return index;
+    return (unsigned)(it - mDerivedQuantityNames.begin());
 }
 
 bool AbstractOdeSystemInformation::HasDerivedQuantity(const std::string& rName) const
 {
     assert(mInitialised);
-    std::vector<std::string>::const_iterator it = mDerivedQuantityNames.begin();
-    for (//  You get "error:name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
-         ; it != mDerivedQuantityNames.end() && *it != rName;
-         ++it);
-    if (it == mDerivedQuantityNames.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    std::vector<std::string>::const_iterator it = find(mDerivedQuantityNames.begin(), mDerivedQuantityNames.end(), rName);
+    return (it != mDerivedQuantityNames.end());
 }
 
 std::string AbstractOdeSystemInformation::GetDerivedQuantityUnits(unsigned index) const
