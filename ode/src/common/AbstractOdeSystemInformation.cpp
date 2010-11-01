@@ -89,6 +89,23 @@ unsigned AbstractOdeSystemInformation::GetStateVariableIndex(const std::string& 
     return index;
 }
 
+bool AbstractOdeSystemInformation::HasStateVariable(const std::string& rName) const
+{
+    assert(mInitialised);
+    std::vector<std::string>::const_iterator it = mVariableNames.begin();
+    for (// You get "error: name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
+         ; it != mVariableNames.end() && *it != rName;
+         ++it);
+    if (it == mVariableNames.end())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 std::string AbstractOdeSystemInformation::GetStateVariableUnits(unsigned index) const
 {
     assert(mInitialised);
@@ -98,7 +115,6 @@ std::string AbstractOdeSystemInformation::GetStateVariableUnits(unsigned index) 
     }
     return mVariableUnits[index];
 }
-
 
 const std::vector<std::string>& AbstractOdeSystemInformation::rGetParameterNames() const
 {
@@ -125,6 +141,23 @@ unsigned AbstractOdeSystemInformation::GetParameterIndex(const std::string& rNam
     return index;
 }
 
+bool AbstractOdeSystemInformation::HasParameter(const std::string& rName) const
+{
+    assert(mInitialised);
+    std::vector<std::string>::const_iterator it = mParameterNames.begin();
+    for (// You get "error: name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
+         ; it != mParameterNames.end() && *it != rName;
+         ++it);
+    if (it == mParameterNames.end())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 std::string AbstractOdeSystemInformation::GetParameterUnits(unsigned index) const
 {
     assert(mInitialised);
@@ -138,27 +171,43 @@ std::string AbstractOdeSystemInformation::GetParameterUnits(unsigned index) cons
 unsigned AbstractOdeSystemInformation::GetAnyVariableIndex(const std::string& rName) const
 {
     assert(mInitialised);
-    try
+    if (HasStateVariable(rName))
     {
         return GetStateVariableIndex(rName);
     }
-    catch (const Exception& e)
+    else if (HasParameter(rName))
     {
-        try
-        {
-            return mVariableNames.size() + GetParameterIndex(rName);
-        }
-        catch (const Exception& e)
-        {
-            try
-            {
-                return mVariableNames.size() + mParameterNames.size() + GetDerivedQuantityIndex(rName);
-            }
-            catch (const Exception& e)
-            {
-                EXCEPTION("No state variable, parameter, or derived quantity named '" + rName + "'.");
-            }
-        }
+        return mVariableNames.size() + GetParameterIndex(rName);
+    }
+    else if (HasDerivedQuantity(rName))
+    {
+        return mVariableNames.size() + mParameterNames.size() + GetDerivedQuantityIndex(rName);
+    }
+    else
+    {
+        EXCEPTION("No state variable, parameter, or derived quantity named '" + rName + "'.");
+    }
+}
+
+
+bool AbstractOdeSystemInformation::HasAnyVariable(const std::string& rName) const
+{
+    assert(mInitialised);
+    if (HasStateVariable(rName))
+    {
+        return true;
+    }
+    else if (HasParameter(rName))
+    {
+        return true;
+    }
+    else if (HasDerivedQuantity(rName))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
@@ -215,6 +264,23 @@ unsigned AbstractOdeSystemInformation::GetDerivedQuantityIndex(const std::string
         EXCEPTION("No derived quantity named '" + rName + "'.");
     }
     return index;
+}
+
+bool AbstractOdeSystemInformation::HasDerivedQuantity(const std::string& rName) const
+{
+    assert(mInitialised);
+    std::vector<std::string>::const_iterator it = mDerivedQuantityNames.begin();
+    for (//  You get "error:name lookup of 'it' changed for ISO 'for' scoping" if you put above line in here.
+         ; it != mDerivedQuantityNames.end() && *it != rName;
+         ++it);
+    if (it == mDerivedQuantityNames.end())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 std::string AbstractOdeSystemInformation::GetDerivedQuantityUnits(unsigned index) const

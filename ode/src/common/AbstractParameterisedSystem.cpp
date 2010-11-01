@@ -124,6 +124,13 @@ unsigned AbstractParameterisedSystem<VECTOR>::GetStateVariableIndex(const std::s
 }
 
 template<typename VECTOR>
+bool AbstractParameterisedSystem<VECTOR>::HasStateVariable(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->HasStateVariable(rName);
+}
+
+template<typename VECTOR>
 std::string AbstractParameterisedSystem<VECTOR>::GetStateVariableUnits(unsigned index) const
 {
     assert(mpSystemInfo);
@@ -188,6 +195,13 @@ unsigned AbstractParameterisedSystem<VECTOR>::GetParameterIndex(const std::strin
 }
 
 template<typename VECTOR>
+bool AbstractParameterisedSystem<VECTOR>::HasParameter(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->HasParameter(rName);
+}
+
+template<typename VECTOR>
 std::string AbstractParameterisedSystem<VECTOR>::GetParameterUnits(unsigned index) const
 {
     assert(mpSystemInfo);
@@ -243,6 +257,13 @@ unsigned AbstractParameterisedSystem<VECTOR>::GetAnyVariableIndex(const std::str
 }
 
 template<typename VECTOR>
+bool AbstractParameterisedSystem<VECTOR>::HasAnyVariable(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->HasAnyVariable(rName);
+}
+
+template<typename VECTOR>
 std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(unsigned index) const
 {
     assert(mpSystemInfo);
@@ -292,6 +313,13 @@ unsigned AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityIndex(const std:
 {
     assert(mpSystemInfo);
     return mpSystemInfo->GetDerivedQuantityIndex(rName);
+}
+
+template<typename VECTOR>
+bool AbstractParameterisedSystem<VECTOR>::HasDerivedQuantity(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->HasDerivedQuantity(rName);
 }
 
 template<typename VECTOR>

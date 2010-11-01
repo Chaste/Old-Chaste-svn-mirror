@@ -112,6 +112,7 @@ public:
         ode.SetParameter("a", a);
         TS_ASSERT_EQUALS(ode.GetParameter(0), a);
 
+        TS_ASSERT_EQUALS(ode.HasParameter("a"), true);
         TS_ASSERT_EQUALS(ode.rGetParameterNames()[0], "a");
         TS_ASSERT_EQUALS(ode.rGetParameterUnits()[0], "dimensionless");
         TS_ASSERT_EQUALS(ode.GetParameterIndex("a"), 0u);
@@ -122,6 +123,7 @@ public:
         TS_ASSERT_EQUALS(p_info->GetParameterIndex("a"), 0u);
         TS_ASSERT_EQUALS(p_info->GetParameterUnits(0u), "dimensionless");
 
+        TS_ASSERT_EQUALS(ode.HasStateVariable("y"), true);
         TS_ASSERT_EQUALS(ode.rGetStateVariableNames()[0], "y");
         TS_ASSERT_EQUALS(ode.rGetStateVariableUnits()[0], "dimensionless");
         TS_ASSERT_EQUALS(ode.GetStateVariableIndex("y"), 0u);
@@ -136,6 +138,8 @@ public:
         ode.SetStateVariable(0u, y);
         TS_ASSERT_EQUALS(ode.GetStateVariable(0u), y);
 
+        TS_ASSERT_EQUALS(ode.HasAnyVariable("y"), true);
+        TS_ASSERT_EQUALS(ode.HasAnyVariable("a"), true);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("y"), 0u);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("a"), 1u);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(0u), y);
@@ -152,8 +156,11 @@ public:
         // Exceptions
         TS_ASSERT_THROWS_THIS(ode.SetParameter(1u, -a), "The index passed in must be less than the number of parameters.");
 
+        TS_ASSERT_EQUALS(ode.HasParameter("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetParameterIndex("b"), "No parameter named 'b'.");
+        TS_ASSERT_EQUALS(ode.HasStateVariable("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableIndex("b"), "No state variable named 'b'.");
+        TS_ASSERT_EQUALS(ode.HasAnyVariable("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetAnyVariableIndex("b"), "No state variable, parameter, or derived quantity named 'b'.");
 
         TS_ASSERT_THROWS_THIS(ode.GetAnyVariable(3u), "Invalid index passed to GetAnyVariable.");
@@ -164,8 +171,11 @@ public:
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
         TS_ASSERT_THROWS_THIS(ode.GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
 
+        TS_ASSERT_EQUALS(p_info->HasParameter("b"), false);
         TS_ASSERT_THROWS_THIS(p_info->GetParameterIndex("b"), "No parameter named 'b'.");
+        TS_ASSERT_EQUALS(p_info->HasStateVariable("b"), false);
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableIndex("b"), "No state variable named 'b'.");
+        TS_ASSERT_EQUALS(p_info->HasAnyVariable("b"), false);
         TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableIndex("b"), "No state variable, parameter, or derived quantity named 'b'.");
         TS_ASSERT_THROWS_THIS(p_info->GetParameterUnits(1u), "The index passed in must be less than the number of parameters.");
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
@@ -242,6 +252,8 @@ public:
         boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
         
         TS_ASSERT_EQUALS(ode.GetNumberOfDerivedQuantities(), 1u);
+        TS_ASSERT_EQUALS(ode.HasDerivedQuantity("2a_plus_y"), true);
+        TS_ASSERT_EQUALS(ode.HasDerivedQuantity("Not_there"), false);
         TS_ASSERT_EQUALS(ode.GetDerivedQuantityIndex("2a_plus_y"), 0u);
         TS_ASSERT_EQUALS(ode.GetDerivedQuantityUnits(0u), "dimensionless");
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityNames().size(), 1u);
@@ -249,6 +261,8 @@ public:
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityNames()[0], "2a_plus_y");
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityUnits()[0], "dimensionless");
         
+        TS_ASSERT_EQUALS(p_info->HasDerivedQuantity("2a_plus_y"), true);
+        TS_ASSERT_EQUALS(p_info->HasDerivedQuantity("Not_there"), false);
         TS_ASSERT_EQUALS(p_info->GetDerivedQuantityIndex("2a_plus_y"), 0u);
         TS_ASSERT_EQUALS(p_info->GetDerivedQuantityUnits(0u), "dimensionless");
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames().size(), 1u);
@@ -256,6 +270,8 @@ public:
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames()[0], "2a_plus_y");
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits()[0], "dimensionless");
         
+        TS_ASSERT_EQUALS(ode.HasAnyVariable("2a_plus_y"), true);
+        TS_ASSERT_EQUALS(ode.HasAnyVariable("Not_there"), false);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("2a_plus_y"), 2u);
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(2u), "dimensionless");
         TS_ASSERT_EQUALS(p_info->GetAnyVariableIndex("2a_plus_y"), 2u);

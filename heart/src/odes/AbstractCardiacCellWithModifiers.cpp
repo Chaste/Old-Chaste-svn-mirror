@@ -47,23 +47,36 @@ AbstractCardiacCellWithModifiers<CARDIAC_CELL>::AbstractCardiacCellWithModifiers
 }
 
 template<class CARDIAC_CELL>
-boost::shared_ptr<AbstractModifier> AbstractCardiacCellWithModifiers<CARDIAC_CELL>::GetModifier(std::string modifierName)
+boost::shared_ptr<AbstractModifier> AbstractCardiacCellWithModifiers<CARDIAC_CELL>::GetModifier(const std::string& rModifierName)
 {
-    if (mModifiersMap.find(modifierName) == mModifiersMap.end())
+    if (mModifiersMap.find(rModifierName) == mModifiersMap.end())
     {
-        EXCEPTION("There is no modifier called " + modifierName + " in this model.");
+        EXCEPTION("There is no modifier called " + rModifierName + " in this model.");
     }
-    return *(mModifiersMap[modifierName]);
+    return *(mModifiersMap[rModifierName]);
 }
 
 template<class CARDIAC_CELL>
-void AbstractCardiacCellWithModifiers<CARDIAC_CELL>::SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pNewModifier)
+bool AbstractCardiacCellWithModifiers<CARDIAC_CELL>::HasModifier(const std::string& rModifierName) const
 {
-    if (mModifiersMap.find(modifierName) == mModifiersMap.end())
+    if (mModifiersMap.find(rModifierName) == mModifiersMap.end())
     {
-        EXCEPTION("There is no modifier called " + modifierName + " in this model.");
+        return false;
     }
-    *(mModifiersMap[modifierName]) = pNewModifier;
+    else
+    {
+        return true;
+    }
+}
+
+template<class CARDIAC_CELL>
+void AbstractCardiacCellWithModifiers<CARDIAC_CELL>::SetModifier(const std::string& rModifierName, boost::shared_ptr<AbstractModifier>& pNewModifier)
+{
+    if (mModifiersMap.find(rModifierName) == mModifiersMap.end())
+    {
+        EXCEPTION("There is no modifier called " + rModifierName + " in this model.");
+    }
+    *(mModifiersMap[rModifierName]) = pNewModifier;
 }
 
 // Explicit Instantiation

@@ -143,6 +143,16 @@ public:
     unsigned GetStateVariableIndex(const std::string& rName) const;
 
     /**
+     * This method is used to establish whether a state variable is in
+     * an ODE system. You can then safely call GetStateVariableIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a state variable
+     * @return whether the state variable is in this ODE system
+     */
+    bool HasStateVariable(const std::string& rName) const;
+
+    /**
      * Get the units of a state variable given its index in the ODE system.
      *
      * @param index  a state variable's position within the vector of
@@ -205,6 +215,16 @@ public:
     unsigned GetParameterIndex(const std::string& rName) const;
 
     /**
+     * This method is used to establish whether a parameter is in
+     * an ODE system. You can then safely call GetParameterIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a parameter
+     * @return whether the parameter is in this ODE system
+     */
+    bool HasParameter(const std::string& rName) const;
+
+    /**
      * Get the units of a parameter given its index in the ODE system.
      *
      * @param index  a state variable's position within the vector of
@@ -242,6 +262,17 @@ public:
      * @param rName  the name of a variable
      */
     unsigned GetAnyVariableIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a variable is in
+     * an ODE system's state vars, parameters or derived quantitites.
+     * You can then safely call GetAnyVariableIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a variable
+     * @return whether the variable is in this ODE system
+     */
+    bool HasAnyVariable(const std::string& rName) const;
 
     /**
      * Get the units of a variable, whether a state variable, parameter, or
@@ -294,6 +325,16 @@ public:
      * @param rName  the name of a derived quantity.
      */
     unsigned GetDerivedQuantityIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a derived quantity is in
+     * an ODE system. You can then safely call GetDerivedQuantityIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a derived quantity
+     * @return whether the derived quantity is in this ODE system
+     */
+    bool HasDerivedQuantity(const std::string& rName) const;
 
     /**
      * Get the units of a derived quantity.

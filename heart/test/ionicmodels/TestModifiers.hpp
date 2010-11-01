@@ -47,9 +47,11 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         CellShannon2004FromCellML* p_shannon = new CellShannon2004FromCellML(p_solver, p_stimulus);
 
+        TS_ASSERT_EQUALS(p_shannon->HasModifier("Alan"), false);
         TS_ASSERT_THROWS_THIS(p_shannon->GetModifier("Alan"), "There is no modifier called Alan in this model.");
 
         // Default modifier shouldn't do anything to the value inputted to calc()
+        TS_ASSERT_EQUALS(p_shannon->HasModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance"), true);
         TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(123,0),123,1e-9);
 
         // Make a new modifier

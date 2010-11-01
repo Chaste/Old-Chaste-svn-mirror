@@ -80,7 +80,16 @@ public:
      * @param modifierName  The oxmeta name of the modifier to fetch.
      * @return a pointer to the specified modifier
      */
-    boost::shared_ptr<AbstractModifier> GetModifier(std::string modifierName);
+    boost::shared_ptr<AbstractModifier> GetModifier(const std::string& rModifierName);
+
+    /**
+     * Check for the presence of a modifier. To avoid the necessity of using
+     * try...catch around every call to GetModifier().
+     *
+     * @param modifierName  The oxmeta name of a modifier
+     * @return whether or not the cell has one of these modifiers.
+     */
+    bool HasModifier(const std::string& rModifierName) const;
 
     /**
      * Set a new modifier
@@ -88,7 +97,7 @@ public:
      * @param modifierName  The oxmeta name of the modifier to replace.
      * @param pNewModifier  The new modifier object to use.
      */
-    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pNewModifier);
+    void SetModifier(const std::string& rModifierName, boost::shared_ptr<AbstractModifier>& pNewModifier);
 
 };
 
