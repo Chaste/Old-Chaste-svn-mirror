@@ -133,7 +133,7 @@ public:
         TS_ASSERT_EQUALS(p_abs_stim,p_stimulus);
 
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 0u);
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0); // 0 means 'UNSET' and Cvode uses the default.
 
         // 'Traditional' Chaste cell model for comparison of results:
         CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
@@ -179,7 +179,7 @@ public:
         // Reset CVODE cell to initial conditions, and solve without sampling
         lr91_cvode_system.ResetToInitialConditions();
         lr91_cvode_system.SetMaxSteps(10000);
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000);
         lr91_cvode_system.Solve(start_time, end_time, max_timestep);
         TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
         
@@ -271,7 +271,7 @@ public:
         // Make a model that uses Cvode directly:
         CellShannon2004FromCellMLCvode sh04_cvode_system(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetVoltageIndex(), 0u);
-        TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
+        TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0); // 0 means 'UNSET' and Cvode uses the default.
 
         // 'Traditional' Chaste cell model for comparison of results:
         CellShannon2004FromCellML sh04_ode_system(p_solver, p_stimulus);
