@@ -101,14 +101,14 @@
         <li>
           For derived quantities, added methods <tt>GetDerivedQuantityIndex</tt>, <tt>GetDerivedQuantityUnits</tt>, <tt>rGetDerivedQuantityNames</tt>, and <tt>rGetDerivedQuantityUnits</tt>
           on <tt>AbstractParameterisedSystem</tt> and <tt>AbstractOdeSystemInformation</tt>.  <tt>AbstractParameterisedSystem</tt> also has <tt>GetNumberOfDerivedQuantities</tt>,
-          <tt>ComputeDerivedQuantities</tt>, and <tt>ComputeDerivedQuantitiesFromCurrentState</tt>.  Note that these latter methods require the current time as input (just in case)
-          and may not be very efficient.  Concrete ODE system classes should define <tt>ComputeDerivedQuantities</tt> if they provide any derived quantities. The <tt>OdeSolution</tt>
-          class also has support for writing derived quantities to disk.
+          <tt>ComputeDerivedQuantities</tt>, and <tt>ComputeDerivedQuantitiesFromCurrentState</tt>.  Note that these latter methods require the current time as input (in case the derived 
+          quantity was function of time) and may not be very efficient.  Concrete ODE system classes should define <tt>ComputeDerivedQuantities</tt> if they provide any derived quantities. 
+          The <tt>OdeSolution</tt> class also has support for writing derived quantities to disk.
         </li>
         <li>
           Finally, there is also "any variable" functionality, with similarly named methods (e.g. <tt>GetAnyVariableIndex</tt>) which try first state variables, then parameters,
           then derived quantities, until a matching name is found.  To support derived quantities, <tt>GetAnyVariable</tt> can optionally take the current time as a second parameter
-          (it default to zero).
+          (it defaults to zero).
         </li>
       </ul>
     </li>
@@ -120,7 +120,7 @@
   </ul>
   </li>
   <li>Cardiac:<ul>
-    <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint.</li>
+    <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint. See <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/UserTutorials/CardiacExecutable/CheckpointingAndRestarting.html">UserTutorials/CardiacExecutable/CheckpointingAndRestarting</a> for details.</li>
     <li>
       The <tt>OutputVariables</tt> functionality has been fixed to actually output the variables requested!  It can now output any state variable, or any variable annotated
       as a parameter or derived quantity in the cell model.
@@ -206,9 +206,9 @@
       can either exit or abort in parallel) -- compilation may fail if you are missing <tt>#include "PetscTools.hpp"</tt>.
     </li>
     <li>
-      Providing an estimate of the maximum number of nonzero entries expected on any row is now compulsory and is done via an additional argument to <tt>PetscTools::SetupMat()</tt>,
-      rather than by a call to <tt>PetscTools::SetMaxNumNonzerosIfMatMpiAij()</tt>.  <tt>PetscTools::SetupMat()</tt> no longer has a <tt>MatType</tt> argument.  Code that uses the old
-      method in the problem class will no longer compile or may interpret extra arguments incorrectly.  Instead, changes must be made to the <tt>InitializeForSolve()</tt> method of the
+      Providing an estimate of the maximum number of nonzero entries expected on any row is now compulsory and is done via an additional argument to <tt>PetscTools::SetupMat</tt>,
+      rather than by a call to <tt>PetscTools::SetMaxNumNonzerosIfMatMpiAij</tt>.  <tt>PetscTools::SetupMat</tt> no longer has a <tt>MatType</tt> argument.  Code that uses the old
+      method in the problem class will no longer compile or may interpret extra arguments incorrectly.  Instead, changes must be made to the <tt>InitializeForSolve</tt> method of the
       assembler.  Instead of instantiating the linear system by <tt>this->mpLinearSystem = new LinearSystem(template_vec);</tt>, we must add an extra argument:
       <tt>this->mpLinearSystem = new LinearSystem(template_vec, *NNZ*);</tt>.
     </li>
@@ -232,7 +232,7 @@
   </li>
   <li>Cardiac:<ul>
     <li>
-      All cell models are generated on the fly from CellML, which will break code previously using these. Please update the following 
+      All cell models are generated on the fly from CellML, which will break code previously using these. Please update the following:
       <ul>
         <li><tt>#include</tt> directives:
           <ul>
@@ -263,17 +263,19 @@
       The mesh classes <tt>Face</tt>, <tt>VoronoiCell</tt>, <tt>VoronoiTessellation</tt> and <tt>InventorVoronoiWriter</tt> have been deleted.  This is because they are no longer
       used in the code.  Now, when a <tt>MeshBasedTissue</tt> is required to construct the Voronoi tessellation that is dual to its mesh, this is stored as a <tt>VertexMesh</tt>.
       The main difference is how the <tt>MeshBasedTissue</tt> then accesses information about the Voronoi tessellation.  Users should replace <tt>MeshBasedTissue</tt> calls to
-      <tt>rGetVoronoiTessellation().GetFaceArea()</tt> with <tt>GetAreaOfVoronoiElement()</tt>, calls to <tt>rGetVoronoiTessellation().GetFacePerimeter()</tt> with
-      <tt>GetPerimeterOfVoronoiElement()</tt>, and calls to <tt>rGetVoronoiTessellation().GetEdgeLength()</tt> with <tt>GetVoronoiEdgeLength()</tt>.
+      <tt>rGetVoronoiTessellation.GetFaceArea</tt> with <tt>GetAreaOfVoronoiElement</tt>, calls to <tt>rGetVoronoiTessellation.GetFacePerimeter</tt> with
+      <tt>GetPerimeterOfVoronoiElement</tt>, and calls to <tt>rGetVoronoiTessellation.GetEdgeLength</tt> with <tt>GetVoronoiEdgeLength</tt>.
     </li>
     <li>Changed <tt>MeshBasedTissue</tt> method <tt>rGetVoronoiTessellation</tt> to <tt>GetVoronoiTessellation</tt> (i.e. return a pointer rather than a reference) in order to avoid memory issues.</li>
-    <li>Various renamings have occurred.
+    <li>Various renamings have occurred:
+      <ul>
       <li>
         <tt>MeshBasedTissue</tt> methods <tt>SetOutputTissueAreas</tt>, <tt>WriteTissueAreaResultsToFile</tt>, <tt>WriteCellAreaResultsToFile</tt> renamed to use
         <tt>Volume</tt> instead of <tt>Area</tt>.  Similarly merged the <tt>VertexMesh</tt> method <tt>GetPerimeterOfVoronoiElement</tt> into
         <tt>GetSurfaceAreaOfVoronoiElement</tt> and <tt>GetAreaOfVoronoiElement</tt> into <tt>GetVolumeOfVoronoiElement</tt>.
       </li>
       <li><tt>VertexMesh</tt> method <tt>SolveVoronoiElementIndexMapping</tt> renamed to <tt>GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex</tt>.</li>
+      </ul>
     </li>
     <li>When a <tt>MeshBasedTissue</tt> creates a Voronoi tessellation, this is constructed out of all nodes in the mesh, including ghost nodes.</li>
     <li><tt>CellwiseData</tt> has been generalised to cope with vertex-based tissues; some of its methods have changed names or arguments.</li>
