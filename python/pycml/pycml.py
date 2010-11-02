@@ -535,6 +535,11 @@ class cellml_model(element_base):
     def clean_up(self):
         """Try to get the RDF library to clean up nicely."""
         cellml_metadata.remove_model(self)
+    
+    def get_option(self, option_name):
+        """Get the value of a command-line option."""
+        config = getattr(self.xml_parent, '_cml_config', None)
+        return config and getattr(config.options, option_name)
 
     def get_component_by_name(self, compname):
         """Return the component object that has name `compname'."""
@@ -5477,7 +5482,42 @@ class mathml_diff(mathml_operator):
         ode = mathml_apply.create_new(elt, u'eq', [diff, rhs])
         return ode
 
-class mathml_plus(mathml_operator, mathml_units_mixin_set_operands):
+class reduce_commutative_nary(object):
+    def __init__(self, *args, **kwargs):
+        super(reduce_commutative_nary, self).__init__(*args, **kwargs)
+        
+    def _reduce(self):
+        """Reduce this expression by evaluating its static parts.
+
+        If the whole expression is static, proceed as normal for an
+        <apply>.  Otherwise check if we have more than one static
+        operand.  If we do, we can combine them in a new static
+        expression and evaluate that as a whole.
+        """
+        app = self.xml_parent
+        bt = app._get_binding_time()
+        if bt == BINDING_TIMES.static or not self.model.get_option('partial_pe_commutative'):
+            # Evaluate this expression as normal
+            app._reduce(check_operator=False)
+        else:
+            # Get binding times of operands
+            static_opers = filter(lambda e: app._get_element_binding_time(e) == BINDING_TIMES.static,
+                                  app.operands())
+            if len(static_opers) > 1:
+                # Remove them from app
+                for oper in static_opers:
+                    app.xml_remove_child(oper)
+                    oper.next_elem = None
+                # Create the new expression
+                new_expr = mathml_apply.create_new(self, self.localName, static_opers)
+                # Put it in the model and reduce it to evaluate it properly
+                app.xml_append(new_expr)
+                new_expr._reduce()
+            # Now reduce all our operands as normal
+            app._reduce(check_operator=False)
+        return
+
+class mathml_plus(mathml_operator, mathml_units_mixin_set_operands, reduce_commutative_nary):
     """Class representing the MathML <plus> operator."""
     def __init__(self):
         super(mathml_plus, self).__init__()
@@ -5514,7 +5554,7 @@ class mathml_minus(mathml_operator, mathml_units_mixin_set_operands):
             self.wrong_number_of_operands(len(ops), [1, 2])
         return value
 
-class mathml_times(mathml_operator, mathml_units_mixin_choose_nearest):
+class mathml_times(mathml_operator, mathml_units_mixin_choose_nearest, reduce_commutative_nary):
     """Class representing the MathML <times> operator."""
     def __init__(self):
         super(mathml_times, self).__init__()
@@ -5522,8 +5562,7 @@ class mathml_times(mathml_operator, mathml_units_mixin_choose_nearest):
 
     def evaluate(self):
         """
-        Evaluate by taking the produce of the operands of the
-        enclosing <apply>.
+        Evaluate by taking the product of the operands of the enclosing <apply>.
         """
         app = self.xml_parent
         ops = app.operands()

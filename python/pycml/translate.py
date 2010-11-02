@@ -4690,13 +4690,17 @@ def get_options(args, default_options=None):
     parser.add_option('--no-row-lookup-method',
                       action='store_false', dest='row_lookup_method',
                       help="don't add and use a method to look up a whole row of a table")
+    parser.add_option('--combine-commutative-tables',
+                      action='store_true', default=False,
+                      help="optimise a special corner case to reduce the number of tables."
+                      " See documentation for details.")
     parser.add_option('--lt-index-uses-floor',
                       action='store_true', default=False,
                       help="use floor() to calculate LT indices, instead of "
                       "just casting")
     parser.add_option('--constrain-table-indices',
                       action='store_true', default=False,
-                      help="constraint lookup table index variables to remain"
+                      help="constrain lookup table index variables to remain"
                       " within the bounds specified, rather than throwing an"
                       " exception if they go outside the bounds")
     parser.add_option('--bad-lt-layout-for-cache', dest='bad_tables_for_cache',
@@ -4707,6 +4711,12 @@ def get_options(args, default_options=None):
     parser.add_option('--no-member-vars', dest='kept_vars_as_members',
                       action='store_false', default=True,
                       help="[debug] don't store kept variables as members")
+    parser.add_option('--no-partial-pe-commutative', dest='partial_pe_commutative',
+                      action='store_false', default=True,
+                      help="[debug] don't combine static operands of dynamic commutative associative applys")
+    parser.add_option('--no-pe-instantiate-tables', dest='pe_instantiate_tables',
+                      action='store_false', default=True,
+                      help="[debug] don't instantiate definitions that will be tables regardless of usage")
 
     options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:

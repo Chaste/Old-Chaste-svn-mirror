@@ -165,9 +165,13 @@ class PartialEvaluator(object):
         single LT keying variable (and we will do LT) then code duplication doesn't really matter,
         since the whole expression will be converted to a table anyway.  So we should instantiate
         regardless of multiple uses in this case.
+        
+        Note: this does check that only a single keying variable appears, but doesn't check for
+        the presence of expensive functions.  Of course, if there aren't any expensive functions,
+        the code duplication isn't that worrying.
         """
         instantiate = False
-        if self.lookup_tables_analyser:
+        if self.lookup_tables_analyser and self.doc.model.get_option('pe_instantiate_tables'):
             keying_vars = set()
             all_keying = [True]
             def func(ci_elt):
@@ -375,6 +379,11 @@ class LookupTableAnalyser(object):
         # Set default parameter values
         self.set_params()
 
+    @property
+    def config(self):
+        """Get the current document's configuration store."""
+        return getattr(self.doc, '_cml_config', None)
+
     def var_is_membrane_potential(self, var):
         """
         Determine if the given variable represents the
@@ -392,7 +401,7 @@ class LookupTableAnalyser(object):
         This method uses the config store in the document to check the
         variable object.
         """
-        return self.doc._cml_config.lut_config.has_key(
+        return self.config.lut_config.has_key(
             var.get_source_variable(recurse=True))
 
     def is_keying_var(self, var):
@@ -401,8 +410,8 @@ class LookupTableAnalyser(object):
         Will check the config store if it exists.  If not, the variable
         name must match self.table_var.
         """
-        if hasattr(self.doc, '_cml_config'):
-            return self.doc._cml_config.lut_config.has_key(
+        if self.config:
+            return self.config.lut_config.has_key(
                 var.get_source_variable(recurse=True))
         else:
             return var.name == self.table_var
@@ -439,7 +448,7 @@ class LookupTableAnalyser(object):
         If that doesn't give us a value, use that given using set_params.
         """
         try:
-            val = self.doc._cml_config.lut_config[
+            val = self.config.lut_config[
                 table_var.get_source_variable(recurse=True)][param_name]
         except AttributeError, KeyError:
             val = getattr(self, param_name)
@@ -594,13 +603,19 @@ class LookupTableAnalyser(object):
                     expr.operator().localName in self.lut_expensive_funcs):
                     state.has_func = True
                 # Check operands
+                operand_states = {}
                 for operand in expr.operands():
                     r = self.analyse_for_lut(operand, var_checker_fn)
                     state.update(r)
+                    operand_states[id(operand)] = r
                 # Check qualifiers
                 for qual in expr.qualifiers():
                     r = self.analyse_for_lut(qual, var_checker_fn)
                     state.update(r)
+                # A special case minor optimisation for nary operators
+                if self.config and self.config.options.combine_commutative_tables:
+                    if not state.suitable and isinstance(expr.operator, reduce_commutative_nary):
+                        self.check_commutative_tables(expr, operand_states)
             else:
                 # Just recurse into children
                 for e in expr.xml_children:
@@ -610,23 +625,53 @@ class LookupTableAnalyser(object):
         # Annotate the expression if appropriate
         if isinstance(expr, (mathml_apply, mathml_piecewise)):
             if state.suitable():
-                if self.annotate_outermost_only:
-                    # Remove annotations from (expr and) child expressions
-                    self.remove_lut_annotations(expr)
-                for param in ['min', 'max', 'step']:
-                    expr.xml_set_attribute((u'lut:' + param, NSS['lut']),
-                                           self.get_param('table_' + param,
-                                                          state.table_var))
-                expr.xml_set_attribute((u'lut:var', NSS['lut']),
-                                       state.table_var.name)
-                expr.xml_set_attribute((u'lut:possible', NSS['lut']),
-                                       u'yes')
-                self.doc.lookup_tables[expr] = True
+                self.annotate_as_suitable(expr, state.table_var)
             else:
                 if self.annotate_failures:
-                    expr.xml_set_attribute((u'lut:reason', NSS['lut']),
-                                           state.reason())
+                    expr.xml_set_attribute((u'lut:reason', NSS['lut']), state.reason())
         return state
+
+    def check_commutative_tables(self, expr, operand_states):
+        """Check whether we can combine suitable operands into a new expression.
+        
+        If expr has a commutative (and associative) n-ary operator, but is not suitable as a
+        whole to become a lookup table (checked by caller) then we might still be able to
+        do slightly better than just analysing its operands.  If multiple operands can be
+        replaced by tables keyed on the same variable, these can be combined into a new
+        application of the same operator as expr, which can then be replaced as a whole
+        by a single lookup table, and made an operand of expr.
+        """
+        table_operands = filter(lambda op: operand_states[id(op)].suitable, expr.operands())
+        # Sort by table_var
+        table_vars, table_var_operands = {}, {}
+        for oper in table_operands:
+            table_var = operand_states[id(oper)].table_var
+            table_var_id = id(table_var)
+            if not table_var_id in table_vars:
+                table_vars[table_var_id] = table_var
+                table_var_operands[table_var_id] = []
+            table_var_operands[table_var_id].append(oper)
+        for table_var_id in table_vars.keys():
+            if len(table_var_operands[table_var_id]) > 1:
+                # Create new sub-expression with the suitable operands
+                for oper in table_var_operands[table_var_id]:
+                    expr.xml_remove_child(oper)
+                    oper.next_elem = None
+                new_expr = mathml_apply.create_new(expr, expr.localName, table_var_operands[table_var_id])
+                expr.xml_append(new_expr)
+                self.annotate_as_suitable(new_expr, table_vars[table_var_id])
+    
+    def annotate_as_suitable(self, expr, table_var):
+        """Annotate the given expression as being suitable for a lookup table."""
+        if self.annotate_outermost_only:
+            # Remove annotations from (expr and) child expressions
+            self.remove_lut_annotations(expr)
+        for param in ['min', 'max', 'step']:
+            expr.xml_set_attribute((u'lut:' + param, NSS['lut']),
+                                   self.get_param('table_' + param, table_var))
+        expr.xml_set_attribute((u'lut:var', NSS['lut']), table_var.name)
+        expr.xml_set_attribute((u'lut:possible', NSS['lut']), u'yes')
+        self.doc.lookup_tables[expr] = True
     
     @staticmethod
     def copy_lut_annotations(from_expr, to_expr):
