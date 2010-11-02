@@ -28,15 +28,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PCLDUFactorisation.hpp"
 #include "Exception.hpp"
+#include <iostream>
 
 PCLDUFactorisation::PCLDUFactorisation(KSP& rKspObject)
 {
+#ifdef TRACE_KSP
+    mPCContext.mScatterTime = 0.0;
+    mPCContext.mA1PreconditionerTime = 0.0;;
+    mPCContext.mA2PreconditionerTime = 0.0;;
+    mPCContext.mGatherTime = 0.0;;
+#endif
+
     PCLDUFactorisationCreate(rKspObject);
     PCLDUFactorisationSetUp();
 }
 
 PCLDUFactorisation::~PCLDUFactorisation()
 {
+#ifdef TRACE_KSP
+    if (PetscTools::AmMaster())
+    {
+        std::cout << " -- LDU factorisation preconditioner profile information: " << std::endl;
+        std::cout << "\t mScatterTime: " << mPCContext.mScatterTime << std::endl;
+        std::cout << "\t mA1PreconditionerTime: " << mPCContext.mA1PreconditionerTime << std::endl;
+        std::cout << "\t mA2PreconditionerTime: " << mPCContext.mA2PreconditionerTime << std::endl;
+        std::cout << "\t mExtraLAOperations: " << mPCContext.mExtraLAOperations << std::endl;
+        std::cout << "\t mGatherTime: " << mPCContext.mGatherTime << std::endl;
+    }
+#endif
+
     MatDestroy(mPCContext.A11_matrix_subblock);
     MatDestroy(mPCContext.A22_matrix_subblock);
     MatDestroy(mPCContext.B_matrix_subblock);
@@ -310,6 +330,10 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     /*
      *  Split vector x into two. x = [x1 x2]'
      */
+#ifdef TRACE_KSP
+    double init_time = MPI_Wtime();
+#endif
+
 //PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
@@ -328,6 +352,9 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
 #endif
 
+#ifdef TRACE_KSP
+    block_diag_context->mScatterTime += MPI_Wtime() - init_time;
+#endif
 
     /*
      *  Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]' 
@@ -336,10 +363,19 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
      *     y2 = inv(A22)*(x2 - B*z)
      *     y1 = z - inv(A11)(B*y2)
      */
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     //z  = inv(A11)*x1
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->z);
+#ifdef TRACE_KSP
+    block_diag_context->mA1PreconditionerTime += MPI_Wtime() - init_time;
+#endif
 
     //y2 = inv(A22)*(x2 - B*z)
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->z,block_diag_context->temp); //temp = B*z
     double minus_one = -1.0;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
@@ -347,21 +383,56 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 #else
     VecAYPX(block_diag_context->temp, minus_one, block_diag_context->x2_subvector); // temp <-- x2 - temp
 #endif
+#ifdef TRACE_KSP
+    block_diag_context->mExtraLAOperations += MPI_Wtime() - init_time;
+#endif
+
+
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     PCApply(block_diag_context->PC_amg_A22, block_diag_context->temp, block_diag_context->y2_subvector); // y2 = inv(A22)*temp
+#ifdef TRACE_KSP
+    block_diag_context->mA2PreconditionerTime += MPI_Wtime() - init_time;
+#endif
+
 
     //y1 = z - inv(A11)(B*y2)
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->y2_subvector,block_diag_context->temp); //temp = B*y2
+#ifdef TRACE_KSP
+    block_diag_context->mExtraLAOperations += MPI_Wtime() - init_time;
+#endif
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->temp, block_diag_context->y1_subvector); // y1 = inv(A11)*temp
+#ifdef TRACE_KSP
+    block_diag_context->mA1PreconditionerTime += MPI_Wtime() - init_time;
+#endif
+
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     VecAYPX(&minus_one, block_diag_context->z, block_diag_context->y1_subvector); // y1 <-- z - y1
 #else
     VecAYPX(block_diag_context->y1_subvector, minus_one, block_diag_context->z); // y1 <-- z - y1
+#endif
+#ifdef TRACE_KSP
+    block_diag_context->mExtraLAOperations += MPI_Wtime() - init_time;
 #endif
 
 
     /*
      *  Gather vectors y1 and y2. y = [y1 y2]'
      */
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
+
 //PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
@@ -378,6 +449,10 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 #else
     VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
     VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
+#endif
+
+#ifdef TRACE_KSP
+    block_diag_context->mGatherTime += MPI_Wtime() - init_time;
 #endif
 
     return 0;

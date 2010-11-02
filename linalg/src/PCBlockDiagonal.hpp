@@ -93,13 +93,17 @@ public:
         Vec y2_subvector;/**<  Used to store the second half of the preconditioned vector*/
         VecScatter A11_scatter_ctx;/**< Scattering context: gather x1 from x and scatter y1 back into y*/    
         VecScatter A22_scatter_ctx;/**< Scattering context: gather x2 from x and scatter y2 back into y*/
+#ifdef TRACE_KSP
+        double mScatterTime;/**< Time counter used for profiling scatter operations*/
+        double mA1PreconditionerTime;/**< Time counter used for profiling the application of the preconditioner on the A11 block*/
+        double mA2PreconditionerTime;/**< Time counter used for profiling the application of the preconditioner on the A22 block*/
+        double mGatherTime;/**< Time counter used for profiling gather operations*/
+#endif
 
     } PCBlockDiagonalContext;
 
     PCBlockDiagonalContext mPCContext; /**< PC context, this will be passed to PCBlockDiagonalApply when PETSc returns control to our preconditioner subroutine.  See PCShellSetContext().*/
     PC mPetscPCObject;/**< Generic PETSc preconditioner object */
-
-public:
 
     /**
      *  Constructor

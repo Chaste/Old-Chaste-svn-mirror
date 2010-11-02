@@ -28,17 +28,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PCBlockDiagonal.hpp"
 #include "Exception.hpp"
-
-		//#include "Timer.hpp"
+#include <iostream>
 
 PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {
+#ifdef TRACE_KSP
+    mPCContext.mScatterTime = 0.0;
+    mPCContext.mA1PreconditionerTime = 0.0;;
+    mPCContext.mA2PreconditionerTime = 0.0;;
+    mPCContext.mGatherTime = 0.0;;
+#endif
+
     PCBlockDiagonalCreate(rKspObject);
     PCBlockDiagonalSetUp();
 }
 
 PCBlockDiagonal::~PCBlockDiagonal()
 {
+#ifdef TRACE_KSP
+    if (PetscTools::AmMaster())
+    {
+        std::cout << " -- Block diagonal preconditioner profile information: " << std::endl;
+        std::cout << "\t mScatterTime: " << mPCContext.mScatterTime << std::endl;
+        std::cout << "\t mA1PreconditionerTime: " << mPCContext.mA1PreconditionerTime << std::endl;
+        std::cout << "\t mA2PreconditionerTime: " << mPCContext.mA2PreconditionerTime << std::endl;
+        std::cout << "\t mGatherTime: " << mPCContext.mGatherTime << std::endl;
+    }
+#endif
+
     MatDestroy(mPCContext.A11_matrix_subblock);
     MatDestroy(mPCContext.A22_matrix_subblock);
 
@@ -260,8 +277,11 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     /*
      * Scatter x = [x1 x2]'
      */
+#ifdef TRACE_KSP
+    double init_time = MPI_Wtime();
+#endif
+
 //PETSc-3.x.x or PETSc-2.3.3
-//    Timer::Reset();
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
@@ -278,21 +298,39 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
     VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
 #endif
-    //    Timer::PrintAndReset("scatter");
+
+#ifdef TRACE_KSP
+    block_diag_context->mScatterTime += MPI_Wtime() - init_time;
+#endif
 
     /*
      *  y1 = AMG(A11)*x1
      *  y2 = AMG(A22)*x2
      */
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->y1_subvector);
-    //    Timer::PrintAndReset("first prec");    
+#ifdef TRACE_KSP
+    block_diag_context->mA1PreconditionerTime += MPI_Wtime() - init_time;
+#endif
+
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
     PCApply(block_diag_context->PC_amg_A22, block_diag_context->x2_subvector, block_diag_context->y2_subvector);
-    //    Timer::PrintAndReset("second prec");        
+#ifdef TRACE_KSP
+    block_diag_context->mA2PreconditionerTime += MPI_Wtime() - init_time;
+#endif
 
     /*
      * Gather y = [y1 y2]'
      */
 //PETSc-3.x.x or PETSc-2.3.3
+#ifdef TRACE_KSP
+    init_time = MPI_Wtime();
+#endif
+
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
     VecScatterEnd(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
@@ -309,7 +347,9 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
     VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
 #endif
-    //    Timer::PrintAndReset("gather");
 
+#ifdef TRACE_KSP
+    block_diag_context->mGatherTime += MPI_Wtime() - init_time;
+#endif
     return 0;
 }

@@ -119,6 +119,14 @@ public:
         Vec temp;/**< Used to store intermediate results*/
         VecScatter A11_scatter_ctx;/**< Scattering context: gather x1 from x and scatter y1 back into y*/    
         VecScatter A22_scatter_ctx;/**< Scattering context: gather x2 from x and scatter y2 back into y*/
+#ifdef TRACE_KSP
+        double mScatterTime;/**< Time counter used for profiling scatter operations*/
+        double mA1PreconditionerTime;/**< Time counter used for profiling the application of the preconditioner on the A11 block*/
+        double mA2PreconditionerTime;/**< Time counter used for profiling the application of the preconditioner on the A22 block*/
+        double mExtraLAOperations;/**< Time counter used for profiling extra matrix-vector and daxpy operations*/
+        double mGatherTime;/**< Time counter used for profiling gather operations*/
+#endif
+
     } PCLDUFactorisationContext;
 
     PCLDUFactorisationContext mPCContext; /**< PC context, this will be passed to PCBlockDiagonalApply when PETSc returns control to our preconditioner subroutine.  See PCShellSetContext().*/
