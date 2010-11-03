@@ -112,30 +112,27 @@ public:
 
         p_bidomain_problem->Solve();
     }
-    
-    /* == Notes ==
-     * 
-     * * Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is
-     *   written out to disk at each checkpoint. This is to ensure that each checkpoint directory contains everything
-     *   needed to resume the simulation. In particular, the mesh written out will be in permuted form if it was
-     *   partitioned for a parallel simulation.
-     * * Meshes written in checkpoints use a binary form of the Triangle/Tetgen mesh format. This makes checkpoints
-     *   significantly smaller but will cause portability problems if checkpoints are moved between little-endian systems
-     *   (e.g. x86) and big-endian systems (e.g. PowerPC).
-     * * Checkpoints may be resumed on any number of processes — you are not restricted to the number on which it was
-     *   saved. However, the mesh will not be re-partitioned if loaded on a different number of processes, so the parallel
-     *   efficiency of the simulation may be significantly reduced in this case.
-     * * Resuming a checkpoint will attempt to extend the original results h5 file, if present, so that the file contains
-     *   the complete simulation results. If this file does not exist, a new file will be created to contain just the
-     *   results from the resume point.
-     * * When checkpointing, the `progress_status.txt` file only reports the percentage of time to
-     *   go until the ''next'' checkpoint, not until the end of the simulation.  This makes it slightly less
-     *   useful; however, the presence of the checkpoint directories (`1ms`, `2ms`, etc.) provides overall
-     *   progress information instead.
-     */ 
 };
-     
 
-
+/* == Notes ==
+ * 
+ * * Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is
+ *   written out to disk at each checkpoint. This is to ensure that each checkpoint directory contains everything
+ *   needed to resume the simulation. In particular, the mesh written out will be in permuted form if it was
+ *   partitioned for a parallel simulation.
+ * * Meshes written in checkpoints use a binary form of the Triangle/Tetgen mesh format. This makes checkpoints
+ *   significantly smaller but will cause portability problems if checkpoints are moved between little-endian systems
+ *   (e.g. x86) and big-endian systems (e.g. PowerPC).
+ * * Checkpoints may be resumed on any number of processes — you are not restricted to the number on which it was
+ *   saved. However, the mesh will not be re-partitioned if loaded on a different number of processes, so the parallel
+ *   efficiency of the simulation may be significantly reduced in this case.
+ * * Resuming a checkpoint will attempt to extend the original results h5 file, if present, so that the file contains
+ *   the complete simulation results. If this file does not exist, a new file will be created to contain just the
+ *   results from the resume point.
+ * * When checkpointing, the `progress_status.txt` file only reports the percentage of time to
+ *   go until the ''next'' checkpoint, not until the end of the simulation.  This makes it slightly less
+ *   useful; however, the presence of the checkpoint directories (`1ms`, `2ms`, etc.) provides overall
+ *   progress information instead.
+ */
 
 #endif /*TESTCARDIACCHECKPOINTINGANDRESTARTINGTUTORIAL_HPP_*/
