@@ -31,9 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _LINEARSYSTEM_HPP_
 
 #include "ChasteSerialization.hpp"
-#include "UblasCustomFunctions.hpp" // meeds to be 'first'
+#include "UblasCustomFunctions.hpp" // needs to be 'first'
 
 #include "PetscTools.hpp"
+#include "PetscVecTools.hpp"
+#include "PetscMatTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
 #include "PCLDUFactorisation.hpp"
@@ -487,55 +489,7 @@ public:
     template<size_t MATRIX_SIZE>
     void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& rSmallMatrix)
     {
-        PetscInt matrix_row_indices[MATRIX_SIZE];
-        PetscInt num_rows_owned = 0;
-        PetscInt global_row;
-
-        for (unsigned row = 0; row<MATRIX_SIZE; row++)
-        {
-            global_row = matrixRowAndColIndices[row];
-            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-            {
-                matrix_row_indices[num_rows_owned++] = global_row;
-            }
-        }
-
-        if ( num_rows_owned == MATRIX_SIZE)
-        {
-            MatSetValues(mLhsMatrix,
-                         num_rows_owned,
-                         matrix_row_indices,
-                         MATRIX_SIZE,
-                         (PetscInt*) matrixRowAndColIndices,
-                         rSmallMatrix.data(),
-                         ADD_VALUES);
-        }
-        else
-        {
-            // We need continuous data, if some of the rows do not belong to the processor their values
-            // are not passed to MatSetValues
-            double values[MATRIX_SIZE*MATRIX_SIZE];
-            unsigned num_values_owned = 0;
-            for (unsigned row = 0; row<MATRIX_SIZE; row++)
-            {
-                global_row = matrixRowAndColIndices[row];
-                if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-                {
-                    for (unsigned col=0; col<MATRIX_SIZE; col++)
-                    {
-                        values[num_values_owned++] = rSmallMatrix(row, col);
-                    }
-                }
-            }
-
-            MatSetValues(mLhsMatrix,
-                         num_rows_owned,
-                         matrix_row_indices,
-                         MATRIX_SIZE,
-                         (PetscInt*) matrixRowAndColIndices,
-                         values,
-                         ADD_VALUES);
-        }
+        PetscMatTools::AddMultipleValues(mLhsMatrix, matrixRowAndColIndices, rSmallMatrix);
     }
 
     /**
@@ -550,49 +504,7 @@ public:
     template<size_t VECTOR_SIZE>
     void AddRhsMultipleValues(unsigned* vectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
-        PetscInt indices_owned[VECTOR_SIZE];
-        PetscInt num_indices_owned = 0;
-        PetscInt global_row;
-
-        for (unsigned row = 0; row<VECTOR_SIZE; row++)
-        {
-            global_row = vectorIndices[row];
-            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-            {
-                indices_owned[num_indices_owned++] = global_row;
-            }
-        }
-
-        if (num_indices_owned == VECTOR_SIZE)
-        {
-            VecSetValues(mRhsVector,
-                         num_indices_owned,
-                         indices_owned,
-                         smallVector.data(),
-                         ADD_VALUES);
-        }
-        else
-        {
-            // We need continuous data, if some of the rows do not belong to the processor their values
-            // are not passed to MatSetValues
-            double values[VECTOR_SIZE];
-            unsigned num_values_owned = 0;
-
-            for (unsigned row = 0; row<VECTOR_SIZE; row++)
-            {
-                global_row = vectorIndices[row];
-                if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-                {
-                    values[num_values_owned++] = smallVector(row);
-                }
-            }
-
-            VecSetValues(mRhsVector,
-                         num_indices_owned,
-                         indices_owned,
-                         values,
-                         ADD_VALUES);
-        }
+        PetscVecTools::AddMultipleValues(mRhsVector, vectorIndices, smallVector);
     }
 
 };

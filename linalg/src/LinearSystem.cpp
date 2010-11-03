@@ -240,18 +240,12 @@ LinearSystem::~LinearSystem()
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
 {
-    if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {
-        MatSetValue(mLhsMatrix, row, col, value, INSERT_VALUES);
-    }
+    PetscMatTools::SetElement(mLhsMatrix, row, col, value);
 }
 
 void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
 {
-    if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {
-        MatSetValue(mLhsMatrix, row, col, value, ADD_VALUES);
-    }
+    PetscMatTools::AddToElement(mLhsMatrix, row, col, value);
 }
 
 void LinearSystem::AssembleFinalLinearSystem()
@@ -268,59 +262,42 @@ void LinearSystem::AssembleIntermediateLinearSystem()
 
 void LinearSystem::AssembleFinalLhsMatrix()
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    PetscMatTools::AssembleFinal(mLhsMatrix);
 }
 
 void LinearSystem::AssembleIntermediateLhsMatrix()
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    PetscMatTools::AssembleIntermediate(mLhsMatrix);
 }
 
 void LinearSystem::AssembleRhsVector()
 {
-    VecAssemblyBegin(mRhsVector);
-    VecAssemblyEnd(mRhsVector);
+    PetscVecTools::Assemble(mRhsVector);
 }
 
 void LinearSystem::SetRhsVectorElement(PetscInt row, double value)
 {
-    if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {
-        VecSetValues(mRhsVector, 1, &row, &value, INSERT_VALUES);
-    }
+    PetscVecTools::SetElement(mRhsVector, row, value);
 }
 
 void LinearSystem::AddToRhsVectorElement(PetscInt row, double value)
 {
-    if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {
-        VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
-    }
+    PetscVecTools::AddToElement(mRhsVector, row, value);
 }
 
 void LinearSystem::DisplayMatrix()
 {
-    MatView(mLhsMatrix,PETSC_VIEWER_STDOUT_WORLD);
+    PetscMatTools::Display(mLhsMatrix);
 }
 
 void LinearSystem::DisplayRhs()
 {
-    VecView(mRhsVector,PETSC_VIEWER_STDOUT_WORLD);
+    PetscVecTools::Display(mRhsVector);
 }
 
 void LinearSystem::SetMatrixRow(PetscInt row, double value)
 {
-    if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {
-        PetscInt rows, cols;
-        MatGetSize(mLhsMatrix, &rows, &cols);
-        for (PetscInt i=0; i<cols; i++)
-        {
-            this->SetMatrixElement(row, i, value);
-        }
-    }
+    PetscMatTools::SetRow(mLhsMatrix, row, value);
 }
 
 Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
@@ -355,145 +332,28 @@ Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
 
 void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue)
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-
-    // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
-    // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
-    // are kept.
-#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
- #if (PETSC_VERSION_MINOR == 0)
-    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
- #else
-    MatSetOption(mLhsMatrix, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
- #endif
-#else
-    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS);
-#endif
-
-    PetscInt* rows = new PetscInt[rRows.size()];
-    for(unsigned i=0; i<rRows.size(); i++)
-    {
-        rows[i] = rRows[i];
-    }
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    IS is;
-    ISCreateGeneral(PETSC_COMM_WORLD, rRows.size(), rows, &is);
-    MatZeroRows(mLhsMatrix, is, &diagonalValue);
-    ISDestroy(is);
-#else
-    MatZeroRows(mLhsMatrix, rRows.size(), rows, diagonalValue);
-#endif
-    delete [] rows;
+    PetscMatTools::ZeroRowsWithValueOnDiagonal(mLhsMatrix, rRows, diagonalValue);
 }
 
 
 void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue)
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-
-    std::vector<unsigned>* p_nonzero_rows_per_column = new std::vector<unsigned>[rRowColIndices.size()];
-
-    // for each column: collect all the row indices corresponding to a non-zero entry
-    // We do all the columns at once, before doing the zeroing, as otherwise
-    // a MatAssemblyBegin() & MatAssemblyEnd() would have to be called
-    // after every MatSetValues and before the below GetMatrixElement()
-    for(unsigned index=0; index<rRowColIndices.size(); index++)
-    {
-        unsigned column = rRowColIndices[index];
-
-        // determine which rows in this column are non-zero (and
-        // therefore need to be zeroed)
-        for (PetscInt row = mOwnershipRangeLo; row < mOwnershipRangeHi; row++)
-        {
-            if (GetMatrixElement(row, column) != 0.0)
-            {
-                p_nonzero_rows_per_column[index].push_back(row);
-            }
-        }
-    }
-
-    // Now zero each column in turn
-    for(unsigned index=0; index<rRowColIndices.size(); index++)
-    {
-        // set those rows to be zero by calling MatSetValues
-        unsigned size = p_nonzero_rows_per_column[index].size();
-        PetscInt* rows = new PetscInt[size];
-        PetscInt cols[1];
-        double* zeros = new double[size];
-
-        cols[0] = rRowColIndices[index];
-
-        for (unsigned i=0; i<size; i++)
-        {
-            rows[i] = p_nonzero_rows_per_column[index][i];
-            zeros[i] = 0.0;
-        }
-
-        MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
-        delete [] rows;
-        delete [] zeros;
-    }
-    delete[] p_nonzero_rows_per_column;
-
-    // now zero the rows and add the diagonal entries
-    ZeroMatrixRowsWithValueOnDiagonal(rRowColIndices, diagonalValue);
+    PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(mLhsMatrix, rRowColIndices, diagonalValue);
 }
-
-
-
 
 void LinearSystem::ZeroMatrixColumn(PetscInt col)
 {
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-
-    // determine which rows in this column are non-zero (and
-    // therefore need to be zeroed)
-    std::vector<unsigned> nonzero_rows;
-    for (PetscInt row = mOwnershipRangeLo; row < mOwnershipRangeHi; row++)
-    {
-        if (GetMatrixElement(row, col) != 0.0)
-        {
-            nonzero_rows.push_back(row);
-        }
-    }
-
-    // set those rows to be zero by calling MatSetValues
-    unsigned size = nonzero_rows.size();
-    PetscInt* rows = new PetscInt[size];
-    PetscInt cols[1];
-    double* zeros = new double[size];
-
-    cols[0] = col;
-
-    for (unsigned i=0; i<size; i++)
-    {
-        rows[i] = nonzero_rows[i];
-        zeros[i] = 0.0;
-    }
-
-    MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
-    delete [] rows;
-    delete [] zeros;
+    PetscMatTools::ZeroColumn(mLhsMatrix, col);
 }
 
 void LinearSystem::ZeroRhsVector()
 {
-    double* p_rhs_vector_array;
-    VecGetArray(mRhsVector, &p_rhs_vector_array);
-    for (PetscInt local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
-    {
-        p_rhs_vector_array[local_index]=0.0;
-    }
-    VecRestoreArray(mRhsVector, &p_rhs_vector_array);
+    PetscVecTools::Zero(mRhsVector);
 }
 
 void LinearSystem::ZeroLhsMatrix()
 {
-    MatZeroEntries(mLhsMatrix);
+    PetscMatTools::Zero(mLhsMatrix);
 }
 
 void LinearSystem::ZeroLinearSystem()
@@ -571,30 +431,12 @@ void LinearSystem::GetOwnershipRange(PetscInt& lo, PetscInt& hi)
 
 double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
 {
-    assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
-    PetscInt row_as_array[1];
-    row_as_array[0] = row;
-    PetscInt col_as_array[1];
-    col_as_array[0] = col;
-
-    double ret_array[1];
-
-    MatGetValues(mLhsMatrix, 1, row_as_array, 1, col_as_array, ret_array);
-
-    return ret_array[0];
+    return PetscMatTools::GetElement(mLhsMatrix, row, col);
 }
 
 double LinearSystem::GetRhsVectorElement(PetscInt row)
 {
-    assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
-
-    double* p_rhs_vector;
-    PetscInt local_index=row-mOwnershipRangeLo;
-    VecGetArray(mRhsVector, &p_rhs_vector);
-    double answer=p_rhs_vector[local_index];
-    VecRestoreArray(mRhsVector, &p_rhs_vector);
-
-    return answer;
+    return PetscVecTools::GetElement(mRhsVector, row);
 }
 
 unsigned LinearSystem::GetNumIterations() const
