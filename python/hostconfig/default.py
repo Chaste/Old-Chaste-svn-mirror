@@ -45,6 +45,7 @@ if not os.path.exists(chaste_libs_path) or not os.path.isdir(chaste_libs_path):
         "not found; please edit python/hostconfig/default.py"
     sys.exit(1)
 
+petsc_3_0_path = chaste_libs_path+'petsc-3.0.0-p8/'
 petsc_2_3_path = chaste_libs_path+'petsc-2.3.3-p15/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
@@ -57,10 +58,15 @@ intel_path = '/opt/intel/cc/9.1.039/'
 #icpc = 'icpc -gcc-version=410 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/    -I/usr/include/c++/4.1.3/backward'
 icpc = 'icpc'
 
+if os.uname()[4] == 'x86_64':
+    xsd_path = chaste_libs_path + 'xsd-3.2.0-x86_64-linux-gnu/'
+else:
+    xsd_path = chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/'
+
 other_includepaths = [chaste_libs_path+'hdf5/include',
                       chaste_libs_path+'xerces/include',
                       chaste_libs_path+'boost/include/boost-1_34_1',
-                      chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/libxsd',
+                      xsd_path + 'libxsd',
                       parmetis_path]
 
 other_libpaths = [chaste_libs_path+'lib',
@@ -72,15 +78,20 @@ other_libpaths = [chaste_libs_path+'lib',
                   parmetis_path]
 
 # The order of libraries in these lists matters!
-blas_lapack = ['f2clapack', 'f2cblas'] # Note: Lapack before BLAS
 other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
+if os.path.exists(petsc_3_0_path):
+    # Assume user has followed INSTALLATION.txt and has Fortran blas & lapack
+    blas_lapack = ['flapack', 'fblas', 'gfortran', 'gfortranbegin']
+    other_libraries.append('HYPRE')
+else:
+    blas_lapack = ['f2clapack', 'f2cblas'] # Note: Lapack before BLAS
   # Note: parmetis before metis, hdf5 before z.
 # Note that boost serialization sometimes has a different name:
 # other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
          'mpicxx': chaste_libs_path+'mpi/bin/mpicxx',
-         'xsd': chaste_libs_path+'bin/xsd'}
+         'xsd': xsd_path+'bin/xsd'}
 
 
 # use_vtk set to false initially. Change to True if VTK development libraries are 
