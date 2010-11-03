@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
+#include "Version.hpp"
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
 
@@ -65,8 +66,8 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
       mpParallelMesh(NULL),
       mpIters(new MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>),
       mNodeCounterForParallelMesh(0),
-      mElementCounterForParallelMesh(0)
-
+      mElementCounterForParallelMesh(0),
+      mFilesAreBinary(false)
 {
     mpIters->pNodeIter = NULL;
     mpIters->pElemIter = NULL;
@@ -241,6 +242,46 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
     }
+    //Connectivity file is written when we write in binary file
+    ///\todo #1621  This functionality should be reproduced with and without original node ordering
+    ///\todo #1621 This going to be round robin writing: for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
+  
+    if (this->mFilesAreBinary)
+    {
+        unsigned max_elements_all;
+        if (PetscTools::IsSequential())
+        {
+            max_elements_all = rMesh.CalculateMaximumContainingElementsPerProcess();
+        }
+        else
+        {
+            unsigned max_elements_per_process = rMesh.CalculateMaximumContainingElementsPerProcess();
+            MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
+        }
+        if (PetscTools::AmMaster())
+        {
+            std::string node_connect_list_file_name = this->mBaseName + ".ncl";
+            out_stream p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
+    
+            // Write the ncl header
+    
+            *p_ncl_file << this->mNumNodes << "\t";
+            *p_ncl_file << max_elements_all << "\t";
+            *p_ncl_file << "\tBIN\n";
+        
+            // Write each node's data
+            //unsigned default_marker = UINT_MAX;
+//            for (unsigned item_num=0; item_num<this->mNumNodes; item_num++)
+//            {
+//                std::vector<unsigned> elem(s.begin(),s.end()); 
+//                for (unsigned elem=0; 
+//                //WriteItem(p_node_file, item_num, this->GetNextNode(), default_marker);
+//            }
+//            
+            *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
+            p_ncl_file->close();
+        }
+    }    
 
     //Have we got a parallel mesh?
     ///\todo #1322 This should be const too

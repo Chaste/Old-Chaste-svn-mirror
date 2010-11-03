@@ -60,6 +60,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
+
     /**
      * Write a parallel mesh to file. Used by the serialization methods
      *
@@ -98,6 +99,7 @@ protected:
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
     unsigned mNodeCounterForParallelMesh; /**< Used by master process for polling processes for the next node */
     unsigned mElementCounterForParallelMesh;/**< Used by master process for polling processes for the next element */
+    bool mFilesAreBinary;  /**< Whether all data is to be written as binary - used in derived class TrianglesMeshWriter*/
 
 public:
 
