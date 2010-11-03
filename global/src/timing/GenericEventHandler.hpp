@@ -56,7 +56,7 @@ class GenericEventHandler
     friend class TestHeartEventHandler;
 
 private:
-    static std::vector<double> mCpuTime; /**< CPU ticks assigned to each event */
+    static std::vector<double> mWallTime; /**< Wall time assigned to each event */
     static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
     static bool mEnabled; /**< Whether the event handler is recording event times */
     static bool mInitialised; /**< For internal use */
@@ -71,38 +71,38 @@ private:
      */
     inline static void MilliSleep(unsigned milliseconds)
     {
-        double start = clock();
-        double min_ticks = milliseconds*(CLOCKS_PER_SEC/1000.0) + start;
-        while (clock() < min_ticks)
+        double start = MPI_Wtime();
+        double min_Wtime = milliseconds/1000.0 + start;
+        while (MPI_Wtime() < min_Wtime)
         {
             //pause;
         }
     }
 
-    /** Helper function - get the current CPU clock tick count */
-    inline static double GetCpuTime()
+    /** Helper function - get the current wall clock time */
+    inline static double GetWallTime()
     {
-        return clock();
+        return MPI_Wtime();
     }
 
     /**
-     * Convert a CPU clock tick count to milliseconds.
+     * Convert a wall clock time to milliseconds.
      *
-     * @param clockTicks  the CPU clock tick
+     * @param wallTime  the wall time
      */
-    inline static double ConvertTicksToMilliseconds(double clockTicks)
+    inline static double ConvertWallTimeToMilliseconds(double wallTime)
     {
-        return clockTicks/(CLOCKS_PER_SEC/1000.0);
+        return wallTime*1000.0;
     }
 
     /**
-     * Convert a CPU clock tick count to seconds.
+     * Convert a wall clock time to seconds.
      *
-     * @param clockTicks  the CPU clock tick
+     * @param wallTime  the wall time
      */
-    inline static double ConvertTicksToSeconds(double clockTicks)
+    inline static double ConvertWallTimeToSeconds(double wallTime)
     {
-        return clockTicks/(CLOCKS_PER_SEC);
+        return wallTime;
     }
 
     /** Make sure the vectors are the right length. */
@@ -110,7 +110,7 @@ private:
     {
         if (!mInitialised)
         {
-            mCpuTime.resize(NUM_EVENTS, 0.0);
+            mWallTime.resize(NUM_EVENTS, 0.0);
             mHasBegun.resize(NUM_EVENTS, false);
             mInitialised = true;
         }
@@ -126,7 +126,7 @@ public:
         CheckVectorSizes();
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
-            mCpuTime[event] = 0.0;
+            mWallTime[event] = 0.0;
             mHasBegun[event] = false;
         }
         Enable();
@@ -169,7 +169,7 @@ public:
             Disable();
             return;
         }
-        mCpuTime[event] -= GetCpuTime();
+        mWallTime[event] -= GetWallTime();
         mHasBegun[event] = true;
         //std::cout << PetscTools::GetMyRank()<<": Beginning " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
@@ -198,7 +198,7 @@ public:
             msg += "' had not begun when EndEvent was called.";
             EXCEPTION(msg);
         }
-        mCpuTime[event] += GetCpuTime();
+        mWallTime[event] += GetWallTime();
         mHasBegun[event] = false;
         //std::cout << PetscTools::GetMyRank()<<": Ending " << EVENT_NAME[event] << " @ " << (clock()/1000) << std::endl;
     }
@@ -218,16 +218,16 @@ public:
             return 0.0;
         }
         CheckVectorSizes();
-        double ticks;
+        double time;
         if (mHasBegun[event])
         {
-            ticks =  mCpuTime[event] + GetCpuTime();
+            time =  mWallTime[event] + GetWallTime();
         }
         else
         {
-            ticks = mCpuTime[event];
+            time = mWallTime[event];
         }
-        return ConvertTicksToMilliseconds(ticks);
+        return ConvertWallTimeToMilliseconds(time);
     }
 
     /**
@@ -260,7 +260,7 @@ public:
             }
         }
         const unsigned top_event = NUM_EVENTS-1;
-        double total = ConvertTicksToSeconds(mCpuTime[top_event]);
+        double total = ConvertWallTimeToSeconds(mWallTime[top_event]);
 
         // Make the output precision depend on total run time
         const char* format;
@@ -290,7 +290,7 @@ public:
                 }
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
-                    const double secs = ConvertTicksToSeconds(mCpuTime[event]);
+                    const double secs = ConvertWallTimeToSeconds(mWallTime[event]);
                     printf(format, secs);
                     printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
@@ -302,15 +302,15 @@ public:
         if (!PetscTools::IsSequential())
         {
             double total_cpu_time[NUM_EVENTS];
-            MPI_Reduce(&mCpuTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE,
+            MPI_Reduce(&mWallTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE,
                        MPI_SUM, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
-                total = ConvertTicksToSeconds(total_cpu_time[top_event]);
+                total = ConvertWallTimeToSeconds(total_cpu_time[top_event]);
                 printf("avg: "); //5 chars
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
-                    const double secs = ConvertTicksToSeconds(total_cpu_time[event]);
+                    const double secs = ConvertWallTimeToSeconds(total_cpu_time[event]);
                     printf(format, secs/PetscTools::GetNumProcs());
                     printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
@@ -318,15 +318,15 @@ public:
             }
 
             double max_cpu_time[NUM_EVENTS];
-            MPI_Reduce(&mCpuTime[0], max_cpu_time, NUM_EVENTS, MPI_DOUBLE,
+            MPI_Reduce(&mWallTime[0], max_cpu_time, NUM_EVENTS, MPI_DOUBLE,
                        MPI_MAX, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
-                total = ConvertTicksToSeconds(max_cpu_time[top_event]);
+                total = ConvertWallTimeToSeconds(max_cpu_time[top_event]);
                 printf("max: "); //5 chars
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
-                    const double secs = ConvertTicksToSeconds(max_cpu_time[event]);
+                    const double secs = ConvertWallTimeToSeconds(max_cpu_time[event]);
                     printf(format, secs);
                     printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
@@ -390,7 +390,7 @@ public:
 };
 
 template<unsigned NUM_EVENTS, class CONCRETE>
-std::vector<double> GenericEventHandler<NUM_EVENTS, CONCRETE>::mCpuTime;
+std::vector<double> GenericEventHandler<NUM_EVENTS, CONCRETE>::mWallTime;
 
 template<unsigned NUM_EVENTS, class CONCRETE>
 std::vector<bool> GenericEventHandler<NUM_EVENTS, CONCRETE>::mHasBegun;

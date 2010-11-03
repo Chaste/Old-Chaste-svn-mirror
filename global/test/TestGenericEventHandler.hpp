@@ -160,17 +160,17 @@ public:
         AnEventHandler::Reset();
         AnEventHandler::Enable();
         AnEventHandler::BeginEvent(AnEventHandler::TEST3);      // total time
-        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e3; // fake short run time
+        AnEventHandler::mWallTime[AnEventHandler::TEST3] += 1e3; // fake short run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST3);
-        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e5; // fake longer run time
+        AnEventHandler::mWallTime[AnEventHandler::TEST3] += 1e5; // fake longer run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST3);
-        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e7; // fake long run time
+        AnEventHandler::mWallTime[AnEventHandler::TEST3] += 1e7; // fake long run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
     }
