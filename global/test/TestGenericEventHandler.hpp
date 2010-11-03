@@ -134,7 +134,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
-        AnEventHandler::MilliSleep(10);
+        AnEventHandler::MilliSleep(11);
         dummy=0;//Separate the sleep from the end of the event
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
         //Test in milliseconds (at least 10 and not too much)
