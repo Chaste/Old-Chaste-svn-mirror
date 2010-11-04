@@ -37,7 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 using namespace std;
 /**
- * This class defines a 3D cuboid and provides a method to check
+ * This class defines a list of nodes and provides a method to check
+ * whether a point is contained in the list.
  */
 template <unsigned SPACE_DIM>
 class ChasteNodesList : public AbstractChasteRegion<SPACE_DIM>
