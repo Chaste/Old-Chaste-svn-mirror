@@ -61,6 +61,7 @@ template<size_t DIM>
 class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
     friend class TestNonlinearElasticitySolver;
+    friend class TestNonlinearElasticityAdjointSolver;
 
 protected:
 
