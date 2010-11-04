@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PCBlockDiagonal.hpp"
 #include "Exception.hpp"
 #include <iostream>
+#include "PetscVecTools.hpp"
 
 PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {
@@ -104,23 +105,11 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 
     // Create scatter contexts
     {
-        // Needed by VecScatterCreate in order to find out parallel layout.
+        // Needed by SetupInterleavedVectorScatterGather in order to find out parallel layout.
         Vec dummy_vec = PetscTools::CreateVec(num_rows, num_local_rows);
 
-        IS A11_rows, A22_rows;        
-        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);
-        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);   
-        
-        IS all_vector;    
-        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 1, &all_vector);
-        
-        VecScatterCreate(dummy_vec, A11_rows, mPCContext.x1_subvector, all_vector, &mPCContext.A11_scatter_ctx);    
-        VecScatterCreate(dummy_vec, A22_rows, mPCContext.x2_subvector, all_vector, &mPCContext.A22_scatter_ctx);
-        
-        ISDestroy(A11_rows);
-        ISDestroy(A22_rows);
-        ISDestroy(all_vector);
-        
+        PetscVecTools::SetupInterleavedVectorScatterGather(dummy_vec, mPCContext.A11_scatter_ctx, mPCContext.A22_scatter_ctx);
+
         VecDestroy(dummy_vec);        
     }
             
@@ -290,23 +279,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     double init_time = MPI_Wtime();
 #endif
 
-//PETSc-3.x.x or PETSc-2.3.3
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
-#else
-    VecScatterBegin(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A11_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A11_scatter_ctx);
-#endif
-
-//PETSc-3.x.x or PETSc-2.3.3
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(block_diag_context->A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(block_diag_context->A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
-#else
-    VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
-#endif
+    PetscVecTools::DoInterleavedVecScatter(x, block_diag_context->A11_scatter_ctx, block_diag_context->x1_subvector, block_diag_context->A22_scatter_ctx, block_diag_context->x2_subvector);
 
 #ifdef TRACE_KSP
     block_diag_context->mScatterTime += MPI_Wtime() - init_time;
@@ -340,22 +313,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     init_time = MPI_Wtime();
 #endif
 
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-#else
-    VecScatterBegin(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A11_scatter_ctx);
-    VecScatterEnd(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A11_scatter_ctx);
-#endif
-
-//PETSc-3.x.x or PETSc-2.3.3
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(block_diag_context->A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(block_diag_context->A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-#else
-    VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
-    VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
-#endif
+    PetscVecTools::DoInterleavedVecGather(y, block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, block_diag_context->A22_scatter_ctx, block_diag_context->y2_subvector);
 
 #ifdef TRACE_KSP
     block_diag_context->mGatherTime += MPI_Wtime() - init_time;
