@@ -1,6 +1,7 @@
 TestFourthOrderTensor.hpp
 TestLinearSystem.hpp
 TestNonlinearSolvers.hpp
+TestPetscVecTools.hpp
 TestPCBlockDiagonal.hpp
 TestPCLDUFactorisation.hpp
 TestPCTwoLevelsBlockDiagonal.hpp

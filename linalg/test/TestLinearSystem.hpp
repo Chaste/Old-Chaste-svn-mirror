@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 /**
- * Tests the LinearSystem class, and the PETSc helper classes PetscVecTools and PetscMatTools.
+ * Tests the LinearSystem class, and some methods in the PETSc helper classes PetscVecTools and PetscMatTools.
  */
 class TestLinearSystem : public CxxTest::TestSuite
 {

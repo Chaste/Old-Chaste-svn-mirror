@@ -161,6 +161,39 @@ public:
         }
     }
 
+    /**
+     * Set up scatter/gather PETSc context for splitting a bidomain-like vector with interleaved values for
+     * two variables into two separate PETSc Vec containing each of them.
+     *
+     * @param interleavedVec Source vector with interleaved values.
+     * @param rFirstVariableScatterContext Context for scattering/gathering first variable
+     * @param rSecondVariableScatterContext Context for scattering/gathering second variable
+     */
+    static void SetupInterleavedVectorScatterGather(Vec interleavedVec, VecScatter& rFirstVariableScatterContext, VecScatter& rSecondVariableScatterContext);
+
+
+    /**
+     * Performs scatter operation from a bidomain-like vector of interleaved values into two separate PETSc Vec.
+     *
+     * @param interleavedVec Source vector with interleaved values.
+     * @param firstVariableScatterContext Context for scattering/gathering first variable
+     * @param firstVariableVec Destination vector for first variable
+     * @param secondVariableScatterContext Context for scattering/gathering second variable
+     * @param secondVariableVec Destination vector for second variable
+     */
+    static void DoInterleavedVecScatter(Vec interleavedVec, VecScatter firstVariableScatterContext, Vec firstVariableVec, VecScatter secondVariableScatterContext, Vec secondVariableVec);
+
+    /**
+     * Performs scatter operation from a bidomain-like vector of interleaved values into two separate PETSc Vec.
+     *
+     * @param interleavedVec Destination vector for interleaved values.
+     * @param firstVariableScatterContext Context for scattering/gathering first variable
+     * @param firstVariableVec Source vector with first variable
+     * @param secondVariableScatterContext Context for scattering/gathering second variable
+     * @param secondVariableVec Source vector with second variable
+     */
+    static void DoInterleavedVecGather(Vec interleavedVec, VecScatter firstVariableScatterContext, Vec firstVariableVec, VecScatter secondVariableScatterContext, Vec secondVariableVec);
+
 };
 
 #endif //_PETSCVECTOOLS_HPP_
