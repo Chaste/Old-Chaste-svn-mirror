@@ -34,17 +34,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <cmath>
-#include "LinearSystem.hpp"
-#include "DistributedVector.hpp"
-#include "PetscSetupAndFinalize.hpp"
-#include "PetscTools.hpp"
-#include "OutputFileHandler.hpp"
-#include "DistributedVectorFactory.hpp"
-
 #include <iostream>
 #include <cstring>
-#include "ReplicatableVector.hpp"
 
+#include "LinearSystem.hpp"
+#include "DistributedVector.hpp"
+#include "PetscTools.hpp"
+#include "PetscVecTools.hpp"
+#include "PetscMatTools.hpp"
+#include "OutputFileHandler.hpp"
+#include "DistributedVectorFactory.hpp"
+#include "ReplicatableVector.hpp"
+#include "PetscSetupAndFinalize.hpp"
+
+/**
+ * Tests the LinearSystem class, and the PETSc helper classes PetscVecTools and PetscMatTools.
+ */
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
@@ -52,10 +57,14 @@ public:
     {
         TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20), "You must provide a rowPreallocation argument for a large sparse system");
         
-        LinearSystem ls(3);
-        ls.SetMatrixIsConstant(true);
+        const unsigned size_u = 3u;
+        const int size = (int) size_u;
+        LinearSystem ls(size_u);
+        TS_ASSERT_EQUALS(ls.GetSize(), size_u);
+        TS_ASSERT_EQUALS(PetscVecTools::GetSize(ls.GetRhsVector()), size_u);
+        TS_ASSERT_EQUALS(PetscMatTools::GetSize(ls.GetLhsMatrix()), size_u);
 
-        TS_ASSERT_EQUALS(ls.GetSize(), 3U);
+        ls.SetMatrixIsConstant(true);
 
         for (int row=0; row<3; row++)
         {
@@ -77,12 +86,11 @@ public:
         Vec solution_vector;
         solution_vector = ls.Solve();
 
-        int lo,hi;
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        int lo, hi;
+        VecGetOwnershipRange(solution_vector, &lo, &hi);
         PetscScalar* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
-
-        for (int global_index=0; global_index<3; global_index++)
+        for (int global_index=0; global_index<size; global_index++)
         {
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
@@ -101,12 +109,10 @@ public:
         KSPGetConvergedReason(ls.mKspSolver, &reason);
         TS_ASSERT_EQUALS(reason, KSP_CONVERGED_RTOL);
 
-
-
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
-        for (int global_index=0; global_index<3; global_index++)
+        for (int global_index=0; global_index<size; global_index++)
         {
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
@@ -128,7 +134,7 @@ public:
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
-        for (int global_index=0; global_index<3; global_index++)
+        for (int global_index=0; global_index<size; global_index++)
         {
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
