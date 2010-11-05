@@ -140,7 +140,7 @@ public:
 
         // Solve and write to file
         double max_timestep = 1.0;
-        double sampling_time = 1.0;
+        double sampling_time = max_timestep;
 
         OdeSolution solution_cvode = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
         OdeSolution solution_chaste = lr91_ode_system.Compute(start_time, end_time);
@@ -167,7 +167,7 @@ public:
 
         lr91_cvode_system.SetVoltageDerivativeToZero(false);
         
-        // Check Compute methods from AbstractCardiacCellInterface
+        // Check Compute* & SolveAndUpdateState methods from AbstractCardiacCellInterface
         lr91_cvode_system.ResetToInitialConditions();
         HeartConfig::Instance()->SetPrintingTimeStep(sampling_time);
         OdeSolution solution_cvode_2 = lr91_cvode_system.Compute(start_time, end_time);
@@ -175,11 +175,15 @@ public:
         CompareCellModelResults("lr91_cvode_2", "lr91_cvode", 1e-8, voltage_only, "TestCvodeCells");
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.ComputeExceptVoltage(start_time, end_time),
                               "This method is not yet implemented for CVODE cells.");
+        lr91_cvode_system.ResetToInitialConditions();
+        lr91_cvode_system.SetMaxSteps(10000); // Needed since we're not sampling
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000);
+        lr91_cvode_system.SolveAndUpdateState(start_time, end_time);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), solution_cvode_2.rGetSolutions().back()[lr91_cvode_system.GetVoltageIndex()], 1e-4);
+        // Note: adaptive solve takes different time steps when not sampling => can't use very tight tolerance
 
         // Reset CVODE cell to initial conditions, and solve without sampling
         lr91_cvode_system.ResetToInitialConditions();
-        lr91_cvode_system.SetMaxSteps(10000);
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000);
         lr91_cvode_system.Solve(start_time, end_time, max_timestep);
         TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
         
@@ -241,7 +245,7 @@ public:
         TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 	
-	// This should work now that metadata has been added to the LuoRudy1991 cellML.
+        // This should work now that metadata has been added to the LuoRudy1991 cellML.
         TS_ASSERT_EQUALS(lr91_cvode_system.HasCellMLDefaultStimulus(), true);
         lr91_cvode_system.UseCellMLDefaultStimulus();
 #else

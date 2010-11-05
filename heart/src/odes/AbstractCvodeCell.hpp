@@ -198,6 +198,18 @@ public:
     //
 
     /**
+     * Simulate this cell's behaviour between the time interval [tStart, tEnd],
+     * updating the internal state variable values.
+     * 
+     * The maximum time step to use is given by HeartConfig::Instance()->GetPrintingTimeStep().
+     * This is a bit of a hack.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    virtual void SolveAndUpdateState(double tStart, double tEnd);
+    
+    /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * and return state variable values.
      * 

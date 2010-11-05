@@ -150,6 +150,15 @@ public:
     void ResetToInitialConditions();
     
     /**
+     * Simulate this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestemp #mDt, updating the internal state variable values.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    virtual void SolveAndUpdateState(double tStart, double tEnd);
+    
+    /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep #mDt, and return state variable values.
      *

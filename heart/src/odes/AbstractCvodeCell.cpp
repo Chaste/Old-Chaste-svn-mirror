@@ -178,6 +178,11 @@ void AbstractCvodeCell::SetVoltageDerivativeToZero(bool clamp)
     mSetVoltageDerivativeToZero = clamp;
 }
 
+void AbstractCvodeCell::SolveAndUpdateState(double tStart, double tEnd)
+{
+    double max_dt = HeartConfig::Instance()->GetPrintingTimeStep();
+    Solve(tStart, tEnd, max_dt);
+}
 
 OdeSolution AbstractCvodeCell::Compute(double tStart, double tEnd, double tSamp)
 {

@@ -58,7 +58,12 @@ void AbstractCardiacCell::Init()
 void AbstractCardiacCell::ResetToInitialConditions()
 {
     SetStateVariables(GetInitialConditions());
-}    
+}
+
+void AbstractCardiacCell::SolveAndUpdateState(double tStart, double tEnd)
+{
+    mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);
+}
 
 OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd, double tSamp)
 {
@@ -69,7 +74,6 @@ OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd, double tSam
     return mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, tSamp);
 }
 
-
 void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
     double saved_voltage = GetVoltage();
@@ -78,7 +82,7 @@ void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
     mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);
     mSetVoltageDerivativeToZero = false;
 
-    SetVoltage(saved_voltage);
+    SetVoltage(saved_voltage); // In case of naughty models
 
     VerifyStateVariables();
 }

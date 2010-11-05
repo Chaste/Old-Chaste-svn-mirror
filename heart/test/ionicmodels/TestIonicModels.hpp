@@ -429,6 +429,12 @@ public:
                                    "Lr91RegularStim");
 
         CheckCellModelResults("Lr91RegularStim");
+        
+        // Cover SolveAndUpdateState
+        double v = lr91_ode_system.GetVoltage();
+        lr91_ode_system.ResetToInitialConditions();
+        lr91_ode_system.SolveAndUpdateState(0.0, end_time);
+        TS_ASSERT_DELTA(lr91_ode_system.GetVoltage(), v, 1e-10);
     }
 
     void TestBackwardEulerLr91WithDelayedSimpleStimulus(void) throw (Exception)

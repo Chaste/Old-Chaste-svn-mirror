@@ -78,6 +78,16 @@ public:
     virtual void ResetToInitialConditions()=0;
     
     /**
+     * Simulate this cell's behaviour between the time interval [tStart, tEnd],
+     * updating the internal state variable values.
+     * The timestep used will depend on the subclass implementation.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    virtual void SolveAndUpdateState(double tStart, double tEnd)=0;
+    
+    /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * and return state variable values.  The timestep used will depend on the
      * subclass implementation.

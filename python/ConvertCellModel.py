@@ -313,7 +313,7 @@ def convert(model, output_dir):
     if options.backward_euler:
         maple_output = os.path.splitext(model)[0] + '.out'
         be_opts = ['-j', maple_output, '-p', '-l']
-        cmd, outputs = add_out_opts(command_base + ['-j', maple_output, '-p', '-l'],
+        cmd, outputs = add_out_opts(command_base + be_opts,
                                     output_dir,
                                     class_name + 'BackwardEuler',
                                     model_base, 'BackwardEuler')
