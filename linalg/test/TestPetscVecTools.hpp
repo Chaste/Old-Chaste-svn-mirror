@@ -51,7 +51,7 @@ public:
         const unsigned PROBLEM_SIZE = 10;
         DistributedVectorFactory factory(PROBLEM_SIZE);
 
-        // Source vector = [ 1 2 1 2 ... 1 2 ]
+        // Source vector = [-1 1 -2 2 ... -PROBLEM_SIZE/2+1 PROBLEM_SIZE/2+1]
         Vec interleaved_vec=factory.CreateVec(2);
         DistributedVector interleaved_dist_vec = factory.CreateDistributedVector(interleaved_vec);
         DistributedVector::Stripe first_variable(interleaved_dist_vec, 0);
@@ -60,8 +60,8 @@ public:
              index!= interleaved_dist_vec.End();
              ++index)
         {
-            first_variable[index] = 1.0;
-            second_variable[index] = 2.0;
+            first_variable[index]  = -1.0 * (index.Global+1);
+            second_variable[index] =        (index.Global+1);
         }
 
         // Destination vectors. It is important they have a compatible parallel layout with the source vector, hence the 2nd param of CreateVec()
@@ -76,15 +76,15 @@ public:
         PetscVecTools::SetupInterleavedVectorScatterGather(interleaved_vec, first_variable_context, second_variable_context);
         PetscVecTools::DoInterleavedVecScatter(interleaved_vec, first_variable_context, first_variable_vec, second_variable_context, second_variable_vec);
 
-        // Check destination vectors are made of 1s and 2s respectively.
-        ReplicatableVector rep_1st_variable(first_variable_vec);
-        ReplicatableVector rep_2nd_variable(second_variable_vec);
-        TS_ASSERT_EQUALS(rep_1st_variable.GetSize(), PROBLEM_SIZE);
-        TS_ASSERT_EQUALS(rep_2nd_variable.GetSize(), PROBLEM_SIZE);
-        for (unsigned i=0; i<PROBLEM_SIZE; i++)
+        // Check destination vectors are [-1 -2 -3 ...] and [1 2 3 ...] respectively.
+        DistributedVector dist_1st_var_vec = factory.CreateDistributedVector(first_variable_vec);
+        DistributedVector dist_2nd_var_vec = factory.CreateDistributedVector(second_variable_vec);
+        for (DistributedVector::Iterator index = dist_1st_var_vec.Begin();
+             index!= dist_1st_var_vec.End();
+             ++index)
         {
-            TS_ASSERT_EQUALS(rep_1st_variable[i], 1.0);
-            TS_ASSERT_EQUALS(rep_2nd_variable[i], 2.0);
+            TS_ASSERT_EQUALS(dist_1st_var_vec[index], -1.0 * (index.Global+1));
+            TS_ASSERT_EQUALS(dist_2nd_var_vec[index],         index.Global+1);
         }
     }
 
@@ -110,8 +110,8 @@ public:
              index!= dist_first_variable_vec.End();
              ++index)
         {
-            dist_first_variable_vec[index] = 1.0;
-            dist_second_variable_vec[index] = 2.0;
+            dist_first_variable_vec[index]  = -1.0 * (index.Global+1);
+            dist_second_variable_vec[index] =        (index.Global+1);
         }
 
         // Setup and perform gather operation
@@ -120,13 +120,17 @@ public:
         PetscVecTools::SetupInterleavedVectorScatterGather(interleaved_vec, first_variable_context, second_variable_context);
         PetscVecTools::DoInterleavedVecGather(interleaved_vec, first_variable_context, first_variable_vec, second_variable_context, second_variable_vec);
 
-        // Check there are 1s and 2s interleaved in the destination vector
-        ReplicatableVector rep_interleaved_vec(interleaved_vec);
-        TS_ASSERT_EQUALS(rep_interleaved_vec.GetSize(), 2*PROBLEM_SIZE);
-        for (unsigned i=0; i<PROBLEM_SIZE; i += 2)
+        // Check that the destination vector looks like [ -1 1 -2 2 ... -PROBLEM_SIZE/2+1 PROBLEM_SIZE/2+1 ]
+        DistributedVector dist_interleaved_vec = factory.CreateDistributedVector(interleaved_vec);
+        DistributedVector::Stripe dist_inter_vec_1st_var(dist_interleaved_vec, 0);
+        DistributedVector::Stripe dist_inter_vec_2nd_var(dist_interleaved_vec, 1);
+
+        for (DistributedVector::Iterator index = dist_interleaved_vec.Begin();
+             index!= dist_interleaved_vec.End();
+             ++index)
         {
-            TS_ASSERT_EQUALS(rep_interleaved_vec[i], 1);
-            TS_ASSERT_EQUALS(rep_interleaved_vec[i+1], 2);
+            TS_ASSERT_EQUALS(dist_inter_vec_1st_var[index], -1.0 * (index.Global+1));
+            TS_ASSERT_EQUALS(dist_inter_vec_2nd_var[index],         index.Global+1 );
         }
     }
 };
