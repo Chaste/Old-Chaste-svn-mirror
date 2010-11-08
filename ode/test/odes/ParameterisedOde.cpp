@@ -69,5 +69,7 @@ void OdeSystemInformation<ParameterisedOde>::Initialise()
     this->mDerivedQuantityNames.push_back("2a_plus_y");
     this->mDerivedQuantityUnits.push_back("dimensionless");
 
+    this->mAttributes["attr"] = 1.1;
+
     this->mInitialised = true;
 }

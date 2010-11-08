@@ -243,3 +243,26 @@ std::string AbstractOdeSystemInformation::GetDerivedQuantityUnits(unsigned index
     return mDerivedQuantityUnits[index];
 }
 
+
+unsigned AbstractOdeSystemInformation::GetNumberOfAttributes() const
+{
+    assert(mInitialised);
+    return mAttributes.size();
+}
+
+bool AbstractOdeSystemInformation::HasAttribute(const std::string& rName) const
+{
+    assert(mInitialised);
+    return (mAttributes.find(rName) != mAttributes.end());
+}
+
+double AbstractOdeSystemInformation::GetAttribute(const std::string& rName) const
+{
+    assert(mInitialised);
+    std::map<std::string, double>::const_iterator it = mAttributes.find(rName);
+    if (it == mAttributes.end())
+    {
+        EXCEPTION("No attribute '" + rName + "' found.");
+    }
+    return it->second;
+}

@@ -328,7 +328,29 @@ std::string AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityUnits(unsigne
     assert(mpSystemInfo);
     return mpSystemInfo->GetDerivedQuantityUnits(index);
 }
-    
+
+
+template<typename VECTOR>
+unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfAttributes() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetNumberOfAttributes();
+}
+
+template<typename VECTOR>
+bool AbstractParameterisedSystem<VECTOR>::HasAttribute(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->HasAttribute(rName);
+}
+
+template<typename VECTOR>
+double AbstractParameterisedSystem<VECTOR>::GetAttribute(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetAttribute(rName);
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////

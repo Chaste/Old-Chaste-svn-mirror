@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
+#include <map>
 
 /**
  * An abstract class which provides access to information about a particular
@@ -77,6 +78,9 @@ protected:
     
     /** Derived quantity units */
     std::vector<std::string> mDerivedQuantityUnits;
+
+    /** Named attributes */
+    std::map<std::string, double> mAttributes;
 
     /** Suggested initial conditions */
     std::vector<double> mInitialConditions;
@@ -274,6 +278,28 @@ public:
      * @return the units of the variable.
      */
     std::string GetDerivedQuantityUnits(unsigned index) const;
+
+    //
+    // Attribute methods
+    //
+
+    /**
+     * Return the number of named attributes that this system has.
+     */
+    unsigned GetNumberOfAttributes() const;
+
+    /**
+     * Test whether this system has a particular named attribute.
+     * @param rName  the attribute name.
+     */
+    bool HasAttribute(const std::string& rName) const;
+
+    /**
+     * Get the value of a named attribute.
+     * @param rName  the attribute name.
+     */
+    double GetAttribute(const std::string& rName) const;
+
 };
 
 

@@ -343,6 +343,27 @@ public:
      * @return the units of the variable.
      */
     std::string GetDerivedQuantityUnits(unsigned index) const;
+
+    //
+    // Attribute methods
+    //
+
+    /**
+     * Return the number of named attributes that this system has.
+     */
+    unsigned GetNumberOfAttributes() const;
+
+    /**
+     * Test whether this system has a particular named attribute.
+     * @param rName  the attribute name.
+     */
+    bool HasAttribute(const std::string& rName) const;
+
+    /**
+     * Get the value of a named attribute.
+     * @param rName  the attribute name.
+     */
+    double GetAttribute(const std::string& rName) const;
 };
 
 #endif /*ABSTRACTPARAMETERISEDSYSTEM_HPP_*/

@@ -182,6 +182,23 @@ public:
         TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
     }
     
+    void TestAttributes() throw (Exception)
+    {
+        ParameterisedOde ode;
+        TS_ASSERT_EQUALS(ode.GetNumberOfAttributes(), 1u);
+        TS_ASSERT(ode.HasAttribute("attr"));
+        TS_ASSERT_DELTA(ode.GetAttribute("attr"), 1.1, 1e-12);
+        TS_ASSERT(!ode.HasAttribute("missing"));
+        TS_ASSERT_THROWS_THIS(ode.GetAttribute("missing"), "No attribute 'missing' found.");
+
+        boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+        TS_ASSERT_EQUALS(p_info->GetNumberOfAttributes(), 1u);
+        TS_ASSERT(p_info->HasAttribute("attr"));
+        TS_ASSERT_DELTA(p_info->GetAttribute("attr"), 1.1, 1e-12);
+        TS_ASSERT(!p_info->HasAttribute("missing"));
+        TS_ASSERT_THROWS_THIS(p_info->GetAttribute("missing"), "No attribute 'missing' found.");
+    }
+
     
     void TestArchivingOfParameters() throw (Exception)
     {
