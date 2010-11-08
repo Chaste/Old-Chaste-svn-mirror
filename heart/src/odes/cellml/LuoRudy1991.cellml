@@ -2055,5 +2055,19 @@ The breakdown of the model into components and the definition of encapsulation a
   <rdf:Description rdf:about="#membrane_voltage">
     <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_voltage"/>
   </rdf:Description>
+  <rdf:Description rdf:about="#luo_rudy_1991">
+     <named-attribute xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">
+        <rdf:Description>
+           <name rdf:datatype="http://www.w3.org/2000/10/XMLSchema#string">SuggestedCycleLength</name>
+           <value rdf:datatype="http://www.w3.org/2000/10/XMLSchema#double">750</value>
+        </rdf:Description>
+     </named-attribute>
+     <named-attribute xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">
+        <rdf:Description>
+           <name rdf:datatype="http://www.w3.org/2000/10/XMLSchema#string">SuggestedForwardEulerTimestep</name>
+           <value rdf:datatype="http://www.w3.org/2000/10/XMLSchema#double">0.005</value>
+        </rdf:Description>
+     </named-attribute>
+  </rdf:Description>
 </rdf:RDF>
 </model>

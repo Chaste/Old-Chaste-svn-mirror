@@ -2542,6 +2542,32 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('rY[', i, '] = _guess[', j, '];')
         self.close_block()
         return
+    
+    def output_model_attributes(self):
+        """Output any named model attributes defined in metadata.
+        
+        Such attributes are given by compound RDF annotations:
+          model --pycml:named-attribute--> bnode
+          bnode --pycml:name--> Literal(Attribute name, string)
+          bnode --pycml:value--> Literal(Attribute value, double)
+        """
+        model = self.model
+        meta_id = model.cmeta_id
+        attrs = []
+        if meta_id:
+            property = cellml_metadata.create_rdf_node(('pycml:named-attribute', NSS['pycml']))
+            name_prop = cellml_metadata.create_rdf_node(('pycml:name', NSS['pycml']))
+            value_prop = cellml_metadata.create_rdf_node(('pycml:value', NSS['pycml']))
+            source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
+            attr_nodes = cellml_metadata.get_targets(model, source, property)
+            for node in attr_nodes:
+                name = cellml_metadata.get_target(model, node, name_prop)
+                value = cellml_metadata.get_target(model, node, value_prop)
+                attrs.append((name, value))
+        for name, value in attrs:
+            self.writeln('this->mAttributes["', name, '"] = ', value, ';')
+        if attrs:
+            self.writeln()
 
     def output_bottom_boilerplate(self):
         """Output bottom boilerplate.
@@ -2582,6 +2608,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Derived quantities
         for var in self.derived_quantities:
             output_var('DerivedQuantity', var)
+            self.writeln()
+        self.output_model_attributes()
         self.writeln('this->mInitialised = true;')
         self.close_block()
         self.writeln()

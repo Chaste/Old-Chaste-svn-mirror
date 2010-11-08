@@ -132,6 +132,16 @@ def get_target(cellml_model, source, property):
     """
     return _wrapper.get_target(cellml_model, source, property)
 
+def get_targets(cellml_model, source, property):
+    """Get a list of all targets of property from source.
+    
+    If no such targets exist, returns an empty list.
+    
+    For each target, if it is a literal node then its string value is given.
+    Otherwise the list will contain an RDF node.
+    """
+    return _wrapper.get_targets(cellml_model, source, property)
+
 def find_variables(cellml_model, property, value=None):
     """Find variables in the cellml_model with the given property, and optionally value.
     
@@ -248,6 +258,10 @@ class RdfWrapper(object):
         raise NotImplementedError
     get_target.__doc__ = globals()['get_target'].__doc__ + _must_provide
 
+    def get_targets(self, cellml_model, source, property):
+        raise NotImplementedError
+    get_targets.__doc__ = globals()['get_targets'].__doc__ + _must_provide
+
     def find_variables(self, cellml_model, property, value=None):
         raise NotImplementedError
     find_variables.__doc__ = globals()['find_variables'].__doc__ + _must_provide
@@ -350,6 +364,15 @@ class RedlandWrapper(RdfWrapper):
         _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
         return target
     get_target.__doc__ = globals()['get_target'].__doc__
+
+    def get_targets(self, cellml_model, source, property):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        targets = list(rdf_model.targets(source, property))
+        for i, target in enumerate(targets):
+            if target.is_literal():
+                targets[i] = str(target)
+        return targets
+    get_targets.__doc__ = globals()['get_targets'].__doc__
 
     def find_variables(self, cellml_model, property, value=None):
         rdf_model = self.get_rdf_from_model(cellml_model)
@@ -463,6 +486,12 @@ class RdflibWrapper(RdfWrapper):
         _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
         return target
     get_target.__doc__ = globals()['get_target'].__doc__
+
+    def get_targets(self, cellml_model, source, property):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        targets = list(rdf_model.objects(subject=source, predicate=property))
+        return targets
+    get_targets.__doc__ = globals()['get_targets'].__doc__
 
     def find_variables(self, cellml_model, property, value=None):
         rdf_model = self.get_rdf_from_model(cellml_model)

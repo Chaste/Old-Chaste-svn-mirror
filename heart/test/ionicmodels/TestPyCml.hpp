@@ -103,6 +103,16 @@ class TestPyCml : public CxxTest::TestSuite
         TS_ASSERT_EQUALS(rCell.GetSystemName(), "luo_rudy_1991");
     }
 
+    template<typename VECTOR_TYPE>
+    void CheckAttributes(AbstractParameterisedSystem<VECTOR_TYPE>& rCell)
+    {
+        TS_ASSERT_EQUALS(rCell.GetNumberOfAttributes(), 2u);
+        TS_ASSERT(rCell.HasAttribute("SuggestedCycleLength"));
+        TS_ASSERT_DELTA(rCell.GetAttribute("SuggestedCycleLength"), 750, 1e-12);
+        TS_ASSERT(rCell.HasAttribute("SuggestedForwardEulerTimestep"));
+        TS_ASSERT_DELTA(rCell.GetAttribute("SuggestedForwardEulerTimestep"), 0.005, 1e-12);
+    }
+
     void CheckCai(AbstractCardiacCell& rCell, bool hasCai, double value=0.0)
     {
         if (hasCai)
@@ -213,6 +223,11 @@ public:
         CheckDerivedQuantities(opt, opt.GetInitialConditions());
         CheckDerivedQuantities(be, be.GetInitialConditions());
 
+        // Attributes
+        CheckAttributes(normal);
+        CheckAttributes(opt);
+        CheckAttributes(be);
+
 #ifdef CHASTE_CVODE
         // CVODE version
         CellLuoRudy1991FromCellMLCvode cvode_cell(p_solver, p_stimulus);
@@ -239,6 +254,10 @@ public:
         CheckDerivedQuantities(cvode_cell, inits);
         CheckDerivedQuantities(cvode_opt, inits);
         DeleteVector(inits);
+
+        // Attributes
+        CheckAttributes(cvode_cell);
+        CheckAttributes(cvode_opt);
 #endif // CHASTE_CVODE
 
         // Test the archiving code too
