@@ -39,6 +39,7 @@ import os
 import re
 import time
 import sys
+from cStringIO import StringIO
 
 # Make sure PyCml is on sys.path
 pycml_path = os.path.dirname(os.path.realpath(__file__))
@@ -390,6 +391,17 @@ class CellMLTranslator(object):
         This variant does not indent the output, or add a newline.
         """
         self.writeln(indent=False, nl=False, *args)
+    
+    def capture_output(self):
+        """Make subsequent output operations write to a string buffer."""
+        self._original_out = self.out
+        self.out = StringIO()
+    
+    def get_captured_output(self):
+        """Stop capturing output, and return what was captured as a string."""
+        output = self.out.getvalue()
+        self.out = self._original_out
+        return output
 
     def output_comment(self, *args, **kwargs):
         """Output a (multi-line) string as a comment."""
@@ -2173,9 +2185,18 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if (assigned_var and self.use_modifiers and assigned_var in self.modifier_vars
             and assigned_var.get_type() != VarTypes.State):
             # "Constant" oxmeta-annotated parameters may be modified at run-time
-            self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
-                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END, nl=False)
-            self.output_comment(assigned_var.units, indent=False, pad=True)
+            self.capture_output()
+            super(CellMLToChasteTranslator, self).output_assignment(expr)
+            assignment = self.get_captured_output()
+            eq_pos = assignment.find(self.EQ_ASSIGN)
+            end_pos = assignment.find(self.STMT_END)
+            rhs = assignment[eq_pos+len(self.EQ_ASSIGN):end_pos]
+            if rhs:
+                # If assigned_var is computed, it'll 'appear' twice - once with expr==assigned_var,
+                # and once for the assignment mathml_apply.  The former will result in an empty rhs.
+                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
+                             self.modifier_call(assigned_var, rhs), self.STMT_END, nl=False)
+                self.output_comment(assigned_var.units, indent=False, pad=True)
         else:
             super(CellMLToChasteTranslator, self).output_assignment(expr)
         if clear_type:
