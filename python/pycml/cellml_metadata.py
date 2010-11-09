@@ -64,14 +64,15 @@ METADATA_NAMES = frozenset(
      # What follows are some more metadata names agreed by Gary Mirams and Penny Noble
      'cytosolic_potassium_concentration', 'cytosolic_sodium_concentration',
      'cytoplasmic_potassium_concentration', 'cytoplasmic_sodium_concentration',
-     'membrane_fast_sodium_current_shift_inactivation', 'membrane_fast_sodium_current_reduced_inactivation',
-     'membrane_L_type_calcium_current', 'membrane_L_type_calcium_current_fCa_gate', 'membrane_L_type_calcium_current_fCa2_gate', 'membrane_L_type_calcium_current_f2_gate', 'membrane_L_type_calcium_current_f2ds_gate', 'membrane_L_type_calcium_current_d2_gate',
+     'membrane_fast_sodium_current_shift_inactivation', 'membrane_fast_sodium_current_reduced_inactivation', 'membrane_fast_sodium_current_h_gate_tau', 'membrane_fast_sodium_current_j_gate_tau',
+     'membrane_L_type_calcium_current', 'membrane_L_type_calcium_current_fCa_gate', 'membrane_L_type_calcium_current_fCa2_gate', 'membrane_L_type_calcium_current_f2_gate', 'membrane_L_type_calcium_current_f2ds_gate', 'membrane_L_type_calcium_current_d2_gate', 'membrane_L_type_calcium_current_f_gate_tau', 'membrane_L_type_calcium_current_f2_gate_tau', 'membrane_L_type_calcium_current_fCa_gate_tau', 'membrane_L_type_calcium_current_fCa2_gate_tau',
      'membrane_rapid_delayed_rectifier_potassium_current', 'membrane_rapid_delayed_rectifier_potassium_current_conductance1', 'membrane_rapid_delayed_rectifier_potassium_current_conductance2',
      'membrane_sodium_calcium_exchanger_current', 'membrane_sodium_calcium_exchanger_current_conductance',
      'membrane_delayed_rectifier_potassium_current', 'membrane_delayed_rectifier_potassium_current_conductance',
      'calcium_concentration_intracellular',
      'diadicspace_calcium_concentration',
-     'SR_release_current'
+     'SR_release_current',
+     'concentration_clamp_onoff'
 ])
 
 
