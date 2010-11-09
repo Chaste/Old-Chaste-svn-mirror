@@ -26,10 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <iostream>
+
+#include "PetscVecTools.hpp" // Includes Ublas so must come first
 #include "PCBlockDiagonal.hpp"
 #include "Exception.hpp"
-#include <iostream>
-#include "PetscVecTools.hpp"
 
 PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {

@@ -54,7 +54,7 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y);
 #endif
 
 /**
- *  This class defines a PETSc-compliant purpouse-build preconditioner.
+ *  This class defines a PETSc-compliant purpose-built preconditioner.
  *
  *  Let A be a matrix arising in the FEM discretisation of the bidomain equations with the following block structure:
  *

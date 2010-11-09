@@ -30,10 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTPETSCVECTOOLS_HPP_
 
 #include <cxxtest/TestSuite.h>
+
+#include "PetscVecTools.hpp" // Includes Ublas so must come before PETSc
+
 #include <petscvec.h>
+
 #include "DistributedVectorFactory.hpp"
 #include "ReplicatableVector.hpp"
-#include "PetscVecTools.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"
