@@ -154,7 +154,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     }
     if (mReplicated == NULL)
     {
-        // This creates mReplicated (the scatter context) and mReplicated (to store values)
+        // This creates mToAll (the scatter context) and mReplicated (to store values)
         VecScatterCreateToAll(vec, &mToAll, &mReplicated);
     }
 
