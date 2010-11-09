@@ -1659,8 +1659,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Keep only the variables with an oxmeta name
         vars = filter(lambda v: v.oxmeta_name, vars)
         # We're actually only interested in constants or state variables
-        self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
+        self.metadata_vars = set([v for v in vars
+                                  if v.is_statically_const(force_computation=True)
                                   or v in self.state_vars])
+        # There's a really nasty corner case if the model defines a constant stimulus current!
+        self.metadata_vars.discard(self.doc._cml_config.i_stim_var)
         
         # #1464 Create a set of metadata variables that will have modifiers
         # We want to avoid writing out metadata for stimulus current as it is used once and then discarded.
@@ -1690,20 +1693,22 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block()
         
         # Methods associated with oxmeta annotated variables
+        use_modifiers = self.use_modifiers
+        self.use_modifiers = False
         for var in self.metadata_vars:
-            if var.get_type() == VarTypes.Constant:
+            if var.is_statically_const(force_computation=True):
                 self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
                 self.open_block()
                 self.output_comment('Constant value given in CellML')
-                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var), self.EQ_ASSIGN,
-                             var.initial_value, self.STMT_END)
-                conversion, nodes_used = self.determine_units_conversion(var)
-                if nodes_used:
-                    nodeset = self.calculate_extended_dependencies(nodes_used)
-                    self.output_equations(nodeset)
+                nodeset = self.calculate_extended_dependencies([var])
+                conversion, conv_nodes = self.determine_units_conversion(var)
+                if conv_nodes:
+                    nodeset.update(self.calculate_extended_dependencies(conv_nodes))
+                self.output_equations(nodeset)
                 self.writeln('return ', conversion, self.STMT_END)
                 self.close_block()
                 self.writeln()
+        self.use_modifiers = use_modifiers
         self.output_default_stimulus()
         self.output_intracellular_calcium()
         
@@ -2165,8 +2170,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                        and not assigned_var.is_derived_quantity))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
-        if (assigned_var and assigned_var.get_type() == VarTypes.Constant and
-            self.use_modifiers and assigned_var in self.modifier_vars):
+        if (assigned_var and self.use_modifiers and assigned_var in self.modifier_vars
+            and assigned_var.get_type() != VarTypes.State):
             # "Constant" oxmeta-annotated parameters may be modified at run-time
             self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
                          self.modifier_call(assigned_var, expr.initial_value), self.STMT_END, nl=False)
