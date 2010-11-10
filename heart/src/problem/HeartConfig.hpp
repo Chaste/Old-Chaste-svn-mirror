@@ -657,6 +657,11 @@ public:
      *  - an index to treat as the source for wave propagation
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps) const;
+    
+    /**
+     * @return true if state variable interpolation is used
+     */
+    bool GetUseStateVariableInterpolation() const;
 
 
     // Output visualization
@@ -1046,6 +1051,14 @@ public:
     void GetElectrodeParameters(bool& rGroundSecondElectrode,
                                 unsigned& rIndex, double& rMagnitude, 
                                 double& rStartTime, double& rDuration );
+
+
+    /**
+     * Set the use of State Variable Interpolation in the computation of ionic currents.
+     * 
+     * @param  useStateVariableInterpolation Whether to use it.
+     */
+    void SetUseStateVariableInterpolation( bool useStateVariableInterpolation = true);
     
 
 private:
@@ -1134,7 +1147,7 @@ private:
      *
      * @param callingMethod string describing the get method performing the check.
      */
-     void CheckSimulationIsDefined(std::string callingMethod="") const;
+    void CheckSimulationIsDefined(std::string callingMethod="") const;
 
     /**
      * CheckSimulationIsDefined is a convience method for checking if the "<"ResumeSimulation">" element
@@ -1145,7 +1158,12 @@ private:
      *
      * @param callingMethod string describing the get method performing the check.
      */
-     void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
+    void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
+     
+    /** 
+     *  Whether to use State Variable Interpolation in the computation of ionic currents.
+     */
+    bool mUseStateVariableInterpolation;
 
 };
 

@@ -1143,6 +1143,13 @@ public:
         TS_ASSERT_EQUALS(magnitude, 1066.0);    
         TS_ASSERT_EQUALS(start_time, 0.5);    
         TS_ASSERT_EQUALS(duration, 0.5);
+        
+        // This is a temporary internal boolean until we're happy that users can be let loose on the functionality!
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
+        HeartConfig::Instance()->SetUseStateVariableInterpolation();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), true);
+        HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
     }
 
     void TestWrite() throw (Exception)
