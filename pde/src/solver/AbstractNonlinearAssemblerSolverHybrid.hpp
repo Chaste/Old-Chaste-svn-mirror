@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "PetscTools.hpp"
+#include "PetscMatTools.hpp"
+#include "PetscVecTools.hpp"
 #include "AbstractFeObjectAssembler.hpp"
 #include "LinearSystem.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
@@ -301,8 +303,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     this->SetApplyNeummanBoundaryConditionsToVector(mpBoundaryConditions);
     this->AssembleVector();
 
-    VecAssemblyBegin(residualVector);
-    VecAssemblyEnd(residualVector);
+    PetscVecTools::Assemble(residualVector);
 
     ApplyDirichletConditions(currentGuess, residualVector, NULL);
 }
@@ -316,13 +317,11 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         this->SetCurrentSolution(currentGuess);
         this->AssembleMatrix();
     
-        MatAssemblyBegin(*pJacobian, MAT_FLUSH_ASSEMBLY);
-        MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
+        PetscMatTools::AssembleIntermediate(*pJacobian);
         
         ApplyDirichletConditions(currentGuess, NULL, pJacobian);
 
-        MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
+        PetscMatTools::AssembleFinal(*pJacobian);
     }
     else
     {
@@ -402,8 +401,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     VecDestroy(result);
     VecDestroy(current_guess_copy);
 
-    MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
+    PetscMatTools::AssembleFinal(*pJacobian);
 }
 
 

@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MatrixBasedBidomainSolver.hpp"
 #include "BidomainAssembler.hpp"
 #include "BidomainWithBathAssembler.hpp"
+#include "PetscMatTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
@@ -80,7 +81,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     /////////////////////////////////////////
     // set up LHS matrix (and mass matrix)
     /////////////////////////////////////////
-    if(computeMatrix)
+    if (computeMatrix)
     {
         this->mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
         this->mpBidomainAssembler->AssembleMatrix();
@@ -93,8 +94,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mass_matrix_assembler.Assemble();
 
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-        MatAssemblyBegin(mMassMatrix, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(mMassMatrix, MAT_FINAL_ASSEMBLY);
+        PetscMatTools::AssembleFinal(mMassMatrix);
     }
 
 

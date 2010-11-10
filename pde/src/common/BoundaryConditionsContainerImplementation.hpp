@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 #define _BOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 
+#include "PetscMatTools.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
@@ -440,8 +441,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         }
     }
 
-    MatAssemblyBegin(jacobian, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(jacobian, MAT_FINAL_ASSEMBLY);
+    PetscMatTools::AssembleFinal(jacobian);
 
     // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
     // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated

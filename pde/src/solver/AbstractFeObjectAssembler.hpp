@@ -187,30 +187,6 @@ protected:
         return mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*nodeIndex + indexOfUnknown];
     }
 
-    /**
-     * Add multiple values to the matrix. Templated over the size of the small matrix.
-     * 
-     * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
-     *  to index of the matrix
-     * @param rSmallMatrix Ublas matrix containing the values to be added
-     *
-     * N.B. Values which are not local (ie the row is not owned) will be skipped.
-     */
-    template<size_t SMALL_MATRIX_SIZE>
-    void AddMultipleValuesToMatrix(unsigned* matrixRowAndColIndices, c_matrix<double, SMALL_MATRIX_SIZE, SMALL_MATRIX_SIZE>& rSmallMatrix);
-
-    /**
-     * Add multiple values to the vector. Templated over the size of the small vector.
-     * 
-     *  @param vectorIndices mapping from index of the ublas vector (see param below)
-     *  to index of the vector
-     *  @param smallVector Ublas vector containing the values to be added
-     * 
-     * N.B. Values which are not local (ie the row is not owned) will be skipped.
-     */
-    template<size_t SMALL_VECTOR_SIZE>
-    void AddMultipleValuesToVector(unsigned* vectorIndices, c_vector<double, SMALL_VECTOR_SIZE>& smallVector);
-    
 protected:
      /** Mesh to be solved on */
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
@@ -607,12 +583,12 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     
                 if (mAssembleMatrix)
                 {
-                    AddMultipleValuesToMatrix<STENCIL_SIZE>(p_indices, a_elem);
+                    PetscMatTools::AddMultipleValues<STENCIL_SIZE>(mMatrixToAssemble, p_indices, a_elem);
                 }
     
                 if (mAssembleVector)
                 {
-                    AddMultipleValuesToVector<STENCIL_SIZE>(p_indices, b_elem);
+                    PetscVecTools::AddMultipleValues<STENCIL_SIZE>(mVectorToAssemble, p_indices, b_elem);
                 }
             }
         }
@@ -670,7 +646,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
             const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
             unsigned p_indices[STENCIL_SIZE];
             r_surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-            AddMultipleValuesToVector<STENCIL_SIZE>(p_indices, b_surf_elem);
+            PetscVecTools::AddMultipleValues<STENCIL_SIZE>(mVectorToAssemble, p_indices, b_surf_elem);
             ++neumann_iterator;
         }
     }
@@ -874,121 +850,5 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         noalias(rBSurfElem) += ComputeVectorSurfaceTerm(rSurfaceElement, phi, x) * wJ;
     }
 }
-
-/////////////////////////////////////////////////////////////////////
-//
-// see #1507
-//
-/////////////////////////////////////////////////////////////////////
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-template<size_t SMALL_MATRIX_SIZE>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AddMultipleValuesToMatrix(unsigned* matrixRowAndColIndices, c_matrix<double, SMALL_MATRIX_SIZE, SMALL_MATRIX_SIZE>& rSmallMatrix)
-{
-    PetscInt matrix_row_indices[SMALL_MATRIX_SIZE];
-    PetscInt num_rows_owned = 0;
-    PetscInt global_row;
-
-    for (unsigned row = 0; row<SMALL_MATRIX_SIZE; row++)
-    {
-        global_row = matrixRowAndColIndices[row];
-
-        if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-        {
-            matrix_row_indices[num_rows_owned++] = global_row;
-        }
-    }
-
-    if ( num_rows_owned == SMALL_MATRIX_SIZE)
-    {
-        MatSetValues(mMatrixToAssemble,
-                     num_rows_owned,
-                     matrix_row_indices,
-                     SMALL_MATRIX_SIZE,
-                     (PetscInt*) matrixRowAndColIndices,
-                     rSmallMatrix.data(),
-                     ADD_VALUES);
-    }
-    else
-    {
-        // We need continuous data, if some of the rows do not belong to the processor their values
-        // are not passed to MatSetValues
-        double values[SMALL_MATRIX_SIZE*SMALL_MATRIX_SIZE];
-        unsigned num_values_owned = 0;
-        for (unsigned row = 0; row<SMALL_MATRIX_SIZE; row++)
-        {
-            global_row = matrixRowAndColIndices[row];
-
-            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-            {
-                for (unsigned col=0; col<SMALL_MATRIX_SIZE; col++)
-                {
-                    values[num_values_owned++] = rSmallMatrix(row, col);
-                }
-            }
-        }
-
-        MatSetValues(mMatrixToAssemble,
-                     num_rows_owned,
-                     matrix_row_indices,
-                     SMALL_MATRIX_SIZE,
-                     (PetscInt*) matrixRowAndColIndices,
-                     values,
-                     ADD_VALUES);
-    }
-}
-
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-template<size_t SMALL_VECTOR_SIZE>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AddMultipleValuesToVector(unsigned* vectorIndices, c_vector<double, SMALL_VECTOR_SIZE>& smallVector)
-{
-    PetscInt indices_owned[SMALL_VECTOR_SIZE];
-    PetscInt num_indices_owned = 0;
-    PetscInt global_row;
-
-    for (unsigned row = 0; row<SMALL_VECTOR_SIZE; row++)
-    {
-        global_row = vectorIndices[row];
-
-        if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-        {
-            indices_owned[num_indices_owned++] = global_row;
-        }
-    }
-
-    if (num_indices_owned == SMALL_VECTOR_SIZE)
-    {
-        VecSetValues(mVectorToAssemble,
-                     num_indices_owned,
-                     indices_owned,
-                     smallVector.data(),
-                     ADD_VALUES);
-    }
-    else
-    {
-        // We need continuous data, if some of the rows do not belong to the processor their values
-        // are not passed to MatSetValues
-        double values[SMALL_VECTOR_SIZE];
-        unsigned num_values_owned = 0;
-
-        for (unsigned row = 0; row<SMALL_VECTOR_SIZE; row++)
-        {
-            global_row = vectorIndices[row];
-
-            if (global_row >=mOwnershipRangeLo && global_row <mOwnershipRangeHi)
-            {
-                values[num_values_owned++] = smallVector(row);
-            }
-        }
-
-        VecSetValues(mVectorToAssemble,
-                     num_indices_owned,
-                     indices_owned,
-                     values,
-                     ADD_VALUES);
-    }
-}
-    
 
 #endif /*ABSTRACTFEOBJECTASSEMBLER_HPP_*/

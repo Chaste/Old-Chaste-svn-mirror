@@ -270,8 +270,7 @@ public:
         {
             VecSetValue(initial_guess, global_index, (1.5-0.15*global_index), INSERT_VALUES);
         }
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
+        PetscVecTools::Assemble(initial_guess);
 
         Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
@@ -366,8 +365,7 @@ public:
             x1=0.1*(double)(global_index);
             VecSetValue(initial_guess, global_index, 0.35*(1-x1*x1), INSERT_VALUES);
         }
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
+        PetscVecTools::Assemble(initial_guess);
 
         Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);

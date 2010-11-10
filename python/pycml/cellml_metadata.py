@@ -361,7 +361,7 @@ class RedlandWrapper(RdfWrapper):
         else:
             target = None
         if target and target.is_literal():
-            target = str(target)
+            target = target.literal_value['string']
         _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
         return target
     get_target.__doc__ = globals()['get_target'].__doc__
@@ -371,7 +371,7 @@ class RedlandWrapper(RdfWrapper):
         targets = list(rdf_model.targets(source, property))
         for i, target in enumerate(targets):
             if target.is_literal():
-                targets[i] = str(target)
+                targets[i] = target.literal_value['string']
         return targets
     get_targets.__doc__ = globals()['get_targets'].__doc__
 

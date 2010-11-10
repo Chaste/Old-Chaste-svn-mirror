@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MatrixBasedMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
+#include "PetscMatTools.hpp"
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -54,8 +55,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
         mass_matrix_assembler.Assemble();
 
         this->mpLinearSystem->AssembleFinalLhsMatrix();
-        MatAssemblyBegin(mMassMatrix, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(mMassMatrix, MAT_FINAL_ASSEMBLY);
+        PetscMatTools::AssembleFinal(mMassMatrix);
     }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);

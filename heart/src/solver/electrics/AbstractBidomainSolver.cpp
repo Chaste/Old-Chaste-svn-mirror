@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractBidomainSolver.hpp"
 #include "TetrahedralMesh.hpp"
+#include "PetscMatTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
@@ -382,8 +383,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
                 int num_equation = 2*i; // assumes Vm and Phie are interleaved
 
                 // Matrix need to be assembled in order to use GetMatrixElement()
-                MatAssemblyBegin(this->mpLinearSystem->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
-                MatAssemblyEnd(this->mpLinearSystem->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
+                this->mpLinearSystem->AssembleFinalLhsMatrix();
 
                 PetscInt local_lo, local_hi;
                 this->mpLinearSystem->GetOwnershipRange(local_lo, local_hi);
