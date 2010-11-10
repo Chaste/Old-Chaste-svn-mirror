@@ -36,7 +36,10 @@ if ubuntu_ver == 'lucid':
 else:
     ubuntu_ver = map(int, ubuntu_ver.split('.')[0:2]) 
 
-if ubuntu_ver >= [9,10]:
+if ubuntu_ver >= [10,10]:
+    petsc_ver = 3.1
+    petsc_path = '/usr/lib/petscdir/3.1/'
+elif ubuntu_ver >= [9,10]:
     petsc_ver = 3
     petsc_3_0_path = '/usr/lib/petscdir/3.0.0/'
 else:
@@ -58,10 +61,12 @@ libs_for_petsc = ['petsccontrib', 'X11',
                   'HYPRE', 'spooles', 'superlu',
                   'umfpack', 'amd' # Both for Umfpack
                   ]
-if petsc_ver == 3:
+if petsc_ver >= 3:
     libs_for_petsc.append('scotch')
 else:
     libs_for_petsc.append('sidl')
+if petsc_ver >= 3.1:
+    libs_for_petsc.remove('petsccontrib')
 if ubuntu_ver >= [9,10]:
     boost_suffix = '-mt'
 else:
