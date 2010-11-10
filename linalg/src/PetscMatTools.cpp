@@ -251,3 +251,13 @@ double PetscMatTools::GetElement(Mat matrix, PetscInt row, PetscInt col)
 
     return ret_array[0];
 }
+
+
+void PetscMatTools::SetOption(Mat matrix, MatOption option)
+{
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
+    MatSetOption(matrix, option, PETSC_TRUE);
+#else
+    MatSetOption(matrix, option);
+#endif
+}

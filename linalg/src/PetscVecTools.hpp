@@ -100,6 +100,16 @@ public:
      * @param row  the row index
      */
     static double GetElement(Vec vector, PetscInt row);
+    
+    /**
+     * Calls the method VecAXPY (using the appropriate arguments given the Petsc version)
+     * Computes y += ax
+     * @param y the vector which is added to
+     * @param x the vector which is scaled and added to y
+     * @param scaleFactor the value 'a' above, the factor x is multiplied by.
+     */
+    static void AddScaledVector(Vec y, Vec x, double scaleFactor);
+
 
     /**
      * Add multiple values to a vector.

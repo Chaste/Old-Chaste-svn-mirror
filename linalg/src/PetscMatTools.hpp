@@ -159,6 +159,12 @@ public:
      * @param col  the column index
      */
     static double GetElement(Mat matrix, PetscInt row, PetscInt col);
+    
+    /**
+     *  Calls the Petsc method MatSetOption (with the third argument, in Petsc versions 3 and greater, being
+     *  set to true).
+     */
+    static void SetOption(Mat matrix, MatOption option);
 
     /**
      * Add multiple values to a matrix.

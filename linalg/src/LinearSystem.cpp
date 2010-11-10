@@ -481,16 +481,12 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 
     if (isSymmetric)
     {
-#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
-        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_TRUE);
-        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_TRUE);
-#else
-        MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
-        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
-#endif
+        PetscMatTools::SetOption(mLhsMatrix, MAT_SYMMETRIC);
+        PetscMatTools::SetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
     }
     else
     {
+// don't have a PetscMatTools method for setting options to false        
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE);
         MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE);

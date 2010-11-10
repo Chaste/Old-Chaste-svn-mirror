@@ -72,16 +72,12 @@ void PetscVecTools::Display(Vec vector)
 
 void PetscVecTools::Zero(Vec vector)
 {
-    PetscInt lo, hi;
-    GetOwnershipRange(vector, lo, hi);
-    double* p_vector_array;
-
-    VecGetArray(vector, &p_vector_array);
-    for (PetscInt local_index=0; local_index < hi-lo; local_index++)
-    {
-        p_vector_array[local_index]=0.0;
-    }
-    VecRestoreArray(vector, &p_vector_array);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    PetscScalar zero = 0.0;
+    VecSet(&zero, vector);
+#else
+    VecZeroEntries(vector);
+#endif
 }
 
 unsigned PetscVecTools::GetSize(Vec vector) 
@@ -110,6 +106,16 @@ double PetscVecTools::GetElement(Vec vector, PetscInt row)
 
     return answer;
 }
+
+void PetscVecTools::AddScaledVector(Vec y, Vec x, double scaleFactor)
+{
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    VecAXPY(&scaleFactor, x, y);
+#else
+    VecAXPY(y, scaleFactor, x);
+#endif
+}
+
 
 void PetscVecTools::SetupInterleavedVectorScatterGather(Vec interleavedVec, VecScatter& rFirstVariableScatterContext, VecScatter& rSecondVariableScatterContext)
 {

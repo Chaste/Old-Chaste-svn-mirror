@@ -145,13 +145,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
 
 
         // update solution: current_guess = current_solution - best_damping_factor*negative_update
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        double minus_test_value = -best_damping_factor;
-        VecAXPY(&minus_test_value, negative_update, current_solution);
-#else
-        //[note: VecAXPY(y,a,x) computes y = ax+y]
-        VecAXPY(current_solution, -best_damping_factor, negative_update);
-#endif
+        PetscVecTools::AddScaledVector(current_solution, negative_update, -best_damping_factor);
         scaled_residual_norm = best_scaled_residual;
         VecDestroy(negative_update);
 

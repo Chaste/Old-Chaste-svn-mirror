@@ -547,16 +547,11 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     // Zero the matrix/vector if it is to be assembled
     if (mAssembleVector && mZeroVectorBeforeAssembly)
     {
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        PetscScalar zero = 0.0;
-        VecSet(&zero, mVectorToAssemble);
-#else
-        VecZeroEntries(mVectorToAssemble);
-#endif
+        PetscVecTools::Zero(mVectorToAssemble);
     }
     if (mAssembleMatrix)
     {
-        MatZeroEntries(mMatrixToAssemble);
+        PetscMatTools::Zero(mMatrixToAssemble);
     }
 
     const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);

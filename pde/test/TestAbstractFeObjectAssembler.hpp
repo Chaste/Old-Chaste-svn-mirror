@@ -349,13 +349,8 @@ public:
 
         // zero the matrix and call AssembleVector, check the matrix is not
         // assembled.
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) // PETSc 2.2
-        PetscScalar zero = 0.0;
-        VecSet(&zero, vec);
-#else
-        VecZeroEntries(vec);
-#endif
-        MatZeroEntries(mat);
+        PetscVecTools::Zero(vec);
+        PetscMatTools::Zero(mat);
 
         assembler_1d.AssembleVector();
 

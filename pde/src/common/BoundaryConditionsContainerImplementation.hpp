@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 #define _BOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 
+#include "PetscVecTools.hpp"
 #include "PetscMatTools.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVector.hpp"
@@ -245,13 +246,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             //that they can be reapplied at each time step.
             //Make a new vector to store the Dirichlet offsets in
             VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-            PetscScalar zero = 0.0;
-            VecSet(&zero, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#else
-            VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#endif
-
+            PetscVecTools::Zero(rLinearSystem.rGetDirichletBoundaryConditionsVector());
             // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
             // in assembled state. Otherwise we can defer it.
             rLinearSystem.AssembleFinalLinearSystem();
@@ -324,12 +319,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
                 //   -value*[0 a_21 a_31 .. a_N1]
                 // and will be added to the RHS.
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#else
-                //[note: VecAXPY(y,a,x) computes y = ax+y]
-                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), minus_value, matrix_col);
-#endif
+                PetscVecTools::AddScaledVector(rLinearSystem.rGetDirichletBoundaryConditionsVector(), matrix_col, minus_value);
                 VecDestroy(matrix_col);
             }
         }
@@ -352,12 +342,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         //Apply the RHS boundary conditions modification if required.
         if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
         {
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-            double one = 1.0;
-            VecAXPY(&one, rLinearSystem.rGetDirichletBoundaryConditionsVector(), rLinearSystem.rGetRhsVector());
-#else
-            VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#endif
+            PetscVecTools::AddScaledVector(rLinearSystem.rGetRhsVector(), rLinearSystem.rGetDirichletBoundaryConditionsVector(), 1.0);
         }
     
         //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
@@ -426,7 +411,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         num_boundary_conditions += this->mpDirichletMap[index_of_unknown]->size();
     }
 
-    PetscInt* rows_to_zero = new PetscInt[num_boundary_conditions];
+    std::vector<unsigned> rows_to_zero(num_boundary_conditions);
 
     unsigned counter=0;
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -440,32 +425,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             this->mDirichIterator++;
         }
     }
-
     PetscMatTools::AssembleFinal(jacobian);
-
-    // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
-    // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
-    // are kept.
-#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
-    MatSetOption(jacobian, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
-#elif (PETSC_VERSION_MAJOR == 3) //PETSc 3.0
-    MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
-#else
-    MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
-#endif
-
-    PetscScalar one = 1.0;
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    IS is;
-    ISCreateGeneral(PETSC_COMM_WORLD, num_boundary_conditions, rows_to_zero, &is);
-    MatZeroRows(jacobian, is, &one);
-    ISDestroy(is);
-#else
-    MatZeroRows(jacobian, num_boundary_conditions, rows_to_zero, one);
-#endif
-
-    delete [] rows_to_zero;
+    PetscMatTools::ZeroRowsWithValueOnDiagonal(jacobian, rows_to_zero, 1.0);
 }
 
 
