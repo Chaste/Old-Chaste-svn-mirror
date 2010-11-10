@@ -76,7 +76,7 @@ public :
         }
     }
     
-    double GetIIonic()
+    double GetIIonic(const std::vector<double>* pStateVariables=NULL)
     {
         return 0.0;
     }
