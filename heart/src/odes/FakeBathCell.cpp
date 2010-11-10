@@ -46,7 +46,7 @@ void FakeBathCell::EvaluateYDerivatives(double time, const std::vector<double> &
 {
 }
 
-double FakeBathCell::GetIIonic()
+double FakeBathCell::GetIIonic(const std::vector<double>* pStateVariables)
 {
     return 0.0;
 }

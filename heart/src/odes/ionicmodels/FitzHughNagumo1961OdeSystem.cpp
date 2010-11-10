@@ -73,10 +73,11 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     rDY[1] = recovery_variable_prime;
 }
 
-double FitzHughNagumo1961OdeSystem::GetIIonic()
+double FitzHughNagumo1961OdeSystem::GetIIonic(const std::vector<double>* pStateVariables)
 {
-    double membrane_V = mStateVariables[mVoltageIndex];
-    double recovery_variable = mStateVariables[1];
+    if (!pStateVariables) pStateVariables = &mStateVariables;
+    double membrane_V = (*pStateVariables)[mVoltageIndex];
+    double recovery_variable = (*pStateVariables)[1];
     double fake_ionic_current = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable;
     return fake_ionic_current;
 }

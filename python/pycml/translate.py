@@ -1571,7 +1571,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln_hpp()
             self.writeln_hpp(access, ':', indent_offset=-1)
 
-    def output_method_start(self, method_name, args, ret_type, access=None):
+    def output_method_start(self, method_name, args, ret_type, access=None, defaults=[]):
         """Output the start of a method declaration/definition.
         
         Will write to both the .hpp and .cpp file.
@@ -1587,9 +1587,21 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 ret_type = ret_type + ' '
         else:
             ret_type = ''
-        args_string = ', '.join(filter(None, map(str, args)))
-        self.writeln_hpp(ret_type, method_name, '(', args_string, ')', self.STMT_END)
-        self.writeln(ret_type, self.class_name, '::', method_name, '(', args_string, ')')
+        args_string_cpp = ', '.join(filter(None, map(str, args)))
+        if defaults:
+            assert len(defaults) == len(args)
+            args_with_default = []
+            for (arg, default) in zip(map(str, args), map(str, defaults)):
+                if arg:
+                    if default:
+                        args_with_default.append(arg + '=' + default)
+                    else:
+                        args_with_default.append(arg)
+            args_string_hpp = ', '.join(args_with_default)
+        else:
+            args_string_hpp = args_string_cpp
+        self.writeln_hpp(ret_type, method_name, '(', args_string_hpp, ')', self.STMT_END)
+        self.writeln(ret_type, self.class_name, '::', method_name, '(', args_string_cpp, ')')
 
     def output_derived_quantities(self):
         """Output a ComputeDerivedQuantities method if any such quantities exist.
@@ -2019,7 +2031,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     def output_state_assignments(self, exclude_nonlinear=False,
                                  assign_rY=True,
-                                 nodeset=None):
+                                 nodeset=None,
+                                 pointer=''):
         """Output statements extracting state variables from their vector.
 
         If exclude_nonlinear is set to true, state variables appearing
@@ -2027,6 +2040,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
         If nodeset is given, only state variables appearing in nodeset
         will be included.
+        
+        If pointer is given, then the state variables actually appear in the
+        variable given by pointer, which is of type const std::vector<double>*.
         """
         used_vars = set()
         for var in self.state_vars:
@@ -2035,7 +2051,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
                  and (nodeset is None or var in nodeset)):
                 used_vars.add(var)
         if assign_rY and used_vars:
-            self.writeln(self.TYPE_VECTOR_REF, 'rY = rGetStateVariables();')
+            if pointer and self.TYPE_VECTOR_REF == CellMLToChasteTranslator.TYPE_VECTOR_REF:
+                self.writeln('if (!%s) %s = &rGetStateVariables();' % (pointer, pointer))
+                self.writeln('const ', self.TYPE_VECTOR_REF, 'rY = *', pointer, self.STMT_END)
+            else:
+                self.writeln(self.TYPE_VECTOR_REF, 'rY = rGetStateVariables();')
         for i, var in enumerate(self.state_vars):
             if var in used_vars:
                 if self.use_modifiers and var in self.modifier_vars:
@@ -2232,7 +2252,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """Output the GetIIonic method."""
         use_modifiers = self.use_modifiers
         self.use_modifiers = False
-        self.output_method_start('GetIIonic', [], self.TYPE_DOUBLE, access='public')
+        self.output_method_start('GetIIonic', ['const std::vector<double>* pStateVariables'],
+                                 self.TYPE_DOUBLE, access='public', defaults=['NULL'])
         self.open_block()
         # Output mathematics to calculate ionic current, using
         # solver_info.ionic_current.
@@ -2253,7 +2274,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset, prune_deps=[i_stim])
             all_nodes = conv_nodes|nodeset
             # Output main part of maths
-            self.output_state_assignments(nodeset=all_nodes)
+            self.output_state_assignments(nodeset=all_nodes, pointer='pStateVariables')
             if self.use_lookup_tables:
                 self.output_table_index_generation(
                     indexes_as_member=self.use_backward_euler,

@@ -129,8 +129,11 @@ public:
      *
      * Chaste's value for C_m can be obtained from HeartConfig::Instance()->GetCapacitance()
      * and is measured in uF/cm^2.
+     * 
+     * @param pStateVariables  optionally can be supplied to evaluate the ionic current at the
+     *     given state; by default the cell's internal state will be used.
      */
-    virtual double GetIIonic()=0;
+    virtual double GetIIonic(const std::vector<double>* pStateVariables=NULL)=0;
 
     /** Set the transmembrane potential
      * @param voltage  new value

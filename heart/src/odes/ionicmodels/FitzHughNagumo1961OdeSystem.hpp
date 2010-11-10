@@ -67,11 +67,14 @@ public:
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
 
     /**
-     * Calculates the ionic current
+     * Calculates the ionic current.
+     * 
+     * @param pStateVariables  optionally can be supplied to evaluate the ionic current at the
+     *     given state; by default the cell's internal state will be used.
      *
      * @return the total ionic current
      */
-    double GetIIonic();
+    double GetIIonic(const std::vector<double>* pStateVariables=NULL);
 };
 
 #endif //_FITZHUGHNAGUMO1961ODESYSTEM_HPP_

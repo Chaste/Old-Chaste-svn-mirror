@@ -182,6 +182,7 @@ public:
         CellLuoRudy1991FromCellML normal(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
         CheckCai(normal, true, 0.0002);
+        double normal_initial_i_ionic = normal.GetIIonic();
 
         // Optimised model
         CellLuoRudy1991FromCellMLOpt opt(p_solver, p_stimulus);
@@ -298,6 +299,12 @@ public:
                                    i_ionic_end_time,
                                    "Lr91GetIIonic", 1000, false);
         TS_ASSERT_DELTA( normal.GetIIonic(), i_ionic, 1e-3);
+        
+        // Variant form of GetIIonic
+        {
+            std::vector<double> inits = normal.GetInitialConditions();
+            TS_ASSERT_DELTA(normal.GetIIonic(&inits), normal_initial_i_ionic, 1e-12);
+        }
         
         // With zero g_Na
         normal.SetParameter(0u, 0.0);

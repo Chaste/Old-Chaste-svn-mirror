@@ -30,9 +30,10 @@ CML_noble_varghese_kohl_noble_1998_basic_with_sac::~CML_noble_varghese_kohl_nobl
 {
 }
 
-double CML_noble_varghese_kohl_noble_1998_basic_with_sac::GetIIonic()
+double CML_noble_varghese_kohl_noble_1998_basic_with_sac::GetIIonic(const std::vector<double>* pStateVariables)
 {
-    std::vector<double>& rY = rGetStateVariables();
+    if (!pStateVariables) pStateVariables = &rGetStateVariables();
+    const std::vector<double>& rY = *pStateVariables;
     double var_membrane__V = rY[0];
     // Units: millivolt; Initial value: -92.849333
     double var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1 = rY[1];

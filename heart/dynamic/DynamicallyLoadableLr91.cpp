@@ -218,7 +218,7 @@ void DynamicallyLoadableLr91::EvaluateYDerivatives(double time,
 }
 
 
-double DynamicallyLoadableLr91::GetIIonic()
+double DynamicallyLoadableLr91::GetIIonic(const std::vector<double>* pStateVariables)
 {
     double fast_sodium_current_h_gate_h = mStateVariables[0];
     double fast_sodium_current_j_gate_j = mStateVariables[1];

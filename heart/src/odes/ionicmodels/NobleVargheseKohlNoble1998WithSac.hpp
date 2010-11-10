@@ -50,7 +50,7 @@ public:
 
     ~CML_noble_varghese_kohl_noble_1998_basic_with_sac(void);
 
-    double GetIIonic();
+    double GetIIonic(const std::vector<double>* pStateVariables=NULL);
 
     void EvaluateYDerivatives (
             double var_environment__time,
