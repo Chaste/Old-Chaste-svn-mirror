@@ -1647,5 +1647,32 @@ public:
         TS_ASSERT_EQUALS(distributed_mesh_good.GetNumBoundaryElements(), 4800u);
     }
 
+    void doNotTestWritingDistributedMeshBinary()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v2");
+
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TrianglesMeshWriter<3,3> mesh_writer("", "3dDistributedMesh");
+        mesh_writer.SetWriteFilesAsBinary();
+
+        mesh_writer.WriteFilesUsingMesh(mesh);
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+//        TrianglesMeshReader<3,3> mesh_reader2(output_dir + "3dDistributedMesh");
+
+//        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 312u);
+//        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 522u);
+//        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), mesh_reader.GetNumNodes());
+//        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), mesh_reader.GetNumElements());
+
+        //Test for connectivity
+        ///\todo #1621 use the mesh reader when it's written
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "/3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_v2.ncl").c_str()), 0);
+
+        
+    }
+
 };
 #endif /*TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_*/

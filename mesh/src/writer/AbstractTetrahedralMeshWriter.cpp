@@ -245,6 +245,12 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     //Connectivity file is written when we write in binary file
     ///\todo #1621  This functionality should be reproduced with and without original node ordering
     ///\todo #1621 This going to be round robin writing: for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
+
+
+    //Have we got a parallel mesh?
+    ///\todo #1322 This should be const too
+    mpParallelMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    ///\todo #1621 But this line back where it belongs
   
     if (this->mFilesAreBinary)
     {
@@ -258,7 +264,9 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             unsigned max_elements_per_process = rMesh.CalculateMaximumContainingElementsPerProcess();
             MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
         }
-        if (PetscTools::AmMaster())
+
+
+        if (PetscTools::AmMaster() && !mpParallelMesh)
         {
             std::string node_connect_list_file_name = this->mBaseName + ".ncl";
             out_stream p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
@@ -271,6 +279,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         
             // Write each node's data
             unsigned default_marker = UINT_MAX;
+
             ///\todo #1621 Use a local node iterator here
             for (unsigned item_num=0; item_num<this->mNumNodes; item_num++)
             {
@@ -293,9 +302,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }    
 
-    //Have we got a parallel mesh?
-    ///\todo #1322 This should be const too
-    mpParallelMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
 
     if (mpParallelMesh != NULL)
     {
