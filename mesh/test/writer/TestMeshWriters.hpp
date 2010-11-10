@@ -978,6 +978,10 @@ public:
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
 
+        //Test for connectivity
+        ///\todo #1621 use the mesh reader when it's written
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.ncl mesh/test/data/simple_cube_binary.ncl").c_str()), 0);
+
         /* Looking for beginning of provenance line: "#Created by Chaste"
          *          Ascii   Binary
          *  .node   182     267

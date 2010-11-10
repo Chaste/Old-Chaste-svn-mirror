@@ -270,14 +270,24 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             *p_ncl_file << "\tBIN\n";
         
             // Write each node's data
-            //unsigned default_marker = UINT_MAX;
-//            for (unsigned item_num=0; item_num<this->mNumNodes; item_num++)
-//            {
-//                std::vector<unsigned> elem(s.begin(),s.end()); 
-//                for (unsigned elem=0; 
-//                //WriteItem(p_node_file, item_num, this->GetNextNode(), default_marker);
-//            }
-//            
+            unsigned default_marker = UINT_MAX;
+            ///\todo #1621 Use a local node iterator here
+            for (unsigned item_num=0; item_num<this->mNumNodes; item_num++)
+            {
+                //Get the containing element indices from the node's set and sort them
+                std::set<unsigned>& r_elem_set = rMesh.GetNode(item_num)->rGetContainingElementIndices();
+                std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end()); 
+                std::sort(elem_vector.begin(), elem_vector.end());
+                //Pad the vector with unsigned markers
+                for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
+                {
+                    elem_vector.push_back(default_marker);
+                }
+                assert (elem_vector.size() == max_elements_all);
+                //Write raw data out of std::vector into the file
+                p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
+            }
+            
             *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
             p_ncl_file->close();
         }
