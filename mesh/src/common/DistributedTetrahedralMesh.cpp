@@ -117,32 +117,43 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
             DumbNodePartitioning(rMeshReader, rNodesOwned);
         }
 
-        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        ///\todo #1621 If we have an NCL file then we 
+        /// * Form a set of all the element indices we are going to own (union of the sets from the lines in the NCL file)
+        /// * Iterate through that set rather than mTotalNumElements (knowing that we own a least one node in each line)
+        /// * Read all the data into a node_index set
+        /// * Subtract off the rNodesOwned set to produce rHaloNodesOwned
+        
+        //if (NCL_FILE)
+        //{
+        //}
+        //else
         {
-            ElementData element_data = rMeshReader.GetNextElementData();
-
-            bool element_owned = false;
-            std::set<unsigned> temp_halo_nodes;
-
-            for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+            for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
             {
-                if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
+                ElementData element_data = rMeshReader.GetNextElementData();
+    
+                bool element_owned = false;
+                std::set<unsigned> temp_halo_nodes;
+    
+                for (unsigned i=0; i<ELEMENT_DIM+1; i++)
                 {
-                    element_owned = true;
-                    rElementsOwned.insert(element_number);
+                    if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
+                    {
+                        element_owned = true;
+                        rElementsOwned.insert(element_number);
+                    }
+                    else
+                    {
+                        temp_halo_nodes.insert(element_data.NodeIndices[i]);
+                    }
                 }
-                else
+    
+                if (element_owned)
                 {
-                    temp_halo_nodes.insert(element_data.NodeIndices[i]);
+                    rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
                 }
-            }
-
-            if (element_owned)
-            {
-                rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
             }
         }
-
         if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
         {
             PetscTools::Barrier();
