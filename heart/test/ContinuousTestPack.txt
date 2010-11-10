@@ -19,6 +19,7 @@ monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumo.hpp
 monodomain/TestMonodomainTissue.hpp
+monodomain/TestMonodomainWithSvi.hpp
 postprocessing/TestCellProperties.hpp
 postprocessing/TestHdf5ToVisualizerConverters.hpp
 postprocessing/TestPostProcessingWriter.hpp
