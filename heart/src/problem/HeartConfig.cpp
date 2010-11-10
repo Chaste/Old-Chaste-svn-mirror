@@ -2878,7 +2878,7 @@ bool HeartConfig::GetUseStateVariableInterpolation() const
     return mUseStateVariableInterpolation;
 }
 
-void HeartConfig::SetUseStateVariableInterpolation( bool useStateVariableInterpolation)
+void HeartConfig::SetUseStateVariableInterpolation(bool useStateVariableInterpolation)
 {
     mUseStateVariableInterpolation = useStateVariableInterpolation;
 }
@@ -2963,7 +2963,7 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocume
     p_parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true);
     p_parser->setFeature(XMLUni::fgDOMEntities, false);
     p_parser->setFeature(XMLUni::fgDOMNamespaces, true);
-    p_parser->setFeature(XMLUni::fgDOMWhitespaceInElementContent, false);void SetUseStateVariableInterpolation( bool useStateVariableInterpolation = true);
+    p_parser->setFeature(XMLUni::fgDOMWhitespaceInElementContent, false);
     p_parser->setFeature(XMLUni::fgDOMValidation, true);
     p_parser->setFeature(XMLUni::fgXercesSchema, true);
     p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
