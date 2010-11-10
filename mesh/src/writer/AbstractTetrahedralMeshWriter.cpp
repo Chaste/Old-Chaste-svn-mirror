@@ -63,7 +63,7 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
       mpMesh(NULL),
       mpNodeMap(NULL),
       mNodesPerElement(ELEMENT_DIM+1),
-      mpParallelMesh(NULL),
+      mpDistributedMesh(NULL),
       mpIters(new MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>),
       mNodeCounterForParallelMesh(0),
       mElementCounterForParallelMesh(0),
@@ -123,7 +123,7 @@ std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNe
         //If we didn't return then the iterator has reached the end of the local nodes.
         // It must be a parallel mesh and we are expecting messages...
 
-        assert( mpParallelMesh != NULL );
+        assert( mpDistributedMesh != NULL );
 
         MPI_Status status;
         // do receive, convert to std::vector on master
@@ -154,7 +154,7 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
         ElementData elem_data;
         elem_data.NodeIndices.resize(mNodesPerElement);
 
-        if ( mpParallelMesh == NULL ) // not using parallel mesh
+        if ( mpDistributedMesh == NULL ) // not using parallel mesh
         {
             // Use the iterator
             assert(this->mNumElements==mpMesh->GetNumElements());
@@ -174,10 +174,10 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
         else //Parallel mesh
         {
             //Use the mElementCounterForParallelMesh variable to identify next element
-            if ( mpParallelMesh->CalculateDesignatedOwnershipOfElement( mElementCounterForParallelMesh ) == true )
+            if ( mpDistributedMesh->CalculateDesignatedOwnershipOfElement( mElementCounterForParallelMesh ) == true )
             {
                 //Master owns this element
-                Element<ELEMENT_DIM, SPACE_DIM>* p_element = mpParallelMesh->GetElement(mElementCounterForParallelMesh);
+                Element<ELEMENT_DIM, SPACE_DIM>* p_element = mpDistributedMesh->GetElement(mElementCounterForParallelMesh);
                 assert(elem_data.NodeIndices.size() == ELEMENT_DIM+1);
                 assert( ! p_element->IsDeleted() );
                 //Master can use the local data to recover node indices & attribute
@@ -242,68 +242,84 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
     }
-    //Connectivity file is written when we write in binary file
-    ///\todo #1621  This functionality should be reproduced with and without original node ordering
-    ///\todo #1621 This going to be round robin writing: for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
-
-
-    //Have we got a parallel mesh?
-    ///\todo #1322 This should be const too
-    mpParallelMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
-    ///\todo #1621 But this line back where it belongs
-  
-    if (this->mFilesAreBinary)
+    //Connectivity file is written when we write to a binary file (only available for TrianglesMeshWriter) and if we are preserving the element order
+    if (this->mFilesAreBinary && keepOriginalElementIndexing)
     {
         unsigned max_elements_all;
         if (PetscTools::IsSequential())
         {
-            max_elements_all = rMesh.CalculateMaximumContainingElementsPerProcess();
+            max_elements_all = mpMesh->CalculateMaximumContainingElementsPerProcess();
         }
         else
         {
-            unsigned max_elements_per_process = rMesh.CalculateMaximumContainingElementsPerProcess();
+            unsigned max_elements_per_process = mpMesh->CalculateMaximumContainingElementsPerProcess();
             MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
         }
 
 
-        if (PetscTools::AmMaster() && !mpParallelMesh)
+        for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
         {
-            std::string node_connect_list_file_name = this->mBaseName + ".ncl";
-            out_stream p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
-    
-            // Write the ncl header
-    
-            *p_ncl_file << this->mNumNodes << "\t";
-            *p_ncl_file << max_elements_all << "\t";
-            *p_ncl_file << "\tBIN\n";
-        
-            // Write each node's data
-            unsigned default_marker = UINT_MAX;
-
-            ///\todo #1621 Use a local node iterator here
-            for (unsigned item_num=0; item_num<this->mNumNodes; item_num++)
+            if (PetscTools::GetMyRank() == writing_process)
             {
-                //Get the containing element indices from the node's set and sort them
-                std::set<unsigned>& r_elem_set = rMesh.GetNode(item_num)->rGetContainingElementIndices();
-                std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end()); 
-                std::sort(elem_vector.begin(), elem_vector.end());
-                //Pad the vector with unsigned markers
-                for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
+                std::string node_connect_list_file_name = this->mBaseName + ".ncl";
+                out_stream p_ncl_file=out_stream(NULL);
+                
+                if (PetscTools::AmMaster())
                 {
-                    elem_vector.push_back(default_marker);
+                    assert(writing_process==0);
+                    //Open the file for the first time                    
+                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
+            
+                    // Write the ncl header            
+                    *p_ncl_file << this->mNumNodes << "\t";
+                    *p_ncl_file << max_elements_all << "\t";
+                    *p_ncl_file << "\tBIN\n";
                 }
-                assert (elem_vector.size() == max_elements_all);
-                //Write raw data out of std::vector into the file
-                p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
+                else
+                {
+                    //Append to the existing file
+                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name, std::ios::app);                    
+                }
+                
+                // Write each node's data
+                unsigned default_marker = UINT_MAX;
+    
+                for (NodeIterType iter = mpMesh->GetNodeIteratorBegin();
+                     iter != mpMesh->GetNodeIteratorEnd();
+                     ++iter)
+                {
+                    //Get the containing element indices from the node's set and sort them
+                    std::set<unsigned>& r_elem_set = iter->rGetContainingElementIndices();
+                    std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end()); 
+                    std::sort(elem_vector.begin(), elem_vector.end());
+                    //Pad the vector with unsigned markers
+                    for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
+                    {
+                        elem_vector.push_back(default_marker);
+                    }
+                    assert (elem_vector.size() == max_elements_all);
+                    //Write raw data out of std::vector into the file
+                    p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
+                }
+                
+                if (PetscTools::AmTopMost())
+                {
+                    *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
+                }
+                
+                p_ncl_file->close();
             }
             
-            *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
-            p_ncl_file->close();
+            PetscTools::Barrier("AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh");
         }
     }    
 
 
-    if (mpParallelMesh != NULL)
+    //Have we got a parallel mesh?
+    ///\todo #1322 This should be const too
+    mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+
+    if (mpDistributedMesh != NULL)
     {
         //It's a parallel mesh
         WriteFilesUsingParallelMesh(keepOriginalElementIndexing);
@@ -328,9 +344,9 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
 
     // Cache all of the BoundaryElements
-    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
+    for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllBoundaryElements(); i++)
     {
-        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = rMesh.GetBoundaryElement(i);
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = mpMesh->GetBoundaryElement(i);
         if (p_boundary_element->IsDeleted() == false)
         {
             std::vector<unsigned> indices(p_boundary_element->GetNumNodes());
@@ -362,13 +378,13 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
         double raw_coords[SPACE_DIM];
         //Concentrate and cache all of the BoundaryElements
         unsigned raw_face_indices[ELEMENT_DIM];//Assuming that we don't have parallel quadratic meshes
-        for (unsigned index=0; index<(unsigned)mpParallelMesh->GetNumBoundaryElements(); index++)
+        for (unsigned index=0; index<(unsigned)mpDistributedMesh->GetNumBoundaryElements(); index++)
         {
             try
             {
-                if ( mpParallelMesh->CalculateDesignatedOwnershipOfBoundaryElement( index ) == true )
+                if ( mpDistributedMesh->CalculateDesignatedOwnershipOfBoundaryElement( index ) == true )
                 {
-                    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = mpParallelMesh->GetBoundaryElement(index);
+                    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = mpDistributedMesh->GetBoundaryElement(index);
                     assert(p_boundary_element->IsDeleted() == false);
                     for (unsigned j=0; j<ELEMENT_DIM; j++)
                     {
@@ -417,7 +433,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             for (ElementIterType it = mpMesh->GetElementIteratorBegin(); it != mpMesh->GetElementIteratorEnd(); ++it)
             {
                 unsigned index =it->GetIndex();
-                if ( mpParallelMesh->CalculateDesignatedOwnershipOfElement( index ) == true )
+                if ( mpDistributedMesh->CalculateDesignatedOwnershipOfElement( index ) == true )
                 {
                     for (unsigned j=0; j<ELEMENT_DIM+1; j++)
                     {
@@ -439,7 +455,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
         {
             if(PetscTools::GetMyRank() == writing_process)
             {
-                out_stream p_file=out_stream(NULL);
                 if (PetscTools::AmMaster())
                 {
                     // Make sure headers are written first

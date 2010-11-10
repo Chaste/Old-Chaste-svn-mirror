@@ -1647,14 +1647,15 @@ public:
         TS_ASSERT_EQUALS(distributed_mesh_good.GetNumBoundaryElements(), 4800u);
     }
 
-    void doNotTestWritingDistributedMeshBinary()
+    void TestWritingDistributedMeshBinary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v2");
 
-        DistributedTetrahedralMesh<3,3> mesh;
+        // This test will only pass if the node and element orderings are preserver (i.e. dumb partition)
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TrianglesMeshWriter<3,3> mesh_writer("", "3dDistributedMesh");
+        TrianglesMeshWriter<3,3> mesh_writer("WritingDistributedMeshBinary", "3dDistributedMesh");
         mesh_writer.SetWriteFilesAsBinary();
 
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -1669,7 +1670,7 @@ public:
 
         //Test for connectivity
         ///\todo #1621 use the mesh reader when it's written
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "/3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_v2.ncl").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_v2.ncl").c_str()), 0);
 
         
     }

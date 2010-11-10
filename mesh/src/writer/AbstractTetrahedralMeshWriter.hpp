@@ -92,7 +92,7 @@ protected:
 
     unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
 
-    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
+    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpDistributedMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
     MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */

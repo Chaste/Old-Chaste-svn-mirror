@@ -304,8 +304,8 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
     
     typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
     
-    for (NodeIterType iter = this->mpParallelMesh->GetNodeIteratorBegin();
-         iter != this->mpParallelMesh->GetNodeIteratorEnd();
+    for (NodeIterType iter = this->mpDistributedMesh->GetNodeIteratorBegin();
+         iter != this->mpDistributedMesh->GetNodeIteratorEnd();
          ++iter)
     {
         const c_vector<double, SPACE_DIM>& r_current_item = iter->rGetLocation();
@@ -329,11 +329,11 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
 
     typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator ElemIterType;
 
-    for (ElemIterType iter = this->mpParallelMesh->GetElementIteratorBegin();
-         iter != this->mpParallelMesh->GetElementIteratorEnd();
+    for (ElemIterType iter = this->mpDistributedMesh->GetElementIteratorBegin();
+         iter != this->mpDistributedMesh->GetElementIteratorEnd();
          ++iter)
     {
-        if ( this->mpParallelMesh->CalculateDesignatedOwnershipOfElement(iter->GetIndex()))
+        if ( this->mpDistributedMesh->CalculateDesignatedOwnershipOfElement(iter->GetIndex()))
         {            
             for (unsigned i=0; i<this->mNodesPerElement; i++)
             {
@@ -359,11 +359,11 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
     
         typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator BoundaryElemIterType;
     
-        for (BoundaryElemIterType iter = this->mpParallelMesh->GetBoundaryElementIteratorBegin();
-             iter != this->mpParallelMesh->GetBoundaryElementIteratorEnd();
+        for (BoundaryElemIterType iter = this->mpDistributedMesh->GetBoundaryElementIteratorBegin();
+             iter != this->mpDistributedMesh->GetBoundaryElementIteratorEnd();
              ++iter)
         {
-            if ( this->mpParallelMesh->CalculateDesignatedOwnershipOfBoundaryElement((*iter)->GetIndex()))
+            if ( this->mpDistributedMesh->CalculateDesignatedOwnershipOfBoundaryElement((*iter)->GetIndex()))
             {            
                 for (unsigned i=0; i<ELEMENT_DIM; i++)
                 {
