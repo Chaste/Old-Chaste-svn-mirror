@@ -110,6 +110,23 @@ public:
      */
     static void AddScaledVector(Vec y, Vec x, double scaleFactor);
 
+    /**
+     * Scale the given vector. Calls VecScale (using the appropriate arguments given the Petsc version).
+     * @param vector the vector 
+     * @param scaleFactor the scale factor
+     */
+    static void Scale(Vec vector, double scaleFactor);
+    
+    /**
+     * Calls the Petsc function VecWAXPY (using the appropriate arguments given the Petsc version), 
+     * which does w = ax+y, where x,y,w are distinct vectors and a is scalar.
+     * @param w the result vector
+     * @param a the scale factor
+     * @param x the scale vector
+     * @param y the other vector
+     */
+    static void WAXPY(Vec w, double a, Vec x, Vec y);
+
 
     /**
      * Add multiple values to a vector.

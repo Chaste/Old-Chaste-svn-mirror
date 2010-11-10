@@ -352,9 +352,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     ComputeResidual(currentGuess, residual);
 
     // Amount to perturb each input element by
-    double h = 0.00001;
-    PetscScalar subtract = -1;
-    PetscScalar one_over_h = 1.0/h;
+    double h = 1e-5;
 
     PetscInt ilo, ihi;
     VecGetOwnershipRange(current_guess_copy, &ilo, &ihi);
@@ -372,13 +370,8 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         ComputeResidual(current_guess_copy, perturbed_residual);
 
         // result = (perturbed_residual - residual) / h
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        PETSCEXCEPT( VecWAXPY(&subtract, residual, perturbed_residual, result) );
-        PETSCEXCEPT( VecScale(&one_over_h, result) );
-#else
-        PETSCEXCEPT( VecWAXPY(result, subtract, residual, perturbed_residual) );
-        PETSCEXCEPT( VecScale(result, one_over_h) );
-#endif
+        PetscVecTools::WAXPY(result, -1.0, residual, perturbed_residual);
+        PetscVecTools::Scale(result, 1.0/h);
 
         double* p_result;
         PETSCEXCEPT( VecGetArray(result, &p_result) );

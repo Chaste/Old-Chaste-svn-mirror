@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "DistributedVectorFactory.hpp"
 #include "DistributedVector.hpp"
+#include "PetscException.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -113,6 +114,27 @@ void PetscVecTools::AddScaledVector(Vec y, Vec x, double scaleFactor)
     VecAXPY(&scaleFactor, x, y);
 #else
     VecAXPY(y, scaleFactor, x);
+#endif
+}
+
+
+
+
+void PetscVecTools::Scale(Vec vector, double scaleFactor)
+{
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    PETSCEXCEPT( VecScale(&scaleFactor, vector) );
+#else
+    PETSCEXCEPT( VecScale(vector, scaleFactor) );
+#endif    
+}
+
+void PetscVecTools::WAXPY(Vec w, double a, Vec x, Vec y)
+{
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    PETSCEXCEPT( VecWAXPY(&a, x, y, w) );
+#else
+    PETSCEXCEPT( VecWAXPY(w, a, x, y) );
 #endif
 }
 
