@@ -32,9 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
 
-////#1462
-//#include "MonodomainCorrectionTermAssembler.hpp"
-//#include "MonodomainStimulusCorrectionAssembler.hpp"
+
+#include "MonodomainCorrectionTermAssembler.hpp"
 
 /**
  *  A better Monodomain solver (better than BasicMonodomainSolver), which 
@@ -55,9 +54,7 @@ private:
      */
     Vec mVecForConstructingRhs;
 
-//    // #1462
-//    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
-//    MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainStimulusCorrectionAssembler;
+    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
 
     /** 
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the
@@ -97,10 +94,6 @@ public:
      *  Destructor
      */
     ~MatrixBasedMonodomainSolver();
-    
-    
-//    // #1462
-//    void IncludeCorrection(AbstractCardiacCell* pCell);
 };
 
 

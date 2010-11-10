@@ -83,6 +83,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
         dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse + F;
     }
     dist_vec_matrix_based.Restore();
+    
     //////////////////////////////////////////
     // b = Mz
     //////////////////////////////////////////
@@ -104,23 +105,15 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
     //this->mpMonodomainAssembler->SetCurrentSolution(currentSolution);
     this->mpMonodomainAssembler->AssembleVector();
   
-////#1462
-//    /////////////////////////////////////////
-//    // apply correction term
-//    /////////////////////////////////////////
-//    if(mpMonodomainCorrectionTermAssembler)
-//    {
-//        mpMonodomainCorrectionTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
-//        // don't need to set current solution
-//        mpMonodomainCorrectionTermAssembler->AssembleVector();
-//    }    
-//    if(mpMonodomainStimulusCorrectionAssembler)
-//    {
-//        mpMonodomainStimulusCorrectionAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
-//        mpMonodomainStimulusCorrectionAssembler->AssembleVector();
-//    }
-
-
+    /////////////////////////////////////////
+    // apply correction term
+    /////////////////////////////////////////
+    if(mpMonodomainCorrectionTermAssembler)
+    {
+        mpMonodomainCorrectionTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+        // don't need to set current solution
+        mpMonodomainCorrectionTermAssembler->AssembleVector();
+    }
   
     // finalise 
     this->mpLinearSystem->AssembleRhsVector();
@@ -164,9 +157,15 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
     
-//// #1462    
-//    mpMonodomainCorrectionTermAssembler = NULL;
-//    mpMonodomainStimulusCorrectionAssembler = NULL;
+    if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
+    {
+        mpMonodomainCorrectionTermAssembler 
+            = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
+    }
+    else
+    {
+        mpMonodomainCorrectionTermAssembler = NULL;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -178,28 +177,12 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver
         MatDestroy(mMassMatrix);
     }
     
-//// #1462    
-//    if(mpMonodomainCorrectionTermAssembler)
-//    {
-//        delete mpMonodomainCorrectionTermAssembler;
-//    }
-//    if(mpMonodomainStimulusCorrectionAssembler)
-//    {
-//        delete mpMonodomainStimulusCorrectionAssembler;
-//    }
+    if(mpMonodomainCorrectionTermAssembler)
+    {
+        delete mpMonodomainCorrectionTermAssembler;
+    }
 }
 
-
-//// #1462
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
-//{
-//    mpMonodomainCorrectionTermAssembler
-//        = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
-//
-//    mpMonodomainStimulusCorrectionAssembler 
-//        = new MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
-//}
 
 ///////////////////////////////////////////////////////
 // explicit instantiation
