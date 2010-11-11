@@ -615,7 +615,7 @@ public:
      *
      * @param usematrix
      */
-    void UseMatrixBasedRhsAssembly(bool usematrix=true);
+    void UseMatrixBasedRhsAssembly(bool useMatrixBasedRhsAssembly=true);
 
     /**
      *  Called at beginning of each time step in the main time-loop in

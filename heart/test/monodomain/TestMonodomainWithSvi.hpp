@@ -43,23 +43,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "PropagationPropertiesCalculator.hpp"
 
-// stimulate an interval of cells
-class BlockCellFactory1d : public AbstractCardiacCellFactory<1>
+// stimulate a block of cells (an interval in 1d, a block in a corner in 2d)
+template<unsigned DIM>
+class BlockCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    BlockCellFactory1d()
-        : AbstractCardiacCellFactory<1>(),
+    BlockCellFactory()
+        : AbstractCardiacCellFactory<DIM>(),
           mpStimulus(new SimpleStimulus(-1000000.0, 0.5))
     {
+        assert(DIM<3);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-        if ( fabs(x)<0.02+1e-6 )  
+        double y;
+        if(DIM==2)
+        {
+            y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
+        }
+
+        if (    (DIM==1 && fabs(x)<0.02+1e-6)
+             || (DIM==2 && fabs(x)<0.02+1e-6 && fabs(y)<0.02+1e-6) )  
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
         }
@@ -102,7 +111,7 @@ public:
                 // need to have this for i=1,2 cases!!
                 HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
                     
-                BlockCellFactory1d cell_factory;
+                BlockCellFactory<1> cell_factory;
                 MonodomainProblem<1> monodomain_problem( &cell_factory );
                 monodomain_problem.SetMesh(&mesh);
                 monodomain_problem.Initialise();
@@ -136,11 +145,18 @@ public:
     
                 HeartConfig::Instance()->SetUseStateVariableInterpolation();
     
-                BlockCellFactory1d cell_factory;
+                BlockCellFactory<1> cell_factory;
                 MonodomainProblem<1> monodomain_problem( &cell_factory );
                 monodomain_problem.SetMesh(&mesh);
                 monodomain_problem.Initialise();
-            
+
+                if(i==0)
+                {
+                    monodomain_problem.UseMatrixBasedRhsAssembly(false);
+                    TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),"State variable interpolation only available");
+                    monodomain_problem.UseMatrixBasedRhsAssembly(true);
+                }
+                            
                 monodomain_problem.Solve();
                     
                 final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
@@ -193,6 +209,71 @@ public:
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_coarse_mesh, 17.3131, 1e-3);
             }
         }
+    }
+    
+    void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
+    {
+        ReplicatableVector final_voltage_nci;
+        ReplicatableVector final_voltage_svi;
+
+        HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.01);
+        
+        // much lower conductivity in cross-fibre direction - NCI will struggle
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.17));
+        
+        // NCI - nodal current interpolation - the default
+        {
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.5);
+
+            HeartConfig::Instance()->SetOutputDirectory("MonodomainNci2d");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+
+            HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
+                
+            BlockCellFactory<2> cell_factory;
+            MonodomainProblem<2> monodomain_problem( &cell_factory );
+            monodomain_problem.SetMesh(&mesh);
+            monodomain_problem.Initialise();
+            monodomain_problem.Solve();
+        
+            final_voltage_nci.ReplicatePetscVector(monodomain_problem.GetSolution());
+        }
+   
+        // SVI - state variable interpolation
+        {
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.5);
+
+            HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+
+            HeartConfig::Instance()->SetUseStateVariableInterpolation();
+
+            BlockCellFactory<2> cell_factory;
+            MonodomainProblem<2> monodomain_problem( &cell_factory );
+            monodomain_problem.SetMesh(&mesh);
+            monodomain_problem.Initialise();
+
+            monodomain_problem.Solve();
+                
+            final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
+        }
+        
+        // Visualised results with h=0.02 and h=0.01 - results looks sensible according to 
+        // paper:
+        // 1. SVI h=0.01 and h=0.02 match more closely than NCI results - ie SVI converges faster
+        // 2. CV in fibre direction faster for NCI (both values of h)
+        // 3. CV in cross fibre direction: (i) h=0.01, faster for NCI; h=0.02 slower for NCI. 
+        // (Matches results in paper)
+        
+        // node 20 (for h=0.02) is on the x-axis (fibre direction), SVI CV is slower
+        TS_ASSERT_DELTA(final_voltage_nci[20], -9.2269, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_svi[20], -60.8510, 1e-3);
+        // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), NCI CV is slower
+        TS_ASSERT_DELTA(final_voltage_nci[130], 14.7918, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
     }
 };
 

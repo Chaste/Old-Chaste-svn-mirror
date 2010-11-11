@@ -76,6 +76,11 @@ BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicMonodomainSolver(
 {
     // Tell tissue there is a need to replicate ionic caches
     pTissue->SetCacheReplication(true);
+    
+    if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
+    {
+        EXCEPTION("State variable interpolation only available when matrix-based assembly is switched on");
+    }
 }
     
 
