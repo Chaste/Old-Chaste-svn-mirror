@@ -106,7 +106,7 @@ public :
     ///////////////////////
     // ionic current 
     ///////////////////////
-    double GetIIonic()
+    double GetIIonic(const std::vector<double>* pStateVariables=NULL)
     {
         // NOTE: the +0.01 (pde_timestep) is so the source function is evaluated at the 
         // next timestep to be consistent with how GetStimulus(time) is called.

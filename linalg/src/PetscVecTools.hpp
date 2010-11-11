@@ -102,8 +102,8 @@ public:
     static double GetElement(Vec vector, PetscInt row);
     
     /**
-     * Calls the method VecAXPY (using the appropriate arguments given the Petsc version)
-     * Computes y += ax
+     * Computes y += ax, using the PETSc method VecAXPY (with appropriate arguments for the PETSc version).
+     * 
      * @param y the vector which is added to
      * @param x the vector which is scaled and added to y
      * @param scaleFactor the value 'a' above, the factor x is multiplied by.
@@ -111,14 +111,14 @@ public:
     static void AddScaledVector(Vec y, Vec x, double scaleFactor);
 
     /**
-     * Scale the given vector. Calls VecScale (using the appropriate arguments given the Petsc version).
+     * Scale the given vector. Calls VecScale (using the appropriate arguments for the PETSc version).
      * @param vector the vector 
      * @param scaleFactor the scale factor
      */
     static void Scale(Vec vector, double scaleFactor);
     
     /**
-     * Calls the Petsc function VecWAXPY (using the appropriate arguments given the Petsc version), 
+     * Calls the PETSc function VecWAXPY (using the appropriate arguments for the PETSc version), 
      * which does w = ax+y, where x,y,w are distinct vectors and a is scalar.
      * @param w the result vector
      * @param a the scale factor

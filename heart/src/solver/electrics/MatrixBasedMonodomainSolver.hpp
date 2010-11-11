@@ -54,6 +54,10 @@ private:
      */
     Vec mVecForConstructingRhs;
 
+    /**
+     * If using state variable interpolation, points to an assembler to use in computing the
+     * correction term to apply to the RHS.
+     */
     MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
 
     /** 
@@ -61,8 +65,8 @@ private:
      *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed 
      *  using a separate assembler) multiplied by a vector
      * 
-     *  @param currentSolution Solution at current time
-     *  @param computeMatrix Whether to compute the matrix of the linear system
+     *  @param currentSolution  Solution at current time
+     *  @param computeMatrix  Whether to compute the matrix of the linear system
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix);
     
@@ -70,9 +74,9 @@ private:
 public:
   
     /** Overloaded InitialiseForSolve() which calls base version but also
-     *  initialises mMassMatrix and mVecForConstructingRhs
+     *  initialises #mMassMatrix and #mVecForConstructingRhs.
      * 
-     *  @param initialSolution initial solution
+     *  @param initialSolution  initial solution
      */
     void InitialiseForSolve(Vec initialSolution);
 

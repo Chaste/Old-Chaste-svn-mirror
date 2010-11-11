@@ -57,15 +57,13 @@ protected:
     
 
     /**
-     *  ComputeVectorTerm()
-     *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness vector.
+     * This method is called by AssembleOnElement and tells the assembler
+     * the contribution to add to the element stiffness vector.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
+     * @param rU The unknown as a vector, rU(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -101,11 +99,11 @@ protected:
 public:
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
-     * @param numQuadPoints number of quadrature points (defaults to 2)
+     * @param pMesh  pointer to the mesh
+     * @param pTissue  pointer to the cardiac tissue
+     * @param numQuadPoints  number of quadrature points
      */
     MonodomainCorrectionTermAssembler(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                       MonodomainTissue<ELEM_DIM,SPACE_DIM>* pTissue,

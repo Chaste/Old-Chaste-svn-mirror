@@ -86,6 +86,8 @@ public:
 
     /**
      * Fake cells have no transmembrane currents, so this method always returns 0.
+     * 
+     * @param pStateVariables  unused
      */
     double GetIIonic(const std::vector<double>* pStateVariables=NULL);
 
