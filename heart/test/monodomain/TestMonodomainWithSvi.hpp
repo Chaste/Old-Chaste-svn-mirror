@@ -225,7 +225,7 @@ public:
         // NCI - nodal current interpolation - the default
         {
             TetrahedralMesh<2,2> mesh;
-            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.5);
+            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
 
             HeartConfig::Instance()->SetOutputDirectory("MonodomainNci2d");
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
@@ -244,7 +244,7 @@ public:
         // SVI - state variable interpolation
         {
             TetrahedralMesh<2,2> mesh;
-            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.5);
+            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
 
             HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
