@@ -39,7 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A better Monodomain solver (better than BasicMonodomainSolver), which 
  *  computes the right-hand-side (RHS) vector of the linear system to be 
  *  solved using matrix-vector products, rather than assembly.
- *  Massively more efficient than BasicMonodomainSolver
+ *  Massively more efficient than BasicMonodomainSolver.
+ * 
+ *  Also allows state variable interpolation (SVI) to be used on elements
+ *  for which it will be needed, if the appropriate HeartConfig boolean
+ *  is set. See wiki page ChasteGuides/StateVariableInterpolation for more 
+ *  details.
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MatrixBasedMonodomainSolver
@@ -55,8 +60,8 @@ private:
     Vec mVecForConstructingRhs;
 
     /**
-     * If using state variable interpolation, points to an assembler to use in computing the
-     * correction term to apply to the RHS.
+     * If using state variable interpolation, points to an assembler to use in 
+     * computing the correction term to apply to the RHS.
      */
     MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
 

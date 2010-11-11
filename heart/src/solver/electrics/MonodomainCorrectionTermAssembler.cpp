@@ -40,6 +40,9 @@ MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::MonodomainCorrectionTermA
     assert(pTissue);
     mpConfig = HeartConfig::Instance();
     assert(mpConfig->GetUseStateVariableInterpolation());
+    
+    // note: the mStateVariables std::vector is resized if correction will
+    // be applied to a given element
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
@@ -53,11 +56,16 @@ c_vector<double,1*(ELEM_DIM+1)> MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE
 {
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     
+    // compute the ionic current at this quadrature point using the 
+    // interpolated state variables, and a random choice of cell (all 
+    // should be the same)
     unsigned node_global_index = pElement->GetNodeGlobalIndex(0);
     AbstractCardiacCell* p_any_cell = mpMonodomainTissue->GetCardiacCell(node_global_index);
-
     double ionic_sv_interp = p_any_cell->GetIIonic(&mStateVariablesAtQuadPoint);
 
+    // add on the SVI ionic current, and take away the original NCI (linearly
+    // interpolated ionic current) that would have been added as part of
+    // the matrix-based assembly stage.
     return rPhi * (-Am) * ( ionic_sv_interp - mIionicInterp );
 }
 
@@ -65,7 +73,7 @@ c_vector<double,1*(ELEM_DIM+1)> MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 void MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::ResetInterpolatedQuantities( void )
 {
-    // interpolate ionic current, and state variables
+    // reset ionic current, and state variables
     mIionicInterp = 0;
     for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
     {
@@ -95,6 +103,7 @@ bool MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::ElementAssemblyCrite
     double DELTA_IIONIC = 1; // tolerance
 
     ReplicatableVector& r_cache = mpMonodomainTissue->rGetIionicCacheReplicated();
+    
     double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
     
     if(SPACE_DIM > 1)

@@ -35,7 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * An assembler for determining the correction term to add to the RHS vector if using state variable interpolation.
+ * An assembler which computes the correction term to add to the 
+ * RHS vector if using state variable interpolation (SVI), as well as determining
+ * which elements should be corrected on. The formula to determine which 
+ * elements SVI is used is delta Iionic > TOL, where delta Iionic is the max
+ * difference between nodal ionic values, and TOL is chosen conservatively
+ * to be 1uA/cm^2^. See wiki page ChasteGuides/StateVariableInterpolation 
+ * for more details.
  */
 template<unsigned ELEM_DIM,unsigned SPACE_DIM>
 class MonodomainCorrectionTermAssembler
