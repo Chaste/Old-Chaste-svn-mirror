@@ -37,11 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "AbstractFeObjectAssembler.hpp"
 #include "AbstractBidomainSolver.hpp"
 #include "HeartConfig.hpp"
 #include "BidomainAssembler.hpp"
 #include "BidomainMassMatrixAssembler.hpp"
+#include "BidomainCorrectionTermAssembler.hpp"
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
@@ -65,6 +65,13 @@ private:
      *  be solved is Ax=b, this vector is z where b=Mz.
      */
     Vec mVecForConstructingRhs;
+
+    /**
+     * If using state variable interpolation, points to an assembler to use in 
+     * computing the correction term to apply to the RHS.
+     */
+    BidomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainCorrectionTermAssembler;
+
 
     /** Overloaded InitialiseForSolve() which calls base version but also
      *  initialises mMassMatrix and mVecForConstructingRhs

@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
-
-
 #include "MonodomainCorrectionTermAssembler.hpp"
 
 /**

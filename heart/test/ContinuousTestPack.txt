@@ -2,6 +2,7 @@ bidomain/TestBidomainDistributedMesh.hpp
 bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathProblem.hpp
+bidomain/TestBidomainWithSvi.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestCvodeCells.hpp
 ionicmodels/TestDynamicallyLoadedCellModels.hpp

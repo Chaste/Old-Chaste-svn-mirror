@@ -40,6 +40,11 @@ BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicBidomainSolver(
     : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pTissue,pBcc,numQuadPoints)
 {
     pTissue->SetCacheReplication(true);
+
+    if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
+    {
+        EXCEPTION("State variable interpolation only available when matrix-based assembly is switched on");
+    }
 }
 
 

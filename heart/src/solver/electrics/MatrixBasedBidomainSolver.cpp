@@ -187,6 +187,17 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     //mpBidomainAssembler->SetCurrentSolution(currentSolution);
     this->mpBidomainAssembler->AssembleVector();
 
+
+    /////////////////////////////////////////
+    // apply correction term
+    /////////////////////////////////////////
+    if(mpBidomainCorrectionTermAssembler)
+    {
+        mpBidomainCorrectionTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+        // don't need to set current solution
+        mpBidomainCorrectionTermAssembler->AssembleVector();
+    }  
+
     this->mpLinearSystem->AssembleRhsVector();
 
     this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), computeMatrix);
@@ -216,6 +227,16 @@ MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
     // Tell tissue there's no need to replicate ionic caches
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
+
+    if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
+    {
+        mpBidomainCorrectionTermAssembler 
+            = new BidomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
+    }
+    else
+    {
+        mpBidomainCorrectionTermAssembler = NULL;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -225,7 +246,12 @@ MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedBidomainSolver()
     {
         VecDestroy(mVecForConstructingRhs);
         MatDestroy(mMassMatrix);
-    }    
+    }
+    
+    if(mpBidomainCorrectionTermAssembler)
+    {
+        delete mpBidomainCorrectionTermAssembler;
+    }
 }
 
 ///////////////////////////////////////////////////////
