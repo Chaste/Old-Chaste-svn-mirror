@@ -36,16 +36,10 @@ BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::BidomainCorrectionTermAssem
      AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
      BidomainTissue<SPACE_DIM>* pTissue,
      unsigned numQuadPoints)
-        : AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,2,true,false,CARDIAC>(pMesh,numQuadPoints),
-          mpBidomainTissue(pTissue)
+        : AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,2>(pMesh,pTissue,numQuadPoints)
 {
-    assert(pTissue);
     mpConfig = HeartConfig::Instance();
-
     assert(mpConfig->GetUseStateVariableInterpolation());
-
-    // note: the mStateVariables std::vector is resized if correction will
-    // be applied to a given element
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
@@ -63,79 +57,22 @@ c_vector<double,2*(ELEM_DIM+1)> BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_D
     // interpolated state variables, and a random choice of cell (all 
     // should be the same)
     unsigned node_global_index = pElement->GetNodeGlobalIndex(0);
-    AbstractCardiacCell* p_any_cell = mpBidomainTissue->GetCardiacCell(node_global_index);
-    double ionic_sv_interp = p_any_cell->GetIIonic(&mStateVariablesAtQuadPoint);
+    AbstractCardiacCell* p_any_cell = this->mpTissue->GetCardiacCell(node_global_index);
+    double ionic_sv_interp = p_any_cell->GetIIonic(&(this->mStateVariablesAtQuadPoint));
 
     c_vector<double,2*(ELEM_DIM+1)> ret;
 
     vector_slice<c_vector<double, 2*(ELEM_DIM+1)> > slice_V  (ret, slice (0, 2, ELEM_DIM+1));
     vector_slice<c_vector<double, 2*(ELEM_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEM_DIM+1));
 
-    noalias(slice_V)   = rPhi * (-Am) * ( ionic_sv_interp - mIionicInterp );
+    // add on the SVI ionic current, and take away the original NCI (linearly
+    // interpolated ionic current) that would have been added as part of
+    // the matrix-based assembly stage.
+    noalias(slice_V)   = rPhi * (-Am) * ( ionic_sv_interp - this->mIionicInterp );
+    // no correction needed for elliptic equation
     noalias(slice_Phi) = zero_vector<double>(ELEM_DIM+1);
 
     return ret;
-}
-
-
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::ResetInterpolatedQuantities( void )
-{
-    // reset ionic current, and state variables
-    mIionicInterp = 0;
-    for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
-    {
-        mStateVariablesAtQuadPoint[i] = 0;
-    }
-}
-
-
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
-            double phiI, const Node<SPACE_DIM>* pNode)
-{
-    // interpolate ionic current, and state variables
-
-    unsigned node_global_index = pNode->GetIndex();
-
-    mIionicInterp  += phiI * mpBidomainTissue->rGetIionicCacheReplicated()[ node_global_index ];
-    for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
-    {
-        mStateVariablesAtQuadPoint[i] += phiI * mpBidomainTissue->GetCardiacCell(node_global_index)->rGetStateVariables()[i];
-    }
-}
-
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-bool BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>::ElementAssemblyCriterion(Element<ELEM_DIM,SPACE_DIM>& rElement)
-{
-    double DELTA_IIONIC = 1; // tolerance
-
-    ReplicatableVector& r_cache = mpBidomainTissue->rGetIionicCacheReplicated();
-    
-    double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
-    
-    if(SPACE_DIM > 1)
-    {
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );    
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(2)]) ); 
-    }
-
-    if(SPACE_DIM > 2)
-    {
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(3)]) ); 
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );    
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(2)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );
-    }
-    
-    bool will_assemble = (diionic > DELTA_IIONIC);
-    
-    if (will_assemble)
-    {
-        unsigned any_node = rElement.GetNodeGlobalIndex(0);
-        mStateVariablesAtQuadPoint.resize(mpBidomainTissue->GetCardiacCell(any_node)->rGetStateVariables().size());
-    }
-    
-    return will_assemble;
 }
 
 

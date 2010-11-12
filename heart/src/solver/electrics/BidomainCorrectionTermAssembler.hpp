@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINCORRECTIONTERM_HPP_
 #define BIDOMAINCORRECTIONTERM_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractCorrectionTermAssembler.hpp"
 #include "BidomainTissue.hpp"
 
 
@@ -44,21 +44,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEM_DIM,unsigned SPACE_DIM>
 class BidomainCorrectionTermAssembler
-    : public AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,2,true,false,CARDIAC>
+    :  public AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,2>
 {
 protected:
-    /** The tissue. */
-    BidomainTissue<SPACE_DIM>* mpBidomainTissue;
-
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
 
-    /** Ionic current to be interpolated from cache*/
-    double mIionicInterp;
-    
-    /** State variables interpolated onto quadrature point */
-    std::vector<double> mStateVariablesAtQuadPoint;
-    
     /**
      * This method is called by AssembleOnElement and tells the assembler
      * the contribution to add to the element stiffness vector.
@@ -77,29 +68,6 @@ protected:
                 c_vector<double,2> &rU,
                 c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEM_DIM,SPACE_DIM>* pElement);
-
-    /**
-     * Resets interpolated state variables and ionic current.
-     */
-    void ResetInterpolatedQuantities( void );
-    
-    /**
-     * Interpolates state variables and ionic current.
-     *
-     * @param phiI
-     * @param pNode
-     */
-    void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
-
-    /**
-     * Determine whether to assemble the correction term for this element.
-     * Checks if there is a sufficiently steep ionic current gradient to make the expense 
-     * worthwhile, by checking if the maximum difference between nodal ionic currents is 
-     * greater than 1 uA/cm^2^.
-     * 
-     * @param rElement  the element to test
-     */
-    bool ElementAssemblyCriterion(Element<ELEM_DIM,SPACE_DIM>& rElement);
 public:
 
     /**
