@@ -1957,6 +1957,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                                      ('pycml:output-variable', NSS['pycml']),
                                                      'yes')
             if outputs:
+                outputs.sort(key=lambda v: self.var_display_name(v))
                 self.output_comment('Protocol outputs')
                 self.writeln('this->mOutputsInfo.resize(', len(outputs), ');')
                 for i, output in enumerate(outputs):
