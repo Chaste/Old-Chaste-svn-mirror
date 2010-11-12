@@ -481,31 +481,36 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRegularSlabMesh(double spaceStep, double width, double height, double depth)
 {
-    assert(spaceStep>0);
-    assert(width>0);
+    assert(spaceStep>0.0);
+    assert(width>0.0);
     if (ELEMENT_DIM > 1)
     {
-        assert(height>0);
+        assert(height>0.0);
     }
     if (ELEMENT_DIM > 2)
     {
-        assert(depth>0);
+        assert(depth>0.0);
     }
     unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number
     unsigned num_elem_y=(unsigned)((height+0.5*spaceStep)/spaceStep);
     unsigned num_elem_z=(unsigned)((depth+0.5*spaceStep)/spaceStep);
 
-    double actual_width_x=num_elem_x*spaceStep;
-    double actual_width_y=num_elem_y*spaceStep;
-    double actual_width_z=num_elem_z*spaceStep;
-
-    if (  fabs (actual_width_x - width) > DBL_EPSILON
-        ||fabs (actual_width_y - height) > DBL_EPSILON
-        ||fabs (actual_width_z - depth) > DBL_EPSILON )
+    //Make it obvious that actual_width_x etc. are temporaries used in spotting for exception
     {
-        EXCEPTION("Space step does not divide the size of the mesh");
-    }
+        double actual_width_x=num_elem_x*spaceStep;
+        double actual_width_y=num_elem_y*spaceStep;
+        double actual_width_z=num_elem_z*spaceStep;
 
+        //Note here that in ELEMENT_DIM > 1 cases there may be a zero height or depth - in which case we don't need to use relative comparisons
+        // Doing relative comparisons with zero is okay - if we avoid division by zero.
+        // However, it's best not to test whether " fabs( 0.0 - 0.0) > DBL_EPSILON*0.0 "
+        if (  fabs (actual_width_x - width) > DBL_EPSILON*width
+            ||( height!= 0.0 &&  fabs (actual_width_y - height) > DBL_EPSILON*height)
+            ||( depth != 0.0 &&  fabs (actual_width_z - depth) > DBL_EPSILON*depth ) )
+        {
+            EXCEPTION("Space step does not divide the size of the mesh");
+        }
+    }
     switch (ELEMENT_DIM)
     {
         case 1:
