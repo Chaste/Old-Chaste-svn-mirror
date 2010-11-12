@@ -42,6 +42,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PropagationPropertiesCalculator.hpp"
+#include "MatrixBasedMonodomainSolver.hpp"
+#include "TenTusscher2006Epi.hpp"
+#include "Mahajan2008.hpp"
 
 // stimulate a block of cells (an interval in 1d, a block in a corner in 2d)
 template<unsigned DIM>
@@ -78,6 +81,39 @@ public:
         }
     }
 };
+
+
+// non-identical cell models
+class HeterogeneousCellFactory : public AbstractCardiacCellFactory<1>
+{
+private:
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+
+public:
+    HeterogeneousCellFactory()
+        : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(-1000000.0, 0.5)) 
+    {
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
+    {
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        if ( x<0.15 )  
+        {
+            return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
+        }
+        else if (x < 0.65 )
+        {
+            return new CellMahajan2008FromCellML(this->mpSolver, this->mpZeroStimulus);
+        }
+        else
+        {
+            return new CellTenTusscher2006EpiFromCellML(this->mpSolver, this->mpZeroStimulus);
+        }            
+    }
+};
+
 
 class TestMonodomainWithSvi : public CxxTest::TestSuite
 {
@@ -274,6 +310,37 @@ public:
         // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), NCI CV is slower
         TS_ASSERT_DELTA(final_voltage_nci[130], 14.7918, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
+    }
+    
+    void TestWithHeterogeneousCellModels() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+        HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
+
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(0.1, 1.0);
+
+        HeterogeneousCellFactory cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+        monodomain_problem.SetMesh(&mesh);
+        monodomain_problem.Initialise();
+        
+        //// really very difficult to get hold of the correction assembler from here.
+        //// The following, which requires 2 classes to be friends of this test compiles
+        //// but fails asserts in the first line as bcc is not set up. 
+        //AbstractDynamicLinearPdeSolver<1,1,1>* p_solver = monodomain_problem.CreateSolver();
+        //MatrixBasedMonodomainSolver<1,1>* p_mono_solver = dynamic_cast<MatrixBasedMonodomainSolver<1,1>*>(p_solver);
+        //MonodomainCorrectionTermAssembler<1,1>* p_assembler = p_mono_solver->mpMonodomainCorrectionTermAssembler;
+        //TS_ASSERT_EQUALS(p_assembler->mElementsHasIdenticalCellModels.size(), 10u);        
+        
+        // therefore, we just test that calling Solve() runs (without the checking that
+        // cell models are identical, this fails).
+
+//#1462
+// currently this fails in a bad way (isnan) as the checking of identical cell models is
+// not yet implemented (see constructor of AbstractCorrectionTermAssembler).
+// Implement and uncomment
+//        monodomain_problem.Solve();
     }
 };
 

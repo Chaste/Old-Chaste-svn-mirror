@@ -38,6 +38,9 @@ AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorrect
 {
     assert(pTissue);
 
+    mElementsHasIdenticalCellModels.resize(pMesh->GetNumElements(), true);
+//1462 - finish setting up mElementsHasIdenticalCellModels
+
     // note: the mStateVariables std::vector is resized if correction will
     // be applied to a given element
 }
@@ -74,6 +77,12 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementI
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAssemblyCriterion(Element<ELEM_DIM,SPACE_DIM>& rElement)
 {
+    // if element doesn't have identical cell models, can't do SVI.
+    if(!mElementsHasIdenticalCellModels[rElement.GetIndex()])
+    {
+        return false;
+    }
+    
     double DELTA_IIONIC = 1; // tolerance
 
     ReplicatableVector& r_cache = mpTissue->rGetIionicCacheReplicated();

@@ -42,7 +42,6 @@ template<unsigned ELEM_DIM,unsigned SPACE_DIM,unsigned PROBLEM_DIM>
 class AbstractCorrectionTermAssembler
     : public AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>
 {
-
 protected:
     /** The  tissue being simulated */
     AbstractCardiacTissue<ELEM_DIM,SPACE_DIM>* mpTissue;
@@ -57,6 +56,13 @@ protected:
      * Resets interpolated state variables and ionic current.
      */
     void ResetInterpolatedQuantities( void );
+    
+    /** 
+     *  Vector of bools, one bool per element, saying whether that
+     *  element has identical cell models at each node. If this 
+     *  is not the case, SVI is certainly not posssible in this element 
+     */
+    std::vector<bool> mElementsHasIdenticalCellModels;
     
     /**
      * Interpolates state variables and ionic current.
