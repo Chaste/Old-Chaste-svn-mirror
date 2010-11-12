@@ -294,10 +294,10 @@ public:
      * Set relative and absolute tolerances; both scalars.
      * If no parameters are given, tolerances will be reset to default values.
      *
-     * @param relTol  the relative tolerance for the solver (defaults to 1e-4)
-     * @param absTol  the absolute tolerance for the solver (defaults to 1e-6)
+     * @param relTol  the relative tolerance for the solver (defaults to 1e-5)
+     * @param absTol  the absolute tolerance for the solver (defaults to 1e-7)
      */
-    void SetTolerances(double relTol=1e-4, double absTol=1e-6);
+    void SetTolerances(double relTol=1e-5, double absTol=1e-7);
 
     /**
      * Get the relative tolerance.

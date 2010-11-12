@@ -214,8 +214,8 @@ public:
         TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariable(0),lr91_cvode_system.GetVoltage());
         TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnits(0), "millivolt");
 
-        TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
-        TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-5, 1e-10);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-7, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetLastStepSize(), 1.0, 1e-4);
         double old_v = lr91_cvode_system.GetVoltage();
         const double new_v = -1000.0;
