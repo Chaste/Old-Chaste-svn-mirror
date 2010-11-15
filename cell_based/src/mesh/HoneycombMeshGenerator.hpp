@@ -132,5 +132,14 @@ public:
      */
     MutableMesh<2,2>* GetCircularMesh(double radius);
 
+    /**
+     * @return mDomainDepth
+     */
+    double GetDomainDepth();
+
+    /**
+     * @return mDomainWidth
+     */
+    double GetDomainWidth();
 };
 #endif /*HONEYCOMBMESHGENERATOR_HPP_*/

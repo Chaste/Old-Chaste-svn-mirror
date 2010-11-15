@@ -327,3 +327,13 @@ void HoneycombMeshGenerator::Make2dPeriodicMesh(double width, unsigned ghosts)
     // Wait for the new mesh to be available
     PetscTools::Barrier();
 }
+
+double HoneycombMeshGenerator::GetDomainDepth()
+{
+    return mDomainDepth;
+}
+
+double HoneycombMeshGenerator::GetDomainWidth()
+{
+    return mDomainWidth;
+}

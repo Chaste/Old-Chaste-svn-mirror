@@ -87,6 +87,9 @@ public:
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
         TS_ASSERT_EQUALS(location_indices.size(), 4u);
+
+        TS_ASSERT_DELTA(generator.GetDomainDepth(), 0.4330, 1e-4);
+        TS_ASSERT_DELTA(generator.GetDomainWidth(), 0.5000, 1e-4);
     }
 
     void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
