@@ -69,7 +69,25 @@ private:
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
-        return mScaleFactor*outer_prod(rPhi, rPhi);
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> mass_matrix = outer_prod(rPhi, rPhi);
+
+        /// \todo: #1637 If we decide to go ahead with mass lumping, reimplement this without nested loops.
+        if (HeartConfig::Instance()->GetUseMassLumping())
+        {
+            for (unsigned row=0; row<ELEMENT_DIM+1; row++)
+            {
+                for (unsigned column=0; column<ELEMENT_DIM+1; column++)
+                {
+                    if (row != column)
+                    {
+                        mass_matrix(row,row) += mass_matrix(row,column);
+                        mass_matrix(row,column) = 0.0;
+                    }
+                }
+            }
+        }
+
+        return mScaleFactor*mass_matrix;
     }
 public:
 

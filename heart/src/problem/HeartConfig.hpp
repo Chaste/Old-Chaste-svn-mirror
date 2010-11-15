@@ -1052,7 +1052,6 @@ public:
                                 unsigned& rIndex, double& rMagnitude, 
                                 double& rStartTime, double& rDuration );
 
-
     /**
      * Set the use of State Variable Interpolation in the computation of ionic currents.
      * See documentation page ChasteGuides/StateVariableInterpolation.
@@ -1061,6 +1060,20 @@ public:
      */
     void SetUseStateVariableInterpolation( bool useStateVariableInterpolation = true);
     
+    /**
+     * Set the use of mass lumping in the FE solver.
+     *
+     * @param useMassLumping Whether to use it
+     */
+    void SetUseMassLumping(bool useMassLumping = true);
+
+    /**
+     * Set the use of mass lumping in the FE solver.
+     *
+     * @param useMassLumping Whether to use it
+     */
+    bool GetUseMassLumping();
+
 
 private:
     // Only to be accessed by the tests
@@ -1126,6 +1139,11 @@ private:
      * Flag to check whether the user asked for cellular heterogeneities with cuboids
      */
     bool mUserAskedForCuboidsForCellularHeterogeneities;
+
+    /**
+     * Flag telling whether to use mass lumping or not.
+     */
+    bool mUseMassLumping;
 
     /**
      * DecideLocation is a convenience method used to get the correct parameter value

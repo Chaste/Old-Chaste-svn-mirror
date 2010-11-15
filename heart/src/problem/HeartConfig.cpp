@@ -290,6 +290,7 @@ HeartConfig* HeartConfig::Instance()
 }
 
 HeartConfig::HeartConfig()
+    : mUseMassLumping(false)
 {
     assert(mpInstance.get() == NULL);
     mUseFixedSchemaLocation = true;
@@ -2882,6 +2883,17 @@ void HeartConfig::SetUseStateVariableInterpolation(bool useStateVariableInterpol
 {
     mUseStateVariableInterpolation = useStateVariableInterpolation;
 }
+
+void HeartConfig::SetUseMassLumping(bool useMassLumping)
+{
+    mUseMassLumping = useMassLumping;
+}
+
+bool HeartConfig::GetUseMassLumping()
+{
+    return mUseMassLumping;
+}
+
 
 /**********************************************************************
  *                                                                    *

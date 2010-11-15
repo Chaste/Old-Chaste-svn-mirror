@@ -53,6 +53,22 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
         outer_prod(rPhi, rPhi);
 
+    /// \todo: #1637 If we decide to go ahead with mass lumping, reimplement this without nested loops.
+    if (HeartConfig::Instance()->GetUseMassLumping())
+    {
+        for (unsigned row=0; row<ELEMENT_DIM+1; row++)
+        {
+            for (unsigned column=0; column<ELEMENT_DIM+1; column++)
+            {
+                if (row != column)
+                {
+                    basis_outer_prod(row,row) += basis_outer_prod(row,column);
+                    basis_outer_prod(row,column) = 0.0;
+                }
+            }
+        }
+    }
+
     return (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi;
 }
 
