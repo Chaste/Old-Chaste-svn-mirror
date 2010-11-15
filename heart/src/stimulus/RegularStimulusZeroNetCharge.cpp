@@ -29,9 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegularStimulusZeroNetCharge.hpp"
 #include <cmath>
-#include <cassert>
-
-#include <iostream>
 
 RegularStimulusZeroNetCharge::RegularStimulusZeroNetCharge(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime)
 	: RegularStimulus(magnitudeOfStimulus, duration, period, startTime,stopTime)
@@ -42,7 +39,7 @@ RegularStimulusZeroNetCharge::RegularStimulusZeroNetCharge(double magnitudeOfSti
 double RegularStimulusZeroNetCharge::GetStimulus(double time)
 {
     /*
-     *  This covers a borderline case where start time is larger than period
+     * This covers a borderline case where start time is larger than period
      * and period divides start time, e.g. start_time=2 period=1.
      *
      * fmod() will return -0 in this case and will therefore switch the stimulus on.

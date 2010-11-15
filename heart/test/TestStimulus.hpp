@@ -453,7 +453,6 @@ public:
             output_arch << p_regular_stimulus_zero_net;
             output_arch << p_multiple_stimulus2;
 
-            // Change stimulus a bit
             delete p_zero_stimulus;
             delete p_simple_stimulus;
             delete p_regular_stimulus;

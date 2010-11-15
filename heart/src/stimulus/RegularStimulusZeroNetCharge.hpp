@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include "RegularStimulus.hpp"
-#include "AbstractStimulusFunction.hpp"
 
 /**
  * Provides a periodic square-wave stimulus, where the total net charge is zero for every stimulus.
@@ -66,12 +65,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         // This calls serialize on the base class.
-        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
-        archive & mMagnitudeOfStimulus;
-        archive & mDuration;
-        archive & mPeriod;
-        archive & mStartTime;
-        archive & mStopTime;
+        archive & boost::serialization::base_object<RegularStimulus>(*this);
     }
 
 public:
