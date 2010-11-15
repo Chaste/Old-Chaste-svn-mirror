@@ -249,6 +249,8 @@ public:
     
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+
         ReplicatableVector final_voltage_nci;
         ReplicatableVector final_voltage_svi;
 
@@ -314,6 +316,8 @@ public:
     
     void TestWithHeterogeneousCellModels() throw (Exception)
     {
+        EXIT_IF_PARALLEL;
+
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
 
