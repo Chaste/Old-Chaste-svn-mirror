@@ -87,9 +87,9 @@ public:
      * Default constructor.
      *
      * @param pCrypt pointer to a cell population
-     * @param sloughHeight the height at which to slogh from the domain
+     * @param sloughHeight the height at which to slough from the domain
      * @param sloughSides whether to slough cells at the side of the domain
-     * @param sloughWidth the width of the domain (note slogh on left and right)
+     * @param sloughWidth the width of the domain (note slough on left and right)
      */
     SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, double sloughHeight, bool sloughSides=false, double sloughWidth = 10.0);
 
