@@ -191,6 +191,8 @@ public:
     
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+
         ReplicatableVector final_solution_nci;
         ReplicatableVector final_solution_svi;
 
