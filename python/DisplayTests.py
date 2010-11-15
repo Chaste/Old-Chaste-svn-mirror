@@ -1077,6 +1077,6 @@ if __name__ == '__main__':
     print >>_fp,_footer()
     _fp.close()
 
-    print "Test summary generated in", os.path.join(_dir, 'index.html')
+    print "Test summary generated in", 'file://' + os.path.abspath(os.path.join(_dir, 'index.html'))
     print "Overall test status:", _overall_status
 
