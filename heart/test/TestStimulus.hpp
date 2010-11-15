@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
+#include "RegularStimulusZeroNetCharge.hpp"
 #include "TimeStepper.hpp"
 #include "ZeroStimulus.hpp"
 #include "MultiStimulus.hpp"
@@ -226,6 +227,79 @@ public:
             0.0);
     }
 
+
+    void TestRegularStimulusZeroNetCharge()
+    {
+        double magnitude_of_stimulus = 1.0;
+        double duration_of_stimulus  = 0.5;  // ms
+        double period = 1000.0; // 1s
+        double when = 100.0;
+        double until = 3500.0;
+
+        RegularStimulusZeroNetCharge regular_stimulus(magnitude_of_stimulus,
+                                         duration_of_stimulus,
+                                         period,
+                                         when,
+                                         until);
+
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(0.0),
+            0.0);
+
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.0*(1-DBL_EPSILON)),
+            0.0);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.0),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.0*(1+DBL_EPSILON)),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.25*(1-DBL_EPSILON)),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.25),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5*(1-DBL_EPSILON)),
+            -magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5),
+            -magnitude_of_stimulus);
+
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.0*(1-DBL_EPSILON)),
+            0.0);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.0),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.0*(1+DBL_EPSILON)),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.25*(1-DBL_EPSILON)),
+            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.25*(1+DBL_EPSILON)),
+            -magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.5*(1-DBL_EPSILON)),
+            -magnitude_of_stimulus);
+
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5+(1000*DBL_EPSILON)),
+            0.0);
+
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(4100.0*(1-DBL_EPSILON)),
+            0.0);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(4100.0),
+            0.0);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(4100.0*(1+DBL_EPSILON)),
+            0.0);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(4100.5*(1-DBL_EPSILON)),
+            0.0);
+
+        //An overeager floating point optimiser may fail the following test
+        //by turning the stimulus off too early
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5),
+            0.0);
+
+        //Made more sloppy
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5*(1+2*DBL_EPSILON)),
+            0.0);
+
+        TS_ASSERT_DELTA(regular_stimulus.GetPeriod(),period,1e-9);
+        TS_ASSERT_DELTA(regular_stimulus.GetDuration(),duration_of_stimulus,1e-9);
+        TS_ASSERT_DELTA(regular_stimulus.GetStartTime(),when,1e-9);
+    }
+
+
     //void TestBasicFmod() removed since the exact floating point behaviour
     //is too difficult to reproduce
 
@@ -359,6 +433,11 @@ public:
                                          period,
                                          when);
 
+            AbstractStimulusFunction* const p_regular_stimulus_zero_net = new RegularStimulusZeroNetCharge(magnitude_of_stimulus,
+                                         duration_of_stimulus,
+                                         period,
+                                         when);
+
             MultiStimulus* p_multiple_stimulus = new MultiStimulus;
             boost::shared_ptr<SimpleStimulus> p1(new SimpleStimulus(2,1,0));
             boost::shared_ptr<SimpleStimulus> p2(new SimpleStimulus(3,1,3));
@@ -371,12 +450,14 @@ public:
             output_arch << p_zero_stimulus;
             output_arch << p_simple_stimulus;
             output_arch << p_regular_stimulus;
+            output_arch << p_regular_stimulus_zero_net;
             output_arch << p_multiple_stimulus2;
 
             // Change stimulus a bit
             delete p_zero_stimulus;
             delete p_simple_stimulus;
             delete p_regular_stimulus;
+            delete p_regular_stimulus_zero_net;
             delete p_multiple_stimulus;
         }
 
@@ -389,10 +470,12 @@ public:
             AbstractStimulusFunction* p_zero;
             AbstractStimulusFunction* p_simple;
             AbstractStimulusFunction* p_regular;
+            AbstractStimulusFunction* p_regular_zero_net;
             AbstractStimulusFunction* p_multiple;
             input_arch >> p_zero;
             input_arch >> p_simple;
             input_arch >> p_regular;
+            input_arch >> p_regular_zero_net;
             input_arch >> p_multiple;
 
             // Check the stimulus now has the properties of the one archived above.
@@ -408,6 +491,14 @@ public:
             TS_ASSERT_DELTA(p_regular->GetStimulus(1100.1), 1.0, 1e-9);
             TS_ASSERT_DELTA(p_regular->GetStimulus(1100.6), 0.0, 1e-9);
 
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(0.0), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(100.24), 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(100.26), -1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(100.6), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(1100.24), 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(1100.26), -1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular_zero_net->GetStimulus(1100.6), 0.0, 1e-9);
+
             TimeStepper t(0,10,1);
             SimpleStimulus r1(2,1,0);
             SimpleStimulus r2(3,1,3);
@@ -422,6 +513,7 @@ public:
             delete p_zero;
             delete p_simple;
             delete p_regular;
+            delete p_regular_zero_net;
             delete p_multiple;
         }
     }

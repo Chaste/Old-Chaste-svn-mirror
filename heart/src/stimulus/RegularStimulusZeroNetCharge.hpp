@@ -27,18 +27,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _REGULARSTIMULUS_HPP_
-#define _REGULARSTIMULUS_HPP_
+#ifndef _REGULARSTIMULUSZERONETCHARGE_HPP_
+#define _REGULARSTIMULUSZERONETCHARGE_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-
+#include "RegularStimulus.hpp"
 #include "AbstractStimulusFunction.hpp"
 
 /**
- * Provides a periodic square-wave stimulus.
+ * Provides a periodic square-wave stimulus, where the total net charge is zero for every stimulus.
+ *
+ * i.e.,
+ * 			  ------
+ *           |		|
+ * 			 |		|
+ *  ---------       |     -------------
+ *                  |     |
+ *                  |     |
+ *                  ------
+ *
+ *
+ *           <----------->
+ *              Duration
  */
-class RegularStimulus : public AbstractStimulusFunction
+class RegularStimulusZeroNetCharge : public RegularStimulus
 {
 private:
     /** Needed for serialization. */
@@ -61,84 +74,31 @@ private:
         archive & mStopTime;
     }
 
-protected:
-
-    /** The 'height' of the square wave applied */
-    double mMagnitudeOfStimulus;
-    /** The length of the square wave */
-    double mDuration;
-    /** The time between applications of the wave */
-    double mPeriod;
-    /** The time at which the first wave is applied */
-    double mStartTime;
-    /** The time at which all stimuli are removed (even if halfway through a wave)*/
-    double mStopTime;
-
 public:
     /**
      * Create a new stimulus.
      *
-     * @param magnitudeOfStimulus  The size of the stimulus
-     * @param duration  How long the square wave is applied for
+     * @param magnitudeOfStimulus  The size of the stimulus, both positive and negative
+     * @param duration  How long the stimulus is applied for (time positive + time negative)
      * @param period  The time between square waves being applied
      * @param startTime  The time at which the first wave is applied
      * @param stopTime  The time the stimulus is removed (defaults to DBL_MAX if omitted)
      */
-    RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime=DBL_MAX);
-    
+    RegularStimulusZeroNetCharge(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime=DBL_MAX);
+
     /**
-     * Get the magnitude of stimulus at time 'time'
+     * Get the magnitude of stimulus at time 'time'. Re-implemented from parent class RegulsrStimulus.
      *
      * @param time  The current time
-     * @return  Magnitude of stimulus
+     * @return  Magnitude of stimulus at time 'time'.
      */
     double GetStimulus(double time);
-    
-    /**
-     * @return the pacing cycle length or period of the stimulus.
-     */
-    double GetPeriod();
 
-    /**
-     * @return the height of the stimulus square wave (magnitude of current).
-     */
-    double GetMagnitude();
-
-    /**
-     * @return the duration of the stimulus square wave.
-     */
-    double GetDuration();
-    
-    /**
-     * @return the start time of the stimulus square wave.
-     */
-    double GetStartTime();
-
-    /**
-     * set the pacing cycle length ('period') of the stimulus.
-     * 
-     * @param period  The stimulus pacing cycle length to use.
-     */
-    void SetPeriod(double period);
-
-    /**
-     * Set the stimulus to start at a particular time.
-     *
-     * @param startTime the time the stimulus should begin.
-     */
-    void SetStartTime(double startTime);
-
-    /**
-     * Set the stop time for this stimulus. It will never be applied after this time.
-     *
-     * @param stopTime
-     */
-    void SetStopTime(double stopTime);
 };
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(RegularStimulus)
+CHASTE_CLASS_EXPORT(RegularStimulusZeroNetCharge)
 
 namespace boost
 {
@@ -146,11 +106,11 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SimpleStimulus instance (using existing constructor)
+ * instantiate a RegularStimulusZeroNetCharge instance (using existing constructor)
  */
 template<class Archive>
 inline void load_construct_data(
-    Archive & ar, RegularStimulus * t, const unsigned int file_version)
+    Archive & ar, RegularStimulusZeroNetCharge * t, const unsigned int file_version)
 {
     /**
      * Invoke inplace constructor to initialise an instance of SimpleStimulus.
@@ -158,7 +118,7 @@ inline void load_construct_data(
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
-     ::new(t)RegularStimulus(0.0, 0.0, 0.1, 0.0, 1.0);
+     ::new(t)RegularStimulusZeroNetCharge(0.0, 0.0, 0.1, 0.0, 1.0);
 }
 }
 } // namespace ...
