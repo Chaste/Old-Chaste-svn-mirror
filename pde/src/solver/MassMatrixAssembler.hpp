@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MASSMATRIXASSEMBLER_HPP_
 
 #include "AbstractFeObjectAssembler.hpp"
+#include "HeartConfig.hpp"
 
 
 /** 
@@ -49,6 +50,9 @@ class MassMatrixAssembler
 private:
     /** The scale factor */
     double mScaleFactor;
+
+    /** Whether to use mass lumping or not */
+    bool mUseMassLumping;
 
     /** Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler. See
      *  documentation in that class.
@@ -72,7 +76,7 @@ private:
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> mass_matrix = outer_prod(rPhi, rPhi);
 
         /// \todo: #1637 If we decide to go ahead with mass lumping, reimplement this without nested loops.
-        if (HeartConfig::Instance()->GetUseMassLumping())
+        if (mUseMassLumping)
         {
             for (unsigned row=0; row<ELEMENT_DIM+1; row++)
             {
@@ -96,9 +100,10 @@ public:
      *  @param pMesh the mesh
      *  @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
      */
-    MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, double scaleFactor=1.0)
+    MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
         : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
-          mScaleFactor(scaleFactor)
+          mScaleFactor(scaleFactor),
+          mUseMassLumping(useMassLumping)
     {
     }
 };

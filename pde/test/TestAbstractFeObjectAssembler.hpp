@@ -585,7 +585,7 @@ public:
         PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 4); 
         
         double scale_factor = 2.464525345;
-        MassMatrixAssembler<2,2> assembler(&mesh, scale_factor);
+        MassMatrixAssembler<2,2> assembler(&mesh, false, scale_factor);
 
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();

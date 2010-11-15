@@ -50,7 +50,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
         this->mpMonodomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
         this->mpMonodomainAssembler->AssembleMatrix();
 
-        MassMatrixAssembler<ELEMENT_DIM,SPACE_DIM> mass_matrix_assembler(this->mpMesh);
+        MassMatrixAssembler<ELEMENT_DIM,SPACE_DIM> mass_matrix_assembler(this->mpMesh, HeartConfig::Instance()->GetUseMassLumping());
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
         mass_matrix_assembler.Assemble();
 
