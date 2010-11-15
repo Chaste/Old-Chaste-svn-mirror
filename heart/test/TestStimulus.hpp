@@ -253,8 +253,8 @@ public:
             magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.25*(1-DBL_EPSILON)),
             magnitude_of_stimulus);
-        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.25),
-            magnitude_of_stimulus);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.25*(1+10*DBL_EPSILON)),/*times 10 needed because it is second decimal figure, I think*/
+            -magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5*(1-DBL_EPSILON)),
             -magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5),
@@ -268,7 +268,7 @@ public:
             magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.25*(1-DBL_EPSILON)),
             magnitude_of_stimulus);
-        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.25*(1+DBL_EPSILON)),
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.25*(1+10*DBL_EPSILON)),
             -magnitude_of_stimulus);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(3100.5*(1-DBL_EPSILON)),
             -magnitude_of_stimulus);
