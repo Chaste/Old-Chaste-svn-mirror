@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 #include <vector>
 #include "MonodomainProblem.hpp"
+#include "ZeroStimulusCellFactory.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudy1991.hpp"
 #include "PlaneStimulusCellFactory.hpp"
@@ -314,6 +315,23 @@ public:
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
     }
     
+    void TestCoverage3d() throw(Exception)
+    {
+        EXIT_IF_PARALLEL;
+
+        HeartConfig::Instance()->SetSimulationDuration(0.1); //ms
+        HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
+
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructRegularSlabMesh(0.02, 0.02, 0.02, 0.02);
+
+        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML,3> cell_factory;
+        MonodomainProblem<3> monodomain_problem( &cell_factory );
+        monodomain_problem.SetMesh(&mesh);
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
+    }
+
     void TestWithHeterogeneousCellModels() throw (Exception)
     {
         EXIT_IF_PARALLEL;
@@ -322,7 +340,7 @@ public:
         HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
 
         TetrahedralMesh<1,1> mesh;
-        mesh.ConstructRegularSlabMesh(0.1, 1.0);
+        mesh.ConstructRegularSlabMesh(0.01, 1.0);
 
         HeterogeneousCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -341,7 +359,7 @@ public:
         // cell models are identical, this fails).
 
 //#1462
-// currently this fails in a bad way (isnan) as the checking of identical cell models is
+// currently this fails (as expected) with an isnan assert, as the checking of identical cell models is
 // not yet implemented (see constructor of AbstractCorrectionTermAssembler).
 // Implement and uncomment
 //        monodomain_problem.Solve();
