@@ -89,6 +89,12 @@ public:
             TS_ASSERT_EQUALS(dist_1st_var_vec[index], -1.0 * (index.Global+1));
             TS_ASSERT_EQUALS(dist_2nd_var_vec[index],         index.Global+1);
         }
+
+        VecDestroy(interleaved_vec);
+        VecDestroy(first_variable_vec);
+        VecDestroy(second_variable_vec);
+        VecScatterDestroy(first_variable_context);
+        VecScatterDestroy(second_variable_context);
     }
 
     void TestInterleavedVecGather()
@@ -135,6 +141,12 @@ public:
             TS_ASSERT_EQUALS(dist_inter_vec_1st_var[index], -1.0 * (index.Global+1));
             TS_ASSERT_EQUALS(dist_inter_vec_2nd_var[index],         index.Global+1 );
         }
+
+        VecDestroy(interleaved_vec);
+        VecDestroy(first_variable_vec);
+        VecDestroy(second_variable_vec);
+        VecScatterDestroy(first_variable_context);
+        VecScatterDestroy(second_variable_context);
     }
 };
 
