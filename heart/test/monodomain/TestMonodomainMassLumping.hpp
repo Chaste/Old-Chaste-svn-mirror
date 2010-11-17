@@ -31,10 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTMONODOMAINMASSLUMPING_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "PetscSetupAndFinalize.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "MonodomainProblem.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestMonodomainMassLumping : public CxxTest::TestSuite
 {

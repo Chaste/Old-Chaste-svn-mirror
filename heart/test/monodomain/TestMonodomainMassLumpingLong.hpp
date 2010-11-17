@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTMONODOMAINMASSLUMPINGLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "PetscSetupAndFinalize.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
 #include "MonodomainProblem.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 
 template<class CELL>
