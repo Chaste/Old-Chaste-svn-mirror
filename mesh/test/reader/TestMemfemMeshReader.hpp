@@ -68,6 +68,9 @@ public:
 
         TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0u);
 
+        // Coverage
+        TS_ASSERT(!pMeshReader->HasNclFile());
+
         delete pMeshReader;
     }
 
@@ -99,6 +102,7 @@ public:
         TS_ASSERT_THROWS_THIS(mesh_reader2.GetElementData(0), "Random access is only implemented in mesh readers for binary mesh files.");
         TS_ASSERT_THROWS_THIS(mesh_reader2.GetFaceData(0), "Random access is only implemented in mesh readers for binary mesh files.");
         TS_ASSERT_THROWS_THIS(mesh_reader2.GetEdgeData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetContainingElementIndices(0), "Ncl files are only implemented in mesh readers for binary mesh files.");
 
     }
 

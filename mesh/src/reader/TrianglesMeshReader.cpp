@@ -36,6 +36,7 @@ static const char* NODES_FILE_EXTENSION = ".node";
 static const char* ELEMENTS_FILE_EXTENSION = ".ele";
 static const char* FACES_FILE_EXTENSION = ".face";
 static const char* EDGES_FILE_EXTENSION = ".edge";
+static const char* NCL_FILE_EXTENSION = ".ncl";
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -286,11 +287,51 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned in
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<unsigned> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(unsigned index)
+{
+    if (!mFilesAreBinary)
+    {
+        EXCEPTION("NCL file functionality is only implemented in mesh readers for binary mesh files.");
+    }
+
+    if (!mNclFileAvailable)
+    {
+        EXCEPTION("No NCL file available for this mesh.");
+    }
+    if (index >=mNumNodes)
+    {
+        EXCEPTION("Connectivity list does not exist - not enough nodes.");
+    }
+
+    // Put the file stream pointer to the right location
+    mNclFile.seekg(mNclFileDataStart + mNclItemWidth*index, std::ios_base::beg);
+    // Read the next item.
+    std::vector<unsigned> containing_element_indices;
+    containing_element_indices.resize(mMaxContainingElements);
+
+    unsigned dummy;
+    GetNextItemFromStream(mNclFile, index, containing_element_indices, 0, dummy);
+
+    EnsureIndexingFromZero(containing_element_indices);
+
+    unsigned num_containing_elements = mMaxContainingElements;
+    while ( containing_element_indices[num_containing_elements-1] == UINT_MAX )
+    {
+        num_containing_elements--;
+    }
+
+    containing_element_indices.resize(num_containing_elements);
+
+    return containing_element_indices;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFiles()
 {
     OpenNodeFile();
     OpenElementsFile();
     OpenFacesFile();
+    OpenNclFile();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -364,6 +405,17 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenNclFile()
+{
+    // Nodes definition
+    std::string file_name = mFilesBaseName + NCL_FILE_EXTENSION;
+    mNclFile.open(file_name.c_str());
+
+    mNclFileAvailable = mNclFile.is_open();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     /*
@@ -391,6 +443,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     }
     else
     {
+        // #1621 - ncl files are only supported in binary read mode.
+        assert(!mNclFileAvailable);
+
         // Get the next line to see if it is indexed from zero or not
         GetNextLineFromStream(mNodesFile, buffer);
         std::stringstream node_first_line(buffer);
@@ -547,6 +602,26 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mFaceFileDataStart = mFacesFile.tellg(); // Record the position of the first byte after the header.
         mFaceItemWidth = (ELEMENT_DIM + mNumFaceAttributes) * sizeof(unsigned);
     }
+
+    /*
+     * Read NCL file (if one is available)
+     */
+    if (mNclFileAvailable)
+    {
+        GetNextLineFromStream(mNclFile, buffer);
+        std::stringstream ncl_header_line(buffer);
+        unsigned num_nodes_in_file;
+        ncl_header_line >> num_nodes_in_file >> mMaxContainingElements;
+
+        if ( mNumNodes != num_nodes_in_file )
+        {
+            EXCEPTION("NCL file does not contain the correct number of nodes for mesh");
+        }
+
+        mNclFileDataStart = mNclFile.tellg(); // Record the position of the first byte after the header.
+        mNclItemWidth = mMaxContainingElements * sizeof(unsigned);
+    }
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -697,6 +772,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::IsFileFormatBinary()
 {
     return mFilesAreBinary;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::HasNclFile()
+{
+    return mNclFileAvailable;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

@@ -1697,7 +1697,7 @@ public:
 
         //Test for connectivity
         ///\todo #1621 use the mesh reader when it's written
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_v2.ncl").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_binary_v2.ncl").c_str()), 0);
 
         
     }

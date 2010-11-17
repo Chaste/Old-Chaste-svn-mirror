@@ -131,6 +131,15 @@ public:
     ElementData GetEdgeData(unsigned index);
 
     /**
+     *  Normally throws an exception.  When implemented by derived classes, returns a list of the elements
+     *  that contain the node (only available for binary files).
+     *
+     * @param index  The global node index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    virtual std::vector<unsigned> GetContainingElementIndices(unsigned index);
+
+    /**
      * Get the base name (less any extension) for mesh files.  Only implemented for some mesh types.
      */
     virtual std::string GetMeshFileBaseName();
@@ -142,6 +151,15 @@ public:
      * formats.
      */
     virtual bool IsFileFormatBinary();
+
+    /**
+     * Returns true if there is a node connectivity list (NCL) file available.
+     *
+     * Note, this will always return false unless over-ridden by a derived class that is able to support NCL files.
+     *
+     * @return whether there is a node connectivity list (NCL) file available
+     */
+    virtual bool HasNclFile();
 
 };
 

@@ -86,6 +86,12 @@ ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetEdgeData(unsigned ind
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(unsigned index)
+{
+    EXCEPTION("Ncl files are only implemented in mesh readers for binary mesh files.");
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
 {
     return "";
@@ -96,6 +102,13 @@ bool AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::IsFileFormatBinary()
 {
     return false;
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::HasNclFile()
+{
+    return false;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

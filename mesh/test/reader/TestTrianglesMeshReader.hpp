@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#ifndef _TESTTRIANGLESMESHREADER_HPP_
+#ifndef _TESTTRIANGLESMESHREADER_HPP_AbstractMeshReader
 #define _TESTTRIANGLESMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
@@ -344,6 +344,8 @@ public:
         TS_ASSERT_THROWS_THIS(mesh_reader3.GetElementData(0), "Random access is only implemented in mesh readers for binary mesh files.");
         TS_ASSERT_THROWS_THIS(mesh_reader3.GetFaceData(0), "Random access is only implemented in mesh readers for binary mesh files.");
         TS_ASSERT_THROWS_THIS(mesh_reader3.GetEdgeData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetContainingElementIndices(0), "NCL file functionality is only implemented in mesh readers for binary mesh files.");
     }
 
     ////////////////////////////////////////////////////////
@@ -563,6 +565,8 @@ public:
         TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetFaceData(12u), "Face does not exist - not enough faces.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetElementData(12u), "Element does not exist - not enough elements.");
+
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetContainingElementIndices(0u), "No NCL file available for this mesh.");
     }
 
     void TestReadingHexMesh() throw(Exception)
@@ -592,6 +596,32 @@ public:
                               "Could not open appropriate mesh files for mesh/test/data/no_such_file");
     }
     
+    void TestReadingNclInformation() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader_3d("mesh/test/data/simple_cube_binary");
+
+        TS_ASSERT(mesh_reader_3d.HasNclFile());
+
+        std::vector<unsigned> containing_element_indices = mesh_reader_3d.GetContainingElementIndices(0);
+        TS_ASSERT_EQUALS(containing_element_indices.size(), 5u)
+        TS_ASSERT_EQUALS(containing_element_indices[0], 0u);
+        TS_ASSERT_EQUALS(containing_element_indices[1], 4u);
+        TS_ASSERT_EQUALS(containing_element_indices[2], 8u);
+        TS_ASSERT_EQUALS(containing_element_indices[3], 10u);
+        TS_ASSERT_EQUALS(containing_element_indices[4], 11u);
+
+        containing_element_indices = mesh_reader_3d.GetContainingElementIndices(7);
+        TS_ASSERT_EQUALS(containing_element_indices.size(), 5u)
+        TS_ASSERT_EQUALS(containing_element_indices[0], 3u);
+        TS_ASSERT_EQUALS(containing_element_indices[1], 4u);
+        TS_ASSERT_EQUALS(containing_element_indices[2], 5u);
+        TS_ASSERT_EQUALS(containing_element_indices[3], 9u);
+        TS_ASSERT_EQUALS(containing_element_indices[4], 10u);
+
+        // Out of range
+        TS_ASSERT_THROWS_THIS(containing_element_indices = mesh_reader_3d.GetContainingElementIndices(9), "Connectivity list does not exist - not enough nodes.");
+    }
+
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

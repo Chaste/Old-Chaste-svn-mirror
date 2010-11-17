@@ -53,12 +53,16 @@ private:
     std::ifstream mNodesFile;       /**< The nodes file for the mesh. */
     std::ifstream mElementsFile;    /**< The elements file for the mesh. */
     std::ifstream mFacesFile;       /**< The faces (edges) file for the mesh. */
+    std::ifstream mNclFile;         /**< The node connectivity list file for the mesh. */
+
     std::streampos mNodeFileDataStart; /**< The start of the binary data*/
     std::streamoff mNodeItemWidth;  /**< The number of bytes in a line of the node file*/
     std::streampos mElementFileDataStart; /**< The start of the binary element data*/
     std::streamoff mElementItemWidth;  /**< The number of bytes in a line of the element file*/
     std::streampos mFaceFileDataStart; /**< The start of the binary face data*/
     std::streamoff mFaceItemWidth;  /**< The number of bytes in a line of the face file*/
+    std::streampos mNclFileDataStart; /**< The start of the binary data*/
+    std::streamoff mNclItemWidth;  /**< The number of bytes in a line of the node file*/
 
     unsigned mNumNodes;             /**< Number of nodes in the mesh. */
     unsigned mNumElements;          /**< Number of elements in the mesh. */
@@ -81,11 +85,14 @@ private:
     unsigned mNodesPerElement;      /**< The number of nodes contained in each element. */
     unsigned mNodesPerBoundaryElement; /**< The number of nodes in each boundary element. */
 
+    unsigned mMaxContainingElements; /**< The maximum number of elements that any node is contained in. */
+
     bool mEofException; /**< Set to true when end-of-file exception is thrown (for use in a try-catch) */
 
     bool mReadContainingElementOfBoundaryElement; /**< Whether to read containing element info for each boundary element (obtaining by doing tetgen with the -nn flag) */
     bool mFilesAreBinary; /**< Whether to read all data as binary (determined by a magic number in the node file header)*/
     bool mMeshIsHexahedral; /**< Whether the mesh is hexahedral (determined by a magic number in the element file header) */
+    bool mNclFileAvailable; /**< Whether a ncl file exists */
 
     char* mNodeFileReadBuffer; /**< Buffer for node file read with std::ifstream */
     char* mElementFileReadBuffer; /**< Buffer for element file read with std::ifstream */
@@ -197,8 +204,25 @@ public:
      */
     ElementData GetFaceData(unsigned index);
 
+    /**
+     *  Normally throws an exception.  When a NCL file is available, returns a list of the elements
+     *  that contain the node (only available for binary files).
+     *
+     * @param index  The global node index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    std::vector<unsigned> GetContainingElementIndices(unsigned index);
+
+
     /*** Returns true if reading binary files, false if reading ascii files */
     bool IsFileFormatBinary();
+
+    /**
+     * Returns true if there is a node connectivity list (NCL) file available.
+     *
+     * @return whether there is a node connectivity list (NCL) file available
+     */
+    bool HasNclFile();
 
     /**
      * Sets size of std:ifstream internal read buffer. Use it for tuning I/O.
@@ -220,6 +244,9 @@ private:
 
     /** Open faces file. */
     void OpenFacesFile();
+
+    /** Open node connectivity list file. */
+    void OpenNclFile();
 
     /** Read the header from each mesh file. */
     void ReadHeaders();
