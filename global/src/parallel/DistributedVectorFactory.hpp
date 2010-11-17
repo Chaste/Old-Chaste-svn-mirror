@@ -61,6 +61,7 @@ private:
     unsigned mNumProcs;
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
+    std::vector<unsigned> mGlobalLows; /*< A cached vector of mLo values from each process */
 
     /**
      * Whether, when loading an instance from an archive, to check that the
@@ -245,6 +246,14 @@ public:
      * @param pFactory  the factory to set from.
      */
     void SetFromFactory(DistributedVectorFactory* pFactory);
+    
+//    /**
+//     * @returns the mLo value from each process in a vector.  This is calculated on the first call
+//     * and cached for later use
+//     */
+//    std::vector<unsigned> &rGetGlobalLows();
+
+    
 
 //    /**
 //     * For debugging.

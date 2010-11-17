@@ -613,7 +613,7 @@ public:
     /**
      *  Whether to use matrix-based RHS assembly or not.
      *
-     * @param usematrix
+     * @param useMatrixBasedRhsAssembly
      */
     void UseMatrixBasedRhsAssembly(bool useMatrixBasedRhsAssembly=true);
 

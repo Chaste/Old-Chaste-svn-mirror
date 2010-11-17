@@ -46,6 +46,7 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     // calculate my range
     PetscInt petsc_lo, petsc_hi;
     VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
+    mGlobalLows.clear();
     mLo = (unsigned)petsc_lo;
     mHi = (unsigned)petsc_hi;
     // vector size
@@ -66,6 +67,7 @@ void DistributedVectorFactory::SetFromFactory(DistributedVectorFactory* pFactory
     {
         EXCEPTION("Cannot set from a factory for a different problem size.");
     }
+    mGlobalLows.clear();
     mLo = pFactory->GetLow();
     mHi = pFactory->GetHigh();
 }
@@ -158,7 +160,18 @@ DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
     return dist_vector;
 }
 
-
+//std::vector<unsigned> &rGetGlobalLows()
+//{
+//    if (mGlobalLows.size() != PetscTools::GetNumProcs())
+//    {
+//        mGlobalLows.resize(PetscTools::GetNumProcs());
+//        //Exchange data
+//        MPI_Alltoall( &mLo, 1, MPI_UNSIGNED, &mGlobalLows[0], 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
+//    }
+//    
+//    
+//    return  mGlobalLows;
+//}
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(DistributedVectorFactory)

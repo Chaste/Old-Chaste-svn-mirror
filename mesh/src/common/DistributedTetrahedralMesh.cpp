@@ -1812,6 +1812,28 @@ ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Calc
     return ChasteCuboid<SPACE_DIM>(min, max);
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(std::vector<std::set<unsigned> >& rNodesToSendPerProcess,std::vector<std::set<unsigned> >& rNodesToReceivePerProcess)
+{
+    
+    //Initialise vectors of sets for the exchange data
+    rNodesToSendPerProcess.resize(PetscTools::GetNumProcs());
+    rNodesToReceivePerProcess.resize(PetscTools::GetNumProcs());
+    
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+         iter != this->GetElementIteratorEnd();
+         ++iter)
+    {
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+        {
+            std::cout<<iter->GetNodeGlobalIndex(i)<<"\t";
+        }
+        std::cout<<iter->GetIndex()<<"\n";
+    }
+ 
+    
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

@@ -1443,6 +1443,33 @@ public:
         TS_ASSERT_EQUALS(system(("cmp -n 88 " + output_dir + "/par_line_10_elements.ele "+ output_dir + "/seq_line_10_elements.ele").c_str()), 0);
     }
 
+    void TestNodeExchange()
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        std::vector<std::set<unsigned> > nodes_to_send_per_process; 
+        std::vector<std::set<unsigned> > nodes_to_receive_per_process; 
+        mesh.CalculateNodeExchange(nodes_to_send_per_process, nodes_to_receive_per_process);
+        
+        TS_ASSERT_EQUALS(nodes_to_send_per_process.size(), PetscTools::GetNumProcs());
+        TS_ASSERT_EQUALS(nodes_to_receive_per_process.size(), PetscTools::GetNumProcs());
+        TS_ASSERT(nodes_to_receive_per_process[PetscTools::GetMyRank()].empty());
+        TS_ASSERT(nodes_to_send_per_process[PetscTools::GetMyRank()].empty());
+        
+        //mesh.rGetDistributedVectorFactory()->rGetGlobalLows();
+        for (unsigned rank_id=0; rank_id<PetscTools::GetNumProcs();rank_id++)
+        {
+            if (rank_id != PetscTools::GetMyRank())
+            {
+                ///\todo #1462
+                //TS_ASSERT(!nodes_to_receive_per_process[rank_id].empty());
+                //TS_ASSERT(!nodes_to_send_per_process[rank_id].empty());
+            }
+        }
+
+    }
     void TestParallelWriting3D()
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");

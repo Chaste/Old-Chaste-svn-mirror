@@ -98,8 +98,8 @@ public:
     /**
      *  Constructor
      *  @param pMesh the mesh
-     *  @param useMassLumping whether to use mass matrix lumping or not
      *  @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
+     *  @param useMassLumping whether to use mass matrix lumping or not
      */
     MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
         : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
