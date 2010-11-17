@@ -1068,9 +1068,7 @@ public:
     void SetUseMassLumping(bool useMassLumping = true);
 
     /**
-     * Set the use of mass lumping in the FE solver.
-     *
-     * @param useMassLumping Whether to use it
+     * Get whether to use mass lumping in the FE solver or not.
      */
     bool GetUseMassLumping();
 
