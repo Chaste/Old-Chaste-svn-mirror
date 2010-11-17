@@ -63,18 +63,35 @@ def help():
     print "Usage:",sys.argv[0],\
         "<test exe> <.log file> <build type> [run time flags] [--no-stdout]"
 
-def kill_test(pid):
-    """Recursively kill pid and all its children.
+def kill_test(pid=None, exe=None):
+    """Kill off a running test, specified either by pid or by name, or both.
     
-    Requires 'easy_install psutil' to function.
+    First, recursively kill pid and all its children.  Then check all running
+    processes to see if they are instances of exe, and recursively kill them
+    if so.
+    
+    Requires 'easy_install psutil' to function.  Requires psutil >= 0.2.0 for
+    killing by exe name.
     """
-    try:
+    # Recursive kill of pid
+    if pid:
+        try:
+            for proc in psutil.process_iter():
+                if proc.ppid == pid:
+                    kill_test(proc.pid)
+            print "Killing", pid
+            os.kill(pid, signal.SIGTERM)
+        except (psutil.NoSuchProcess, OSError):
+            pass
+    # Kill by name
+    if exe and map(int, psutil.__version__.split('.')[:2]) >= [0,2]:
+        #print "Killing", exe
         for proc in psutil.process_iter():
-            if proc.ppid == pid:
-                kill_test(proc.pid)
-        os.kill(pid, signal.SIGTERM)
-    except (psutil.NoSuchProcess, OSError):
-        pass
+            try:
+                if proc.exe == exe:
+                    kill_test(proc.pid)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, OSError):
+                pass
 
 def run_test(exefile, logfile, build, run_time_flags='', echo=True, time_limit=0):
     """Actually run the given test."""
@@ -94,9 +111,11 @@ def run_test(exefile, logfile, build, run_time_flags='', echo=True, time_limit=0
     test_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     if time_limit and psutil:
         # Set a Timer to kill the test if it runs too long
-        def do_kill(pid=test_proc.pid):
-            kill_test(pid)
-            log_fp.write('\n\nTest killed due to exceeding time limit of %d seconds\n\n' % time_limit)
+        def do_kill(pid=test_proc.pid, exe=os.path.abspath(exefile)):
+            kill_test(pid, exe)
+            msg = '\n\nTest killed due to exceeding time limit of %d seconds\n\n' % time_limit
+            log_fp.write(msg)
+            print msg
         kill_timer = threading.Timer(time_limit, do_kill)
         kill_timer.start()
     for line in test_proc.stdout:
