@@ -181,25 +181,25 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 void PCBlockDiagonal::PCBlockDiagonalSetUp()
 {
     // These options will get read by PCSetFromOptions
-    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+//     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
 
-//     PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
-
-//     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
-//     PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
-//     PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
-
+    //    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
 
     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
+    PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+    PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
+
+
+    //PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    //PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+    //PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+    //PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+    //PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
 
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A11);
@@ -220,6 +220,7 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
     //PetscOptionsSetValue("-pc_hypre_boomeramg_agg_nl", "1");
     //    PetscOptionsSetValue("-pc_hypre_boomeramg_print_statistics","");
     //    PetscOptionsSetValue("-pc_hypre_boomeramg_interp_type","standard");
+    //    PetscOptionsSetValue("-pc_hypre_boomeramg_interp_type","ext+i");
 
     //    PCHYPRESetType(mPCContext.PC_amg_A22, "euclid");
 

@@ -231,9 +231,9 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 void PCLDUFactorisation::PCLDUFactorisationSetUp()
 {
     // These options will get read by PCSetFromOptions
-    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+//     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
 
     /*
      *  Set up preconditioner for block A11
@@ -244,17 +244,17 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     // Choose between the two following blocks in order to approximate inv(A11) with one AMG cycle
     // or with an CG solve with high tolerance
 ////////
-    //     PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
-
-    //     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
-    //     PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
-    //     PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
+//    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
 
     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
-    PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
+    PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+    PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
+    
+//     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+//     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+//     PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
 
 ////////
 //    PCSetType(mPCContext.PC_amg_A11, PCKSP);
@@ -292,6 +292,7 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
     PetscOptionsSetValue("-pc_hypre_boomeramg_coarsen_type", "HMIS");
+    //    PetscOptionsSetValue("-pc_hypre_boomeramg_interp_type","ext+i");
 
 ////////
 //    PCSetType(mPCContext.PC_amg_A22, PCKSP);
