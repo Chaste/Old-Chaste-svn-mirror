@@ -173,6 +173,8 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             mMatrixIsAssembled = true;
         }
 
+        this->FollowingSolveLinearSystem(next_solution);
+
         stepper.AdvanceOneTimeStep();
 
         // Avoid memory leaks

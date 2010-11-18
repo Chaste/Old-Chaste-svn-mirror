@@ -516,7 +516,7 @@ public:
         solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
 
     	// coverage
-        solver.SetKspAbsoluteTolerance(1e-8);
+        solver.SetKspAbsoluteTolerance(1e-10);
 
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
@@ -541,7 +541,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
-            TS_ASSERT_DELTA( solver.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
+            TS_ASSERT_DELTA( solver.rGetPressures()[i], 2*c1*lambda*lambda, 1e-5 );
         }
 
 

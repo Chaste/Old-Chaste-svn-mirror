@@ -74,7 +74,11 @@ Vec AbstractStaticLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
     this->FinaliseLinearSystem(NULL);
     
     // solve the linear system
-    return this->mpLinearSystem->Solve(initialGuess);
+    Vec solution = this->mpLinearSystem->Solve(initialGuess);
+
+    this->FollowingSolveLinearSystem(solution);
+
+    return solution;
 }
 
 

@@ -62,6 +62,7 @@ class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
     friend class TestNonlinearElasticitySolver;
     friend class TestNonlinearElasticityAdjointSolver;
+    friend class TestAdaptiveNonlinearElasticityProblem;
 
 protected:
 

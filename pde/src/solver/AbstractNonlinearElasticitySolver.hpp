@@ -69,13 +69,13 @@ protected:
      *  tolerance. (ie: if max_abs = 1e-7, min_abs = 1e-10, rel=1e-4: then if the norm of the 
      *  initial_residual (=a) is 1e-2, it will solve with tolerance 1e-7; if a=1e-5, it will solve
      *  with tolerance 1e-9; a=1e-9, it will solve with tolerance 1e-10.  */
-    static const double MAX_NEWTON_ABS_TOL;
+    static double MAX_NEWTON_ABS_TOL;
 
     /** Minimum absolute tolerance for Newton solve. See documentation for MAX_NEWTON_ABS_TOL. */
-    static const double MIN_NEWTON_ABS_TOL;
+    static double MIN_NEWTON_ABS_TOL;
 
     /** Relative tolerance for Newton solve. See documentation for MAX_NEWTON_ABS_TOL. */
-    static const double NEWTON_REL_TOL;
+    static double NEWTON_REL_TOL;
     
     /** Absolute tolerance for linear systems. Can be set by calling 
      *  SetKspAbsoluteTolerances(), but default to -1, in which case 
@@ -986,13 +986,13 @@ void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
 // Constant setting definitions
 //
 template<unsigned DIM>
-const double AbstractNonlinearElasticitySolver<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
+double AbstractNonlinearElasticitySolver<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
 
 template<unsigned DIM>
-const double AbstractNonlinearElasticitySolver<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
+double AbstractNonlinearElasticitySolver<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
 
 template<unsigned DIM>
-const double AbstractNonlinearElasticitySolver<DIM>::NEWTON_REL_TOL = 1e-4;
+double AbstractNonlinearElasticitySolver<DIM>::NEWTON_REL_TOL = 1e-4;
 
 
 #endif /*ABSTRACTNONLINEARELASTICITYSOLVER_HPP_*/

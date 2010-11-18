@@ -106,6 +106,20 @@ public :
     {
     }
     
+    /** The static and dynamic Solve() implementations both call this immediately after
+     *  the linear solve is carried out (but before the timestep counter is incremented.
+     *  This can be overloaded if further work on the solution vector needs to be done
+     *  (for example, in operator splitting of the diffusion and reaction terms in the
+     *  OperatorSplittingMonodomainSolver.
+     *
+     *  @param currentSolution The current solution (solution of the linear system
+     *  solve).
+     */
+    virtual void FollowingSolveLinearSystem(Vec currentSolution)
+    {
+    }
+
+
     /**
      *  The main Solve() methods in the child classes use this method. The concrete
      *  solver classes must implement it, depending on the the choice of numerical
