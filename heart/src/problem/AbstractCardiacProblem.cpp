@@ -191,9 +191,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
 
     // Always start at time zero
     mCurrentTime = 0.0;
-    
+
     //For Bidomain with bath, this is where we set up the electrodes
-    
+
     SetElectrodes();
 }
 
@@ -448,16 +448,16 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         stepper.AdvanceOneTimeStep();
         mCurrentTime = stepper.GetTime();
 
+        // print out details at current time if asked for
+        if (mWriteInfo)
+        {
+            HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
+            WriteInfo(stepper.GetTime());
+            HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
+        }
+
         if (mPrintOutput)
         {
-            // print out details at current time if asked for
-            if (mWriteInfo)
-            {
-                HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
-                WriteInfo(stepper.GetTime());
-                HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
-            }
-
             // Writing data out to the file <FilenamePrefix>.dat
             HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
             WriteOneStep(stepper.GetTime(), mSolution);
@@ -600,7 +600,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
         HeartConfig::Instance()->GetOutputVariables(output_variables);
     }
     assert(output_variables.size() == num_vars);
-    
+
     // Loop over the requested variables
     for (unsigned var_index=0; var_index<num_vars; var_index++)
     {
@@ -632,7 +632,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
     bool extend_file = (mSolution != NULL);
-    
+
     // I think this is impossible to trip; certainly it's very difficult!
     assert(!mpWriter);
 
@@ -661,7 +661,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
 
     // Define columns, or get the variable IDs from the writer
     DefineWriterColumns(extend_file);
-    
+
     //Possibility of applying a permutation
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering())
     {
@@ -672,7 +672,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
             HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(false);
         }
     }
-                                  
+
 
     if (!extend_file)
     {
@@ -706,11 +706,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetHasBath()
 {
     return false;
-}    
+}
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetElectrodes()
 {
-}    
+}
 
 
 /////////////////////////////////////////////////////////////////////
