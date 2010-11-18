@@ -1157,11 +1157,11 @@ public:
         HeartConfig::Instance()->SetUseMassLumping(false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), false);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), false);
-        HeartConfig::Instance()->SetUseDiffusionReactionOperatorSplitting();
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), true);
-        HeartConfig::Instance()->SetUseDiffusionReactionOperatorSplitting(false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting(), false);
+        HeartConfig::Instance()->SetUseReactionDiffusionOperatorSplitting();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting(), true);
+        HeartConfig::Instance()->SetUseReactionDiffusionOperatorSplitting(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting(), false);
     }
 
     void TestWrite() throw (Exception)

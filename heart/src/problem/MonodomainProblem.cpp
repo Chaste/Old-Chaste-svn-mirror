@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "BasicMonodomainSolver.hpp"
 #include "MatrixBasedMonodomainSolver.hpp"
+#include "OperatorSplittingMonodomainSolver.hpp"
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacTissue()
@@ -56,25 +58,24 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
      
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
-          = new BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                             mpMonodomainTissue,
-                                                             this->mpBoundaryConditionsContainer.get(),
-                                                             2);
-        return p_solver;
+        return new BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                                mpMonodomainTissue,
+                                                                this->mpBoundaryConditionsContainer.get(),
+                                                                2);
+    }
+    else if (HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting())
+    {
+        return new OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                                            mpMonodomainTissue,
+                                                                            this->mpBoundaryConditionsContainer.get(),
+                                                                            2);
     }
     else
     {
-        MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
-          = new MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                                   mpMonodomainTissue,
-                                                                   this->mpBoundaryConditionsContainer.get(),
-                                                                   2);
-//// #1462
-//        AbstractCardiacCell* p_cell_for_interpolation = this->mpCellFactory->CreateCardiacCellForTissueNode(0);
-//        p_solver->IncludeCorrection(p_cell_for_interpolation);                                                                   
-   
-        return p_solver;
+        return new MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                                      mpMonodomainTissue,
+                                                                      this->mpBoundaryConditionsContainer.get(),
+                                                                      2);
     }
 }
 

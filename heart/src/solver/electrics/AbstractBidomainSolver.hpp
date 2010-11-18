@@ -54,7 +54,8 @@ protected:
 
     /**
      *  The bidomain assembler, used to set up the LHS matrix,
-     *  (but not used to set uo the RHS)
+     *  (and also used to set up the RHS vector in the BasicBidomainSolver, but
+     *  not in the MatrixBasedBidomainSolver)
      */
     BidomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainAssembler;
     

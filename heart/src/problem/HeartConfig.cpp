@@ -314,7 +314,7 @@ HeartConfig::HeartConfig()
     mIndexEndo = UINT_MAX-3u;
 
     mUseStateVariableInterpolation = false;
-    mUseDiffusionReactionOperatorSplitting = false;
+    mUseReactionDiffusionOperatorSplitting = false;
 }
 
 HeartConfig::~HeartConfig()
@@ -2896,14 +2896,14 @@ bool HeartConfig::GetUseMassLumping()
     return mUseMassLumping;
 }
 
-void HeartConfig::SetUseDiffusionReactionOperatorSplitting(bool useOperatorSplitting)
+void HeartConfig::SetUseReactionDiffusionOperatorSplitting(bool useOperatorSplitting)
 {
-    mUseDiffusionReactionOperatorSplitting = useOperatorSplitting;
+    mUseReactionDiffusionOperatorSplitting = useOperatorSplitting;
 }
 
-bool HeartConfig::GetUseDiffusionReactionOperatorSplitting()
+bool HeartConfig::GetUseReactionDiffusionOperatorSplitting()
 {
-    return mUseDiffusionReactionOperatorSplitting;
+    return mUseReactionDiffusionOperatorSplitting;
 }
 
 

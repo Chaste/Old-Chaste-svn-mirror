@@ -709,7 +709,7 @@ public:
      *  Get whether to use Strang operator splitting of the reaction and diffusion terms (see
      *  Set method documentation).
      */
-    bool GetUseDiffusionReactionOperatorSplitting();
+    bool GetUseReactionDiffusionOperatorSplitting();
 
     ///////////////////////////////////////////////////////////////
     //
@@ -1090,7 +1090,7 @@ public:
      * two PDEs in the bidomain equations. For details see for example Sundnes et al "Computing the Electrical
      * Activity of the Heart".
      */
-    void SetUseDiffusionReactionOperatorSplitting(bool useOperatorSplitting = true);
+    void SetUseReactionDiffusionOperatorSplitting(bool useOperatorSplitting = true);
 
 
 
@@ -1173,7 +1173,7 @@ private:
      *  Whether to use Strang operator splitting of the diffusion and reaction terms (see
      *  Set method documentation).
      */
-    bool mUseDiffusionReactionOperatorSplitting;
+    bool mUseReactionDiffusionOperatorSplitting;
 
 
     /**

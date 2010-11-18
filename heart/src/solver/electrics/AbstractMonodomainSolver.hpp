@@ -51,9 +51,8 @@ protected:
     MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
     
     /**
-     *  The monodomain assembler, used to set up the LHS vector,
-     *  and RHS vector in this solver (not used for RHS in
-     *  MatrixBasedMonodomainSolver
+     *  The monodomain assembler, used to set up the LHS matrix;
+     *  and RHS vector for BasicMonodomainSolver (but not MatrixBasedMonodomainSolver)
      */
     MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
     
