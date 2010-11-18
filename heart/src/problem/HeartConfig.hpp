@@ -706,7 +706,7 @@ public:
     bool GetUseMassLumping();
 
     /**
-     *  Get whether to use Strange operator splitting of the reaction and diffusion terms (see
+     *  Get whether to use Strang operator splitting of the reaction and diffusion terms (see
      *  Set method documentation).
      */
     bool GetUseDiffusionReactionOperatorSplitting();
@@ -1085,7 +1085,7 @@ public:
     void SetUseMassLumping(bool useMassLumping = true);
 
     /**
-     * Use Strange operator splitting of the diffusion (conductivity) term and the reaction (ionic current) term,
+     * Use Strang operator splitting of the diffusion (conductivity) term and the reaction (ionic current) term,
      * instead of solving the full reaction-diffusion PDE. This does NOT refer to operator splitting of the
      * two PDEs in the bidomain equations. For details see for example Sundnes et al "Computing the Electrical
      * Activity of the Heart".
