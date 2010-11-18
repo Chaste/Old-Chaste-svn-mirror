@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractChasteRegion.hpp"
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
+#include "PetscVecTools.hpp"
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -297,34 +298,46 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime)
+void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime, bool updateVoltage)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
-
+   
     DistributedVector dist_solution = mpDistributedVectorFactory->CreateDistributedVector(existingSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
-    for (DistributedVector::Iterator index = dist_solution.Begin();
-         index != dist_solution.End();
-         ++index)
+   
+    try
     {
-        // overwrite the voltage with the input value
-        mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
-        try
+        for (DistributedVector::Iterator index = dist_solution.Begin();
+             index != dist_solution.End();
+             ++index)
         {
-            // solve
-            // Note: Voltage should not be updated. GetIIonic will be called later
-            // and needs the old voltage. The voltage will be updated in the PDE solve.
-            mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
-        }
-        catch (Exception &e)
-        {
-            PetscTools::ReplicateException(true);
-            throw e;
-        }
+             // overwrite the voltage with the input value
+             mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
 
-        // update the Iionic and stimulus caches
-        UpdateCaches(index.Global, index.Local, nextTime);
+             if(!updateVoltage)
+             {
+                 // solve
+                 // Note: Voltage is not be updated. The voltage is updated in the PDE solve.
+                 mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
+             }
+             else
+             {
+                 // solve, including updating the voltage (for the operator-splitting implementation of the monodomain solver)
+                 mCellsDistributed[index.Local]->SolveAndUpdateState(time, nextTime);
+                 // todo: inefficient
+                 PetscVecTools::SetElement(existingSolution, index.Global, mCellsDistributed[index.Local]->GetVoltage());
+             }
+
+             // update the Iionic and stimulus caches
+             UpdateCaches(index.Global, index.Local, nextTime);
+        }
     }
+    catch (Exception &e)
+    {
+        PetscTools::ReplicateException(true);
+        throw e;
+    }
+
     PetscTools::ReplicateException(false);
     HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 

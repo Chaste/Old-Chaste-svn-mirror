@@ -303,8 +303,9 @@ public:
      * @param existingSolution  the current voltage solution vector
      * @param time  the current simulation time
      * @param nextTime  when to simulate the cells until
+     * @param updateVoltage whether to also solve for the voltage (generally false, true for operator splitting methods). Defaults to false
      */
-    virtual void SolveCellSystems(Vec existingSolution, double time, double nextTime);
+    virtual void SolveCellSystems(Vec existingSolution, double time, double nextTime, bool updateVoltage=false);
 
     /** Get the entire ionic current cache */
     ReplicatableVector& rGetIionicCacheReplicated();
