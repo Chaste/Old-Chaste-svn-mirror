@@ -312,7 +312,9 @@ HeartConfig::HeartConfig()
     mIndexMid = UINT_MAX-3u;
     mIndexEpi = UINT_MAX-3u;
     mIndexEndo = UINT_MAX-3u;
+
     mUseStateVariableInterpolation = false;
+    mUseDiffusionReactionOperatorSplitting = false;
 }
 
 HeartConfig::~HeartConfig()
@@ -2892,6 +2894,16 @@ void HeartConfig::SetUseMassLumping(bool useMassLumping)
 bool HeartConfig::GetUseMassLumping()
 {
     return mUseMassLumping;
+}
+
+void HeartConfig::SetUseDiffusionReactionOperatorSplitting(bool useOperatorSplitting)
+{
+    mUseDiffusionReactionOperatorSplitting = useOperatorSplitting;
+}
+
+bool HeartConfig::GetUseDiffusionReactionOperatorSplitting()
+{
+    return mUseDiffusionReactionOperatorSplitting;
 }
 
 

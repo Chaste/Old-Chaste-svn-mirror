@@ -260,11 +260,14 @@ public:
      */
     unsigned GetVersionFromNamespace(const std::string& rNamespaceUri);
 
-    /*
-     *  Get methods
-     */
+    ///////////////////////////////////////////////////////////////
+    //
+    //  Get methods
+    //
+    ///////////////////////////////////////////////////////////////
 
     // Methods for asking the configuration file about which sections are defined.
+
     /**
      *  Returns whether the configuration file defines a new simulation.
      *
@@ -309,8 +312,8 @@ public:
      * @param rDefinedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
-     template<unsigned DIM>
-     void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& rDefinedRegions,
+    template<unsigned DIM>
+    void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& rDefinedRegions,
                                std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     /**
@@ -324,8 +327,8 @@ public:
      * @param rDefinedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
-     void SetIonicModelRegions(std::vector<ChasteCuboid<3> >& rDefinedRegions,
-                               std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
+    void SetIonicModelRegions(std::vector<ChasteCuboid<3> >& rDefinedRegions,
+                              std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
     bool GetCreateMesh() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
@@ -683,9 +686,36 @@ public:
      */
     bool IsElectrodesPresent() const;    
 
-     /*
-     *  Set methods
+
+    /**
+     * Get electrode parameters.
+     *
+     *  @param rGroundSecondElectrode Whether to ground the second electrode (see class documentation)
+     *  @param rIndex The value i when applying the electrodes to x_i=a and x_i=b (a<b)
+     *  @param rMagnitude Magnitude of the stimulus
+     *  @param rStartTime Switch on time
+     *  @param rDuration Duration of the stimulus.
      */
+    void GetElectrodeParameters(bool& rGroundSecondElectrode,
+                                unsigned& rIndex, double& rMagnitude,
+                                double& rStartTime, double& rDuration );
+
+    /**
+     * Get whether to use mass lumping in the FE solver or not.
+     */
+    bool GetUseMassLumping();
+
+    /**
+     *  Get whether to use Strange operator splitting of the reaction and diffusion terms (see
+     *  Set method documentation).
+     */
+    bool GetUseDiffusionReactionOperatorSplitting();
+
+    ///////////////////////////////////////////////////////////////
+    //
+    //  Set methods
+    //
+    ///////////////////////////////////////////////////////////////
 
     // Simulation
     /** Set the configuration dimension
@@ -1039,20 +1069,7 @@ public:
                                  unsigned index, double magnitude, 
                                  double startTime, double duration );
 
-    /**
-     * Get electrode parameters.
-     *
-     *  @param rGroundSecondElectrode Whether to ground the second electrode (see class documentation)
-     *  @param rIndex The value i when applying the electrodes to x_i=a and x_i=b (a<b)
-     *  @param rMagnitude Magnitude of the stimulus
-     *  @param rStartTime Switch on time
-     *  @param rDuration Duration of the stimulus.
-     */
-    void GetElectrodeParameters(bool& rGroundSecondElectrode,
-                                unsigned& rIndex, double& rMagnitude, 
-                                double& rStartTime, double& rDuration );
-
-    /**
+   /**
      * Set the use of State Variable Interpolation in the computation of ionic currents.
      * See documentation page ChasteGuides/StateVariableInterpolation.
      * 
@@ -1068,9 +1085,13 @@ public:
     void SetUseMassLumping(bool useMassLumping = true);
 
     /**
-     * Get whether to use mass lumping in the FE solver or not.
+     * Use Strange operator splitting of the diffusion (conductivity) term and the reaction (ionic current) term,
+     * instead of solving the full reaction-diffusion PDE. This does NOT refer to operator splitting of the
+     * two PDEs in the bidomain equations. For details see for example Sundnes et al "Computing the Electrical
+     * Activity of the Heart".
      */
-    bool GetUseMassLumping();
+    void SetUseDiffusionReactionOperatorSplitting(bool useOperatorSplitting = true);
+
 
 
 private:
@@ -1139,9 +1160,21 @@ private:
     bool mUserAskedForCuboidsForCellularHeterogeneities;
 
     /**
+     *  Whether to use State Variable Interpolation in the computation of ionic currents.
+     */
+    bool mUseStateVariableInterpolation;
+
+    /**
      * Flag telling whether to use mass lumping or not.
      */
     bool mUseMassLumping;
+
+    /**
+     *  Whether to use Strang operator splitting of the diffusion and reaction terms (see
+     *  Set method documentation).
+     */
+    bool mUseDiffusionReactionOperatorSplitting;
+
 
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
@@ -1177,10 +1210,7 @@ private:
      */
     void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
      
-    /** 
-     *  Whether to use State Variable Interpolation in the computation of ionic currents.
-     */
-    bool mUseStateVariableInterpolation;
+
 
 };
 

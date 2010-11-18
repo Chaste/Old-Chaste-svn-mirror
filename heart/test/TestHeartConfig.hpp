@@ -1150,6 +1150,18 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), true);
         HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), false);
+        HeartConfig::Instance()->SetUseMassLumping();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), true);
+        HeartConfig::Instance()->SetUseMassLumping(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), false);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), false);
+        HeartConfig::Instance()->SetUseDiffusionReactionOperatorSplitting();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), true);
+        HeartConfig::Instance()->SetUseDiffusionReactionOperatorSplitting(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseDiffusionReactionOperatorSplitting(), false);
     }
 
     void TestWrite() throw (Exception)
