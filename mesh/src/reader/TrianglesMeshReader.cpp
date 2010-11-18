@@ -109,7 +109,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshReader()
 {
-    delete[] mNodeFileReadBuffer; 
+    delete[] mNodeFileReadBuffer;
     delete[] mElementFileReadBuffer;
     delete[] mFaceFileReadBuffer;
 }
@@ -630,6 +630,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::CloseFiles()
     mNodesFile.close();
     mElementsFile.close();
     mFacesFile.close();
+    mNclFile.close();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -786,11 +787,11 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetReadBufferSize(unsigned buf
     mNodeFileReadBuffer =  new char[bufferSize];
     mElementFileReadBuffer =  new char[bufferSize];
     mFaceFileReadBuffer =  new char[bufferSize];
-              
+
     mNodesFile.rdbuf()->pubsetbuf(mNodeFileReadBuffer, bufferSize);
     mElementsFile.rdbuf()->pubsetbuf(mElementFileReadBuffer, bufferSize);
     mFacesFile.rdbuf()->pubsetbuf(mFaceFileReadBuffer, bufferSize);
-    
+
 }
 
 
