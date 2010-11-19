@@ -191,7 +191,8 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
     //    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
 
     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
-    PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+    //PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
+    PetscOptionsSetValue("-pc_hypre_type", "euclid");
     PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
 
 
