@@ -1089,6 +1089,8 @@ public:
      * instead of solving the full reaction-diffusion PDE. This does NOT refer to operator splitting of the
      * two PDEs in the bidomain equations. For details see for example Sundnes et al "Computing the Electrical
      * Activity of the Heart".
+     *
+     * @param useOperatorSplitting Whether to use operator splitting (defaults to true).
      */
     void SetUseReactionDiffusionOperatorSplitting(bool useOperatorSplitting = true);
 

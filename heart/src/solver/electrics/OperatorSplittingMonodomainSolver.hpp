@@ -95,11 +95,13 @@ private:
 
     /**
      *  Called before setting up the linear system, used to solve the cell models for first half timestep (step (i) above)
+     *  @param currentSolution the latest solution vector
      */
     void PrepareForSetupLinearSystem(Vec currentSolution);
 
     /**
      *  Called after solving the linear system, used to solve the cell models for second half timestep (step (iii) above)
+     *  @param currentSolution the latest solution vector (ie the solution of the linear system).
      */
     void FollowingSolveLinearSystem(Vec currentSolution);
 
