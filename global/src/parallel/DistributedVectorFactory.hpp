@@ -61,7 +61,8 @@ private:
     unsigned mNumProcs;
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
-    std::vector<unsigned> mGlobalLows; /*< A cached vector of mLo values from each process */
+    /** A cached vector of #mLo values from each process */
+    std::vector<unsigned> mGlobalLows;
 
     /**
      * Whether, when loading an instance from an archive, to check that the
@@ -122,7 +123,7 @@ public:
      * Constructor for use in archiving.
      * Note that this constructor is only called when the number of processes is different from the original.
      * Therefore, the orignal local node ownership cannot be used, and a new even partition will be applied.
-     * 
+     *
      * @param pOriginalFactory  see #mpOriginalFactory
      */
     DistributedVectorFactory(DistributedVectorFactory* pOriginalFactory);
@@ -246,14 +247,14 @@ public:
      * @param pFactory  the factory to set from.
      */
     void SetFromFactory(DistributedVectorFactory* pFactory);
-    
+
 //    /**
 //     * @returns the mLo value from each process in a vector.  This is calculated on the first call
 //     * and cached for later use
 //     */
 //    std::vector<unsigned> &rGetGlobalLows();
 
-    
+
 
 //    /**
 //     * For debugging.

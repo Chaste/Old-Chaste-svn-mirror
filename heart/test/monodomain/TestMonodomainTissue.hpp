@@ -239,6 +239,9 @@ public:
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75, 2.0); // within 2mV
             TS_ASSERT_DELTA(voltage2_repl[1], monodomain_tissue.GetCardiacCell(1)->GetVoltage(), 1e-10);
         }
+
+        VecDestroy(voltage);
+        VecDestroy(voltage2);
     }
 
     void TestSaveAndLoadCardiacTissue() throw (Exception)
