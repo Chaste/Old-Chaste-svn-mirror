@@ -65,6 +65,18 @@ private:
     void Write(std::string type);
 
 
+    /**
+     * Writes a basic script for visualization of mesh and data.
+     * It loads the nodes and elements. It also asks cmgui to create faces and lines
+     * (because our output files don't have the information). Data are loaded by means of a loop.
+     *
+     * After loading the script, the user will see the lines connecting the nodes in the mesh (this is the cmgui default).
+     * All operations from there should be relatively intuitive and 'clickable'.
+     * (e.g., clicking spectrum editor to adjust the spectrum or time editor to play the animation, or
+     *        scene editor to visualize nodes and elements... etc).
+     */
+    void WriteCmguiScript();
+
 public:
     /**
      * Constructor, which does the conversion.

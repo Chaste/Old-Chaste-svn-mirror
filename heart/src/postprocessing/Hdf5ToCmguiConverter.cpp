@@ -160,9 +160,30 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         cmgui_mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
     }
     
+    WriteCmguiScript();
     PetscTools::Barrier("Hdf5ToCmguiConverter");
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
+{
+    out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
+    unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
+    if(PetscTools::AmMaster())
+    {
+    	//write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interpretes
+	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+	    *p_script_file << comment;
+
+		*p_script_file << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
+					   << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" //note the mesh file name is taken from HeartConfig
+					   <<" gfx cre win 1 \n"
+					   << "for ($i=0; $i<" << num_timesteps << "; $i++) { \n"
+					   << "  gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" //..while the data file from mFileBaseName...
+					   << "}\n";
+		p_script_file->close();
+    }
+}
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

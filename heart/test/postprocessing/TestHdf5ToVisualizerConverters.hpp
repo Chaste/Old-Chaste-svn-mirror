@@ -244,7 +244,11 @@ public :
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir + "/cmgui_output/many_variables_0.exnode "
                                      + "heart/test/data/many_variables/many_variables_0.exnode";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-       
+
+        //check validity of cmgui script
+        std::string command_script = "diff -a -I \"Created by Chaste\" " + test_output_directory + output_dir +"/cmgui_output/script.com"
+                                     + " heart/test/data/many_variables/CmguiValidScript.com";
+        TS_ASSERT_EQUALS(system(command_script.c_str()), 0);
     }
 
     void TestMonodomainCmguiConversion3D() throw(Exception)
@@ -274,6 +278,11 @@ public :
         std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
+
+        //check validity of cmgui script
+        std::string command_script = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/script.com"
+                                     + " heart/test/data/CmguiData/monodomain/monodomain3dValidScript.com";
+        TS_ASSERT_EQUALS(system(command_script.c_str()), 0);
     }
 
     void TestBidomainCmguiConversion3D() throw(Exception)
