@@ -169,17 +169,27 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
 {
     out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
+    assert(this->mpReader->GetVariableNames().size() > 0);//seg fault guard
+    std::string variable_name = this->mpReader->GetVariableNames()[0];
+
     if(PetscTools::AmMaster())
     {
     	//write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interpretes
 	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
 	    *p_script_file << comment;
 
-		*p_script_file << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
+		*p_script_file << "# Read the mesh \n"
+					   << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
 					   << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" //note the mesh file name is taken from HeartConfig
-					   <<" gfx cre win 1 \n"
+					   << "# Create a window \n"
+					   << "gfx cre win 1 \n"
+					   << "# Modify the scene (obtained by gfx list g_element XXXX commands) to visualize first var on lines and nodes \n"
+					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" general clear circle_discretization 6 default_coordinate coordinates element_discretization \"4*4*4\" native_discretization none; \n"
+					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" lines select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
+					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" node_points glyph point general size \"1*1*1\" centre 0,0,0 font default select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
+					   << "# Load the data \n"
 					   << "for ($i=0; $i<" << num_timesteps << "; $i++) { \n"
-					   << "  gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" //..while the data file from mFileBaseName...
+					   << "    gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" //..while the data file from mFileBaseName...
 					   << "}\n";
 		p_script_file->close();
     }
