@@ -4540,6 +4540,21 @@ class ConfigurationStore(object):
             self.Cm_variable.set_pe_keep(True)
         return
     
+    def expose_variables(self):
+        """Expose variables for access with GetAnyVariable if desired."""
+        def annotate(var):
+            t = var.get_type()
+            if t == VarTypes.Constant:
+                var.set_is_modifiable_parameter(True)
+            elif t in [VarTypes.Computed, VarTypes.Free, VarTypes.Mapped]:
+                var.set_is_derived_quantity(True)
+        if self.options.expose_annotated_variables:
+            for var in self.metadata_vars:
+                annotate(var)
+        if self.options.expose_all_variables:
+            for var in self.doc.model.get_all_variables():
+                annotate(var)
+    
     def annotate_metadata_for_pe(self):
         "Annotate all vars tagged with metadata so PE doesn't remove them."
         for var in self.metadata_vars:
@@ -4753,6 +4768,13 @@ def get_options(args, default_options=None):
                       help="[experimental] add modifier functions for certain"
                       " metadata-annotated variables for use in sensitivity analysis"
                       " (only works if -t Chaste is used)")
+    parser.add_option('--expose-annotated-variables',
+                      action='store_true', default=False,
+                      help="expose all oxmeta-annotated variables for access via the"
+                      " GetAnyVariable functionality")
+    parser.add_option('--expose-all-variables',
+                      action='store_true', default=False,
+                      help="expose all variables for access via the GetAnyVariable functionality")
     parser.add_option('--protocol',
                       help="[experimental] specify a simulation protocol to apply to"
                       " the model prior to translation")
@@ -4863,6 +4885,8 @@ def run():
     config.annotate_currents_for_pe()
     # "Need" to ensure pe doesn't remove metadata-annotated variables (when using modifiers or default stimulus?)
     config.annotate_metadata_for_pe()
+    # Deal with the 'expose' options
+    config.expose_variables()
 
     class_name = options.class_name
     if options.augment_class_name and not class_name:

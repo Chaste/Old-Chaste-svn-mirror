@@ -264,16 +264,19 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
         # Raise a friendly error
         ConfigError('PETSc %s requested, but no path for this or an earlier version given in the host config.' % requested_version)
     
-    def GetBuildName():
+    def GetBuildNameList():
+        build_names = []
         if production:
-            build_name = getattr(conf, 'petsc_build_name_production', conf.petsc_build_name)
+            build_names.append(getattr(conf, 'petsc_build_name_production', conf.petsc_build_name))
         elif profile:
-            build_name = getattr(conf, 'petsc_build_name_profile', conf.petsc_build_name)
+            build_names.append(getattr(conf, 'petsc_build_name_profile', conf.petsc_build_name))
         elif optimised:
-            build_name = getattr(conf, 'petsc_build_name_optimized', conf.petsc_build_name)
-        else:
-            build_name = conf.petsc_build_name
-        return build_name
+            build_names.append(getattr(conf, 'petsc_build_name_optimized', conf.petsc_build_name))
+        # Always have a fallback option to the default build name
+        build_names.append(conf.petsc_build_name)
+        # Some systems may only have optimised PETSc, so have that as final fallback
+        build_names.append(getattr(conf, 'petsc_build_name_optimized', conf.petsc_build_name))
+        return build_names
     
     if version == '2.2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
@@ -291,8 +294,9 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     elif version == '2.3':
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         CheckPathExists(petsc_base, 'PETSc')
-        build_name = GetBuildName()
-        libpath = os.path.join(petsc_base, 'lib', build_name)
+        for build_name in GetBuildNameList():
+            libpath = os.path.join(petsc_base, 'lib', build_name)
+            if os.path.isdir(libpath): break
         incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
     elif version in ['3.0', '3.1']:
         if version == '3.0':
@@ -300,8 +304,9 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
         else:
             petsc_base = os.path.abspath(conf.petsc_path)
         CheckPathExists(petsc_base, 'PETSc')
-        build_name = GetBuildName()
-        libpath = os.path.join(petsc_base, build_name, 'lib')
+        for build_name in GetBuildNameList():
+            libpath = os.path.join(petsc_base, build_name, 'lib')
+            if os.path.isdir(libpath): break
         incpaths.append(os.path.join(petsc_base, build_name, 'include'))
         # PETSc 3 allows us to automatically download openmpi.
         # If we do, make sure to use the correct mpicxx/mpirun.
@@ -315,7 +320,11 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     else:
         ConfigError('Unrecognised PETSc version requested: ' + version)
     incpaths.append(os.path.join(petsc_base, 'include'))
+    if not os.path.isdir(incpaths[-1]):
+        ConfigError('PETSc headers directory %s not found.' % incpaths[-1])
     if not includesOnly:
+        if not os.path.isdir(libpath):
+            ConfigError('PETSc libraries directory %s not found.' % libpath)
         libpaths.append(libpath)
         if version == '3.1':
             libraries.append('petsc')
