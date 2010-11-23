@@ -437,6 +437,10 @@ class Coverage(GccDebug):
 
 class DoxygenCoverage(GccDebug):
     """Check for documentation coverage/problems."""
+    def __init__(self, *args, **kwargs):
+        super(DoxygenCoverage, self).__init__(*args, **kwargs)
+        self._do_macro_expansion = False
+        
     def DisplayStatus(self, status):
         """
         Return a (more) human readable version of the given status string.
@@ -456,6 +460,14 @@ class DoxygenCoverage(GccDebug):
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         "We don't actually run any tests in this build..."
         return ''
+    
+    def DoMacroExpansion(self):
+        self._do_macro_expansion = True
+    
+    def ExtendDoxygenConfig(self, doxyConfig):
+        """Add extra Doxygen config options if desired."""
+        if self._do_macro_expansion:
+            doxyConfig.append('echo "MACRO_EXPANSION=YES"')
 
 class CovTool(Coverage):
     """Coverage testing using the covtool software."""
@@ -1260,6 +1272,8 @@ def GetBuildType(buildType):
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
+        elif extra == 'doxy-macro-expand' and isinstance(obj, DoxygenCoverage):
+            obj.DoMacroExpansion()
         elif extra.startswith('broke'):
             # For build system use
             pass

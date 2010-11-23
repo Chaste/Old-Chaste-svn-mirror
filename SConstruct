@@ -465,13 +465,13 @@ if test_summary and not compile_only:
                           + ' ' + ' '.join(RequestedProjects()))
     elif isinstance(build, BuildTypes.DoxygenCoverage):
         # Run Doxygen and parse the output
+        doxy_conf = ['cat Doxyfile', 'echo "PROJECT_NUMBER=Build::r%s"' % build._revision]
         # Include projects?
         project_inputs = RequestedProjects()
         if project_inputs:
-            project_inputs = '"; echo "INPUT += ' + ' '.join(map(lambda p: os.path.join(p, 'src'), project_inputs))
-        else:
-            project_inputs = ''
-        cmd = ('( cat Doxyfile ; echo "PROJECT_NUMBER=Build::r%s%s" ) ' % (build._revision, project_inputs)
+            doxy_conf.append('echo "INPUT += %s"' % (' '.join(map(lambda p: os.path.join(p, 'src'), project_inputs))))
+        build.ExtendDoxygenConfig(doxy_conf)
+        cmd = ('( ' + ' ; '.join(doxy_conf) + ' ) '
                + '| doxygen - 2>doxygen-error.log 1>doxygen-output.log')
         summary_action = cmd + '; python python/ParseDoxygen.py doxygen-output.log doxygen-error.log ' + output_dir
     else:
