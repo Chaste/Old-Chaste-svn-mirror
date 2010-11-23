@@ -204,6 +204,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
 
     if(this->mBathSimulation)
     {
+        this->mpLinearSystem->AssembleFinalLhsMatrix();
         this->FinaliseForBath(computeMatrix,true);
     }
 

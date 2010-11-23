@@ -320,70 +320,40 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(
     mRowForAverageOfPhiZeroed = row;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool computeMatrix, bool computeVector)
 {
     assert(mBathSimulation);
-    
-    /// \todo: #1215 #1328 this seems not to be an issue anymore. Document and remove code.
-    // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
-//    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
-//    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.
 
-    unsigned* is_node_bath = new unsigned[this->mpMesh->GetNumNodes()];
-    for(unsigned i = 0; i < this->mpMesh->GetNumNodes(); ++i)
-    {
-        is_node_bath[i] = 0;
-    }
+    PetscTruth is_matrix_assembled;
+    MatAssembled(this->mpLinearSystem->GetLhsMatrix(), &is_matrix_assembled);
+    assert(is_matrix_assembled == PETSC_TRUE);
 
-    for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
-         iter != this->mpMesh->GetNodeIteratorEnd();
-         ++iter)
-    {
-        /**
-         * \todo #1328 This code may no longer be needed since all the operations in the following loop may
-         * apply only to local elements. MatSetValue and VecSetValue are not collective...
-         */
-
-        if ((*iter).GetRegion() == HeartRegionCode::BATH)
-        {
-            is_node_bath[(*iter).GetIndex()] = 1;
-        }
-    }
-
-    unsigned* is_node_bath_reduced = new unsigned[this->mpMesh->GetNumNodes()];
-    MPI_Allreduce(is_node_bath, is_node_bath_reduced, this->mpMesh->GetNumNodes(), MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-
-    for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        if(is_node_bath_reduced[i] > 0) // ie is a bath node
-        {
-            PetscInt index[1];
-            index[0] = 2*i; // assumes Vm and Phie are interleaved
-
-            if(computeMatrix)
-            {
-                /*
-                 *  Before revision 6516, we used to zero out i-th row and column here. It seems to be redundant because they are already zero after assembly.
-                 *  When assembling a bath element you get a matrix subblock that looks like (2D example):
-                 *
-                 *     Vm   0 0 0 0 0 0
-                 *     Vm   0 0 0 0 0 0
-                 *     Vm   0 0 0 0 0 0
-                 *     Phie 0 0 0 x x x
-                 *     Phie 0 0 0 x x x  -> the x subblock is assembled from div(grad_phi) = 0
-                 *     Phie 0 0 0 x x x
-                 *
-                 *  Therefore, all the Vm entries of this node are already 0.
-                 *
-                 *  Explicitly checking it in non-production builds.
-                 */
+    /*
+     *  Before revision 6516, we used to zero out i-th row and column here. It seems to be redundant because they are already zero after assembly.
+     *  When assembling a bath element you get a matrix subblock that looks like (2D example):
+     *
+     *     Vm   0 0 0 0 0 0
+     *     Vm   0 0 0 0 0 0
+     *     Vm   0 0 0 0 0 0
+     *     Phie 0 0 0 x x x
+     *     Phie 0 0 0 x x x  -> the x subblock is assembled from div(grad_phi) = 0
+     *     Phie 0 0 0 x x x
+     *
+     *  Therefore, all the Vm entries of this node are already 0.
+     *
+     *  Explicitly checking it in non-production builds.
+     */
 #ifndef NDEBUG
-                int num_equation = 2*i; // assumes Vm and Phie are interleaved
-
-                // Matrix need to be assembled in order to use GetMatrixElement()
-                this->mpLinearSystem->AssembleFinalLhsMatrix();
+    if(computeMatrix)
+    {
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+             iter != this->mpMesh->GetNodeIteratorEnd();
+             ++iter)
+        {
+            if ((*iter).GetRegion() == HeartRegionCode::BATH)
+            {
+                int num_equation = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved
 
                 PetscInt local_lo, local_hi;
                 this->mpLinearSystem->GetOwnershipRange(local_lo, local_hi);
@@ -402,7 +372,28 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
                 {
                     assert(this->mpLinearSystem->GetMatrixElement(row, num_equation)==0);
                 }
+            }
+        }
+    }
 #endif
+
+    /*
+     *  These two loops are decoupled because interleaving calls to GetMatrixElement and MatSetValue
+     *  require reassembling the matrix before GetMatrixElement which generates massive communication
+     *  overhead for large models and/or large core counts.
+     */
+
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+         iter != this->mpMesh->GetNodeIteratorEnd();
+         ++iter)
+    {
+        if ((*iter).GetRegion() == HeartRegionCode::BATH)
+        {
+            PetscInt index[1];
+            index[0] = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved
+
+            if(computeMatrix)
+            {
                 // put 1.0 on the diagonal
                 Mat& r_matrix = this->mpLinearSystem->rGetLhsMatrix();
                 MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
@@ -415,11 +406,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
             }
         }
     }
-
-    delete[] is_node_bath;
-    delete[] is_node_bath_reduced;
 }
-
 
 ///////////////////////////////////////////////////////
 // explicit instantiation

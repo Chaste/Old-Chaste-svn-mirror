@@ -143,6 +143,10 @@ protected:
 	 *  Apply any changes needed to the linear system for problems that
 	 *  include a bath. Checks the voltage-voltage block of the matrix
      *  at bath-nodes is zero, and puts a 1 on the diagonal.
+     *
+     *  Precondition: This method requires the system matrix to be in assembled
+     *  state. Call AssembleFinalLhsMatrix() on your linear system if required.
+     *
      *  @param computeMatrix Whether the LHS matrix of the linear system has 
      *   been computed
      *  @param computeVector Whether the RHS vector of the linear system has 
