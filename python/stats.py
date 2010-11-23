@@ -25,6 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+"""
+Compute statistics about the evolution of the Chaste code base.
+Looks at number of source/test files, lines of code, and number
+of test suites & test cases.
+"""
 
 import glob
 import os
@@ -33,6 +38,7 @@ import shutil
 import sys
 
 def get_files(dirs):
+  """Return a list of all hpp/cpp files within the given folders."""
   file_pairs=[]
   for root_dir in dirs:
     for root, directories, files in os.walk(root_dir):
@@ -43,19 +49,25 @@ def get_files(dirs):
 
 
 def file_stats(file_pairs):
+  """Compute total statistics for the given files.
+  Each entry in file_pairs is a (path, leafname) pair.
+  Returns (number of files, total lines of code, num suites, num tests).
+  The lines of code includes comment lines.
+  """
   loc = 0
   nfiles = 0
   nsuites = 0
   ntests = 0
   for path, filename in file_pairs:
     loc += int(os.popen('wc -l '+path+'/'+filename).read().split()[0])
-    nfiles+=1
+    nfiles += 1
     if (filename[:4] == 'Test'):
       nsuites+=1
       ntests+= int(os.popen('egrep -c -i "void\s+Test" '+path+'/'+filename).read().split()[0])
-  return [nfiles, loc, nsuites, ntests]  
+  return (nfiles, loc, nsuites, ntests)
 
 def print_stats():
+  """Calulate and display stats about the checkout in the current directory."""
   rev1_epoch=1113991642
   svn_info = os.popen('svn info').read().split('\n')
   rev_line=svn_info[4]
@@ -76,36 +88,43 @@ def print_stats():
   source_stats=file_stats(source_files)
 
   print revision,'\t',epoch_weeks,'\t',source_stats[0],'\t',source_stats[1],\
-   '\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3],'\t',source_stats[1]+test_stats[1]
+    '\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3],\
+    '\t',source_stats[1]+test_stats[1]
 
+def print_header():
+  """Print a TSV header line corresponding to the output of print_stats."""
+  print '#rev\ttime (weeks)\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests\ttotal_loc'
 
-svn_revision=os.popen("svnversion").read().strip()
-if (svn_revision[-1]=='M'):
-	svn_revision=svn_revision[0:-1]
-last_revision=int(svn_revision)
-	
+def run():
+    """Do the processing."""
+    svn_revision = os.popen("svnversion").read().strip()
+    if (svn_revision[-1] == 'M'):
+        svn_revision = svn_revision[0:-1]
+    last_revision = int(svn_revision)
 
+    dir='../temp_lines_of_code'
 
-dir='../temp_lines_of_code'
+    print '### Starting a fresh checkout in', dir
+    print '###'
+    if os.path.isdir(dir):
+        print '### Erasing previous', dir
+        shutil.rmtree(dir)
+    print '###'
+    os.system('svn co -r 1 https://chaste.comlab.ox.ac.uk/svn/chaste/trunk '+dir+' > /dev/null')
+    os.chdir(dir)
 
-print('###Starting a fresh checkout in '+dir)
-print('###')
-if os.path.isdir(dir):
-    print('###Erasing previous '+dir)
-    shutil.rmtree(dir)
-print('###')
-os.system('svn co -r 1 https://chaste.comlab.ox.ac.uk/svn/chaste/trunk '+dir+' > /dev/null')
-os.chdir(dir)
-print '#rev\ttime (weeks)\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests\ttotal_loc'
-sys.stdout.flush()
+    print_header()
+    sys.stdout.flush()
 
-step=10
-start=10 
+    step = 10
+    start = 10
+    for rev in range(start,last_revision,step):
+        os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
+        print_stats()
+        sys.stdout.flush()
 
-for rev in range(start,last_revision,step):
-  os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
-  print_stats()
-  sys.stdout.flush()
+if __name__ == '__main__':
+    run()
 
 # Cut'n'paste for gnuplot:
 #
