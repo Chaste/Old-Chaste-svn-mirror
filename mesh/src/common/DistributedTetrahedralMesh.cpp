@@ -123,10 +123,50 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
         /// * Read all the data into a node_index set
         /// * Subtract off the rNodesOwned set to produce rHaloNodesOwned
         
-        //if (NCL_FILE)
-        //{
-        //}
-        //else
+        if ( rMeshReader.HasNclFile() )
+        {
+            // Form a set of all the element indices we are going to own 
+            // (union of the sets from the lines in the NCL file)
+            for ( std::set<unsigned>::iterator iter=rNodesOwned.begin();
+                  iter!=rNodesOwned.end();
+                  ++iter )
+            {
+                std::vector<unsigned> containing_elements = rMeshReader.GetContainingElementIndices( *iter );
+                rElementsOwned.insert( containing_elements.begin(), containing_elements.end() );
+            }
+            
+            // Iterate through that set rather than mTotalNumElements (knowing that we own a least one node in each line)
+            // Then read all the data into a node_index set
+            std::set<unsigned> node_index_set;
+            
+            for ( std::set<unsigned>::iterator iter=rElementsOwned.begin();
+                  iter!=rElementsOwned.end();
+                  ++iter )
+            {
+                ElementData element_data = rMeshReader.GetElementData( *iter );
+                node_index_set.insert( element_data.NodeIndices.begin(), element_data.NodeIndices.end() );
+            }
+            
+            // Subtract off the rNodesOwned set to produce rHaloNodesOwned.
+            // Note that rNodesOwned is a subset of node_index_set.
+            // std::set_difference can't be used to fill a set...
+            std::set<unsigned>::iterator iter_all = node_index_set.begin();
+            std::set<unsigned>::iterator iter_owned = rNodesOwned.begin();
+            while (iter_all != node_index_set.end() && iter_owned != rNodesOwned.end())
+            {
+                if (*iter_all < *iter_owned) // Elements in sets are ordered
+                {
+                    rHaloNodesOwned.insert(*iter_all++); // This node doesn't appear in rNodesOwned
+                }
+                else
+                {
+                    iter_all++;
+                    iter_owned++;
+                }
+            }
+            rHaloNodesOwned.insert(iter_all, node_index_set.end()); // Anything left over is halo
+        }
+        else
         {
             for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
             {
@@ -154,6 +194,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
                 }
             }
         }
+        
         if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
         {
             PetscTools::Barrier();

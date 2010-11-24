@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "UblasCustomFunctions.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -46,10 +45,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RandomNumberGenerator.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 class TestDistributedTetrahedralMesh : public CxxTest::TestSuite
 {
 private:
 
+    template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+    void CompareMeshes( DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh1,
+                        DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh2 )
+    {
+        // Check that we have the right number of nodes and elements
+        TS_ASSERT_EQUALS(rMesh1.GetNumBoundaryElements(), rMesh2.GetNumBoundaryElements());
+        TS_ASSERT_EQUALS(rMesh1.GetNumElements(), rMesh2.GetNumElements());
+        TS_ASSERT_EQUALS(rMesh1.GetNumNodes(), rMesh2.GetNumNodes());
+        
+        // Check that the nodes and elements of each mesh are identical
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator iter = rMesh1.GetElementIteratorBegin();
+             iter != rMesh1.GetElementIteratorEnd();
+             ++iter)
+        {
+            unsigned element_index = iter->GetIndex();
+
+            Element<ELEMENT_DIM,SPACE_DIM>* p_element_2 = rMesh2.GetElement(element_index);
+
+            // The elements have the same index and the nodes are located in the same position.
+            TS_ASSERT_EQUALS(element_index, p_element_2->GetIndex());
+            for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
+            {
+                TS_ASSERT_DELTA( norm_2( iter->GetNode(node_local_index)->rGetLocation() -
+                                     p_element_2->GetNode(node_local_index)->rGetLocation() ), 0.0, 1e-10 );
+            }
+        }
+    }
+    
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
     void CheckEverythingIsAssigned(DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     {
@@ -505,34 +534,27 @@ public:
         DistributedTetrahedralMesh<3,3> mesh_from_ascii;
         mesh_from_ascii.ConstructFromMeshReader(mesh_reader_ascii);
 
-        // Check that we have the right number of nodes and elements
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_from_ascii.GetNumBoundaryElements());
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_from_ascii.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_from_ascii.GetNumNodes());
+        CompareMeshes( mesh, mesh_from_ascii );
+    }
 
-        // Check that the nodes and elements of each mesh are identical
-        for (AbstractTetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
-             iter != mesh.GetElementIteratorEnd();
-             ++iter)
-        {
-            unsigned element_index = iter->GetIndex();
+    void TestConstructFromMeshReaderWithNclFile()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TrianglesMeshWriter<3,3> mesh_writer("WritingNclFile", "cube_136_elements_binary");
+        mesh_writer.SetWriteFilesAsBinary();
+        mesh_writer.WriteFilesUsingMesh(mesh);
 
-            Element<3,3>* p_ascii_element = mesh_from_ascii.GetElement(element_index);
+        std::string output_dir = mesh_writer.GetOutputDirectory();
 
-            // The elements have the same index and the nodes are located in the same position.
-            TS_ASSERT_EQUALS(element_index, p_ascii_element->GetIndex());
-            for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
-            {
-//                for (unsigned dim=0; dim<3; dim++)
-//                {
-//                    TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[dim],
-//                                     p_ascii_element->GetNode(node_local_index)->GetPoint()[dim]);
-//                }
-                TS_ASSERT_DELTA( norm_2( iter->GetNode(node_local_index)->rGetLocation() -
-                                     p_ascii_element->GetNode(node_local_index)->rGetLocation() ), 0.0, 1e-10 );
-            }
-        }
+        TrianglesMeshReader<3,3> mesh_reader_ncl(output_dir + "cube_136_elements_binary");
+        TS_ASSERT(mesh_reader_ncl.HasNclFile());
+        DistributedTetrahedralMesh<3,3> mesh_from_ncl;
+        mesh_from_ncl.ConstructFromMeshReader(mesh_reader_ncl);
 
+        CompareMeshes( mesh, mesh_from_ncl );
     }
 
     void TestEverythingIsAssignedMetisLibrary()
