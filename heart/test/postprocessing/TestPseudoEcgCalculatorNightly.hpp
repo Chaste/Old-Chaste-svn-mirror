@@ -56,7 +56,7 @@ public:
     {
         //get the mesh, whole heart mesh
         TrianglesMeshReader<3,3> reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
-        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);  //The partition/numbering has to match that stored in the HDF5 file
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);  //The partition/numbering has to match that stored in the HDF5 file
         mesh.ConstructFromMeshReader(reader);
 
         // Compute the pseudo ECG. We set an electrode at x=2.2, y=6, z=1.85.

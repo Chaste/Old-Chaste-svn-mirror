@@ -99,7 +99,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
+        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMeshPartitionType::DUMB); // No reordering;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), num_nodes); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
@@ -211,7 +211,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering
+        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMeshPartitionType::DUMB); // No reordering
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);

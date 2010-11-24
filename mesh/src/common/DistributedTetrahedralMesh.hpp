@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 #include "Node.hpp"
 #include "AbstractMeshReader.hpp"
+#include "DistributedTetrahedralMeshPartitionType.hpp"
 
 #define UNASSIGNED_NODE UINT_MAX
 
@@ -67,23 +68,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class DistributedTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestDistributedTetrahedralMesh;
-
-public:
-
-     /** Definition of partition types.
-      * "DUMB" is using natural mesh ordering with PETSC_DECIDE.
-      * "PARMETIS_LIBRARY" is a call to the parallel parMETIS library
-      * "METIS_LIBRARY" is a call to the sequential METIS library
-      * "PETSC_MAT_PARTITION" is a call to parMETIS (or whatever) via PETSc functionality
-      * */
-    typedef enum
-    {
-        DUMB=0,
-        PARMETIS_LIBRARY=1,
-        METIS_LIBRARY=2,
-        PETSC_MAT_PARTITION=3 
-    } PartitionType;
-
 private:
 
     /** The total number of elements in the mesh. */
@@ -110,8 +94,8 @@ private:
     /** A map from boundary element global index to local index used by this process. */
     std::map<unsigned, unsigned> mBoundaryElementsMapping;
 
-    /** Partition type (given by enum PartitionType). */
-    PartitionType mMetisPartitioning;
+    /** Partitioning method. */
+    DistributedTetrahedralMeshPartitionType::type mMetisPartitioning;
 
     /** Needed for serialization.*/
     friend class boost::serialization::access;
@@ -134,9 +118,9 @@ public:
     /**
      * Constructor.
      *
-     * @param metisPartitioning defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
+     * @param partitioningMethod  defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
      */
-    DistributedTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
+    DistributedTetrahedralMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod=DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
 
     /**
      * Destructor.
@@ -196,7 +180,7 @@ public:
      *
      * serialization uses this method.
      */
-    PartitionType GetPartitionType() const;
+    DistributedTetrahedralMeshPartitionType::type GetPartitionType() const;
 
     /**
      * Get the total number of boundary elements that are actually in use (globally).
@@ -454,7 +438,7 @@ inline void save_construct_data(
     Archive & ar, const DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     unsigned num_procs = PetscTools::GetNumProcs();
-    const typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type = t->GetPartitionType();
+    const DistributedTetrahedralMeshPartitionType::type partition_type = t->GetPartitionType();
     ar << num_procs;
     ar << partition_type;
 }
@@ -468,7 +452,7 @@ inline void load_construct_data(
     Archive & ar, DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     unsigned num_procs;
-    typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type;
+    DistributedTetrahedralMeshPartitionType::type partition_type;
 
     ar >> num_procs;
     ar >> partition_type;
@@ -476,7 +460,7 @@ inline void load_construct_data(
     // Invoke inplace constructor to initialise instance
     /// \todo #1199  Lots of stuff can't cope if we re-partition
     //::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
-    ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DUMB);
+    ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(DistributedTetrahedralMeshPartitionType::DUMB);
 
     /*
      * The exception needs to be thrown after the call to ::new(t), or Boost will try

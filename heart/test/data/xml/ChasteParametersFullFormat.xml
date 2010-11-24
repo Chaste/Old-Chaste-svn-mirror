@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
-    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"
+    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ../../../src/io/ChasteParameters_2_1.xsd">
+    xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ../../../src/io/ChasteParameters_2_2.xsd">
  
     <!-- See also ChasteParametersResumeSimulation.xml -->       
     
@@ -325,6 +325,9 @@
 		<KSPSolver>gmres</KSPSolver>
 		<!-- KSP preconditioner type -->
 		<KSPPreconditioner>bjacobi</KSPPreconditioner>
+		
+		<!-- How to partition the mesh when running in parallel -->
+		<MeshPartitioning>metis</MeshPartitioning>
 		
 		<!-- Optional.  These parameters are for use with a particular adaptivity library -->
 		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />

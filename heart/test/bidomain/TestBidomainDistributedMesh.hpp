@@ -104,7 +104,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("distributed2d");
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
        
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -209,16 +209,18 @@ public:
         // DistributedTetrahedralMesh
         ///////////////////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOutputFilenamePrefix("distributed2d");
+        HeartConfig::Instance()->SetMeshPartitioning("parmetis");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
 
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::PARMETIS_LIBRARY);
-        mesh.ConstructFromMeshReader(mesh_reader);
+//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+//        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY);
+//        mesh.ConstructFromMeshReader(mesh_reader);
 
         BidomainProblem<2> distributed_problem( &cell_factory );
 
         //distributed_problem.PrintOutput(false);
 
-        distributed_problem.SetMesh(&mesh);
+//        distributed_problem.SetMesh(&mesh);
 
         distributed_problem.Initialise();
 
@@ -248,7 +250,7 @@ public:
 
         double para_ave_voltage;
         MPI_Reduce(&para_local_ave_voltage, &para_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-        para_ave_voltage /= mesh.GetNumNodes();
+        para_ave_voltage /= distributed_problem.rGetMesh().GetNumNodes();
 
         ///////////////////////////////////////////////////////////////////
         // compare

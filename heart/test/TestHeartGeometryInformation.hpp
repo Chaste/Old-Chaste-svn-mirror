@@ -392,7 +392,7 @@ public:
 
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
-        //DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
+        //DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         DistributedTetrahedralMesh<3,3> mesh;
         //TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

@@ -69,6 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         </KSPTolerances>
         <KSPSolver>cg</KSPSolver>
         <KSPPreconditioner>bjacobi</KSPPreconditioner>
+        <MeshPartitioning>metis</MeshPartitioning>
     </Numerical>
     
     <PostProcessing>
@@ -113,10 +114,12 @@ boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
     tolerances.KSPAbsolute().set(2e-4);
     cp::ksp_solver_type ksp_solver("cg");
     cp::ksp_preconditioner_type ksp_precond("bjacobi");
+    cp::mesh_partitioning_type mesh_partitioning("metis");
     numerical_params.TimeSteps().set(timesteps);
     numerical_params.KSPTolerances().set(tolerances);
     numerical_params.KSPSolver().set(ksp_solver);
     numerical_params.KSPPreconditioner().set(ksp_precond);
+    numerical_params.MeshPartitioning().set(mesh_partitioning);
     
     // Postprocessing
     cp::postprocessing_type postproc;

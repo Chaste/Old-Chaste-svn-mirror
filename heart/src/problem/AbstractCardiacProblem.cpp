@@ -114,15 +114,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         // If no mesh has been passed, we get it from the configuration file
         try
         {
-            if(HeartConfig::Instance()->GetLoadMesh())
+            if (HeartConfig::Instance()->GetLoadMesh())
             {
-                mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(HeartConfig::Instance()->GetMeshPartitioning());
                 GenericMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }
-            else if(HeartConfig::Instance()->GetCreateMesh())
+            else if (HeartConfig::Instance()->GetCreateMesh())
             {
-                mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(HeartConfig::Instance()->GetMeshPartitioning());
                 assert(HeartConfig::Instance()->GetSpaceDimension()==SPACE_DIM);
                 double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
 

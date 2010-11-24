@@ -190,6 +190,7 @@ public:
 
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
 
         TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
 
@@ -1074,6 +1075,19 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetKSPPreconditioner("foobar"),
                 "Unknown preconditioner type provided");
 
+        // Mesh partitioning method
+        HeartConfig::Instance()->SetMeshPartitioning("dumb");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::DUMB);
+        HeartConfig::Instance()->SetMeshPartitioning("metis");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
+        HeartConfig::Instance()->SetMeshPartitioning("parmetis");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY);
+        HeartConfig::Instance()->SetMeshPartitioning("petsc");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION);
+
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetMeshPartitioning("magic"),
+                              "Unknown mesh partitioning method provided");
+
         // Tests for set functions of postprocessing
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
@@ -1198,7 +1212,7 @@ public:
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
-                         "Unable to locate schema file ChasteParameters_2_1.xsd. You will need to ensure it is available when resuming from the checkpoint.");
+                         "Unable to locate schema file ChasteParameters_2_2.xsd. You will need to ensure it is available when resuming from the checkpoint.");
     }
 
     void TestArchiving() throw (Exception)
@@ -1413,6 +1427,18 @@ public:
         HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ilu_preconditioner.xml"),
                               "PETSc does not have a parallel implementation of ilu, so we no longer allow it as an option.  Use bjacobi instead.");
+
+        // Check that release 2.1 xml can be loaded with release 2.1 schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_1.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
+
+        // Check that release 2.1 xml can be loaded with latest schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_1.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
     }
 
     /**

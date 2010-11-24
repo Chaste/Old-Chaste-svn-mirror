@@ -53,17 +53,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(PartitionType metisPartitioning)
+DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod)
     :
       mTotalNumElements(0u),
       mTotalNumBoundaryElements(0u),
       mTotalNumNodes(0u),
-      mMetisPartitioning(metisPartitioning)
+      mMetisPartitioning(partitioningMethod)
 {
     if (ELEMENT_DIM == 1)
     {
         //No METIS partition is possible - revert to DUMB
-        mMetisPartitioning=DUMB;
+        mMetisPartitioning = DistributedTetrahedralMeshPartitionType::DUMB;
     }
 }
 
@@ -80,7 +80,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetDistributedVectorFactory(DistributedVectorFactory* pFactory)
 {
     AbstractMesh<ELEMENT_DIM,SPACE_DIM>::SetDistributedVectorFactory(pFactory);
-    mMetisPartitioning = DUMB;
+    mMetisPartitioning = DistributedTetrahedralMeshPartitionType::DUMB;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -93,7 +93,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
 {
     ///\todo #1293 add a timing event for the partitioning
 
-    if (mMetisPartitioning==PARMETIS_LIBRARY && !PetscTools::IsSequential())
+    if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY && !PetscTools::IsSequential())
     {
         /*
          *  With ParMetisLibraryNodePartitioning we compute the element partition first
@@ -106,11 +106,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
         /*
          *  Otherwise we compute the node partition and then we workout element distribution
          */
-        if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
+        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::METIS_LIBRARY && !PetscTools::IsSequential())
         {
             MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
         }
-        else if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+        else if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && !PetscTools::IsSequential())
         {
             PetscMatrixPartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
         }
@@ -119,12 +119,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
             DumbNodePartitioning(rMeshReader, rNodesOwned);
         }
 
-        ///\todo #1621 If we have an NCL file then we 
-        /// * Form a set of all the element indices we are going to own (union of the sets from the lines in the NCL file)
-        /// * Iterate through that set rather than mTotalNumElements (knowing that we own a least one node in each line)
-        /// * Read all the data into a node_index set
-        /// * Subtract off the rNodesOwned set to produce rHaloNodesOwned
-        
         if ( rMeshReader.HasNclFile() )
         {
             // Form a set of all the element indices we are going to own 
@@ -197,7 +191,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
             }
         }
         
-        if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && !PetscTools::IsSequential())
         {
             PetscTools::Barrier();
             if(PetscTools::AmMaster())
@@ -423,7 +417,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     PetscTools::ReplicateException(false);
 //    std::cout << "went past this!" << std::flush <<std::endl;
 
-    if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
+    if (mMetisPartitioning != DistributedTetrahedralMeshPartitionType::DUMB && !PetscTools::IsSequential())
     {
         assert(this->mNodesPermutation.size() != 0);
         // We reorder so that each process owns a contiguous set of the indices and we can then build a distributed vector factory.
@@ -488,7 +482,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() co
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
+DistributedTetrahedralMeshPartitionType::type DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
 {
     return mMetisPartitioning;
 }
@@ -1041,7 +1035,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;
+    mMetisPartitioning=DistributedTetrahedralMeshPartitionType::DUMB;
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
@@ -1129,7 +1123,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;
+    mMetisPartitioning=DistributedTetrahedralMeshPartitionType::DUMB;
 
     mTotalNumNodes=(width+1)*(height+1);
     mTotalNumBoundaryElements=(width+height)*2;
@@ -1305,7 +1299,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     }
 
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;
+    mMetisPartitioning=DistributedTetrahedralMeshPartitionType::DUMB;
 
     mTotalNumNodes=(width+1)*(height+1)*(depth+1);
     mTotalNumBoundaryElements=((width*height)+(width*depth)+(height*depth))*4;//*2 for top-bottom, *2 for tessellating each unit square

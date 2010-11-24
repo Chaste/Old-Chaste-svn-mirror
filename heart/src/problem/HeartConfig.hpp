@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 
 #include "ArchiveLocationInfo.hpp"
-#include "ChasteParameters_2_1.hpp"
+#include "ChasteParameters_2_2.hpp"
 
 #include "AbstractStimulusFunction.hpp"
 // These are needed here for Boost < 1.37
@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMeshPartitionType.hpp"
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
@@ -57,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 
-namespace cp = chaste::parameters::v2_1;
+namespace cp = chaste::parameters::v2_2;
 
 // Forward declaration to avoid circular includes
 class HeartFileFinder;
@@ -560,6 +561,7 @@ public:
     const char* GetKSPSolver() const; /**< @return name of -ksp_type from {"gmres", "cg", "symmlq"}*/
     const char* GetKSPPreconditioner() const; /**< @return name of -pc_type from {"jacobi", "bjacobi", "hypre", "ml", "spai", "blockdiagonal", "ldufactorisation", "none"}*/
 
+    DistributedTetrahedralMeshPartitionType::type GetMeshPartitioning() const; /**< @return the mesh partitioning method to use */
 
     // Adaptivity
     /**
@@ -942,6 +944,11 @@ public:
      * @param kspPreconditioner  a string from {"jacobi", "bjacobi", "hypre", "ml", "spai", "blockdiagonal", "ldufactorisation", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
+
+    /** Set the type of mesh partitioning method
+     * @param meshPartioningMethod  a string from {"dumb", "metis", "parmetis", "petsc"}
+     */
+    void SetMeshPartitioning(const char* meshPartioningMethod);
 
     /**
      * Set the parameters to be used during mesh adaptation.

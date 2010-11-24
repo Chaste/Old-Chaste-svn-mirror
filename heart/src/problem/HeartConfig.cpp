@@ -368,10 +368,12 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
     map["cp20"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0";
     map["cp20"].schema = "ChasteParameters_2_0.xsd";
+    map["cp21"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1";
+    map["cp21"].schema = "ChasteParameters_2_1.xsd";
     // We use 'cp' as prefix for the latest version to avoid having to change saved
     // versions for comparison at every release.
-    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1";
-    map["cp"].schema = "ChasteParameters_2_1.xsd";
+    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2";
+    map["cp"].schema = "ChasteParameters_2_2.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -385,7 +387,7 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
 
 void HeartConfig::CopySchema(const std::string& rToDirectory)
 {
-    std::string schema_name("ChasteParameters_2_1.xsd");
+    std::string schema_name("ChasteParameters_2_2.xsd");
     FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
     if (!schema_location.Exists())
     {
@@ -415,6 +417,7 @@ void HeartConfig::SetDefaultSchemaLocations()
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"] = root_dir + "ChasteParameters_2_0.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"] = root_dir + "ChasteParameters_2_1.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"] = root_dir + "ChasteParameters_2_2.xsd";
 }
 
 unsigned HeartConfig::GetVersionFromNamespace(const std::string& rNamespaceUri)
@@ -522,7 +525,8 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
             case 2000: // Release 2.0
                 XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
                 XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
-                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
+            case 2001: // Release 2.1
+                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2");
             default: // Current release - nothing to do
                 break;
         }
@@ -1726,6 +1730,26 @@ const char* HeartConfig::GetKSPPreconditioner() const
 #undef COVERAGE_IGNORE
 }
 
+DistributedTetrahedralMeshPartitionType::type HeartConfig::GetMeshPartitioning() const
+{
+    switch ( DecideLocation( & mpUserParameters->Numerical().MeshPartitioning(),
+                             & mpDefaultParameters->Numerical().MeshPartitioning(),
+                             "MeshPartitioning")->get() )
+    {
+        case cp::mesh_partitioning_type::dumb :
+            return DistributedTetrahedralMeshPartitionType::DUMB;
+        case cp::mesh_partitioning_type::metis :
+            return DistributedTetrahedralMeshPartitionType::METIS_LIBRARY;
+        case cp::mesh_partitioning_type::parmetis :
+            return DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY;
+        case cp::mesh_partitioning_type::petsc :
+            return DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION;
+    }
+#define COVERAGE_IGNORE
+    EXCEPTION("Unknown mesh partitioning type");
+#undef COVERAGE_IGNORE
+}
+
 bool HeartConfig::IsAdaptivityParametersPresent() const
 {
     try
@@ -2583,6 +2607,33 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     }
 
     EXCEPTION("Unknown preconditioner type provided");
+}
+
+void HeartConfig::SetMeshPartitioning(const char* meshPartioningMethod)
+{
+    /* Note that changes in these conditions need to be reflected in the Doxygen*/
+    if ( strcmp(meshPartioningMethod, "dumb") == 0)
+    {
+        mpUserParameters->Numerical().MeshPartitioning().set(cp::mesh_partitioning_type::dumb);
+        return;
+    }
+    if ( strcmp(meshPartioningMethod, "metis") == 0)
+    {
+        mpUserParameters->Numerical().MeshPartitioning().set(cp::mesh_partitioning_type::metis);
+        return;
+    }
+    if ( strcmp(meshPartioningMethod, "parmetis") == 0)
+    {
+        mpUserParameters->Numerical().MeshPartitioning().set(cp::mesh_partitioning_type::parmetis);
+        return;
+    }
+    if ( strcmp(meshPartioningMethod, "petsc") == 0)
+    {
+        mpUserParameters->Numerical().MeshPartitioning().set(cp::mesh_partitioning_type::petsc);
+        return;
+    }
+
+    EXCEPTION("Unknown mesh partitioning method provided");
 }
 
 void HeartConfig::SetAdaptivityParameters(double targetError,
