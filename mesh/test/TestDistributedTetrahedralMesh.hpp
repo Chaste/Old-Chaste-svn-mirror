@@ -540,7 +540,7 @@ public:
     void TestConstructFromMeshReaderWithNclFile()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
-        DistributedTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TrianglesMeshWriter<3,3> mesh_writer("WritingNclFile", "cube_136_elements_binary");
@@ -551,7 +551,7 @@ public:
 
         TrianglesMeshReader<3,3> mesh_reader_ncl(output_dir + "cube_136_elements_binary");
         TS_ASSERT(mesh_reader_ncl.HasNclFile());
-        DistributedTetrahedralMesh<3,3> mesh_from_ncl;
+        DistributedTetrahedralMesh<3,3> mesh_from_ncl(DistributedTetrahedralMesh<3,3>::DUMB);
         mesh_from_ncl.ConstructFromMeshReader(mesh_reader_ncl);
 
         CompareMeshes( mesh, mesh_from_ncl );
@@ -1486,8 +1486,11 @@ public:
             if (rank_id != PetscTools::GetMyRank())
             {
                 ///\todo #1462
-                //TS_ASSERT(!nodes_to_receive_per_process[rank_id].empty());
-                //TS_ASSERT(!nodes_to_send_per_process[rank_id].empty());
+                ///Check that all pairs are conjugate...
+                ///\todo #1462
+                ///The following will fail on 4 or more processes
+                TS_ASSERT(!nodes_to_receive_per_process[rank_id].empty());
+                TS_ASSERT(!nodes_to_send_per_process[rank_id].empty());
             }
         }
 

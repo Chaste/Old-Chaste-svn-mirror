@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "petscao.h"
 
+#include "Debug.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1860,16 +1862,49 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(s
     //Initialise vectors of sets for the exchange data
     rNodesToSendPerProcess.resize(PetscTools::GetNumProcs());
     rNodesToReceivePerProcess.resize(PetscTools::GetNumProcs());
+    std::vector<unsigned> global_lows = this->mpDistributedVectorFactory->rGetGlobalLows();
     
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
+        std::vector <unsigned> nodes_on_this_process;
+        std::vector <unsigned> nodes_not_on_this_process;
+        //Calculate local and non-local node indices
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
-            std::cout<<iter->GetNodeGlobalIndex(i)<<"\t";
+            unsigned node_index=iter->GetNodeGlobalIndex(i);
+            if (this->mpDistributedVectorFactory->IsGlobalIndexLocal(node_index)) 
+            {
+                nodes_on_this_process.push_back(node_index);
+            }
+            else
+            {
+                nodes_not_on_this_process.push_back(node_index);
+            }
         }
-        std::cout<<iter->GetIndex()<<"\n";
+        
+        //If there are any non-local nodes on this element then we need to add to the data exchange
+        if(!nodes_not_on_this_process.empty()) 
+        {
+            for (unsigned i=0; i<nodes_not_on_this_process.size(); i++)
+            {
+                //Calculate who owns this remote node
+                unsigned remote_process=global_lows.size()-1;
+                for(; global_lows[remote_process] > nodes_not_on_this_process[i]; remote_process--)
+                {
+                }
+                
+                //Add this node to the correct receive set
+                rNodesToReceivePerProcess[remote_process].insert(nodes_not_on_this_process[i]);
+                
+                //Add all local nodes to the send set
+                for (unsigned j=0; j<nodes_on_this_process.size(); j++)
+                {
+                    rNodesToSendPerProcess[remote_process].insert(nodes_on_this_process[j]);
+                }
+            }
+        }
     }
  
     

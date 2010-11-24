@@ -341,7 +341,14 @@ public:
 
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
-
+        
+        //Test that we are able to share the global low values
+        std::vector<unsigned> global_lows = factory.rGetGlobalLows();
+        TS_ASSERT_EQUALS(global_lows.size(), num_procs);
+        for (unsigned proc_index=0; proc_index<num_procs; proc_index++)
+        {
+            TS_ASSERT_EQUALS(global_lows[proc_index], (proc_index+1)*proc_index/2);
+        }
         VecDestroy(petsc_vec);
     }
 

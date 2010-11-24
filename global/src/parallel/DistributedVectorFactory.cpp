@@ -160,18 +160,18 @@ DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
     return dist_vector;
 }
 
-//std::vector<unsigned> &rGetGlobalLows()
-//{
-//    if (mGlobalLows.size() != PetscTools::GetNumProcs())
-//    {
-//        mGlobalLows.resize(PetscTools::GetNumProcs());
-//        //Exchange data
-//        MPI_Alltoall( &mLo, 1, MPI_UNSIGNED, &mGlobalLows[0], 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
-//    }
-//    
-//    
-//    return  mGlobalLows;
-//}
+std::vector<unsigned> &DistributedVectorFactory::rGetGlobalLows()
+{
+    if (mGlobalLows.size() != PetscTools::GetNumProcs())
+    {
+        assert( mGlobalLows.empty());
+        mGlobalLows.resize(PetscTools::GetNumProcs());
+        //Exchange data
+        MPI_Allgather( &mLo, 1, MPI_UNSIGNED, &mGlobalLows[0], 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
+      }
+    
+    return  mGlobalLows;
+}
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(DistributedVectorFactory)

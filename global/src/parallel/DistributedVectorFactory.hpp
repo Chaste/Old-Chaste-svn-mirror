@@ -248,11 +248,11 @@ public:
      */
     void SetFromFactory(DistributedVectorFactory* pFactory);
 
-//    /**
-//     * @returns the mLo value from each process in a vector.  This is calculated on the first call
-//     * and cached for later use
-//     */
-//    std::vector<unsigned> &rGetGlobalLows();
+    /**
+     * @returns the mLo value from each process in a vector.  This is calculated on the first call
+     * and cached for later use
+     */
+    std::vector<unsigned> &rGetGlobalLows();
 
 
 
