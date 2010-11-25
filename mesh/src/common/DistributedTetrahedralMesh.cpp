@@ -1843,7 +1843,12 @@ ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Calc
     }
     catch (Exception& e)
     {
-        std::cout << PetscTools::GetMyRank() << ": "<< my_minimum_point.rGetLocation()[0] << ", " << my_minimum_point.rGetLocation()[1] << ", " << my_minimum_point.rGetLocation()[2] << std::endl;
+        std::cout << PetscTools::GetMyRank() << ": ("<< my_minimum_point.rGetLocation()[0] << ", "
+                                                     << my_minimum_point.rGetLocation()[1] << ", "
+                                                     << my_minimum_point.rGetLocation()[2] << ") "
+                                             << ", ("<< my_maximum_point.rGetLocation()[0] << ", "
+                                                     << my_maximum_point.rGetLocation()[1] << ", "
+                                                     << my_maximum_point.rGetLocation()[2] << ") " << std::endl;
         PetscTools::ReplicateException(true);
         throw e;
     }
