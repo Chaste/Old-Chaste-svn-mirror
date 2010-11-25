@@ -520,23 +520,23 @@ public:
         TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "State variable var_fast_sodium_current_m_gate__m has gone out of range. "
                                   "Check model parameters, for example spatial stepsize\n");
 
-        //Test for regular output
-        Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
-        std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
-        //TS_ASSERT_EQUALS( times.size(),  31U);//For normal stimulation
-        TS_ASSERT_EQUALS( times.size(),  31U); // For fully allocated hdf5
-        //TS_ASSERT_EQUALS( times.size(),  21U);//For over stimulation
-
-        TS_ASSERT_DELTA( times[1], 0.01,  1e-12);
-        //TS_ASSERT_DELTA( times.back(), 0.3,  1e-12);//For normal stimulation
-        //TS_ASSERT_DELTA( times.back(), 0.20,  1e-12);//For over stimulation
-
-        TS_ASSERT_DELTA( times.back(), 0,  1e-12);//For hdf5 writer allocated up to 30 slots
-        TS_ASSERT_DELTA( times[20], 0.20,  1e-12);//For hdf5 writer allocated up to 30 slots
-
         // Make sure that there's time for the files to be written
         // (most files are only written by the master)
         PetscTools::Barrier();
+
+        //Test for regular output
+        Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
+        std::vector<double> times = data_reader.GetUnlimitedDimensionValues();
+        //TS_ASSERT_EQUALS( times.size(), 31U);// For normal stimulation
+        TS_ASSERT_EQUALS( times.size(), 31U);  // For fully allocated hdf5
+        //TS_ASSERT_EQUALS( times.size(), 21U);// For over stimulation
+
+        TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
+        //TS_ASSERT_DELTA( times.back(), 0.30, 1e-12);//For normal stimulation
+        //TS_ASSERT_DELTA( times.back(), 0.20, 1e-12);//For over stimulation
+        TS_ASSERT_DELTA( times.back(), 0, 1e-12);//For hdf5 writer allocated up to 30 slots
+        TS_ASSERT_DELTA( times[20], 0.20, 1e-12);//For hdf5 writer allocated up to 30 slots
+        TS_ASSERT_DELTA( times[21],    0, 1e-12);//For hdf5 writer allocated up to 30 slots
 
         // Test for post-processed output (and don't wipe the directory!)
         OutputFileHandler handler("BidomainFallsOver/output",false);
