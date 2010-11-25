@@ -53,6 +53,7 @@ private:
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     std::string mUnlimitedDimensionName; /**< The name of the unlimited dimension. */
     std::string mUnlimitedDimensionUnit; /**< The physical units of the unlimited dimension. */
+    unsigned mEstimatedUnlimitedLength; /**<An estimate of the unlimited dimension length for performance reasons. */
     unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
     unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
     unsigned mLo; /**< Local ownership of a PETSc vector of size #mFileFixedDimensionSize*/
@@ -145,9 +146,10 @@ public:
      *
      * @param rVariableName The name of the dimension
      * @param rVariableUnits The physical units of the dimension
+     * @param estimatedLength An estimate of the unlimited dimension length for performance reasons
      *
      */
-    void DefineUnlimitedDimension(const std::string& rVariableName, const std::string& rVariableUnits);
+    void DefineUnlimitedDimension(const std::string& rVariableName, const std::string& rVariableUnits, unsigned estimatedLength = 1);
 
     /**
      * Advance along the unlimited dimension. Normally this will be called

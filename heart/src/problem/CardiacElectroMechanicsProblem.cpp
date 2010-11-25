@@ -231,6 +231,9 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     assert(endTime > 0);
     mEndTime = endTime;
 
+    // We need HeartConfig to store the end time so we can make an estimate of the HDF5 file size later.
+    HeartConfig::Instance()->SetSimulationDuration(mEndTime);
+
     assert(electricsPdeTimeStep>0);
     mElectricsTimeStep = electricsPdeTimeStep;
 

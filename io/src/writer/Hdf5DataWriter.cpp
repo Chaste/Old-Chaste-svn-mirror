@@ -51,6 +51,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
       mIsInDefineMode(true),
       mIsFixedDimensionSet(false),
       mIsUnlimitedDimensionSet(false),
+      mEstimatedUnlimitedLength(1u),
       mFileFixedDimensionSize(0u),
       mDataFixedDimensionSize(0u),
       mLo(mrVectorFactory.GetLow()),
@@ -890,7 +891,8 @@ void Hdf5DataWriter::Close()
 }
 
 void Hdf5DataWriter::DefineUnlimitedDimension(const std::string& rVariableName,
-                                              const std::string& rVariableUnits)
+                                              const std::string& rVariableUnits,
+                                              unsigned estimatedLength)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -905,6 +907,7 @@ void Hdf5DataWriter::DefineUnlimitedDimension(const std::string& rVariableName,
     mIsUnlimitedDimensionSet = true;
     mUnlimitedDimensionName = rVariableName;
     mUnlimitedDimensionUnit = rVariableUnits;
+    mEstimatedUnlimitedLength = estimatedLength;
 }
 
 void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
@@ -914,11 +917,27 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
         EXCEPTION("Trying to advance along an unlimited dimension without having defined any");
     }
 
-    // Extend the dataset
-    mDatasetDims[0]++;
-    mNeedExtend = true;
-
     mCurrentTimeStep++;
+
+    /*
+     *  Extend the dataset
+     */
+    // If the user provided an estimate for the length of the
+    // unlimited dimension, allocate all that space.
+    if ( mEstimatedUnlimitedLength > mDatasetDims[0] )
+    {
+        mDatasetDims[0] = mEstimatedUnlimitedLength;
+        mNeedExtend = true;
+    }
+
+    // If you are beyond the user estimate increment step by step
+    if ( mCurrentTimeStep >= mEstimatedUnlimitedLength )
+    {
+        mDatasetDims[0]++;
+        mNeedExtend = true;
+    }
+
+
 }
 
 void Hdf5DataWriter::PossiblyExtend()

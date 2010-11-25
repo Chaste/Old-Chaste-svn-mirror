@@ -482,7 +482,7 @@ public:
         int node_id = writer.DefineVariable("Node", "dimensionless");
         int ik_id = writer.DefineVariable("I_K", "milliamperes");
         int ina_id = writer.DefineVariable("I_Na", "milliamperes");
-        writer.DefineUnlimitedDimension("Time", "msec");
+        writer.DefineUnlimitedDimension("Time", "msec", 10);
 
         writer.EndDefineMode();
 

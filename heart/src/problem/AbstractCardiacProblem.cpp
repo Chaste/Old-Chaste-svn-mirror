@@ -545,7 +545,12 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineWriterColu
         //mNodeColumnId = mpWriter->DefineVariable("Node", "dimensionless");
         mVoltageColumnId = mpWriter->DefineVariable("V","mV");
 
-        mpWriter->DefineUnlimitedDimension("Time","msecs");
+        // Only used to get an estimate of the # of timesteps below
+        TimeStepper stepper(mCurrentTime,
+                            HeartConfig::Instance()->GetSimulationDuration(),
+                            HeartConfig::Instance()->GetPrintingTimeStep());
+
+        mpWriter->DefineUnlimitedDimension("Time","msecs", stepper.EstimateTimeSteps()+1); // plus one for start and end points
     }
     else
     {
