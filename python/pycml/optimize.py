@@ -614,7 +614,7 @@ class LookupTableAnalyser(object):
                     state.update(r)
                 # A special case minor optimisation for nary operators
                 if self.config and self.config.options.combine_commutative_tables:
-                    if not state.suitable and isinstance(expr.operator, reduce_commutative_nary):
+                    if not state.suitable() and isinstance(expr.operator(), reduce_commutative_nary):
                         self.check_commutative_tables(expr, operand_states)
             else:
                 # Just recurse into children
@@ -640,9 +640,16 @@ class LookupTableAnalyser(object):
         replaced by tables keyed on the same variable, these can be combined into a new
         application of the same operator as expr, which can then be replaced as a whole
         by a single lookup table, and made an operand of expr.
+        
+        Alternatively, if at least one operand can be replaced by a table, and a subset of
+        other operands do not contain other variables, then they can be included in the single
+        table.
         """
-        table_operands = filter(lambda op: operand_states[id(op)].suitable, expr.operands())
-        # Sort by table_var
+        # Operands that can be replaced by tables
+        table_operands = filter(lambda op: operand_states[id(op)].suitable(), expr.operands())
+        if not table_operands:
+            return
+        # Sort these suitable operands by table_var (map var id to var & operand list, respectively)
         table_vars, table_var_operands = {}, {}
         for oper in table_operands:
             table_var = operand_states[id(oper)].table_var
@@ -651,15 +658,28 @@ class LookupTableAnalyser(object):
                 table_vars[table_var_id] = table_var
                 table_var_operands[table_var_id] = []
             table_var_operands[table_var_id].append(oper)
+        # Figure out if any operands aren't suitable by themselves but could be included in a table
+        potential_operands = {id(None): []}
         for table_var_id in table_vars.keys():
-            if len(table_var_operands[table_var_id]) > 1:
+            potential_operands[table_var_id] = []
+        for op in expr.operands():
+            state = operand_states[id(op)]
+            if not state.suitable() and not state.bad_vars:
+                if not state.table_var in potential_operands:
+                    potential_operands[id(state.table_var)] = []
+                potential_operands[id(state.table_var)].append(op)
+        # Do any combining
+        for table_var_id in table_vars.keys():
+            suitable_opers = table_var_operands[table_var_id] + potential_operands[table_var_id] + potential_operands[id(None)]
+            if len(suitable_opers) > 1:
                 # Create new sub-expression with the suitable operands
-                for oper in table_var_operands[table_var_id]:
-                    expr.xml_remove_child(oper)
-                    oper.next_elem = None
-                new_expr = mathml_apply.create_new(expr, expr.localName, table_var_operands[table_var_id])
+                for oper in suitable_opers:
+                    expr.safe_remove_child(oper)
+                new_expr = mathml_apply.create_new(expr, expr.operator().localName, suitable_opers)
                 expr.xml_append(new_expr)
                 self.annotate_as_suitable(new_expr, table_vars[table_var_id])
+                # Remove the operands with no table_var from consideration with other keying vars
+                potential_operands[id(None)] = []
     
     def annotate_as_suitable(self, expr, table_var):
         """Annotate the given expression as being suitable for a lookup table."""

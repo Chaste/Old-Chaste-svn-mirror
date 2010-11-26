@@ -194,6 +194,11 @@ class CellMLTranslator(object):
                                  omitXmlDeclaration = u'yes').split('\n'))
         raise TranslationError('\n'.join(lines))
 
+    @property
+    def config(self):
+        """Get the current document's configuration store."""
+        return getattr(self.doc, '_cml_config', None)
+
     def translate(self, doc, model_filename, output_filename=None,
                   subsidiary_file_name=None,
                   class_name=None, v_variable=None,
@@ -1231,9 +1236,9 @@ class CellMLTranslator(object):
             factor_type = ''
             row_type = ''
         else:
-            index_type = 'unsigned '
-            factor_type = 'double '
-            row_type = 'double* '
+            index_type = 'const unsigned '
+            factor_type = 'const double '
+            row_type = 'const double* const '
         tables_to_index = set()
         for node in nodeset:
             tables_to_index.update(self.contained_table_indices(node))
@@ -1257,9 +1262,9 @@ class CellMLTranslator(object):
                 self.writeln('EXCEPTION(DumpState("', self.var_display_name(var), ' outside lookup table range", rY));')
             self.writeln('#undef COVERAGE_IGNORE', indent=False)
             self.close_block(blank_line=False)
-            self.writeln('double ', offset, ' = ', varname, ' - ', min, ';')
-            self.writeln('double ', offset_over_step, ' = ', offset, ' * ',
-                         step_inverse, ';')
+            self.writeln(self.TYPE_CONST_DOUBLE, offset, self.EQ_ASSIGN, varname, ' - ', min, self.STMT_END)
+            self.writeln(self.TYPE_CONST_DOUBLE, offset_over_step, self.EQ_ASSIGN,
+                         offset, ' * ', step_inverse, self.STMT_END)
             if self.lt_index_uses_floor:
                 self.writeln(index_type, '_table_index_', i,
                              ' = (unsigned) floor(', offset_over_step, ');')
@@ -1628,9 +1633,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_state_assignments(assign_rY=False, nodeset=nodeset)
             self.writeln()
             if self.use_lookup_tables:
-                self.output_table_index_generation(
-                    indexes_as_member=self.use_backward_euler,
-                    nodeset=nodeset)
+                self.output_table_index_generation(nodeset=nodeset)
             # Output equations
             self.output_comment('Mathematics')
             self.output_equations(nodeset)
@@ -1855,6 +1858,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         param_vars = self.output_cell_parameters()
+        if self.config.options.fast_fixed_timestep:
+            self.writeln_hpp(self.TYPE_CONST_DOUBLE, 'mFixedDt', self.STMT_END)
         # Constructor
         self.set_access('public')
         self.output_constructor([solver1, 'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
@@ -1926,6 +1931,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if i == len(base_class_params)-1: comma = ')'
             else: comma = ','
             self.writeln(param, comma, indent_offset=3)
+        if self.config.options.fast_fixed_timestep:
+            self.writeln(', mFixedDt(HeartConfig::Instance()->GetOdeTimeStep())', indent_offset=1)
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
@@ -2063,7 +2070,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
                     value = self.vector_index('rY', i)
-                self.writeln(self.TYPE_DOUBLE, self.code_name(var),
+                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var),
                              self.EQ_ASSIGN, value, self.STMT_END)
                 self.writeln(self.COMMENT_START, 'Units: ', var.units,
                              '; Initial value: ',
@@ -2099,7 +2106,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             var_names = set([self.code_name(node) for node in nodeset if isinstance(node, cellml_variable)])
         for i, varname in enumerate(self.nonlinear_system_vars):
             if not nodeset or varname in var_names:
-                self.writeln('double ', varname, self.EQ_ASSIGN,
+                self.writeln(self.TYPE_CONST_DOUBLE, varname, self.EQ_ASSIGN,
                              self.vector_index('rCurrentGuess', i), self.STMT_END)
                 #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
@@ -2277,14 +2284,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Output main part of maths
             self.output_state_assignments(nodeset=all_nodes, pointer='pStateVariables')
             if self.use_lookup_tables:
-                self.output_table_index_generation(
-                    indexes_as_member=self.use_backward_euler,
-                    nodeset=all_nodes)
+                self.output_table_index_generation(nodeset=all_nodes)
             self.output_equations(nodeset, zero_stimulus=True)
             self.writeln()
             # Assign the total current to a temporary so we can check for NaN and
             # do units conversion if needed.
-            self.writeln(self.TYPE_DOUBLE, 'i_ionic', self.EQ_ASSIGN, nl=False)
+            self.writeln(self.TYPE_CONST_DOUBLE, 'i_ionic', self.EQ_ASSIGN, nl=False)
             if self.doc._cml_config.i_ionic_negated:
                 self.writeln('-(', nl=False, indent=False)
             plus = False
@@ -2345,10 +2350,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_state_assignments(assign_rY=False, nodeset=all_nodes)
         self.writeln()
         if self.use_lookup_tables:
-            # TODO: Filter tables by available state/protocol variables?
-            self.output_table_index_generation(
-                indexes_as_member=self.use_backward_euler,
-                nodeset=all_nodes)
+            self.output_table_index_generation(nodeset=all_nodes)
         self.output_comment('Mathematics')
         #907: Declare dV/dt
         if dvdt:
@@ -2385,6 +2387,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Outputs ComputeResidual, ComputeJacobian,
         UpdateTransmembranePotential and ComputeOneStepExceptVoltage.
         """
+        if self.config.options.fast_fixed_timestep:
+            dt_name = 'mFixedDt'
+        else:
+            dt_name = 'mDt'
+        if self.conversion_factor:
+            scale = str(self.conversion_factor) + ' * '
+        else:
+            scale = ''
         # Residual
         ##########
         argsize = '[' + str(self.nonlinear_system_size) + ']'
@@ -2401,8 +2411,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True,
-                                               nodeset=nodeset)
+            self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
         self.writeln()
         # Fill in residual
@@ -2412,17 +2421,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
             except ValueError:
                 j = -1
             if j != -1:
-                if self.conversion_factor:
-                    #621: convert if free var is not in milliseconds
-                    self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
-                                 '] - rY[', i, '] - mDt*',
-                                 self.conversion_factor, '*',
-                                 self.code_name(var, ode=True), self.STMT_END)
-                else:
-                    self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
-                                 '] - rY[', i, '] - mDt*',
-                                 self.code_name(var, ode=True), self.STMT_END)
+                self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
+                             '] - rY[', i, '] - ', dt_name, '*', scale,
+                             self.code_name(var, ode=True), self.STMT_END)
         self.close_block()
+        
         # Jacobian
         ##########
         self.output_method_start('ComputeJacobian',
@@ -2439,12 +2442,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True,
-                                               nodeset=nodeset)
-        if self.conversion_factor:
-            self.writeln('const double dt = ', self.conversion_factor, ' * mDt;\n');
-        else:
-            self.writeln('const double dt = mDt;\n')
+            self.output_table_index_generation(nodeset=nodeset|set(map(lambda e: e.math, self.model.solver_info.jacobian.entry)))
+        self.writeln(self.TYPE_CONST_DOUBLE, 'dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END, '\n');
         self.output_equations(nodeset)
         self.writeln()
         # Jacobian entries
@@ -2465,6 +2464,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         # The other methods are protected
         self.writeln_hpp('protected:', indent_offset=-1)
+        
         # UpdateTransmembranePotential
         ##############################
         self.output_method_start('UpdateTransmembranePotential',
@@ -2481,22 +2481,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True,
-                                               nodeset=nodeset)
+            self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
         # Update V
         self.writeln()
-        if self.conversion_factor:
-            #621: convert if free var is not in milliseconds
-            self.writeln('rY[', self.v_index, '] += mDt * ',
-                         self.conversion_factor, '*',
-                         self.code_name(self.state_vars[self.v_index],
-                                        ode=True), self.STMT_END)
-        else:
-            self.writeln('rY[', self.v_index, '] += mDt * ',
-                         self.code_name(self.state_vars[self.v_index],
-                                        ode=True), self.STMT_END)
+        self.writeln('rY[', self.v_index, '] += ', dt_name, ' * ', scale,
+                     self.code_name(self.state_vars[self.v_index],
+                                    ode=True), self.STMT_END)
         self.close_block()
+
         # ComputeOneStepExceptVoltage
         ######################
         self.output_method_start('ComputeOneStepExceptVoltage',
@@ -2531,8 +2524,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True,
-                                               nodeset=nodeset)
+            self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
         # Output g and h calculations
         self.writeln()
@@ -2547,22 +2539,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Update state variables:
         #   rY[i] = (rY[i] + _g_j*mDt) / (1 - _h_j*mDt)
         self.writeln()
-        if self.conversion_factor:
-            self.writeln(self.TYPE_CONST_DOUBLE, 'dt = mDt*',
-                         self.conversion_factor, self.STMT_END)
+        self.writeln(self.TYPE_CONST_DOUBLE, 'dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END)
         for i, var in enumerate(self.state_vars):
             try:
                 j = linear_vars.index(var)
             except ValueError:
                 j = -1
             if j != -1:
-                if self.conversion_factor:
-                    #621 TODO: convert if free var is not in milliseconds
-                    self.writeln('rY[', i, '] = (rY[', i, '] + _g_', j,
-                                 '*dt) / (1 - _h_', j, '*dt);')
-                else:
-                    self.writeln('rY[', i, '] = (rY[', i, '] + _g_', j,
-                                 '*mDt) / (1 - _h_', j, '*mDt);')
+                self.writeln('rY[', i, '] = (rY[', i, '] + _g_', j, '*dt) / (1 - _h_', j, '*dt);')
         # Set up the Newton iteration
         self.writeln()
         self.writeln('double _guess[', self.nonlinear_system_size,
@@ -2589,7 +2573,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for j, i in enumerate(idx_map):
             self.writeln('rY[', i, '] = _guess[', j, '];')
         self.close_block()
-        return
+        
+        # ComputeExceptVoltage
+        # Special case version for a little extra speed!
+        if self.config.options.fast_fixed_timestep:
+            self.output_method_start('ComputeExceptVoltage', ['double tStart', 'double tEnd'],
+                                     'void', access='public')
+            self.open_block()
+            self.writeln('assert(tEnd - tStart - mFixedDt > -1e-12);')
+            self.writeln('assert(tEnd - tStart - mFixedDt < 1e-12);')
+            self.writeln('ComputeOneStepExceptVoltage(tStart);')
+            self.close_block(True)
     
     def output_model_attributes(self):
         """Output any named model attributes defined in metadata.
@@ -4752,8 +4746,8 @@ def get_options(args, default_options=None):
     parser.add_option('-y', '--dll', '--dynamically-loadable',
                       dest='dynamically_loadable',
                       action='store_true', default=False,
-                      help="add code to allow the model to be compiled to a "
-                      "shared library and dynamically loaded"
+                      help="add code to allow the model to be compiled to a"
+                      " shared library and dynamically loaded"
                       " (only works if -t Chaste is used)")
     parser.add_option('--use-chaste-stimulus',
                       action='store_true', default=False,
@@ -4763,6 +4757,10 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="perform units conversions at interfaces to Chaste."
                       " (only works if -t Chaste is used)")
+    parser.add_option('--fast-fixed-timestep',
+                      action='store_true', default=False,
+                      help="[experimental] fix ODE timestep to be equal to the PDE timestep"
+                      " when the cell was created.  Only used by backward Euler cells.")
     parser.add_option('-m', '--use-modifiers',
                       action='store_true', default=False,
                       help="[experimental] add modifier functions for certain"
@@ -4806,15 +4804,21 @@ def get_options(args, default_options=None):
                       help="[debug] use the old LT layout, with poorer cache"
                       " performance")
     # Settings for partial evaluation
+    parser.add_option('--member-vars', dest='kept_vars_as_members',
+                      action='store_true', default=True,
+                      help="store kept variables as members")
     parser.add_option('--no-member-vars', dest='kept_vars_as_members',
-                      action='store_false', default=True,
-                      help="[debug] don't store kept variables as members")
+                      action='store_false',
+                      help="don't store kept variables as members")
+    parser.add_option('--pe-convert-power',
+                      action='store_true', default=False,
+                      help="convert pow(x,3) to x*x*x; similarly for powers 2 & 4.")
     parser.add_option('--no-partial-pe-commutative', dest='partial_pe_commutative',
                       action='store_false', default=True,
-                      help="[debug] don't combine static operands of dynamic commutative associative applys")
+                      help="don't combine static operands of dynamic commutative associative applys")
     parser.add_option('--no-pe-instantiate-tables', dest='pe_instantiate_tables',
                       action='store_false', default=True,
-                      help="[debug] don't instantiate definitions that will be tables regardless of usage")
+                      help="don't instantiate definitions that will be tables regardless of usage")
 
     options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:

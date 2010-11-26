@@ -3755,6 +3755,18 @@ class mathml(element_base):
         if self._cml_model is None:
             self._cml_model = self.rootNode.model
         return self._cml_model
+    
+    def safe_remove_child(self, child, parent=None):
+        """Remove a child element from parent in such a way that it can safely be added elsewhere."""
+        if parent is None: parent = self
+        parent.xml_remove_child(child)
+        child.next_elem = None
+        
+    def replace_child(self, old, new, parent=None):
+        """Replace child old of parent with new."""
+        if parent is None: parent = self
+        parent.xml_insert_after(old, new)
+        self.safe_remove_child(old, parent)
 
     def eval(self, elt):
         """Evaluate the given element.
@@ -4949,8 +4961,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                 # Evaluate self and replace by a <cn>, <true> or <false>
                 new_elt = self._eval_self()
                 self._xfer_complexity(new_elt)
-                self.xml_parent.xml_insert_after(self, new_elt)
-                self.xml_parent.xml_remove_child(self)
+                self.replace_child(self, new_elt, self.xml_parent)
                 # Update usage counts
                 self._update_usage_counts(self, remove=True)
             elif bt == BINDING_TIMES.dynamic:
@@ -5339,8 +5350,7 @@ class mathml_piecewise(mathml_constructor, mathml_units_mixin):
                                           remove=True)
             # Do the replace
             self._xfer_complexity(new_elt)
-            self.xml_parent.xml_insert_after(self, new_elt)
-            self.xml_parent.xml_remove_child(self)
+            self.replace_child(self, new_elt, self.xml_parent)
             # May need to reduce our replacement
             self._reduce_elt(new_elt)
         return
@@ -5528,8 +5538,7 @@ class reduce_commutative_nary(object):
             if len(static_opers) > 1:
                 # Remove them from app
                 for oper in static_opers:
-                    app.xml_remove_child(oper)
-                    oper.next_elem = None
+                    app.safe_remove_child(oper)
                 # Create the new expression
                 new_expr = mathml_apply.create_new(self, self.localName, static_opers)
                 # Put it in the model and reduce it to evaluate it properly
@@ -5630,18 +5639,15 @@ class mathml_divide(mathml_operator, mathml_units_mixin_choose_nearest):
             if bt == BINDING_TIMES.static:
                 # Create inverse expression and evaluate it
                 dummy = self.xml_create_element(u'dummy', NSS[u'm'])
-                app.xml_insert_after(ops[1], dummy)
-                app.xml_remove_child(ops[1])
+                app.replace_child(ops[1], dummy)
                 new_expr = mathml_apply.create_new(
                     self, u'divide', [(u'1', u'dimensionless'),
                                       ops[1]])
-                app.xml_insert_before(dummy, new_expr)
-                app.xml_remove_child(dummy)
+                app.replace_child(dummy, new_expr)
                 app._reduce_elt(new_expr)
                 # Change this expression to a <times>
                 times = self.xml_create_element(u'times', NSS[u'm'])
-                app.xml_insert_after(self, times)
-                app.xml_remove_child(self)
+                app.replace_child(self, times)
                 # And finally reduce it as normal
                 app._reduce(check_operator=False)
             else:
@@ -5716,6 +5722,38 @@ class mathml_power(mathml_operator, mathml_units_mixin):
         if len(ops) != 2:
             self.wrong_number_of_operands(len(ops), [2])
         return self.eval(ops[0]) ** self.eval(ops[1])
+
+    def _reduce(self):
+        """Reduce this expression by evaluating its static parts.
+
+        If the whole expression is static, proceed as normal for an <apply>.
+        Otherwise check if the exponent is static and the expression being exponentiated
+        is a <ci>.  If so, and the exponent is equal to 2, 3, or 4, convert the expression
+        to a multiplication.
+        """
+        app = self.xml_parent
+        bt = app._get_binding_time()
+        converted = False
+        if bt != BINDING_TIMES.static and self.model.get_option('pe_convert_power'):
+            base, expt = list(app.operands())
+            expt_bt = app._get_element_binding_time(expt)
+            if expt_bt == BINDING_TIMES.static and isinstance(base, mathml_ci):
+                expt_val = self.eval(expt)
+                if expt_val in [2,3,4]:
+                    # Do the conversion
+                    app.safe_remove_child(base)
+                    operands = [base]
+                    for _ in range(1, expt_val):
+                        operands.append(base.clone_self())
+                        base.variable._used()
+                    new_app = mathml_apply.create_new(app, u'times', operands)
+                    app.replace_child(app, new_app, app.xml_parent)
+                    # Finally, reduce the new expression, just to be safe!
+                    new_app._reduce()
+                    converted = True
+        if not converted:
+            # Evaluate this expression as normal
+            app._reduce(check_operator=False)
 
 class mathml_root(mathml_operator, mathml_units_mixin):
     """Class representing the MathML <root> operator."""
