@@ -181,6 +181,54 @@ public:
     }
 
     /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
+     * @param index  The global node index
+     * @return a vector of the coordinates of the node
+     */
+    std::vector<double> GetNode(unsigned index)
+    {
+        return mpMeshReader->GetNode(index);
+    }
+
+
+    /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
+     * @param index  The global element index
+     * @return a vector of the node indices of the element (and any attribute infomation, if there is any)
+     */
+    ElementData GetElementData(unsigned index)
+    {
+        return mpMeshReader->GetElementData(index);
+    }
+
+
+    /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
+     * @param index  The global face index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    ElementData GetFaceData(unsigned index)
+    {
+        return mpMeshReader->GetFaceData(index);
+    }
+
+
+    /**
+     *  Normally throws an exception.  When a NCL file is available, returns a list of the elements
+     *  that contain the node (only available for binary files).
+     *
+     * @param index  The global node index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    std::vector<unsigned> GetContainingElementIndices(unsigned index)
+    {
+        return mpMeshReader->GetContainingElementIndices(index);
+    }
+
+    /**
      * Get the base name (less any extension) for mesh files.  Only implemented for some mesh types.
      * Method uses the public method of the delegated mesh reader
      */
