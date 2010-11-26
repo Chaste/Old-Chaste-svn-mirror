@@ -41,10 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * which may be read via
  *  - TrianglesMeshReader
  *  - MemfemMeshReader
- * 
+ *
  * Probing is done during construction.
- * 
- * Thereafter all public methods use the public methods of the delegated class and 
+ *
+ * Thereafter all public methods use the public methods of the delegated class and
  * exceptions are passed back to the caller without being caught locally
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -86,7 +86,7 @@ public:
 #endif // CHASTE_VTK
                     std::string eol("\n");
                     std::string combined_message = "Could not open appropriate mesh files for " + pathBaseName + eol;
-                    combined_message += "Triangle format: " + r_triangles_exception.GetShortMessage() + eol; 
+                    combined_message += "Triangle format: " + r_triangles_exception.GetShortMessage() + eol;
                     combined_message += "Memfem format: " + r_memfem_exception.GetShortMessage() + eol;
 #ifdef CHASTE_VTK
                     combined_message += "Vtk format: " + r_vtk_exception.GetShortMessage() + eol;
@@ -97,10 +97,10 @@ public:
 #endif // CHASTE_VTK
             }
         }
-        
+
     }
-    
-    
+
+
     /**
      * Destructor
      */
@@ -110,7 +110,7 @@ public:
     }
 
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     unsigned GetNumNodes() const
@@ -118,7 +118,7 @@ public:
         return mpMeshReader->GetNumNodes();
     }
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     unsigned GetNumElements() const
@@ -126,14 +126,14 @@ public:
         return mpMeshReader->GetNumElements();
     }
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     unsigned GetNumFaces() const
     {
         return mpMeshReader->GetNumFaces();
     }
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     unsigned GetNumElementAttributes() const
@@ -141,7 +141,7 @@ public:
         return mpMeshReader->GetNumElementAttributes();
     }
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     unsigned GetNumFaceAttributes() const
@@ -149,15 +149,15 @@ public:
         return mpMeshReader->GetNumFaceAttributes();
     }
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     void Reset()
     {
         mpMeshReader->Reset();
     }
-    
-    /** 
+
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     std::vector<double> GetNextNode()
@@ -165,21 +165,21 @@ public:
         return mpMeshReader->GetNextNode();
     }
 
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     ElementData GetNextElementData()
     {
         return mpMeshReader->GetNextElementData();
     }
-    /** 
+    /**
      * Method uses the public method of the delegated mesh reader
      */
     ElementData GetNextFaceData()
     {
         return mpMeshReader->GetNextFaceData();
     }
-    
+
     /**
      * Get the base name (less any extension) for mesh files.  Only implemented for some mesh types.
      * Method uses the public method of the delegated mesh reader
@@ -188,7 +188,24 @@ public:
     {
         return mpMeshReader->GetMeshFileBaseName();
     }
-  
+
+    /**
+     * Returns true if reading binary files, false if reading ascii files.
+     */
+    bool IsFileFormatBinary()
+    {
+        return mpMeshReader->IsFileFormatBinary();
+    }
+
+    /**
+     * Returns true if there is a node connectivity list (NCL) file available.
+     */
+    bool HasNclFile()
+    {
+        return mpMeshReader->HasNclFile();
+    }
+
+
 };
 
 #endif //_GENERICMESHREADER_HPP_
