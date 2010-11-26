@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedContractionModel.hpp"
 #include "AbstractCardiacMechanicsSolver.hpp"
 #include "FineCoarseMeshPair.hpp"
-
+#include "AbstractConductivityModifier.hpp"
 
 /**
  *  CardiacElectroMechanicsProblem
@@ -67,13 +67,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *       - integrate contraction models (implicitly if NHS) to get for active tension
  *       - use this active tension in computing the stress for that guess of the deformation
  *  end
- *
- *  Note: invC is not used in the monodomain equations (code added but commented
- *  out) we have shown that this does not affect the mechanics results (might
- *  affect the electrics).
  */
 template<unsigned DIM>
 class CardiacElectroMechanicsProblem
+    : public AbstractConductivityModifier<DIM,DIM> // this only inherits from this class so it can be passed to the tissue to
+                                                   // allow deformation-based altering of the conductivity
 {
 
 friend class TestCardiacElectroMechanicsProblem;
@@ -139,6 +137,11 @@ protected :
     std::vector<double> mStretchesForEachMechanicsElement;
     /** A vector of deformation gradients (each entry a matrix), one for each element in the mechanics mesh */
     std::vector<c_matrix<double,DIM,DIM> > mDeformationGradientsForEachMechanicsElement;
+
+    /** A pair of (element_index, deformed_conductivity) for the last element on which the deformed conductivity
+     *  sigma_def = F^{-1} sigma_undef F^{-T} has been computed. Used in rGetModifiedConductivityTensor().
+     */
+    std::pair<unsigned, c_matrix<double,DIM,DIM> > mLastModifiedConductivity;
 
     /** If this is true then the deformation is not allowed to affect the electrics
      *  (either through altering conductivities (not implemented yet anyway), or through
@@ -268,6 +271,15 @@ public :
     {
         mNoMechanoElectricFeedback = false;
     }
+
+    /**
+     *  The implementation of the pure method defined in the base class AbstractConductivityModifier. The tissue class will
+     *  call this method.
+     *  @param elementIndex Index of current element
+     *  @param rOriginalConductivity Reference to the original (for example, undeformed) conductivity tensor
+     *  @return Reference to a modified conductivity tensor.
+     */
+    c_matrix<double,DIM,DIM>& rGetModifiedConductivityTensor(unsigned elementIndex, const c_matrix<double,DIM,DIM>& rOriginalConductivity);
 
 //// #1245
 //    void SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion);

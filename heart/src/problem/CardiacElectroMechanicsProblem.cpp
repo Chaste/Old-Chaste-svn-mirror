@@ -46,9 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ImplicitCardiacMechanicsSolver.hpp"
 #include "ExplicitCardiacMechanicsSolver.hpp"
-// if including Cinv in monobidomain equations
-//#include "NodewiseData.hpp"
-
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "VoltageInterpolaterOntoMechanicsMesh.hpp"
@@ -161,6 +158,34 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
     *mpWatchedLocationFile << V << "\n";
     mpWatchedLocationFile->flush();
 }
+
+template<unsigned DIM>
+c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedConductivityTensor(unsigned elementIndex, const c_matrix<double,DIM,DIM>& rOriginalConductivity)
+{
+    if(mLastModifiedConductivity.first==elementIndex)
+    {
+        // if already computed on this electrics element, just return conductivity
+        return mLastModifiedConductivity.second;
+    }
+    else
+    {
+        // new element, need to compute it.
+
+        // first get the deformation gradient for this electrics element
+        unsigned containing_mechanics_elem = mpMeshPair->rGetCoarseElementsForFineElementCentroids()[elementIndex];
+        c_matrix<double,DIM,DIM>& r_deformation_gradient = mDeformationGradientsForEachMechanicsElement[containing_mechanics_elem];
+
+        // compute sigma_def = F^{-1} sigma_undef F^{-T}
+        c_matrix<double,DIM,DIM> inv_F = Inverse(r_deformation_gradient);
+        mLastModifiedConductivity.second = prod(inv_F, rOriginalConductivity);
+        mLastModifiedConductivity.second = prod(mLastModifiedConductivity.second, trans(inv_F));
+
+        // save the current element and return the tensor
+        mLastModifiedConductivity.first = elementIndex;
+    	return mLastModifiedConductivity.second;
+    }
+}
+
 
 //
 //
@@ -278,8 +303,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     LOG(2, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
     LOG(2, "Contraction model ode timestep " << mContractionModelOdeTimeStep);
     LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
-#define COVERAGE_IGNORE
-/// \todo Cover these lines
+
     if(mpElectricsMesh != NULL)
     {
         LOG(2, "Electrics mesh has " << mpElectricsMesh->GetNumNodes() << " nodes");
@@ -288,13 +312,15 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     {
         LOG(2, "Mechanics mesh has " << mpMechanicsMesh->GetNumNodes() << " nodes");
     }
-#undef COVERAGE_IGNORE
+
     mIsWatchedLocation = false;
     mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
 
     mFibreSheetDirectionsFile = "";
     mNoMechanoElectricFeedback = true;
+
+    mLastModifiedConductivity.first = UNSIGNED_UNSET; //important
 
 //    mpImpactRegion=NULL;
 }
@@ -391,6 +417,12 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         
         // initialise the store of the F in each mechanics element (one constant value of F) in each 
         mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
+
+        // tell the abstract tissue class that the conductivities need to be modified, passing in this class
+        // (which is of type AbstractConductivityModifier
+        mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);
+
+//todo set matrix to be reassembled somewhere, and test
     }
         
     if(mWriteOutput)
@@ -472,8 +504,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
 		/////////////////////////////////////////////////////////////////////////////////////
         ////
-        ////  Pass the current deformation infomation back to the electrophysiology
-        ////  solver
+        ////  Pass the current deformation information back to the electro-physiology
+        ////  solver (MEF)
         ////
         //////////////////////////////////////////////////////////////////////////////////////
         if(!mNoMechanoElectricFeedback)
@@ -544,7 +576,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         /////////////////////////////////////////////////////////////////////////
         ////
-        ////  Pass the electrical information back to the contraction models:
+        ////  Pass the electrical information to the contraction models:
         ////
         /////////////////////////////////////////////////////////////////////////
 
@@ -744,6 +776,8 @@ std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDef
 {
     return mpCardiacMechSolver->rGetDeformedPosition();
 }
+
+
 
 
 /////////////////////////////////////////////////////////////////////

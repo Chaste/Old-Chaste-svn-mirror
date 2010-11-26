@@ -240,10 +240,6 @@ public:
 
         // hack into the mechanics solver and set up the current solution so that it corresponds to
         // the square of tissue being stretched
-        //
-        // Note after one timestep the tissue will have returned to the resting state as there are no
-        // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
-        // solver. 
         for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
         {
             double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
@@ -251,8 +247,26 @@ public:
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*0.2;
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
         }
-            
+
+        // we are going to get the modified conductivity tensor directly, without (initially) calling solve,
+        // so need to do the following, which is normally done inside the Solve
+        problem.mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(problem.mDeformationGradientsForEachMechanicsElement, problem.mStretchesForEachMechanicsElement);
+
+        // test directly that the conductivity is being computed using the deformation
+        for(unsigned i=0; i<electrics_mesh.GetNumElements(); i++)
+        {
+            // sigma = F^{-1} sigma_undef F^{-T}, F=diag(1.2, 1.0/1.2), sigma = diag(1.75,1.75).
+            const c_matrix<double,2,2>& r_tensor = problem.mpMonodomainProblem->GetMonodomainTissue()->rGetIntracellularConductivityTensor(0);
+            TS_ASSERT_DELTA(r_tensor(0,0), 1.75/(1.2*1.2), 1e-9);
+            TS_ASSERT_DELTA(r_tensor(0,1), 0.0,            1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,0), 0.0,            1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,1), 1.75*(1.2*1.2), 1e-9);
+        }
+
                 
+        // Note after one timestep the tissue will have returned to the resting state as there are no
+        // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
+        // solver.
         problem.Solve();
         
         // Get the voltage at the start and end of the simulation, check the stretch was passed down to the 
