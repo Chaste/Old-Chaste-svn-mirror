@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "petscao.h"
 
-#include "Debug.hpp"
+#include "Warnings.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
@@ -1316,6 +1316,9 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
     {
         //It's a short mesh and this process owns no nodes
+       std::stringstream msg;
+       msg << "No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()";
+       WARNING(msg.str());
        return;
     }
     /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
@@ -1843,14 +1846,10 @@ ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Calc
     }
     catch (Exception& e)
     {
-        std::cout << PetscTools::GetMyRank() << ": ("<< my_minimum_point.rGetLocation()[0] << ", "
-                                                     << my_minimum_point.rGetLocation()[1] << ", "
-                                                     << my_minimum_point.rGetLocation()[2] << ") "
-                                             << ", ("<< my_maximum_point.rGetLocation()[0] << ", "
-                                                     << my_maximum_point.rGetLocation()[1] << ", "
-                                                     << my_maximum_point.rGetLocation()[2] << ") " << std::endl;
+#define COVERAGE_IGNORE
         PetscTools::ReplicateException(true);
         throw e;
+#undef COVERAGE_IGNORE
     }
 
     PetscTools::ReplicateException(false);
