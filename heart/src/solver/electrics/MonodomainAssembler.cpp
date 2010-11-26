@@ -40,7 +40,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    // get bidomain parameters
+    // get parameters
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
 

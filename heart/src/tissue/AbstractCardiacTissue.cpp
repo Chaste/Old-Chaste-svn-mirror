@@ -44,7 +44,8 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     : mpMesh(pCellFactory->GetMesh()),
       mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
-      mMeshUnarchived(false)
+      mMeshUnarchived(false),
+      mpConductivityModifier(NULL)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory != NULL);
@@ -285,7 +286,14 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetIntracellularConductivityTensor(unsigned elementIndex)
 {
     assert( mpIntracellularConductivityTensors);
-    return (*mpIntracellularConductivityTensors)[elementIndex];
+    if(mpConductivityModifier==NULL)
+    {
+        return (*mpIntracellularConductivityTensors)[elementIndex];
+    }
+    else
+    {
+        return mpConductivityModifier->rGetModifiedConductivityTensor(elementIndex, (*mpIntracellularConductivityTensors)[elementIndex]);
+    }
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -385,6 +393,15 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::pGetMesh() const
 {
     return mpMesh;
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SetConductivityModifier(AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* pModifier)
+{
+    assert(pModifier!=NULL);
+    assert(mpConductivityModifier==NULL); // shouldn't be called twice for example, or with two different modifiers (remove this assert
+                                          // if for whatever reason want to be able to overwrite modifiers
+    mpConductivityModifier = pModifier;
 }
 
 

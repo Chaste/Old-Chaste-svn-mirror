@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "AbstractDynamicallyLoadableEntity.hpp"
 #include "DynamicModelLoaderRegistry.hpp"
+#include "AbstractConductivityModifier.hpp"
 
 /**
  * Class containing "tissue-like" functionality used in monodomain and bidomain
@@ -167,6 +168,10 @@ private:
         assert(mpDistributedVectorFactory->GetLow()==mpMesh->GetDistributedVectorFactory()->GetLow());
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
+
+        // not archiving mpConductivityModifier for the time being (mechanics simulations are only use-case at the moment, and they
+        // do not get archived...). mpConductivityModifier has to be reset to NULL upon load.
+        mpConductivityModifier = NULL;
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
@@ -232,6 +237,14 @@ protected:
      * Path to the location of the fibre file without extension. 
      */
     std::string mFibreFilePathNoExtension;
+
+    /**
+     * This class, if not NULL, will be used to modify the conductivity that is obtained from
+     * mpIntracellularConductivityTensors when rGetIntracellularConductivityTensor() is called.
+     * For example, it is required when conductivities become deformation dependent.
+     */
+    AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* mpConductivityModifier;
+
 
 public:
     /**
@@ -339,6 +352,13 @@ public:
      *  @return pointer to mesh object
      */
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pGetMesh() const;
+
+    /**
+     * Set a modifier class which will be used to modifier a conductivity obtained from mpIntracellularConductivityTensors
+     * when rGetIntracellularConductivityTensor() is called. For example, it is required when conductivities become deformation-dependent.
+     * @param pModifier Pointer to the concrete modifier class
+     */
+    void SetConductivityModifier(AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* pModifier);
 
     /**
      * Save our tissue to an archive.

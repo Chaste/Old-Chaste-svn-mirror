@@ -83,6 +83,25 @@ public:
 };
 
 
+class SimpleConductivityModifier : public AbstractConductivityModifier<1,1>
+{
+private:
+    c_matrix<double,1,1> mTensor;
+
+public:
+	SimpleConductivityModifier()
+	    : AbstractConductivityModifier<1,1>()
+	{
+	}
+
+	c_matrix<double,1,1>& rGetModifiedConductivityTensor(unsigned elementIndex, const c_matrix<double,1,1>& rOriginalConductivity)
+	{
+	    mTensor(0,0) = (elementIndex+2.0)*rOriginalConductivity(0,0); //so conductivity on element 0 gets scaled by 2, and by 3 on element 1
+		return mTensor;
+	}
+};
+
+
 class TestMonodomainTissue : public CxxTest::TestSuite
 {
 public:
@@ -242,6 +261,29 @@ public:
 
         VecDestroy(voltage);
         VecDestroy(voltage2);
+    }
+
+    void TestGetConductivityAndConductivityModifier() throw(Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(1.0, 1.0); // [0,1] with h=1.0, ie 2 node mesh
+
+        MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
+        MonodomainTissue<1> monodomain_tissue( &cell_factory );
+
+        double orig_conductivity_0 = monodomain_tissue.rGetIntracellularConductivityTensor(0)(0,0);
+        double orig_conductivity_1 = monodomain_tissue.rGetIntracellularConductivityTensor(1)(0,0);
+        TS_ASSERT_DELTA(orig_conductivity_0, 1.75, 1e-9); // hard-coded using default
+        TS_ASSERT_DELTA(orig_conductivity_1, 1.75, 1e-9); // hard-coded using default
+
+        SimpleConductivityModifier modifier;
+        monodomain_tissue.SetConductivityModifier(&modifier);
+
+        TS_ASSERT_DELTA(monodomain_tissue.rGetIntracellularConductivityTensor(0)(0,0), 2*orig_conductivity_0, 1e-9);
+        TS_ASSERT_DELTA(monodomain_tissue.rGetIntracellularConductivityTensor(1)(0,0), 3*orig_conductivity_1, 1e-9);
     }
 
     void TestSaveAndLoadCardiacTissue() throw (Exception)
