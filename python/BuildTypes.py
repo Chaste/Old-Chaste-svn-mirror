@@ -513,7 +513,7 @@ class Profile(GccDebug):
         self.is_profile = True
     
     def GetTestRunnerCommand(self, exefile, exeflags=''):
-        "Run test with a profiler and rename gmon.out"
+        """Run test then run profiler."""
         return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' ' + exefile
 
     def SetNumProcesses(self, np):
@@ -526,7 +526,7 @@ class LineProfile(Profile):
         self.build_dir = 'line_profile'
 
     def GetTestRunnerCommand(self, exefile, exeflags=''):
-        "Run test with a profiler and rename gmon.out"
+        """Run test then run profiler."""
         return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' -l ' + exefile
 
 class GoogleProfile(GccDebug):
