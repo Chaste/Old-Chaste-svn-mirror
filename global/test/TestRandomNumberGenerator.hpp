@@ -208,11 +208,12 @@ public:
 //    void TestLotsOfRandomNormals() throw(Exception)
 //    {
 //        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-//        for (unsigned i=0; i<1e10; i++)
+//        for (long unsigned i=0; i<1e10; i++)
 //        {
 //            p_gen->StandardNormalRandomDeviate();
 //        }
 //    }
+
 };
 
 #endif /*TESTRANDOMNUMBERGENERATOR_HPP_*/
