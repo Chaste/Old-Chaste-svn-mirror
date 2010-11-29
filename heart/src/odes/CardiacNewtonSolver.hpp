@@ -179,8 +179,7 @@ protected:
                 mResidual[ii] -= fact*mResidual[i];
             }
         }
-        /*This must be int, since an unsigned down-loop wouldn't terminate*/
-        for (int i=SIZE-1; i>=0; i--)
+        for (unsigned i=SIZE; i-- > 0; )
         {
             mUpdate[i] = mResidual[i];
             for (unsigned j=i+1; j<SIZE; j++)

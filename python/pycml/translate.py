@@ -1151,6 +1151,14 @@ class CellMLTranslator(object):
             self.close_block()
         self.writeln()
         return
+    
+    def output_for_loop(self, init, test, count, body, subst={}):
+        """Output a for loop."""
+        self.writeln('for (', init%subst, '; ', test%subst, '; ', count%subst, ')')
+        self.open_block()
+        for line in body:
+            self.writeln(line%subst)
+        self.close_block(blank_line=False)
 
     def output_lut_row_lookup_methods(self):
         """Write methods that return a whole row of a lookup table.
@@ -1159,20 +1167,39 @@ class CellMLTranslator(object):
         """
         self.output_comment('Row lookup methods')
         self.output_comment('using linear interpolation')
+        # Define code fragments for use later
+        if self.config.options.alternative_row_lookup and not self.bad_tables_for_cache:
+            pre_loop = 'memcpy(%(row_var)s, %(table_var)s[i], %(num_tables)s*sizeof(double));'
+            y1 = lambda idx: '%(row_var)s[j]'
+            row_eq = '+='
+        else:
+            pre_loop = ''
+            y1 = lambda idx: self.lut_access_code(idx, 'j', 'i')
+            row_eq = '= y1 +'
+        y2 = lambda idx: self.lut_access_code(idx, 'j', 'i+1')
+        init, test, count = 'unsigned j=0', 'j < %(num_tables)s', 'j++'
+        assign = lambda name, val: self.TYPE_CONST_DOUBLE + name + self.EQ_ASSIGN + val + self.STMT_END
+        # Output the code
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
-            self.writeln('double* _lookup_', idx,
-                         '_row(unsigned i, double factor)')
+            subst = {'idx': idx, 'num_tables': num_tables, 'row_eq': row_eq,
+                     'row_var': '_lookup_table_%s_row' % idx,
+                     'table_var': '_lookup_table_%s' % idx}
+            self.writeln('double* _lookup_', idx, '_row(unsigned i, double factor)')
             self.open_block()
-            self.writeln('for (unsigned j=0; j<', num_tables, '; j++)')
-            self.open_block()
-            self.writeln(self.TYPE_DOUBLE, 'y1', self.EQ_ASSIGN,
-                         self.lut_access_code(idx, 'j', 'i'), self.STMT_END)
-            self.writeln(self.TYPE_DOUBLE, 'y2', self.EQ_ASSIGN,
-                         self.lut_access_code(idx, 'j', 'i+1'), self.STMT_END)
-            self.writeln('_lookup_table_', idx, '_row[j]',
-                         ' = y1 + (y2-y1)*factor;')
-            self.close_block(blank_line=False)
+            if self.config.options.alternative_row_lookup2 and not self.bad_tables_for_cache:
+                self.output_for_loop(init, test, count,
+                                     ['%(row_var)s[j] = ' + y2(idx) + ' - ' + y1(idx) + ';'], subst)
+                self.output_for_loop(init, test, count,
+                                     ['%(row_var)s[j] *= factor;'], subst)
+                self.output_for_loop(init, test, count,
+                                     ['%(row_var)s[j] += ' + y1(idx) + ';'], subst)
+            else:
+                self.writeln(pre_loop % subst)
+                body = [assign('y1', y1(idx)),
+                        assign('y2', y2(idx)),
+                        '%(row_var)s[j] %(row_eq)s (y2-y1)*factor;']
+                self.output_for_loop(init, test, count, body, subst)
             self.writeln('return _lookup_table_', idx, '_row;')
             self.close_block()
         self.writeln()
@@ -1250,18 +1277,19 @@ class CellMLTranslator(object):
             offset = '_offset_' + i
             offset_over_step = offset + '_over_table_step'
             varname = self.code_name(var)
-            self.writeln('if (', varname, '>', max,
-                         ' || ', varname, '<', min, ')')
-            self.open_block()
-            self.writeln('#define COVERAGE_IGNORE', indent=False)
-            if self.constrain_table_indices:
-                self.writeln('if (', varname, '>', max, ') ', varname,
-                             ' = ', max, ';')
-                self.writeln('else ', varname, ' = ', max, ';')
-            else:
-                self.writeln('EXCEPTION(DumpState("', self.var_display_name(var), ' outside lookup table range", rY));')
-            self.writeln('#undef COVERAGE_IGNORE', indent=False)
-            self.close_block(blank_line=False)
+            if self.config and self.config.options.check_lt_bounds:
+                self.writeln('if (', varname, '>', max,
+                             ' || ', varname, '<', min, ')')
+                self.open_block()
+                self.writeln('#define COVERAGE_IGNORE', indent=False)
+                if self.constrain_table_indices:
+                    self.writeln('if (', varname, '>', max, ') ', varname,
+                                 ' = ', max, ';')
+                    self.writeln('else ', varname, ' = ', max, ';')
+                else:
+                    self.writeln('EXCEPTION(DumpState("', self.var_display_name(var), ' outside lookup table range", rY));')
+                self.writeln('#undef COVERAGE_IGNORE', indent=False)
+                self.close_block(blank_line=False)
             self.writeln(self.TYPE_CONST_DOUBLE, offset, self.EQ_ASSIGN, varname, ' - ', min, self.STMT_END)
             self.writeln(self.TYPE_CONST_DOUBLE, offset_over_step, self.EQ_ASSIGN,
                          offset, ' * ', step_inverse, self.STMT_END)
@@ -1532,6 +1560,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
         self.writeln('#include <memory>')
+        if self.config.options.alternative_row_lookup:
+            self.writeln('#include <cstring> // For memcpy')
         if self.use_backward_euler:
             self.writeln_hpp('#include "AbstractBackwardEulerCardiacCell.hpp"')
             self.writeln('#include "CardiacNewtonSolver.hpp"')
@@ -4783,22 +4813,30 @@ def get_options(args, default_options=None):
     parser.add_option('--row-lookup-method',
                       action='store_true', default=True,
                       help="add and use a method to look up a whole row of a table")
-    parser.add_option('--no-row-lookup-method',
-                      action='store_false', dest='row_lookup_method',
+    parser.add_option('--no-row-lookup-method', dest='row_lookup_method',
+                      action='store_false',
                       help="don't add and use a method to look up a whole row of a table")
+    parser.add_option('--alternative-row-lookup',
+                      action='store_true', default=False,
+                      help="[experimental] use an alternative style of row lookup method")
+    parser.add_option('--alternative-row-lookup2',
+                      action='store_true', default=False,
+                      help="[experimental] use an alternative style of row lookup method")
     parser.add_option('--combine-commutative-tables',
                       action='store_true', default=False,
                       help="optimise a special corner case to reduce the number of tables."
                       " See documentation for details.")
     parser.add_option('--lt-index-uses-floor',
                       action='store_true', default=False,
-                      help="use floor() to calculate LT indices, instead of "
-                      "just casting")
+                      help="use floor() to calculate LT indices, instead of just casting")
     parser.add_option('--constrain-table-indices',
                       action='store_true', default=False,
                       help="constrain lookup table index variables to remain"
                       " within the bounds specified, rather than throwing an"
                       " exception if they go outside the bounds")
+    parser.add_option('--no-check-lt-bounds', dest='check_lt_bounds',
+                      action='store_false', default=True,
+                      help="[unsafe] don't check for LT indexes going outside the table bounds")
     parser.add_option('--bad-lt-layout-for-cache', dest='bad_tables_for_cache',
                       action='store_true', default=False,
                       help="[debug] use the old LT layout, with poorer cache"
