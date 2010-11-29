@@ -201,6 +201,18 @@ public:
             }
         }
     }
+
+    /**
+     * \todo #1657 Make this test pass!
+     */
+//    void TestLotsOfRandomNormals() throw(Exception)
+//    {
+//        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+//        for (unsigned i=0; i<1e10; i++)
+//        {
+//            p_gen->StandardNormalRandomDeviate();
+//        }
+//    }
 };
 
 #endif /*TESTRANDOMNUMBERGENERATOR_HPP_*/
