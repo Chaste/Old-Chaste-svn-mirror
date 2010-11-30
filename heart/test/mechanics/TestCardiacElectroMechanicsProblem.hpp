@@ -252,15 +252,22 @@ public:
         // so need to do the following, which is normally done inside the Solve
         problem.mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(problem.mDeformationGradientsForEachMechanicsElement, problem.mStretchesForEachMechanicsElement);
 
+        // just get the default conductivity so don't to hardcode it (1.75 at the moment)
+        c_vector<double, 2> conductivities;
+        HeartConfig::Instance()->GetIntracellularConductivities(conductivities);
+        assert((conductivities(0)-conductivities(1))<1e-8);
+        double default_conductivity = conductivities(0);
+
+
         // test directly that the conductivity is being computed using the deformation
         for(unsigned i=0; i<electrics_mesh.GetNumElements(); i++)
         {
             // sigma = F^{-1} sigma_undef F^{-T}, F=diag(1.2, 1.0/1.2), sigma = diag(1.75,1.75).
-            const c_matrix<double,2,2>& r_tensor = problem.mpMonodomainProblem->GetMonodomainTissue()->rGetIntracellularConductivityTensor(0);
-            TS_ASSERT_DELTA(r_tensor(0,0), 1.75/(1.2*1.2), 1e-9);
-            TS_ASSERT_DELTA(r_tensor(0,1), 0.0,            1e-9);
-            TS_ASSERT_DELTA(r_tensor(1,0), 0.0,            1e-9);
-            TS_ASSERT_DELTA(r_tensor(1,1), 1.75*(1.2*1.2), 1e-9);
+            const c_matrix<double,2,2>& r_tensor = problem.mpMonodomainProblem->GetMonodomainTissue()->rGetIntracellularConductivityTensor(i);
+            TS_ASSERT_DELTA(r_tensor(0,0), default_conductivity/(1.2*1.2), 1e-9);
+            TS_ASSERT_DELTA(r_tensor(0,1), 0.0,                            1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,0), 0.0,                            1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity*(1.2*1.2), 1e-9);
         }
 
                 
@@ -289,5 +296,94 @@ public:
         VecDestroy(start_voltage);         
         VecDestroy(end_voltage);         
     }
+
+    // Similar to first part of above test, except the deformation isn't just constant stretch here, it is
+    // different in the two elements of the mechanics mesh
+    void TestWithMechanoElectricFeedbackHeterogeneousStretch() throw (Exception)
+    {
+        // irrelevant, not going to call solve
+        PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(0.0);
+
+        // set up two meshes of 1mm by 1mm by 1mm
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(0.025, 0.1, 0.1); // the h should be such that there are an even number of elements per dim, so
+                                                                  // electrical element centroids don't lie on mechanics element boundaries
+                                                                  // (for the below test to not have to worry about boundary cases).
+
+        QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 0.1); // 2 elements
+
+        // irrelevant, not going to call solve
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
+
+        CardiacElectroMechanicsProblem<2> problem(NASH2004,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  fixed_nodes,
+                                                  &cell_factory,
+                                                  1,   /* end time */
+                                                  0.01, /* electrics timestep (ms) */
+                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* contraction model ode dt */
+                                                  "");
+
+        // use MEF
+        problem.UseMechanoElectricFeedback();
+
+        problem.Initialise();
+
+        // hack into the mechanics solver and set up the current solution so that it corresponds to
+        // the some stretch in the upper element
+        for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
+        {
+            double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
+            double Y = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[1];
+            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*Y*0.1; // displacement is zero except for (1,1) node
+            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = X*Y*0.1; // displacement is zero except for (1,1) node
+        }
+
+        // we are going to get the modified conductivity tensor directly, without (initially) calling solve,
+        // so need to do the following, which is normally done inside the Solve
+        problem.mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(problem.mDeformationGradientsForEachMechanicsElement, problem.mStretchesForEachMechanicsElement);
+
+        c_matrix<double,2,2> F;
+        F(0,0) = 1.01;
+        F(1,0) = 0.01;
+        F(0,1) = 0.01;
+        F(1,1) = 1.01;
+        c_matrix<double,2,2> inverse_C = prod(Inverse(F), trans(Inverse(F)));
+
+        // just get the default conductivity so don't to hardcode it (1.75 at the moment)
+        c_vector<double, 2> conductivities;
+        HeartConfig::Instance()->GetIntracellularConductivities(conductivities);
+        assert((conductivities(0)-conductivities(1))<1e-8);
+        double default_conductivity = conductivities(0);
+
+        // test directly that the conductivity is being computed using the deformation
+        for(unsigned i=0; i<electrics_mesh.GetNumElements(); i++)
+        {
+            // sigma = F^{-1} sigma_undef F^{-T},
+            const c_matrix<double,2,2>& r_tensor = problem.mpMonodomainProblem->GetMonodomainTissue()->rGetIntracellularConductivityTensor(i);
+            c_vector<double,2> centroid = electrics_mesh.GetElement(i)->CalculateCentroid();
+            if(centroid(0)+centroid(1)<0.1)
+            {
+                // in mechanics element with corners (0,0),(0,1),(1,0) -- F=I here
+                TS_ASSERT_DELTA(r_tensor(0,0), default_conductivity, 1e-9);
+                TS_ASSERT_DELTA(r_tensor(0,1), 0.0,                  1e-9);
+                TS_ASSERT_DELTA(r_tensor(1,0), 0.0,                  1e-9);
+                TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity, 1e-9);
+            }
+            else
+            {
+                // in mechanics element with corners (0,1),(1,0),(1,1) -- F \ne I here.
+                // sigma_def = F^{-1} sigma_undef F^{-T}, but this is 1.75 C^{-1} since sigma_undef = 1.75*I
+                TS_ASSERT_DELTA(r_tensor(0,0), default_conductivity*inverse_C(0,0), 1e-9);
+                TS_ASSERT_DELTA(r_tensor(0,1), default_conductivity*inverse_C(0,1), 1e-9);
+                TS_ASSERT_DELTA(r_tensor(1,0), default_conductivity*inverse_C(1,0), 1e-9);
+                TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity*inverse_C(1,1), 1e-9);
+            }
+        }
+    }
+
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/
