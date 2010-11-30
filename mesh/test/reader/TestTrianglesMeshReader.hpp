@@ -60,7 +60,7 @@ public:
     void TestFilesOpen() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        
+
         // For coverage purposes, not sure how to test this functionality...
         mesh_reader.SetReadBufferSize(2*1024*1024); //2MB
     }
@@ -583,7 +583,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader_3d.GetNumElements(), 140u);
         TS_ASSERT_EQUALS(mesh_reader_3d.GetNumFaces(), 166u);
     }
-    
+
     void TestReadingWithGenericReader() throw(Exception)
     {
         GenericMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -591,11 +591,11 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 522u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
-         
+
         TS_ASSERT_THROWS_CONTAINS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
                               "Could not open appropriate mesh files for mesh/test/data/no_such_file");
     }
-    
+
     void TestReadingNclInformation() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader_3d("mesh/test/data/simple_cube_binary");
@@ -620,6 +620,11 @@ public:
 
         // Out of range
         TS_ASSERT_THROWS_THIS(containing_element_indices = mesh_reader_3d.GetContainingElementIndices(9), "Connectivity list does not exist - not enough nodes.");
+
+        // Test exception if NCL file has wrong number of nodes
+        TS_ASSERT_THROWS_THIS( READER_3D bad_mesh_reader("mesh/test/data/simple_cube_binary_ncl_corrupted"),
+                           "NCL file does not contain the correct number of nodes for mesh");
+
     }
 
 };
