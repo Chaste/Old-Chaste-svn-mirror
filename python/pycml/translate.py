@@ -1967,6 +1967,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
                      self.class_name, '>::Instance();')
+        if self.config.options.fast_fixed_timestep:
+            dt = self.lt_class_name + '::dt'
+            self.writeln('assert(%s == 0.0 || %s == mFixedDt);' % (dt,dt))
+            self.writeln(dt, self.EQ_ASSIGN, 'mFixedDt', self.STMT_END)
         self.writeln('Init();\n')
         
         #1463 - default cellML stimulus
@@ -2027,6 +2031,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('{')
         self.writeln('public:')
         self.set_indent(1)
+        if self.config.options.fast_fixed_timestep:
+            self.writeln('static ', self.TYPE_DOUBLE, 'dt;')
         # Method to get the table instance object
         self.writeln('static ', self.lt_class_name, '* Instance()')
         self.open_block()
@@ -2049,6 +2055,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln(self.lt_class_name, '()')
         self.open_block()
         self.writeln('assert(mpInstance.get() == NULL);')
+        if self.config.options.fast_fixed_timestep:
+            self.writeln('assert(dt > 0.0);')
         self.output_lut_generation()
         self.close_block()
         # Private data
@@ -2061,9 +2069,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Close the class
         self.set_indent(0)
         self.writeln('};\n')
-        # Define the instance pointer
+        # Define the instance pointer & static data
         self.writeln('std::auto_ptr<', self.lt_class_name, '> ',
                      self.lt_class_name, '::mpInstance;')
+        if self.config.options.fast_fixed_timestep:
+            self.writeln(self.TYPE_DOUBLE, self.lt_class_name, '::dt = 0.0;')
         self.writeln()
         return
 
@@ -2532,51 +2542,34 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
                          self.conversion_factor, self.STMT_END)
-        # Output mathematics to update linear state variables, using
-        # solver_info.linear_odes.  Need to analyse maths to determine
-        # which elements correspond to g and h, and what the linear vars
-        # are.  Also need to use output_equations for variables used in
-        # solver_info.linear_odes.
-        linear_vars, ghs = [], []
-        used_vars = set() # NB: Also contains g&h if they are mathml_applys so table index generation works
-        for ode in self.model.solver_info.linear_odes.math.apply:
-            varname = unicode(ode.apply.ci)
-            g = ode.apply[1].operands().next()
-            hu = list(ode.apply[1].operands())[1]
-            h = hu.operands().next()
-            linear_vars.append(self.varobj(varname))
-            ghs.append((g, h))
-            if not isinstance(g, mathml_cn): used_vars.add(g)
-            if not isinstance(h, mathml_cn): used_vars.add(h)
-            used_vars.update(self._vars_in(g))
-            used_vars.update(self._vars_in(h))
+        # Output mathematics to update linear state variables, using solver_info.linear_odes.
+        # Also need to use output_equations for variables used in the update equations.
+        linear_vars, update_eqns = [], {}
+        used_vars = set() # NB: Also contains update equation if is a mathml_apply so table index generation works
+        for u, t, update_eqn in SolverInfo(self.model).get_linearised_odes():
+            assert t == self.free_vars[0]
+            assert len(update_eqn) == 1
+            update_eqn = update_eqn[0]
+            linear_vars.append(u)
+            update_eqns[id(u)] = update_eqn
+            if not isinstance(update_eqn, mathml_cn): used_vars.add(update_eqn)
+            used_vars.update(self._vars_in(update_eqn))
         # Output required equations for used variables
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
-        # Output g and h calculations
-        self.writeln()
-        for i, gh in enumerate(ghs):
-            g, h = gh
-            self.writeln('const double _g_', i, ' = ', nl=False)
-            self.output_expr(g, False)
-            self.writeln(self.STMT_END, indent=False)
-            self.writeln('const double _h_', i, ' = ', nl=False)
-            self.output_expr(h, False)
-            self.writeln(self.STMT_END, indent=False)
         # Update state variables:
         #   rY[i] = (rY[i] + _g_j*mDt) / (1 - _h_j*mDt)
         self.writeln()
         self.writeln(self.TYPE_CONST_DOUBLE, 'dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END)
-        for i, var in enumerate(self.state_vars):
-            try:
-                j = linear_vars.index(var)
-            except ValueError:
-                j = -1
-            if j != -1:
-                self.writeln('rY[', i, '] = (rY[', i, '] + _g_', j, '*dt) / (1 - _h_', j, '*dt);')
+        linear_vars.sort(key=lambda v: v.fullname())
+        for i, u in enumerate(linear_vars):
+            j = self.state_vars.index(u)
+            self.writeln('rY[', j, ']', self.EQ_ASSIGN, nl=False)
+            self.output_expr(update_eqns[id(u)], False)
+            self.writeln(self.STMT_END, indent=False)
         # Set up the Newton iteration
         self.writeln()
         self.writeln('double _guess[', self.nonlinear_system_size,
@@ -3973,6 +3966,44 @@ class SolverInfo(object):
             solver_info.xml_append(ionic_elt)
         return
     
+    def add_linear_ode_update_equations(self):
+        """Add the update equations for the linear ODEs.
+        
+        A linear ODE has the form du/dt = g+h.u where g & h are not functions of u.  The
+        update expression then looks like u = (u + g.dt)/(1 - h.dt).
+        
+        This repalces the linear_odes block with the structure:
+        <linear_odes>
+            <math>
+                <ci>u</ci>
+                <ci>t</ci>
+                <apply> <!-- (u + g.dt)/(1 - h.dt) --> </apply>
+            </math>
+            .
+            .
+            .
+        </linear_odes>
+        """
+        block = getattr(self._solver_info, u'linear_odes', None)
+        # Add the new equations
+        for u, t, gh in self.get_linearised_odes():
+            g, h = gh
+            g.safe_remove_child(g, g.xml_parent)
+            g_dt = mathml_apply.create_new(block, u'times', [g, u'delta_t'])
+            numer = mathml_apply.create_new(block, u'plus', [u.fullname(), g_dt])
+            h.safe_remove_child(h, h.xml_parent)
+            h_dt = mathml_apply.create_new(block, u'times', [h, u'delta_t'])
+            denom = mathml_apply.create_new(block, u'minus', [(u'1', u'dimensionless'), h_dt])
+            eqn = mathml_apply.create_new(block, u'divide', [numer, denom])
+            math = block.xml_create_element(u'math', NSS[u'm'])
+            math.xml_append(mathml_ci.create_new(block, u.fullname()))
+            math.xml_append(mathml_ci.create_new(block, t.fullname()))
+            math.xml_append(eqn)
+            block.xml_append(math)
+            self._add_variable_links(math)
+        # Remove the old equations (first math element)
+        block.xml_remove_child(block.math)
+    
     def add_variable_links(self):
         """Link ci elements in the added XML to cellml_variable objects.
         
@@ -4002,9 +4033,10 @@ class SolverInfo(object):
                         func(elt)
         # Linearised ODEs
         if hasattr(solver_info, u'linear_odes'):
-            for elt in solver_info.linear_odes.math.xml_children:
-                if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
-                    func(elt)
+            for math in solver_info.linear_odes.math:
+                for elt in math.xml_children:
+                    if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
+                        func(elt)
     
     def has_modifiable_mathematics(self):
         """Check if the solver info blocks contain any modifiable mathematics."""
@@ -4028,27 +4060,33 @@ class SolverInfo(object):
                         yield elt
         # Linearised ODEs - only g & h can be changed
         if hasattr(solver_info, u'linear_odes'):
-            for ode in solver_info.linear_odes.math.apply:
-                rhs = list(ode.operands())[1]
-                opers = rhs.operands()
-                g = opers.next()
-                h = opers.next().operands().next()
-                yield g
-                yield h
+            for _, _, eqns in self.get_linearised_odes():
+                for eqn in eqns:
+                    yield eqn
 
     def get_linearised_odes(self):
-        """Return an iterable over the linearised ODEs.
+        """Return an iterable over the linearised ODEs, i.e. ODEs of the form
+        du/dt = g + hu (with g, h not functions of u).
         
-        Yields tuples (u, t, g, h) where du/dt = g + hu (and g, h are not functions of u).
+        Yields tuples (u, t, eqns) where the form of eqns depends on whether
+        add_linear_ode_update_equations has been called.  If so, it is a 1-tuple
+        containing the update equation; if not, it is (g,h).
         """
         if hasattr(self._solver_info, u'linear_odes'):
-            for ode in self._solver_info.linear_odes.math.apply:
-                u = ode.apply.ci.variable
-                t = ode.apply.bvar.ci.variable
-                opers = ode.apply[1].operands()
-                g = opers.next()
-                h = opers.next().operands().next()
-                yield (u, t, g, h)
+            if hasattr(self._solver_info.linear_odes.math, u'ci'):
+                for math in self._solver_info.linear_odes.math:
+                    u, t, eqn = list(math.xml_element_children())
+                    u = u.variable
+                    t = t.variable
+                    yield (u, t, (eqn,))
+            else:
+                for ode in self._solver_info.linear_odes.math.apply:
+                    u = ode.apply.ci.variable
+                    t = ode.apply.bvar.ci.variable
+                    opers = ode.apply[1].operands()
+                    g = opers.next()
+                    h = opers.next().operands().next()
+                    yield (u, t, (g,h))
     
     def _add_variable_links(self, elt):
         """Recursively link ci elements in the given XML tree to cellml_variable objects.
@@ -4078,8 +4116,8 @@ class SolverInfo(object):
                 varname = varname[4:]
             cname, vname = varname.split(u'__')
         elif varname == u'delta_t':
-            # Special case for the timestep in ComputeJacobian
-            return self._get_special_variable(u'dt', VarTypes.Free)
+            # Special case for the timestep in ComputeJacobian and elsewhere
+            return self.get_dt()
         elif varname[:4] == 'var_':
             # It may be a single component model
             cname = self._model.component.name
@@ -4103,6 +4141,10 @@ class SolverInfo(object):
             else:
                 raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
         return var
+    
+    def get_dt(self):
+        """Get or create a special 'dt' variable."""
+        return self._get_special_variable(u'dt', VarTypes.Free)
 
     def _get_special_variable(self, varname, ptype=VarTypes.Unknown):
         """Get or create a special variable object that doesn't really exist in the model."""
@@ -4972,6 +5014,9 @@ def run():
         solver_info.add_all_info()
         # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
+        solver_info.add_linear_ode_update_equations()
+    else:
+        options.fast_fixed_timestep = False
 
     if options.lut:
         # Create the analyser so PE knows which variables are table keys

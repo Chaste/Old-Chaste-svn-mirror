@@ -401,8 +401,9 @@ class LookupTableAnalyser(object):
         This method uses the config store in the document to check the
         variable object.
         """
-        return self.config.lut_config.has_key(
-            var.get_source_variable(recurse=True))
+        allowed = (self.config.lut_config.has_key(var.get_source_variable(recurse=True)) or
+                   (self.config.options.fast_fixed_timestep and var is self.solver_info.get_dt()))
+        return allowed
 
     def is_keying_var(self, var):
         """Return True iff the given variable can be used as a table key.
@@ -612,10 +613,12 @@ class LookupTableAnalyser(object):
                 for qual in expr.qualifiers():
                     r = self.analyse_for_lut(qual, var_checker_fn)
                     state.update(r)
-                # A special case minor optimisation for nary operators
-                if self.config and self.config.options.combine_commutative_tables:
-                    if not state.suitable() and isinstance(expr.operator(), reduce_commutative_nary):
+                # Special case additional optimisations
+                if self.config and self.config.options.combine_commutative_tables and not state.suitable():
+                    if isinstance(expr.operator(), reduce_commutative_nary):
                         self.check_commutative_tables(expr, operand_states)
+                    elif isinstance(expr.operator(), mathml_divide):
+                        self.check_divide_by_table(expr, operand_states)
             else:
                 # Just recurse into children
                 for e in expr.xml_children:
@@ -630,6 +633,23 @@ class LookupTableAnalyser(object):
                 if self.annotate_failures:
                     expr.xml_set_attribute((u'lut:reason', NSS['lut']), state.reason())
         return state
+    
+    def check_divide_by_table(self, expr, operand_states):
+        """Convert division by a table into multiplication.
+        
+        This is called if expr, a division, cannot be replaced as a whole by a lookup table.
+        If the denominator can be replaced by a table, then convert expr into a multiplication
+        by the reciprocal, moving the division into the table.
+        """
+        numer, denom = list(expr.operands())
+        state = operand_states[id(denom)]
+        if state.suitable():
+            expr.safe_remove_child(numer)
+            expr.safe_remove_child(denom)
+            recip = mathml_apply.create_new(expr, u'divide', [(u'1', u'dimensionless'), denom])
+            times = mathml_apply.create_new(expr, u'times', [numer, recip])
+            expr.replace_child(expr, times, expr.xml_parent)
+            self.annotate_as_suitable(recip, state.table_var)
 
     def check_commutative_tables(self, expr, operand_states):
         """Check whether we can combine suitable operands into a new expression.
@@ -817,10 +837,10 @@ class LookupTableAnalyser(object):
             for node in self.doc.model.calculate_extended_dependencies(exprs):
                 if isinstance(node, mathml_apply):
                     self._find_tables(node, table_dict)
-        for u, t, g, h in self.solver_info.get_linearised_odes():
+        for u, t, eqns in self.solver_info.get_linearised_odes():
             original_defn = u._get_ode_dependency(t)
             f([original_defn], original_tables)
-            f([g, h], new_tables)
+            f(eqns, new_tables)
         for id_ in set(original_tables.keys()) - set(new_tables.keys()):
             expr = original_tables[id_]
             self.remove_lut_annotations(expr)
