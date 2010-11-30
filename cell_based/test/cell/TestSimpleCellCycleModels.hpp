@@ -793,6 +793,8 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
+        double randomly_allocated_number;
+
         // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -807,6 +809,8 @@ public:
 
             p_cell->InitialiseCellCycleModel();
             p_cell->GetCellCycleModel()->SetBirthTime(-1.0);
+
+            randomly_allocated_number = p_cell->GetCellCycleModel()->GetG2Duration();
 
             p_simulation_time->IncrementTimeOneStep();
 
@@ -846,7 +850,7 @@ public:
 
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-4);
             TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-4);
-            TS_ASSERT_DELTA(p_model->GetG2Duration(), 3.0676, 1e-4); // first random number generated
+            TS_ASSERT_DELTA(p_model->GetG2Duration(), randomly_allocated_number, 1e-4);
         }
     }
 };

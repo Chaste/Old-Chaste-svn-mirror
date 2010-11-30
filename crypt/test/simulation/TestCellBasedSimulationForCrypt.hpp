@@ -222,17 +222,17 @@ public:
 
         // These cells just divided and have been gradually moving apart.
         // These results are from time 0.25.
-        std::vector<double> node_329_location = crypt_projection_simulator.GetNodeLocation(329);
-        std::vector<double> node_494_location = crypt_projection_simulator.GetNodeLocation(494);
+        std::vector<double> node_a_location = crypt_projection_simulator.GetNodeLocation(257);
+        std::vector<double> node_b_location = crypt_projection_simulator.GetNodeLocation(503);
         c_vector<double, 2> distance_between;
-        distance_between(0) = node_494_location[0] - node_329_location[0];
-        distance_between(1) = node_494_location[1] - node_329_location[1];
-        TS_ASSERT_DELTA(norm_2(distance_between), 0.6145, 1e-3);
+        distance_between(0) = node_a_location[0] - node_b_location[0];
+        distance_between(1) = node_a_location[1] - node_b_location[1];
+        TS_ASSERT_DELTA(norm_2(distance_between), 0.5759, 1e-3);
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(329)), 0.8753, 1e-3);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(494)), 0.9175, 1e-3);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(257)), 0.7701, 1e-3);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(503)), 0.7858, 1e-3);
 
         // Tidy up
         WntConcentration<2>::Destroy();

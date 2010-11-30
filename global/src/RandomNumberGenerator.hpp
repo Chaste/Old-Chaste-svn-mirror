@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
 
+#include <boost/numeric/ublas/vector.hpp>
+
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 
@@ -39,11 +41,105 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class RandomNumberGenerator
 {
+private:
+
+    /** The random number generator seed. */
+    int mSeed;
+
+    /** The number of times the random number generator has been called. */
+    long unsigned mTimesCalled;
+
+    /** Pointer to the single instance. */
+    static RandomNumberGenerator* mpInstance;
+
+    /** Working memory for the normal random number calculations */
+    double mWorkingMem1;
+    /** Working memory for the normal random number calculations */
+    double mWorkingMem2;
+    /** Working memory for the normal random number calculations */
+    double mWorkingMemW;
+    /** Stored normal random number (we generate two at once) */
+    double mRandNum2;
+    /** Whether to use the stored random number next */
+    bool mUseLastNum;
+
+    friend class boost::serialization::access;
+    /**
+     * Save the RandomNumberGenerator and its member variables.
+     *
+     * Serialization of a RandomNumberGenerator object must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void save(Archive & archive, const unsigned int version) const
+    {
+        // note, version is always the latest when saving
+        archive & mSeed;
+        archive & mTimesCalled;
+        archive & mUseLastNum;
+        archive & mRandNum2;
+    }
+
+    /**
+     * Load the RandomNumberGenerator and its member variables.
+     *
+     * Serialization of a RandomNumberGenerator object must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & mSeed;
+        archive & mTimesCalled;
+        archive & mUseLastNum;
+        archive & mRandNum2;
+        // reset the random number generator to use the correct seed
+        srandom(mSeed);
+        // call it the correct number of times to put it in the
+        // same state as it used to be.
+        // NOTE: This is only guaranteed to work if Normal random
+        // deviates are not used, since the methods to generate
+        // numbers from a normal distribution use static variables.
+        for (long unsigned i=0; i<mTimesCalled; i++)
+        {
+            random();
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+protected:
+
+    /**
+     * Protected constructor.
+     * Use Instance() to access the random number generator.
+     */
+    RandomNumberGenerator();
+
+    /**
+     * This method creates a boost standard normal random number generator and assigns it to the member variable #mStandardNormalGenerator
+     */
+    void SetUpNormal();
+
 public:
 
 
     /**
-     * Generate a random number from the normal distribution with mean 0
+     * Uses a ranf() call and an approximation to the inverse PDF of the
+     * normal distribution to generate an accurate estimate of a normally
+     * distributed random number. Adapted from the algorithm outlined at
+     * http://home.online.no/~pjacklam/notes/invnorm/#Pseudo_code_for_rational_approximation
+     *
+     * @return a random number from the normal distribution with mean 0
      * and standard distribution 1.
      */
     double StandardNormalRandomDeviate();
@@ -102,73 +198,6 @@ public:
      */
     void Reseed(int seed);
 
-protected:
-
-    /**
-     * Protected constructor.
-     * Use Instance() to access the random number generator.
-     */
-    RandomNumberGenerator();
-
-private:
-
-    /** The random number generator seed. */
-    int mSeed;
-
-    /** The number of times the random number generator has been called. */
-    unsigned mTimesCalled;
-
-    /** Pointer to the single instance. */
-    static RandomNumberGenerator* mpInstance;
-
-    friend class boost::serialization::access;
-    /**
-     * Save the RandomNumberGenerator and its member variables.
-     *
-     * Serialization of a RandomNumberGenerator object must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void save(Archive & archive, const unsigned int version) const
-    {
-        // note, version is always the latest when saving
-        archive & mSeed;
-        archive & mTimesCalled;
-    }
-    /**
-     * Load the RandomNumberGenerator and its member variables.
-     *
-     * Serialization of a RandomNumberGenerator object must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void load(Archive & archive, const unsigned int version)
-    {
-        archive & mSeed;
-        archive & mTimesCalled;
-        // reset the random number generator to use the correct seed
-        srandom(mSeed);
-        // call it the correct number of times to put it in the
-        // same state as it used to be.
-        // NOTE: This is only guaranteed to work if Normal random
-        // deviates are not used, since the methods to generate
-        // numbers from a normal distribution use static variables.
-        for (unsigned i=0; i<mTimesCalled; i++)
-        {
-            random();
-        }
-    }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 };
 #endif /*RANDOMNUMBERGENERATORS_HPP_*/

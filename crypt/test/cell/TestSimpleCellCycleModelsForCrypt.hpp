@@ -47,6 +47,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestSimpleCellCycleModelsForCrypt : public AbstractCellBasedTestSuite
 {
+private:
+    static const double mFirstRandomNumber = 3.11227;
+    static const double mSecondRandomNumber = 1.65468;
+
 public:
 
     void TestSimpleWntCellCycleModel() throw(Exception)
@@ -101,7 +105,7 @@ public:
 
             // The number for the G1 duration is taken from
             // the first random number generated
-            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, 1.0676);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, mFirstRandomNumber);
         }
 
         // Stem cell should have been changed into a transit cell by wnt cell cycle model
@@ -123,8 +127,8 @@ public:
 
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
-        double new_g1_duration = 3.16316;
-        double new_g1_duration2 = 1.2712;
+        double new_g1_duration = mSecondRandomNumber;
+        double new_g1_duration2 = 2.60806;
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -162,7 +166,7 @@ public:
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
         new_g1_duration = 1.22037;
-        new_g1_duration2 = 0.74699;
+        new_g1_duration2 = 1.28792;
 
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
@@ -209,7 +213,7 @@ public:
         p_cell4->InitialiseCellCycleModel();
 
         // Test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
-        double first_g1_duration = 1.0676;
+        double first_g1_duration = mFirstRandomNumber;
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -237,7 +241,7 @@ public:
 
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
-        new_g1_duration = 3.16316;
+        new_g1_duration = mSecondRandomNumber;
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -329,7 +333,7 @@ public:
 
             // The number for the G1 duration is taken from
             // the first random number generated
-            double g1_duration = 1.0676;
+            double g1_duration = mFirstRandomNumber;
             double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
             unsigned num_timesteps = 50;
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
@@ -438,7 +442,7 @@ public:
             // Set end time for simulation
 			// The number for the G1 duration is taken from
 			// the first random number generated
-			double g1_duration = 1.0676;
+			double g1_duration = mFirstRandomNumber;
 
 			double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
 			unsigned num_timesteps = 50;

@@ -788,7 +788,7 @@ public:
         //
         // A StochasticWntCellCycleModel does this:
         // divides at the same time with a random normal distribution
-        // for the SG2M time (default 10) in this case 9.0676
+        // for the SG2M time (default 10) in this case 5.00104 + 6
 
         // Test progress through the cell cycle
         for (unsigned i=0; i<num_timesteps; i++)
@@ -797,7 +797,7 @@ public:
             double time = p_simulation_time->GetTime();
             bool result = p_cell_model->ReadyToDivide();
 
-            if (time < 5.971 + 9.0676)
+            if (time < 5.971 + 5.00104 + 6) // G1 + G2 + S/M
             {
                 TS_ASSERT_EQUALS(result, false);
             }
@@ -1040,7 +1040,7 @@ public:
 
     void TestArchiveStochasticWntCellCycleModels()
     {
-        // In this case the first cycle time will be 5.971+9.0676 = 15.0386
+        // In this case the first cycle time will be 5.971+5.0014+6 = 16.96
         // note that the S-G2-M time is assigned when the cell finishes G1
         // (i.e. at time 5.971 here so the model has to be archived BEFORE that.
 
@@ -1054,7 +1054,7 @@ public:
 
             // Set up simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17.0, 1000);
 
             // Create cell cycle model and associated cell
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();
@@ -1105,7 +1105,7 @@ public:
             // Set up simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 2);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(99, 1);// Gets overwritten on load
 
             CellPtr p_stoc_cell;
             CellPtr p_wnt_cell;
@@ -1124,7 +1124,7 @@ public:
             // Test archiving
             TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
-            // Check - stochastic should divide at 15.03
+            // Check - stochastic should divide at 16.97
             // Wnt should divide at 15.971
             while (p_simulation_time->GetTime() < 15.0)
             {
@@ -1134,15 +1134,15 @@ public:
             TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(), false);
 
-            while (p_simulation_time->GetTime() < 15.5)
+            while (p_simulation_time->GetTime() < 16.0)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }
 
-            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(), true); // only for stochastic
-            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(), false);
+            TS_ASSERT_EQUALS(p_stoc_cell->GetCellCycleModel()->ReadyToDivide(), false); // only for stochastic
+            TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(), true);
 
-            while (p_simulation_time->GetTime() < 16.0)
+            while (p_simulation_time->GetTime() < 17.0)
             {
                 p_simulation_time->IncrementTimeOneStep();
             }
@@ -1151,7 +1151,7 @@ public:
             TS_ASSERT_EQUALS(p_wnt_cell->GetCellCycleModel()->ReadyToDivide(), true);
 
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetBirthTime(), 0.0, 1e-12);
-            TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(), 16.0, 1e-12);
+            TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(), 17.0, 1e-12);
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetSG2MDuration(), 10.0, 1e-12);
         }
 

@@ -46,6 +46,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestSingleOdeWntCellCycleModel : public AbstractCellBasedTestSuite
 {
+private:
+    static const double mFirstRandomNumber = 3.11227;
+    static const double mSecondRandomNumber = 1.65468;
+    static const double mThirdRandomNumber = 2.60806;
+    static const double mFourthRandomNumber = 1.22037;
+    static const double mFifthRandomNumber = 1.28792;
+
 public:
 
     void TestCorrectBehaviour() throw(Exception)
@@ -81,15 +88,15 @@ public:
             TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
             // The number for the G1 duration is taken from the first random number generated
-            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, 1.0676);
+            CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, mFirstRandomNumber);
         }
 
         double steady_beta_cat_at_wnt_equals_1 = p_cycle_model->GetBetaCateninConcentration();
 
 #ifdef CHASTE_CVODE
-        TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_1, 143.4962, 1e-4);
+        TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_1, 143.8487, 1e-4);
 #else
-        TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_1, 143.5119, 1e-4);
+        TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_1, 143.8622, 1e-4);
 #endif
 
         // Divide the cell
@@ -112,8 +119,8 @@ public:
 
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
-        double new_g1_duration = 3.16316;
-        double new_g1_duration2 = 1.2712;
+        double new_g1_duration = mSecondRandomNumber;
+        double new_g1_duration2 = mThirdRandomNumber;
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -158,8 +165,8 @@ public:
         TS_ASSERT_EQUALS(p_cycle_model->ReadyToDivide(), false);
 
         // The numbers for the G1 durations are taken from the next two random numbers generated
-        new_g1_duration = 1.22037;
-        new_g1_duration2 = 0.74699;
+        new_g1_duration = mFourthRandomNumber;
+        new_g1_duration2 = mFifthRandomNumber;
 
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
@@ -170,9 +177,9 @@ public:
 
         TS_ASSERT_DELTA(91.6693, p_cycle_model->GetBetaCateninConcentration(), 1e-3);
 #ifdef CHASTE_CVODE
-        TS_ASSERT_DELTA(355.9138, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
+        TS_ASSERT_DELTA(358.6849, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
 #else
-        TS_ASSERT_DELTA(355.7790, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
+        TS_ASSERT_DELTA(358.5624, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
 #endif
 
         TS_ASSERT_DELTA( p_cycle_model->GetBetaCateninDivisionThreshold(), 100, 1e-9);
@@ -256,7 +263,7 @@ public:
         // Create an output archive
         {
             // The number for the G1 duration is taken from the first random number generated
-            double g1_duration = 1.0676;
+            double g1_duration = mFirstRandomNumber;
 
             // Set up the Wnt concentration for testing
             WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.7);

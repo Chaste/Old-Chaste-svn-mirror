@@ -93,7 +93,7 @@ public:
         // Create and archive random number generator
         {    // Save random number generator
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(5);
+            p_gen->Reseed(7); // This gives us full coverage...
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -112,10 +112,18 @@ public:
             output_arch << static_cast<const RandomNumberGenerator&>(*p_gen);
 
             // Generator saved here - record the next 10 numbers
-
             for (unsigned i=0; i<10; i++)
             {
                 double random = p_gen->ranf();
+                generated_numbers.push_back(random);
+            }
+
+            // record some numbers from the normal distribution too.
+            // We generate quite a few for coverage of the three cases
+            // in RandomNumberGenerator::StandardNormalRandomDeviate().
+            for (unsigned i=0; i<10; i++)
+            {
+                double random = p_gen->NormalRandomDeviate(0.5, 0.1);
                 generated_numbers.push_back(random);
             }
 
@@ -125,7 +133,7 @@ public:
         // Restore
         {
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(25);    // any seed.
+            p_gen->Reseed(25);    // any old seed.
             for (unsigned i=0; i<7; i++)    // generate some numbers
             {
                 p_gen->ranf();
@@ -137,10 +145,17 @@ public:
 
             // Random Number generator restored.
             // check it generates the same numbers as the one we saved.
-
             for (unsigned i=0; i<generated_numbers.size(); i++)
             {
-                double random = p_gen->ranf();
+                double random;
+                if (i<10)
+                {
+                    random = p_gen->ranf();
+                }
+                else
+                {
+                    random = p_gen->NormalRandomDeviate(0.5, 0.1);
+                }
                 TS_ASSERT_DELTA(random,generated_numbers[i],1e-7);
             }
 
@@ -201,18 +216,6 @@ public:
             }
         }
     }
-
-    /**
-     * \todo #1657 Make this test pass!
-     */
-//    void TestLotsOfRandomNormals() throw(Exception)
-//    {
-//        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-//        for (long unsigned i=0; i<1e10; i++)
-//        {
-//            p_gen->StandardNormalRandomDeviate();
-//        }
-//    }
 
 };
 
