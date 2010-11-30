@@ -30,8 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
 
-#include <boost/numeric/ublas/vector.hpp>
-
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 
