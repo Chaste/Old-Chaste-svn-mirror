@@ -44,6 +44,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicLinearPdeSolver : public AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
+    friend class TestSimpleLinearParabolicSolver;
+
 protected:
     /** Simulation start time. */
     double mTstart;
@@ -97,6 +99,12 @@ public:
 
     /** Dynamic solve method */
     Vec Solve();
+
+    /** Tell the solver to assemble the matrix again next timestep  */
+    void SetMatrixIsNotAssembled()
+    {
+    	mMatrixIsAssembled = false;
+    }
 };    
 
 

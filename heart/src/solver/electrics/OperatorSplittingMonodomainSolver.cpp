@@ -142,7 +142,9 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolv
     }
     else
     {
-        this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
+        NEVER_REACHED;
+        // re-implement when needed
+        //this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
     }
 
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());

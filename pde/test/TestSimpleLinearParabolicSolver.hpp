@@ -105,6 +105,10 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.1);
         }
 
+        TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, true);
+        solver.SetMatrixIsNotAssembled();
+        TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, false);
+
         VecDestroy(initial_condition);
         VecDestroy(result);
     }

@@ -143,11 +143,14 @@ protected :
      */
     std::pair<unsigned, c_matrix<double,DIM,DIM> > mLastModifiedConductivity;
 
-    /** If this is true then the deformation is not allowed to affect the electrics
-     *  (either through altering conductivities (not implemented yet anyway), or through
-     *  cellular MEF (eg stretch-activated channels)
+    /** Whether the deformation is always to alter the conductivities (ie one part of MEF) */
+    bool mConductivityAffectedByDeformationMef;
+
+    /** Whether the deformation is always to affect the cell models (for example, for use in stretch-activated channels)
+     *  (ie one part of MEF)
      */
-    bool mNoMechanoElectricFeedback; 
+    bool mCellModelsAffectedByDeformationMef;
+
 
     /**
      *  Determine which node is closest to the watched location
@@ -256,10 +259,10 @@ public :
     /**
      *  By default (at the moment), the deformation does not affect the electrophysiology in any way. 
      *  Call this to allow it to, then
-     *   (i) the stretch will be passed back to the cell models for use stretch-activated channels etc
-     *   (ii) (The other way the deformation should affect the electrophy, altered conductivities, has not yet 
-     *  been implemented)
+     *   (i)  The stretch will be passed back to the cell models for use stretch-activated channels etc
+     *   (ii) The deformation to alter the conductivity
      * 
+//todo - check these
      *  Two things to note:
      *   (i) this can't be called if fibre-sheet directions have been defined from file for each quadrature
      *  point (as opposed to each mechanics element) - this is because if the stretch is to be passed back to
@@ -269,7 +272,8 @@ public :
      */
     void UseMechanoElectricFeedback()
     {
-        mNoMechanoElectricFeedback = false;
+    	mConductivityAffectedByDeformationMef = true;
+    	mCellModelsAffectedByDeformationMef = true;
     }
 
     /**

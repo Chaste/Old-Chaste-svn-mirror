@@ -169,7 +169,7 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
     }
     else
     {
-        // new element, need to compute it.
+        // new element, need to compute conductivity
 
         // first get the deformation gradient for this electrics element
         unsigned containing_mechanics_elem = mpMeshPair->rGetCoarseElementsForFineElementCentroids()[elementIndex];
@@ -318,7 +318,9 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
 
     mFibreSheetDirectionsFile = "";
-    mNoMechanoElectricFeedback = true;
+
+    mConductivityAffectedByDeformationMef = false;
+    mCellModelsAffectedByDeformationMef = false;
 
     mLastModifiedConductivity.first = UNSIGNED_UNSET; //important
 
@@ -399,30 +401,37 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMeshPair->SetUpBoxesOnFineMesh();
     mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechSolver->GetQuadratureRule()), false);
     mpMeshPair->DeleteFineBoxCollection();
-    
-    if(!mNoMechanoElectricFeedback)
+
+
+
+
+    if(mConductivityAffectedByDeformationMef || mCellModelsAffectedByDeformationMef)
     {
         mpMeshPair->SetUpBoxesOnCoarseMesh();
-        
+    }
+    
+    if(mCellModelsAffectedByDeformationMef)
+    {
         // compute the coarse elements which contain each fine node -- for transferring stretch from 
         // mechanics solve electrics cell models
         mpMeshPair->ComputeCoarseElementsForFineNodes(false);
 
+        // initialise the stretches saved for each mechanics element
+        mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+    }
+
+    if(mConductivityAffectedByDeformationMef)
+    {
         // compute the coarse elements which contain each fine element centroid -- for transferring F from
         // mechanics solve to electrics mesh elements 
         mpMeshPair->ComputeCoarseElementsForFineElementCentroids(false);
 
-        // initialise the stretches saved for each mechanics element
-        mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
-        
         // initialise the store of the F in each mechanics element (one constant value of F) in each 
         mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
 
         // tell the abstract tissue class that the conductivities need to be modified, passing in this class
-        // (which is of type AbstractConductivityModifier
+        // (which is of type AbstractConductivityModifier)
         mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);
-
-//todo set matrix to be reassembled somewhere, and test
     }
         
     if(mWriteOutput)
@@ -508,7 +517,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         ////  solver (MEF)
         ////
         //////////////////////////////////////////////////////////////////////////////////////
-        if(!mNoMechanoElectricFeedback)
+        if(mCellModelsAffectedByDeformationMef)
         {
             //  Determine the stretch in each mechanics element (later: determine stretch, and 
             //  deformation gradient)
@@ -524,15 +533,9 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 mpMonodomainProblem->GetTissue()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
             
-            // finish #1244 (blocked on #1348)
-            // NOW SET THE DEFORMATION GRADIENTS ON THE MONO/BI-DOMAIN SOLVER - do this once #1348 is done
-            // something like:
-            //   loop over electrics elements
-            //   {
-            //      unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineElementCentroids()[element_index];
-            //      F = mDeformationGradientsForEachMechanicsElement[containing_element]
-            //       ..
-            //
+            // the deformation gradient does not need to be passed to the tissue so that F is used to compute the conductivity, instead this is
+            // done through the "mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);" line above, which means
+            // rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
         }
 
 
@@ -570,8 +573,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             initial_voltage = voltage;
         }
 
-//// when using *Cinverse* in electrics
-//        p_electrics_solver->SetMatrixIsNotAssembled();
+        if(mConductivityAffectedByDeformationMef)
+        {
+            p_electrics_solver->SetMatrixIsNotAssembled();
+        }
 
 
         /////////////////////////////////////////////////////////////////////////
