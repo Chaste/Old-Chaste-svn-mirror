@@ -129,7 +129,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Change to Chaste source folder
             EXPECT0(chdir, ChasteBuildRootDir());
             // Run scons to generate C++ code and compile it to a .so
-            EXPECT0(system, "scons dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
+            EXPECT0(system, "scons --warn=no-all dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
             EXCEPT_IF_NOT(FileFinder(tmp_folder + "/lib" + rModelLeafName + "so", RelativeTo::Absolute).Exists());
             // CD back
             EXPECT0(chdir, old_cwd);
