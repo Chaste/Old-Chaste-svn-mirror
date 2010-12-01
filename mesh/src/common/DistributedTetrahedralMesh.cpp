@@ -1866,12 +1866,19 @@ ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Calc
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(std::vector<std::set<unsigned> >& rNodesToSendPerProcess,std::vector<std::set<unsigned> >& rNodesToReceivePerProcess)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
+                                     std::vector<std::vector<unsigned> >& rNodesToSendPerProcess,
+                                     std::vector<std::vector<unsigned> >& rNodesToReceivePerProcess)
 {
+    assert( rNodesToSendPerProcess.empty() );
+    assert( rNodesToReceivePerProcess.empty() );
     
     //Initialise vectors of sets for the exchange data
-    rNodesToSendPerProcess.resize(PetscTools::GetNumProcs());
-    rNodesToReceivePerProcess.resize(PetscTools::GetNumProcs());
+    std::vector<std::set<unsigned> > node_sets_to_send_per_process;
+    std::vector<std::set<unsigned> > node_sets_to_receive_per_process;
+    
+    node_sets_to_send_per_process.resize(PetscTools::GetNumProcs());
+    node_sets_to_receive_per_process.resize(PetscTools::GetNumProcs());
     std::vector<unsigned> global_lows = this->mpDistributedVectorFactory->rGetGlobalLows();
     
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
@@ -1906,17 +1913,31 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(s
                 }
                 
                 //Add this node to the correct receive set
-                rNodesToReceivePerProcess[remote_process].insert(nodes_not_on_this_process[i]);
+                node_sets_to_receive_per_process[remote_process].insert(nodes_not_on_this_process[i]);
                 
                 //Add all local nodes to the send set
                 for (unsigned j=0; j<nodes_on_this_process.size(); j++)
                 {
-                    rNodesToSendPerProcess[remote_process].insert(nodes_on_this_process[j]);
+                    node_sets_to_send_per_process[remote_process].insert(nodes_on_this_process[j]);
                 }
             }
         }
     }
  
+    for (unsigned process_number = 0; process_number < PetscTools::GetNumProcs(); process_number++)
+    {
+        std::vector<unsigned> process_send_vector( node_sets_to_send_per_process[process_number].begin(),
+                                                   node_sets_to_send_per_process[process_number].end()    );
+        std::sort(process_send_vector.begin(), process_send_vector.end());
+        
+        rNodesToSendPerProcess.push_back(process_send_vector);
+
+        std::vector<unsigned> process_receive_vector( node_sets_to_receive_per_process[process_number].begin(),
+                                                      node_sets_to_receive_per_process[process_number].end()    );
+        std::sort(process_receive_vector.begin(), process_receive_vector.end());
+        
+        rNodesToReceivePerProcess.push_back(process_receive_vector);
+    }
     
 }
 

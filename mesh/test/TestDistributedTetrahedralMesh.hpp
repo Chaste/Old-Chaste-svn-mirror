@@ -1469,8 +1469,8 @@ public:
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
         
-        std::vector<std::set<unsigned> > nodes_to_send_per_process; 
-        std::vector<std::set<unsigned> > nodes_to_receive_per_process; 
+        std::vector<std::vector<unsigned> > nodes_to_send_per_process; 
+        std::vector<std::vector<unsigned> > nodes_to_receive_per_process; 
         mesh.CalculateNodeExchange(nodes_to_send_per_process, nodes_to_receive_per_process);
         
         TS_ASSERT_EQUALS(nodes_to_send_per_process.size(), PetscTools::GetNumProcs());
@@ -1478,21 +1478,39 @@ public:
         TS_ASSERT(nodes_to_receive_per_process[PetscTools::GetMyRank()].empty());
         TS_ASSERT(nodes_to_send_per_process[PetscTools::GetMyRank()].empty());
         
+        // Do some communication
+        
         //mesh.rGetDistributedVectorFactory()->rGetGlobalLows();
-        for (unsigned rank_id=0; rank_id<PetscTools::GetNumProcs();rank_id++)
+        for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
-            if (rank_id != PetscTools::GetMyRank())
+            unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
+            unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
+                  
+            MPI_Send( &(nodes_to_send_per_process[send_to][0]), 
+                      nodes_to_send_per_process[send_to].size(), 
+                      MPI_UNSIGNED, 
+                      send_to, 
+                      0, 
+                      PETSC_COMM_WORLD );
+                      
+            unsigned received[nodes_to_receive_per_process[receive_from].size()];
+            MPI_Status status;
+
+            MPI_Recv( received,
+                      nodes_to_receive_per_process[receive_from].size(), 
+                      MPI_UNSIGNED, 
+                      receive_from,
+                      0,
+                      PETSC_COMM_WORLD, 
+                      &status );
+                      
+            for ( unsigned i = 0; i < nodes_to_receive_per_process[receive_from].size(); i++ )
             {
-                ///\todo #1462
-                ///Check that all pairs are conjugate...
-                ///\todo #1462
-                ///The following will fail on 4 or more processes
-                TS_ASSERT(!nodes_to_receive_per_process[rank_id].empty());
-                TS_ASSERT(!nodes_to_send_per_process[rank_id].empty());
+                TS_ASSERT_EQUALS( received[i], nodes_to_receive_per_process[receive_from][i] );
             }
         }
-
     }
+    
     void TestParallelWriting3D()
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
