@@ -123,11 +123,6 @@ protected:
      */
     RandomNumberGenerator();
 
-    /**
-     * This method creates a boost standard normal random number generator and assigns it to the member variable #mStandardNormalGenerator
-     */
-    void SetUpNormal();
-
 public:
 
 
