@@ -97,6 +97,19 @@
   <dd>
     Used for test output.
   </dd>
+  <dt>.ncl</dt>
+  <dd>
+    Node connectivity file for <a
+  href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes. For each mesh node, records which elements contain the node. Note that this file format is <em>not</em> part of the standard Triangle or Tetgen format, but can be created by Chaste and then used to make the mesh load faster in parallel. 
+    <ul>
+    <li>First line: <tt>&lt;number of nodes&gt; &lt;maximum number of containing elements&gt;</tt></li>
+    <li>Marker <tt>BIN</tt> at the end of the first line indicates
+    that all following data are presented as raw binary data with no
+    whitespace (this is a Chaste modification of the Triangle format). 
+    All .ncl files are binary.</li>
+    <li>Remaining lines: <tt>&lt;node number&gt; &lt;element&gt; &lt;element&gt; &lt;element&gt; ... [padding to ensure all lines are equal length] </tt></li>
+    </ul>
+  </dd>
   <dt>.node</dt>
   <dd>
     Nodes file for <a
