@@ -10,7 +10,7 @@ monodomain/TestMonodomainHeartApex.hpp
 monodomain/TestMonodomainNoStimulus.hpp
 monodomain/TestMonodomainSlab.hpp
 monodomain/TestMonodomainExactSolution.hpp
-monodomain/TestOperatorSplittingMonodomainSolver.hpp
+monodomain/TestOperatorSplittingMonodomainSolverLong.hpp
 mechanics/TestCardiacElectroMechanicsProblemLong.hpp
 TestPapillaryFibreCalculatorLong.hpp
 performance/Test1dBidomainProblemForEfficiency.hpp
