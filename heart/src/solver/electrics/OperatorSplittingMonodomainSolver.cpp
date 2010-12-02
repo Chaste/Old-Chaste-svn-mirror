@@ -75,9 +75,12 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
          ++index)
     {
         double V = distributed_current_solution[index];
-        double F = - this->mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global]; // no iionic term in this algorithm
+        // in the main solver, the nodal ionic current and stimuli is computed and used.
+        // However in operator splitting, this part of the solve is diffusion only, no reaction terms
+        //double F = - Am*this->mpMonodomainTissue->rGetIionicCacheReplicated()[index.Global]
+        //           - this->mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
 
-        dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse + F;
+        dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse;
     }
     dist_vec_matrix_based.Restore();
 
@@ -109,7 +112,6 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec currentSolution)
 {
-    // solve cell models for first half timestep
     double time = PdeSimulationTime::GetTime();
     mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+this->mDt/2.0, true);
 }

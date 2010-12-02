@@ -49,7 +49,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  (ii)  Solve PDE    dV/dt = div sigma grad V   for t=T to dt         [using V from step i, --> updated V]
  *  (iii) Solve ODEs   dV/dt = Iionic             for t=T+dt/2 to T+dt  [using V from step ii, --> final V]
  *
- *  Unlike the other two solvers this (currently does not inherit from AbstractMonodomainSolver
+ *  Notes
+ *   (a)  Stages (iii) and (i) can normally be solved together in one go, except just before/after printing the voltage to file.
+ *        However for simplicity of code this has not been implemented
+ *   (b)  Therefore, the effective ODE timestep will be:  min(ode_dt, pde_dt/2), where ode_dt and pde_dt are those
+ *        given via HeartConfig.
+ *   (c)  This solver is mainly for comparing accuracy, not comparing performance.
+ *
+ *  Unlike the other two solvers this currently does not inherit from AbstractMonodomainSolver.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class OperatorSplittingMonodomainSolver : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>

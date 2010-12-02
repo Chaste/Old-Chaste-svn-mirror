@@ -319,25 +319,29 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
              index != dist_solution.End();
              ++index)
         {
-             // overwrite the voltage with the input value
-             mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
+            // overwrite the voltage with the input value
+            mCellsDistributed[index.Local]->SetVoltage( voltage[index] );
 
-             if(!updateVoltage)
-             {
-                 // solve
-                 // Note: Voltage is not be updated. The voltage is updated in the PDE solve.
-                 mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
-             }
-             else
-             {
-                 // solve, including updating the voltage (for the operator-splitting implementation of the monodomain solver)
-                 mCellsDistributed[index.Local]->SolveAndUpdateState(time, nextTime);
-                 // todo: inefficient
-                 PetscVecTools::SetElement(existingSolution, index.Global, mCellsDistributed[index.Local]->GetVoltage());
-             }
+            if(!updateVoltage)
+            {
+                // solve
+                // Note: Voltage is not be updated. The voltage is updated in the PDE solve.
+                mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
+            }
+            else
+            {
+                // solve, including updating the voltage (for the operator-splitting implementation of the monodomain solver)
+                mCellsDistributed[index.Local]->SolveAndUpdateState(time, nextTime);
+                voltage[index] = mCellsDistributed[index.Local]->GetVoltage();
+            }
 
-             // update the Iionic and stimulus caches
-             UpdateCaches(index.Global, index.Local, nextTime);
+            // update the Iionic and stimulus caches
+            UpdateCaches(index.Global, index.Local, nextTime);
+        }
+
+        if(updateVoltage)
+        {
+        	dist_solution.Restore();
         }
     }
     catch (Exception &e)

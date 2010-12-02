@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTOPERATORSPLITTINGMONODOMAINSOLVER_HPP_
-#define TESTOPERATORSPLITTINGMONODOMAINSOLVER_HPP_
+#ifndef TESTOPERATORSPLITTINGMONODOMAINSOLVERLONG_HPP_
+#define TESTOPERATORSPLITTINGMONODOMAINSOLVERLONG_HPP_
 
 
 #include <cxxtest/TestSuite.h>
@@ -65,7 +65,6 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-
         if (fabs(x)<0.02+1e-6)
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
@@ -78,28 +77,25 @@ public:
 };
 
 
-class TestOperatorSplittingMonodomainSolver : public CxxTest::TestSuite
+class TestOperatorSplittingMonodomainSolverLong : public CxxTest::TestSuite
 {
 public:
-
-    // The operator splitting and normal methods should agree closely with very small dt and h, but this takes
-    // too long to run in the continuous build (see instead TestOperatorSplittingMonodomainSolverLong)
-    //
-    // Here we run on a fine (as opposed to v fine) mesh and with a normal dt, and check that the solutions
-    // are near.
-    void TestComparisonOnNormalMeshes() throw(Exception)
+    // like TestOperatorSplittingMonodomainSolver but much finer mesh and smaller
+    // dt so can check for proper convergence
+    void TestConvergenceOnFineMesh() throw(Exception)
     {
         ReplicatableVector final_voltage_normal;
         ReplicatableVector final_voltage_operator_splitting;
 
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.1);
 
-        double h = 0.01;
+        double h = 0.001; // very fine
 
         // Normal
         {
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.001, 0.1); // very small timesteps
+
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructRegularSlabMesh(h, 1.0);
             HeartConfig::Instance()->SetOutputDirectory("MonodomainCompareWithOperatorSplitting_normal");
@@ -115,6 +111,10 @@ public:
 
         // Operator splitting
         {
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.002, 0.1); // very small timesteps - use pde-dt = 2 ode-dt
+                                                                                       // as effective_ode_dt = min{pde_dt/2, ode_dt} in
+                                                                                       // our operator splitting implementation
+
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructRegularSlabMesh(h, 1.0);
             HeartConfig::Instance()->SetOutputDirectory("MonodomainCompareWithOperatorSplitting_splitting");
@@ -130,17 +130,11 @@ public:
             final_voltage_operator_splitting.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
 
-        // hardcoded value to check nothing has changed
-        TS_ASSERT_DELTA(final_voltage_operator_splitting[30], 10.7939, 1e-3);
-
         bool some_node_depolarised = false;
         assert(final_voltage_normal.GetSize()==final_voltage_operator_splitting.GetSize());
         for(unsigned j=0; j<final_voltage_normal.GetSize(); j++)
         {
-            // this tolerance means the wavefronts are not on top of each other, but not too far
-            // separated (as otherwise max difference between the voltages across space would be
-            // greater than 80.
-            double tol=25;
+            double tol=4.7;
 
             TS_ASSERT_DELTA(final_voltage_normal[j], final_voltage_operator_splitting[j], tol);
 
@@ -159,4 +153,4 @@ public:
     }
 };
 
-#endif /* TESTOPERATORSPLITTINGMONODOMAINSOLVER_HPP_ */
+#endif /* TESTOPERATORSPLITTINGMONODOMAINSOLVERLONG_HPP_ */
