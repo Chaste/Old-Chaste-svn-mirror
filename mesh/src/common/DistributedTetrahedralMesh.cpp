@@ -1315,11 +1315,14 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*(height+1)*z_partition.GetLocalOwnership());
     if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
     {
-        //It's a short mesh and this process owns no nodes
-       std::stringstream msg;
-       msg << "No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()";
-       WARNING(msg.str());
-       return;
+#define COVERAGE_IGNORE
+        // It's a short mesh and this process owns no nodes.  This problem can only occur on 4 or more processes,
+        // so we can't cover it - coverage only runs with 1 and 2 processes.
+        std::stringstream msg;
+        msg << "No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()";
+        WARNING(msg.str());
+        return;
+#undef COVERAGE_IGNORE
     }
     /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
      * higher numbered process may have dropped out of this construction altogether
