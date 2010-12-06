@@ -1765,6 +1765,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln('return ', conversion, self.STMT_END)
                 self.close_block()
                 self.writeln()
+                if var in self.cell_parameters and var in self.modifier_vars:
+                    # 'Forget' its index, so normal code generation occurs (#1647)
+                    var._cml_has_modifier = True
         self.use_modifiers = use_modifiers
         self.output_default_stimulus()
         self.output_intracellular_calcium()
@@ -1828,7 +1831,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         
         Overrides the base class version to access mParameters for parameters.
         """
-        if hasattr(var, '_cml_param_index'):
+        if hasattr(var, '_cml_param_index') and not (self.use_modifiers and getattr(var, '_cml_has_modifier', False)):
             return self.vector_index('mParameters', var._cml_param_index)
         else:
             return super(CellMLToChasteTranslator, self).code_name(var, *args, **kwargs)
@@ -2242,23 +2245,30 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 if not self.use_backward_euler and expr.eq.lhs.diff.dependent_variable == self.v_variable:
                     clear_type = True
         # Parameters don't need assigning
-        if assigned_var in self.cell_parameters:
+        has_modifier = self.use_modifiers and getattr(assigned_var, '_cml_has_modifier', False)
+        if assigned_var in self.cell_parameters and not has_modifier:
             return
         # Is the variable assigned to stored as a class member?
         clear_type = (clear_type or
                       (self.kept_vars_as_members and assigned_var and assigned_var.pe_keep
-                       and not assigned_var.is_derived_quantity))
+                       and not assigned_var.is_derived_quantity and not has_modifier))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if (assigned_var and self.use_modifiers and assigned_var in self.modifier_vars
             and assigned_var.get_type() != VarTypes.State):
             # "Constant" oxmeta-annotated parameters may be modified at run-time
-            self.capture_output()
-            super(CellMLToChasteTranslator, self).output_assignment(expr)
-            assignment = self.get_captured_output()
-            eq_pos = assignment.find(self.EQ_ASSIGN)
-            end_pos = assignment.find(self.STMT_END)
-            rhs = assignment[eq_pos+len(self.EQ_ASSIGN):end_pos]
+            if has_modifier:
+                # Turn off the modifier to figure out the base value
+                assigned_var._cml_has_modifier = False
+                rhs = self.code_name(assigned_var)
+                assigned_var._cml_has_modifier = True
+            else:
+                self.capture_output()
+                super(CellMLToChasteTranslator, self).output_assignment(expr)
+                assignment = self.get_captured_output()
+                eq_pos = assignment.find(self.EQ_ASSIGN)
+                end_pos = assignment.find(self.STMT_END)
+                rhs = assignment[eq_pos+len(self.EQ_ASSIGN):end_pos]
             if rhs:
                 # If assigned_var is computed, it'll 'appear' twice - once with expr==assigned_var,
                 # and once for the assignment mathml_apply.  The former will result in an empty rhs.

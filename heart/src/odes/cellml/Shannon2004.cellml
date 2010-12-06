@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-This CellML file was generated on 14/10/2008 at 13:26:02 using:
+This CellML file was generated on 04/08/2010 at 10:08:26 using:
 
-COR (0.9.31.1073)
-Copyright 2002-2008 Dr Alan Garny
-http://COR.physiol.ox.ac.uk/ - COR@physiol.ox.ac.uk
+COR (0.9.31.1393)
+Copyright 2002-2010 Dr Alan Garny
+http://cor.physiol.ox.ac.uk/ - cor@physiol.ox.ac.uk
 
 CellML 1.0 was used to generate this model
-http://www.CellML.org/
-
-Modified to add G_Cal_mult multiplier (defaults to 1).
+http://www.cellml.org/
 -->
 <model name="shannon_wang_puglisi_weber_bers_2004_model_updated" cmeta:id="shannon_wang_puglisi_weber_bers_2004_model_updated" xmlns="http://www.cellml.org/cellml/1.0#" xmlns:cellml="http://www.cellml.org/cellml/1.0#" xmlns:cmeta="http://www.cellml.org/metadata/1.0#">
    <units name="thou_mill">
@@ -120,7 +118,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="time" units="millisecond" public_interface="out"/>
    </component>
    <component name="cell">
-      <variable name="V" units="millivolt" initial_value="-85.719687955637" public_interface="out"  cmeta:id="membrane_voltage">
+	  <variable name="V" units="millivolt" initial_value="-85.721630473733" public_interface="out" cmeta:id="membrane_voltage">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_voltage">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_voltage"/>
@@ -149,28 +147,28 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="stim_start" units="millisecond" initial_value="100" cmeta:id="membrane_stimulus_current_offset">
+	  <variable name="stim_start" units="millisecond" initial_value="100" cmeta:id="membrane_stimulus_current_offset">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_offset">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_offset"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="stim_period" units="millisecond" initial_value="300" cmeta:id="membrane_stimulus_current_period">
+	  <variable name="stim_period" units="millisecond" initial_value="1000" cmeta:id="membrane_stimulus_current_period">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_period">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_period"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="stim_duration" units="millisecond" initial_value="5" cmeta:id="membrane_stimulus_current_duration">
+	  <variable name="stim_duration" units="millisecond" initial_value="5" cmeta:id="membrane_stimulus_current_duration">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_duration">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_duration"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="stim_amplitude" units="microA_per_microF" initial_value="9.5" cmeta:id="membrane_stimulus_current_amplitude">
+	  <variable name="stim_amplitude" units="microA_per_microF" initial_value="9.5" cmeta:id="membrane_stimulus_current_amplitude">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_amplitude">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_amplitude"/>
@@ -278,7 +276,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="Nao" units="millimolar" initial_value="140" public_interface="out"/>
       <variable name="Cao" units="millimolar" initial_value="1.8" public_interface="out"/>
       <variable name="Clo" units="millimolar" initial_value="150" public_interface="out"/>
-      <variable name="Ki" units="millimolar" initial_value="135" public_interface="out"/>
+	  <variable name="Ki" units="millimolar" initial_value="135" public_interface="out" cmeta:id="cytosolic_potassium_concentration">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#cytosolic_potassium_concentration">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_potassium_concentration"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="Mgi" units="millimolar" initial_value="1" public_interface="out"/>
       <variable name="Cli" units="millimolar" initial_value="15" public_interface="out"/>
       <variable name="R" units="joule_per_kilomole_kelvin" initial_value="8314.3" public_interface="out"/>
@@ -578,7 +582,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INa">
-      <variable name="i_Na" units="microA_per_microF" public_interface="out"/>
+	  <variable name="i_Na" units="microA_per_microF" public_interface="out" cmeta:id="membrane_fast_sodium_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="i_Na_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_Na_SL" units="microA_per_microF" public_interface="out"/>
       <variable name="G_INa" units="milliS_per_microF" initial_value="16" cmeta:id="membrane_fast_sodium_current_conductance">
@@ -594,6 +604,20 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="V" units="millivolt" public_interface="in" private_interface="out"/>
       <variable name="E_Na_jct" units="millivolt" public_interface="in"/>
       <variable name="E_Na_SL" units="millivolt" public_interface="in"/>
+      <variable name="shift_INa_inact" units="millivolt" initial_value="0" private_interface="out" cmeta:id="membrane_fast_sodium_current_shift_inactivation">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_shift_inactivation">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_shift_inactivation"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
+	  <variable name="perc_reduced_inact_for_IpNa" units="dimensionless" initial_value="0" private_interface="out" cmeta:id="membrane_fast_sodium_current_reduced_inactivation">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_reduced_inactivation">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_reduced_inactivation"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  
       <variable name="m" units="dimensionless" private_interface="in"/>
       <variable name="h" units="dimensionless" private_interface="in"/>
       <variable name="j" units="dimensionless" private_interface="in"/>
@@ -655,13 +679,26 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INa_h_gate">
-      <!-- Note: added an id so it has a consistent name in Chaste -->
-      <variable name="h" units="dimensionless" initial_value="0.987140350343" public_interface="out" cmeta:id="h"/>
+	  <variable name="h" units="dimensionless" initial_value="0.98714602875678" public_interface="out" cmeta:id="membrane_fast_sodium_current_h_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_h_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_h_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="alpha_h" units="per_millisecond"/>
       <variable name="beta_h" units="per_millisecond"/>
-      <variable name="tau_h" units="millisecond"/>
+	  <variable name="tau_h" units="millisecond" cmeta:id="membrane_fast_sodium_current_h_gate_tau">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_h_gate_tau">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_h_gate_tau"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>		  
       <variable name="h_infinity" units="dimensionless"/>
       <variable name="V" units="millivolt" public_interface="in"/>
+      <variable name="shift_INa_inact" units="millivolt" public_interface="in"/>
+	  <variable name="perc_reduced_inact_for_IpNa" units="dimensionless" public_interface="in"/>	  
       <variable name="time" units="millisecond" public_interface="in"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
          <apply>
@@ -677,9 +714,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                         <apply>
                            <divide/>
                            <apply>
-                              <plus/>
-                              <cn cellml:units="millivolt">80</cn>
-                              <ci>V</ci>
+                              <minus/>
+                              <apply>
+                                 <plus/>
+                                 <cn cellml:units="millivolt">80</cn>
+                                 <ci>V</ci>
+                              </apply>
+                              <ci>shift_INa_inact</ci>
                            </apply>
                            <apply>
                               <minus/>
@@ -717,19 +758,28 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                            <apply>
                               <times/>
                               <cn cellml:units="per_millivolt">0.079</cn>
-                              <ci>V</ci>
+                              <apply>
+                                 <minus/>
+                                 <ci>V</ci>
+                                 <ci>shift_INa_inact</ci>
+                              </apply>
                            </apply>
                         </apply>
                      </apply>
                      <apply>
                         <times/>
-                        <cn cellml:units="per_millisecond">3.1e5</cn>
+                        <cn type="e-notation" cellml:units="per_millisecond">3.1   <sep/>
+                        5</cn>
                         <apply>
                            <exp/>
                            <apply>
                               <times/>
                               <cn cellml:units="per_millivolt">0.35</cn>
-                              <ci>V</ci>
+                              <apply>
+                                 <minus/>
+                                 <ci>V</ci>
+                                 <ci>shift_INa_inact</ci>
+                              </apply>
                            </apply>
                         </apply>
                      </apply>
@@ -758,9 +808,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                               <apply>
                                  <divide/>
                                  <apply>
-                                    <plus/>
-                                    <ci>V</ci>
-                                    <cn cellml:units="millivolt">10.66</cn>
+                                    <minus/>
+                                    <apply>
+                                       <plus/>
+                                       <ci>V</ci>
+                                       <cn cellml:units="millivolt">10.66</cn>
+                                    </apply>
+                                    <ci>shift_INa_inact</ci>
                                  </apply>
                                  <apply>
                                     <minus/>
@@ -776,23 +830,43 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
          </apply>
          <apply>
             <eq/>
-            <ci>tau_h</ci>
+            <ci>h_infinity</ci>
             <apply>
-               <divide/>
-               <cn cellml:units="dimensionless">1</cn>
+               <plus/>
                <apply>
-                  <plus/>
-                  <ci>alpha_h</ci>
-                  <ci>beta_h</ci>
+                  <divide/>
+                  <apply>
+                     <times/>
+                     <ci>alpha_h</ci>
+                     <apply>
+                        <minus/>
+                        <cn cellml:units="dimensionless">1</cn>
+                        <apply>
+                           <divide/>
+                           <ci>perc_reduced_inact_for_IpNa</ci>
+                           <cn cellml:units="dimensionless">100</cn>
+                        </apply>
+                     </apply>
+                  </apply>
+                  <apply>
+                     <plus/>
+                     <ci>alpha_h</ci>
+                     <ci>beta_h</ci>
+                  </apply>
+               </apply>
+               <apply>
+                  <divide/>
+                  <ci>perc_reduced_inact_for_IpNa</ci>
+                  <cn cellml:units="dimensionless">100</cn>
                </apply>
             </apply>
          </apply>
          <apply>
             <eq/>
-            <ci>h_infinity</ci>
+            <ci>tau_h</ci>
             <apply>
                <divide/>
-               <ci>alpha_h</ci>
+               <cn cellml:units="dimensionless">1</cn>
                <apply>
                   <plus/>
                   <ci>alpha_h</ci>
@@ -822,12 +896,26 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INa_j_gate">
-      <variable name="j" units="dimensionless" initial_value="0.991822731369" public_interface="out"/>
+	  <variable name="j" units="dimensionless" initial_value="0.991826348770428" public_interface="out" cmeta:id="membrane_fast_sodium_current_j_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_j_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_j_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="alpha_j" units="per_millisecond"/>
       <variable name="beta_j" units="per_millisecond"/>
-      <variable name="tau_j" units="millisecond"/>
+	  <variable name="tau_j" units="millisecond" cmeta:id="membrane_fast_sodium_current_j_gate_tau">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_j_gate_tau">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_j_gate_tau"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>		  
       <variable name="j_infinity" units="dimensionless"/>
       <variable name="V" units="millivolt" public_interface="in"/>
+      <variable name="shift_INa_inact" units="millivolt" public_interface="in"/>
+	  <variable name="perc_reduced_inact_for_IpNa" units="dimensionless" public_interface="in"/>	  
       <variable name="time" units="millisecond" public_interface="in"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
          <apply>
@@ -847,20 +935,26 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                                  <times/>
                                  <apply>
                                     <minus/>
-                                    <cn cellml:units="per_millisecond">1.2714e5</cn>
+                                    <cn type="e-notation" cellml:units="per_millisecond">1.2714   <sep/>
+                                    5</cn>
                                  </apply>
                                  <apply>
                                     <exp/>
                                     <apply>
                                        <times/>
                                        <cn cellml:units="per_millivolt">0.2444</cn>
-                                       <ci>V</ci>
+                                       <apply>
+                                          <minus/>
+                                          <ci>V</ci>
+                                          <ci>shift_INa_inact</ci>
+                                       </apply>
                                     </apply>
                                  </apply>
                               </apply>
                               <apply>
                                  <times/>
-                                 <cn cellml:units="per_millisecond">3.474e-5</cn>
+                                 <cn type="e-notation" cellml:units="per_millisecond">3.474   <sep/>
+                                 -5</cn>
                                  <apply>
                                     <exp/>
                                     <apply>
@@ -869,7 +963,11 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                                           <minus/>
                                           <cn cellml:units="per_millivolt">0.04391</cn>
                                        </apply>
-                                       <ci>V</ci>
+                                       <apply>
+                                          <minus/>
+                                          <ci>V</ci>
+                                          <ci>shift_INa_inact</ci>
+                                       </apply>
                                     </apply>
                                  </apply>
                               </apply>
@@ -891,9 +989,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                               <times/>
                               <cn cellml:units="per_millivolt">0.311</cn>
                               <apply>
-                                 <plus/>
-                                 <ci>V</ci>
-                                 <cn cellml:units="millivolt">79.23</cn>
+                                 <minus/>
+                                 <apply>
+                                    <plus/>
+                                    <ci>V</ci>
+                                    <cn cellml:units="millivolt">79.23</cn>
+                                 </apply>
+                                 <ci>shift_INa_inact</ci>
                               </apply>
                            </apply>
                         </apply>
@@ -931,7 +1033,11 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                                  <minus/>
                                  <cn cellml:units="per_millivolt">0.01052</cn>
                               </apply>
-                              <ci>V</ci>
+                              <apply>
+                                 <minus/>
+                                 <ci>V</ci>
+                                 <ci>shift_INa_inact</ci>
+                              </apply>
                            </apply>
                         </apply>
                      </apply>
@@ -947,9 +1053,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                                  <cn cellml:units="per_millivolt">0.1378</cn>
                               </apply>
                               <apply>
-                                 <plus/>
-                                 <ci>V</ci>
-                                 <cn cellml:units="millivolt">40.14</cn>
+                                 <minus/>
+                                 <apply>
+                                    <plus/>
+                                    <ci>V</ci>
+                                    <cn cellml:units="millivolt">40.14</cn>
+                                 </apply>
+                                 <ci>shift_INa_inact</ci>
                               </apply>
                            </apply>
                         </apply>
@@ -976,9 +1086,14 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                               <times/>
                               <apply>
                                  <minus/>
-                                 <cn cellml:units="per_millivolt">2.535e-7</cn>
+                                 <cn type="e-notation" cellml:units="per_millivolt">2.535   <sep/>
+                                 -7</cn>
                               </apply>
-                              <ci>V</ci>
+                              <apply>
+                                 <minus/>
+                                 <ci>V</ci>
+                                 <ci>shift_INa_inact</ci>
+                              </apply>
                            </apply>
                         </apply>
                      </apply>
@@ -994,9 +1109,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                                  <cn cellml:units="per_millivolt">0.1</cn>
                               </apply>
                               <apply>
-                                 <plus/>
-                                 <ci>V</ci>
-                                 <cn cellml:units="millivolt">32</cn>
+                                 <minus/>
+                                 <apply>
+                                    <plus/>
+                                    <ci>V</ci>
+                                    <cn cellml:units="millivolt">32</cn>
+                                 </apply>
+                                 <ci>shift_INa_inact</ci>
                               </apply>
                            </apply>
                         </apply>
@@ -1007,23 +1126,43 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
          </apply>
          <apply>
             <eq/>
-            <ci>tau_j</ci>
+            <ci>j_infinity</ci>
             <apply>
-               <divide/>
-               <cn cellml:units="dimensionless">1</cn>
+               <plus/>
                <apply>
-                  <plus/>
-                  <ci>alpha_j</ci>
-                  <ci>beta_j</ci>
+                  <divide/>
+                  <apply>
+                     <times/>
+                     <ci>alpha_j</ci>
+                     <apply>
+                        <minus/>
+                        <cn cellml:units="dimensionless">1</cn>
+                        <apply>
+                           <divide/>
+                           <ci>perc_reduced_inact_for_IpNa</ci>
+                           <cn cellml:units="dimensionless">100</cn>
+                        </apply>
+                     </apply>
+                  </apply>
+                  <apply>
+                     <plus/>
+                     <ci>alpha_j</ci>
+                     <ci>beta_j</ci>
+                  </apply>
+               </apply>
+               <apply>
+                  <divide/>
+                  <ci>perc_reduced_inact_for_IpNa</ci>
+                  <cn cellml:units="dimensionless">100</cn>
                </apply>
             </apply>
          </apply>
          <apply>
             <eq/>
-            <ci>j_infinity</ci>
+            <ci>tau_j</ci>
             <apply>
                <divide/>
-               <ci>alpha_j</ci>
+               <cn cellml:units="dimensionless">1</cn>
                <apply>
                   <plus/>
                   <ci>alpha_j</ci>
@@ -1053,7 +1192,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INa_m_gate">
-      <variable name="m" units="dimensionless" initial_value="0.001370685156" public_interface="out"/>
+	  <variable name="m" units="dimensionless" initial_value="0.0013702407736465" public_interface="out" cmeta:id="membrane_fast_sodium_current_m_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_m_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_m_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="alpha_m" units="per_millisecond"/>
       <variable name="beta_m" units="per_millisecond"/>
       <variable name="tau_m" units="millisecond"/>
@@ -1170,7 +1315,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="i_Nab" units="microA_per_microF" public_interface="out"/>
       <variable name="i_Nab_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_Nab_SL" units="microA_per_microF" public_interface="out"/>
-      <variable name="G_NaBk" units="milliS_per_microF" initial_value="0.297e-3"/>
+      <variable name="G_NaBk" units="milliS_per_microF" initial_value="0.000297"/>
       <variable name="Fx_NaBk_jct" units="dimensionless" initial_value="0.11"/>
       <variable name="Fx_NaBk_SL" units="dimensionless" initial_value="0.89"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -1454,7 +1599,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="IKr">
-      <variable name="i_Kr" units="microA_per_microF" public_interface="out"/>
+	  <variable name="i_Kr" units="microA_per_microF" public_interface="out" cmeta:id="membrane_rapid_delayed_rectifier_potassium_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_rapid_delayed_rectifier_potassium_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="G_IKr" units="milliS_per_microF"/>
       <variable name="G_IKr_const" units="milliS_per_microF" initial_value="0.03" cmeta:id="membrane_rapid_delayed_rectifier_potassium_current_conductance">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
@@ -1462,7 +1613,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
             </rdf:Description>
          </rdf:RDF>
-      </variable>
+      </variable>	  
       <variable name="time" units="millisecond" public_interface="in" private_interface="out"/>
       <variable name="V" units="millivolt" public_interface="in" private_interface="out"/>
       <variable name="E_K" units="millivolt" public_interface="in"/>
@@ -1504,7 +1655,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="IKr_Xr_gate">
-      <variable name="Xr" units="dimensionless" initial_value="0.008471550841" public_interface="out"/>
+      <variable name="Xr" units="dimensionless" initial_value="0.00846906175020028" public_interface="out"/>
       <variable name="Xr_infinity" units="dimensionless"/>
       <variable name="tau_Xr" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -1659,10 +1810,22 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="IKs">
-      <variable name="i_Ks" units="microA_per_microF" public_interface="out"/>
+	  <variable name="i_Ks" units="microA_per_microF" public_interface="out" cmeta:id="membrane_slow_delayed_rectifier_potassium_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_slow_delayed_rectifier_potassium_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_slow_delayed_rectifier_potassium_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  	  
       <variable name="i_Ks_jct" units="microA_per_microF"/>
       <variable name="i_Ks_SL" units="microA_per_microF"/>
-      <variable name="G_Ks_SL" units="milliS_per_microF"/>
+      <variable name="G_Ks_SL" units="milliS_per_microF" cmeta:id="membrane_slow_delayed_rectifier_potassium_current_conductance">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_slow_delayed_rectifier_potassium_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_slow_delayed_rectifier_potassium_current_conductance"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	
       <variable name="G_Ks_jct" units="milliS_per_microF"/>
       <variable name="Fx_Ks_jct" units="dimensionless" initial_value="0.11"/>
       <variable name="Fx_Ks_SL" units="dimensionless" initial_value="0.89"/>
@@ -1965,7 +2128,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="IKs_Xs_gate">
-      <variable name="Xs" units="dimensionless" initial_value="0.00687399199" public_interface="out"/>
+      <variable name="Xs" units="dimensionless" initial_value="0.00613557812033723" public_interface="out"/>
       <variable name="Xs_infinity" units="dimensionless"/>
       <variable name="tau_Xs" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2029,7 +2192,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                      <divide/>
                      <apply>
                         <times/>
-                        <cn cellml:units="per_millivolt">7.19e-5</cn>
+                        <cn type="e-notation" cellml:units="per_millivolt">7.19   <sep/>
+                        -5</cn>
                         <apply>
                            <plus/>
                            <ci>V</ci>
@@ -2060,7 +2224,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                      <divide/>
                      <apply>
                         <times/>
-                        <cn cellml:units="per_millivolt">1.31e-4</cn>
+                        <cn type="e-notation" cellml:units="per_millivolt">1.31   <sep/>
+                        -4</cn>
                         <apply>
                            <plus/>
                            <ci>V</ci>
@@ -2093,8 +2258,20 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itos">
-      <variable name="i_tos" units="microA_per_microF" public_interface="out"/>
-      <variable name="G_tos" units="milliS_per_microF" initial_value="0.06"/>
+	  <variable name="i_tos" units="microA_per_microF" public_interface="out" cmeta:id="membrane_transient_outward_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_transient_outward_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_transient_outward_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>			  
+      <variable name="G_tos" units="milliS_per_microF" initial_value="0.06" cmeta:id="membrane_transient_outward_current_conductance">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_transient_outward_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_transient_outward_current_conductance"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>		
       <variable name="V" units="millivolt" public_interface="in" private_interface="out"/>
       <variable name="time" units="millisecond" public_interface="in" private_interface="out"/>
       <variable name="E_K" units="millivolt" public_interface="in"/>
@@ -2128,7 +2305,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itos_X_gate">
-      <variable name="X_tos" units="dimensionless" initial_value="0.004011272375" public_interface="out"/>
+      <variable name="X_tos" units="dimensionless" initial_value="0.00401072468238921" public_interface="out"/>
       <variable name="X_tos_infinity" units="dimensionless"/>
       <variable name="tau_X_tos" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2211,7 +2388,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itos_Y_gate">
-      <variable name="Y_tos" units="dimensionless" initial_value="0.293519921626" public_interface="out"/>
+      <variable name="Y_tos" units="dimensionless" initial_value="0.31555225368514" public_interface="out"/>
       <variable name="Y_tos_infinity" units="dimensionless"/>
       <variable name="tau_Y_tos" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2291,7 +2468,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itos_R_gate">
-      <variable name="R_tos" units="dimensionless" initial_value="0.383430556383" public_interface="out"/>
+      <variable name="R_tos" units="dimensionless" initial_value="0.402577243036347" public_interface="out"/>
       <variable name="R_tos_infinity" units="dimensionless"/>
       <variable name="R_tos_other" units="dimensionless"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2329,7 +2506,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                <plus/>
                <apply>
                   <divide/>
-                  <cn cellml:units="millisecond">2.8e3</cn>
+                  <cn type="e-notation" cellml:units="millisecond">2.8   <sep/>
+                  3</cn>
                   <apply>
                      <plus/>
                      <cn cellml:units="dimensionless">1</cn>
@@ -2403,7 +2581,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itof_X_gate">
-      <variable name="X_tof" units="dimensionless" initial_value="0.00401120993" public_interface="out"/>
+      <variable name="X_tof" units="dimensionless" initial_value="0.00401068798369438" public_interface="out"/>
       <variable name="X_tof_infinity" units="dimensionless"/>
       <variable name="tau_X_tof" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2485,7 +2663,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Itof_Y_gate">
-      <variable name="Y_tof" units="dimensionless" initial_value="0.9946314893" public_interface="out"/>
+      <variable name="Y_tof" units="dimensionless" initial_value="0.994632857675454" public_interface="out"/>
       <variable name="Y_tof_infinity" units="dimensionless"/>
       <variable name="tau_Y_tof" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -2565,8 +2743,20 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="IK1">
-      <variable name="i_K1" units="microA_per_microF" public_interface="out"/>
-      <variable name="G_K1" units="milliS_per_microF"/>
+	  <variable name="i_K1" units="microA_per_microF" public_interface="out" cmeta:id="membrane_inward_rectifier_potassium_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_inward_rectifier_potassium_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_inward_rectifier_potassium_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  
+      <variable name="G_K1" units="milliS_per_microF" cmeta:id="membrane_inward_rectifier_potassium_current_conductance">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_inward_rectifier_potassium_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_inward_rectifier_potassium_current_conductance"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	 	
       <variable name="V" units="millivolt" public_interface="in" private_interface="out"/>
       <variable name="E_K" units="millivolt" public_interface="in" private_interface="out"/>
       <variable name="Ko" units="millimolar" public_interface="in"/>
@@ -2729,7 +2919,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
    </component>
    <component name="ICl_Ca">
       <variable name="i_Cl_Ca" units="microA_per_microF" public_interface="out"/>
-      <variable name="G_Cl" units="milliS_per_microF" initial_value="0.109625" />
+      <variable name="G_Cl" units="milliS_per_microF" initial_value="0.109625"/>
       <variable name="Kd_ClCa" units="millimolar" initial_value="0.1"/>
       <variable name="Fx_Cl_jct" units="dimensionless" initial_value="0.11"/>
       <variable name="Fx_Cl_SL" units="dimensionless" initial_value="0.89"/>
@@ -2804,20 +2994,25 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="ICaL">
-      <variable name="i_CaL" units="microA_per_microF" public_interface="out"/>
+	  <variable name="i_CaL" units="microA_per_microF" public_interface="out" cmeta:id="membrane_L_type_calcium_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="i_CaL_Ca_SL" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_Ca_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_Na_SL" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_Na_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_K" units="microA_per_microF"/>
-      <variable name="G_CaL_mult" units="dimensionless" initial_value="1.0" cmeta:id="membrane_L_type_calcium_current_conductance">
+      <variable name="PCa" units="litre_per_farad_millisecond" initial_value="0.00054" cmeta:id="membrane_L_type_calcium_current_conductance">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_L_type_calcium_current_conductance">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_conductance"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="PCa" units="litre_per_farad_millisecond" initial_value="5.4e-4"/>
       <variable name="PNa" units="litre_per_farad_millisecond" initial_value="1.5e-8"/>
       <variable name="PK" units="litre_per_farad_millisecond" initial_value="2.7e-7"/>
       <variable name="Fx_ICaL_jct" units="dimensionless" initial_value="0.9"/>
@@ -3228,22 +3423,24 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
             <eq/>
             <ci>i_CaL</ci>
             <apply>
-               <times/>
-               <ci>G_CaL_mult</ci>
-               <apply>
-                  <plus/>
-                  <ci>i_CaL_Ca_SL</ci>
-                  <ci>i_CaL_Ca_jct</ci>
-                  <ci>i_CaL_Na_SL</ci>
-                  <ci>i_CaL_Na_jct</ci>
-                  <ci>i_CaL_K</ci>
-               </apply>
+               <plus/>
+               <ci>i_CaL_Ca_SL</ci>
+               <ci>i_CaL_Ca_jct</ci>
+               <ci>i_CaL_Na_SL</ci>
+               <ci>i_CaL_Na_jct</ci>
+               <ci>i_CaL_K</ci>
             </apply>
          </apply>
       </math>
    </component>
    <component name="ICaL_d_gate">
-      <variable name="d" units="dimensionless" initial_value="0.000006997531" public_interface="out"/>
+	  <variable name="d" units="dimensionless" initial_value="6.99526086177479e-6" public_interface="out" cmeta:id="membrane_L_type_calcium_current_d_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current_d_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_d_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="d_infinity" units="dimensionless"/>
       <variable name="tau_d" units="millisecond"/>
       <variable name="V" units="millivolt" public_interface="in"/>
@@ -3338,9 +3535,21 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="ICaL_f_gate">
-      <variable name="f" units="dimensionless" initial_value="1.000675515962" public_interface="out"/>
+	  <variable name="f" units="dimensionless" initial_value="1.00067601563206" public_interface="out" cmeta:id="membrane_L_type_calcium_current_f_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current_f_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_f_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="f_infinity" units="dimensionless"/>
-      <variable name="tau_f" units="millisecond"/>
+	  <variable name="tau_f" units="millisecond" cmeta:id="membrane_L_type_calcium_current_f_gate_tau">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current_f_gate_tau">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_f_gate_tau"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  
       <variable name="V" units="millivolt" public_interface="in"/>
       <variable name="time" units="millisecond" public_interface="in"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -3448,10 +3657,16 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="ICaL_fCa_gate">
-      <variable name="fCa_SL" units="dimensionless" public_interface="out"/>
+	  <variable name="fCa_SL" units="dimensionless" public_interface="out" cmeta:id="membrane_L_type_calcium_current_fCa_gate">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current_fCa_gate">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_fCa_gate"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="fCa_jct" units="dimensionless" public_interface="out"/>
-      <variable name="fCaB_SL" units="dimensionless" initial_value="0.015352888928" public_interface="out"/>
-      <variable name="fCaB_jct" units="dimensionless" initial_value="0.024609183734" public_interface="out"/>
+      <variable name="fCaB_SL" units="dimensionless" initial_value="0.0150193299768419" public_interface="out"/>
+      <variable name="fCaB_jct" units="dimensionless" initial_value="0.0244048782575591" public_interface="out"/>
       <variable name="Ca_SL" units="millimolar" public_interface="in"/>
       <variable name="Ca_jct" units="millimolar" public_interface="in"/>
       <variable name="time" units="millisecond" public_interface="in"/>
@@ -3497,7 +3712,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                </apply>
                <apply>
                   <times/>
-                  <cn cellml:units="per_millisecond">11.9e-3</cn>
+                  <cn type="e-notation" cellml:units="per_millisecond">11.9   <sep/>
+                  -3</cn>
                   <ci>fCaB_SL</ci>
                </apply>
             </apply>
@@ -3525,7 +3741,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                </apply>
                <apply>
                   <times/>
-                  <cn cellml:units="per_millisecond">11.9e-3</cn>
+                  <cn type="e-notation" cellml:units="per_millisecond">11.9   <sep/>
+                  -3</cn>
                   <ci>fCaB_jct</ci>
                </apply>
             </apply>
@@ -3533,10 +3750,22 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INaCa">
-      <variable name="i_NaCa" units="microA_per_microF" public_interface="out"/>
+	  <variable name="i_NaCa" units="microA_per_microF" public_interface="out" cmeta:id="membrane_sodium_calcium_exchanger_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_sodium_calcium_exchanger_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_sodium_calcium_exchanger_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="i_NaCa_SL" units="microA_per_microF" public_interface="out"/>
       <variable name="i_NaCa_jct" units="microA_per_microF" public_interface="out"/>
-      <variable name="V_max" units="microA_per_microF" initial_value="9"/>
+      <variable name="V_max" units="microA_per_microF" initial_value="9" cmeta:id="membrane_sodium_calcium_exchanger_current_conductance">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_sodium_calcium_exchanger_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_sodium_calcium_exchanger_current_conductance"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="Fx_NCX_jct" units="dimensionless" initial_value="0.11"/>
       <variable name="Fx_NCX_SL" units="dimensionless" initial_value="0.89"/>
       <variable name="Q10_NCX" units="dimensionless" initial_value="1.57"/>
@@ -4163,14 +4392,20 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Jrel_SR">
-      <variable name="j_rel_SR" units="millimolar_per_millisecond" public_interface="out"/>
+	  <variable name="j_rel_SR" units="millimolar_per_millisecond" public_interface="out" cmeta:id="SR_release_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#SR_release_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#SR_release_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  
       <variable name="Max_SR" units="dimensionless" initial_value="15"/>
       <variable name="Min_SR" units="dimensionless" initial_value="1"/>
       <variable name="EC50_SR" units="millimolar" initial_value="0.45"/>
-      <variable name="R" units="dimensionless" initial_value="0.884673513138" public_interface="out"/>
-      <variable name="I" units="dimensionless" initial_value="0.00000009272" public_interface="out"/>
+      <variable name="R" units="dimensionless" initial_value="0.890917121306535" public_interface="out"/>
+      <variable name="I" units="dimensionless" initial_value="8.71752603681652e-8" public_interface="out"/>
       <variable name="RI" units="dimensionless"/>
-      <variable name="O" units="dimensionless" initial_value="0.000000711264" public_interface="out"/>
+      <variable name="O" units="dimensionless" initial_value="7.1199533741995e-7" public_interface="out"/>
       <variable name="ks" units="per_millisecond" initial_value="25"/>
       <variable name="koCa" units="per_millimolar2_per_millisecond" initial_value="10"/>
       <variable name="kom" units="per_millisecond" initial_value="0.06"/>
@@ -4422,7 +4657,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
    </component>
    <component name="Jpump_SR">
       <variable name="j_pump_SR" units="millimolar_per_millisecond" public_interface="out"/>
-      <variable name="V_max" units="millimolar_per_millisecond" initial_value="286e-6"/>
+      <variable name="V_max" units="millimolar_per_millisecond" initial_value="0.000286"/>
       <variable name="Q10_SRCaP" units="dimensionless" initial_value="2.6"/>
       <variable name="Q_SRCaP" units="dimensionless"/>
       <variable name="Kmf" units="millimolar" initial_value="0.000246"/>
@@ -4528,7 +4763,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="x_jct_SL" units="micrometre" initial_value="0.5"/>
       <variable name="x_SL_cytosol" units="micrometre" initial_value="0.45"/>
       <variable name="A_jct_SL" units="cm2" initial_value="3.01e-6"/>
-      <variable name="A_SL_cytosol" units="cm2" initial_value="1.3e-4"/>
+      <variable name="A_SL_cytosol" units="cm2" initial_value="0.00013"/>
       <variable name="Na_SL" units="millimolar" public_interface="in"/>
       <variable name="Na_jct" units="millimolar" public_interface="in"/>
       <variable name="Nai" units="millimolar" public_interface="in"/>
@@ -4550,7 +4785,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                   <ci>Na_jct</ci>
                   <ci>Na_SL</ci>
                </apply>
-               <cn cellml:units="litre_per_millisecond">1.8313e-14</cn>
+               <cn type="e-notation" cellml:units="litre_per_millisecond">1.8313   <sep/>
+               -14</cn>
             </apply>
          </apply>
          <apply>
@@ -4563,7 +4799,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                   <ci>Na_SL</ci>
                   <ci>Nai</ci>
                </apply>
-               <cn cellml:units="litre_per_millisecond">1.6386e-12</cn>
+               <cn type="e-notation" cellml:units="litre_per_millisecond">1.6386   <sep/>
+               -12</cn>
             </apply>
          </apply>
          <apply>
@@ -4576,7 +4813,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                   <ci>Ca_jct</ci>
                   <ci>Ca_SL</ci>
                </apply>
-               <cn cellml:units="litre_per_millisecond">8.2413e-13</cn>
+               <cn type="e-notation" cellml:units="litre_per_millisecond">8.2413   <sep/>
+               -13</cn>
             </apply>
          </apply>
          <apply>
@@ -4589,7 +4827,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                   <ci>Ca_SL</ci>
                   <ci>Cai</ci>
                </apply>
-               <cn cellml:units="litre_per_millisecond">3.7243e-12</cn>
+               <cn type="e-notation" cellml:units="litre_per_millisecond">3.7243   <sep/>
+               -12</cn>
             </apply>
          </apply>
          <apply>
@@ -4667,15 +4906,28 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="Na_buffer">
-      <variable name="Na_SL" units="millimolar" initial_value="8.874077316753" public_interface="out"/>
-      <variable name="Na_jct" units="millimolar" initial_value="8.872823559072" public_interface="out"/>
-      <variable name="Na_SL_buf" units="millimolar" initial_value="0.776121392467" public_interface="out"/>
-      <variable name="Na_jct_buf" units="millimolar" initial_value="3.557055389701" public_interface="out"/>
-      <variable name="Nai" units="millimolar" initial_value="8.874461106492" public_interface="out"/>
+      <variable name="Na_SL" units="millimolar" initial_value="8.87161932058707" public_interface="out"/>
+      <variable name="Na_jct" units="millimolar" initial_value="8.87031835089116" public_interface="out"/>
+      <variable name="Na_SL_buf" units="millimolar" initial_value="0.77606800956492" public_interface="out"/>
+      <variable name="Na_jct_buf" units="millimolar" initial_value="3.55668431730337" public_interface="out"/>
+	  <variable name="Nai" units="millimolar" initial_value="8.87200572571131" public_interface="out" cmeta:id="cytosolic_sodium_concentration">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#cytosolic_sodium_concentration">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_sodium_concentration"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
+	  <variable name="conc_clamp" units="dimensionless" initial_value="1" cmeta:id="concentration_clamp_onoff">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#concentration_clamp_onoff">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#concentration_clamp_onoff"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>	  
       <variable name="Bmax_SL" units="millimolar" initial_value="1.65"/>
       <variable name="Bmax_jct" units="millimolar" initial_value="7.561"/>
       <variable name="kon" units="per_millimolar_per_millisecond" initial_value="0.0001"/>
-      <variable name="koff" units="per_millisecond" initial_value="1e-3"/>
+      <variable name="koff" units="per_millisecond" initial_value="0.001"/>
       <variable name="J_Na_jct_SL" units="millimole_per_millisecond" public_interface="in"/>
       <variable name="J_Na_SL_cytosol" units="millimole_per_millisecond" public_interface="in"/>
       <variable name="i_Na_jct" units="microA_per_microF" public_interface="in"/>
@@ -4774,47 +5026,51 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                <ci>Na_jct</ci>
             </apply>
             <apply>
-               <minus/>
+               <times/>
+               <ci>conc_clamp</ci>
                <apply>
                   <minus/>
                   <apply>
-                     <divide/>
+                     <minus/>
                      <apply>
-                        <times/>
+                        <divide/>
                         <apply>
-                           <minus/>
-                           <ci>Cm</ci>
+                           <times/>
+                           <apply>
+                              <minus/>
+                              <ci>Cm</ci>
+                           </apply>
+                           <apply>
+                              <plus/>
+                              <ci>i_Na_jct</ci>
+                              <apply>
+                                 <times/>
+                                 <cn cellml:units="dimensionless">3</cn>
+                                 <ci>i_NaCa_jct</ci>
+                              </apply>
+                              <ci>i_Nab_jct</ci>
+                              <apply>
+                                 <times/>
+                                 <cn cellml:units="dimensionless">3</cn>
+                                 <ci>i_NaK_jct</ci>
+                              </apply>
+                              <ci>i_CaL_Na_jct</ci>
+                           </apply>
                         </apply>
                         <apply>
-                           <plus/>
-                           <ci>i_Na_jct</ci>
-                           <apply>
-                              <times/>
-                              <cn cellml:units="dimensionless">3</cn>
-                              <ci>i_NaCa_jct</ci>
-                           </apply>
-                           <ci>i_Nab_jct</ci>
-                           <apply>
-                              <times/>
-                              <cn cellml:units="dimensionless">3</cn>
-                              <ci>i_NaK_jct</ci>
-                           </apply>
-                           <ci>i_CaL_Na_jct</ci>
+                           <times/>
+                           <ci>Vol_jct</ci>
+                           <ci>F</ci>
                         </apply>
                      </apply>
                      <apply>
-                        <times/>
+                        <divide/>
+                        <ci>J_Na_jct_SL</ci>
                         <ci>Vol_jct</ci>
-                        <ci>F</ci>
                      </apply>
                   </apply>
-                  <apply>
-                     <divide/>
-                     <ci>J_Na_jct_SL</ci>
-                     <ci>Vol_jct</ci>
-                  </apply>
+                  <ci>dNa_jct_buf</ci>
                </apply>
-               <ci>dNa_jct_buf</ci>
             </apply>
          </apply>
          <apply>
@@ -4827,51 +5083,55 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                <ci>Na_SL</ci>
             </apply>
             <apply>
-               <minus/>
+               <times/>
+               <ci>conc_clamp</ci>
                <apply>
-                  <plus/>
+                  <minus/>
                   <apply>
-                     <divide/>
+                     <plus/>
                      <apply>
-                        <times/>
+                        <divide/>
+                        <apply>
+                           <times/>
+                           <apply>
+                              <minus/>
+                              <ci>Cm</ci>
+                           </apply>
+                           <apply>
+                              <plus/>
+                              <ci>i_Na_SL</ci>
+                              <apply>
+                                 <times/>
+                                 <cn cellml:units="dimensionless">3</cn>
+                                 <ci>i_NaCa_SL</ci>
+                              </apply>
+                              <ci>i_Nab_SL</ci>
+                              <apply>
+                                 <times/>
+                                 <cn cellml:units="dimensionless">3</cn>
+                                 <ci>i_NaK_SL</ci>
+                              </apply>
+                              <ci>i_CaL_Na_SL</ci>
+                           </apply>
+                        </apply>
+                        <apply>
+                           <times/>
+                           <ci>Vol_SL</ci>
+                           <ci>F</ci>
+                        </apply>
+                     </apply>
+                     <apply>
+                        <divide/>
                         <apply>
                            <minus/>
-                           <ci>Cm</ci>
+                           <ci>J_Na_jct_SL</ci>
+                           <ci>J_Na_SL_cytosol</ci>
                         </apply>
-                        <apply>
-                           <plus/>
-                           <ci>i_Na_SL</ci>
-                           <apply>
-                              <times/>
-                              <cn cellml:units="dimensionless">3</cn>
-                              <ci>i_NaCa_SL</ci>
-                           </apply>
-                           <ci>i_Nab_SL</ci>
-                           <apply>
-                              <times/>
-                              <cn cellml:units="dimensionless">3</cn>
-                              <ci>i_NaK_SL</ci>
-                           </apply>
-                           <ci>i_CaL_Na_SL</ci>
-                        </apply>
-                     </apply>
-                     <apply>
-                        <times/>
                         <ci>Vol_SL</ci>
-                        <ci>F</ci>
                      </apply>
                   </apply>
-                  <apply>
-                     <divide/>
-                     <apply>
-                        <minus/>
-                        <ci>J_Na_jct_SL</ci>
-                        <ci>J_Na_SL_cytosol</ci>
-                     </apply>
-                     <ci>Vol_SL</ci>
-                  </apply>
+                  <ci>dNa_SL_buf</ci>
                </apply>
-               <ci>dNa_SL_buf</ci>
             </apply>
          </apply>
          <apply>
@@ -4884,29 +5144,34 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
                <ci>Nai</ci>
             </apply>
             <apply>
-               <divide/>
-               <ci>J_Na_SL_cytosol</ci>
-               <ci>Vol_cytosol</ci>
+               <times/>
+               <ci>conc_clamp</ci>
+               <apply>
+                  <divide/>
+                  <ci>J_Na_SL_cytosol</ci>
+                  <ci>Vol_cytosol</ci>
+               </apply>
             </apply>
          </apply>
       </math>
    </component>
    <component name="Ca_buffer">
-      <variable name="Ca_SR" units="millimolar" initial_value="0.545611267699" public_interface="out" private_interface="out"/>
-      <variable name="Ca_SL" units="millimolar" initial_value="0.000106395937" public_interface="out" private_interface="out"/>
-      <variable name="Ca_jct" units="millimolar" initial_value="0.000174843061" public_interface="out" private_interface="out"/>
-      <variable name="Cai" cmeta:id="cytosolic_calcium_concentration" units="millimolar" initial_value="0.000087350002" public_interface="out" private_interface="out"/>
-      <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-         <rdf:Description rdf:about="#cytosolic_calcium_concentration">
-            <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
-         </rdf:Description>
-      </rdf:RDF>
+      <variable name="Ca_SR" units="millimolar" initial_value="0.547125831028543" public_interface="out" private_interface="out"/>
+      <variable name="Ca_SL" units="millimolar" initial_value="0.000104971310105451" public_interface="out" private_interface="out"/>
+      <variable name="Ca_jct" units="millimolar" initial_value="0.000174045152623969" public_interface="out" private_interface="out"/>
+	  <variable name="Cai" units="millimolar" initial_value="8.6504944644883e-5" public_interface="out" private_interface="out" cmeta:id="cytosolic_calcium_concentration">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#cytosolic_calcium_concentration">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="Mgi" units="millimolar" public_interface="in" private_interface="out"/>
-      <variable name="Ca_SLB_SL" units="millimolar" initial_value="0.009868629147" public_interface="out"/>
-      <variable name="Ca_SLB_jct" units="millimolar" initial_value="0.007780801995" public_interface="out"/>
-      <variable name="Ca_SLHigh_SL" units="millimolar" initial_value="0.114438990328" public_interface="out"/>
-      <variable name="Ca_SLHigh_jct" units="millimolar" initial_value="0.077503874257" public_interface="out"/>
-      <variable name="Ca_Calsequestrin" units="millimolar" initial_value="1.186496899338" public_interface="out"/>
+      <variable name="Ca_SLB_SL" units="millimolar" initial_value="0.00973710481246467" public_interface="out"/>
+      <variable name="Ca_SLB_jct" units="millimolar" initial_value="0.00774564218017916" public_interface="out"/>
+      <variable name="Ca_SLHigh_SL" units="millimolar" initial_value="0.113168405274355" public_interface="out"/>
+      <variable name="Ca_SLHigh_jct" units="millimolar" initial_value="0.0772568134367606" public_interface="out"/>
+      <variable name="Ca_Calsequestrin" units="millimolar" initial_value="1.18828527890062" public_interface="out"/>
       <variable name="Bmax_SLB_SL" units="millimolar" initial_value="0.0374"/>
       <variable name="Bmax_SLB_jct" units="millimolar" initial_value="0.0046"/>
       <variable name="Bmax_SLHigh_SL" units="millimolar" initial_value="0.0134"/>
@@ -4915,7 +5180,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="kon_SL" units="per_millimolar_per_millisecond" initial_value="100"/>
       <variable name="kon_Calsequestrin" units="per_millimolar_per_millisecond" initial_value="100"/>
       <variable name="koff_SLB" units="per_millisecond" initial_value="1.3"/>
-      <variable name="koff_SLHigh" units="per_millisecond" initial_value="30e-3"/>
+      <variable name="koff_SLHigh" units="per_millisecond" initial_value="0.03"/>
       <variable name="koff_Calsequestrin" units="per_millisecond" initial_value="65"/>
       <variable name="i_CaL_Ca_jct" units="microA_per_microF" public_interface="in"/>
       <variable name="i_NaCa_jct" units="microA_per_microF" public_interface="in"/>
@@ -5395,13 +5660,13 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="Cai" units="millimolar" public_interface="in"/>
       <variable name="Mgi" units="millimolar" public_interface="in"/>
       <variable name="time" units="millisecond" public_interface="in"/>
-      <variable name="Ca_TroponinC" units="millimolar" initial_value="0.008963736337" public_interface="out"/>
-      <variable name="Ca_TroponinC_Ca_Mg" units="millimolar" initial_value="0.117995194438" public_interface="out"/>
-      <variable name="Mg_TroponinC_Ca_Mg" units="millimolar" initial_value="0.010337654274" public_interface="out"/>
-      <variable name="Ca_Calmodulin" units="millimolar" initial_value="0.000295961245" public_interface="out"/>
-      <variable name="Ca_Myosin" units="millimolar" initial_value="0.001984672275" public_interface="out"/>
-      <variable name="Mg_Myosin" units="millimolar" initial_value="0.137497736234" public_interface="out"/>
-      <variable name="Ca_SRB" units="millimolar" initial_value="0.002177112381" public_interface="out"/>
+      <variable name="Ca_TroponinC" units="millimolar" initial_value="0.00886665040283094" public_interface="out"/>
+      <variable name="Ca_TroponinC_Ca_Mg" units="millimolar" initial_value="0.117873278193472" public_interface="out"/>
+      <variable name="Mg_TroponinC_Ca_Mg" units="millimolar" initial_value="0.0103906683506505" public_interface="out"/>
+      <variable name="Ca_Calmodulin" units="millimolar" initial_value="0.000293073957804278" public_interface="out"/>
+      <variable name="Ca_Myosin" units="millimolar" initial_value="0.00195899238146509" public_interface="out"/>
+      <variable name="Mg_Myosin" units="millimolar" initial_value="0.137523520981802" public_interface="out"/>
+      <variable name="Ca_SRB" units="millimolar" initial_value="0.00215728901718264" public_interface="out"/>
       <variable name="Bmax_TroponinC" units="millimolar" initial_value="0.07"/>
       <variable name="Bmax_TroponinC_Ca_Mg_Ca" units="millimolar" initial_value="0.14"/>
       <variable name="Bmax_TroponinC_Ca_Mg_Mg" units="millimolar" initial_value="0.14"/>
@@ -5411,18 +5676,18 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="Bmax_SRB" units="millimolar" initial_value="0.0171"/>
       <variable name="kon_TroponinC" units="per_millimolar_per_millisecond" initial_value="32.7"/>
       <variable name="kon_TroponinC_Ca_Mg_Ca" units="per_millimolar_per_millisecond" initial_value="2.37"/>
-      <variable name="kon_TroponinC_Ca_Mg_Mg" units="per_millimolar_per_millisecond" initial_value="3e-3"/>
+      <variable name="kon_TroponinC_Ca_Mg_Mg" units="per_millimolar_per_millisecond" initial_value="0.003"/>
       <variable name="kon_Calmodulin" units="per_millimolar_per_millisecond" initial_value="34"/>
       <variable name="kon_Myosin_Ca" units="per_millimolar_per_millisecond" initial_value="13.8"/>
-      <variable name="kon_Myosin_Mg" units="per_millimolar_per_millisecond" initial_value="15.7e-3"/>
+      <variable name="kon_Myosin_Mg" units="per_millimolar_per_millisecond" initial_value="0.0157"/>
       <variable name="kon_SRB" units="per_millimolar_per_millisecond" initial_value="100"/>
-      <variable name="koff_TroponinC" units="per_millisecond" initial_value="19.6e-3"/>
-      <variable name="koff_TroponinC_Ca_Mg_Ca" units="per_millisecond" initial_value="0.032e-3"/>
-      <variable name="koff_TroponinC_Ca_Mg_Mg" units="per_millisecond" initial_value="3.33e-3"/>
-      <variable name="koff_Calmodulin" units="per_millisecond" initial_value="238e-3"/>
-      <variable name="koff_Myosin_Ca" units="per_millisecond" initial_value="0.46e-3"/>
-      <variable name="koff_Myosin_Mg" units="per_millisecond" initial_value="0.057e-3"/>
-      <variable name="koff_SRB" units="per_millisecond" initial_value="60e-3"/>
+      <variable name="koff_TroponinC" units="per_millisecond" initial_value="0.0196"/>
+      <variable name="koff_TroponinC_Ca_Mg_Ca" units="per_millisecond" initial_value="3.2e-5"/>
+      <variable name="koff_TroponinC_Ca_Mg_Mg" units="per_millisecond" initial_value="0.00333"/>
+      <variable name="koff_Calmodulin" units="per_millisecond" initial_value="0.238"/>
+      <variable name="koff_Myosin_Ca" units="per_millisecond" initial_value="0.00046"/>
+      <variable name="koff_Myosin_Mg" units="per_millisecond" initial_value="5.7e-5"/>
+      <variable name="koff_SRB" units="per_millisecond" initial_value="0.06"/>
       <variable name="dCa_TroponinC" units="millimolar_per_millisecond"/>
       <variable name="dCa_TroponinC_Ca_Mg" units="millimolar_per_millisecond"/>
       <variable name="dMg_TroponinC_Ca_Mg" units="millimolar_per_millisecond"/>
@@ -5713,14 +5978,14 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="Ca_Fluo3_jct" units="millimolar" initial_value="0" public_interface="out"/>
       <variable name="Bmax_Indo1_Cytosol" units="millimolar" initial_value="0.025"/>
       <variable name="Bmax_Indo1_SL" units="millimolar" initial_value="0.00077"/>
-      <variable name="Bmax_Indo1_jct" units="millimolar" initial_value="0.00002"/>
+      <variable name="Bmax_Indo1_jct" units="millimolar" initial_value="2e-5"/>
       <variable name="Bmax_Fluo3_Cytosol" units="millimolar" initial_value="0.025"/>
       <variable name="Bmax_Fluo3_SL" units="millimolar" initial_value="0.00077"/>
-      <variable name="Bmax_Fluo3_jct" units="millimolar" initial_value="0.00002"/>
+      <variable name="Bmax_Fluo3_jct" units="millimolar" initial_value="2e-5"/>
       <variable name="kon_Indo1" units="per_millimolar2_per_millisecond" initial_value="100"/>
       <variable name="kon_Fluo3" units="per_millimolar2_per_millisecond" initial_value="100"/>
-      <variable name="koff_Indo1" units="per_millisecond" initial_value="60e-3"/>
-      <variable name="koff_Fluo3" units="per_millisecond" initial_value="110e-3"/>
+      <variable name="koff_Indo1" units="per_millisecond" initial_value="0.06"/>
+      <variable name="koff_Fluo3" units="per_millisecond" initial_value="0.11"/>
       <variable name="Indo1Bound" units="millimolar"/>
       <variable name="Fluo3Bound" units="millimolar"/>
       <variable name="dCa_Indo1_Cytosol" units="millimolar_per_millisecond" public_interface="out"/>
@@ -6398,12 +6663,16 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <map_variables variable_1="h" variable_2="h"/>
       <map_variables variable_1="time" variable_2="time"/>
       <map_variables variable_1="V" variable_2="V"/>
+      <map_variables variable_1="shift_INa_inact" variable_2="shift_INa_inact"/>
+	  <map_variables variable_1="perc_reduced_inact_for_IpNa" variable_2="perc_reduced_inact_for_IpNa"/>	  
    </connection>
    <connection>
       <map_components component_1="INa" component_2="INa_j_gate"/>
       <map_variables variable_1="j" variable_2="j"/>
       <map_variables variable_1="time" variable_2="time"/>
       <map_variables variable_1="V" variable_2="V"/>
+      <map_variables variable_1="shift_INa_inact" variable_2="shift_INa_inact"/>
+	  <map_variables variable_1="perc_reduced_inact_for_IpNa" variable_2="perc_reduced_inact_for_IpNa"/>
    </connection>
    <connection>
       <map_components component_1="ICaL" component_2="ICaL_d_gate"/>

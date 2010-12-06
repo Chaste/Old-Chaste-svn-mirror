@@ -55,7 +55,7 @@ public:
         TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(123,0),123,1e-9);
 
         // Make a new modifier
-        boost::shared_ptr<AbstractModifier> p_new_modifier = boost::shared_ptr<AbstractModifier>(new FixedModifier(-90.0));
+        boost::shared_ptr<AbstractModifier> p_new_modifier(new FixedModifier(-90.0));
 
         TS_ASSERT_THROWS_THIS(p_shannon->SetModifier("Alan",p_new_modifier), "There is no modifier called Alan in this model.");
 
@@ -64,7 +64,7 @@ public:
 
         // We should now get a new answer to this.
         TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(0,0),-90,1e-9);
-        
+
         delete p_shannon;
     }
 

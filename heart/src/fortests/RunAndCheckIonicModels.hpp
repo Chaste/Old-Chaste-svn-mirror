@@ -168,6 +168,10 @@ std::vector<double> GetHGate(ColumnDataReader& rReader)
     {
         h_values = rReader.GetValues("fast_sodium_current_h_gate__h");
     }
+    else if (rReader.HasValues("membrane_fast_sodium_current_h_gate"))
+    {
+        h_values = rReader.GetValues("membrane_fast_sodium_current_h_gate");
+    }
     else
     {
         EXCEPTION("Model h gate is not recognised.");
