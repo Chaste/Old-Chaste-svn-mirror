@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "TimeStepper.hpp"
+#include "VectorHelperFunctions.hpp"
 
 #include <iostream>
 
@@ -39,27 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sundials/sundials_nvector.h>
 #include <cvode/cvode_dense.h>
 
-
-/**
- * A helper function to copy an N_Vector into a std::vector.
- *
- * @param src  source vector
- * @param rDest  destination vector; will be resized and filled
- */
-void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
-{
-    // Check for no-op
-    realtype* p_src = NV_DATA_S(src);
-    if (p_src == &(rDest[0])) return;
-    // Set dest size
-    long size = NV_LENGTH_S(src);
-    rDest.resize(size);
-    // Copy data
-    for (long i=0; i<size; i++)
-    {
-        rDest[i] = p_src[i];
-    }
-}
 
 /**
  * CVODE right-hand-side function adaptor.
@@ -96,12 +76,7 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
         return -1;
     }
     // Copy derivative back
-    long len = NV_LENGTH_S(ydot);
-    realtype* p_ydot = NV_DATA_S(ydot);
-    for (long i=0; i<len; i++)
-    {
-        p_ydot[i] = ydot_vec[i];
-    }
+    CopyFromStdVector(ydot_vec, ydot);
     return 0;
 }
 

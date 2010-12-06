@@ -37,14 +37,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractOdeSystemInformation.hpp"
+#include "AbstractParameterisedSystem.hpp"
+#include "ColumnDataWriter.hpp"
+#include "PetscTools.hpp"
+#include "Exception.hpp"
+
+#ifdef CHASTE_CVODE
+// CVODE headers
+#include <nvector/nvector_serial.h>
+#endif // CHASTE_CVODE
+
 class AbstractOdeSystem;
 
 /**
- * An OdeSolution class that that allows us to save the output data to file.
+ * A class that that allows us to save the output data from solving a system of ODEs to file.
+ * 
+ * This is now templated over vector type, so that it can be used with ODE systems solved using CVODE.
+ * The old class name is still available as a typedef, so that existing code need not be altered.
  */
+
 class OdeSolution
 {
 private:
+    friend class TestAbstractIvpOdeSolver; // For coverage of some private methods in low level tests.
 
     /** Variable for the number of timesteps. */
     unsigned mNumberOfTimeSteps;
@@ -58,12 +73,54 @@ private:
     /** Derived quantities at each timestep. */
     std::vector<std::vector<double> > mDerivedQuantities;
 
+    /** Parameters - these are currently assumed constant across all time */
+    std::vector<double> mParameters;
+
     /**
      * Information about the concrete ODE system class.
      *
      * Used to get names and units into the file output.
      */
     boost::shared_ptr<const AbstractOdeSystemInformation> mpOdeSystemInformation;
+
+    /**
+     * Get the derived quantities for this ODE system at each timestep.
+     *
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     * @return  A std::vector of vectors of derived quantities for each time step.
+     */
+    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
+
+#ifdef CHASTE_CVODE
+    /**
+     * Get the derived quantities for this ODE system at each timestep.
+     *
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     * @return  A std::vector of vectors of derived quantities for each time step.
+     */
+    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
+#endif //CHASTE_CVODE
+
+    /**
+     * This method currently assumes that #mParameters is constant through time.
+     * This may not be the case when using modifiers.
+     *
+     * @param pOdeSystem  The ODE system which was solved to generate this solution object.
+     * @return A std::vector of parameters.
+     */
+    template<typename VECTOR>
+    std::vector<double>& rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
+    {
+        mParameters.clear();
+        if (pOdeSystem->GetNumberOfParameters()>0)
+        {
+            for (unsigned i=0; i<pOdeSystem->GetNumberOfParameters(); ++i)
+            {
+                mParameters.push_back(pOdeSystem->GetParameter(i));
+            }
+        }
+        return mParameters;
+    }
 
 public:
 
@@ -95,11 +152,19 @@ public:
 
     /**
      * Get the values of a state variable with a given index in
-     * the ODE system at each timestep.
+     * the ODE system at each output timestep.
      *
      * @param index  the index of the state variable in the system
      */
     std::vector<double> GetVariableAtIndex(unsigned index) const;
+
+    /**
+     * Get the values of a state variable with a given name in
+     * the ODE system for each output timestep
+     *
+     * @param rName  the name of the state variable in the system
+     */
+    std::vector<double> GetAnyVariable(const std::string& rName) const;
 
     /**
      * Get the times at which the solution to the ODE system is stored.
@@ -130,36 +195,49 @@ public:
     const std::vector<std::vector<double> >& rGetSolutions() const;
     
     /**
-     * Get the derived quantities for this ODE system at each timestep.
+     * Calculate the derived quantities and add them to the #mSolutions structure for printing/accessing.
      * 
      * @param pOdeSystem  the ODE system which was solved to generate this solution object
      */
-    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractOdeSystem* pOdeSystem);
+    template<typename VECTOR>
+    void CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
+    {
+        assert(pOdeSystem->GetSystemInformation() == mpOdeSystemInformation); // Just in case...
+        if (mpOdeSystemInformation->GetNumberOfParameters() > 0)
+        {
+            rGetParameters(pOdeSystem);
+        }
+        if (mpOdeSystemInformation->GetNumberOfDerivedQuantities() > 0)
+        {
+            rGetDerivedQuantities(pOdeSystem);
+            assert(mDerivedQuantities.size() == mSolutions.size());
+        }
+    }
 
     /**
-     * Write the data to a file.
-     *
-     * @param directoryName  the directory in which to write the data to file
-     * @param baseResultsFilename  the name of the file in which to write the data
-     * @param timeUnits  name of the units of time used
-     * @param stepsPerRow  the solution to the ODE system is written to file every
-     *                    this number of timesteps (defaults to 1)
-     * @param cleanDirectory  whether to clean the directory (defaults to true)
-     * @param precision the precision with which to write the data (i.e. exactly
-     *    how many digits to display after the decimal point).  Defaults to 8.
-     *    Must be between 2 and 20 (inclusive).
-     * @param includeDerivedQuantities  whether to include derived quantities in the output
-     * @param pOdeSystem  the ODE system which was solved to generate this solution object
-     *    (only used if includeDerivedQuantities=true)
-     */
+    * Write the data to a file.
+    *
+    * @param directoryName  the directory in which to write the data to file
+    * @param baseResultsFilename  the name of the file in which to write the data
+    * @param timeUnits  name of the units of time used
+    * @param stepsPerRow  the solution to the ODE system is written to file every
+    *                    this number of timesteps (defaults to 1)
+    * @param cleanDirectory  whether to clean the directory (defaults to true)
+    * @param precision the precision with which to write the data (i.e. exactly
+    *    how many digits to display after the decimal point).  Defaults to 8.
+    *    Must be between 2 and 20 (inclusive).
+    * @param includeDerivedQuantities  whether to include parameters and derived quantities in the output.
+    */
     void WriteToFile(std::string directoryName,
-                     std::string baseResultsFilename,
-                     std::string timeUnits,
-                     unsigned stepsPerRow=1,
-                     bool cleanDirectory=true,
-                     unsigned precision=8,
-                     bool includeDerivedQuantities=false,
-                     AbstractOdeSystem* pOdeSystem=NULL);
+                    std::string baseResultsFilename,
+                    std::string timeUnits,
+                    unsigned stepsPerRow=1,
+                    bool cleanDirectory=true,
+                    unsigned precision=8,
+                    bool includeDerivedQuantities=false);
 };
+
+
+
 
 #endif //_ODESOLUTION_HPP_

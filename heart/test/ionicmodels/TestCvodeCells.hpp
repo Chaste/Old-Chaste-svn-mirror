@@ -305,14 +305,44 @@ public:
         state_vars_after_solve->ops->nvdestroy(state_vars_after_solve);
 
         // Solve using Chaste solvers for comparison.
-        OdeSolution solution_chaste = sh04_ode_system.Compute(start_time, end_time);
+        OdeSolution solution_chaste = sh04_ode_system.Compute(start_time, end_time, sampling_time);
 
-        unsigned step_per_row_chaste = 1000u;
-        bool clean_dir = false;
-        solution_cvode.WriteToFile("TestCvodeCells","sh04_cvode","ms",1,clean_dir);
-        solution_chaste.WriteToFile("TestCvodeCells","sh04_chaste","ms",step_per_row_chaste,clean_dir);
+        // These don't seem to need template arguments, I suppose the compiler figures out which to use from the last argument?
+        solution_cvode.CalculateDerivedQuantitiesAndParameters(&sh04_cvode_system);
+        solution_chaste.CalculateDerivedQuantitiesAndParameters(&sh04_ode_system);
+
+        // Check methods for directly getting any quantity out of an OdeSolution
+        std::vector<double> voltages_cvode = solution_cvode.GetAnyVariable("membrane_voltage");
+        std::vector<double> voltages_chaste = solution_chaste.GetAnyVariable("membrane_voltage");
+        // and a parameter...
+        std::vector<double> param_cvode = solution_cvode.GetAnyVariable("membrane_fast_sodium_current_conductance");
+        std::vector<double> param_chaste = solution_chaste.GetAnyVariable("membrane_fast_sodium_current_conductance");
+        // and a derived quantity
+        std::vector<double> derived_quantity_cvode = solution_cvode.GetAnyVariable("membrane_fast_sodium_current");
+        std::vector<double> derived_quantity_chaste = solution_chaste.GetAnyVariable("membrane_fast_sodium_current");
+
+
+        TS_ASSERT_EQUALS(voltages_cvode.size(),voltages_chaste.size());
+        TS_ASSERT_EQUALS(param_cvode.size(),param_chaste.size());
+        TS_ASSERT_EQUALS(derived_quantity_cvode.size(),derived_quantity_chaste.size());
 
         double tolerance = 3e-2;
+        for (unsigned i=0; i<voltages_cvode.size(); ++i)
+        {
+            // The tolerances for voltage are adjusted cleverly at upstroke in CompareCellModelResults below...
+            TS_ASSERT_DELTA(voltages_cvode[i],voltages_chaste[i],10*tolerance);
+            TS_ASSERT_DELTA(param_cvode[i], param_chaste[i],1e-9); // These should be very very similar!
+            TS_ASSERT_DELTA(param_cvode[i], 16.0,1e-9);
+            TS_ASSERT_DELTA(derived_quantity_chaste[i],derived_quantity_cvode[i],50*tolerance);
+        }
+
+        bool clean_dir = false;
+        unsigned precision = 6;
+        bool include_derived_quantities = true;
+
+        solution_cvode.WriteToFile( "TestCvodeCells","sh04_cvode", "ms",1,clean_dir,precision,include_derived_quantities);
+        solution_chaste.WriteToFile("TestCvodeCells","sh04_chaste","ms",1,clean_dir,precision,include_derived_quantities);
+
         bool voltage_only = false;
         CompareCellModelResults("sh04_cvode", "sh04_chaste",tolerance, voltage_only, "TestCvodeCells");
 
@@ -339,7 +369,7 @@ public:
         // The behaviour isn't quite the same - dV/dt isn't clamped in this case - but we should
         // see a reduced response.
         voltages = solution_cvode.GetVariableAtIndex(sh04_cvode_system.GetVoltageIndex());
-        double test_v = solution_chaste.GetVariableAtIndex(sh04_cvode_system.GetVoltageIndex())[voltages.size()*step_per_row_chaste-1];
+        double test_v = solution_chaste.GetVariableAtIndex(sh04_cvode_system.GetVoltageIndex())[voltages.size()-1];
         for (unsigned i=0; i<voltages.size(); i++)
         {
             TS_ASSERT_LESS_THAN(voltages[i], test_v);

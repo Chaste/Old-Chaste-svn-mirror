@@ -180,11 +180,15 @@ public:
 
         // Write
         solutions.WriteToFile("OdeSolution", "Ode2_8", "time");
-        // Write at lower precision with derived quantities
-        solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4, true, &ode_system);
+
+        // Write at lower precision with derived quantities (this ODE doesn't actually have any derived quantities)
+        solutions.CalculateDerivedQuantitiesAndParameters(&ode_system);
+
+        solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4, true);
         PetscTools::Barrier("TestCoverageOfWriteToFile");
         NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Ode2_4.dat",
                                        "ode/test/data/Ode2_4.dat");
+
         TS_ASSERT(comparer.CompareFiles(1e-6));
     }
 
@@ -265,7 +269,11 @@ public:
         // Test with a = 5 => y = 5t, for calculating derived quantities
         std::vector<double> inits = ode.GetInitialConditions();
         OdeSolution solution = euler_solver.Solve(&ode, inits, 0, 1, 0.01, 0.1);
-        
+
+        // Exception coverage
+        TS_ASSERT_THROWS_THIS(solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true),
+                              "You must first call ""CalculateDerivedQuantitiesAndParameters()"" in order to write derived quantities.");
+
         // Check solution and derived quantity for all times
         for (unsigned i=0; i<solution.rGetSolutions().size(); i++)
         {
@@ -273,17 +281,16 @@ public:
              // (derived quantity = 2a+y)
             TS_ASSERT_DELTA(solution.rGetDerivedQuantities(&ode)[i][0], 2.0*5.0 + solution.rGetSolutions()[i][0], 1e-2);
         }
+
+        solution.CalculateDerivedQuantitiesAndParameters(&ode);
         
         // Check the derived quantity is written to the file properly too.
-        solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true, &ode);
+        solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true);
         PetscTools::Barrier("TestWithParameters");
         NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/ParameterisedOde.dat",
                                        "ode/test/data/ParameterisedOde.dat");
         TS_ASSERT(comparer.CompareFiles(1e-6));
-        
-        // Exception coverage
-        TS_ASSERT_THROWS_THIS(solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true),
-                              "You must provide an ODE system to compute derived quantities.");        
+
     }
 
     void TestLastTimeStep()

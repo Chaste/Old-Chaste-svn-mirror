@@ -145,6 +145,12 @@ std::string AbstractOdeSystemInformation::GetParameterUnits(unsigned index) cons
     return mParameterUnits[index];
 }
 
+unsigned AbstractOdeSystemInformation::GetNumberOfParameters() const
+{
+    assert(mInitialised);
+    return mParameterUnits.size();
+}
+
 unsigned AbstractOdeSystemInformation::GetAnyVariableIndex(const std::string& rName) const
 {
     assert(mInitialised);
@@ -243,6 +249,11 @@ std::string AbstractOdeSystemInformation::GetDerivedQuantityUnits(unsigned index
     return mDerivedQuantityUnits[index];
 }
 
+unsigned AbstractOdeSystemInformation::GetNumberOfDerivedQuantities() const
+{
+    assert(mInitialised);
+    return mDerivedQuantityUnits.size();
+}
 
 unsigned AbstractOdeSystemInformation::GetNumberOfAttributes() const
 {

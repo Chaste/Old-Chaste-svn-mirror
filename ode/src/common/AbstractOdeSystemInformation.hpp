@@ -214,11 +214,17 @@ public:
      */
     std::string GetParameterUnits(unsigned index) const;
 
+    /**
+     * @return The number of parameters in this parameterised system.
+     */
+    unsigned GetNumberOfParameters() const;
 
     /**
      * Get the index of a variable, whether a state variable, parameter,
      * or derived quantity, with the given name.  The returned index is
      * suitable for use with GetAnyVariableUnits.
+     *
+     * Indices go through Variables, Parameters then derived quantities.
      *
      * @param rName  the name of a variable
      */
@@ -279,12 +285,17 @@ public:
      */
     std::string GetDerivedQuantityUnits(unsigned index) const;
 
+    /**
+     * @return the number of derived quantities in this system
+     */
+    unsigned GetNumberOfDerivedQuantities() const;
+
     //
     // Attribute methods
     //
 
     /**
-     * Return the number of named attributes that this system has.
+     * @return the number of named attributes that this system has.
      */
     unsigned GetNumberOfAttributes() const;
 
