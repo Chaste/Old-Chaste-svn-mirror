@@ -1112,23 +1112,24 @@ class CellMLTranslator(object):
                          self.lut_access_code(idx, num_tables, table_size),
                          self.STMT_END)
             if indexes_as_member:
-                self.writeln('unsigned _table_index_', idx, self.STMT_END)
-                self.writeln('double _factor_', idx, self.STMT_END)
-                if self.row_lookup_method:
-                    self.writeln('double* _lt_', idx, '_row', self.STMT_END)
+                self.output_lut_index_declarations(idx)
         self.writeln()
-        return
+
+    def output_lut_index_declarations(self, idx):
+        """Output declarations the variables used to index this table."""
+        self.writeln('unsigned _table_index_', idx, self.STMT_END)
+        factor = self.lut_factor(idx, include_type=True)
+        if factor:
+            self.writeln(factor, self.STMT_END)
+        if self.row_lookup_method:
+            self.writeln('double* _lt_', idx, '_row', self.STMT_END)
 
     def output_lut_indices(self):
         """Output declarations for the lookup table indices."""
         self.output_comment('Lookup table indices')
         for key, idx in self.doc.lookup_table_indexes.iteritems():
-            self.writeln('unsigned _table_index_', idx, self.STMT_END)
-            self.writeln('double _factor_', idx, self.STMT_END)
-            if self.row_lookup_method:
-                self.writeln('double* _lt_', idx, '_row', self.STMT_END)
+            self.output_lut_index_declarations(idx)
         self.writeln()
-        return
     
     def output_lut_methods(self):
         """Output the methods which look up values from lookup tables."""
@@ -1136,29 +1137,31 @@ class CellMLTranslator(object):
             self.output_lut_row_lookup_methods()
             return
         self.output_comment('Methods to look up values from lookup tables')
-        self.output_comment('using linear interpolation')
+        self.output_comment('using ', self.config.options.lookup_type)
         for expr in self.doc.lookup_tables:
             j = expr.table_name
             idx = expr.table_index
-            self.writeln('inline double _lookup_', j,
-                         '(unsigned i, double factor)')
+            self.writeln('inline double _lookup_', j, '(unsigned i',
+                         self.lut_factor('', include_type=True, include_comma=True), ')')
             self.open_block()
-            self.writeln(self.TYPE_DOUBLE, 'y1', self.EQ_ASSIGN,
-                         self.lut_access_code(idx, j, 'i'), self.STMT_END)
-            self.writeln(self.TYPE_DOUBLE, 'y2', self.EQ_ASSIGN,
-                         self.lut_access_code(idx, j, 'i+1'), self.STMT_END)
-            self.writeln('return y1 + (y2-y1)*factor;')
+            self.output_single_lookup(idx, j, 'return ')
             self.close_block()
         self.writeln()
         return
-    
-    def output_for_loop(self, init, test, count, body, subst={}):
-        """Output a for loop."""
-        self.writeln('for (', init%subst, '; ', test%subst, '; ', count%subst, ')')
-        self.open_block()
-        for line in body:
-            self.writeln(line%subst)
-        self.close_block(blank_line=False)
+
+    def output_single_lookup(self, tidx, tname, result):
+        """Write the lookup calculation for a single entry.
+        
+        Used by output_lut_row_lookup_methods and output_lut_methods.
+        """
+        self.writeln(self.TYPE_CONST_DOUBLE, 'y1', self.EQ_ASSIGN,
+                     self.lut_access_code(tidx, tname, 'i'), self.STMT_END)
+        if self.config.options.lookup_type == 'linear-interpolation':
+            self.writeln(self.TYPE_CONST_DOUBLE, 'y2', self.EQ_ASSIGN,
+                         self.lut_access_code(tidx, tname, 'i+1'), self.STMT_END)
+            self.writeln(result, 'y1 + (y2-y1)*', self.lut_factor(''), self.STMT_END)
+        else:
+            self.writeln(result, 'y1', self.STMT_END)
 
     def output_lut_row_lookup_methods(self):
         """Write methods that return a whole row of a lookup table.
@@ -1166,40 +1169,16 @@ class CellMLTranslator(object):
         Note: assumes that table names are numbered sequentially from 0.
         """
         self.output_comment('Row lookup methods')
-        self.output_comment('using linear interpolation')
-        # Define code fragments for use later
-        if self.config.options.alternative_row_lookup and not self.bad_tables_for_cache:
-            pre_loop = 'memcpy(%(row_var)s, %(table_var)s[i], %(num_tables)s*sizeof(double));'
-            y1 = lambda idx: '%(row_var)s[j]'
-            row_eq = '+='
-        else:
-            pre_loop = ''
-            y1 = lambda idx: self.lut_access_code(idx, 'j', 'i')
-            row_eq = '= y1 +'
-        y2 = lambda idx: self.lut_access_code(idx, 'j', 'i+1')
-        init, test, count = 'unsigned j=0', 'j < %(num_tables)s', 'j++'
-        assign = lambda name, val: self.TYPE_CONST_DOUBLE + name + self.EQ_ASSIGN + val + self.STMT_END
-        # Output the code
+        self.output_comment('using ', self.config.options.lookup_type)
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
-            subst = {'idx': idx, 'num_tables': num_tables, 'row_eq': row_eq,
-                     'row_var': '_lookup_table_%s_row' % idx,
-                     'table_var': '_lookup_table_%s' % idx}
-            self.writeln('double* _lookup_', idx, '_row(unsigned i, double factor)')
+            self.writeln('double* _lookup_', idx, '_row(unsigned i',
+                         self.lut_factor('', include_type=True, include_comma=True), ')')
             self.open_block()
-            if self.config.options.alternative_row_lookup2 and not self.bad_tables_for_cache:
-                self.output_for_loop(init, test, count,
-                                     ['%(row_var)s[j] = ' + y2(idx) + ' - ' + y1(idx) + ';'], subst)
-                self.output_for_loop(init, test, count,
-                                     ['%(row_var)s[j] *= factor;'], subst)
-                self.output_for_loop(init, test, count,
-                                     ['%(row_var)s[j] += ' + y1(idx) + ';'], subst)
-            else:
-                self.writeln(pre_loop % subst)
-                body = [assign('y1', y1(idx)),
-                        assign('y2', y2(idx)),
-                        '%(row_var)s[j] %(row_eq)s (y2-y1)*factor;']
-                self.output_for_loop(init, test, count, body, subst)
+            self.writeln('for (unsigned j=0; j<', num_tables, '; j++)')
+            self.open_block()
+            self.output_single_lookup(idx, 'j', '_lookup_table_%s_row[j] = ' % idx)
+            self.close_block(False)
             self.writeln('return _lookup_table_', idx, '_row;')
             self.close_block()
         self.writeln()
@@ -1237,6 +1216,19 @@ class CellMLTranslator(object):
                 for child in node.xml_children:
                     result.update(self.contained_table_indices(child))
         return result
+    
+    def lut_factor(self, idx, include_comma=False, include_type=False):
+        """Return code for any extra factor needed to do a table lookup.
+        
+        Will return the empty string unless linear interpolation is being used.
+        """
+        if self.config.options.lookup_type == 'linear-interpolation':
+            factor = '_factor_' + str(idx)
+            if include_type: factor = self.TYPE_DOUBLE + factor
+            if include_comma: factor = ', ' + factor
+        else:
+            factor = ''
+        return factor
 
     def output_table_lookup(self, expr, paren):
         """Output code to look up expr in the appropriate table."""
@@ -1245,7 +1237,7 @@ class CellMLTranslator(object):
             self.write('_lt_', i, '_row[', expr.table_name, ']')
         else:
             self.write(self.lookup_method_prefix, '_lookup_', expr.table_name,
-                       '(_table_index_', i, ', _factor_', i, ')')
+                       '(_table_index_', i, self.lut_factor(i, include_comma=True), ')')
         return
 
     def output_table_index_generation(self, indexes_as_member=False, nodeset=set()):
@@ -1277,7 +1269,7 @@ class CellMLTranslator(object):
             offset = '_offset_' + i
             offset_over_step = offset + '_over_table_step'
             varname = self.code_name(var)
-            if self.config and self.config.options.check_lt_bounds:
+            if self.config.options.check_lt_bounds:
                 self.writeln('if (', varname, '>', max,
                              ' || ', varname, '<', min, ')')
                 self.open_block()
@@ -1293,18 +1285,20 @@ class CellMLTranslator(object):
             self.writeln(self.TYPE_CONST_DOUBLE, offset, self.EQ_ASSIGN, varname, ' - ', min, self.STMT_END)
             self.writeln(self.TYPE_CONST_DOUBLE, offset_over_step, self.EQ_ASSIGN,
                          offset, ' * ', step_inverse, self.STMT_END)
-            if self.lt_index_uses_floor:
-                self.writeln(index_type, '_table_index_', i,
-                             ' = (unsigned) floor(', offset_over_step, ');')
+            idx_var = '_table_index_' + str(i)
+            if self.config.options.lookup_type == 'nearest-neighbour':
+                self.writeln(index_type, idx_var, ' = (unsigned) round(', offset_over_step, ');')
             else:
-                self.writeln(index_type, '_table_index_', i,
-                             ' = (unsigned)(', offset_over_step, ');')
-            self.writeln(factor_type, '_factor_', i, ' = ', offset_over_step,
-                         ' - _table_index_', i, ';')
+                if self.lt_index_uses_floor:
+                    self.writeln(index_type, idx_var, ' = (unsigned) floor(', offset_over_step, ');')
+                else:
+                    self.writeln(index_type, idx_var, ' = (unsigned)(', offset_over_step, ');')
+                factor = self.lut_factor(i)
+                if factor:
+                    self.writeln(factor_type, factor, ' = ', offset_over_step, ' - ', idx_var, self.STMT_END)
             if self.row_lookup_method:
-                self.writeln(row_type, '_lt_', i, '_row = ',
-                             self.lookup_method_prefix, '_lookup_', i,
-                             '_row(_table_index_', i, ', _factor_', i, ');')
+                self.writeln(row_type, '_lt_', i, '_row = ', self.lookup_method_prefix, '_lookup_', i,
+                             '_row(', idx_var, self.lut_factor(i, include_comma=True), ');')
         self.writeln()
         return
 
@@ -1560,8 +1554,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
         self.writeln('#include <memory>')
-        if self.config.options.alternative_row_lookup:
-            self.writeln('#include <cstring> // For memcpy')
         if self.use_backward_euler:
             self.writeln_hpp('#include "AbstractBackwardEulerCardiacCell.hpp"')
             self.writeln('#include "CardiacNewtonSolver.hpp"')
@@ -4859,6 +4851,11 @@ def get_options(args, default_options=None):
                       help="[experimental] specify a simulation protocol to apply to"
                       " the model prior to translation")
     # Settings for lookup tables
+    lookup_type_choices = ['entry-below', 'nearest-neighbour', 'linear-interpolation']
+    parser.add_option('--lookup-type', choices=lookup_type_choices,
+                      default='linear-interpolation',
+                      help="the type of table lookup to perform [default: %default]."
+                      " Choices: " + str(lookup_type_choices))
     parser.add_option('--no-separate-lut-class', dest='separate_lut_class',
                       action='store_false', default=True,
                       help="don't put lookup tables in a separate class")
@@ -4868,12 +4865,6 @@ def get_options(args, default_options=None):
     parser.add_option('--no-row-lookup-method', dest='row_lookup_method',
                       action='store_false',
                       help="don't add and use a method to look up a whole row of a table")
-    parser.add_option('--alternative-row-lookup',
-                      action='store_true', default=False,
-                      help="[experimental] use an alternative style of row lookup method")
-    parser.add_option('--alternative-row-lookup2',
-                      action='store_true', default=False,
-                      help="[experimental] use an alternative style of row lookup method")
     parser.add_option('--combine-commutative-tables',
                       action='store_true', default=False,
                       help="optimise a special corner case to reduce the number of tables."
