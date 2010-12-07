@@ -12,4 +12,4 @@ are a downsampled version of the Oxford rabbit cardiac model: Bishop et al. Mart
 
 We would like to ask any user:
 	- not to distribute the mesh, but point any potential user to www.comlab.ox.ac.uk/chaste for our own tracking purposes.
-	- acknowledge source if used for presentation / publication. For details contact miguel.bernabeu@comlab.ox.ac.uk
+	- acknowledge source if used for presentation / publication. For details contact chaste-users@maillist.ox.ac.uk

@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdlib>
 #include <sys/stat.h>
+#include <iostream>
 
 #include "PetscTools.hpp"
 #include "Exception.hpp"
