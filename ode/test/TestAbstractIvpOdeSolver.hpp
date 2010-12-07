@@ -284,12 +284,30 @@ public:
 
         solution.CalculateDerivedQuantitiesAndParameters(&ode);
         
+        // Check that the new methods work correctly...
+        std::vector<double> ys = solution.GetAnyVariable("y");
+        std::vector<double> as = solution.GetAnyVariable("a");
+        std::vector<double> two_a_plus_y = solution.GetAnyVariable("2a_plus_y");
+
+        TS_ASSERT_THROWS_THIS(solution.GetAnyVariable("sausages"),
+                              "No state variable, parameter, or derived quantity named \'sausages\'.");
+        TS_ASSERT_THROWS_THIS(solution.GetVariableAtIndex(3),
+                              "Invalid index passed to GetVariableAtIndex().");
+        for (unsigned i=0; i<solution.rGetTimes().size(); ++i)
+        {
+            TS_ASSERT_DELTA(ys[i], 5*solution.rGetTimes()[i], 1e-9);
+            TS_ASSERT_DELTA(as[i], 5, 1e-9);
+            TS_ASSERT_DELTA(2*as[i]+ys[i], two_a_plus_y[i], 1e-9);
+        }
+
         // Check the derived quantity is written to the file properly too.
         solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true);
         PetscTools::Barrier("TestWithParameters");
         NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/ParameterisedOde.dat",
                                        "ode/test/data/ParameterisedOde.dat");
         TS_ASSERT(comparer.CompareFiles(1e-6));
+
+
 
     }
 

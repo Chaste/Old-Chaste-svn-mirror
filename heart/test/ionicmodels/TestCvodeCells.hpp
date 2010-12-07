@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "RunAndCheckIonicModels.hpp"
 #include "OdeSystemInformation.hpp"
+#include "VectorHelperFunctions.hpp"
 
 #ifdef CHASTE_CVODE
 
@@ -394,6 +395,16 @@ public:
         solution_block.WriteToFile("TestCvodeCells","sh04_block_param","ms",1,clean_dir);
         CompareCellModelResults("sh04_block_param", "sh04_block_modifier", 1e-6, voltage_only, "TestCvodeCells");
 
+        // Coverage of a helper method
+        N_Vector yvalues = sh04_cvode_system.GetInitialConditions();
+        sh04_cvode_system.SetStateVariablesUsingACopyOfThisVector(yvalues);
+        N_Vector yvalues2 = sh04_cvode_system.rGetStateVariables();
+
+        TS_ASSERT_EQUALS(GetVectorSize(yvalues),GetVectorSize(yvalues2));
+        for (unsigned i=0; i<GetVectorSize(yvalues); i++)
+        {
+            TS_ASSERT_DELTA(GetVectorComponent(yvalues,i), GetVectorComponent(yvalues2,i), 1e-9);
+        }
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
