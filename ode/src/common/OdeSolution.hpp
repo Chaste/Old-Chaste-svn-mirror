@@ -145,23 +145,18 @@ public:
     const std::vector<std::vector<double> >& rGetSolutions() const;
 
     /**
-     * Calculate the derived quantities and add them to the #mSolutions structure for printing/accessing.
+     * Calculate the derived quantities and store them and the current parameters for printing/accessing.
      *
      * @param pOdeSystem  the ODE system which was solved to generate this solution object
      */
     template<typename VECTOR>
-    void CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
-    {
-        assert(pOdeSystem->GetSystemInformation() == mpOdeSystemInformation); // Just in case...
-        rGetParameters(pOdeSystem);
-        rGetDerivedQuantities(pOdeSystem);
-    }
+    void CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem);
 
     /**
      * Get the derived quantities for this ODE system at each timestep.
      *
      * @param pOdeSystem  the ODE system which was solved to generate this solution object
-     * @return  A std::vector of vectors of derived quantities for each time step.
+     * @return  A vector of vectors of derived quantities for each time step.
      */
     std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
 
@@ -180,23 +175,10 @@ public:
      * This may not be the case when using modifiers.
      *
      * @param pOdeSystem  The ODE system which was solved to generate this solution object.
-     * @return  A vector of the system parameters.
+     * @return  A vector of the current system parameters.
      */
     template<typename VECTOR>
-    std::vector<double>& rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
-    {
-        mParameters.clear();
-        const unsigned num_params = pOdeSystem->GetNumberOfParameters();
-        if (num_params > 0)
-        {
-            mParameters.reserve(num_params);
-            for (unsigned i=0; i<num_params; ++i)
-            {
-                mParameters.push_back(pOdeSystem->GetParameter(i));
-            }
-        }
-        return mParameters;
-    }
+    std::vector<double>& rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem);
 
     /**
     * Write the data to a file.

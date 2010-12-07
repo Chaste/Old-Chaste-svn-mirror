@@ -123,6 +123,32 @@ const std::vector<std::vector<double> >& OdeSolution::rGetSolutions() const
 }
 
 
+template<typename VECTOR>
+void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
+{
+    assert(pOdeSystem->GetSystemInformation() == mpOdeSystemInformation); // Just in case...
+    rGetParameters(pOdeSystem);
+    rGetDerivedQuantities(pOdeSystem);
+}
+
+
+template<typename VECTOR>
+std::vector<double>& OdeSolution::rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
+{
+    mParameters.clear();
+    const unsigned num_params = pOdeSystem->GetNumberOfParameters();
+    if (num_params > 0)
+    {
+        mParameters.reserve(num_params);
+        for (unsigned i=0; i<num_params; ++i)
+        {
+            mParameters.push_back(pOdeSystem->GetParameter(i));
+        }
+    }
+    return mParameters;
+}
+
+
 std::vector<std::vector<double> >& OdeSolution::rGetDerivedQuantities(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem)
 {
     assert(pOdeSystem != NULL);
@@ -268,5 +294,14 @@ void OdeSolution::WriteToFile(std::string directoryName,
     writer.Close();
 }
 
+//
+// Explicit instantiation
+//
 
+template std::vector<double>& OdeSolution::rGetParameters(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
+template void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
 
+#ifdef CHASTE_CVODE
+template std::vector<double>& OdeSolution::rGetParameters(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
+template void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
+#endif // CHASTE_CVODE
