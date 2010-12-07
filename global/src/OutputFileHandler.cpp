@@ -65,7 +65,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         {
             //Remove whatever was there before
             //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
-            EXPECT0(system, "rm -rf " + mDirectory + "/*");
+            MPIABORTIFNON0(system, "rm -rf " + mDirectory + "/*");
         }
         // Wait for master to finish before going on to use the directory.
         PetscTools::Barrier("OutputFileHandler");
@@ -118,7 +118,7 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
         if (return_value!=0)
         {
             // We make as many folders as necessary here.
-            EXPECT0(system,"mkdir -p " + directory_root);
+            MPIABORTIFNON0(system,"mkdir -p " + directory_root);
         }
 
         // Now make all the sub-folders requested one-by-one and add the .chaste_deletable_folder file to them.
@@ -137,9 +137,9 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
             if (return_value!=0)
             {
                 // We make only the next folder here
-                EXPECT0(system,"mkdir -p " + directory_root + directory_to_add);
+                MPIABORTIFNON0(system,"mkdir -p " + directory_root + directory_to_add);
                 // Put the Chaste signature file into this folder
-                EXPECT0(system,"touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
+                MPIABORTIFNON0(system,"touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
             }
         }
     }

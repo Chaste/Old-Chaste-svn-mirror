@@ -286,7 +286,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     }
 
     /*
-     *  Compute the gradient of the averaged wall thickness at the centroid of each tetrahedral
+     *  Compute the gradient of the averaged wall thickness at the centroid of each tetrahedron
      */
     c_vector<double,SPACE_DIM> grad_ave_wall_thickness;
 
