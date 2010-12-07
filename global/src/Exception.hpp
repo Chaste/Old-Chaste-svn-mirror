@@ -35,9 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Contains the Exception class, along with some macros that are widely
  * used throughout the code.
  */
-
 #include <string>
-
+#include <iostream> // For std::cout in MPIABORTIFNON0
 #include <cfloat>
 #include <climits> //For UINT_MAX etc., necessary in gcc-4.3
 #include <cstdlib> //For system() etc., necessary in gcc-4.3
