@@ -78,6 +78,8 @@ METADATA_NAMES = frozenset(
      'concentration_clamp_onoff'
 ])
 
+# Parameters for the stimulus current
+STIMULUS_NAMES = frozenset('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
 
 ################################################################################
 # The public interface to this module

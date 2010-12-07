@@ -31,11 +31,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 #include <map>
+#include <string>
+
+// These come first to avoid compiler errors on Boost 1.33.1/PETSc 2.2
+#include "AbstractCvodeCell.hpp"
+#include "AbstractCardiacCell.hpp"
+
 #include "AbstractModifier.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "AbstractCvodeCell.hpp"
-#include "AbstractCardiacCell.hpp"
 
 /**
  * A base class for cardiac cells that have been altered to include calls to subclasses

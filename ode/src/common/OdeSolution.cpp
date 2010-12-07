@@ -27,12 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OdeSolution.hpp"
-#include "AbstractOdeSystem.hpp"
+
+#include <sstream>
+
+#include "ColumnDataWriter.hpp"
+#include "Exception.hpp"
+#include "PetscTools.hpp"
 #include "VectorHelperFunctions.hpp"
 
 OdeSolution::OdeSolution()
-   : mNumberOfTimeSteps(0u),
-     mpOdeSystemInformation()
+    : mNumberOfTimeSteps(0u),
+      mpOdeSystemInformation()
 {
 }
 
@@ -159,109 +164,108 @@ std::vector<std::vector<double> >& OdeSolution::rGetDerivedQuantities(AbstractPa
 
 
 void OdeSolution::WriteToFile(std::string directoryName,
-                std::string baseResultsFilename,
-                std::string timeUnits,
-                unsigned stepsPerRow,
-                bool cleanDirectory,
-                unsigned precision,
-                bool includeDerivedQuantities)
+                              std::string baseResultsFilename,
+                              std::string timeUnits,
+                              unsigned stepsPerRow,
+                              bool cleanDirectory,
+                              unsigned precision,
+                              bool includeDerivedQuantities)
 {
-   assert(stepsPerRow > 0);
-       assert(mTimes.size() > 0);
-       assert(mTimes.size() == mSolutions.size());
-       assert(mpOdeSystemInformation.get() != NULL);
+    assert(stepsPerRow > 0);
+    assert(mTimes.size() > 0);
+    assert(mTimes.size() == mSolutions.size());
+    assert(mpOdeSystemInformation.get() != NULL);
+    if (mpOdeSystemInformation->GetNumberOfParameters()==0 && mpOdeSystemInformation->GetNumberOfDerivedQuantities() == 0)
+    {
+        includeDerivedQuantities = false;
+    }
 
-       if (mpOdeSystemInformation->GetNumberOfParameters()==0 && mpOdeSystemInformation->GetNumberOfDerivedQuantities() == 0)
-       {
-           includeDerivedQuantities = false;
-       }
+    if (includeDerivedQuantities)
+    {
+        if ((mDerivedQuantities.empty() || mDerivedQuantities.size()!=mTimes.size()) && mParameters.empty())
+        {
+            EXCEPTION("You must first call ""CalculateDerivedQuantitiesAndParameters()"" in order to write derived quantities.");
+        }
+    }
 
-       if (includeDerivedQuantities)
-       {
-           if ((mDerivedQuantities.empty() || mDerivedQuantities.size()!=mTimes.size()) && mParameters.empty())
-           {
-               EXCEPTION("You must first call ""CalculateDerivedQuantitiesAndParameters()"" in order to write derived quantities.");
-           }
-       }
+    // Write data to a file using ColumnDataWriter
+    ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory, precision);
 
-       // Write data to a file using ColumnDataWriter
-       ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory, precision);
+    if (!PetscTools::AmMaster())
+    {
+        //Only the master actually writes to file
+        return;
+    }
 
-       if (!PetscTools::AmMaster())
-       {
-           //Only the master actually writes to file
-           return;
-       }
+    int time_var_id = writer.DefineUnlimitedDimension("Time", timeUnits);
 
-       int time_var_id = writer.DefineUnlimitedDimension("Time", timeUnits);
+    // Either: the ODE system should have no names&units defined, or it should
+    // the same number as the number of solutions per timestep.
+    assert(  mpOdeSystemInformation->rGetStateVariableNames().size()==0 ||
+            (mpOdeSystemInformation->rGetStateVariableNames().size()==mSolutions[0].size()) );
 
-       // Either: the ODE system should have no names&units defined, or it should
-       // the same number as the number of solutions per timestep.
-       assert(  mpOdeSystemInformation->rGetStateVariableNames().size()==0 ||
-               (mpOdeSystemInformation->rGetStateVariableNames().size()==mSolutions[0].size()) );
+    unsigned num_vars = mSolutions[0].size();
+    unsigned num_params = mpOdeSystemInformation->GetNumberOfParameters();
+    unsigned num_derived_quantities = mpOdeSystemInformation->GetNumberOfDerivedQuantities();
 
-       unsigned num_vars = mSolutions[0].size();
-       unsigned num_params =mpOdeSystemInformation->GetNumberOfParameters();
-       unsigned num_derived_quantities =mpOdeSystemInformation->GetNumberOfDerivedQuantities();
+    std::vector<int> var_ids;
+    var_ids.reserve(num_vars);
+    if (mpOdeSystemInformation->rGetStateVariableNames().size() > 0)
+    {
+        for (unsigned i=0; i<num_vars; i++)
+        {
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetStateVariableNames()[i],
+                                                    mpOdeSystemInformation->rGetStateVariableUnits()[i]));
+        }
+    }
+    else
+    {
+        for (unsigned i=0; i<num_vars; i++)
+        {
+            std::stringstream string_stream;
+            string_stream << "var_" << i;
+            var_ids.push_back(writer.DefineVariable(string_stream.str(), ""));
+        }
+    }
 
-       std::vector<int> var_ids;
-       var_ids.reserve(num_vars);
-       if (mpOdeSystemInformation->rGetStateVariableNames().size() > 0)
-       {
-           for (unsigned i=0; i<num_vars; i++)
-           {
-               var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetStateVariableNames()[i],
-                                                       mpOdeSystemInformation->rGetStateVariableUnits()[i]));
-           }
-       }
-       else
-       {
-           for (unsigned i=0; i<num_vars; i++)
-           {
-               std::stringstream string_stream;
-               string_stream << "var_" << i;
-               var_ids.push_back(writer.DefineVariable(string_stream.str(), ""));
-           }
-       }
+    if (includeDerivedQuantities)
+    {
+        var_ids.reserve(num_vars + num_params + num_derived_quantities);
+        for (unsigned i=0; i<num_params; ++i)
+        {
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetParameterNames()[i],
+                                                    mpOdeSystemInformation->rGetParameterUnits()[i]));
+        }
+        for (unsigned i=0; i<num_derived_quantities; i++)
+        {
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetDerivedQuantityNames()[i],
+                                                    mpOdeSystemInformation->rGetDerivedQuantityUnits()[i]));
+        }
+    }
 
-       if (includeDerivedQuantities)
-       {
-           var_ids.reserve(num_vars + num_params + num_derived_quantities);
-           for (unsigned i=0; i<num_params; ++i)
-           {
-               var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetParameterNames()[i],
-                                                       mpOdeSystemInformation->rGetParameterUnits()[i]));
-           }
-           for (unsigned i=0; i<num_derived_quantities; i++)
-           {
-               var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetDerivedQuantityNames()[i],
-                                                       mpOdeSystemInformation->rGetDerivedQuantityUnits()[i]));
-           }
-       }
+    writer.EndDefineMode();
 
-       writer.EndDefineMode();
-
-       for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)
-       {
-           writer.PutVariable(time_var_id, mTimes[i]);
-           for (unsigned j=0; j<num_vars; j++)
-           {
-               writer.PutVariable(var_ids[j], mSolutions[i][j]);
-           }
-           if (includeDerivedQuantities)
-           {
-               for (unsigned j=0; j<num_params; ++j)
-               {
-                   writer.PutVariable(var_ids[j+num_vars], mParameters[j]);
-               }
-               for (unsigned j=0; j<num_derived_quantities; j++)
-               {
-                   writer.PutVariable(var_ids[j+num_params+num_vars], mDerivedQuantities[i][j]);
-               }
-           }
-           writer.AdvanceAlongUnlimitedDimension();
-       }
-       writer.Close();
+    for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)
+    {
+        writer.PutVariable(time_var_id, mTimes[i]);
+        for (unsigned j=0; j<num_vars; j++)
+        {
+            writer.PutVariable(var_ids[j], mSolutions[i][j]);
+        }
+        if (includeDerivedQuantities)
+        {
+            for (unsigned j=0; j<num_params; ++j)
+            {
+                writer.PutVariable(var_ids[j+num_vars], mParameters[j]);
+            }
+            for (unsigned j=0; j<num_derived_quantities; j++)
+            {
+                writer.PutVariable(var_ids[j+num_params+num_vars], mDerivedQuantities[i][j]);
+            }
+        }
+        writer.AdvanceAlongUnlimitedDimension();
+    }
+    writer.Close();
 }
 
 

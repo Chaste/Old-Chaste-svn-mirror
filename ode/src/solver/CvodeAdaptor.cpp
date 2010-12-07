@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VectorHelperFunctions.hpp"
 
 #include <iostream>
+#include <sstream>
 
 // CVODE headers
 #include <sundials/sundials_nvector.h>

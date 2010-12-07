@@ -2044,7 +2044,7 @@ class cellml_variable(Colourable, element_base):
         elif not only_temporary:
             self.remove_rdf_annotations(('pe:binding_time', NSS[u'pe']))
         
-    def _get_binding_time(self, force_computation=False):
+    def _get_binding_time(self):
         """Return the binding time of this variable, as a member of
         the BINDING_TIMES Enum.
 
@@ -2056,15 +2056,7 @@ class cellml_variable(Colourable, element_base):
           Constant -> static
           Mapped -> binding time of source variable
           Computed -> binding time of defining expression
-        
-        If force_computation is True, will ignore cached values and
-        pe:keep annotations, and won't cache the result.
         """
-        if force_computation:
-            saved_bt = self._cml_binding_time
-            self._unset_binding_time()
-            saved_pe_keep = self.pe_keep
-            self.set_pe_keep(False)
         if self._cml_binding_time is None:
             # Check for an annotation setting the BT
             bt_annotation = self.get_rdf_annotation(('pe:binding_time', NSS[u'pe']))
@@ -2092,28 +2084,36 @@ class cellml_variable(Colourable, element_base):
                                     " of variable " + self.fullname() +
                                     " in BTA.")
                 DEBUG('partial-evaluator', "BT var", self.fullname(), "is", bt)
-            if not force_computation:
-                self._set_binding_time(bt)
+            self._set_binding_time(bt)
         else:
             bt = self._cml_binding_time
-        if force_computation:
-            # Restore original cached values & pe:keep
-            if saved_bt:
-                self._set_binding_time(saved_bt)
-            self.set_pe_keep(saved_pe_keep)
         return bt
     
-    def is_statically_const(self, force_computation=False):
+    def is_statically_const(self, ignore_annotations=False):
         """Determine if this variable is considered constant.
         
         Checks if we're Constant, or Computed with a static binding time.
         
-        If force_computation is True, will ignore cached binding time values and
-        pe:keep annotations.
+        If ignore_annotations is True, will ignore cached binding time values and
+        pe:keep annotations.  It instead finds all variables we depend on, directly or
+        indirectly, and gives a dynamic result iff any is a state or free variable (or
+        of unknown type).
         """
-        return (self.get_type() == VarTypes.Constant
-                or (self.get_type() == VarTypes.Computed and
-                    self._get_binding_time(force_computation=force_computation) == BINDING_TIMES.static))
+        result = False
+        t = self.get_type()
+        if t == VarTypes.Constant:
+            result = True
+        elif t == VarTypes.Computed:
+            if ignore_annotations:
+                dependencies = self.model.calculate_extended_dependencies([self])
+                result = True
+                for node in dependencies:
+                    if isinstance(node, cellml_variable) and node.get_type() in [VarTypes.State, VarTypes.Free, VarTypes.Unknown]:
+                        result = False
+                        break
+            else:
+                result = self._get_binding_time() == BINDING_TIMES.static
+        return result
 
     def set_value(self, value, ode=None, follow_maps=True):
         """Set the value of this variable.

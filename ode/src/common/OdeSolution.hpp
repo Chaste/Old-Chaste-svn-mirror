@@ -32,35 +32,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
-#include <fstream>
-#include <sstream>
+#include <cassert>
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractOdeSystemInformation.hpp"
 #include "AbstractParameterisedSystem.hpp"
-#include "ColumnDataWriter.hpp"
-#include "PetscTools.hpp"
-#include "Exception.hpp"
 
 #ifdef CHASTE_CVODE
 // CVODE headers
 #include <nvector/nvector_serial.h>
 #endif // CHASTE_CVODE
 
-class AbstractOdeSystem;
+class AbstractOdeSystem; // Avoid cyclic include issues
 
 /**
- * A class that that allows us to save the output data from solving a system of ODEs to file.
- * 
- * This is now templated over vector type, so that it can be used with ODE systems solved using CVODE.
- * The old class name is still available as a typedef, so that existing code need not be altered.
+ * A class that that stores the output data from solving a system of ODEs, and allows us to save it to file.
  */
-
 class OdeSolution
 {
 private:
-    friend class TestAbstractIvpOdeSolver; // For coverage of some private methods in low level tests.
-
     /** Variable for the number of timesteps. */
     unsigned mNumberOfTimeSteps;
 
@@ -69,7 +59,7 @@ private:
 
     /** Solutions for each variable at each timestep. */
     std::vector<std::vector<double> > mSolutions;
-    
+
     /** Derived quantities at each timestep. */
     std::vector<std::vector<double> > mDerivedQuantities;
 
@@ -83,47 +73,7 @@ private:
      */
     boost::shared_ptr<const AbstractOdeSystemInformation> mpOdeSystemInformation;
 
-    /**
-     * Get the derived quantities for this ODE system at each timestep.
-     *
-     * @param pOdeSystem  the ODE system which was solved to generate this solution object
-     * @return  A std::vector of vectors of derived quantities for each time step.
-     */
-    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
-
-#ifdef CHASTE_CVODE
-    /**
-     * Get the derived quantities for this ODE system at each timestep.
-     *
-     * @param pOdeSystem  the ODE system which was solved to generate this solution object
-     * @return  A std::vector of vectors of derived quantities for each time step.
-     */
-    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
-#endif //CHASTE_CVODE
-
-    /**
-     * This method currently assumes that #mParameters is constant through time.
-     * This may not be the case when using modifiers.
-     *
-     * @param pOdeSystem  The ODE system which was solved to generate this solution object.
-     * @return A std::vector of parameters.
-     */
-    template<typename VECTOR>
-    std::vector<double>& rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
-    {
-        mParameters.clear();
-        if (pOdeSystem->GetNumberOfParameters()>0)
-        {
-            for (unsigned i=0; i<pOdeSystem->GetNumberOfParameters(); ++i)
-            {
-                mParameters.push_back(pOdeSystem->GetParameter(i));
-            }
-        }
-        return mParameters;
-    }
-
 public:
-
     /**
      * Public constructor - ensures data is empty to start with.
      */
@@ -186,32 +136,66 @@ public:
      * @return mSolutions.
      */
     std::vector<std::vector<double> >& rGetSolutions();
-    
+
     /**
      * Get the values of the solution to the ODE system at each timestep.
      *
      * @return mSolutions.
      */
     const std::vector<std::vector<double> >& rGetSolutions() const;
-    
+
     /**
      * Calculate the derived quantities and add them to the #mSolutions structure for printing/accessing.
-     * 
+     *
      * @param pOdeSystem  the ODE system which was solved to generate this solution object
      */
     template<typename VECTOR>
     void CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
     {
         assert(pOdeSystem->GetSystemInformation() == mpOdeSystemInformation); // Just in case...
-        if (mpOdeSystemInformation->GetNumberOfParameters() > 0)
+        rGetParameters(pOdeSystem);
+        rGetDerivedQuantities(pOdeSystem);
+    }
+
+    /**
+     * Get the derived quantities for this ODE system at each timestep.
+     *
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     * @return  A std::vector of vectors of derived quantities for each time step.
+     */
+    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
+
+#ifdef CHASTE_CVODE
+    /**
+     * Get the derived quantities for this ODE system at each timestep.
+     *
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     * @return  A std::vector of vectors of derived quantities for each time step.
+     */
+    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
+#endif //CHASTE_CVODE
+
+    /**
+     * This method currently assumes that #mParameters is constant through time.
+     * This may not be the case when using modifiers.
+     *
+     * @param pOdeSystem  The ODE system which was solved to generate this solution object.
+     * @return  A vector of the system parameters.
+     */
+    template<typename VECTOR>
+    std::vector<double>& rGetParameters(AbstractParameterisedSystem<VECTOR>* pOdeSystem)
+    {
+        mParameters.clear();
+        const unsigned num_params = pOdeSystem->GetNumberOfParameters();
+        if (num_params > 0)
         {
-            rGetParameters(pOdeSystem);
+            mParameters.reserve(num_params);
+            for (unsigned i=0; i<num_params; ++i)
+            {
+                mParameters.push_back(pOdeSystem->GetParameter(i));
+            }
         }
-        if (mpOdeSystemInformation->GetNumberOfDerivedQuantities() > 0)
-        {
-            rGetDerivedQuantities(pOdeSystem);
-            assert(mDerivedQuantities.size() == mSolutions.size());
-        }
+        return mParameters;
     }
 
     /**
@@ -229,15 +213,13 @@ public:
     * @param includeDerivedQuantities  whether to include parameters and derived quantities in the output.
     */
     void WriteToFile(std::string directoryName,
-                    std::string baseResultsFilename,
-                    std::string timeUnits,
-                    unsigned stepsPerRow=1,
-                    bool cleanDirectory=true,
-                    unsigned precision=8,
-                    bool includeDerivedQuantities=false);
+                     std::string baseResultsFilename,
+                     std::string timeUnits,
+                     unsigned stepsPerRow=1,
+                     bool cleanDirectory=true,
+                     unsigned precision=8,
+                     bool includeDerivedQuantities=false);
 };
-
-
 
 
 #endif //_ODESOLUTION_HPP_

@@ -1650,7 +1650,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln(self.code_name(self.free_vars[0]), ' *= ',
                              self.conversion_factor, self.STMT_END)
             # Work out what equations are needed
-            nodeset = self.calculate_extended_dependencies(dqs)
+            if self.use_chaste_stimulus:
+                i_stim = [self.doc._cml_config.i_stim_var]
+            else:
+                i_stim = []
+            nodeset = self.calculate_extended_dependencies(dqs, prune_deps=i_stim)
             # State variable inputs
             self.output_state_assignments(assign_rY=False, nodeset=nodeset)
             self.writeln()
@@ -1707,18 +1711,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         vars = cellml_metadata.find_variables(self.model, ('bqbiol:is', NSS[u'bqbiol']))
         # Keep only the variables with an oxmeta name
         vars = filter(lambda v: v.oxmeta_name, vars)
-        # We're actually only interested in constants or state variables
-        self.metadata_vars = set([v for v in vars
-                                  if v.is_statically_const(force_computation=True)
-                                  or v in self.state_vars])
-        # There's a really nasty corner case if the model defines a constant stimulus current!
+        # We're interested in anything that isn't time or the stimulus
+        self.metadata_vars = set([v for v in vars if v.get_type() != VarTypes.Free])
         self.metadata_vars.discard(self.doc._cml_config.i_stim_var)
         
         # #1464 Create a set of metadata variables that will have modifiers
         # We want to avoid writing out metadata for stimulus current as it is used once and then discarded.
         # \todo - use protocol information to put only the required modifiers into this list.
-        stimulus_names = set('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
-        self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in stimulus_names])
+        self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in cellml_metadata.STIMULUS_NAMES])
 
         # Generate member variable declarations
         self.set_access('private')
@@ -1745,7 +1745,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         use_modifiers = self.use_modifiers
         self.use_modifiers = False
         for var in self.metadata_vars:
-            if var.is_statically_const(force_computation=True):
+            if var.is_statically_const(ignore_annotations=True):
                 self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
                 self.open_block()
                 self.output_comment('Constant value given in CellML')
@@ -4618,7 +4618,8 @@ class ConfigurationStore(object):
                 var.set_is_derived_quantity(True)
         if self.options.expose_annotated_variables:
             for var in self.metadata_vars:
-                annotate(var)
+                if not var.oxmeta_name in cellml_metadata.STIMULUS_NAMES:
+                    annotate(var)
         if self.options.expose_all_variables:
             for var in self.doc.model.get_all_variables():
                 annotate(var)
