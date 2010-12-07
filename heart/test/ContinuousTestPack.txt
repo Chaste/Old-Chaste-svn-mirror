@@ -43,6 +43,7 @@ TestHeterogeneousConductivities.hpp
 TestNeumannStimulus.hpp
 TestPapillaryFibreCalculator.hpp
 TestPlaneStimulusCellFactory.hpp
+TestRestitutionStimuli.hpp
 TestStimulus.hpp
 TestStimulusBoundaryCondition.hpp
 TestStreeterFibreGenerator.hpp
