@@ -27,3 +27,6 @@ resume_monodomain
 
 # bidomain simulation with initial mesh read in Memfem format
 imported_mesh_bidomain
+
+# Executable tutorials
+UsingFibreDefinitions

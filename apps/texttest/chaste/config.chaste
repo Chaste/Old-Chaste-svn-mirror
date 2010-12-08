@@ -20,6 +20,13 @@ link_test_path:save_monodomain
 copy_test_path:SaveBidomain
 copy_test_path:SaveMonodomain
 
+# Files needed by tutorials
+link_test_path:FibreSimulation.xml
+link_test_path:sheet_800_elements.edge
+link_test_path:sheet_800_elements.ele
+link_test_path:sheet_800_elements.node
+link_test_path:sheet_800_elements.ortho
+
 default_checkout:Chaste
 
 [collate_file]
