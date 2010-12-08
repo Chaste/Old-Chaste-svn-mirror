@@ -56,13 +56,13 @@ def GetArchBits():
         arch_bits = '32'
     return arch_bits
 
-def CompileChaste(target):
+def CompileChaste(target, build='GccOpt'):
     """Compile the code and bail out if necessary.
     
     target gives the target to build.
     """
     print 'Compiling dynamically-linked executable'
-    if os.system('scons build=GccOpt static=0 chaste_libs=1 exe=1 compile_only=1 -j3 ' + target):
+    if os.system('scons build=' + build + ' static=0 chaste_libs=1 exe=1 compile_only=1 ' + target):
         print "General build failure.  You aren't ready to release!"
         sys.exit(1)
 
