@@ -1509,6 +1509,13 @@ public:
                 TS_ASSERT_EQUALS( received[i], nodes_to_receive_per_process[receive_from][i] );
             }
         }
+        
+//        for (unsigned process = 0; process < PetscTools::GetNumProcs(); process++)
+//        {            
+//            PRINT_3_VARIABLES( process, 
+//                               nodes_to_receive_per_process[process].size(),
+//                               nodes_to_send_per_process[process].size() );
+//        }
     }
     
     void TestParallelWriting3D()

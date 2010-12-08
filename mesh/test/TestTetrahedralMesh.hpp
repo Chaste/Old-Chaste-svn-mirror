@@ -1719,6 +1719,60 @@ public:
         TS_ASSERT_EQUALS(copy_mesh.GetNode(11)->GetNumBoundaryElements(), 6u);
     }
 
+    void TestNodeExchange()
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        std::vector<std::vector<unsigned> > nodes_to_send_per_process; 
+        std::vector<std::vector<unsigned> > nodes_to_receive_per_process; 
+        mesh.CalculateNodeExchange(nodes_to_send_per_process, nodes_to_receive_per_process);
+        
+        TS_ASSERT_EQUALS(nodes_to_send_per_process.size(), PetscTools::GetNumProcs());
+        TS_ASSERT_EQUALS(nodes_to_receive_per_process.size(), PetscTools::GetNumProcs());
+        TS_ASSERT(nodes_to_receive_per_process[PetscTools::GetMyRank()].empty());
+        TS_ASSERT(nodes_to_send_per_process[PetscTools::GetMyRank()].empty());
+        
+        // Do some communication
+        
+        //mesh.rGetDistributedVectorFactory()->rGetGlobalLows();
+        for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
+        {
+            unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
+            unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
+                  
+            MPI_Send( &(nodes_to_send_per_process[send_to][0]), 
+                      nodes_to_send_per_process[send_to].size(), 
+                      MPI_UNSIGNED, 
+                      send_to, 
+                      0, 
+                      PETSC_COMM_WORLD );
+                      
+            unsigned received[nodes_to_receive_per_process[receive_from].size()];
+            MPI_Status status;
 
+            MPI_Recv( received,
+                      nodes_to_receive_per_process[receive_from].size(), 
+                      MPI_UNSIGNED, 
+                      receive_from,
+                      0,
+                      PETSC_COMM_WORLD, 
+                      &status );
+                      
+            for ( unsigned i = 0; i < nodes_to_receive_per_process[receive_from].size(); i++ )
+            {
+                TS_ASSERT_EQUALS( received[i], nodes_to_receive_per_process[receive_from][i] );
+            }
+        }
+        
+//      s  for (unsigned process = 0; process < PetscTools::GetNumProcs(); process++)
+//        {            
+//            PRINT_3_VARIABLES( process, 
+//                               nodes_to_receive_per_process[process].size(),
+//                               nodes_to_send_per_process[process].size() );
+//        }
+    }
+    
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

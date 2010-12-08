@@ -409,21 +409,6 @@ private:
      */
     void ReorderNodes();
     
-    /**
-     * Get the nodes which will need to be exchanged between remote processes.
-     * If we have an element which node indices outside the local [mLo, mHi) region
-     * then we know that those nodes will need to be recieved from a remote process, while
-     * those inside the range [mLo, mHi) will need to be sent
-     * 
-     * @param rNodesToSendPerProcess (output) a vector which will be of size GetNumProcs() 
-     * where each internal vector except i=GetMyRank() contains an ordered list of indices of 
-     * nodes to send to process i
-     *  
-     * @param rNodesToReceivePerProcess (output) a vector which will be of size GetNumProcs() 
-     * for information to receive for process i
-     */
-     void CalculateNodeExchange( std::vector<std::vector<unsigned> >& rNodesToSendPerProcess,
-                                 std::vector<std::vector<unsigned> >& rNodesToReceivePerProcess);
 };
 
 #include "SerializationExportWrapper.hpp"
