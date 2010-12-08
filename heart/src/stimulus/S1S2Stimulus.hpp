@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * MultiStimulus.
  *
  * We have a number of these MultiStimulus objects, created
- * for a given vector #s2Periods in the constructor. As a
+ * for a given vector s2Periods in the constructor. As a
  * user you set which of these S2 frequencies to run with the method
  * SetS2ExperimentPeriodIndex().
  *

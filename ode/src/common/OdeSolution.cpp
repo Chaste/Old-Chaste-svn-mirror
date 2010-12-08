@@ -298,6 +298,10 @@ void OdeSolution::WriteToFile(std::string directoryName,
 // Explicit instantiation
 //
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template std::vector<double>& OdeSolution::rGetParameters(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
 template void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<std::vector<double> >* pOdeSystem);
 
@@ -305,3 +309,8 @@ template void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParam
 template std::vector<double>& OdeSolution::rGetParameters(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
 template void OdeSolution::CalculateDerivedQuantitiesAndParameters(AbstractParameterisedSystem<N_Vector>* pOdeSystem);
 #endif // CHASTE_CVODE
+
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */

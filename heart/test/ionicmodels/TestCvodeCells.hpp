@@ -405,6 +405,7 @@ public:
         {
             TS_ASSERT_DELTA(GetVectorComponent(yvalues,i), GetVectorComponent(yvalues2,i), 1e-9);
         }
+        DeleteVector(yvalues);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
