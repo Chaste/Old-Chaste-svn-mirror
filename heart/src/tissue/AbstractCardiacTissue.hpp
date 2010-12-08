@@ -244,16 +244,49 @@ protected:
      * For example, it is required when conductivities become deformation dependent.
      */
     AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* mpConductivityModifier;
+    
+    /**
+     * Whether to exchange cell models across the halo boundaries.
+     * Used in state variable interpolation.
+     */
+    bool mExchangeHalos;
+    
+    ///\todo #1462 Add loads of data exchange stuff  
+    
+    /** Vector of halo node indices for current process */
+    std::vector<unsigned> mHaloNodes;
+
+    /** The vector of halo cells. Distributed. */
+    std::vector< AbstractCardiacCell* > mHaloCellsDistributed;
+
+    /** Map of global to local indices for halo nodes. */
+    std::map<unsigned, unsigned> mHaloGlobalToLocalIndexMap;
+
+    /**
+     * A vector which will be of size GetNumProcs() where each internal vector except 
+     * i=GetMyRank() contains an ordered list of indices of nodes to send to process i
+     * during data exchange
+     */
+    std::vector<std::vector<unsigned> > mNodesToSendPerProcess;
+    
+    /**
+     * A vector which will be of size GetNumProcs() for information to receive for 
+     * process i
+     */
+    std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;
 
 
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
      * It creates all the cell objects, and sets up the conductivities.
+     * 
+     * Note that pCellFactory contains a pointer to the mesh
      *
      * @param pCellFactory  factory to use to create cells.
+     * @param exchangeHalos used in state-variable interpolation.  Defaults to false.
      */
-    AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
+    AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
 
     /**
      * This constructor is called by the archiver
@@ -308,6 +341,16 @@ public:
      * @param globalIndex  global node index for which to retrieve a cell
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
+
+    /**
+     * Get a pointer to a halo cell, indexed by the global node index.
+     *
+     * \note Should only called by the process halo owning the cell -
+     * triggers an assertion otherwise.
+     *
+     * @param globalIndex  global node index for which to retrieve a cell
+     */
+    AbstractCardiacCell* GetCardiacCellOrHaloCell( unsigned globalIndex );
 
     /**
      * Integrate the cell ODEs and update ionic current etc for each of the

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacTissue()
 {
-    mpMonodomainTissue = new MonodomainTissue<ELEMENT_DIM,SPACE_DIM>(this->mpCellFactory);
+    mpMonodomainTissue = new MonodomainTissue<ELEMENT_DIM,SPACE_DIM>(this->mpCellFactory, HeartConfig::Instance()->GetUseStateVariableInterpolation());
     return mpMonodomainTissue;
 }
 

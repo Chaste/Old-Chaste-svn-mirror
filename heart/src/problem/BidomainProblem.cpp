@@ -110,7 +110,7 @@ template<unsigned DIM>
 AbstractCardiacTissue<DIM> * BidomainProblem<DIM>::CreateCardiacTissue()
 {
     AnalyseMeshForBath();
-    mpBidomainTissue = new BidomainTissue<DIM>(this->mpCellFactory);
+    mpBidomainTissue = new BidomainTissue<DIM>(this->mpCellFactory, HeartConfig::Instance()->GetUseStateVariableInterpolation());
     return mpBidomainTissue;
 }
 

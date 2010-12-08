@@ -82,8 +82,9 @@ public:
     /**
      * Constructor sets up extracellular conductivity tensors.
      * @param pCellFactory factory to pass on to the base class constructor
+     * @param exchangeHalos used in state-variable interpolation.  Defaults to false.
      */
-    BidomainTissue(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    BidomainTissue(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
 
     /**
      *  Archiving constructor

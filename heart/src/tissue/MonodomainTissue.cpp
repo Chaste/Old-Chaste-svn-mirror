@@ -30,8 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(
-            AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
-    :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
+            AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
+            bool exchangeHalos)
+    :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(pCellFactory, exchangeHalos)
 {
 }
 

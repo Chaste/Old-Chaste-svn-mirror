@@ -69,10 +69,10 @@ public:
     /**
      *  Constructor
      *
-     *  @param pCellFactory  Provides the mesh and cells
+     * @param pCellFactory  Provides the mesh and cells
+     * @param exchangeHalos used in state-variable interpolation.  Defaults to false.
      */
-    MonodomainTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
-
+    MonodomainTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
 
     /**
      * Another constructor (for archiving)

@@ -34,7 +34,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCell*  AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::CreateCardiacCellForNode(
     unsigned nodeIndex)
 {
-    if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
+    if (mpMesh->GetNodeOrHaloNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
     {
         return new FakeBathCell(this->mpSolver, this->mpZeroStimulus);
     }

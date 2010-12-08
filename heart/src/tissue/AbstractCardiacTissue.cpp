@@ -37,20 +37,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscVecTools.hpp"
 
-
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
-            AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
+            AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
+            bool exchangeHalos)
     : mpMesh(pCellFactory->GetMesh()),
       mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
       mMeshUnarchived(false),
-      mpConductivityModifier(NULL)
+      mpConductivityModifier(NULL),
+      mExchangeHalos(exchangeHalos)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory != NULL);
     assert(pCellFactory->GetMesh() != NULL);
-
+    
+    if (mExchangeHalos)
+    {
+        mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
+    }
+    
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
@@ -87,6 +93,48 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
         throw e;
     }
     PetscTools::ReplicateException(false);
+
+    // Halo nodes (if required)
+    if (mExchangeHalos)
+    {
+        mpMesh->GetHaloNodeIndices( mHaloNodes );
+        unsigned num_halo_nodes = mHaloNodes.size();
+        mHaloCellsDistributed.resize( num_halo_nodes );
+
+        try
+        {
+            for (unsigned local_index = 0; local_index < num_halo_nodes; local_index++)
+            {
+                unsigned global_index = mHaloNodes[local_index];
+                mHaloCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+                mHaloCellsDistributed[local_index]->SetUsedInTissueSimulation();
+                mHaloGlobalToLocalIndexMap[global_index] = local_index;
+            }
+
+            // No need to call FinaliseCellCreation() as halo node cardiac cells will
+            // never be stimulated (their values are communicated from the process that
+            // owns them.
+        }
+        catch (const Exception& e)
+        {
+            // Errors thrown creating cells will often be process-specific
+            PetscTools::ReplicateException(true);
+    
+            // Delete cells
+            // Should really do this for other processes too, but this is all we need
+            // to get memory testing to pass, and leaking when we're about to die isn't
+            // that bad!
+            for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mHaloCellsDistributed.begin();
+                 cell_iterator != mHaloCellsDistributed.end();
+                 ++cell_iterator)
+            {
+                delete (*cell_iterator);
+            }
+    
+            throw e;
+        }
+        PetscTools::ReplicateException(false);
+    }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
@@ -128,6 +176,14 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacTissue()
     // Delete cells
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
          cell_iterator != mCellsDistributed.end();
+         ++cell_iterator)
+    {
+        delete (*cell_iterator);
+    }
+
+    // Delete cells for halo nodes
+    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mHaloCellsDistributed.begin();
+         cell_iterator != mHaloCellsDistributed.end();
          ++cell_iterator)
     {
         delete (*cell_iterator);
@@ -304,6 +360,27 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
     return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
 }
 
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCellOrHaloCell( unsigned globalIndex )
+{
+    std::map<unsigned, unsigned>::const_iterator node_position;
+    //First search the halo
+    if ((node_position=mHaloGlobalToLocalIndexMap.find(globalIndex)) != mHaloGlobalToLocalIndexMap.end())
+    {
+        return mHaloCellsDistributed[node_position->second];
+    }
+    //Then search the owned node
+    if ( mpDistributedVectorFactory->GetLow() <= globalIndex &&
+         globalIndex < mpDistributedVectorFactory->GetHigh()    )
+    {
+        //Found an owned node
+        return this->mCellsDistributed[node_position->second];
+    }
+    //Not here
+    std::stringstream message;
+    message << "Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank();
+    EXCEPTION(message.str().c_str());
+}
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime, bool updateVoltage)

@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -284,6 +285,60 @@ public:
 
         TS_ASSERT_DELTA(monodomain_tissue.rGetIntracellularConductivityTensor(0)(0,0), 2*orig_conductivity_0, 1e-9);
         TS_ASSERT_DELTA(monodomain_tissue.rGetIntracellularConductivityTensor(1)(0,0), 3*orig_conductivity_1, 1e-9);
+    }
+
+    void TestNodeExchange() throw(Exception)
+    {
+        HeartConfig::Instance()->Reset();
+
+        HeartConfig::Instance()->Reset();
+        DistributedTetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(0.1, 1.0); // [0,1] with h=1.0, ie 2 node mesh
+
+        MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
+        MonodomainTissue<1> monodomain_tissue( &cell_factory, true );
+
+        std::vector<unsigned> halo_nodes;
+        mesh.GetHaloNodeIndices( halo_nodes );
+        
+        if ( PetscTools::GetNumProcs() == 1 )
+        {
+            TS_ASSERT_EQUALS( halo_nodes.size(), 0u );
+        }
+        else
+        {
+            if ( PetscTools::AmMaster() || PetscTools::AmTopMost() )
+            {
+                TS_ASSERT_EQUALS( halo_nodes.size(), 1u );
+            }
+            else
+            {
+                TS_ASSERT_EQUALS( halo_nodes.size(), 2u );
+            }
+        }
+        
+        for (unsigned halo = 0; halo < halo_nodes.size(); halo++)
+        {
+            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell( halo_nodes[ halo] );
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);            
+        }
+        
+        if ( PetscTools::AmMaster() )
+        {
+            // Master owns node 0
+            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell(0);
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001), -80.0, 1e-10);                        
+        }
+        else
+        {
+            // Zero is not halo owned by any process (unless we have a lot of them).
+            TS_ASSERT_THROWS_CONTAINS(monodomain_tissue.GetCardiacCellOrHaloCell(0),
+                                      "Requested node/halo 0 does not belong to processor ");            
+        }
+        
+
     }
 
     void TestSaveAndLoadCardiacTissue() throw (Exception)

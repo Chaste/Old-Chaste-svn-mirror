@@ -36,8 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template <unsigned SPACE_DIM>
 BidomainTissue<SPACE_DIM>::BidomainTissue(
-            AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-    : AbstractCardiacTissue<SPACE_DIM>(pCellFactory)
+            AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory,
+            bool exchangeHalos)
+    : AbstractCardiacTissue<SPACE_DIM>(pCellFactory, exchangeHalos)
 {
     CreateExtracellularConductivityTensors();
 }
