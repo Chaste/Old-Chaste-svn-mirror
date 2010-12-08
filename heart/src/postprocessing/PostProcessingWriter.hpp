@@ -64,8 +64,10 @@ public:
      * @param directory The directory the data is in. The output is written to \<directory\>/output
      * @param hdf5File The file the data is in.
      * @param makeAbsolute Whether to convert the path to absolute using the OutputFileHandler (via the HdfDataReader)
+     * @param voltageName  (Optional) The name of the variable representing the
+     *     membrane potential. It is used in the creation of the PropagationPropertiesCalculator object. Defaults to "V".
      */
-    PostProcessingWriter(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute);
+    PostProcessingWriter(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute, std::string voltageName = "V");
 
     /**
      *  Write out data files. The data that is written depends on which maps have been requested using
