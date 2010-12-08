@@ -474,7 +474,15 @@ void Hdf5DataWriter::EndDefineMode()
         max_dims = dataset_max_dims;
 
         // Modify dataset creation properties to enable chunking.
-        hsize_t chunk_dims[DATASET_DIMS] ={1, mDatasetDims[1], mDatasetDims[2]};
+        // We don't want more than 100 chunks, as performance degrades significantly if there are too many,
+        // where "too many" appears to be about 1000.
+        // HDF5's caching won't apply if the chunks are too large, but this seems to have less of an impact.
+        hsize_t chunk_size = mEstimatedUnlimitedLength/100;
+        if (chunk_size < 100)
+        {
+            chunk_size = 100;
+        }
+        hsize_t chunk_dims[DATASET_DIMS] = {chunk_size, mDatasetDims[1], mDatasetDims[2]};
         cparms = H5Pcreate (H5P_DATASET_CREATE);
         H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims);
     }
