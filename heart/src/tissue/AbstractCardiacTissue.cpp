@@ -51,12 +51,12 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory != NULL);
     assert(pCellFactory->GetMesh() != NULL);
-    
+
     if (mExchangeHalos)
     {
         mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
     }
-    
+
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
@@ -119,7 +119,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
         {
             // Errors thrown creating cells will often be process-specific
             PetscTools::ReplicateException(true);
-    
+
             // Delete cells
             // Should really do this for other processes too, but this is all we need
             // to get memory testing to pass, and leaking when we're about to die isn't
@@ -130,7 +130,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
             {
                 delete (*cell_iterator);
             }
-    
+
             throw e;
         }
         PetscTools::ReplicateException(false);
@@ -221,14 +221,14 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
     if (mpConfig->IsMeshProvided() && mpConfig->GetLoadMesh())
     {
         assert(mFibreFilePathNoExtension != "");
-        
+
         switch (mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
             {
                 mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
                 FileFinder ortho_file(mFibreFilePathNoExtension + ".ortho", RelativeTo::AbsoluteOrCwd);
-                assert(ortho_file.Exists());                
+                assert(ortho_file.Exists());
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
             }
@@ -237,7 +237,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
             {
                 mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<ELEMENT_DIM,SPACE_DIM>;
                 FileFinder axi_file(mFibreFilePathNoExtension + ".axi", RelativeTo::AbsoluteOrCwd);
-                assert(axi_file.Exists());                
+                assert(axi_file.Exists());
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
             }
@@ -290,7 +290,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
                                                                 extra_h_conductivities);
 
         unsigned local_element_index = 0;
-        
+
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = mpMesh->GetElementIteratorBegin();
              it != mpMesh->GetElementIteratorEnd();
              ++it)
@@ -386,10 +386,10 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime, bool updateVoltage)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
-   
+
     DistributedVector dist_solution = mpDistributedVectorFactory->CreateDistributedVector(existingSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
-   
+
     try
     {
         for (DistributedVector::Iterator index = dist_solution.Begin();
@@ -429,6 +429,75 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
 
     PetscTools::ReplicateException(false);
     HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
+
+    // Communicate new state variable values to halo nodes
+    if (mExchangeHalos)
+    {
+        for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
+        {
+            unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
+            unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
+
+            unsigned number_of_cells_to_send    = mNodesToSendPerProcess[send_to].size();
+            unsigned number_of_cells_to_receive = mNodesToReceivePerProcess[receive_from].size();
+
+            unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
+            unsigned send_size = number_of_cells_to_send*number_of_state_variables;
+            unsigned receive_size = number_of_cells_to_receive*number_of_state_variables;
+
+            // Pack
+            if ( number_of_cells_to_send > 0 )
+            {
+                double send_data[send_size];
+//                send_data.resize(send_size);
+
+                for ( unsigned cell = 0; cell < number_of_cells_to_send; cell++ )
+                {
+                    std::vector<double>& cell_data = mCellsDistributed[mHaloGlobalToLocalIndexMap[mNodesToSendPerProcess[send_to][cell]]]->rGetStateVariables();
+                    for (unsigned state_variable = 0; state_variable < number_of_state_variables; state_variable++)
+                    {
+                        send_data[ cell*number_of_state_variables + state_variable ] = cell_data[state_variable];
+                    }
+                }
+
+                // Send
+                MPI_Send( &send_data[0],
+                          send_size,
+                          MPI_DOUBLE,
+                          send_to,
+                          0,
+                          PETSC_COMM_WORLD );
+            }
+
+            if ( number_of_cells_to_receive > 0 )
+            {
+                // Receive
+                double receive_data[receive_size];
+                MPI_Status status;
+
+                MPI_Recv( receive_data,
+                          receive_size,
+                          MPI_DOUBLE,
+                          receive_from,
+                          0,
+                          PETSC_COMM_WORLD,
+                          &status );
+
+
+                // Unpack
+                for ( unsigned cell = 0; cell < number_of_cells_to_receive; cell++ )
+                {
+                    std::vector<double> cell_data;
+                    cell_data.resize(number_of_state_variables);
+                    for (unsigned state_variable = 0; state_variable < number_of_state_variables; state_variable++)
+                    {
+                        cell_data[state_variable] = receive_data[ cell*number_of_state_variables + state_variable ];
+                    }
+                    mHaloCellsDistributed[mHaloGlobalToLocalIndexMap[mNodesToReceivePerProcess[receive_from][cell]]]->SetStateVariables(cell_data);
+                }
+            }
+        }
+    }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     if ( mDoCacheReplication )

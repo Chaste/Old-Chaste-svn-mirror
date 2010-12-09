@@ -293,7 +293,7 @@ public:
 
         HeartConfig::Instance()->Reset();
         DistributedTetrahedralMesh<1,1> mesh;
-        mesh.ConstructRegularSlabMesh(0.1, 1.0); // [0,1] with h=1.0, ie 2 node mesh
+        mesh.ConstructRegularSlabMesh(0.1, 1.0); // [0,1] with h=0.1, ie 11 node mesh
 
         MyCardiacCellFactory cell_factory;
         cell_factory.SetMesh(&mesh);
@@ -302,7 +302,7 @@ public:
 
         std::vector<unsigned> halo_nodes;
         mesh.GetHaloNodeIndices( halo_nodes );
-        
+
         if ( PetscTools::GetNumProcs() == 1 )
         {
             TS_ASSERT_EQUALS( halo_nodes.size(), 0u );
@@ -318,27 +318,95 @@ public:
                 TS_ASSERT_EQUALS( halo_nodes.size(), 2u );
             }
         }
-        
+
         for (unsigned halo = 0; halo < halo_nodes.size(); halo++)
         {
             AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell( halo_nodes[ halo] );
-            TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);            
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
-        
+
         if ( PetscTools::AmMaster() )
         {
             // Master owns node 0
             AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell(0);
-            TS_ASSERT_DELTA(cell->GetStimulus(0.001), -80.0, 1e-10);                        
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001), -80.0, 1e-10);
         }
         else
         {
             // Zero is not halo owned by any process (unless we have a lot of them).
             TS_ASSERT_THROWS_CONTAINS(monodomain_tissue.GetCardiacCellOrHaloCell(0),
-                                      "Requested node/halo 0 does not belong to processor ");            
+                                      "Requested node/halo 0 does not belong to processor ");
         }
-        
 
+
+    }
+
+    void TestSolveCellSystemsInclUpdateVoltageWithNodeExchange() throw(Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        DistributedTetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(1.0, 1.0); // [0,1] with h=0.1, ie 11 node mesh
+
+        MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
+        MonodomainTissue<1> monodomain_tissue( &cell_factory, true );
+
+        Vec voltage = PetscTools::CreateAndSetVec(2, -81.4354); // something that isn't resting potential
+        monodomain_tissue.SolveCellSystems(voltage, 0, 1, false); // solve for 1ms without updating the voltage
+
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        {
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(0)->GetVoltage(), -81.4354, 1e-3);
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -81.4354, 1e-3);
+        }
+
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        {
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -81.4354, 1e-3);
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -81.4354, 1e-3);
+        }
+
+        Vec voltage2 = PetscTools::CreateAndSetVec(2, -75);
+        monodomain_tissue.SolveCellSystems(voltage2, 1, 2, true); // solve another ms, using this new voltage, but now updating the voltage too
+        ReplicatableVector voltage2_repl(voltage2); // should have changed following solve
+
+        // check the new voltage in the cell is NEAR -75 (otherwise the passed in voltage wasn't used, but
+        // NOT EXACTLY -75, ie that the voltage was solved for.
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        {
+            // check has been updated
+            TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(0)->GetVoltage(), -75);
+            // check near -75
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(0)->GetVoltage(), -75, 2.0); // within 2mV
+            // check the passed in voltage was updated
+            TS_ASSERT_DELTA(voltage2_repl[0], monodomain_tissue.GetCardiacCell(0)->GetVoltage(), 1e-10);
+        }
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        {
+            TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75);
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75, 2.0); // within 2mV
+            TS_ASSERT_DELTA(voltage2_repl[1], monodomain_tissue.GetCardiacCell(1)->GetVoltage(), 1e-10);
+        }
+
+        // now check the new voltages have been communicated
+        // check the new voltage in the cell is NEAR -75 (otherwise the passed in voltage wasn't used, but
+        // NOT EXACTLY -75, ie that the voltage was solved for.
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        {
+            TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -75);
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -75, 2.0); // within 2mV
+            TS_ASSERT_DELTA(voltage2_repl[1], monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), 1e-10);
+        }
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        {
+            TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -75);
+            TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -75, 2.0); // within 2mV
+            TS_ASSERT_DELTA(voltage2_repl[0], monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), 1e-10);
+        }
+
+        VecDestroy(voltage);
+        VecDestroy(voltage2);
     }
 
     void TestSaveAndLoadCardiacTissue() throw (Exception)
