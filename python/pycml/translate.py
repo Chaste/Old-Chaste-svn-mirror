@@ -1287,7 +1287,10 @@ class CellMLTranslator(object):
                          offset, ' * ', step_inverse, self.STMT_END)
             idx_var = '_table_index_' + str(i)
             if self.config.options.lookup_type == 'nearest-neighbour':
-                self.writeln(index_type, idx_var, ' = (unsigned) round(', offset_over_step, ');')
+                if self.lt_index_uses_floor:
+                    self.writeln(index_type, idx_var, ' = (unsigned) round(', offset_over_step, ');')
+                else:
+                    self.writeln(index_type, idx_var, ' = (unsigned) (', offset_over_step, '+0.5);')
             else:
                 if self.lt_index_uses_floor:
                     self.writeln(index_type, idx_var, ' = (unsigned) floor(', offset_over_step, ');')
