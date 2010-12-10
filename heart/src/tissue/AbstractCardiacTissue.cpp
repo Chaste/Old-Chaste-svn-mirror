@@ -161,7 +161,8 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(std::vector<
       mCellsDistributed(rCellsDistributed),
       mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
-      mMeshUnarchived(true)
+      mMeshUnarchived(true),
+      mExchangeHalos(false)
 {
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());

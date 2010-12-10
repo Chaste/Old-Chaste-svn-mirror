@@ -57,7 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Class containing "tissue-like" functionality used in monodomain and bidomain
  * problems.
  *
- * Contains the cardiac cells (ODE systems for each node of the mesh) and 
+ * Contains the cardiac cells (ODE systems for each node of the mesh) and
  * conductivity tensors (dependent on fibre directions).
  *
  * Also contains knowledge of parallelisation in the form of the
@@ -91,8 +91,8 @@ private:
                 {
                     FileFinder source_file(mFibreFilePathNoExtension + ".ortho", RelativeTo::AbsoluteOrCwd);
                     assert(source_file.Exists());
-                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);                    
-                                       
+                    FileFinder dest_file(ArchiveLocationInfo::GetArchiveRelativePath() + ArchiveLocationInfo::GetMeshFilename() + ".ortho", RelativeTo::ChasteTestOutput);
+
                     if (PetscTools::AmMaster())
                     {
                         MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
@@ -112,7 +112,7 @@ private:
                         MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
                     }
                     PetscTools::Barrier();
-                    
+
                     break;
                 }
 
@@ -185,7 +185,7 @@ protected:
     /** It's handy to keep a pointer to the mesh object*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
-    /** Intracellular conductivity tensors. Not archived, since it's loaded from the 
+    /** Intracellular conductivity tensors. Not archived, since it's loaded from the
      *  HeartConfig singleton. */
     AbstractConductivityTensors<ELEMENT_DIM,SPACE_DIM>* mpIntracellularConductivityTensors;
 
@@ -232,9 +232,9 @@ protected:
      * Whether the mesh was unarchived or got from elsewhere.
      */
     bool mMeshUnarchived;
-    
+
     /**
-     * Path to the location of the fibre file without extension. 
+     * Path to the location of the fibre file without extension.
      */
     std::string mFibreFilePathNoExtension;
 
@@ -244,15 +244,15 @@ protected:
      * For example, it is required when conductivities become deformation dependent.
      */
     AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* mpConductivityModifier;
-    
+
     /**
      * Whether to exchange cell models across the halo boundaries.
      * Used in state variable interpolation.
      */
     bool mExchangeHalos;
-    
-    ///\todo #1462 Add loads of data exchange stuff  
-    
+
+    ///\todo #1462 Add loads of data exchange stuff
+
     /** Vector of halo node indices for current process */
     std::vector<unsigned> mHaloNodes;
 
@@ -263,14 +263,14 @@ protected:
     std::map<unsigned, unsigned> mHaloGlobalToLocalIndexMap;
 
     /**
-     * A vector which will be of size GetNumProcs() where each internal vector except 
+     * A vector which will be of size GetNumProcs() where each internal vector except
      * i=GetMyRank() contains an ordered list of indices of nodes to send to process i
      * during data exchange
      */
     std::vector<std::vector<unsigned> > mNodesToSendPerProcess;
-    
+
     /**
-     * A vector which will be of size GetNumProcs() for information to receive for 
+     * A vector which will be of size GetNumProcs() for information to receive for
      * process i
      */
     std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;
@@ -280,7 +280,7 @@ public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
      * It creates all the cell objects, and sets up the conductivities.
-     * 
+     *
      * Note that pCellFactory contains a pointer to the mesh
      *
      * @param pCellFactory  factory to use to create cells.
@@ -521,7 +521,7 @@ public:
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
             if (local)
             {
-                rCells[new_local_index] = p_cell; // Add to local cells 
+                rCells[new_local_index] = p_cell; // Add to local cells
                 if (p_fake)
                 {
                     fake_bath_cells_local.insert(p_fake);
