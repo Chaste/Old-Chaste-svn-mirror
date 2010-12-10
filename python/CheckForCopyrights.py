@@ -25,10 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-
+import os
+import sys
 
 # Check, apply or modify the copyright notice
-import os, sys
 exts = ['.cpp', '.hpp', '.py', '.java']
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', '_local']
 exclusions = ['python/pycml/enum.py', 'python/pycml/pyparsing.py', 'python/pycml/schematron.py']
@@ -43,7 +43,7 @@ if '-dir' in sys.argv:
 
 #This next variable is unused -- it shows the previous deprecated notice
 #as a mechanism for rolling the notice forward
-previous_depricated_notice="""Copyright (C) University of Oxford, 2005-2009
+previous_deprecated_notice="""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -68,7 +68,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-depricated_notice="""Copyright (C) University of Oxford, 2005-2009
+deprecated_notice="""Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -118,16 +118,16 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-#py_depricated_notice=''
-#for line in depricated_notice.splitlines():#
-#	py_depricated_notice+=''.join(['# ',line,'\n'])
+#py_deprecated_notice=''
+#for line in deprecated_notice.splitlines():#
+#	py_deprecated_notice+=''.join(['# ',line,'\n'])
 #py_current_notice=''
 #for line in current_notice.splitlines():
 #	py_current_notice+=''.join(['# ',line,'\n'])
 
 py_current_notice='\"\"\"'+current_notice+'\"\"\"\n'
 cpp_current_notice='/*\n\n'+current_notice+'\n*/'
-cpp_depricated_notice='/*\n\n'+depricated_notice+'\n*/'
+cpp_deprecated_notice='/*\n\n'+deprecated_notice+'\n*/'
 
 
 pycml_notice=" Processed by pycml - CellML Tools in Python"
@@ -173,6 +173,18 @@ tetgen_predicates_notice="""/***************************************************
 /*  Pittsburgh, Pennsylvania  15213-3891                                     */
 /*  jrs@cs.cmu.edu                                                           */
 """
+py_lgpl_notice = """# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details."""
+
+
+
 def CheckForCopyrightNotice(findStr, fileIn):
     """Test if the (possibly multi-line) string findStr is contained anywhere in fileIn."""
     fileIn.seek(0)
@@ -180,40 +192,39 @@ def CheckForCopyrightNotice(findStr, fileIn):
     return (file_text.find(findStr) >= 0)
     
 def ReplaceStringInFile(findStr, repStr, filePath):
-   """Replaces all findStr by repStr in file filePath"""
-   tempName = filePath+'~'
-   input = open(filePath)
-   output = open(tempName, 'w')
+    """Replaces all findStr by repStr in file filePath"""
+    tempName = filePath+'~'
+    input = open(filePath)
+    output = open(tempName, 'w')
 
-   s = input.read()
-   output.write(s.replace(findStr, repStr))
-   output.close()
-   input.close()
-   os.rename(tempName, filePath)
-   print 'Notice: replaced deprecated copyright notice in', filePath
+    s = input.read()
+    output.write(s.replace(findStr, repStr))
+    output.close()
+    input.close()
+    os.rename(tempName, filePath)
+    print 'Notice: replaced deprecated copyright notice in', filePath
 
 def HeadAppendStringInFile(appendString, filePath):
-   """Adds appendStr to the top of file filePath"""
-   tempName = filePath+'~'
-   input = open(filePath)
-   output = open(tempName, 'w')
+    """Adds appendStr to the top of file filePath"""
+    tempName = filePath+'~'
+    input = open(filePath)
+    output = open(tempName, 'w')
 
-   s = input.read()
-   output.write(appendString)
-   output.write(s)
-   output.close()
-   input.close()
-   os.rename(tempName, filePath)
-   print 'Notice: applied copyright notice in ', filePath
-    
+    s = input.read()
+    output.write(appendString)
+    output.write(s)
+    output.close()
+    input.close()
+    os.rename(tempName, filePath)
+    print 'Notice: applied copyright notice in ', filePath
 
    
 
 def InspectFile(fileName):
     file_in = open(fileName)
     if fileName[-21:] == 'CheckForCopyrights.py':
-    	#Can't really check this one, since it knows all the licences
-    	return True
+        #Can't really check this one, since it knows all the licences
+        return True
     valid_notice = False
     if (CheckForCopyrightNotice(cpp_current_notice, file_in) or
         CheckForCopyrightNotice(py_current_notice, file_in)):
@@ -224,7 +235,8 @@ def InspectFile(fileName):
         CheckForCopyrightNotice(xsd3_notice, file_in) or
         CheckForCopyrightNotice(triangle_notice, file_in) or
         CheckForCopyrightNotice(tetgen_predicates_notice, file_in) or 
-        CheckForCopyrightNotice(tetgen_notice, file_in)):
+        CheckForCopyrightNotice(tetgen_notice, file_in) or
+        CheckForCopyrightNotice(py_lgpl_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
         if valid_notice:
             print "Multiple notices on", file_name
@@ -233,11 +245,11 @@ def InspectFile(fileName):
             return True
     if valid_notice:
         return True
-    if CheckForCopyrightNotice(cpp_depricated_notice, file_in):
+    if CheckForCopyrightNotice(cpp_deprecated_notice, file_in):
         print 'Found deprecated copyright notice for', fileName
         if apply_update:
-           	ReplaceStringInFile(cpp_depricated_notice, cpp_current_notice, fileName)
-        	return True
+            ReplaceStringInFile(cpp_deprecated_notice, cpp_current_notice, fileName)
+            return True
         else:
             print 'Fix this by doing: python python/CheckForCopyrights.py -update'
             return False
@@ -245,10 +257,10 @@ def InspectFile(fileName):
     print 'Found no copyright notice for', fileName
     if apply_new:
         if fileName[-3:] == '.py':
-          	print 'Not implemented for .py files'
-          	return False
+            print 'Not implemented for .py files'
+            return False
         else:
-	        HeadAppendStringInFile(cpp_current_notice+"\n\n", fileName)
+            HeadAppendStringInFile(cpp_current_notice+"\n\n", fileName)
         return True
     else:
         print 'Fix this by doing: python python/CheckForCopyrights.py -new'
@@ -288,7 +300,6 @@ if num_no_copyrights > 0:
     print "Failed",num_no_copyrights,"of",num_no_copyrights+num_copyrights,"tests"
 
     # Return a non-zero exit code if orphans were found
-    import sys
     sys.exit(num_no_copyrights)
 else:
     print "Infrastructure test passed ok."
