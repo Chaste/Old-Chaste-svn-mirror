@@ -44,7 +44,7 @@ import pycml
 # Allowed metadata names, more to come
 # TODO #1209: Use a proper ontology!
 METADATA_NAMES = frozenset(
-    ['membrane_voltage', 'membrane_capacitance', 'membrane_E_R', 'membrane_stimulus_current', 'membrane_stimulus_current_duration',
+    ['membrane_voltage', 'time', 'membrane_capacitance', 'membrane_E_R', 'membrane_stimulus_current', 'membrane_stimulus_current_duration',
      'membrane_stimulus_current_amplitude','membrane_stimulus_current_period','membrane_stimulus_current_offset', 'membrane_fast_sodium_current',
      'membrane_fast_sodium_current_conductance', 'membrane_fast_sodium_current_m_gate', 'membrane_fast_sodium_current_h_gate', 
      'membrane_potassium_current', 'membrane_potassium_current_conductance', 'potassium_channel_n_gate', 
