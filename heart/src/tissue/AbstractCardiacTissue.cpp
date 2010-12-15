@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscVecTools.hpp"
 
+
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
@@ -462,12 +463,13 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
                 }
 
                 // Send
-                MPI_Send( &send_data[0],
-                          send_size,
-                          MPI_DOUBLE,
-                          send_to,
-                          0,
-                          PETSC_COMM_WORLD );
+                int ret = MPI_Send( send_data,
+                                    send_size,
+                                    MPI_DOUBLE,
+                                    send_to,
+                                    0,
+                                    PETSC_COMM_WORLD );
+                assert ( ret == MPI_SUCCESS);
             }
 
             if ( number_of_cells_to_receive > 0 )
@@ -476,14 +478,14 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
                 double receive_data[receive_size];
                 MPI_Status status;
 
-                MPI_Recv( receive_data,
-                          receive_size,
-                          MPI_DOUBLE,
-                          receive_from,
-                          0,
-                          PETSC_COMM_WORLD,
-                          &status );
-
+                int ret = MPI_Recv( receive_data,
+                                    receive_size,
+                                    MPI_DOUBLE,
+                                    receive_from,
+                                    0,
+                                    PETSC_COMM_WORLD,
+                                    &status );
+                assert ( ret == MPI_SUCCESS);
 
                 // Unpack
                 for ( unsigned cell = 0; cell < number_of_cells_to_receive; cell++ )
