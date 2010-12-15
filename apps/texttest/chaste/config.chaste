@@ -29,6 +29,8 @@ link_test_path:sheet_800_elements.ortho
 #Note that 2D_0_to_1mm_400_elements_with_bath mesh for BidomainSimulationsWithPerfusingBath is an input for a regular acceptance test above
 link_test_path:BidomWithBathParameters.xml
 link_test_path:CheckpointExample.xml
+link_test_path:UsingCellmlFiles.xml
+link_test_path:LuoRudy1991.cellml
 
 
 default_checkout:Chaste
