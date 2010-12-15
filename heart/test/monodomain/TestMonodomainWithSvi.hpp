@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudy1991.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PropagationPropertiesCalculator.hpp"
@@ -64,11 +65,11 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double x = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[0];
         double y;
         if(DIM==2)
         {
-            y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
+            y = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[1];
         }
 
         if (    (DIM==1 && fabs(x)<0.02+1e-6)
@@ -99,7 +100,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double x = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[0];
         if ( x<0.15 )  
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
@@ -172,7 +173,7 @@ public:
        
             // SVI - state variable interpolation
             {
-                TetrahedralMesh<1,1> mesh;
+                DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
     
                 std::stringstream output_dir;

@@ -68,7 +68,7 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementI
     mIionicInterp  += phiI * mpTissue->rGetIionicCacheReplicated()[ node_global_index ];
     for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
     {
-        mStateVariablesAtQuadPoint[i] += phiI * mpTissue->GetCardiacCell(node_global_index)->rGetStateVariables()[i];
+        mStateVariablesAtQuadPoint[i] += phiI * mpTissue->GetCardiacCellOrHaloCell(node_global_index)->rGetStateVariables()[i];
     }
 }
 
@@ -107,7 +107,7 @@ bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAss
     if (will_assemble)
     {
         unsigned any_node = rElement.GetNodeGlobalIndex(0);
-        mStateVariablesAtQuadPoint.resize(mpTissue->GetCardiacCell(any_node)->rGetStateVariables().size());
+        mStateVariablesAtQuadPoint.resize(mpTissue->GetCardiacCellOrHaloCell(any_node)->rGetStateVariables().size());
     }
     
     return will_assemble;

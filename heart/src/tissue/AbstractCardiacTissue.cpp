@@ -378,7 +378,7 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
          globalIndex < mpDistributedVectorFactory->GetHigh()    )
     {
         //Found an owned node
-        return this->mCellsDistributed[node_position->second];
+        return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
     }
     //Not here
     std::stringstream message;
