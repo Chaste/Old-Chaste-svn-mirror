@@ -26,6 +26,10 @@ link_test_path:sheet_800_elements.edge
 link_test_path:sheet_800_elements.ele
 link_test_path:sheet_800_elements.node
 link_test_path:sheet_800_elements.ortho
+#Note that 2D_0_to_1mm_400_elements_with_bath mesh for BidomainSimulationsWithPerfusingBath is an input for a regular acceptance test above
+link_test_path:BidomWithBathParameters.xml
+link_test_path:CheckpointExample.xml
+
 
 default_checkout:Chaste
 

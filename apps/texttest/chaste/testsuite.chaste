@@ -30,3 +30,5 @@ imported_mesh_bidomain
 
 # Executable tutorials
 UsingFibreDefinitions
+#BidomainSimulationsWithPerfusingBath
+#CheckpointingAndRestarting
