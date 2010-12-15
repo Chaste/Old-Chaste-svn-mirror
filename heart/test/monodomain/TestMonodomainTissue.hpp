@@ -405,13 +405,13 @@ public:
         Vec voltage = PetscTools::CreateAndSetVec(2, -81.4354); // something that isn't resting potential
         monodomain_tissue.SolveCellSystems(voltage, 0, 1, false); // solve for 1ms without updating the voltage
 
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0)) // Is node 0 locally owned?
         {
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(0)->GetVoltage(), -81.4354, 1e-3);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -81.4354, 1e-3);
         }
 
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1)) // Is node 1 locally owned?
         {
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -81.4354, 1e-3);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -81.4354, 1e-3);
@@ -423,7 +423,7 @@ public:
 
         // check the new voltage in the cell is NEAR -75 (otherwise the passed in voltage wasn't used, but
         // NOT EXACTLY -75, ie that the voltage was solved for.
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0)) // Is node 0 locally owned?
         {
             // check has been updated
             TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(0)->GetVoltage(), -75);
@@ -432,7 +432,7 @@ public:
             // check the passed in voltage was updated
             TS_ASSERT_DELTA(voltage2_repl[0], monodomain_tissue.GetCardiacCell(0)->GetVoltage(), 1e-10);
         }
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1)) // Is node 1 locally owned?
         {
             TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75, 2.0); // within 2mV
@@ -442,13 +442,13 @@ public:
         // now check the new voltages have been communicated
         // check the new voltage in the cell is NEAR -75 (otherwise the passed in voltage wasn't used, but
         // NOT EXACTLY -75, ie that the voltage was solved for.
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0)) // Is node 0 locally owned?
         {
             TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -75);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), -75, 2.0); // within 2mV
             TS_ASSERT_DELTA(voltage2_repl[1], monodomain_tissue.GetCardiacCellOrHaloCell(1)->GetVoltage(), 1e-10);
         }
-        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1)) // Is node 1 locally owned?
         {
             TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -75);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCellOrHaloCell(0)->GetVoltage(), -75, 2.0); // within 2mV

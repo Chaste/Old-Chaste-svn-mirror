@@ -445,13 +445,12 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
             unsigned number_of_cells_to_send    = mNodesToSendPerProcess[send_to].size();
             unsigned number_of_cells_to_receive = mNodesToReceivePerProcess[receive_from].size();
 
-            unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
-            unsigned send_size = number_of_cells_to_send*number_of_state_variables;
-            unsigned receive_size = number_of_cells_to_receive*number_of_state_variables;
-
             // Pack
             if ( number_of_cells_to_send > 0 )
             {
+                unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
+                unsigned send_size = number_of_cells_to_send*number_of_state_variables;
+
                 double send_data[send_size];
 //                send_data.resize(send_size);
 
@@ -477,6 +476,9 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
             if ( number_of_cells_to_receive > 0 )
             {
                 // Receive
+                unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
+                unsigned receive_size = number_of_cells_to_receive*number_of_state_variables;
+
                 double receive_data[receive_size];
                 MPI_Status status;
 
