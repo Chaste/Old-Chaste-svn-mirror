@@ -464,13 +464,14 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
                 }
 
                 // Send
-                int ret = MPI_Send( send_data,
-                                    send_size,
-                                    MPI_DOUBLE,
-                                    send_to,
-                                    0,
-                                    PETSC_COMM_WORLD );
-                assert ( ret == MPI_SUCCESS);
+                int ret;
+                ret = MPI_Send( send_data,
+                                send_size,
+                                MPI_DOUBLE,
+                                send_to,
+                                0,
+                                PETSC_COMM_WORLD );
+                assert ( ret == MPI_SUCCESS );
             }
 
             if ( number_of_cells_to_receive > 0 )
@@ -482,13 +483,14 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
                 double receive_data[receive_size];
                 MPI_Status status;
 
-                int ret = MPI_Recv( receive_data,
-                                    receive_size,
-                                    MPI_DOUBLE,
-                                    receive_from,
-                                    0,
-                                    PETSC_COMM_WORLD,
-                                    &status );
+                int ret;
+                ret = MPI_Recv( receive_data,
+                                receive_size,
+                                MPI_DOUBLE,
+                                receive_from,
+                                0,
+                                PETSC_COMM_WORLD,
+                                &status );
                 assert ( ret == MPI_SUCCESS);
 
                 // Unpack
