@@ -44,8 +44,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "ColumnDataReader.hpp"
 
+
+
 class TestCellProperties : public CxxTest::TestSuite
 {
+private:
+    void LoadMeshalyzerOutputTraces(const FileFinder& rFileFinder, const unsigned length, std::vector<double>& rTime, std::vector<double>& rVoltage)
+    {
+        std::ifstream apd_file((rFileFinder.GetAbsolutePath()).c_str());
+        TS_ASSERT(apd_file.is_open());
+
+        // Create the vectors to be passed to the CellProperties object
+        rVoltage.resize(length);
+        rTime.resize(length);
+        for (unsigned i=0; i<length; ++i)
+        {
+            apd_file >> rTime[i];
+            apd_file >> rVoltage[i];
+        }
+        apd_file.close();
+    }
+
+
 public:
 
     void TestExceptionalBehaviour(void)
@@ -322,61 +342,121 @@ public:
 
      void TestActionPotentialCalculations() throw (Exception)
      {
-         /*
-          * In this simulation the stimulus was introduced at t=1ms.
-          *
-          * The only difference between the two files is that Mahajan2008 starts at t=0
-          * and Mahajan 2008Immediate starts at t=1 (I just removed the top line).
-          *
-          * (They should therefore return the same action potential properties,
-          * as it is exactly the same trace in each one).
-          */
+        /*
+        * In this simulation the stimulus was introduced at t=1ms.
+        *
+        * The only difference between the two files is that Mahajan2008 starts at t=0
+        * and Mahajan 2008Immediate starts at t=1 (I just removed the top line).
+        *
+        * (They should therefore return the same action potential properties,
+        * as it is exactly the same trace in each one).
+        */
 
-         FileFinder file_finder("heart/test/data/sample_APs", RelativeTo::ChasteSourceRoot);
-         double threshold = -70; 
-         // We now ignore the threshold when calculating the APD - it is now only used for 
-         // detecting the upstroke and calculating cycle lengths. We now interpolate back to
-         // find the time at which the target voltage is exceeded. So the calculation is now
-         // robust to this.
+        FileFinder file_finder("heart/test/data/sample_APs", RelativeTo::ChasteSourceRoot);
+        double threshold = -70;
+        // We now ignore the threshold when calculating the APD - it is now only used for
+        // detecting the upstroke and calculating cycle lengths. We now interpolate back to
+        // find the time at which the target voltage is exceeded. So the calculation is now
+        // robust to this.
 
-         /*
-          * I plotted the graph in gnuplot and my back of the envelope calculations are as follows:
-          * Peak voltage = 48mV 
-          * Start and final voltages = -87mV
-          * Difference = 135mV
-          * Therefore 50% repolarisation = -19.5mV
-          *                      and 90% = -73.5mV
-          * These are crossed at 4.4, 259.2ish and 2.96, 305.1ish ms
-          * Therefore APD50 and 90 should be about 254.8 and 302.2ms you'd think.
-          *
-          */
-         double target_apd_50 = 254.8;
-         double target_apd_90 = 302.16;
-         double tolerance = 0.1; //ms
+        /*
+        * I plotted the graph in gnuplot and my back of the envelope calculations are as follows:
+        * Peak voltage = 48mV
+        * Start and final voltages = -87mV
+        * Difference = 135mV
+        * Therefore 50% repolarisation = -19.5mV
+        *                      and 90% = -73.5mV
+        * These are crossed at 4.4, 259.2ish and 2.96, 305.1ish ms
+        * Therefore APD50 and 90 should be about 254.8 and 302.2ms you'd think.
+        *
+        */
+        double target_apd_50 = 254.8;
+        double target_apd_90 = 302.16;
+        double tolerance = 0.1; //ms
 
-         {   // Stimulus applied to Mahajan model after 1 ms
+        {   // Stimulus applied to Mahajan model after 1 ms
 
-             ColumnDataReader reader(file_finder,"Mahajan2008");
-             std::vector<double> times = reader.GetValues("Time");
-             std::vector<double> voltages = reader.GetValues("membrane_voltage");
+            ColumnDataReader reader(file_finder,"Mahajan2008");
+            std::vector<double> times = reader.GetValues("Time");
+            std::vector<double> voltages = reader.GetValues("membrane_voltage");
 
-             CellProperties  cell_properties(voltages, times, threshold);
-             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
-             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
-         }
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
 
-         {   // Stimulus applied to Mahajan model immediately
+        {   // Stimulus applied to Mahajan model immediately
 
-             ColumnDataReader reader(file_finder,"Mahajan2008Immediate");
-             std::vector<double> times = reader.GetValues("Time");
-             std::vector<double> voltages = reader.GetValues("membrane_voltage");
+            ColumnDataReader reader(file_finder,"Mahajan2008Immediate");
+            std::vector<double> times = reader.GetValues("Time");
+            std::vector<double> voltages = reader.GetValues("membrane_voltage");
 
-             CellProperties  cell_properties(voltages, times, threshold);
-             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
-             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
-         }
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
 
-     }
+        // Different voltage units for the phenomenological models, and time happens to be scaled strangely too...
+        threshold = 0.4;
+        tolerance = 0.1; //ms - these weren't exactly the same cells from meshalyzer but should be very close...
+        target_apd_50 = 197.902;
+        target_apd_90 = 237.746;
+
+        {   // Stimulus applied to a phenomenological model after 1ms, stimulated cell APD
+            FileFinder finder("heart/test/data/sample_APs/phenomenological_delayed_stim.dat", RelativeTo::ChasteSourceRoot);
+            TS_ASSERT_EQUALS(finder.Exists(), true);
+            std::vector<double> voltages;
+            std::vector<double> times;
+            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
+
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
+/// \todo #1495 - make this pass!
+//        {   // Stimulus applied to a phenomenological model immediately, stimulated cell APD
+//            FileFinder finder("heart/test/data/sample_APs/phenomenological_immediate_stim.dat", RelativeTo::ChasteSourceRoot);
+//            TS_ASSERT_EQUALS(finder.Exists(), true);
+//            std::vector<double> voltages;
+//            std::vector<double> times;
+//            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
+//
+//            CellProperties  cell_properties(voltages, times, threshold);
+//            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+//            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+//        }
+
+        /**
+         * Now we move to phenomenological APDs from the outside of the tissue
+         */
+        target_apd_50 = 195.646;
+        target_apd_90 = 230.361;
+
+        {   // Stimulus applied to a phenomenological model after 1ms, outer cell APD
+            FileFinder finder("heart/test/data/sample_APs/phenomenological_delayed_stim_outer.dat", RelativeTo::ChasteSourceRoot);
+            TS_ASSERT_EQUALS(finder.Exists(), true);
+            std::vector<double> voltages;
+            std::vector<double> times;
+            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
+
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
+
+        {   // Stimulus applied to a phenomenological model immediately, outer cell APD
+            FileFinder finder("heart/test/data/sample_APs/phenomenological_immediate_stim_outer.dat", RelativeTo::ChasteSourceRoot);
+            TS_ASSERT_EQUALS(finder.Exists(), true);
+            std::vector<double> voltages;
+            std::vector<double> times;
+            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
+
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
+
+    }
 };
 
 #endif //_TESTCELLPROPERTIES_HPP_
