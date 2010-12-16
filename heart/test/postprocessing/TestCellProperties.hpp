@@ -233,7 +233,7 @@ public:
      */
     void TestTrickyActionPotential()
     {
-        std::ifstream apd_file("heart/test/data/TrickyAPD.dat");
+        std::ifstream apd_file("heart/test/data/sample_APs/TrickyAPD.dat");
         TS_ASSERT(apd_file.is_open());
 
         // Create the vectors to be passed to the CellProperties object
@@ -304,7 +304,7 @@ public:
      void TestEadDetection() throw (Exception)
      {
         //this file contains 4 Aps
-        std::ifstream ead_file("heart/test/data/Ead.dat");
+        std::ifstream ead_file("heart/test/data/sample_APs/Ead.dat");
         TS_ASSERT(ead_file.is_open());
 
         // Create the vectors to be passed to the CellProperties object
@@ -413,18 +413,21 @@ public:
             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
         }
-/// \todo #1495 - make this pass!
-//        {   // Stimulus applied to a phenomenological model immediately, stimulated cell APD
-//            FileFinder finder("heart/test/data/sample_APs/phenomenological_immediate_stim.dat", RelativeTo::ChasteSourceRoot);
-//            TS_ASSERT_EQUALS(finder.Exists(), true);
-//            std::vector<double> voltages;
-//            std::vector<double> times;
-//            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
-//
-//            CellProperties  cell_properties(voltages, times, threshold);
-//            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
-//            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
-//        }
+
+        target_apd_50 = 200.8365; // More of a difference in APD50 because of different height peaks and therefore thresholds.
+        target_apd_90 = 237.3066;
+
+        {   // Stimulus applied to a phenomenological model immediately, stimulated cell APD
+            FileFinder finder("heart/test/data/sample_APs/phenomenological_immediate_stim.dat", RelativeTo::ChasteSourceRoot);
+            TS_ASSERT_EQUALS(finder.Exists(), true);
+            std::vector<double> voltages;
+            std::vector<double> times;
+            LoadMeshalyzerOutputTraces(finder, 5001, times, voltages);
+
+            CellProperties  cell_properties(voltages, times, threshold);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+            TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+        }
 
         /**
          * Now we move to phenomenological APDs from the outside of the tissue

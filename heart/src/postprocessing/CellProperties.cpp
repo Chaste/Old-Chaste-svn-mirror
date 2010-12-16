@@ -51,8 +51,7 @@ void CellProperties::CalculateProperties()
         EXCEPTION(exception_message.str());
     }
 
-    double prev_v = mrVoltage[0];
-    double prev_t = mrTime[0];
+
     double max_upstroke_velocity = -DBL_MAX;
     double current_time_of_upstroke_velocity = 0;
     double current_resting_value=DBL_MAX;
@@ -68,17 +67,25 @@ void CellProperties::CalculateProperties()
 
     unsigned time_steps = mrTime.size()-1; //The number of time steps is the number of intervals
 
+    double v = mrVoltage[0];
+    double t = mrTime[0];
+    double prev_v = v;
+    double prev_t = t;
+    double voltage_derivative;
+    const double resting_potential_gradient_threshold = 1e-2; /// \todo #1495 a horrible magic number but seems to work OK.
+
     for (unsigned i=1; i<=time_steps; i++)
     {
-        double v = mrVoltage[i];
-        double t = mrTime[i];
-        double voltage_derivative = (v - prev_v) / (t - prev_t);
+        v = mrVoltage[i];
+        t = mrTime[i];
+        voltage_derivative = (v - prev_v) / (t - prev_t);
 
         // Look for the max upstroke velocity and when it happens (could be below or above threshold).
         if (voltage_derivative >= max_upstroke_velocity)
         {
             max_upstroke_velocity = voltage_derivative;
             current_time_of_upstroke_velocity = t;
+
         }
 
         switch (ap_phase)
@@ -87,7 +94,7 @@ void CellProperties::CalculateProperties()
                 //while below threshold, find the resting value by checking where the velocity is minimal
                 //i.e. when it is flattest. If we can't find a flat bit, instead go for the minimum voltage
                 //seen before the threshold.
-                if (fabs(voltage_derivative)<=current_minimum_velocity && fabs(voltage_derivative)<=1.0)
+                if (fabs(voltage_derivative)<=current_minimum_velocity && fabs(voltage_derivative)<=resting_potential_gradient_threshold)
                 {
                     current_minimum_velocity=fabs(voltage_derivative);
                     current_resting_value = prev_v;
@@ -180,7 +187,6 @@ void CellProperties::CalculateProperties()
     }
     
 
-
     // One last check. If the simulation ends halfway through an AP
     // i.e. if the vectors of onsets has more elements than the vectors
     // of peak and upstroke properties (that are updated at the end of the AP),
@@ -208,10 +214,12 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
     bool apd_starting_time_found=false;
     double apd_start_time=DBL_MAX;
 
+    double t;
+    double v;
     for (unsigned i=1; i<mrTime.size(); i++)
     {
-        double t = mrTime[i];
-        double v = mrVoltage[i];
+        t = mrTime[i];
+        v = mrVoltage[i];
 
         //First we make sure we stop calculating after the last AP has been calculated
         if (APcounter<mPeakValues.size())
