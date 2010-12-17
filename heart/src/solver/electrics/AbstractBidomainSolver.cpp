@@ -212,26 +212,33 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec exi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 {
-    if (GetBoundaryConditions()->HasDirichletBoundaryConditions() )
+    if (GetBoundaryConditions()->HasDirichletBoundaryConditions() || this->mRowForAverageOfPhiZeroed!=INT_MAX)
     {
-        // not a singular system, no compability condition
+        // not a singular system, no compatibility condition
         return;
     }
 
-#ifndef NDEBUG
-    ///\todo #1327 This could be a collective MPI-like operation
-    ReplicatableVector rep(this->mpLinearSystem->rGetRhsVector());
-    double sum = 0;
-    for(unsigned i=1; i<rep.GetSize(); i+=2) // i=1,3,5,..  ie all the phi_e components
-    {
-        sum += rep[i];
-    }
+#ifndef NDEBUG   
+    DistributedVector distributed_rhs=this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(this->mpLinearSystem->rGetRhsVector());
+    DistributedVector::Stripe distributed_rhs_phi_entries(distributed_rhs,1);
 
-    if(fabs(sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway (or a-a+b-b+c-c.. etc in the case of electrodes)
+    double local_sum=0;
+    for (DistributedVector::Iterator index = distributed_rhs.Begin();
+         index!= distributed_rhs.End();
+         ++index)
+    {
+        local_sum += distributed_rhs_phi_entries[index];
+    }
+    
+    double global_sum;
+    int mpi_ret = MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+    assert(mpi_ret == MPI_SUCCESS);
+     
+    if(fabs(global_sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway (or a-a+b-b+c-c.. etc in the case of electrodes)
     {
         #define COVERAGE_IGNORE
         // shouldn't ever reach this line but useful to have the error printed out if you do
-        //std::cout << "Sum of b_{2i+1} = " << sum << " (should be zero for compatibility)\n";
+        //std::cout << "Sum of b_{2i+1} = " << global_sum << " (should be zero for compatibility)\n";
         EXCEPTION("Linear system does not satisfy compatibility constraint!");
         #undef COVERAGE_IGNORE
     }
