@@ -34,10 +34,12 @@ import difflib
 #dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', '_local', 'global', 'linalg', 'ode', 'pde', 'docs', 'anim', 'link', 'linklib', 'cell_based', 'notforrelease_cell_based', 'python']
 # Important directories are heart, apps and notforrelease
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'python']
-exception_tests = ['BrokenSchema.xsd', #Used in TestHeartConfig.hpp
-                   'EmptyRoot.xsd',    #Used in TestHeartConfig.hpp
-                   'schema with spaces.xsd'     #Used in TestHeartConfig.hpp
-                   ]
+exception_tests = ['BrokenSchema.xsd',              #Used in TestHeartConfig.hpp
+                   'EmptyRoot.xsd',                 #Used in TestHeartConfig.hpp
+                   'schema with spaces.xsd',        #Used in TestHeartConfig.hpp
+                   'ChasteParametersRelease1.xsd',  #Used specifically in TestHeartConfig.hpp as it's before name-spaces
+                   'ChasteParametersRelease1_1.xsd' #Used specifically in TestHeartConfig.hpp for testing without schema location
+                  ]
 
 chaste_dir = '.'
 num_bad = 0

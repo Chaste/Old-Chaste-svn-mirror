@@ -365,11 +365,11 @@ if run_infrastructure_tests and not GetOption('clean'):
     #os.system('python/TestRunner.py python/CheckSemaphores.py ' +
     #          str(out) + ' ' + build_type + ' --no-stdout')
     #test_log_files.append(out)
-    ## Do not check for stray schemas yet \todo #1668
-    #out = File(build.GetTestReportDir() + 'Schemas.log')
-    #os.system('python/TestRunner.py python/CheckSchemas.py ' +
-    #          str(out) + ' ' + build_type + ' --no-stdout')
-    #test_log_files.append(out)
+    # Check for stray schemas
+    out = File(build.GetTestReportDir() + 'Schemas.log')
+    os.system('python/TestRunner.py python/CheckSchemas.py ' +
+              str(out) + ' ' + build_type + ' --no-stdout')
+    test_log_files.append(out)
 if check_failing_tests:
     out = File(build.GetTestReportDir() + 'FailingTests.log')
     os.system('python/TestRunner.py python/CheckForFailingTests.py ' +

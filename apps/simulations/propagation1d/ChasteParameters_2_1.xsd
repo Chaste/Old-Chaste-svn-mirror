@@ -57,6 +57,17 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+  <xs:complexType name="surface_stimulus_strength_type">
+    <xs:annotation>
+      <xs:documentation>Represents the strength of stimulus per unit area. Measured in
+        uA/cm^2.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="unit" type="xs:string" use="required" fixed="uA/cm^2"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
   <xs:complexType name="inverse_length_type">
     <xs:annotation>
       <xs:documentation>Used for variables with dimensions 1/length. Units of
@@ -123,12 +134,23 @@
   </xs:complexType>
   <xs:simpleType name="domain_type">
     <xs:annotation>
-      <xs:documentation>Whether a monodomain or bidomain simulation will be run. Values restricted
-        to "Mono" and "Bi".</xs:documentation>
+      <xs:documentation>Whether a monodomain, bidomain or bidomain with bath simulation will be run. Values restricted
+        to "Mono", "Bi" or "BiWithBath".</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="Mono"/>
       <xs:enumeration value="Bi"/>
+      <xs:enumeration value="BiWithBath"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="axis_type">
+    <xs:annotation>
+      <xs:documentation>Sets either x, y or z axis for any application.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="x"/>
+      <xs:enumeration value="y"/>
+      <xs:enumeration value="z"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="ionic_models_available_type">
@@ -363,16 +385,16 @@
       </xs:element>
       <xs:element name="Period" type="time_type" minOccurs="0">
         <xs:annotation>
-          <xs:documentation>Period is an optinal element. If defined, the stimulus is reapplied every
+          <xs:documentation>Period is an optional element. If defined, the stimulus is reapplied every
             period ms. Note that in this scenario Delay is only applied once.</xs:documentation>
         </xs:annotation>
-      </xs:element>      
+      </xs:element>
       <xs:element name="StopTime" type="time_type" minOccurs="0">
         <xs:annotation>
-          <xs:documentation>StopTime is an optinal element. It can only happen if Period has been previously defined.
+          <xs:documentation>StopTime is an optional element. It can only happen if Period has been previously defined.
             If defined, the train of stimuli will stop at the given time.</xs:documentation>
         </xs:annotation>
-      </xs:element>      
+      </xs:element>
       <xs:element name="Location" type="location_type">
         <xs:annotation>
           <xs:documentation>Location of the nodes at which to apply this
@@ -396,6 +418,39 @@
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
+  <xs:complexType name="electrodes_type">
+    <xs:annotation>
+      <xs:documentation>Defines electrodes which stimulate a domain. These must be applied at flat surfaces at either
+        end of the domain (in either x, y or z direction).</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="GroundSecondElectrode" type="yesno_type">
+        <xs:annotation>
+          <xs:documentation>Whether or not the second electrode is grounded (this is the one with higher value of the coordinate).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PerpendicularToAxis" type="axis_type">
+        <xs:annotation>
+          <xs:documentation>Axis that the electrodes are perpendicular to (should be x, y or z).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Strength" type="surface_stimulus_strength_type">
+        <xs:annotation>
+          <xs:documentation>The strength of the stimulus on the electrodes (uA/cm^2).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StartTime" type="time_type">
+        <xs:annotation>
+          <xs:documentation>StartTime is the time at which to start the shock stimulus.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Duration" type="time_type">
+        <xs:annotation>
+          <xs:documentation>Duration of shock stimulus.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="cell_heterogeneity_type">
     <xs:annotation>
       <xs:documentation>Defines a heterogeneity in a set of cells in a given location (cuboid or
@@ -407,7 +462,7 @@
         RDF annotation.  The name of the parameter is the cmeta:id of the annotated variable.</xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="ScaleFactorGks" type="dimensionless_type">
+      <xs:element name="ScaleFactorGks" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Gks slow delayed rectifier potassium current. (A value of 1.0
             will reset to the default value in the CellML definition.)
@@ -417,7 +472,7 @@
             support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="ScaleFactorIto" type="dimensionless_type">
+      <xs:element name="ScaleFactorIto" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Ito transient outward potassium current. (A value of 1.0 will
             reset to the default value in the CellML definition.)
@@ -427,7 +482,7 @@
             support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="ScaleFactorGkr" type="dimensionless_type">
+      <xs:element name="ScaleFactorGkr" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Gkr rapid delayed rectifier potassium current. (A value of
             1.0 will reset to the default value in the CellML definition.)
@@ -626,7 +681,8 @@
       <xs:element name="Var" type="var_type" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>The name of a variable in a CellML cell model to output during the
-            simulation.</xs:documentation>
+            simulation.  Variables named must appear in the model, and either be a state variable,
+            or annotated as a parameter or derived quantity.</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>
@@ -733,7 +789,8 @@
       <xs:documentation>Type of KSP preconditioner to use. It can specified as jacobi (jaccobi), 
         block jacobi (bjacobi), algebraic multigrid (hypre), multi-level preconditioning (ml), 
         sparse approximate inverse preconditioner (spai), block diagonal (blockdiagonal), 
-        ldu factorization (ldufactorization) or no preconditioner (none).
+        ldu factorization (ldufactorization), two levels block diagonal (twolevelsblockdiagonal)
+        or no preconditioner (none).
         Note that some of these may only work if you have compiled PETSc with support for them
         (e.g. hypre).
         </xs:documentation>
@@ -746,6 +803,7 @@
       <xs:enumeration value="spai"/>
       <xs:enumeration value="blockdiagonal"/>
       <xs:enumeration value="ldufactorisation"/>
+      <xs:enumeration value="twolevelsblockdiagonal"/>
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>
@@ -823,6 +881,32 @@
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
+  <xs:complexType name="cell_heterogeneities_type">
+    <xs:annotation>
+      <xs:documentation>A list of cell model heterogeneities.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0"
+        maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Defines a current-scaling heterogeneity in a set of cells in a given location (cuboid or transmural layer).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="stimuli_type">
+    <xs:annotation>
+      <xs:documentation>A list of intracellular stimuli.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Stimulus" type="stimulus_type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Defines a simple intra-cellular current stimulus which injects a square-wave current into all stimulated cells in a given location (cuboid or transmural layer)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="simulation_type">
     <xs:annotation>
       <xs:documentation>Main XML component for running a cardaic bidomain or monodomain simulation</xs:documentation>
@@ -856,34 +940,20 @@
       </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Stimuli" minOccurs="0">
+      <xs:element name="Stimuli" type="stimuli_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>One or more intra-cellular current stimuli.</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded">
-              <xs:annotation>
-                <xs:documentation>Defines a simple intra-cellular current stimulus which injects a square-wave current into all stimulated cells in a given location (cuboid or transmural layer)</xs:documentation>
-              </xs:annotation>
-            </xs:element>
-          </xs:sequence>
-        </xs:complexType>
       </xs:element>
-      <xs:element name="CellHeterogeneities" minOccurs="0">
+      <xs:element name="Electrodes" type="electrodes_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The electrodes that we want to use in the simulation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CellHeterogeneities" type="cell_heterogeneities_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Optional list of current-scaling heterogeneities in cells at given locations (cuboids or transmural layers).</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0"
-              maxOccurs="unbounded">
-              <xs:annotation>
-                <xs:documentation>Defines a current-scaling heterogeneity in a set of cells in a given location (cuboid or transmural layer).</xs:documentation>
-              </xs:annotation>
-            </xs:element>
-          </xs:sequence>
-        </xs:complexType>
       </xs:element>
       <xs:element name="ConductivityHeterogeneities" minOccurs="0">
         <xs:annotation>
@@ -968,6 +1038,16 @@ Note that in parallel the output meshes may be renumbered from the original inpu
       <xs:element name="SimulationDuration" type="time_type">
         <xs:annotation>
           <xs:documentation>Duration of this simulation (measured in milliseconds) from the beginning of the original simulation.  It should therefore be in the future of the time that the checkpoint was made.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Stimuli" type="stimuli_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>One or more intra-cellular current stimuli.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CellHeterogeneities" type="cell_heterogeneities_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Optional list of current-scaling heterogeneities in cells at given locations (cuboids or transmural layers).</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0">
