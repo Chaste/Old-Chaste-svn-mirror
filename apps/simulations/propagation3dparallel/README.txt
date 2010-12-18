@@ -9,7 +9,7 @@ The following files included in this folder:
 	* heart_chaste2_renum_i_triangles.epi    - Indices of nodes on the epicardium
 	* heart_chaste2_renum_i_triangles.lv     - Indices of nodes on the left ventricular surface
 	* heart_chaste2_renum_i_triangles.rv     - Indices of nodes on the right ventricular surface
-	* heart_chaste2_renum_i_triangles.fibres - Normalised fibre directions, one per element.  Taken from original segmentation
+	* heart_chaste2_renum_i_triangles.axi    - Normalised fibre directions, one per element (first line gives number of elements).  Taken from original segmentation
 
 All nodes are indexed from zero.
 
