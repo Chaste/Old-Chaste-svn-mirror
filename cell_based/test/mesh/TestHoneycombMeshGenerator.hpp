@@ -453,6 +453,27 @@ public:
         p_mesh->ReMesh(map);
     }
 
+    void TestLargeMesh() throw(Exception)
+    {
+        unsigned cells_across = 100;
+        unsigned cells_up = 100;
+        bool cylindrical = false;
+        unsigned thickness_of_ghost_layer = 1;
+
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical);
+
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 10404u);
+
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        TS_ASSERT_EQUALS(location_indices.size(), 10000u);
+
+        TS_ASSERT_DELTA(generator.GetDomainDepth(), 86.6025, 1e-4);
+        TS_ASSERT_DELTA(generator.GetDomainWidth(), 100, 1e-4);
+    }
+
+
 };
 
 
