@@ -1064,6 +1064,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
         {
             //Tetgen is feeding us lies
             assert(SPACE_DIM == 3);
+            
+            // #1670: To run large MeshBased Simulations comment out the line above
+            // To find out the error message uncomment this:
+            //std::cout<<e.GetMessage() << std::endl;
         }
     }
 
