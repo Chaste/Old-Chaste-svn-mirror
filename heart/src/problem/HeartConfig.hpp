@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "DistributedTetrahedralMeshPartitionType.hpp"
 
 #include <xercesc/dom/DOM.hpp>

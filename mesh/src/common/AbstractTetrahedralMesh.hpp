@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "ArchiveLocationInfo.hpp"
-#include "HeartConfig.hpp"
+//#include "HeartConfig.hpp"
 #include "GenericMeshReader.hpp"
 
 /// Forward declaration which is going to be used for friendship
