@@ -98,6 +98,10 @@ private:
     char* mElementFileReadBuffer; /**< Buffer for element file read with std::ifstream */
     char* mFaceFileReadBuffer; /**< Buffer for face file read with std::ifstream */
 
+    bool mNodePermutationDefined;
+    std::vector<unsigned> mPermutationVector;
+    std::vector<unsigned> mInversePermutationVector;
+
 //    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
 //     *  In a std::vector rather than the struct to save space if not read.
 //     */
@@ -231,6 +235,13 @@ public:
      */
     void SetReadBufferSize(unsigned bufferSize);
 
+    /**
+     * Sets a node permutation to use when reading in node file.
+     * 
+     * @param rPermutationVector Permutation vector
+     */
+    void SetNodePermutation(std::vector<unsigned>& rPermutationVector);
+    
 private:
 
     /** Open mesh files. */

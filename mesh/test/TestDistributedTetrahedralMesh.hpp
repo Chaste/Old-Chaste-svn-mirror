@@ -833,7 +833,7 @@ public:
         std::string archive_file = "distributed_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
 
-        DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>(DistributedTetrahedralMeshPartitionType::DUMB);
+        DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>(DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
         //std::vector<unsigned> halo_node_indices;
         std::vector<Node<2>*> halo_nodes;
         unsigned num_nodes;
@@ -965,6 +965,110 @@ public:
         }
 
         delete p_mesh;
+    }
+
+    void TestArchivingBinaryMesh() throw(Exception)
+    {
+        FileFinder archive_dir("archive_binary_mesh", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "distributed_tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
+
+        DistributedTetrahedralMesh<3,3>* p_mesh = new DistributedTetrahedralMesh<3,3>(DistributedTetrahedralMeshPartitionType::DUMB);
+        //std::vector<unsigned> halo_node_indices;
+        std::vector<Node<3>*> halo_nodes;
+        unsigned num_nodes;
+        unsigned local_num_nodes;
+        unsigned num_elements;
+        // archive
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
+            TS_ASSERT(mesh_reader.HasNclFile());
+
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+            num_nodes = p_mesh->GetNumNodes();
+            local_num_nodes = p_mesh->GetNumLocalNodes();
+            num_elements = p_mesh->GetNumElements();
+
+            halo_nodes = p_mesh->mHaloNodes;
+
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
+            AbstractTetrahedralMesh<3,3>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<3,3>* >(p_mesh);
+            (*p_arch) << p_mesh_abstract;
+        }
+
+        // restore
+        {
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<3,3>* p_mesh_abstract2;
+
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // restore from the archive
+            (*p_arch) >> p_mesh_abstract2;
+            // Check we have the right number of nodes & elements
+            DistributedTetrahedralMesh<3,3>* p_mesh2 = static_cast<DistributedTetrahedralMesh<3,3>*>(p_mesh_abstract2);
+
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
+
+            // Check some node co-ordinates
+            try
+            {
+                Node<3>* p_node1 = p_mesh->GetNode(0);
+                Node<3>* p_node2 = p_mesh2->GetNode(0);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            try
+            {
+                Node<3>* p_node1 = p_mesh->GetNode(500);
+                Node<3>* p_node2 = p_mesh2->GetNode(500);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            // Check first element has the right nodes
+            try
+            {
+                Element<3,3>* p_element = p_mesh->GetElement(0);
+                Element<3,3>* p_element2 = p_mesh2->GetElement(0);
+                TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            try
+            {
+                Element<3,3>* p_element = p_mesh->GetElement(500);
+                Element<3,3>* p_element2 = p_mesh2->GetElement(500);
+                TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            // Check the halo nodes are right
+            std::vector<Node<3>*> halo_nodes2 = p_mesh2->mHaloNodes;
+            TS_ASSERT_EQUALS(halo_nodes2.size(), halo_nodes.size());
+            delete p_mesh2;
+        }
     }
 
 private:

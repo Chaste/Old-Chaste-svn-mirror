@@ -31,8 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/version.hpp>
 
 #include <vector>
 #include <string>
@@ -45,6 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include "HeartConfig.hpp"
+#include "GenericMeshReader.hpp"
 
 /// Forward declaration which is going to be used for friendship
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -115,7 +119,62 @@ private:
          * \todo #1200 This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
          * Perhaps even copy the permutation file from an earlier checkpoint?
          */
-        mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
+
+        bool permutation_available = (this->rGetNodePermutation().size() != 0);
+        archive & permutation_available;
+        
+        // \todo #1200 this is not necessarily the best way of archiving the permutation vector, it replicates the whole thing for each processor. Maybe a distributed file...         
+        if( permutation_available )
+        {
+            const std::vector<unsigned>& rPermutation = this->rGetNodePermutation();            
+            archive & rPermutation;            
+        }                 
+        
+        /// \todo #1200 Refactor this try-catch block into a method bool IsMeshOnDisc()
+        bool is_mesh_on_disc;
+        try
+        {
+            this->GetMeshFileBaseName();
+            is_mesh_on_disc = true;
+        }
+        catch(Exception& e)
+        {
+            is_mesh_on_disc = false;
+        }              
+        
+        if (!is_mesh_on_disc)
+        {
+            mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
+        } 
+        else        
+        {
+            // Mesh in disc, copy it to the archiving folder
+            // \todo #1200 consider creating symlinks instead...
+            std::string original_file=this->GetMeshFileBaseName();
+            GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
+            
+            if (original_mesh_reader.IsFileFormatBinary())
+            {
+                // Mesh is in binary format, we can just copy the files across ignoring the mesh reader                
+                std::stringstream cp_command;
+                cp_command << "for filename in `ls " << this->GetMeshFileBaseName() << ".*`; do " <<
+                                 "extension=${filename##*.};" << // ##*. deletes basename and . from the filename (i.e. leaves only the extension (http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_03.html)
+                                 "cp $filename " << ArchiveLocationInfo::GetArchiveDirectory() << ArchiveLocationInfo::GetMeshFilename() <<".$extension;" <<
+                              "done";
+
+                if (PetscTools::AmMaster())
+                {
+                    MPIABORTIFNON0(system, cp_command.str());
+                }
+
+            }
+            else
+            {
+                // Mesh in text format, use the mesh writer to "binarise" it                    
+                mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+            }
+        }
+
         // Make sure that the files are written before slave processes proceed
         PetscTools::Barrier("AbstractTetrahedralMesh::save");
     }
@@ -131,6 +190,19 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
+
+        bool permutation_available=false;        
+        std::vector<unsigned> permutation;
+
+        if(version>0)
+        {        
+            archive & permutation_available;
+    
+            if( permutation_available )
+            {
+                archive & permutation;
+            }
+        }                 
 
         // Store the DistributedVectorFactory loaded from the archive
         DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
@@ -157,6 +229,12 @@ private:
         {
             //I am a linear mesh
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
+            
+            if (permutation_available)
+            {
+                mesh_reader.SetNodePermutation(permutation);
+            }
+            
             this->ConstructFromMeshReader(mesh_reader);
         }
         else
@@ -533,6 +611,24 @@ public:
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractTetrahedralMesh)
+
+namespace boost {
+namespace serialization {
+/**
+ * Specify a version number for archive backwards compatibility.
+ *
+ * This is how to do BOOST_CLASS_VERSION(AbstractCardiacTissue, 1)
+ * with a templated class.
+ */
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct version<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >
+{
+    /** Version number */
+    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+};
+} // namespace serialization
+} // namespace boost
+
 
 //////////////////////////////////////////////////////////////////////////////
 //      ElementIterator class implementation - most methods are inlined     //

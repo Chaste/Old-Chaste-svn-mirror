@@ -68,7 +68,8 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mMeshIsHexahedral(false),
       mNodeFileReadBuffer(NULL),
       mElementFileReadBuffer(NULL),
-      mFaceFileReadBuffer(NULL)
+      mFaceFileReadBuffer(NULL),
+      mNodePermutationDefined(false)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -186,6 +187,18 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     EnsureIndexingFromZero(element_data.NodeIndices);
 
     mElementsRead++;
+    
+    if (mNodePermutationDefined)
+    {    
+        for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
+             node_it != element_data.NodeIndices.end();
+             ++ node_it)
+        {
+            assert(*node_it < mPermutationVector.size());            
+            *node_it =  mPermutationVector[*node_it];
+        }
+    }
+        
     return element_data;
 }
 
@@ -230,7 +243,20 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     }
 
     mBoundaryFacesRead++;
+    
+    if (mNodePermutationDefined)
+    {    
+        for (std::vector<unsigned>::iterator node_it = ret_indices.begin();
+             node_it != ret_indices.end();
+             ++ node_it)
+        {
+            assert(*node_it < mPermutationVector.size());
+            *node_it =  mPermutationVector[*node_it];
+        }
+    }
+
     face_data.NodeIndices = ret_indices;
+        
     return face_data;
 }
 
@@ -245,6 +271,13 @@ std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigne
     {
         EXCEPTION("Node does not exist - not enough nodes.");
     }
+    
+    if (mNodePermutationDefined)
+    {
+        assert(index<mInversePermutationVector.size());
+        index = mInversePermutationVector[index];
+    }
+    
     // Put the file stream pointer to the right location
     mNodesFile.seekg(mNodeFileDataStart + mNodeItemWidth*index, std::ios_base::beg);
     // Read the next item.
@@ -794,6 +827,23 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetReadBufferSize(unsigned buf
 
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetNodePermutation(std::vector<unsigned>& rPermutationVector)
+{
+    if ( !mFilesAreBinary )
+    {
+        // It would be too inefficient otherwise...
+        EXCEPTION("Permuted read can only be used with binary files since it requires random access to the node file.");
+    }
+    
+    mNodePermutationDefined = true;    
+    mPermutationVector = rPermutationVector;    
+    mInversePermutationVector.resize(mPermutationVector.size());
+    for (unsigned index=0; index<mPermutationVector.size(); index++)
+    {
+        mInversePermutationVector[mPermutationVector[index]]=index;
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
