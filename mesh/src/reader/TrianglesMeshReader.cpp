@@ -654,7 +654,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         if ( mNumNodes != num_nodes_in_file )
         {
-            std::cout << mNumNodes << " " << num_nodes_in_file << std::endl;
             EXCEPTION("NCL file does not contain the correct number of nodes for mesh");
         }
 

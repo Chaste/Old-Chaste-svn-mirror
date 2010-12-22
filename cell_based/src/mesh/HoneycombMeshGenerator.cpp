@@ -74,6 +74,9 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         EXCEPTION("HoneycombMeshGenerator cannot delete temporary files\n");
         #undef COVERAGE_IGNORE
     }
+
+    // Original files have been deleted, better if the mesh object forgets about them.
+    mpMesh->SetMeshHasChangedSinceLoading();
 }
 
 
