@@ -52,6 +52,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     
     public static boolean parsed_all_files = false;
     public static boolean drawAncestors = false;
+    public static boolean drawPotts = false;
     public static boolean drawAxes = true;
     public static boolean drawCells = true;
     public static boolean drawCircles = false;
@@ -99,6 +100,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     public static Checkbox output = new Checkbox("Output");
     public static Checkbox cells = new Checkbox("Cells");
     public static Checkbox ancestors = new Checkbox("Clonal Populations");
+    public static Checkbox potts = new Checkbox("Potts Simulation");
     public static Checkbox axes = new Checkbox("Axes");
     public static Checkbox axes_equal = new Checkbox("Axes Equal");
     
@@ -244,6 +246,11 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
             drawAncestors = state;
             System.out.println("Drawing clonal populations = " + drawAncestors); 
         }
+        else if (cb == potts)
+        {
+            drawPotts = state;
+            System.out.println("Drawing Potts Simulation = " + drawPotts); 
+        }
         canvas.drawBufferedImage();
         canvas.repaint();
     }
@@ -347,12 +354,14 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
         axes.addItemListener(this);
         axes_equal.addItemListener(this);
         ancestors.addItemListener(this);
-
+        potts.addItemListener(this);
+        
         checkPanel.add(output);
         checkPanel.add(cells);
         checkPanel.add(axes);
         checkPanel.add(axes_equal);
         checkPanel.add(ancestors);
+        checkPanel.add(potts);
         checkPanel.add(nearest_node_label);
         checkPanel.add(nearest_element_centroid_label);
 
@@ -399,6 +408,11 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
             {
                 drawAncestors = true;
                 ancestors.setState(true);
+            }
+            else if (args[i].equals("potts"))
+            {
+                drawPotts = true;
+                potts.setState(true);
             }
             else
             {
@@ -476,6 +490,12 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                     if (parameter.equals("Complete")) 
                     {
                 	    showLastStep = true;
+                    }
+                    if (parameter.equals("Potts")) 
+                    {
+                	    drawPotts = true;
+                	    drawCells = false;
+                        cells.setState(false);
                     }
                     line_setup = in_setup_file.readLine();
                 }
@@ -1019,7 +1039,22 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
         
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
-                	
+
+        
+        if (vis.drawPotts)
+        {
+	        // For a Potts sim Draw All nodes before anything else 
+        	// to get nodes that are not in any elements, i.e. medium
+			for (int i=0; i<vis.numNodes[vis.timeStep]; i++)
+			{
+			    PlotPoint p = scale(vis.node_positions[vis.timeStep][i]);
+			
+			    g2.setColor(Color.black);
+			    
+			    g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
+			}
+        }
+                
 	    // Draw elements first
         int num_entries_covered = 0;
 	    for (int i=0; i < vis.numElements[vis.timeStep]; i++)
@@ -1094,10 +1129,43 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	
 	        	// \todo: Larger simulations would be clearer with smaller nodes
 	        	g2.fillOval(point.x - node_radius, point.y - node_radius, 2 * node_radius, 2 * node_radius);
+	        	
+	        	if (vis.drawPotts)
+	        	{
+	        		PlotPoint square_vertices[] = new PlotPoint[4];
+	    	       	
+	    	       	square_vertices[0] = scale(real_point.x - 0.5, real_point.y - 0.5);
+    	        	square_vertices[1] = scale(real_point.x + 0.5, real_point.y - 0.5);
+    	        	square_vertices[2] = scale(real_point.x + 0.5, real_point.y + 0.5);
+    	        	square_vertices[3] = scale(real_point.x - 0.5, real_point.y + 0.5);
+	    	        
+	    	        int xpoints[] = new int[4];
+	                int ypoints[] = new int[4];
+	                for (int node=0; node<4; node++)
+	                {
+	                	xpoints[node] = square_vertices[node].x;
+	                	ypoints[node] = square_vertices[node].y;
+	                }
+	                SetCellColour(i);
+	    	        
+	                g2.fillPolygon(xpoints, ypoints, 4);
+	
+	                // Plot cell boundary lines
+	                g2.setColor(Color.black);
+	                
+	                for (int node=0; node<4; node++)
+	                {
+	                	g2.drawLine(xpoints[node], 
+	                			    ypoints[node], 
+	                			    xpoints[(node+1)%4],
+	                			    ypoints[(node+1)%4]);
+	                }
+	        		
+	        	}
 	        }
 	        num_entries_covered = num_entries_covered + num_nodes_in_this_element;
         }
-
+	    
 	    g2.setColor(Color.black);
         
         if (vis.drawAxes)
@@ -1302,15 +1370,29 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
      
     void SetNodeColour(int index)
     {
-    	if(vis.is_boundary_nodes[vis.timeStep][index]==1) 
-    	{
-    		// Boundary nodes are Red
-    		g2.setColor(Color.red);	
-    	}
+    	if(vis.drawPotts)
+        {
+            Color cell_colour = ancestorColourMap(index);
+            int new_r = 0;
+            int new_g = 0;
+            int new_b = 0;
+            if (cell_colour.getRed() - 40 > new_r) new_r = cell_colour.getRed() - 40;
+            if (cell_colour.getGreen() - 40 > new_g) new_g = cell_colour.getGreen() - 40;
+            if (cell_colour.getBlue() - 40 > new_b) new_b = cell_colour.getBlue() - 40;
+            g2.setColor(new Color(new_r, new_g, new_b));
+        }
     	else
     	{
-    		// All other nodes are Black
-        	g2.setColor(Color.black);
+	    	if(vis.is_boundary_nodes[vis.timeStep][index]==1) 
+	    	{
+	    		// Boundary nodes are Red
+	    		g2.setColor(Color.red);	
+	    	}
+	    	else
+	    	{
+	    		// All other nodes are Black
+	        	g2.setColor(Color.black);
+	    	}
     	}
     }
  
@@ -1340,7 +1422,12 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
     
     void SetCellColour(int index)
     {
-    	if (vis.drawAncestors && (vis.ancestor_values[vis.timeStep][index]!=-1))
+    	if(vis.drawPotts)
+        {
+            Color cell_colour = ancestorColourMap(index);
+            g2.setColor(cell_colour);
+        }
+    	else if (vis.drawAncestors && (vis.ancestor_values[vis.timeStep][index]!=-1))
       	{	// If we are drawing ancestors and this cell's value has been set in simulation.
     		Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
     		g2.setColor(ancestor_colour);
