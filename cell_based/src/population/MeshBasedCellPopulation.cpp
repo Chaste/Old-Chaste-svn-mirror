@@ -323,6 +323,8 @@ void MeshBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
         }
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::TESSELLATION);
     }
+
+    mrMesh.SetMeshHasChangedSinceLoading();
 }
 
 template<unsigned DIM>
