@@ -392,11 +392,6 @@ public:
     const AbstractCellPopulation<DIM>& rGetCellPopulation() const;
 
     /**
-     * @return const reference to mForceCollection (used in archiving).
-     */
-    const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
-
-    /**
      * @return mOutputNodeVelocities
      */
     bool GetOutputNodeVelocities();

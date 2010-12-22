@@ -163,13 +163,6 @@ unsigned CellBasedSimulation<DIM>::DoCellRemoval()
 
 
 template<unsigned DIM>
-const std::vector<AbstractForce<DIM>*> CellBasedSimulation<DIM>::rGetForceCollection() const
-{
-    return mForceCollection;
-}
-
-
-template<unsigned DIM>
 c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
 {
     /**
