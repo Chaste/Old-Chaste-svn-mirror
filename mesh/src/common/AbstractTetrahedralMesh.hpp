@@ -216,6 +216,16 @@ private:
         {
             p_our_factory = p_factory->GetOriginalFactory();
         }
+
+        /// \todo: #1200 The following if statement is a temporal hack to make sure that there is a DistributedVectorFactory
+        /// \todo: (continue) set before calling ConstructFromMeshReader, otherwise it will go for PETSc's default node distribution
+        /// \todo: (continue) which doesn't necessarily match the archived distribution. The problem being that I don't
+        /// \todo: (continue) understand why p_our_factory is NULL here (in the context of TestDistributedTetrahedralMesh).
+        if (!p_our_factory && permutation_available)
+        {
+            p_our_factory = p_factory;
+        }
+
         if (p_our_factory && p_our_factory->GetNumProcs() == p_factory->GetNumProcs())
         {
             // Specify the node distribution
