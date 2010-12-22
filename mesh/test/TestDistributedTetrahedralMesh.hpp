@@ -973,7 +973,7 @@ public:
         std::string archive_file = "distributed_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
 
-        DistributedTetrahedralMesh<3,3>* p_mesh = new DistributedTetrahedralMesh<3,3>(DistributedTetrahedralMeshPartitionType::DUMB);
+        DistributedTetrahedralMesh<3,3>* p_mesh = new DistributedTetrahedralMesh<3,3>(DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
         //std::vector<unsigned> halo_node_indices;
         std::vector<Node<3>*> halo_nodes;
         unsigned num_nodes;
@@ -1689,7 +1689,7 @@ public:
 
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("archive_constructed_mesh", RelativeTo::ChasteTestOutput);
         std::string archive_file = "distributed_rectangle.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_rectangle");
 

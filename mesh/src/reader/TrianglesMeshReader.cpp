@@ -336,6 +336,12 @@ std::vector<unsigned> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetContaining
         EXCEPTION("Connectivity list does not exist - not enough nodes.");
     }
 
+    if (mNodePermutationDefined)
+    {
+        assert(index<mInversePermutationVector.size());
+        index = mInversePermutationVector[index];
+    }
+
     // Put the file stream pointer to the right location
     mNclFile.seekg(mNclFileDataStart + mNclItemWidth*index, std::ios_base::beg);
     // Read the next item.
