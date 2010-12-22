@@ -62,14 +62,25 @@ public:
      * @param pathBaseName  the base name of the files from which to read the mesh data
      *    (either absolute, or relative to the current directory)
      */
-    GenericMeshReader(std::string pathBaseName)
+    GenericMeshReader(std::string pathBaseName,
+                      unsigned orderOfElements=1,
+                      unsigned orderOfBoundaryElements=1,
+                      bool readContainingElementsForBoundaryElements=false)
     {
         try
         {
-            mpMeshReader = new TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
+            mpMeshReader = new TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName,
+                                                                           orderOfElements,
+                                                                           orderOfBoundaryElements,
+                                                                           readContainingElementsForBoundaryElements);
         }
         catch (const Exception& r_triangles_exception)
         {
+            if (orderOfElements!=1 || orderOfBoundaryElements!=1 || readContainingElementsForBoundaryElements)
+            {
+                EXCEPTION("Quadratic meshes are only supported in Triangles format.");
+            }
+
             try
             {
                 mpMeshReader = new MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);

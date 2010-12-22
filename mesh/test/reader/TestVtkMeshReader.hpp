@@ -248,6 +248,11 @@ public:
         TS_ASSERT_DELTA( next_node[0] , 0.2 , 1e-6 );
         TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+
+        // Exception coverage
+        typedef GenericMeshReader<3,3> GENERIC_READER3;
+        TS_ASSERT_THROWS_THIS(GENERIC_READER3 quadratic_mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu", 2, 2),
+                         "Quadratic meshes are only supported in Triangles format.");
 #endif // CHASTE_VTK
     }
 

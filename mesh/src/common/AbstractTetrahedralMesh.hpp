@@ -148,10 +148,13 @@ private:
         } 
         else        
         {
+            unsigned order_of_element = (mMeshIsLinear?1:2);
+            unsigned& order_of_boundary_element = order_of_element;
+
             // Mesh in disc, copy it to the archiving folder
             // \todo #1200 consider creating symlinks instead...
             std::string original_file=this->GetMeshFileBaseName();
-            GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
+            GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file, order_of_element, order_of_boundary_element);
             
             if (original_mesh_reader.IsFileFormatBinary())
             {

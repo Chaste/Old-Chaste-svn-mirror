@@ -1107,7 +1107,7 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("archive_mutable_mesh", RelativeTo::ChasteTestOutput);
         std::string archive_file = "mutable_mesh.arch";
 
         unsigned num_nodes;
