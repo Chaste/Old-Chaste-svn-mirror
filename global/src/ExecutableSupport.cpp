@@ -181,42 +181,58 @@ void ExecutableSupport::WriteProvenanceInfoFile()
 
 void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
 {
-    *outFile << "Compiler: " << ChasteBuildInfo::GetCompilerType()
-             << ", version " << ChasteBuildInfo::GetCompilerVersion() << std::endl;
 
-    *outFile << "Compiler flags \"" << ChasteBuildInfo::GetCompilerFlags() << "\"" << std::endl;
+    *outFile << "<ChasteBuildInfo>\n";
 
-    *outFile << std::endl;
-    *outFile << "Library versions: " << std::endl;
-    *outFile << "  PETSc: " << PETSC_VERSION_MAJOR << "." << PETSC_VERSION_MINOR << "." << PETSC_VERSION_SUBMINOR << std::endl;
-    *outFile << "  Boost: " << BOOST_VERSION  / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
-    *outFile << "  HDF5: " << H5_VERS_MAJOR <<  "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE << std::endl;
+    *outFile << "\t<ProvenanceInfo>\n";
+    *outFile << "\t\t<VersionString>"<< ChasteBuildInfo::GetVersionString() << "</VersionString> <!-- build specific -->\n";
+    *outFile << "\t\t<IsWorkingCopyModified>"<< ChasteBuildInfo::IsWorkingCopyModified() << "</IsWorkingCopyModified>\n";
+    *outFile << "\t\t<BuildInformation>"<< ChasteBuildInfo::GetBuildInformation() << "</BuildInformation>\n";
+    *outFile << "\t\t<BuildTime>"<< ChasteBuildInfo::GetBuildTime() << "</BuildTime>\n";
+    *outFile << "\t\t<CurrentTime>"<< ChasteBuildInfo::GetCurrentTime() << "</CurrentTime>\n";
+    *outFile << "\t\t<BuilderUnameInfo>"<< ChasteBuildInfo::GetBuilderUnameInfo() << "</BuilderUnameInfo>\n";
+    *outFile << "\t</ProvenanceInfo>\n";
 
-    *outFile << std::endl;
-    *outFile << "Binary versions: " << std::endl;
-    *outFile << "  XSD: " <<  ChasteBuildInfo::GetXsdVersion() << std::endl;
+    *outFile << "\t<Compiler>\n";
+    *outFile << "\t\t<NameAndVersion>" << ChasteBuildInfo::GetCompilerType() << ", version " << ChasteBuildInfo::GetCompilerVersion() << "</NameAndVersion>\n" ;
+    *outFile << "\t\t<Flags>" << ChasteBuildInfo::GetCompilerFlags() << "</Flags>\n" ;
+    *outFile << "\t</Compiler>\n";
 
-    *outFile << std::endl;
-    *outFile << "Includes support for: " << std::endl;
+    *outFile << "\t<Libraries>\n";
 
+    *outFile << "\t\t<CompiledIn>\n";
+    *outFile << "\t\t\t<PETSc>" << PETSC_VERSION_MAJOR << "." << PETSC_VERSION_MINOR << "." << PETSC_VERSION_SUBMINOR << "</PETSc>\n";
+    *outFile << "\t\t\t<Boost>" << BOOST_VERSION  / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << "</Boost>\n";
+    *outFile << "\t\t\t<HDF5>" << H5_VERS_MAJOR <<  "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE << "</HDF5>\n";
+    *outFile << "\t\t</CompiledIn>\n";
+
+    *outFile << "\t\t<Binaries>\n";
+    *outFile << "\t\t\t<XSD>" <<  ChasteBuildInfo::GetXsdVersion() << "</XSD>\n";
+    *outFile << "\t\t</Binaries>\n";
+
+    *outFile << "\t\t<Optional>\n";
 #ifdef CHASTE_VTK
-    *outFile << "  VTK: " << VTK_MAJOR_VERSION << "." << VTK_MINOR_VERSION << std::endl;
+    *outFile << "\t\t\t<VTK>" << VTK_MAJOR_VERSION << "." << VTK_MINOR_VERSION << "</VTK>\n";
 #else
-    *outFile << "  VTK: no" << std::endl;
+    *outFile << "\t\t\t<VTK>no</VTK>\n";
 #endif
 
 #ifdef CHASTE_CVODE
-    *outFile << "  SUNDIALS: " << SUNDIALS_PACKAGE_VERSION << " (includes Cvode of a different version number)" << std::endl;
+    *outFile << "\t\t\t<SUNDIALS>" << SUNDIALS_PACKAGE_VERSION << "</SUNDIALS> <!-- includes Cvode of a different version number --> \n";
 #else
-    *outFile << "  SUNDIALS: no" << std::endl;
+    *outFile << "\t\t\t<SUNDIALS>no</SUNDIALS>\n";
 #endif
 
 #ifdef CHASTE_ADAPTIVITY
-    *outFile << "  Adaptivity: yes" << std::endl;
+    *outFile << "\t\t\t<Adaptivity>yes</Adaptivity>\n";
 #else
-    *outFile << "  Adaptivity: no" << std::endl;
+    *outFile << "\t\t\t<Adaptivity>no</Adaptivity>\n";
 #endif
+    *outFile << "\t\t</Optional>\n";
 
+    *outFile << "\t</Libraries>\n";
+
+    *outFile << "</ChasteBuildInfo>\n";
 }
 
 void ExecutableSupport::StandardStartup(int* pArgc, char*** pArgv)

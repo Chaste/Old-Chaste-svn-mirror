@@ -649,28 +649,17 @@ void CellBasedSimulation<DIM>::UpdateCellPopulation()
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::OutputSimulationSetup()
 {
-
-	// Create Output file
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
-	ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system_info");
 
-	out_stream build_info_file = output_file_handler.OpenOutputFile("build.info");
-    ExecutableSupport::WriteLibraryInfo(build_info_file);
+	// Ouput Machine information
+    ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system_info");
 
     // Output Chaste provenance information
-    *build_info_file << "\t<ChasteInfo>\n" ;
-
-    *build_info_file << "\t\t<VersionString>"<< ChasteBuildInfo::GetVersionString() << "</VersionString> <--! build specific -->\n";
-    *build_info_file << "\t\t<IsWorkingCopyModified>"<< ChasteBuildInfo::IsWorkingCopyModified() << "</IsWorkingCopyModified>\n";
-    *build_info_file << "\t\t<BuildInformation>"<< ChasteBuildInfo::GetBuildInformation() << "</BuildInformation>\n";
-    *build_info_file << "\t\t<BuildTime>"<< ChasteBuildInfo::GetBuildTime() << "</BuildTime>\n";
-    *build_info_file << "\t\t<CurrentTime>"<< ChasteBuildInfo::GetCurrentTime() << "</CurrentTime>\n";
-    *build_info_file << "\t\t<BuilderUnameInfo>"<< ChasteBuildInfo::GetBuilderUnameInfo() << "</BuilderUnameInfo>\n";
-
-    *build_info_file << "\t</ChasteInfo>\n";
-
+    out_stream build_info_file = output_file_handler.OpenOutputFile("build.info");
+    ExecutableSupport::WriteLibraryInfo(build_info_file);
     build_info_file->close();
 
+    // Output Simulation parameter and setup details
     out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
     // Output CellBasedSimulation details
