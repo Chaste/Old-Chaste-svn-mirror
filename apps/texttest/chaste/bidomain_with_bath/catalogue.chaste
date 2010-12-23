@@ -45,7 +45,6 @@ The following new files/directories were created:
 ----------------archive.info
 ----------------mesh.edge
 ----------------mesh.ele
-----------------mesh.ncl
 ----------------mesh.node
 --------50ms
 ------------.chaste_deletable_folder
@@ -75,5 +74,4 @@ The following new files/directories were created:
 ----------------archive.info
 ----------------mesh.edge
 ----------------mesh.ele
-----------------mesh.ncl
 ----------------mesh.node
