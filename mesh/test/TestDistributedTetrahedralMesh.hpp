@@ -1069,6 +1069,8 @@ public:
             TS_ASSERT_EQUALS(halo_nodes2.size(), halo_nodes.size());
             delete p_mesh2;
         }
+
+        delete p_mesh;
     }
 
 private:

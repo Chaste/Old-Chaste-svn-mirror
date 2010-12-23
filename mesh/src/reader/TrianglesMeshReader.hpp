@@ -98,9 +98,9 @@ private:
     char* mElementFileReadBuffer; /**< Buffer for element file read with std::ifstream */
     char* mFaceFileReadBuffer; /**< Buffer for face file read with std::ifstream */
 
-    bool mNodePermutationDefined;
-    std::vector<unsigned> mPermutationVector;
-    std::vector<unsigned> mInversePermutationVector;
+    bool mNodePermutationDefined; /**< Wheter to consider a user-defined node permutation when reading a mesh from file.*/
+    std::vector<unsigned> mPermutationVector; /**< Permutation to be considered, i-th entry of the vector contains new index for original node i.*/
+    std::vector<unsigned> mInversePermutationVector; /**< Permutation inverse, stored for performance reasons.*/
 
 //    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
 //     *  In a std::vector rather than the struct to save space if not read.
