@@ -627,6 +627,57 @@ public:
 
     }
 
+    void TestReading3dMeshWithPermutation() throw (Exception)
+    {
+        const unsigned ELEMENT_DIM = 3;
+        const unsigned SPACE_DIM = 3;
+
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader_3d_ascii("mesh/test/data/simple_cube");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader_3d("mesh/test/data/simple_cube_binary");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader_3d_permuted("mesh/test/data/simple_cube_binary");
+
+        unsigned num_nodes = mesh_reader_3d.GetNumNodes();
+        std::vector<unsigned> permutation(num_nodes);
+        for (unsigned node_index=0; node_index < num_nodes; node_index++)
+        {
+            permutation[node_index] = num_nodes-node_index-1;
+        }
+
+        TS_ASSERT_THROWS_THIS(mesh_reader_3d_ascii.SetNodePermutation(permutation),
+                              "Permuted read can only be used with binary files since it requires random access to the node file.");
+
+        mesh_reader_3d_permuted.SetNodePermutation(permutation);
+
+        for (unsigned node_index=0; node_index < num_nodes; node_index++)
+        {
+            for (unsigned dimension=0; dimension<SPACE_DIM; dimension++)
+            {
+                TS_ASSERT_EQUALS( mesh_reader_3d.GetNode(permutation[node_index])[dimension],
+                                  mesh_reader_3d_permuted.GetNode(node_index)[dimension]);
+            }
+        }
+
+        for (unsigned element_index=0; element_index < mesh_reader_3d.GetNumElements(); element_index++)
+        {
+            for (unsigned local_node_index = 0; local_node_index < ELEMENT_DIM+1; local_node_index++)
+            {
+                unsigned original_mesh_global_index = mesh_reader_3d.GetElementData(element_index).NodeIndices[local_node_index];
+                unsigned permuted_mesh_global_index = mesh_reader_3d_permuted.GetElementData(element_index).NodeIndices[local_node_index];
+                TS_ASSERT_EQUALS(permutation[original_mesh_global_index], permuted_mesh_global_index);
+            }
+        }
+
+        for (unsigned boundary_ele_index=0; boundary_ele_index < mesh_reader_3d.GetNumElements(); boundary_ele_index++)
+        {
+            for (unsigned local_node_index = 0; local_node_index < ELEMENT_DIM; local_node_index++)
+            {
+                unsigned original_mesh_global_index = mesh_reader_3d.GetFaceData(boundary_ele_index).NodeIndices[local_node_index];
+                unsigned permuted_mesh_global_index = mesh_reader_3d_permuted.GetFaceData(boundary_ele_index).NodeIndices[local_node_index];
+                TS_ASSERT_EQUALS(permutation[original_mesh_global_index], permuted_mesh_global_index);
+            }
+        }
+
+    }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_
