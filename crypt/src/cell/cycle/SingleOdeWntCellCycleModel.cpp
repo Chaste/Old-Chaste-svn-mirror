@@ -136,6 +136,14 @@ double SingleOdeWntCellCycleModel::GetBetaCateninDivisionThreshold()
     return mBetaCateninDivisionThreshold;
 }
 
+void SingleOdeWntCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    SimpleWntCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(SingleOdeWntCellCycleModel)

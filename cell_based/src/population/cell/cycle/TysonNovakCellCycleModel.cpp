@@ -158,6 +158,14 @@ bool TysonNovakCellCycleModel::CanCellTerminallyDifferentiate()
     return false;
 }
 
+void TysonNovakCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)

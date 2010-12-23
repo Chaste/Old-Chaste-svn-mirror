@@ -77,6 +77,14 @@ AbstractCellCycleModel* VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::Create
     return p_model;
 }
 
+void VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractVanLeeuwen2009WntSwatCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)

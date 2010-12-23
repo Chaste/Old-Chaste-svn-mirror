@@ -95,3 +95,11 @@ double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetNuclearBetaCateninLevel()
            mpOdeSystem->rGetStateVariables()[18] +
            mpOdeSystem->rGetStateVariables()[19];
 }
+
+void AbstractVanLeeuwen2009WntSwatCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractWntOdeBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}

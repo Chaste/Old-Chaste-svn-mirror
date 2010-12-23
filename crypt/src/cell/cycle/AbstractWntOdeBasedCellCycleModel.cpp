@@ -117,3 +117,12 @@ bool AbstractWntOdeBasedCellCycleModel::CanCellTerminallyDifferentiate()
 {
     return false;
 }
+
+void AbstractWntOdeBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+

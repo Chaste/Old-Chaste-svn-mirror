@@ -170,6 +170,14 @@ void Alarcon2004OxygenBasedCellCycleModel::AdjustOdeParameters(double currentTim
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
 }
 
+void Alarcon2004OxygenBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)

@@ -67,6 +67,14 @@ void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
     }
 }
 
+void StochasticDurationGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractSimpleGenerationBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

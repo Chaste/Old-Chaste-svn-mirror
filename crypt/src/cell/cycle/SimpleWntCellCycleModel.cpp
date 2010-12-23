@@ -270,6 +270,16 @@ void SimpleWntCellCycleModel::SetWntLabelledThreshold(double wntLabelledThreshol
     mWntLabelledThreshold = wntLabelledThreshold;
 }
 
+void SimpleWntCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    *rParamsFile <<  "\t\t\t<WntStemThreshold>"<< mWntStemThreshold << "</WntStemThreshold>\n";
+    *rParamsFile <<  "\t\t\t<WntTransitThreshold>"<< mWntTransitThreshold << "</WntTransitThreshold>\n";
+    *rParamsFile <<  "\t\t\t<WntLabelledThreshold>"<< mWntLabelledThreshold << "</WntLabelledThreshold>\n";
+
+    // Call direct parent class
+    AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(SimpleWntCellCycleModel)

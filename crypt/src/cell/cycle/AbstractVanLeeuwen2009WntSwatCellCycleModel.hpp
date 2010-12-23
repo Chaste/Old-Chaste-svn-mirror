@@ -117,6 +117,16 @@ public:
      * @param pMutationState Mutation state
      */
     virtual void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)=0;
+
+    /**
+     * Outputs cell cycle model parameters to file
+     *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
 };
 
 CLASS_IS_ABSTRACT(AbstractVanLeeuwen2009WntSwatCellCycleModel)

@@ -96,6 +96,17 @@ public:
      * This overridden method sets up a new ODE system.
      */
     void Initialise();
+
+    /**
+     * Outputs cell cycle mode parameters to file
+     *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
+
 };
 
 // Declare identifier for the serializer

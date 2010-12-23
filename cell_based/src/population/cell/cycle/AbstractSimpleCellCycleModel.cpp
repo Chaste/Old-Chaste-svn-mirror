@@ -100,3 +100,11 @@ void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
         mCurrentCellCyclePhase = G_TWO_PHASE;
     }
 }
+
+void AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}

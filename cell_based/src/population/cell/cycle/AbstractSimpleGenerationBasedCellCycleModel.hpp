@@ -115,6 +115,16 @@ public:
      * @return mMaxTransitGenerations
      */
     unsigned GetMaxTransitGenerations() const;
+
+    /**
+     * Outputs cell cycle mode parameters to file
+     *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
 };
 
 CLASS_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)

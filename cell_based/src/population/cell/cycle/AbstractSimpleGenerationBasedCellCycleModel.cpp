@@ -95,3 +95,11 @@ unsigned AbstractSimpleGenerationBasedCellCycleModel::GetMaxTransitGenerations()
 {
     return mMaxTransitGenerations;
 }
+
+void AbstractSimpleGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    *rParamsFile <<  "\t\t\t<MaxTransitGenerations>"<< mMaxTransitGenerations << "</MaxTransitGenerations>\n";
+
+    // Call direct parent class
+    AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}

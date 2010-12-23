@@ -223,6 +223,16 @@ void SimpleOxygenBasedCellCycleModel::SetCurrentHypoxiaOnsetTime(double currentH
     mCurrentHypoxiaOnsetTime = currentHypoxiaOnsetTime;
 }
 
+void SimpleOxygenBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    *rParamsFile <<  "\t\t\t<HypoxicConcentration>"<< mHypoxicConcentration << "</HypoxicConcentration>\n";
+    *rParamsFile <<  "\t\t\t<QuiescentConcentration>"<< mQuiescentConcentration << "</QuiescentConcentration>\n";
+    *rParamsFile <<  "\t\t\t<CriticalHypoxicDuration>"<< mCriticalHypoxicDuration << "</CriticalHypoxicDuration>\n";
+
+    // Call direct parent class
+    AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(SimpleOxygenBasedCellCycleModel)

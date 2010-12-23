@@ -108,6 +108,14 @@ AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
     return p_model;
 }
 
+void StochasticWntCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    WntCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(StochasticWntCellCycleModel)

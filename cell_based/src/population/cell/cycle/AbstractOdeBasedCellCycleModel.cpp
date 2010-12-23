@@ -173,3 +173,11 @@ void AbstractOdeBasedCellCycleModel::SetG2PhaseStartTime(double g2PhaseStartTime
 {
     mG2PhaseStartTime = g2PhaseStartTime;
 }
+
+void AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+{
+    // No new parameters to output.
+
+    // Call direct parent class
+    AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+}
