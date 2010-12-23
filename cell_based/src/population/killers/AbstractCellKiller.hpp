@@ -89,7 +89,8 @@ public:
     const AbstractCellPopulation<SPACE_DIM>* GetCellPopulation() const;
 
     /**
-     * Outputs force used in the simulation to file and then calls OutputForceParameters to output all relevant parameters.
+     * Outputs cell killer used in the simulation to file and then calls
+     * OutputCellKillerParameters to output all relevant parameters.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

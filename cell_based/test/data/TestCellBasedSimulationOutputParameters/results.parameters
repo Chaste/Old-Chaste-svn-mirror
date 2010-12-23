@@ -25,9 +25,20 @@
 		<OutputCellVolumes>0</OutputCellVolumes> 
 	</MeshBasedCellPopulation-2>
 
+	<CellCycleModels>
+		<FixedDurationGenerationBasedCellCycleModel>
+			<StemCellG1Duration>14</StemCellG1Duration>
+			<TransitCellG1Duration>2</TransitCellG1Duration>
+			<SDuration>5</SDuration>
+			<G2Duration>4</G2Duration>
+			<MDuration>1</MDuration>
+		</FixedDurationGenerationBasedCellCycleModel>
+	</CellCycleModels
+
 	<Forces>
 	</Forces>
 
 	<CellKillers>
+
 	</CellKillers>
 </Chaste>

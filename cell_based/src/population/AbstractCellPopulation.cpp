@@ -625,6 +625,35 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
     *rParamsFile <<  "\t<" << cell_population_type << ">" "\n";
     OutputCellPopulationParameters(rParamsFile);
     *rParamsFile <<  "\t</" << cell_population_type << ">" "\n";
+
+    *rParamsFile <<  "\n";
+
+    *rParamsFile << "\t<CellCycleModels>\n";
+
+    /*
+     * Loop over cells to access cell cycle models to find unique ones
+     * TODO this currently ignores different parameter regimes. #1453.
+     */
+    std::set<std::string> unique_cell_cycle_models;
+    std::vector<CellPtr> first_cell_with_unique_CCM;
+        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    {
+        std::string identifier = cell_iter->GetCellCycleModel()->GetIdentifier();
+        if(unique_cell_cycle_models.count(identifier)==0u)
+        {
+            unique_cell_cycle_models.insert(identifier);
+            first_cell_with_unique_CCM.push_back((*cell_iter));
+        }
+    }
+
+    //Loop over unique cell cycle models.
+    for(unsigned i=0; i<first_cell_with_unique_CCM.size(); i++)
+    {
+        // Output cell cycle model details
+        first_cell_with_unique_CCM[i]->GetCellCycleModel()->OutputCellCycleModelInfo(rParamsFile);
+    }
+
+    *rParamsFile << "\t</CellCycleModels\n";
 }
 
 template<unsigned DIM>

@@ -672,7 +672,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 
     *parameter_file << "\n";
 
-    // Output cell population details
+    // Output cell population details (includes cell cycle model details)
     mrCellPopulation.OutputCellPopulationInfo(parameter_file);
 
     // Loop over forces
@@ -696,9 +696,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 		// Output cell killer details
 		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
-	*parameter_file << "\t</CellKillers>\n";
-
-	///\todo Loop over cell cycle models (#1453)
+	*parameter_file << "\n\t</CellKillers>\n" ;
 
     *parameter_file << "</Chaste>\n" ;
 

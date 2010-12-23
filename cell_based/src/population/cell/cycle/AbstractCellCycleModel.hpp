@@ -30,10 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
+#include "Identifiable.hpp"
+
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
 
+#include "OutputFileHandler.hpp"
 #include "CellProliferativeTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
@@ -48,7 +51,7 @@ typedef boost::shared_ptr<Cell> CellPtr;
  *
  * Cell cycle models are noncopyable since cells are noncopyable.
  */
-class AbstractCellCycleModel : boost::noncopyable
+class AbstractCellCycleModel : public Identifiable, boost::noncopyable
 {
 private:
 
@@ -409,6 +412,25 @@ public:
      * @param minimumGapDuration the new value of mMinimumGapDuration
      */
     void SetMinimumGapDuration(double minimumGapDuration);
+
+    /**
+     * Outputs cell cycle model used in the simulation to file and then calls
+     * OutputCellCyclemodelParameters to output all relevant parameters.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    void OutputCellCycleModelInfo(out_stream& rParamsFile);
+
+    /**
+     * Outputs cell cycle mode parameters to file
+     *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
+
 };
 
 CLASS_IS_ABSTRACT(AbstractCellCycleModel)
