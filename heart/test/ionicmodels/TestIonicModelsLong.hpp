@@ -455,10 +455,10 @@ public:
           k=k+0.1;
         }
 
-        CellProperties  cell_properties_control(voltages1, times);
-        CellProperties  cell_properties_first(voltages2, times);
-        CellProperties  cell_properties_second(voltages3, times);
-        CellProperties  cell_properties_AZD(voltages4, times);
+        CellProperties cell_properties_control(voltages1, times);
+        CellProperties cell_properties_first(voltages2, times);
+        CellProperties cell_properties_second(voltages3, times);
+        CellProperties cell_properties_AZD(voltages4, times);
 
         double control_APD = cell_properties_control.GetLastActionPotentialDuration(90);
         double first_APD = cell_properties_first.GetLastActionPotentialDuration(90);
@@ -472,8 +472,8 @@ public:
 
         //leave some hardcoded value for testing
         TS_ASSERT_DELTA(control_APD, 206.1278, 0.1);
-        TS_ASSERT_DELTA(first_APD, 389.5872, 0.1);
-        TS_ASSERT_DELTA(second_APD, 312.8089, 0.1);
+        TS_ASSERT_DELTA(first_APD, 403.8293, 0.1);
+        TS_ASSERT_DELTA(second_APD, 320.0195, 0.1);
         TS_ASSERT_DELTA(AZD_APD , 187.8073, 0.1);
     }
 };

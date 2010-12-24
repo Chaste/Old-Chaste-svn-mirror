@@ -215,7 +215,8 @@ The complete original paper reference is cited below:
 			<dc:creator rdf:resource="rdf:#61a275ac-c31e-4b08-821f-f1e860e92fa7"/>
 			<rdf:value>This is a CellML description of Livshitz and Rudy's 2007 mathematical model describing the regulation of Ca2+ and electrical alternans in cardiac myocytes.</rdf:value>
 		</rdf:Description>
-	</rdf:RDF>   <units name="m2u">
+	</rdf:RDF>
+   <units name="m2u">
       <unit units="second" prefix="micro"/>
       <unit units="second" prefix="milli" exponent="-1"/>
    </units>
