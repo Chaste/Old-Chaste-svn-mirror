@@ -75,7 +75,7 @@ private:
                 TS_FAIL("Failed to convert cell model " + rModels[i] + ": " + e.GetMessage());
             }
         }
-        
+
         if (!failures.empty())
         {
             std::cout << failures.size() << " models failed for " << rOutputDirName << ":" << std::endl;
@@ -125,7 +125,7 @@ private:
 
         delete p_cell;
     }
-    
+
     void AddAllModels(std::vector<std::string>& rModels)
     {
         rModels.push_back("aslanidi_model_2009");
@@ -167,15 +167,16 @@ private:
         rModels.push_back("zhang_SAN_model_2000_0D_capable");
         rModels.push_back("zhang_SAN_model_2000_all");
     }
-    
+
 public:
     void TestNormalCells() throw (Exception)
     {
         std::cout << "Search for ': ***', 'Error', or 'Failed' to find problems." << std::endl;
-        
+
         std::string dirname("TestPyCmlNightlyNormal");
         std::vector<std::string> args;
         args.push_back("--Wu");
+        args.push_back("--no-i-ionic-fallback");
         std::vector<std::string> models;
         AddAllModels(models);
         RunTests(dirname, models, args);
@@ -186,6 +187,7 @@ public:
         std::string dirname("TestPyCmlNightlyOpt");
         std::vector<std::string> args;
         args.push_back("--Wu");
+        args.push_back("--no-i-ionic-fallback");
         args.push_back("--opt");
         std::vector<std::string> models;
         AddAllModels(models);
@@ -197,6 +199,7 @@ public:
         std::string dirname("TestPyCmlNightlyCvode");
         std::vector<std::string> args;
         args.push_back("--Wu");
+        args.push_back("--no-i-ionic-fallback");
         args.push_back("--cvode");
         std::vector<std::string> models;
         AddAllModels(models);
@@ -208,9 +211,10 @@ public:
         std::string dirname("TestPyCmlNightlyBE");
         std::vector<std::string> args;
         args.push_back("--Wu");
+        args.push_back("--no-i-ionic-fallback");
         args.push_back("--backward-euler");
         std::vector<std::string> models;
-        
+
         models.push_back("aslanidi_model_2009");
         models.push_back("beeler_reuter_model_1977");
         models.push_back("bondarenko_model_2004_apex");
@@ -238,7 +242,7 @@ public:
         models.push_back("ten_tusscher_model_2006_epi");
         models.push_back("zhang_SAN_model_2000_0D_capable");
         models.push_back("zhang_SAN_model_2000_all");
-        
+
         /* The following models contained 'diff' in the .out file:
             decker_2009
             hilgemann_noble_model_1987
@@ -250,8 +254,8 @@ public:
             viswanathan_model_1999_epi
             winslow_model_1999
          */
-        
-        
+
+
         RunTests(dirname, models, args, true);
     }
 };

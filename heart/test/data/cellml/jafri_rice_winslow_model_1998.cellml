@@ -117,34 +117,35 @@ http://www.CellML.org/
          </rdf:RDF>
       </variable>
       <variable name="stim_start" units="ms" initial_value="100" cmeta:id="membrane_stimulus_current_offset">
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-		<rdf:Description rdf:about="#membrane_stimulus_current_offset">
-			<bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_offset"/>
-		</rdf:Description>
-	</rdf:RDF>
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_offset">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_offset"/>
+            </rdf:Description>
+         </rdf:RDF>
       </variable>
       <variable name="stim_end" units="ms" initial_value="9000"/>
       <variable name="stim_period" units="ms" initial_value="500" cmeta:id="membrane_stimulus_current_period">
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-		<rdf:Description rdf:about="#membrane_stimulus_current_period">
-			<bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_period"/>
-		</rdf:Description>
-	</rdf:RDF>
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_period">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_period"/>
+            </rdf:Description>
+         </rdf:RDF>
       </variable>
       <variable name="stim_duration" units="ms" initial_value="1" cmeta:id="membrane_stimulus_current_duration">
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-		<rdf:Description rdf:about="#membrane_stimulus_current_duration">
-			<bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_duration"/>
-		</rdf:Description>
-	</rdf:RDF>
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_duration">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_duration"/>
+            </rdf:Description>
+         </rdf:RDF>
       </variable>
-      <variable name="stim_amplitude" units="uA_per_mm2" initial_value="-0.516289" cmeta:id="membrane_stimulus_current_amplitude">
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-		<rdf:Description rdf:about="#membrane_stimulus_current_amplitude">
-			<bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_amplitude"/>
-		</rdf:Description>
-	</rdf:RDF>
+      <variable name="stim_amplitude" units="uA_per_mm2" initial_value="0.516289" cmeta:id="membrane_stimulus_current_amplitude">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_amplitude">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_amplitude"/>
+            </rdf:Description>
+         </rdf:RDF>
       </variable>
+      
       <math xmlns="http://www.w3.org/1998/Math/MathML">
          <apply>
             <eq/>
@@ -211,20 +212,23 @@ http://www.CellML.org/
             <apply>
                <divide/>
                <apply>
-                 <plus/>
-                 <ci>I_stim</ci>
-                 <ci>i_Na</ci>
-                 <ci>i_Ca_L_Ca</ci>
-                 <ci>i_Ca_L_K</ci>
-                 <ci>i_K</ci>
-                 <ci>i_NaCa</ci>
-                 <ci>i_K1</ci>
-                 <ci>i_Kp</ci>
-                 <ci>i_p_Ca</ci>
-                 <ci>i_Na_b</ci>
-                 <ci>i_Ca_b</ci>
-                 <ci>i_NaK</ci>
-                 <ci>i_ns_Ca</ci>
+                  <minus/>
+                  <ci>I_stim</ci>
+                  <apply>
+                     <plus/>
+                     <ci>i_Na</ci>
+                     <ci>i_Ca_L_Ca</ci>
+                     <ci>i_Ca_L_K</ci>
+                     <ci>i_K</ci>
+                     <ci>i_NaCa</ci>
+                     <ci>i_K1</ci>
+                     <ci>i_Kp</ci>
+                     <ci>i_p_Ca</ci>
+                     <ci>i_Na_b</ci>
+                     <ci>i_Ca_b</ci>
+                     <ci>i_NaK</ci>
+                     <ci>i_ns_Ca</ci>
+                  </apply>
                </apply>
                <ci>Cm</ci>
             </apply>

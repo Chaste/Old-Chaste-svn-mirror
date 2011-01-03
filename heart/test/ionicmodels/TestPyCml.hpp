@@ -87,7 +87,7 @@ class TestPyCml : public CxxTest::TestSuite
         TS_ASSERT_DELTA(GetVectorComponent(derived, 1), i_K_total, 1e-4);
         DeleteVector(derived);
     }
-    
+
     template<typename VECTOR_TYPE>
     void CheckParameter(AbstractParameterisedSystem<VECTOR_TYPE>& rCell)
     {
@@ -98,7 +98,7 @@ class TestPyCml : public CxxTest::TestSuite
         rCell.SetParameter(0u, 0.1);
         TS_ASSERT_EQUALS(rCell.GetParameter(0u), 0.1);
         rCell.SetParameter(0u, 23.0);
-        
+
         // and the system name...
         TS_ASSERT_EQUALS(rCell.GetSystemName(), "luo_rudy_1991");
     }
@@ -127,37 +127,6 @@ class TestPyCml : public CxxTest::TestSuite
     }
 
 public:
-    /** For comparison with the test below; copied from TestIonicModels.hpp */
-    void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
-    {
-        clock_t ck_start, ck_end;
-
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0 ;  // ms
-        double when = 50.0; // ms
-
-        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
-        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-
-        double end_time = 1000.0; //One second in milliseconds
-
-        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
-        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 0u); // For coverage
-
-        // Solve and write to file
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&lr91_ode_system,
-                                   end_time,
-                                   "Lr91DelayedStim",
-                                   100,
-                                   false);
-        ck_end = clock();
-        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        std::cout << "\n\tForward: " << forward << std::endl;
-        CheckCellModelResults("Lr91DelayedStim");
-    }
-
     /**
      * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
      * and gives expected results.
@@ -188,7 +157,7 @@ public:
         CellLuoRudy1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         CheckCai(opt, true, 0.0002);
-        
+
         // Backward Euler optimised model
         CellLuoRudy1991FromCellMLBackwardEuler be(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
@@ -199,26 +168,26 @@ public:
         opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "membrane_voltage outside lookup table range");
         opt.SetVoltage(v);
-        
+
         be.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "membrane_voltage outside lookup table range");
         be.SetVoltage(v);
-        
+
         unsigned cai_index = opt.GetStateVariableIndex("cytosolic_calcium_concentration");
         double cai = opt.GetStateVariable(cai_index);
         opt.SetStateVariable(cai_index, -1.0);
         TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
         opt.SetStateVariable(cai_index, cai);
-        
+
         be.SetStateVariable(cai_index, -1.0);
         TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
         be.SetStateVariable(cai_index, cai);
-        
+
         // Single parameter
         CheckParameter(normal);
         CheckParameter(opt);
         CheckParameter(be);
-        
+
         // Derived variables
         CheckDerivedQuantities(normal, normal.GetInitialConditions());
         CheckDerivedQuantities(opt, opt.GetInitialConditions());
@@ -241,15 +210,15 @@ public:
         cvode_opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "membrane_voltage outside lookup table range");
         cvode_opt.SetVoltage(v);
-        
+
         cvode_opt.SetStateVariable(cai_index, -1.0);
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "cytosolic_calcium_concentration outside lookup table range");
         cvode_opt.SetStateVariable(cai_index, cai);
-        
+
         // Single parameter
         CheckParameter(cvode_cell);
         CheckParameter(cvode_opt);
-        
+
         // Derived variables
         N_Vector inits = cvode_cell.GetInitialConditions();
         CheckDerivedQuantities(cvode_cell, inits);
@@ -299,13 +268,13 @@ public:
                                    i_ionic_end_time,
                                    "Lr91GetIIonic", 1000, false);
         TS_ASSERT_DELTA( normal.GetIIonic(), i_ionic, 1e-3);
-        
+
         // Variant form of GetIIonic
         {
             std::vector<double> inits = normal.GetInitialConditions();
             TS_ASSERT_DELTA(normal.GetIIonic(&inits), normal_initial_i_ionic, 1e-12);
         }
-        
+
         // With zero g_Na
         normal.SetParameter(0u, 0.0);
         normal.SetStateVariables(normal.GetInitialConditions());
@@ -329,10 +298,10 @@ public:
                                    i_ionic_end_time,
                                    "Lr91GetIIonicOpt", 1000, false);
         TS_ASSERT_DELTA( opt.GetIIonic(), i_ionic, 1e-3);
-        
+
         // No stimulus at end time
         TS_ASSERT_DELTA(opt.Get_membrane__I_stim(), 0.0, 1e-12);
-        
+
         // Backward Euler
         ck_start = clock();
         RunOdeSolverWithIonicModel(&be,
@@ -396,7 +365,7 @@ public:
         cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), i_ionic, 1e-1);
-        
+
         // No stimulus at end time
         TS_ASSERT_DELTA(cvode_opt.Get_membrane__I_stim(), 0.0, 1e-12);
 #endif // CHASTE_CVODE
@@ -457,7 +426,7 @@ public:
         CellTenTusscher2006EpiFromCellMLBackwardEuler be(p_solver, p_stimulus);
         be.UseCellMLDefaultStimulus();
         CheckCai(be, false);
-        
+
         // N98
         CellNobleVargheseKohlNoble1998aFromCellMLOpt n98opt(p_solver, p_stimulus);
         CheckCai(n98opt, false);

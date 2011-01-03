@@ -57,24 +57,22 @@ warnings.simplefilter('ignore', DeprecationWarning)
 import amara
 from amara import binderytools as bt
 
-from Ft.Xml import XMLNS_NAMESPACE, SplitQName
+from Ft.Xml import SplitQName
 from xml.dom import Node # For nodeType values
 
-import codecs
 import copy
+import itertools
 import math
-import os
-import re
+import operator
 import sys
 import types
 from cStringIO import StringIO
 
+from utilities import *
 from enum import Enum # Pythonic enums
 import cellml_metadata # Handle RDF metadata for CellML
 
 # Useful for functional-style programming
-import itertools
-import operator
 
 __version__ = "$Revision$"[11:-2]
 
@@ -83,24 +81,6 @@ __version__ = "$Revision$"[11:-2]
 #                               Logging                              #
 ######################################################################
 import logging
-
-class OnlyWarningsFilter(logging.Filter):
-    """A filter that only passes warning messages."""
-    def filter(self, rec):
-        return (logging.WARNING <= rec.levelno < logging.ERROR)
-
-class OnlyDebugFilter(logging.Filter):
-    """A filter that only passes debug messages."""
-    def filter(self, rec):
-        return (logging.DEBUG <= rec.levelno < logging.INFO)
-
-class OnlyTheseSourcesFilter(logging.Filter):
-    """A filter that only emits messages from the given sources."""
-    def __init__(self, sources):
-        logging.Filter.__init__(self)
-        self.__sources = sources
-    def filter(self, rec):
-        return rec.name in self.__sources
 
 # Default config for root logger
 logging.basicConfig(level=logging.CRITICAL,
@@ -113,22 +93,6 @@ logging.getLogger().handlers[0].setLevel(logging.CRITICAL)
 # condition as far as translation is concerned.
 logging.WARNING_TRANSLATE_ERROR = logging.WARNING + 5
 logging.addLevelName(logging.WARNING_TRANSLATE_ERROR, 'WARNING')
-
-def DEBUG(facility, *args):
-    """Log a debug message to facility.
-
-    Arguments are treated as for the print statement.
-    """
-    logger = logging.getLogger(facility)
-    logger.debug(' '.join(map(str, args)))
-
-def LOG(facility, level, *args):
-    """Log a message to facility with the given level.
-
-    Arguments are treated as for the print statement.
-    """
-    logger = logging.getLogger(facility)
-    logger.log(level, ' '.join(map(str, args)))
 
 
 # We specify some namespace prefixes; others are picked
@@ -158,26 +122,6 @@ NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'doc' : u"http://cellml.org/tmp-documentation"
        }
 
-# Useful constants for depth-first search
-DFS = Enum('White', 'Gray', 'Black')
-
-class Colourable(object):
-    """
-    A mixin class for objects that have a colour attribute, and so support
-    a depth-first search.
-    """
-    def __init__(self, *args, **kwargs):
-        super(Colourable, self).__init__(*args, **kwargs)
-        self.clear_colour()
-    
-    def set_colour(self, colour):
-        self._cml_colour = colour
-    
-    def get_colour(self):
-        return self._cml_colour
-    
-    def clear_colour(self):
-        self._cml_colour = DFS.White
 
 # Variable classifications
 VarTypes = Enum('Unknown', 'Free', 'State', 'MaybeConstant', 'Constant',
@@ -205,44 +149,6 @@ BINDING_TIMES = Enum('static', 'dynamic')
 ######################################################################
 #                      Helpful utility functions                     #
 ######################################################################
-def amara_parse(source, uri=None, rules=None, binderobj=None,
-                prefixes=None):
-    """Convenience function for parsing XML.
-    
-    Works just as amara.parse, except that if source is '-' then
-    it reads from standard input.
-    """
-    if source == '-':
-        return amara.parse(sys.stdin, uri=uri, rules=rules,
-                           binderobj=binderobj, prefixes=prefixes)
-    else:
-        return amara.parse(source, uri=uri, rules=rules,
-                           binderobj=binderobj, prefixes=prefixes)
-
-def open_output_stream(fname):
-    """Open fname for output.
-    
-    fname should be a local filename, or '-' for standard output.
-    Additionally, the names 'stdout' and 'stderr' have the usual
-    special meanings.
-    """
-    if fname == '-' or fname == 'stdout':
-        stream = sys.stdout
-    elif fname == 'stderr':
-        stream = sys.stderr
-    else:
-        stream = open(fname, 'w')
-    return stream
-
-def close_output_stream(stream):
-    """
-    Close the given output stream, unless it's one of the standard streams
-    (i.e. sys.stdout or sys.stderr).
-    Note that closing a stream multiple times is safe.
-    """
-    if not stream is sys.stdout and not stream is sys.stderr:
-        stream.close()
-    return
 
 def make_xml_binder():
     """
@@ -272,65 +178,6 @@ def make_xml_binder():
     binder.set_binding_class(NSS[u'm'], "or_",
                              mathml_or)
     return binder
-
-
-def element_path(elt):
-    """Find the path from the root element to this element."""
-    if hasattr(elt, 'xml_parent'):
-        idx = 0
-        for child in elt.xml_parent.xml_children:
-            if getattr(child, 'nodeType', None) == Node.ELEMENT_NODE:
-                idx += 1
-                if child is elt:
-                    break
-        return element_path(elt.xml_parent) + [idx]
-    else:
-        return []
-    
-def element_path_cmp(e1, e2):
-    """Compare 2 elements by comparing their paths from the root element."""
-    return cmp(element_path(e1), element_path(e2))
-
-def element_xpath(elt):
-    """Return an xpath expression that will select this element."""
-    indices = element_path(elt)
-    xpath = u'/*[' + u']/*['.join(map(str, indices)) + u']'
-    return xpath
-
-def max_i(it):
-    """Find the maximum entry of an iterable, and return it with its index.
-
-    Returns (i, m) where i is the index of m, the maximum entry of `it`.
-    """
-    idx, m = None, None
-    for i, val in enumerate(it):
-        if m is None or val > m:
-            m, idx = val, i
-    return idx, m
-
-def prid(obj, show_cls=False):
-    """Get the id of an object as a hex string, optionally with its class/type."""
-    if obj is None:
-        s = 'None'
-    else:
-        s = hex(id(obj))
-        if show_cls:
-            s += str(type(obj))
-    return s
-
-def add_dicts(r, *ds):
-    """Add multiple dictionaries together.
-
-    Updates the first input dictionary by adding values from
-    subsequent inputs.  Produces a dictionary with keys taken from the
-    input dictionaries, and values being the sum of the corresponding
-    values in all inputs.
-    Assumes values are numeric.
-    """
-    for d in ds:
-        for k, v in d.iteritems():
-            r[k] = r.get(k, 0) + v
-    return
 
 def check_append_safety(elt):
     """
@@ -484,22 +331,6 @@ class element_base(amara.bindery.element_base):
 
 setattr(amara.bindery.element_base, 'getAttributeNS',
         element_base.getAttributeNS.__get__(amara.bindery.element_base))
-
-class unitary_iterator(object):
-    """An iterator over a single item."""
-    def __init__(self, start):
-        self.curr = start
-        return
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        if not self.curr:
-            raise StopIteration()
-        result = self.curr
-        self.curr = None
-        return result
 
 class comment_base(amara.bindery.comment_base):
     """An iterable version of comment nodes."""
@@ -2022,8 +1853,9 @@ class cellml_variable(Colourable, element_base):
         If temporary is True, then we're temporarily overriding the normal setting,
         so save any existing annotation for later replacement.
         """
+        #print "set bt", self, bt, temporary
         assert bt in BINDING_TIMES
-        if temporary:
+        if temporary and not hasattr(self, '_cml_saved_bt'):
             self._cml_saved_bt = self.get_rdf_annotation(('pe:binding_time', NSS[u'pe']))
         self.add_rdf_annotation(('pe:binding_time', NSS[u'pe']), str(bt))
         self._cml_binding_time = bt
@@ -2034,6 +1866,7 @@ class cellml_variable(Colourable, element_base):
         
         If the stored BT was a temporary setting, replace it with the original value.
         """
+        #print "unset bt", self, only_temporary
         self._cml_binding_time = None
         if hasattr(self, '_cml_saved_bt'):
             if self._cml_saved_bt:
@@ -2126,6 +1959,7 @@ class cellml_variable(Colourable, element_base):
         If this is a mapped variable, assign the value to its source
         variable instead, unless follow_maps is set to False
         """
+        #print "set_value", self, ode, value
         if follow_maps and self.get_type() == VarTypes.Mapped:
             self.get_source_variable().set_value(value, ode=ode)
         else:
@@ -2134,6 +1968,7 @@ class cellml_variable(Colourable, element_base):
         return
     def unset_values(self):
         """Unset all values for this variable set with set_value."""
+        #print "unset_values", self
         if self.get_type() == VarTypes.Mapped:
             self.get_source_variable().unset_values()
         self._cml_value.clear()
@@ -5682,6 +5517,24 @@ class mathml_ln(mathml_operator, mathml_units_mixin_set_operands):
         if len(ops) != 1:
             self.wrong_number_of_operands(len(ops), [1])
         return math.log(self.eval(ops[0]))
+
+class mathml_log(mathml_operator, mathml_units_mixin_set_operands):
+    """Class representing the MathML <log> operator."""
+    def __init__(self):
+        super(mathml_ln, self).__init__()
+        return
+
+    def evaluate(self):
+        """Return the logarithm of the single operand."""
+        app = self.xml_parent
+        ops = list(app.operands())
+        if len(ops) != 1:
+            self.wrong_number_of_operands(len(ops), [1])
+        if hasattr(app, u'logbase'):
+            base = self.eval(app.logbase)
+        else:
+            base = 10
+        return math.log(self.eval(ops[0]), base)
 
 class mathml_power(mathml_operator, mathml_units_mixin):
     """Class representing the MathML <power> operator."""

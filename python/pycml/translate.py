@@ -88,20 +88,6 @@ class ConfigurationError(ValueError):
     """Error thrown if configuration file is invalid."""
     pass
 
-class NotifyHandler(logging.Handler):
-    """
-    A logging handler that just notes if any messages are logged.
-    """
-    def __init__(self, level=logging.NOTSET):
-        logging.Handler.__init__(self, level=level)
-        self.reset()
-
-    def emit(self, record):
-        self.messages = True
-
-    def reset(self):
-        """Reset the handler, as if no messages have occurred."""
-        self.messages = False
 
 
 class CellMLTranslator(object):
@@ -1420,17 +1406,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         model_units = all_units[0]
         conversion = varname # Default to no conversion
         nodes_used = []
-        chaste_units = cellml_units.create_new(
-            self.model, 'uA_per_cm2',
-            [{'units': 'ampere', 'prefix': 'micro'},
-             {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
-        microamps = cellml_units.create_new(self.model, u'microamps',
-                                            [{'units':'ampere', 'prefix':'micro'}])
-        microfarads = cellml_units.create_new(self.model, u'microfarads',
-                                              [{'units':'farad', 'prefix':'micro'}])
-        A_per_F = cellml_units.create_new(self.model, 'A_per_F',
-                                          [{'units': 'ampere'},
-                                           {'units': 'farad', 'exponent': '-1'}])
+        chaste_units, microamps, A_per_F = self.get_current_units_options(self.model)
         
         if to_chaste:
             times, divide = ' * ', ' / '
@@ -1471,6 +1447,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 nodes_used.append(model_Cm)
                 Cm_units = self.get_var_units(model_Cm)
                 Cm_value = self.code_name(model_Cm)
+                microfarads = cellml_units.create_new(self.model, u'microfarads',
+                                                      [{'units':'farad', 'prefix':'micro'}])
                 conv = (Cm_units.get_multiplicative_factor() /
                         microfarads.get_multiplicative_factor())
                 if conv != 1:
@@ -2772,6 +2750,23 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     pass
                 self.write(prefix + varname)
         return
+    
+    @staticmethod
+    def get_current_units_options(model):
+        """
+        Return a list of units objects that give the possibilities for the dimensions
+        of transmembrane ionic currents.
+        """
+        chaste_units = cellml_units.create_new(
+            model, 'uA_per_cm2',
+            [{'units': 'ampere', 'prefix': 'micro'},
+             {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
+        microamps = cellml_units.create_new(model, u'microamps',
+                                            [{'units':'ampere', 'prefix':'micro'}])
+        A_per_F = cellml_units.create_new(model, 'A_per_F',
+                                          [{'units': 'ampere'},
+                                           {'units': 'farad', 'exponent': '-1'}])
+        return [chaste_units, microamps, A_per_F]
 
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):
@@ -4422,13 +4417,13 @@ class ConfigurationStore(object):
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return var
     
-    def _process_ci_elts(self, elt, func):
+    def _process_ci_elts(self, elt, func, **kwargs):
         """Recursively apply func to any ci elements in the tree rooted at elt."""
         if isinstance(elt, mathml_ci):
-            func(elt)
+            func(elt, **kwargs)
         else:
             for child in getattr(elt, 'xml_children', []):
-                self._process_ci_elts(child, func)
+                self._process_ci_elts(child, func, **kwargs)
     
     def _find_transmembrane_currents_from_voltage_ode(self):
         """Analyse the expression for dV/dt to determine the transmembrane currents.
@@ -4445,83 +4440,172 @@ class ConfigurationStore(object):
             DEBUG('config', "Transmembrane potential not configured, so can't "
                   "determine currents from its ODE")
             return []
-        if not self.i_stim_var:
-            DEBUG('config', "Stimulus current not configured, so can't determine "
-                  "transmembrane currents from dV/dt")
-            return []
-        stim_units = self.i_stim_var.component.get_units_by_name(self.i_stim_var.units)
+        if self.i_stim_var:
+            current_units = [self.i_stim_var.component.get_units_by_name(self.i_stim_var.units)]
+        else:
+            current_units = CellMLToChasteTranslator.get_current_units_options(self.doc.model)
         ionic_vars = []
-        def check_if_current(ci_elt):
+        
+        def find_units_match(test_units, units_list, remove_match=False, keep_only_match=False):
+            """Look for a units definition dimensionally equivalent to test_units within units_list.
+            
+            If remove_match is True, remove any match from the list.
+            If keep_only_match is True, remove any non-matches from the list.
+            Return the matching units, or None if there are no matches.
+            """
+            for units in units_list:
+                if test_units.dimensionally_equivalent(units):
+                    match = units
+                    break
+            else:
+                match = None
+            if match and remove_match:
+                units_list.remove(match)
+            if match and keep_only_match:
+                units_list[:] = []
+                units_list.append(match)
+            return match
+
+        def clear_values(expr, process_definitions=False):
+            """Recursively clear saved values for variables in this expression.
+            
+            If process_definitions is True, recursively treat expressions defining variables
+            used in this expression, too.
+            """
+            def process_var(var):
+                var.unset_values()
+                var._unset_binding_time(only_temporary=True)
+                if process_definitions:
+                    defn = var._get_dependencies()
+                    if defn:
+                        if isinstance(defn[0], mathml_apply):
+                            clear_values(defn[0].eq.rhs, process_definitions=True)
+                        elif isinstance(defn[0], cellml_variable):
+                            process_var(defn[0])
+            def process_ci(ci_elt):
+                process_var(ci_elt.variable)
+            self._process_ci_elts(expr, process_ci)
+        
+        def check_if_current(ci_elt, vars_found):
             """Check if this is a transmembrane current."""
-            v = ci_elt.variable.get_source_variable(recurse=True)
-            if v is not self.i_stim_var:
+            v = ci_elt.variable
+            if v.get_source_variable(recurse=True) is not self.i_stim_var:
+                vars_found.append(v)
                 # Check units
                 u = v.component.get_units_by_name(v.units)
-                if u.dimensionally_equivalent(stim_units):
-                    ionic_vars.append(v)
+                if find_units_match(u, current_units, keep_only_match=True):
+                    ionic_vars.append(v.get_source_variable(recurse=True))
             # Fake this variable being 1 so we can check the sign of GetIIonic
-            ci_elt.variable.set_value(1.0)
-        def clear_values(expr, process_definitions=False):
-            """Recursively clear saved values for variables in this expression."""
+            v.set_value(1.0)
+        
+        def bfs(func, vars, *args, **kwargs):
+            """Do a breadth first search of the definitions of variables in vars.
+            
+            func is the recursive function to call.  It will be given the list of defining expressions
+            as its first argument, and args and kwargs as remaining arguments.
+            """
+            def get_defn(var):
+                defn = var._get_dependencies()
+                if defn:
+                    var._set_binding_time(BINDING_TIMES.static, temporary=True)
+                    if isinstance(defn[0], cellml_variable):
+                        defn = get_defn(defn[0])
+                    else:
+                        assert isinstance(defn[0], mathml_apply)
+                        var.unset_values()
+                        defn = defn[0].eq.rhs
+                return defn
+            defns = []
+            for var in vars:
+                defn = get_defn(var)
+                if defn:
+                    defns.append(defn)
+            if defns:
+                func(defns, *args, **kwargs)
+
+        def find_currents(exprs, depth=0, maxdepth=2):
+            """Find ionic currents by searching the given expressions.
+            
+            On the initial call, exprs should contain just the definition of dV/dt (i.e. the RHS).
+            
+            Uses breadth-first search of the equation dependency tree to find variables that
+            have units dimensionally equivalent to one of the current formulations that Chaste
+            can handle, or equivalent to the stimulus current's units if one is defined.
+            
+            Initially, A_per_F is removed from the list, since the RHS of dV/dt should always
+            have equivalent dimensions.  If another option can't be found within maxdepth levels,
+            we restart the search with A_per_F included.
+            
+            When one variable with suitable units is found, further ionic currents must have units
+            equivalent to its to be found.  Also once one ionic current is found, only the remaining
+            expressions at its depth will be processed.
+            """
+            if depth == 0 and maxdepth > 0:
+                dvdt_units = exprs[0].xml_parent.eq.lhs.get_units()
+                A_per_F = find_units_match(dvdt_units, current_units, remove_match=True)
+            # Process all expressions at this depth
+            vars_found = []
+            for expr in exprs:
+                self._process_ci_elts(expr, check_if_current, vars_found=vars_found)
+            if not ionic_vars and depth != maxdepth:
+                # Process the definitions of expressions at this depth
+                bfs(find_currents, vars_found, depth+1, maxdepth)
+            # If we reached maxdepth unsuccessfully, try again with A_per_F included
+            if not ionic_vars and depth == 0 and maxdepth > 0:
+                current_units.append(A_per_F)
+                find_currents(exprs, depth, maxdepth=-1)
+
+        def assign_values_for_stimulus_check(exprs, found_stim=Sentinel()):
+            """Assign temporary values to variables in order to check the stimulus sign.
+            
+            This will process defining expressions in a breadth first search until the stimulus
+            current is found.  Each variable that doesn't have its definitions processed will
+            be given a value as follows:
+             - stimulus current = 1
+             - other currents = 0
+             - other variables = 1
+            The stimulus current is then negated from the sign expected by Chaste if evaluating
+            dV/dt gives a positive value.
+            """
+            assert len(current_units) == 1 # We are using the stimulus units
+            vars = []
             def f(ci_elt):
-                ci_elt.variable.unset_values()
-                ci_elt.variable._unset_binding_time(only_temporary=True)
-                if process_definitions:
-                    defn = ci_elt.variable._get_dependencies()
-                    if defn and isinstance(defn[0], mathml_apply):
-                        clear_values(defn[0].eq.rhs, process_definitions=True)
-            self._process_ci_elts(expr, f)
-        def assign_values_for_stimulus_check(expr, found_stim=[False], vars=([], [])):
-            def f(ci_elt):
-                v = ci_elt.variable.get_source_variable(recurse=True)
-                if v is self.i_stim_var:
-                    ci_elt.variable.set_value(1.0)
-                    found_stim[0] = True
+                v = ci_elt.variable
+                if v.get_source_variable(recurse=True) is self.i_stim_var:
+                    v.set_value(1.0)
+                    found_stim.set()
                 else:
                     u = v.component.get_units_by_name(v.units)
-                    if u.dimensionally_equivalent(stim_units):
-                        vars[0].append(ci_elt.variable)
+                    if u.dimensionally_equivalent(current_units[0]):
+                        v.set_value(0.0)
                     else:
-                        vars[1].append(ci_elt.variable)
-            self._process_ci_elts(expr, f)
-            if not found_stim[0]:
-                new_vars = ([], [])
-                remove = []
-                for var in vars[0] + vars[1]:
-                    defn = var._get_dependencies()
-                    if defn and isinstance(defn[0], mathml_apply):
-                        assign_values_for_stimulus_check(defn[0].eq.rhs, found_stim, new_vars)
-                        remove.append(var)
-                        var._set_binding_time(BINDING_TIMES.static, temporary=True)
-                for i in [0, 1]:
-                    vars[i].extend(new_vars[i])
-                    for var in remove:
-                        try:
-                            vars[i].remove(var)
-                        except ValueError:
-                            pass
-            else:
-                for var in vars[0]:
-                    var.set_value(0.0)
-                for var in vars[1]:
-                    var.set_value(1.0)
+                        v.set_value(1.0)
+                    vars.append(v)
+            for expr in exprs:
+                self._process_ci_elts(expr, f)
+            if not found_stim:
+                bfs(assign_values_for_stimulus_check, vars, found_stim=found_stim)
+
         # Iterate over all expressions in the model, to find the one for dV/d(something)
         for expr in (e for e in self.doc.model.get_assignments() if isinstance(e, mathml_apply) and e.is_ode()):
             # Assume the independent variable is time; if it isn't, we'll catch this later
             (dep_var, time_var) = expr.assigned_variable()
             if dep_var.get_source_variable(recurse=True) is self.V_variable:
-                # Recursively search for ci elements
-                self._process_ci_elts(expr.eq.rhs, check_if_current)
+                # Recursively search for ionic currents
+                find_currents([expr.eq.rhs])
                 # Check the sign of the RHS
                 self.i_ionic_negated = expr.eq.rhs.evaluate() > 0.0
-                clear_values(expr.eq.rhs)
-                # Check the sign of the stimulus current
-                assign_values_for_stimulus_check(expr.eq.rhs)
-                self.i_stim_negated = expr.eq.rhs.evaluate() > 0.0
                 clear_values(expr.eq.rhs, process_definitions=True)
+                if self.i_stim_var:
+                    # Check the sign of the stimulus current
+                    assign_values_for_stimulus_check([expr.eq.rhs])
+                    self.i_stim_negated = expr.eq.rhs.evaluate() > 0.0
+                    clear_values(expr.eq.rhs, process_definitions=True)
                 # Found dV/d(something); don't check any more expressions
                 break
         DEBUG('config', "Found ionic currents from dV/dt: ", ionic_vars)
+        call_if(self.i_ionic_negated, DEBUG, 'config', "Ionic current is negated")
+        call_if(self.i_stim_negated, DEBUG, 'config', "Stimulus current is negated")
         return ionic_vars
     
     def _find_var(self, oxmeta_name, definitions):
@@ -4554,8 +4638,8 @@ class ConfigurationStore(object):
                     print >>sys.stderr, msg
         # For other ionic currents, try using the equation for dV/dt first
         self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
-        # Otherwise use the config file
-        if not self.i_ionic_vars:
+        # Otherwise use the config file, if permitted
+        if not self.i_ionic_vars and self.options.allow_i_ionic_fallback:
             for defn in self.i_ionic_definitions:
                 if getattr(defn, u'type', u'name') != u'name':
                     raise ConfigurationError('Ionic current definitions have to have type "name"')
@@ -4835,6 +4919,10 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="perform units conversions at interfaces to Chaste."
                       " (only works if -t Chaste is used)")
+    parser.add_option('--no-i-ionic-fallback', dest='allow_i_ionic_fallback',
+                      action='store_false', default=True,
+                      help="don't fall back to using currents specified in the config file"
+                      " if they can't be determined from the voltage derivative equation")
     parser.add_option('--fast-fixed-timestep',
                       action='store_true', default=False,
                       help="[experimental] fix ODE timestep to be equal to the PDE timestep"

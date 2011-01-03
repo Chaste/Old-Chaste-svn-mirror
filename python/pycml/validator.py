@@ -33,8 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # We want 1/2==0.5
 from __future__ import division
 
+import codecs
 import optparse
 import os
+import re
 import sys
 
 # Make sure PyCml is on sys.path
