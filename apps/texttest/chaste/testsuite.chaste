@@ -28,8 +28,3 @@ resume_monodomain
 # bidomain simulation with initial mesh read in Memfem format
 imported_mesh_bidomain
 
-# Executable tutorials
-UsingFibreDefinitions
-BidomainSimulationsWithPerfusingBath
-CheckpointingAndRestarting
-#UsingCellmlFiles #todo - #1597 this currently fails because it is not run from inside the source tree. Remember to edit the first line of tutorial.wiki

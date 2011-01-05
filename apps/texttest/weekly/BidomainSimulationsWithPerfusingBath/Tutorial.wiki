@@ -1,6 +1,6 @@
 = Running a bidomain simulation of cardiac tissue contained in a perfusing bath =
 
-''This tutorial is based on apps/texttest/chaste/bidomain_with_bath''
+''This tutorial is based on a nightly acceptance test apps/texttest/chaste/bidomain_with_bath''
 
 
 To run a bidomain simulation of cardiac tissue contained in a perfusing bath, we need to make three additions.
