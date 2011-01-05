@@ -119,8 +119,9 @@ public:
      * updated according to its equation of motion. We iterate over all nodes
      * associated with real cells and update their positions according to any
      * boundary conditions. In our case, this means that if any node moves
-     * This method iterates over all cells in the cell_population, and calls {{{Kill()}}} on
-     * any cell whose centre has y coordinate less than 0 or greater than 5. */
+     * This method iterates over all cells in the cell_population, and moves
+     * any cell whose centre has y coordinate less than 0 or greater than 5 back
+     * into the domain. */
     void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations)
     {
         for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
