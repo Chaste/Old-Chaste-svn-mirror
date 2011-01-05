@@ -8,4 +8,4 @@ no_parameters
 UsingFibreDefinitions
 BidomainSimulationsWithPerfusingBath
 CheckpointingAndRestarting
-#UsingCellmlFiles #todo - #1597 this currently fails because it is not run from inside the source tree. Remember to edit the first line of tutorial.wiki
+UsingCellmlFiles
