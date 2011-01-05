@@ -54,6 +54,7 @@ private:
     /** Whether to use mass lumping or not */
     bool mUseMassLumping;
 
+public:
     /** Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler. See
      *  documentation in that class.
      * 
@@ -93,7 +94,6 @@ private:
 
         return mScaleFactor*mass_matrix;
     }
-public:
 
     /**
      *  Constructor

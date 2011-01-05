@@ -48,7 +48,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class CardiacStiffnessMatrixAssembler
    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL> 
 {
-private:
+public:
     /** The PDE to be solved. */
     AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* mpCardiacTissue;
 
@@ -79,7 +79,6 @@ private:
 
         return grad_phi_sigma_i_grad_phi;
     }
-public:
 
     /**
      *  Constructor

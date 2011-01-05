@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractFeObjectAssembler.hpp"
 #include "MonodomainTissue.hpp"
+#include "MassMatrixAssembler.hpp"
+#include "CardiacStiffnessMatrixAssembler.hpp"
 
 /**
  *  Assembler for assembling the LHS matrix and RHS vector of the linear
@@ -55,6 +57,12 @@ protected:
 
     /** Timestep to use in LHS matrix or RHS vector */
     double mDt;
+    
+    /** Assembler for the mass matrix */
+    MassMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mMassMatrixAssembler;
+
+    /** Assembler for the stiffness matrix */    
+    CardiacStiffnessMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mStiffnessMatrixAssembler;
 
     /**
      * ComputeMatrixTerm()
