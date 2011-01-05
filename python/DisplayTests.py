@@ -118,6 +118,8 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
     buildTypesModule = _importBuildTypesModule(revision)
     if buildType.startswith('acceptance'):
         build = buildTypesModule.GetBuildType('default' + buildType[10:])
+    elif buildType.startswith('longacceptance'):
+        build = buildTypesModule.GetBuildType('default' + buildType[14:])
     else:
         build = buildTypesModule.GetBuildType(buildType)
     testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
