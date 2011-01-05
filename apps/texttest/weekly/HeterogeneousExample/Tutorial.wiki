@@ -12,17 +12,13 @@ Purkinje fibres are part of the conduction system in the heart and responsible f
 
 Study the XML parameters definition given below. The defines a 3 mm by 3 mm by 0.75 mm slab, with Purkinje cells are placed along a fiber running halfway through the slab in the y direction. A default cell model (!MahajanShiferaw) is set up, but a different cell model (!DifrancescoNoble) is used in a separate cuboid region. Similarly, default conductivities are set up, but different conductivities are specified in another cuboid region.
 
-Run exactly as before (copy the below into a file), although first simulate for only 1 ms of activity (instead of the 150ms defined below) and have a quick look at different cells in different locations. This is possible because the two cell models have slightly different initial resting potential and at t=0 it is therefore possible to visually distinguish the two cell types in meshalyzer. Then we will run a longer simulation (150 ms) and observe the activation pattern along the fiber and into the myocardium. Simulating 240 ms (an entire AP) of activity took 722 seconds on a standard recent desktop. 
+Run using the full xml file from the attachment, although first simulate for only 1 ms of activity (instead of the 150ms defined below) and have a quick look at different cells in different locations. This is possible because the two cell models have slightly different initial resting potential and at t=0 it is therefore possible to visually distinguish the two cell types in meshalyzer. Then we will run a longer simulation (150 ms) and observe the activation pattern along the fiber and into the myocardium. Simulating 240 ms (an entire AP) of activity took 722 seconds on a standard recent desktop. 
 
 Further experiments can be run with different conductivities in the myocardial tissue (higher conductivities likely to uncouple the tissue and prevent propagation) and/or different Purkinje geometries of cell models.
 
 
 {{{
 #!xml
-<?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
 
 	<Simulation>
 	    <!-- 
@@ -31,10 +27,24 @@ Further experiments can be run with different conductivities in the myocardial t
 	    <SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">150.0</SimulationDuration>
 	    <Domain>Mono</Domain>
+       <!-- 
+		Mesh definition 
+	   -->
+	   <Mesh unit="cm">
+		<Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
+       </Mesh>
+
 	    <IonicModels>
-			<Default>MahajanShiferaw</Default>
-			<Region>
-				<IonicModel>DifrancescoNoble</IonicModel>
+			<Default>
+			    <Hardcoded>MahajanShiferaw</Hardcoded>
+			</Default>
+         <!-- 
+	         Conductivity heterogeneity
+	     -->
+	  			<Region>
+				<IonicModel>
+				   <Hardcoded>DifrancescoNoble</Hardcoded>
+				</IonicModel>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="0.13" y="0.0" z="0.03"/>
@@ -44,12 +54,6 @@ Further experiments can be run with different conductivities in the myocardial t
 			</Region>
     	   </IonicModels>
 	    
-           <!-- 
-		Mesh definition 
-	   -->
-	   <Mesh unit="cm">
-		<Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
-           </Mesh>
 	
 	   <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
@@ -66,11 +70,11 @@ Further experiments can be run with different conductivities in the myocardial t
 				</Cuboid>
 			</Location>
 		</Stimulus>	
-            </Stimuli>	
+        </Stimuli>	
 	    <!-- 
 	         Conductivity heterogeneities 
 	     -->
-	     <ConductivityHeterogeneities>
+	    <ConductivityHeterogeneities>
 		<ConductivityHeterogeneity> <!-- #1 -->
 		    <IntracellularConductivities longi="0.0" trans="2.75" normal="0.0" unit="mS/cm"/>
 	    	    <ExtracellularConductivities longi="0.0"  trans="2.75"  normal="0.0" unit="mS/cm"/>
@@ -83,27 +87,9 @@ Further experiments can be run with different conductivities in the myocardial t
 		</ConductivityHeterogeneity>				
 	     </ConductivityHeterogeneities>	
 	     <!-- 
-		  Output 
+		  etc ... 
              -->
-	    <OutputDirectory>HeterogeneousSimulation</OutputDirectory>
-	   <OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>
-
-	<Physiological>
-	    <!--
-	        Conductivities
-	    -->
-	    <IntracellularConductivities longi="0.2" trans="0.2" normal="0.2" unit="mS/cm"/>
-	    <ExtracellularConductivities longi="0.2" trans="0.2" normal="0.2" unit="mS/cm"/>
-	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
-	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>
-	</Physiological>
-
-	<Numerical>
-		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
-	</Numerical>
-
-</ChasteParameters>
 
 }}}
 

@@ -11,11 +11,21 @@
 	    <SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">150.0</SimulationDuration>
 	    <Domain>Mono</Domain>
+       <!-- 
+		Mesh definition 
+	   -->
+	   <Mesh unit="cm">
+		<Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
+       </Mesh>
+
 	    <IonicModels>
 			<Default>
 			    <Hardcoded>MahajanShiferaw</Hardcoded>
 			</Default>
-			<Region>
+         <!-- 
+	         Conductivity heterogeneity
+	     -->
+	  			<Region>
 				<IonicModel>
 				   <Hardcoded>DifrancescoNoble</Hardcoded>
 				</IonicModel>
@@ -28,12 +38,6 @@
 			</Region>
     	   </IonicModels>
 	    
-           <!-- 
-		Mesh definition 
-	   -->
-	   <Mesh unit="cm">
-		<Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
-           </Mesh>
 	
 	   <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
@@ -50,11 +54,11 @@
 				</Cuboid>
 			</Location>
 		</Stimulus>	
-            </Stimuli>	
+        </Stimuli>	
 	    <!-- 
 	         Conductivity heterogeneities 
 	     -->
-	     <ConductivityHeterogeneities>
+	    <ConductivityHeterogeneities>
 		<ConductivityHeterogeneity> <!-- #1 -->
 		    <IntracellularConductivities longi="0.0" trans="2.75" normal="0.0" unit="mS/cm"/>
 	    	    <ExtracellularConductivities longi="0.0"  trans="2.75"  normal="0.0" unit="mS/cm"/>
