@@ -148,6 +148,9 @@ Export('build_exes')
 if build_exes:
     assert use_chaste_libs, "Cannot build executables unless building Chaste libraries"
 
+# Whether to alter the path for the texttest acceptance suite.  This is used when
+# exe=1, the target is "apps" and the "compile_only" flag is not set.
+texttest_suite=ARGUMENTS.get('acceptance_suite', 'chaste')
 
 # Experimental support for installing Chaste as a normal collection of
 # libraries and headers.

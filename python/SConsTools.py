@@ -660,7 +660,7 @@ def BuildExes(build, env, appsPath, components, otherVars, project=None):
 
     if not otherVars['compile_only']:
         # Run acceptance tests if present
-        test_path = os.path.join(appsPath, 'texttest', 'chaste')
+        test_path = os.path.join(appsPath, 'texttest', otherVars['texttest_suite'])
         if os.path.isdir(test_path):
             CreateTexttestBuilder(build, env, otherVars)
             RunAcceptanceTests(build, env, appsPath, test_path, exes, otherVars)
