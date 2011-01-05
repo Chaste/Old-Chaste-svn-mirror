@@ -16,6 +16,7 @@ mechanics/TestContractionModels.hpp
 mechanics/TestImplicitCardiacMechanicsSolver.hpp
 mechanics/TestExplicitCardiacMechanicsSolver.hpp
 mechanics/TestNhsModelWithBackwardSolver.hpp
+monodomain/TestCardiacStiffnessMatrixAssembler.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumo.hpp
