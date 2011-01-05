@@ -223,6 +223,8 @@ def _recent(req, type='', start=0, buildType=''):
             bgcol_index = 1 - bgcol_index
         if build_type.startswith('acceptance'):
             build = build_types_module.GetBuildType('default' + build_type[10:])
+        elif buildType.startswith('longacceptance'):
+            build = build_types_module.GetBuildType('default' + build_type[14:])
         else:
             build = build_types_module.GetBuildType(build_type)
         test_set_dir = _testResultsDir(type, revision, machine, build_type)
@@ -294,6 +296,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
         buildTypesModule = _importBuildTypesModule(revision)
         if buildType.startswith('acceptance'):
             build = buildTypesModule.GetBuildType('default' + buildType[10:])
+        elif buildType.startswith('longacceptance'):
+            build = buildTypesModule.GetBuildType('default' + buildType[14:])
         else:
             build = buildTypesModule.GetBuildType(buildType)
     testsuite_status, overall_status, colour, runtime, graphs = _getTestStatus(test_set_dir, build)
@@ -394,6 +398,8 @@ def buildType(req, buildType, revision=None):
     BuildTypes = _importBuildTypesModule(revision)
     if buildType.startswith('acceptance'):
         build = BuildTypes.GetBuildType('default' + buildType[10:])
+    elif buildType.startswith('longacceptance'):
+        build = buildTypesModule.GetBuildType('default' + buildType[14:])
     else:
         build = BuildTypes.GetBuildType(buildType)
     test_packs = ', '.join(build.TestPacks())
@@ -412,7 +418,7 @@ def buildType(req, buildType, revision=None):
 """ % (buildType, rev_text, build.CompilerType(),
            build.CcFlags(), build.LinkFlags(),
            test_packs, testsuite_exe, testsuite_cmd)
-    if buildType.startswith('acceptance'):
+    if buildType.startswith('acceptance') or buildType.startswith('longacceptance') :
         page_body += """
     <p>This build was actually used just to run the acceptance tests.</p>
 """
