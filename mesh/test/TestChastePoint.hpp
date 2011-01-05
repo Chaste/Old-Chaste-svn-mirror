@@ -50,6 +50,9 @@ public:
         int index = 0;
         point1.SetCoordinate(index, value);
         TS_ASSERT_DELTA(value, point1[index], 1e-12);
+        TS_ASSERT_DELTA(value, point1.GetWithDefault(index), 1e-12);
+        TS_ASSERT_DELTA(0.0, point1.GetWithDefault(1), 1e-12);
+        TS_ASSERT_DELTA(0.0, point1.GetWithDefault(2), 1e-12);
 
         ChastePoint<2> point2;
         point2.SetCoordinate(index, value);
@@ -59,6 +62,7 @@ public:
         value = -13.56;
         point2.SetCoordinate(index, value);
         TS_ASSERT_DELTA(value, point2[index], 1e-12);
+        TS_ASSERT_DELTA(0.0, point2.GetWithDefault(2), 1e-12);
 
         ChastePoint<3> point3;
         index = 0;
@@ -74,6 +78,7 @@ public:
         value = 1e-5;
         point3.SetCoordinate(index, value);
         TS_ASSERT_DELTA(value, point3[index], 1e-12);
+        TS_ASSERT_DELTA(0.0, point1.GetWithDefault(3), 1e-12);
 
         ChastePoint<1> point4(1);
         TS_ASSERT_DELTA(point4[0], 1, 1e-12);

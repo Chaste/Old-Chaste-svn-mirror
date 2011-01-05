@@ -2023,6 +2023,35 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
     }
 }
 
+
+bool HeartConfig::IsPseudoEcgCalculationRequested() const
+{
+    assert(IsPostProcessingSectionPresent());
+
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::PseudoEcgElectrodePosition)&
+        electrodes = DecideLocation( & mpUserParameters->PostProcessing(),
+                                     & mpDefaultParameters->PostProcessing(),
+                                     "PseudoEcgElectrodePosition")->get().PseudoEcgElectrodePosition();
+    return (electrodes.begin() != electrodes.end());
+}
+
+template<unsigned SPACE_DIM>
+void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions) const
+{
+    rPseudoEcgElectrodePositions.clear();
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::PseudoEcgElectrodePosition)&
+        electrodes = DecideLocation( & mpUserParameters->PostProcessing(),
+                                     & mpDefaultParameters->PostProcessing(),
+                                     "PseudoEcgElectrodePosition")->get().PseudoEcgElectrodePosition();
+    for (XSD_ITERATOR_TYPE(cp::postprocessing_type::PseudoEcgElectrodePosition) i = electrodes.begin();
+         i != electrodes.end();
+         ++i)
+    {
+        rPseudoEcgElectrodePositions.push_back(ChastePoint<SPACE_DIM>(i->x(), i->y(), i->z()));
+    }
+}
+    
+
 /*
  * Output visualization
  */
@@ -2822,6 +2851,27 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
     }
 }
 
+
+template<unsigned SPACE_DIM>
+void HeartConfig::SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions)
+{
+    EnsurePostProcessingSectionPresent();
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::PseudoEcgElectrodePosition)& electrodes_sequence
+        = mpUserParameters->PostProcessing()->PseudoEcgElectrodePosition();
+
+    //Erase or create a sequence
+    electrodes_sequence.clear();
+
+    for (unsigned i=0; i<rPseudoEcgElectrodePositions.size(); i++)
+    {
+        cp::point_type temp(rPseudoEcgElectrodePositions[i].GetWithDefault(0),
+                            rPseudoEcgElectrodePositions[i].GetWithDefault(1),
+                            rPseudoEcgElectrodePositions[i].GetWithDefault(2));
+        electrodes_sequence.push_back(temp);
+    }
+}
+
+
 /*
  * Output visualizer
  */
@@ -3317,6 +3367,14 @@ template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u>
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<ChasteCuboid<1u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*);
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+
+template void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<1u> >& rPseudoEcgElectrodePositions) const;
+template void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<2u> >& rPseudoEcgElectrodePositions) const;
+template void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<3u> >& rPseudoEcgElectrodePositions) const;
+
+template void HeartConfig::SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<1u> >& rPseudoEcgElectrodePositions);
+template void HeartConfig::SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<2u> >& rPseudoEcgElectrodePositions);
+template void HeartConfig::SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<3u> >& rPseudoEcgElectrodePositions);
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods

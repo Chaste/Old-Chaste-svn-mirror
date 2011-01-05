@@ -51,12 +51,12 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
-                                                                                 const ChastePoint<SPACE_DIM>& rProbeElectrode,
-                                                                                 std::string directory,
-                                                                                 std::string hdf5File,
-                                                                                 std::string variableName,
-                                                                                 bool makeAbsolute)
+PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::PseudoEcgCalculator(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
+                                                                              const ChastePoint<SPACE_DIM>& rProbeElectrode,
+                                                                              std::string directory,
+                                                                              std::string hdf5File,
+                                                                              std::string variableName,
+                                                                              bool makeAbsolute)
                                       : mrMesh(rMesh),
                                         mProbeElectrode(rProbeElectrode),
                                         mVariableName(variableName)
@@ -108,7 +108,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
 {
     std::stringstream stream;
-    stream << "PseudoEcg.dat";
+    stream << "PseudoEcgFromElectrodeAt" << "_" << mProbeElectrode.GetWithDefault(0)
+                          << "_" << mProbeElectrode.GetWithDefault(1)
+                          << "_" << mProbeElectrode.GetWithDefault(2) << ".dat";
     OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     out_stream p_file=out_stream(NULL);
     if (PetscTools::AmMaster())
@@ -136,8 +138,8 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
 /////////////////////////////////////////////////////////////////////
 
 template class PseudoEcgCalculator<1,1,1>;
-//template class PseudoEcgCalculator<1,2,1>;
-//template class PseudoEcgCalculator<1,3,1>;
+template class PseudoEcgCalculator<1,2,1>;
+template class PseudoEcgCalculator<1,3,1>;
 template class PseudoEcgCalculator<2,2,1>;
 //template class PseudoEcgCalculator<2,3,1>;
 template class PseudoEcgCalculator<3,3,1>;

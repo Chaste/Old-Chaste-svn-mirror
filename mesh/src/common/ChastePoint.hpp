@@ -92,6 +92,13 @@ public:
      * @param i the index of the vector to return
      */
     double operator[] (unsigned i) const;
+    
+    /**
+     * Get a co-ordinate, returning the default value if the co-ordinate doesn't exist.
+     * @param i  the co-ordinate to get
+     * @param def  the default value
+     */
+    double GetWithDefault(unsigned i, double def=0.0) const;
 
     /**
      * Set one of the coordinates of the Point.

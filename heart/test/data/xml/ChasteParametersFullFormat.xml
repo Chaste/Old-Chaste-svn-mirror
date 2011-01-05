@@ -350,6 +350,12 @@
 
 	        <!-- Calculate conduction velocity from node indexed 20 to all nodes in mesh --> 
 	        <ConductionVelocityMap origin_node="20"/>
+	        
+	        <!-- Calculate pseudo-ECG using an electrode at the given position -->
+	        <PseudoEcgElectrodePosition x="0.0" y="1.0" z="2.0"/>
+	        
+	        <!-- Calculate pseudo-ECG using an electrode at the given position -->
+	        <PseudoEcgElectrodePosition x="-10.0" y="-9.0" z="-8.0"/>
 	</PostProcessing>
 
 </ChasteParameters>

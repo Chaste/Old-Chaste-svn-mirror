@@ -80,6 +80,19 @@ double ChastePoint<DIM>::operator[] (unsigned i) const
 }
 
 template<unsigned DIM>
+double ChastePoint<DIM>::GetWithDefault(unsigned i, double def) const
+{
+    if (i<DIM)
+    {
+        return mLocation(i);
+    }
+    else
+    {
+        return def;
+    }
+}
+
+template<unsigned DIM>
 void ChastePoint<DIM>::SetCoordinate(unsigned i, double value)
 {
     assert(i<DIM);

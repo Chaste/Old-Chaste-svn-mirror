@@ -297,6 +297,7 @@
     </xs:annotation>
     <xs:attribute name="origin_node" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
+  
   <xs:simpleType name="media_type">
     <xs:annotation>
       <xs:documentation>The conductivity media of the tissue. This is taken from an enumeration:
@@ -1177,6 +1178,11 @@ Note that the preconditioners supplied by PETSc (ilu, jacobi and bjacobi) are su
         maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>Optional list of requests for conduction velocities at each mesh node for a given source node.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PseudoEcgElectrodePosition" type="point_type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Optional list of requests to calculate a pseudo-ECG using an electrode at the given position.</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>

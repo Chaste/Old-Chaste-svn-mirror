@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
+#include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
 #include "DistributedTetrahedralMeshPartitionType.hpp"
@@ -663,6 +664,18 @@ public:
     void GetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps) const;
     
     /**
+     * @return true iff pseudo-ECG calculation has been requested
+     */
+    bool IsPseudoEcgCalculationRequested() const;
+    
+    /**
+     * @param rPseudoEcgElectrodePositions  will be filled in with the positions of electrodes
+     * to use in calculating pseudo-ECGs (if any)
+     */
+    template<unsigned SPACE_DIM>
+    void GetPseudoEcgElectrodePositions(std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions) const;
+    
+    /**
      * @return true if state variable interpolation is used
      */
     bool GetUseStateVariableInterpolation() const;
@@ -1037,6 +1050,14 @@ public:
      *  @param rConductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& rConductionVelocityMaps);
+
+    /** Set the parameters for pseudo-ECG calculation.
+     * 
+     * @param rPseudoEcgElectrodePositions  should contan the positions of electrodes
+     * to use in calculating pseudo-ECGs (if any)
+     */
+    template<unsigned SPACE_DIM>
+    void SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions);
 
 
     // Output visualization

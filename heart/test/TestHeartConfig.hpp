@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
+#include "ChastePoint.hpp"
 #include "Version.hpp"
 #include "TetrahedralMesh.hpp"
 #include "HeartFileFinder.hpp"
@@ -219,6 +220,16 @@ public:
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
+        
+        TS_ASSERT(HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
+        std::vector<ChastePoint<3> > pseudo_ecg_parameters;
+        HeartConfig::Instance()->GetPseudoEcgElectrodePositions(pseudo_ecg_parameters);
+        TS_ASSERT_EQUALS(pseudo_ecg_parameters.size(), 2u);
+        for (unsigned dim=0; dim<3u; dim++)
+        {
+            TS_ASSERT_EQUALS(pseudo_ecg_parameters[0][dim], (double)dim);
+            TS_ASSERT_EQUALS(pseudo_ecg_parameters[1][dim], (double)dim - 10.0);
+        }
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), true);
 
@@ -1142,6 +1153,21 @@ public:
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
         TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
         TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
+        
+        TS_ASSERT(!HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
+        std::vector<ChastePoint<3> > pseudo_ecg_parameters, pseudo_ecg_parameters_get;
+        ChastePoint<3> electrode_point(0.0, 1.5, -2.5);
+        pseudo_ecg_parameters.push_back(electrode_point);
+        HeartConfig::Instance()->SetPseudoEcgElectrodePositions(pseudo_ecg_parameters);
+        TS_ASSERT(HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
+        HeartConfig::Instance()->GetPseudoEcgElectrodePositions(pseudo_ecg_parameters_get);
+        TS_ASSERT_EQUALS(pseudo_ecg_parameters_get.size(), 1u);
+        for (unsigned dim=0; dim<3u; dim++)
+        {
+            TS_ASSERT_EQUALS(pseudo_ecg_parameters_get[0][dim], electrode_point[dim]);
+        }
+        
+        
         
         bool ground_second_electrode;
         unsigned axis_index;

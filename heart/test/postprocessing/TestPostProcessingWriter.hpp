@@ -138,6 +138,11 @@ public:
         std::vector<unsigned> conduction_velocity_map;
         conduction_velocity_map.push_back(0u);
         HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
+        
+        std::vector<ChastePoint<1> > pseudo_ecg_electrodes;
+        pseudo_ecg_electrodes.push_back(ChastePoint<1>(11.0));
+        pseudo_ecg_electrodes.push_back(ChastePoint<1>(-1.0));
+        HeartConfig::Instance()->SetPseudoEcgElectrodePositions(pseudo_ecg_electrodes);
 
         PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
 
@@ -172,6 +177,14 @@ public:
 
         command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat "
                   + "heart/test/data/PostProcessorWriter/conduction_velocity_100_nodes_from_node_0.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcgFromElectrodeAt_11_0_0.dat "
+                  + "heart/test/data/PostProcessorWriter/PseudoEcgFromElectrodeAt_11_0_0.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcgFromElectrodeAt_-1_0_0.dat "
+                  + "heart/test/data/PostProcessorWriter/PseudoEcgFromElectrodeAt_-1_0_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat "

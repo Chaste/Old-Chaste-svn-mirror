@@ -125,7 +125,8 @@ public:
 
     /**
      *
-     * Calculates and writes the pseudo-ECG to file. the file will be named PseudoEcg.dat.
+     * Calculates and writes the pseudo-ECG to file. the file will be named PseudoEcgFromElectrodeAt_x_y_z.dat,
+     * where x,y,z are replaced by the location of the electrode.
      * It will contain one column of numbers, each being the pseudoECG at each time step.
      * It will be created  by the master processor into /output relaitive to where the output
      * directory is set (by the HeartConfig or by default)
