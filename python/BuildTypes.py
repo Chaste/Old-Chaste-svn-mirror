@@ -841,6 +841,22 @@ class GccOptP4(GccOpt):
         self._cc_flags.extend(['-march=pentium4', '-mmmx', '-msse', '-msse2', '-mfpmath=sse'])
         self.build_dir = 'optimised_P4'
 
+class GccOptNative(GccOpt):
+    """
+    gcc compiler with optimisations for the machine doing the compilation.
+    """
+    def __init__(self, *args, **kwargs):
+        GccOpt.__init__(self, *args, **kwargs)
+        self._cc_flags.extend(['-march=native', '-mfpmath=sse'])
+        cpuinfo = open('/proc/cpuinfo').readlines()
+        for line in cpuinfo:
+            if line.startswith('flags'):
+                for flag in ['mmx', 'sse', 'sse2', 'sse3', 'sse4', 'sse4a', 'avx', '3dnow', 'abm', 'popcnt']:
+                    if ' ' + flag + ' ' in line:
+                        self._cc_flags.append('-m' + flag)
+                break
+        self.build_dir = 'optimised_native'
+
 
 class Intel(BuildType):
     """Intel compiler tools."""
