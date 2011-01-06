@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Copyright (C) University of Oxford, 2005-2010
+"""Copyright (C) University of Oxford, 2005-2011
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -43,7 +43,7 @@ if '-dir' in sys.argv:
 
 #This next variable is unused -- it shows the previous deprecated notice
 #as a mechanism for rolling the notice forward
-previous_deprecated_notice="""Copyright (C) University of Oxford, 2005-2009
+previous_deprecated_notice="""Copyright (C) University of Oxford, 2005-2008
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -68,7 +68,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-deprecated_notice="""Copyright (C) University of Oxford, 2005-2009
+deprecated_notice="""Copyright (C) University of Oxford, 2005-2010
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -93,7 +93,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-current_notice="""Copyright (C) University of Oxford, 2005-2010
+current_notice="""Copyright (C) University of Oxford, 2005-2011
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
