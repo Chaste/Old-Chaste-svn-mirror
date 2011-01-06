@@ -190,7 +190,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
     // Compute the distance map of each surface
 
-    //CheckVentricleAlignment();
+    CheckVentricleAlignment();
 
     // Compute wall thickness parameter
     unsigned num_nodes = mrMesh.GetNumNodes();
