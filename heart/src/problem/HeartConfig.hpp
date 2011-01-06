@@ -720,6 +720,11 @@ public:
     bool GetUseMassLumping();
 
     /**
+     * Get whether to use mass lumping in the construction of the preconditioner of the FE solver or not.
+     */
+    bool GetUseMassLumpingForPrecond();
+
+    /**
      *  Get whether to use Strang operator splitting of the reaction and diffusion terms (see
      *  Set method documentation).
      */
@@ -1112,6 +1117,13 @@ public:
     void SetUseMassLumping(bool useMassLumping = true);
 
     /**
+     * Set the use of mass lumping in the construction of the preconditioner in the FE solver.
+     *
+     * @param useMassLumping Whether to use it
+     */
+    void SetUseMassLumpingForPrecond(bool useMassLumping = true);
+
+    /**
      * Use Strang operator splitting of the diffusion (conductivity) term and the reaction (ionic current) term,
      * instead of solving the full reaction-diffusion PDE. This does NOT refer to operator splitting of the
      * two PDEs in the bidomain equations. For details see for example Sundnes et al "Computing the Electrical
@@ -1197,6 +1209,11 @@ private:
      * Flag telling whether to use mass lumping or not.
      */
     bool mUseMassLumping;
+
+    /**
+     * Flag telling whether to use mass lumping in the preconditioner or not.
+     */
+    bool mUseMassLumpingForPrecond;
 
     /**
      *  Whether to use Strang operator splitting of the diffusion and reaction terms (see

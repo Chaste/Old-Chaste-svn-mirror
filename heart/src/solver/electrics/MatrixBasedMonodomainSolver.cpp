@@ -56,6 +56,21 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
 
         this->mpLinearSystem->AssembleFinalLhsMatrix();
         PetscMatTools::AssembleFinal(mMassMatrix);
+        
+        if (HeartConfig::Instance()->GetUseMassLumpingForPrecond() && !HeartConfig::Instance()->GetUseMassLumping())
+        {
+            this->mpLinearSystem->SetPrecondMatrixIsDifferentFromLhs();
+            
+            MonodomainAssembler<ELEMENT_DIM,SPACE_DIM> lumped_mass_assembler(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);            
+            lumped_mass_assembler.SetMatrixToAssemble(this->mpLinearSystem->rGetPrecondMatrix());
+
+            HeartConfig::Instance()->SetUseMassLumping(true);
+            lumped_mass_assembler.AssembleMatrix();
+            HeartConfig::Instance()->SetUseMassLumping(false);
+            
+            this->mpLinearSystem->AssembleFinalPrecondMatrix();
+        }
+        
     }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);

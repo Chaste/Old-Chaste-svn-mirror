@@ -1202,6 +1202,13 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting(), true);
         HeartConfig::Instance()->SetUseReactionDiffusionOperatorSplitting(false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting(), false);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumpingForPrecond(), false);
+        HeartConfig::Instance()->SetUseMassLumpingForPrecond();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumpingForPrecond(), true);
+        HeartConfig::Instance()->SetUseMassLumpingForPrecond(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumpingForPrecond(), false);
+
     }
 
     void TestWrite() throw (Exception)

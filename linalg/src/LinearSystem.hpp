@@ -66,6 +66,7 @@ class LinearSystem
 private:
 
     Mat mLhsMatrix;  /**< The left-hand side matrix. */
+    Mat mPrecondMatrix; /**< The matrix used for preconditioning. */
     Vec mRhsVector;  /**< The right-hand side vector. */
     PetscInt mSize;  /**< The size of the linear system. */
 
@@ -107,6 +108,11 @@ private:
     /** Pointer to vector containing a list of bath nodes*/
     boost::shared_ptr<std::vector<PetscInt> > mpBathNodes;
 
+    /** Whether the matrix used for preconditioning is the same as the LHS*/
+    bool mPrecondMatrixIsNotLhs;
+
+    /** The max number of nonzero entries expected on a LHS row */
+    unsigned mRowPreallocation;
 
 #ifdef TRACE_KSP
     unsigned mNumSolves;
@@ -233,6 +239,11 @@ public:
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
      */
     void AssembleFinalLhsMatrix();
+
+    /**
+     * Sets up the PETSc matrix used for preconditioning.
+     */    
+    void AssembleFinalPrecondMatrix();
 
     /**
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
@@ -440,6 +451,11 @@ public:
     Mat GetLhsMatrix() const;
 
     /**
+     * Get access to the matrix used for preconditioning.
+     */
+    Mat& rGetPrecondMatrix();
+
+    /**
      * Get access to the dirichlet boundary conditions vector.
      *
      * Should only be used by the BoundaryConditionsContainer.
@@ -507,6 +523,7 @@ public:
         PetscVecTools::AddMultipleValues(mRhsVector, vectorIndices, smallVector);
     }
 
+    void SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent = true);
 };
 
 #include "SerializationExportWrapper.hpp"

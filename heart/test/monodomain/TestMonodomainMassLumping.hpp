@@ -96,6 +96,62 @@ public:
 
     }
 
+    void TestCompareCubePlaneStimulusOnlyPrecondLumping() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(20); //ms
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01,0.1,0.1);
+        double spatial_step = 0.05;
+        HeartConfig::Instance()->SetSlabDimensions(0.3, 0.3, 0.3, spatial_step); // 3mm edge cube meshed at 500um
+
+        /*
+         *  Standard solve
+         */
+        HeartConfig::Instance()->SetOutputDirectory("CompareCubeStandard");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("CompareCubeStandard");
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellMLBackwardEuler,3> cell_factory(-3e5, 1.0);
+
+        MonodomainProblem<3> monodomain_problem( &cell_factory );
+
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
+
+        DistributedVector standard_solution = monodomain_problem.GetSolutionDistributedVector();
+
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
+
+
+        /*
+         *  Preconditioning mass lumping solve
+         */
+        HeartEventHandler::Reset();
+        HeartConfig::Instance()->SetOutputDirectory("CompareCubeMassLumping");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("CompareCubeMassLumping");
+        HeartConfig::Instance()->SetUseMassLumpingForPrecond();
+
+        MonodomainProblem<3> monodomain_problem_ml( &cell_factory );
+
+        monodomain_problem_ml.Initialise();
+        monodomain_problem_ml.Solve();
+
+        DistributedVector mass_lumping_solution = monodomain_problem_ml.GetSolutionDistributedVector();
+
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
+
+        // Solutions should agree closely
+        double tolerance = 1e-6;
+        for (DistributedVector::Iterator index = standard_solution.Begin();
+             index != standard_solution.End();
+             ++index)
+        {
+            TS_ASSERT_DELTA(standard_solution[index], mass_lumping_solution[index], tolerance);
+        }
+
+    }
+
+
 };
 
 #endif /* TESTMONODOMAINMASSLUMPING_HPP_ */

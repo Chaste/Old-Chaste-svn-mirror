@@ -53,15 +53,17 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
+    mPrecondMatrixIsNotLhs(false),
+    mRowPreallocation(rowPreallocation)
 {
     assert(lhsVectorSize>0);
-    if (rowPreallocation == UINT_MAX)
+    if (mRowPreallocation == UINT_MAX)
     {
         //Automatic preallocation if it's a small matrix
         if (lhsVectorSize<15)
         {
-            rowPreallocation=lhsVectorSize;
+            mRowPreallocation=lhsVectorSize;
         }
         else
         {
@@ -70,7 +72,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     }
     
     mRhsVector=PetscTools::CreateVec(mSize);
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation, PETSC_DECIDE, PETSC_DECIDE);
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, mRowPreallocation, PETSC_DECIDE, PETSC_DECIDE);
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 
@@ -99,7 +101,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
+    mPrecondMatrixIsNotLhs(false)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -126,14 +129,16 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
+    mPrecondMatrixIsNotLhs(false),
+    mRowPreallocation(rowPreallocation)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation, local_size, local_size);
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);
 
     /// \todo: if we create a linear system object outside a cardiac solver, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
@@ -158,7 +163,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
+    mPrecondMatrixIsNotLhs(false)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -268,6 +274,11 @@ void LinearSystem::AssembleFinalLhsMatrix()
 void LinearSystem::AssembleIntermediateLhsMatrix()
 {
     PetscMatTools::AssembleIntermediate(mLhsMatrix);
+}
+
+void LinearSystem::AssembleFinalPrecondMatrix()
+{
+    PetscMatTools::AssembleFinal(mPrecondMatrix);
 }
 
 void LinearSystem::AssembleRhsVector()
@@ -470,6 +481,16 @@ Mat LinearSystem::GetLhsMatrix() const
     return mLhsMatrix;
 }
 
+Mat& LinearSystem::rGetPrecondMatrix()
+{
+    if(!mPrecondMatrixIsNotLhs)
+    {
+        EXCEPTION("LHS matrix used for preconditioner construction");
+    }
+    
+    return mPrecondMatrix;
+}
+
 Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 {
     return mDirichletBoundaryConditionsVector;
@@ -629,11 +650,25 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         //how to reuse the preconditioner on subsequent iterations
         if (mMatrixIsConstant)
         {
-            KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_PRECONDITIONER);
+            if (mPrecondMatrixIsNotLhs)
+            {
+                KSPSetOperators(mKspSolver, mLhsMatrix, mPrecondMatrix, SAME_PRECONDITIONER);
+            }
+            else
+            {
+                KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_PRECONDITIONER);
+            }
         }
         else
         {
-            KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
+            if (mPrecondMatrixIsNotLhs)
+            {
+                KSPSetOperators(mKspSolver, mLhsMatrix, mPrecondMatrix, SAME_NONZERO_PATTERN);
+            }
+            else
+            {
+                KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
+            }
         }
 
         // Set either absolute or relative tolerance of the KSP solver.
@@ -845,6 +880,17 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     return lhs_vector;
 }
 
+
+void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
+{
+    mPrecondMatrixIsNotLhs = precondIsDifferent;
+    
+    if (mPrecondMatrixIsNotLhs)
+    {
+        PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;                
+        PetscTools::SetupMat(mPrecondMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);        
+    }
+}
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

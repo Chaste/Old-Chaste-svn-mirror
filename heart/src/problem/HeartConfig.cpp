@@ -290,7 +290,8 @@ HeartConfig* HeartConfig::Instance()
 }
 
 HeartConfig::HeartConfig()
-    : mUseMassLumping(false)
+    : mUseMassLumping(false),
+      mUseMassLumpingForPrecond(false)
 {
     assert(mpInstance.get() == NULL);
     mUseFixedSchemaLocation = true;
@@ -2995,6 +2996,16 @@ void HeartConfig::SetUseMassLumping(bool useMassLumping)
 bool HeartConfig::GetUseMassLumping()
 {
     return mUseMassLumping;
+}
+
+void HeartConfig::SetUseMassLumpingForPrecond(bool useMassLumping)
+{
+    mUseMassLumpingForPrecond = useMassLumping;
+}
+
+bool HeartConfig::GetUseMassLumpingForPrecond()
+{
+    return mUseMassLumpingForPrecond;
 }
 
 void HeartConfig::SetUseReactionDiffusionOperatorSplitting(bool useOperatorSplitting)

@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "ReplicatableVector.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "Timer.hpp"
 
 /**
  * Tests the LinearSystem class, and some methods in the PETSc helper classes PetscVecTools and PetscMatTools.
@@ -1160,6 +1161,96 @@ public:
         VecDestroy(system_rhs);
     }
 
+//    void TestSingularSolves() throw(Exception)
+//    {
+//        LinearSystem ls(2);
+//
+//        ls.SetMatrixElement(0, 0, 2);
+//        ls.SetMatrixElement(0, 1, 2);
+//        ls.SetMatrixElement(1, 0, 2);
+//        ls.SetMatrixElement(1, 1, 2);
+//
+//        ls.SetRhsVectorElement(0, 100.0);
+//        ls.SetRhsVectorElement(1, 100.0);
+//
+//        ls.AssembleFinalLinearSystem();
+//
+//        Vec x = ls.Solve();
+//        ReplicatableVector xx(x);
+//
+//        std::cout << xx[0] << " " << xx[1] << "\n"; //solves fine without null space?
+//    }
+
+    void TestDifferentMatrixForPreconditioning()
+    {
+
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);        
+        Vec parallel_layout = factory.CreateVec(2);        
+        
+        Mat system_matrix;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
+
+        Vec system_rhs;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
+
+        VecDestroy(parallel_layout);             
+        
+        unsigned num_it_same_mat, num_it_diff_mat;
+        
+        {            
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+            ls.SetKspType("cg");
+            
+            ls.Solve();
+            num_it_same_mat = ls.GetNumIterations();
+        }
+        
+        /*
+         * Basic test, we pretend matrix for preconditioning assembly is different
+         * from LHS but then we set LHS as preconditioning matrix. Number of iterations
+         * should agree.
+         */ 
+        {         
+            LinearSystem ls_diff_precond(system_rhs, system_matrix);
+            ls_diff_precond.SetKspType("cg");        
+                
+            ls_diff_precond.SetPrecondMatrixIsDifferentFromLhs();
+            MatDuplicate(ls_diff_precond.GetLhsMatrix(), MAT_COPY_VALUES, &ls_diff_precond.rGetPrecondMatrix());
+
+            ls_diff_precond.Solve();
+            num_it_diff_mat = ls_diff_precond.GetNumIterations();
+        }        
+
+        TS_ASSERT_EQUALS(num_it_diff_mat, num_it_same_mat);       
+
+        /*
+         * Setting the identity matrix as a preconditioner is equivalent to no preconditioning
+         */ 
+        {                     
+            LinearSystem ls_diff_precond(system_rhs, system_matrix);
+            ls_diff_precond.SetKspType("cg");        
+                
+            ls_diff_precond.SetPrecondMatrixIsDifferentFromLhs();
+            Mat& identity_matrix=ls_diff_precond.rGetPrecondMatrix();
+            
+            //PetscTools::SetupMat(identity_matrix, 2*num_nodes, 2*num_nodes, 1);
+            for (unsigned row_col=0; row_col<num_nodes; row_col++)
+            {
+                PetscMatTools::SetElement(identity_matrix, row_col, row_col, 1.0);
+            }            
+            PetscMatTools::AssembleFinal(identity_matrix);            
+         
+            ls_diff_precond.Solve();
+            num_it_diff_mat = ls_diff_precond.GetNumIterations();
+        }        
+
+        TS_ASSERT_EQUALS(num_it_diff_mat, 80u); // It takes 80 iterations if you run with ls.SetPcType("none");
+        TS_ASSERT_LESS_THAN(num_it_same_mat, num_it_diff_mat);
+        
+    }
 
     // this test should be the last in the suite
     void TestSetFromOptions()
@@ -1192,24 +1283,5 @@ public:
     }
     // the above test should be last in the suite
 
-//    void TestSingularSolves() throw(Exception)
-//    {
-//        LinearSystem ls(2);
-//
-//        ls.SetMatrixElement(0, 0, 2);
-//        ls.SetMatrixElement(0, 1, 2);
-//        ls.SetMatrixElement(1, 0, 2);
-//        ls.SetMatrixElement(1, 1, 2);
-//
-//        ls.SetRhsVectorElement(0, 100.0);
-//        ls.SetRhsVectorElement(1, 100.0);
-//
-//        ls.AssembleFinalLinearSystem();
-//
-//        Vec x = ls.Solve();
-//        ReplicatableVector xx(x);
-//
-//        std::cout << xx[0] << " " << xx[1] << "\n"; //solves fine without null space?
-//    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_
