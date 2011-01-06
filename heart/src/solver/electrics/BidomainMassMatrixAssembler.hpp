@@ -27,12 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
 #ifndef BIDOMAINMASSMATRIXASSEMBLER_HPP_
 #define BIDOMAINMASSMATRIXASSEMBLER_HPP_
-
-
 
 #include "AbstractFeObjectAssembler.hpp"
 

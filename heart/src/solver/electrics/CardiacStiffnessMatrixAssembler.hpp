@@ -26,11 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef STIFFNESSMATRIXASSEMBLER_HPP_
 #define STIFFNESSMATRIXASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+
+#include "AbstractCardiacFeObjectAssembler.hpp"
 #include "HeartConfig.hpp"
 #include "AbstractCardiacTissue.hpp"
 
@@ -46,12 +46,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class CardiacStiffnessMatrixAssembler
-   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL> 
+   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 public:
-    /** The PDE to be solved. */
-    AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* mpCardiacTissue;
-
     /** Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler. See
      *  documentation in that class.
      * 
@@ -71,7 +68,7 @@ public:
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
-        const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpCardiacTissue->rGetIntracellularConductivityTensor(pElement->GetIndex());
+        const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = this->mpCardiacTissue->rGetIntracellularConductivityTensor(pElement->GetIndex());
 
         c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
@@ -87,8 +84,7 @@ public:
      */
     CardiacStiffnessMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                              AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
-          mpCardiacTissue(pTissue)
+        : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh,pTissue)
     {
     }
 };

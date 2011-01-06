@@ -85,8 +85,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
 {
     unsigned node_global_index = pNode->GetIndex();
-    mIionic                 += phiI * mpMonodomainTissue->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phiI * mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
+    mIionic                 += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
+    mIIntracellularStimulus += phiI * this->mpCardiacTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }   
     
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -95,8 +95,7 @@ MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         double dt,
                         unsigned numQuadPoints)
-    : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,numQuadPoints),
-      mpMonodomainTissue(pTissue),
+    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
       mDt(dt),
       mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping()),
       mStiffnessMatrixAssembler(pMesh, pTissue)

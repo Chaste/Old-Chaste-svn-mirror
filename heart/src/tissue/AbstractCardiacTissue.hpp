@@ -333,6 +333,15 @@ public:
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetIntracellularConductivityTensor(unsigned elementIndex);
 
     /**
+     * Get the extracellular conductivity tensor for the given element
+     * (this throws an exception in this abstract class since monodomain don't have extracellular ones)
+     * it is overridden in the BidomainTissue.
+     *
+     * @param elementIndex  index of the element of interest
+     */
+    virtual const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
+
+    /**
      * Get a pointer to a cell, indexed by the global node index.
      *
      * \note Should only called by the process owning the cell -

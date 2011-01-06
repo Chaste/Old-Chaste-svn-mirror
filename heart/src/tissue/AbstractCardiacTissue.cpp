@@ -357,6 +357,12 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacTissue<ELEMENT_DIM,
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetExtracellularConductivityTensor(unsigned elementIndex)
+{
+     EXCEPTION("Monodomain tissues do not have extracellular conductivity tensors.");
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCell( unsigned globalIndex )
 {
     assert(mpDistributedVectorFactory->GetLow() <= globalIndex &&

@@ -33,11 +33,8 @@ AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorrect
         AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
         AbstractCardiacTissue<ELEM_DIM,SPACE_DIM>* pTissue,
         unsigned numQuadPoints)
-    : AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>(pMesh,numQuadPoints),
-      mpTissue(pTissue)
+    : AbstractCardiacFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>(pMesh,pTissue,numQuadPoints)
 {
-    assert(pTissue);
-
     mElementsHasIdenticalCellModels.resize(pMesh->GetNumElements(), true);
 //1462 - finish setting up mElementsHasIdenticalCellModels
 
@@ -65,10 +62,10 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementI
     
     unsigned node_global_index = pNode->GetIndex();
 
-    mIionicInterp  += phiI * mpTissue->rGetIionicCacheReplicated()[ node_global_index ];
+    mIionicInterp  += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
     for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
     {
-        mStateVariablesAtQuadPoint[i] += phiI * mpTissue->GetCardiacCellOrHaloCell(node_global_index)->rGetStateVariables()[i];
+        mStateVariablesAtQuadPoint[i] += phiI * this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_global_index)->rGetStateVariables()[i];
     }
 }
 
@@ -85,7 +82,7 @@ bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAss
     
     double DELTA_IIONIC = 1; // tolerance
 
-    ReplicatableVector& r_cache = mpTissue->rGetIionicCacheReplicated();
+    ReplicatableVector& r_cache = this->mpCardiacTissue->rGetIionicCacheReplicated();
     
     double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
     
@@ -107,7 +104,7 @@ bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAss
     if (will_assemble)
     {
         unsigned any_node = rElement.GetNodeGlobalIndex(0);
-        mStateVariablesAtQuadPoint.resize(mpTissue->GetCardiacCellOrHaloCell(any_node)->rGetStateVariables().size());
+        mStateVariablesAtQuadPoint.resize(this->mpCardiacTissue->GetCardiacCellOrHaloCell(any_node)->rGetStateVariables().size());
     }
     
     return will_assemble;

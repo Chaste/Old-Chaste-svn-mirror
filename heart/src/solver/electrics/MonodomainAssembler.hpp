@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MONODOMAINASSEMBLER_HPP_
 
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractCardiacFeObjectAssembler.hpp"
 #include "MonodomainTissue.hpp"
 #include "MassMatrixAssembler.hpp"
 #include "CardiacStiffnessMatrixAssembler.hpp"
@@ -41,12 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainAssembler
-   : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>
+   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>
 {
 protected:
-    /** The PDE to be solved. */
-    MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
-
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
 

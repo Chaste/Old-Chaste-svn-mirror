@@ -31,21 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCORRECTIONTERMASSEMBLER_HPP_
 
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractCardiacFeObjectAssembler.hpp"
 #include "AbstractCardiacTissue.hpp"
-
 
 /**
  * A parent class for MonodomainCorrectionTermAssembler and BidomainCorrectionTermAssembler
  */
 template<unsigned ELEM_DIM,unsigned SPACE_DIM,unsigned PROBLEM_DIM>
 class AbstractCorrectionTermAssembler
-    : public AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>
+    : public AbstractCardiacFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>
 {
 protected:
-    /** The  tissue being simulated */
-    AbstractCardiacTissue<ELEM_DIM,SPACE_DIM>* mpTissue;
-    
     /** Ionic current to be interpolated from cache */
     double mIionicInterp;
 

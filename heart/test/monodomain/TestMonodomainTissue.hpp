@@ -223,6 +223,9 @@ public:
         value_ode = ode_system_not_stim.GetIIonic();
         TS_ASSERT_DELTA(value_tissue, value_ode, 1e-10);
 
+        TS_ASSERT_THROWS_THIS(monodomain_tissue.rGetExtracellularConductivityTensor(0),
+                              "Monodomain tissues do not have extracellular conductivity tensors.");
+
         VecDestroy(voltage);
     }
 

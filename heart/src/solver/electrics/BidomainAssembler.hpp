@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINASSEMBLER_HPP_
 #define BIDOMAINASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractCardiacFeObjectAssembler.hpp"
 #include "BidomainTissue.hpp"
 #include "HeartConfig.hpp"
 
@@ -40,11 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  systems solved in bidomain problems
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainAssembler : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>
+class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>
 {
 protected:
-    /** The PDE to be solved. */
-    BidomainTissue<SPACE_DIM>* mpBidomainTissue;
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
     /** Ionic current to be interpolated from cache*/
