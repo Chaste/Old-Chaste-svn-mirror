@@ -523,6 +523,10 @@ public:
         PetscVecTools::AddMultipleValues(mRhsVector, vectorIndices, smallVector);
     }
 
+    /**
+     * Set method for #mPrecondMatrixIsNotLhs.
+     * @param precondIsDifferent  whether the matrix used for preconditioning is the same as the LHS.
+     */
     void SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent = true);
 };
 

@@ -218,9 +218,9 @@ public:
         // Remove the process-specific archive for this process
         std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(archive_base_name);
         EXPECT0(system, "rm -f " + archive_path);
-        PetscTools::Barrier("TestArchiveOpenerExceptions-1");
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load secondary archive file: ");
+        PetscTools::Barrier("TestArchiveOpenerExceptions-1");
 
         // Remove the main archive
         if (PetscTools::AmMaster())
@@ -237,7 +237,7 @@ public:
         {
             chmod(handler.GetOutputDirectoryFullPath().c_str(), 0444);
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestArchiveOpenerExceptions-3");
         // Now neither the master nor the slaves can write to their output files
         // This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they
         // all throw an error first.
@@ -254,12 +254,12 @@ public:
             TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir_finder, archive_base_name),
                                       "Failed to open secondary archive file for writing: ");
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestArchiveOpenerExceptions-4");
         if (PetscTools::AmMaster())
         {   // Restore permissions on the folder before allowing processes to continue.
             chmod(handler.GetOutputDirectoryFullPath().c_str(), 0755);
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestArchiveOpenerExceptions-5");
     }
 
     void TestSpecifyingSecondaryArchive() throw (Exception)

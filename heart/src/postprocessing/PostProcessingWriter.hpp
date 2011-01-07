@@ -52,7 +52,7 @@ private:
     std::string mDirectory; /**< The directory the HDF5 file is in */
     std::string mHdf5File; /**< The name of the HDF5 file to post-process */
     bool mMakeAbsolute; /**< Whether to convert #mDirectory to an absolute path */
-    std::string mVoltageName; /** The name of the variable representing the membrane potential */
+    std::string mVoltageName; /**< The name of the variable representing the membrane potential */
     
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to build the PropagationPropertiesCalculator */
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
