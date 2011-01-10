@@ -31,29 +31,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # that have the same name.
 
 exts = ['.cpp', '.hpp']
-dir_ignores = ['build','dynamic']
+dir_ignores = ['build', 'dynamic']
+startchar_ignores = ['_', '.']
 chaste_dir = '.'
 
+import glob
 import os
 
 # Dictionary mapping file names to locations
 source_files = {}
 
-for root, dirs, files in os.walk(chaste_dir):
-    # Check for ignored dirs
-    for dir in dir_ignores:
-        if dir in dirs:
-            dirs.remove(dir)
-    # Check for source files
-    for file in files:
-        name, ext = os.path.splitext(file)
-        if ext in exts:
-            if source_files.has_key(file):
-                # We've already found a file with this name
-                source_files[file].append(os.path.join(root, file))
-            else:
-                # This is the first occurence of this name
-                source_files[file] = [os.path.join(root, file)]
+def DoWalk(root_dir):
+    for root, dirs, files in os.walk(root_dir):
+        # Check for ignored dirs
+        for dirname in dirs[:]:
+            if dirname in dir_ignores or dirname[0] in startchar_ignores:
+                dirs.remove(dirname)
+        # Check for source files
+        for file in files:
+            name, ext = os.path.splitext(file)
+            if ext in exts:
+                if source_files.has_key(file):
+                    # We've already found a file with this name
+                    source_files[file].append(os.path.join(root, file))
+                else:
+                    # This is the first occurence of this name
+                    source_files[file] = [os.path.join(root, file)]
+
+components = os.path.join(chaste_dir, '*', '')
+for root_dir in glob.glob(components + 'src') + glob.glob(components + 'test'):
+    DoWalk(root_dir)
 
 # Now check dictionary for duplicates
 num_found_dups = 0

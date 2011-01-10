@@ -31,9 +31,10 @@ import difflib
 
 # Check XSD files for consistent schemas
 
-#dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', '_local', 'global', 'linalg', 'ode', 'pde', 'docs', 'anim', 'link', 'linklib', 'cell_based', 'notforrelease_cell_based', 'python']
+#dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', 'global', 'linalg', 'ode', 'pde', 'docs', 'anim', 'link', 'linklib', 'cell_based', 'notforrelease_cell_based', 'python']
 # Important directories are heart, apps and notforrelease
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'python']
+startchar_ignores = ['_', '.']
 exception_tests = ['BrokenSchema.xsd',              #Used in TestHeartConfig.hpp
                    'EmptyRoot.xsd',                 #Used in TestHeartConfig.hpp
                    'schema with spaces.xsd',        #Used in TestHeartConfig.hpp
@@ -51,25 +52,25 @@ def FilesAreDifferent(pathToFile1, pathToFile2):
     file_string_1 = open(pathToFile1).readlines()
     file_string_2 = open(pathToFile2).readlines()
     #Produce generator for unified diff
-    udiff=difflib.unified_diff(file_string_1, file_string_2, pathToFile1, pathToFile2)
+    udiff = difflib.unified_diff(file_string_1, file_string_2, pathToFile1, pathToFile2)
     try:
-     n=10
-     #Print the first n lines of the unified diff
-     for i in range(0, n):
-       print udiff.next()     
-     return True     
+        n = 10
+        #Print the first n lines of the unified diff
+        for _ in range(0, n):
+            print udiff.next()     
+        return True     
     except StopIteration:
-     #The generator has little content and so was probably empty
-     return (False)
+        #The generator has little content and so was probably empty
+        return (False)
 
 #Build a list of reference files (in './heart/src/io') and a list of files which need to be verified
 reference_files=[]
 files_to_check=[]
 for root, dirs, files in os.walk(chaste_dir):
     # Check for ignored dirs
-    for dir in dir_ignores:
-        if dir in dirs:
-            dirs.remove(dir)
+    for dirname in dirs[:]:
+        if dirname in dir_ignores or dirname[0] in startchar_ignores:
+            dirs.remove(dirname)
     # Check for source files
     for file in files:
         name, ext = os.path.splitext(file)
@@ -83,16 +84,16 @@ for root, dirs, files in os.walk(chaste_dir):
 for (path, file) in files_to_check:
     file_name = os.path.join(path, file)
     if file in reference_files:
-		if (FilesAreDifferent(os.path.join(reference_path, file), file_name)):
-		  num_bad+=1
-		else:
-		  num_good+=1
+        if (FilesAreDifferent(os.path.join(reference_path, file), file_name)):
+          num_bad+=1
+        else:
+          num_good+=1
     else:
-	    if file in exception_tests:
-	      num_good+=1
-	    else:  
-	      print file_name,' is an orphan.  There is no reference schema with that name.'
-	      num_bad+=1
+        if file in exception_tests:
+          num_good+=1
+        else:  
+          print file_name,' is an orphan.  There is no reference schema with that name.'
+          num_bad+=1
 
 print "Schema test run over (",num_bad+num_good,") files"
 if num_bad > 0:

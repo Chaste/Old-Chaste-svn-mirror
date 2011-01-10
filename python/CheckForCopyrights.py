@@ -30,7 +30,8 @@ import sys
 
 # Check, apply or modify the copyright notice
 exts = ['.cpp', '.hpp', '.py', '.java']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', '_local']
+dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects']
+startchar_ignores = ['_', '.']
 exclusions = ['python/pycml/enum.py', 'python/pycml/pyparsing.py', 'python/pycml/schematron.py']
 
 apply_update = '-update' in sys.argv
@@ -272,9 +273,9 @@ chaste_dir_len = len(os.path.join(chaste_dir, ''))
 for root, dirs, files in os.walk(chaste_dir):
     relative_root = root[chaste_dir_len:]
     # Check for ignored dirs
-    for dir in dir_ignores:
-        if dir in dirs:
-            dirs.remove(dir)
+    for dirname in dirs[:]:
+        if dirname in dir_ignores or dirname[0] in startchar_ignores:
+            dirs.remove(dirname)
     # Check for source files
     for file in files:
         relative_path = os.path.join(relative_root, file)
