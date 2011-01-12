@@ -43,7 +43,6 @@ template <unsigned SPACE_DIM>
 class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
-
     /** Lower vertex of the cuboid. */
     ChastePoint<SPACE_DIM> mLowerCorner;
 
@@ -51,7 +50,6 @@ private:
     ChastePoint<SPACE_DIM> mUpperCorner;
 
 public:
-
     /**
      * The cuboid is defined by any of its two space-diagonal opposite corners.
      *
@@ -71,13 +69,11 @@ public:
         }
     }
 
-
     /**
-     * Checks if a given 3D point is contained in the cuboid.
+     * Checks if a given point is contained in the cuboid.
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-
     bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
     {
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
@@ -96,6 +92,7 @@ public:
     {
         return mUpperCorner;
     }
+    
     /** @return the lower vertex of the cuboid */
     const ChastePoint<SPACE_DIM>& rGetLowerCorner() const
     {

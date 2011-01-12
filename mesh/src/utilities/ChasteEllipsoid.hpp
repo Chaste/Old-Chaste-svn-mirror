@@ -38,12 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class defines a 3D ellipsoid and provides a method to check
  * if a given point is contained in the volume.
  */
-
 template <unsigned SPACE_DIM>
 class ChasteEllipsoid : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
-
     /** Centre of the ellipsoid. */
     ChastePoint<SPACE_DIM> mCentre;
 
@@ -51,80 +49,26 @@ private:
     ChastePoint<SPACE_DIM> mRadii;
 
 public:
-
     /**
      * The (axis aligned) ellipsoid is defined by its centre and its radii in the x, y and z directions.
      *
      * @param rCentre Centre of the ellipsoid.
      * @param rRadii Radii of the ellipsoid.
      */
-    ChasteEllipsoid(ChastePoint<SPACE_DIM>& rCentre, ChastePoint<SPACE_DIM>& rRadii)
-        : mCentre(rCentre),
-          mRadii(rRadii)
-    {
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            if (mRadii[dim] < 0.0)
-            {
-                EXCEPTION("Attempted to create an ellipsoid with a negative radius");
-            }
-        }
-
-    }
-
+    ChasteEllipsoid(ChastePoint<SPACE_DIM>& rCentre, ChastePoint<SPACE_DIM>& rRadii);
 
     /**
-     * Checks if a given 3D point is contained in the ellipsoid.
+     * Checks if a given point is contained in the ellipsoid.
      *
      * @param rPointToCheck Point to be checked to be contained in the ellipsoid.
      */
-
-    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
-    {
-
-    	double x_distance, y_distance, z_distance;
-    	switch(SPACE_DIM)
-    	{
-
-			case 1:
-
-				if (rPointToCheck[0] < mCentre[0] - mRadii[0] - 100.0 * DBL_EPSILON ||
-					rPointToCheck[0] > mCentre[0] + mRadii[0] + 100.0 * DBL_EPSILON )
-				{
-					return false;
-				}
-				break;
-    	    case 2:
-    	    	x_distance = (rPointToCheck[0]-mCentre[0])/mRadii[0];
-    	    	y_distance = (rPointToCheck[1]-mCentre[1])/mRadii[1];
-    	    	if ( (x_distance*x_distance + y_distance*y_distance) > (1.0 + 100.0 * DBL_EPSILON) )
-    	    	{
-    	    		return false;
-    	    	}
-    	    	break;
-    	    case 3:
-    	    	x_distance = (rPointToCheck[0]-mCentre[0])/mRadii[0];
-    	    	y_distance = (rPointToCheck[1]-mCentre[1])/mRadii[1];
-    	    	z_distance = (rPointToCheck[2]-mCentre[2])/mRadii[2];
-    	        if ( (x_distance*x_distance + y_distance*y_distance + z_distance*z_distance) > (1.0 + 100.0 * DBL_EPSILON) )
-    	    	{
-    	    	    return false;
-    	    	}
-    	        break;
-        }
-    	return true;
-    }
+    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const;
 
     /** @return centre of the ellipsoid */
-    const ChastePoint<SPACE_DIM>& rGetCentre() const
-    {
-        return mCentre;
-    }
+    const ChastePoint<SPACE_DIM>& rGetCentre() const;
+    
     /** @return radii of the ellipsoid */
-    const ChastePoint<SPACE_DIM>& rGetRadii()
-    {
-        return mRadii;
-    }
+    const ChastePoint<SPACE_DIM>& rGetRadii();
 
 };
 
