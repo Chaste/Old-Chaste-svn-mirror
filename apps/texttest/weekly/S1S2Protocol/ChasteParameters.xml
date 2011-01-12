@@ -57,7 +57,7 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		<OutputFilenamePrefix>S1S2Results</OutputFilenamePrefix>
 	</Simulation>
 	
 	<Physiological>

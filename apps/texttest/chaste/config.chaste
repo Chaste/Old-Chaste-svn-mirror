@@ -47,6 +47,9 @@ results_phi_e_dat:ChasteResults/output/SimulationResults_Phi_e.dat
 mesh_pts:ChasteResults/output/SimulationResults_mesh.pts
 mesh_tetras:ChasteResults/output/SimulationResults_mesh.tetras
 mesh_tri:ChasteResults/output/SimulationResults_mesh.tri
+mesh_pts:ChasteResults/output/S1S2Results_mesh.pts
+mesh_tri:ChasteResults/output/S1S2Results_mesh.tri
+size_of_h5:ChasteResults/S1S2Results.h5
 
 # Extra files to test against in postprocess_monodomain
 Apd_90_minus_30_Map_dat:ChasteResults/output/Apd_90_-30_Map.dat
@@ -63,6 +66,8 @@ resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
 resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
 
 [collate_script]
+#Some HDF5 files (S1S2) we only check for size - as number of blocks
+size_of_h5:stat -b %s
 # We need to translate hdf5 files into text in order to compare them with diff
 results_h5:h5dump
 # (After h5dump) some HDF5 file results are piped through a filter to round to a certain number of decimal places
