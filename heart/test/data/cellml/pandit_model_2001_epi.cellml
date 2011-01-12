@@ -10,6 +10,16 @@ CellML 1.0 was used to generate this model
 http://www.CellML.org/
 -->
 <model name="pandit_model_2001_epi" cmeta:id="pandit_model_2001_epi" xmlns="http://www.cellml.org/cellml/1.0#" xmlns:cellml="http://www.cellml.org/cellml/1.0#" xmlns:cmeta="http://www.cellml.org/metadata/1.0#">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+      <rdf:Description rdf:about="#pandit_model_2001_epi"> 
+	     <named-attribute xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#"> 
+	        <rdf:Description> 
+	           <name rdf:datatype="http://www.w3.org/2000/10/XMLSchema#string">SuggestedForwardEulerTimestep</name> 
+	           <value rdf:datatype="http://www.w3.org/2000/10/XMLSchema#double">0.00001</value> 
+	        </rdf:Description> 
+	     </named-attribute> 
+	  </rdf:Description> 
+   </rdf:RDF>
    <units name="per_second">
       <unit units="second" exponent="-1"/>
    </units>

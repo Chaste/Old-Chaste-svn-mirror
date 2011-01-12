@@ -55,19 +55,18 @@ private:
     WarningsContainerType mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
 
 protected:
-
     /**
      * Protected constructor.
      * Use Instance() to access the Warnings singleton.
      */
     Warnings();
-
-    /**
-     * Protected destroyer (takes the place of a destructor, using the std::atexit directive).
-     */
-    static void NoisyDestroy();
  
 public:
+    /**
+     * Default destroyer (takes the place of a destructor, using the std::atexit directive).
+     * Prints all warning messages to stdout.
+     */
+    static void NoisyDestroy();
 
     /**
      * Public destroyer (takes the place of a destructor but is called by the user to make sure 

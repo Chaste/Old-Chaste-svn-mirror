@@ -79,7 +79,7 @@ public:
         rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
         double norm_of_residual = norm_inf(mResidual);
         assert(!std::isnan(norm_of_residual));
-        double norm_of_update=0.0; //Properly initialised in the loop
+        double norm_of_update = 0.0; //Properly initialised in the loop
         do
         {
             // Calculate Jacobian for current guess
@@ -92,7 +92,7 @@ public:
             norm_of_update = norm_inf(mUpdate);
 
             // Update current guess and recalculate residual
-            double norm_of_new_guess=0.0;
+            double norm_of_new_guess = 0.0;
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
@@ -100,7 +100,7 @@ public:
             }
             double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
-            norm_of_residual=norm_inf(mResidual);
+            norm_of_residual = norm_inf(mResidual);
             if (norm_of_residual > norm_of_previous_residual && norm_of_update > eps)
             {
                 //Second part of guard:
@@ -121,26 +121,35 @@ public:
                     }
                 }
 
-                if(relative_change_max > 1.0)
+                if (relative_change_max > 1.0)
                 {
                     //Only walk 0.2 of the way in that direction (put back 0.8)
                     rCurrentGuess[relative_change_direction] += 0.8*mUpdate[relative_change_direction];
                     rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
-                    norm_of_residual=norm_inf(mResidual);
+                    norm_of_residual = norm_inf(mResidual);
                     WARNING("Residual increasing and one direction changing radically - back tracking in that direction");
                 }
             }
             counter++;
             
-           
             // avoid infinite loops
             if (counter > 15)
             {
-                TERMINATE("Newton method diverged in CardiacNewtonSolver::Solve()");
+#define COVERAGE_IGNORE
+                EXCEPTION("Newton method diverged in CardiacNewtonSolver::Solve()");
+#undef COVERAGE_IGNORE
             }
         }
         while (norm_of_update > eps);
-        assert(norm_of_residual < 2e-10); //This line is for corelation - in case we use norm_of_residual as convergence criterion
+        
+#define COVERAGE_IGNORE
+#ifndef NDEBUG
+        if (norm_of_residual > 2e-10)
+        { //This line is for correlation - in case we use norm_of_residual as convergence criterion
+            WARN_ONCE_ONLY("Newton iteration terminated because update vector norm is small, but residual norm is not small.");
+        }
+#endif // NDEBUG
+#undef COVERAGE_IGNORE
     }
 
 

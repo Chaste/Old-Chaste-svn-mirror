@@ -44,6 +44,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 
+#include "CellProperties.hpp"
+#include "HeartConfig.hpp"
+#include "Warnings.hpp"
+#include "RunAndCheckIonicModels.hpp"
+
 #include "PetscSetupAndFinalize.hpp"
 
 /**
@@ -56,12 +61,98 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestPyCmlNightly : public CxxTest::TestSuite
 {
 private:
+    template<typename VECTOR>
+    double GetAttribute(AbstractParameterisedSystem<VECTOR>* pSystem,
+                        const std::string& rAttrName,
+                        double defaultValue)
+    {
+        assert(pSystem);
+        double attr_value;
+        if (pSystem->HasAttribute(rAttrName))
+        {
+            attr_value = pSystem->GetAttribute(rAttrName);
+        }
+        else
+        {
+            attr_value = defaultValue;
+        }
+        return attr_value;
+    }
+
+    double GetAttribute(boost::shared_ptr<AbstractCardiacCellInterface> pCell,
+                        const std::string& rAttrName,
+                        double defaultValue)
+    {
+        AbstractParameterisedSystem<std::vector<double> >* p_normal
+            = dynamic_cast<AbstractParameterisedSystem<std::vector<double> >*>(pCell.get());
+        if (p_normal)
+        {
+            return GetAttribute(p_normal, rAttrName, defaultValue);
+        }
+#ifdef CHASTE_CVODE
+        else
+        {
+            AbstractParameterisedSystem<N_Vector>* p_cvode
+                = dynamic_cast<AbstractParameterisedSystem<N_Vector>*>(pCell.get());
+            return GetAttribute(p_cvode, rAttrName, defaultValue);
+        }
+#endif
+    }
+
+    void Simulate(const std::string& rOutputDirName,
+                  const std::string& rModelName,
+                  boost::shared_ptr<AbstractCardiacCellInterface> pCell)
+    {
+        double end_time = GetAttribute(pCell, "SuggestedCycleLength", 700.0); // ms
+        if (pCell->GetSolver())
+        {
+            double dt = GetAttribute(pCell, "SuggestedForwardEulerTimestep", 0.0);
+            if (dt > 0.0)
+            {
+                pCell->SetTimestep(dt);
+            }
+        }
+        if (GetAttribute(pCell, "StandardStimulusFails", 0.0) != 0.0 && pCell->HasCellMLDefaultStimulus())
+        {
+            pCell->UseCellMLDefaultStimulus();
+            std::cout << "*** Using CellML stimulus for " << rModelName << std::endl;
+        }
+        double sampling_interval = 2.0; // ms
+        OdeSolution solution = pCell->Compute(0.0, end_time, sampling_interval);
+        solution.WriteToFile(rOutputDirName, rModelName, "ms", 1, false);
+        // Check an AP was produced
+        std::vector<double> voltages = solution.GetVariableAtIndex(pCell->GetVoltageIndex());
+        CellProperties props(voltages, solution.rGetTimes());
+        props.GetLastActionPotentialDuration(90.0); // Don't catch the exception if it's thrown
+        // Compare against saved results
+        CheckResults(rModelName, voltages, solution.rGetTimes());
+    }
+
+    void CheckResults(const std::string& rModelName,
+                      std::vector<double>& rVoltages,
+                      std::vector<double>& rTimes,
+                      double tolerance=1e-3)
+    {
+        // Read data entries for the reference file
+        ColumnDataReader data_reader("heart/test/data/cellml", rModelName, false);
+        std::vector<double> valid_times = data_reader.GetValues("Time");
+        std::vector<double> valid_voltages = GetVoltages(data_reader);
+
+        TS_ASSERT_EQUALS(rTimes.size(), valid_times.size());
+        for (unsigned i=0; i<valid_times.size(); i++)
+        {
+            TS_ASSERT_DELTA(rTimes[i], valid_times[i], 1e-12);
+            TS_ASSERT_DELTA(rVoltages[i], valid_voltages[i], tolerance);
+        }
+    }
+
     void RunTests(const std::string& rOutputDirName,
                   const std::vector<std::string>& rModels,
                   const std::vector<std::string>& rArgs,
                   bool testLookupTables=false,
                   double tableTestV=-1000)
     {
+        OutputFileHandler handler(rOutputDirName); // Clear folder
         std::vector<std::string> failures;
         for (unsigned i=0; i<rModels.size(); ++i)
         {
@@ -72,7 +163,7 @@ private:
             catch (const Exception& e)
             {
                 failures.push_back(rModels[i]);
-                TS_FAIL("Failed to convert cell model " + rModels[i] + ": " + e.GetMessage());
+                TS_FAIL("Failure testing cell model " + rModels[i] + ": " + e.GetMessage());
             }
         }
 
@@ -93,7 +184,7 @@ private:
                  double tableTestV=-1000)
     {
         // Copy CellML file (and .out if present) into output dir
-        OutputFileHandler handler(rOutputDirName);
+        OutputFileHandler handler(rOutputDirName, false);
         FileFinder cellml_file("heart/test/data/cellml/" + rModelName + ".cellml", RelativeTo::ChasteSourceRoot);
         CopyFile(handler, cellml_file);
         FileFinder out_file("heart/test/data/cellml/" + rModelName + ".out", RelativeTo::ChasteSourceRoot);
@@ -112,7 +203,7 @@ private:
         CellMLToSharedLibraryConverter converter;
         FileFinder copied_file(rOutputDirName + "/" + rModelName + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
-        AbstractCardiacCellInterface* p_cell = CreateCellWithStandardStimulus(*p_loader);
+        boost::shared_ptr<AbstractCardiacCellInterface> p_cell(CreateCellWithStandardStimulus(*p_loader));
 
         // Check lookup tables exist if they should
         if (testLookupTables && rModelName != "hodgkin_huxley_squid_axon_model_1952_modified")
@@ -122,14 +213,14 @@ private:
             TS_ASSERT_THROWS_CONTAINS(p_cell->GetIIonic(), "membrane_voltage outside lookup table range");
             p_cell->SetVoltage(v);
         }
-
-        delete p_cell;
+        Simulate(rOutputDirName, rModelName, p_cell);
+        Warnings::NoisyDestroy(); // Print out any warnings now, not at program exit
     }
 
     void AddAllModels(std::vector<std::string>& rModels)
     {
         rModels.push_back("aslanidi_model_2009");
-        rModels.push_back("beeler_reuter_model_1977");
+//        rModels.push_back("beeler_reuter_model_1977");
         rModels.push_back("bondarenko_model_2004_apex");
         rModels.push_back("courtemanche_ramirez_nattel_model_1998");
         rModels.push_back("decker_2009");
@@ -179,6 +270,7 @@ public:
         args.push_back("--no-i-ionic-fallback");
         std::vector<std::string> models;
         AddAllModels(models);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.1, 1.0);
         RunTests(dirname, models, args);
     }
 
@@ -216,8 +308,7 @@ public:
         std::vector<std::string> models;
 
         models.push_back("aslanidi_model_2009");
-        models.push_back("beeler_reuter_model_1977");
-        models.push_back("bondarenko_model_2004_apex");
+//        models.push_back("beeler_reuter_model_1977");
         models.push_back("courtemanche_ramirez_nattel_model_1998");
         models.push_back("demir_model_1994");
         models.push_back("dokos_model_1996");
@@ -226,9 +317,6 @@ public:
         models.push_back("fink_noble_giles_model_2008");
         models.push_back("grandi2010ss");
         models.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
-        models.push_back("iyer_model_2004");
-        models.push_back("iyer_model_2007");
-        models.push_back("jafri_rice_winslow_model_1998");
         models.push_back("kurata_model_2002");
         models.push_back("livshitz_rudy_2007");
         models.push_back("matsuoka_model_2003");
@@ -237,7 +325,6 @@ public:
         models.push_back("noble_noble_SAN_model_1984");
         models.push_back("noble_SAN_model_1989");
         models.push_back("nygren_atrial_model_1998");
-        models.push_back("pandit_model_2001_epi");
         models.push_back("sakmann_model_2000_epi");
         models.push_back("ten_tusscher_model_2006_epi");
         models.push_back("zhang_SAN_model_2000_0D_capable");
@@ -255,7 +342,17 @@ public:
             winslow_model_1999
          */
 
-
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.1, 1.0);
+        RunTests(dirname, models, args, true);
+        
+        dirname = dirname + "-difficult";
+        models.clear();
+        models.push_back("bondarenko_model_2004_apex");
+        models.push_back("iyer_model_2004");
+        models.push_back("iyer_model_2007");
+        models.push_back("jafri_rice_winslow_model_1998");
+        models.push_back("pandit_model_2001_epi");
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.1, 1.0);
         RunTests(dirname, models, args, true);
     }
 };
