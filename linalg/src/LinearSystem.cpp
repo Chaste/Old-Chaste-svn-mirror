@@ -41,7 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
-   :mSize(lhsVectorSize),
+   :mPrecondMatrix(NULL),
+    mSize(lhsVectorSize),
     mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
@@ -89,7 +90,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
 }
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
-   :mSize(lhsVectorSize),
+   :mPrecondMatrix(NULL),
+    mSize(lhsVectorSize),
     mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
@@ -119,7 +121,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
 }
 
 LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
-   :mMatNullSpace(NULL),
+   :mPrecondMatrix(NULL),
+    mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
@@ -153,7 +156,8 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
 }
 
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
-    :mMatNullSpace(NULL),
+   :mPrecondMatrix(NULL),
+    mMatNullSpace(NULL),
     mDestroyMatAndVec(false),
     mKspIsSetup(false),
     mMatrixIsConstant(false),
@@ -164,7 +168,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
-    mPrecondMatrixIsNotLhs(false)
+    mPrecondMatrixIsNotLhs(false),
+    mRowPreallocation(UINT_MAX)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -184,6 +189,15 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         assert(mat_size == mat_cols);
         mSize = (unsigned)mat_size;
         MatGetOwnershipRange(mLhsMatrix, &mOwnershipRangeLo, &mOwnershipRangeHi);
+
+        MatInfo matrix_info;
+        MatGetInfo(mLhsMatrix, MAT_GLOBAL_MAX, &matrix_info);
+
+        /*
+         *  Assuming that mLhsMatrix was created with PetscTools::SetupMat, the value
+         *  below should be equivalent to what was used as preallocation in that call.
+         */
+        mRowPreallocation = matrix_info.nz_allocated / mSize;
     }
     assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
 
@@ -209,6 +223,11 @@ LinearSystem::~LinearSystem()
     {
         VecDestroy(mRhsVector);
         MatDestroy(mLhsMatrix);
+    }
+
+    if(mPrecondMatrixIsNotLhs)
+    {
+        MatDestroy(mPrecondMatrix);
     }
 
     if (mMatNullSpace)
@@ -648,27 +667,25 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
         //The preconditioner flag (last argument) in the following calls says
         //how to reuse the preconditioner on subsequent iterations
+
+        MatStructure preconditioner_over_successive_calls;
+
         if (mMatrixIsConstant)
         {
-            if (mPrecondMatrixIsNotLhs)
-            {
-                KSPSetOperators(mKspSolver, mLhsMatrix, mPrecondMatrix, SAME_PRECONDITIONER);
-            }
-            else
-            {
-                KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_PRECONDITIONER);
-            }
+            preconditioner_over_successive_calls = SAME_PRECONDITIONER;
         }
         else
         {
-            if (mPrecondMatrixIsNotLhs)
-            {
-                KSPSetOperators(mKspSolver, mLhsMatrix, mPrecondMatrix, SAME_NONZERO_PATTERN);
-            }
-            else
-            {
-                KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
-            }
+            preconditioner_over_successive_calls = SAME_NONZERO_PATTERN;
+        }
+
+        if (mPrecondMatrixIsNotLhs)
+        {
+            KSPSetOperators(mKspSolver, mLhsMatrix, mPrecondMatrix, preconditioner_over_successive_calls);
+        }
+        else
+        {
+            KSPSetOperators(mKspSolver, mLhsMatrix, mLhsMatrix, preconditioner_over_successive_calls);
         }
 
         // Set either absolute or relative tolerance of the KSP solver.
@@ -887,6 +904,20 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
     
     if (mPrecondMatrixIsNotLhs)
     {
+        if (mRowPreallocation == UINT_MAX)
+        {
+            /*
+             *  At the time of writing, this line will be reached if the constructor
+             *  with signature LinearSystem(Vec residualVector, Mat jacobianMatrix) is
+             *  called with jacobianMatrix=NULL and preconditioning matrix different
+             *  from lhs is used.
+             *
+             *  If this combination is ever required you will need to work out
+             *  matrix allocation (mRowPreallocation) here.
+             */
+            NEVER_REACHED;
+        }
+
         PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;                
         PetscTools::SetupMat(mPrecondMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);        
     }

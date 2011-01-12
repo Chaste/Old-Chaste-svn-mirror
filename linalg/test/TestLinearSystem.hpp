@@ -1198,58 +1198,68 @@ public:
 
         VecDestroy(parallel_layout);             
         
-        unsigned num_it_same_mat, num_it_diff_mat;
+        unsigned num_it_same_mat=0, num_it_diff_mat=1;
         
-        {            
-            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+        {
+            LinearSystem ls(system_rhs, system_matrix);
             ls.SetKspType("cg");
-            
-            ls.Solve();
+
+            Vec solution = ls.Solve();
             num_it_same_mat = ls.GetNumIterations();
+
+            VecDestroy(solution);
         }
-        
+
         /*
          * Basic test, we pretend matrix for preconditioning assembly is different
          * from LHS but then we set LHS as preconditioning matrix. Number of iterations
          * should agree.
          */ 
-        {         
+        {
             LinearSystem ls_diff_precond(system_rhs, system_matrix);
-            ls_diff_precond.SetKspType("cg");        
-                
-            ls_diff_precond.SetPrecondMatrixIsDifferentFromLhs();
-            MatDuplicate(ls_diff_precond.GetLhsMatrix(), MAT_COPY_VALUES, &ls_diff_precond.rGetPrecondMatrix());
+            ls_diff_precond.SetKspType("cg");
 
-            ls_diff_precond.Solve();
+            // For coverage
+            TS_ASSERT_THROWS_THIS(ls_diff_precond.rGetPrecondMatrix(), "LHS matrix used for preconditioner construction");
+
+            ls_diff_precond.SetPrecondMatrixIsDifferentFromLhs();
+            MatCopy(ls_diff_precond.GetLhsMatrix(), ls_diff_precond.rGetPrecondMatrix(), DIFFERENT_NONZERO_PATTERN);
+
+            Vec solution = ls_diff_precond.Solve();
             num_it_diff_mat = ls_diff_precond.GetNumIterations();
-        }        
+
+            VecDestroy(solution);
+        }
 
         TS_ASSERT_EQUALS(num_it_diff_mat, num_it_same_mat);       
 
         /*
          * Setting the identity matrix as a preconditioner is equivalent to no preconditioning
          */ 
-        {                     
+        {
             LinearSystem ls_diff_precond(system_rhs, system_matrix);
-            ls_diff_precond.SetKspType("cg");        
-                
+            ls_diff_precond.SetKspType("cg");
+
             ls_diff_precond.SetPrecondMatrixIsDifferentFromLhs();
-            Mat& identity_matrix=ls_diff_precond.rGetPrecondMatrix();
-            
-            //PetscTools::SetupMat(identity_matrix, 2*num_nodes, 2*num_nodes, 1);
+            Mat& r_identity_matrix=ls_diff_precond.rGetPrecondMatrix();
+
             for (unsigned row_col=0; row_col<num_nodes; row_col++)
             {
-                PetscMatTools::SetElement(identity_matrix, row_col, row_col, 1.0);
-            }            
-            PetscMatTools::AssembleFinal(identity_matrix);            
-         
-            ls_diff_precond.Solve();
+                PetscMatTools::SetElement(r_identity_matrix, row_col, row_col, 1.0);
+            }
+            ls_diff_precond.AssembleFinalPrecondMatrix();
+
+            Vec solution = ls_diff_precond.Solve();
             num_it_diff_mat = ls_diff_precond.GetNumIterations();
-        }        
+
+            VecDestroy(solution);
+        }
 
         TS_ASSERT_EQUALS(num_it_diff_mat, 80u); // It takes 80 iterations if you run with ls.SetPcType("none");
         TS_ASSERT_LESS_THAN(num_it_same_mat, num_it_diff_mat);
         
+        VecDestroy(system_rhs);
+        MatDestroy(system_matrix);
     }
 
     // this test should be the last in the suite
