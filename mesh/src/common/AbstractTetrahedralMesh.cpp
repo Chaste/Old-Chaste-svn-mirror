@@ -697,6 +697,13 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
             }
         }
         
+        /* If this is a TetrahedralMesh (not distributed) then it's possible that we own none
+         * of the nodes in this element.  In that case we must skip the element.
+         */
+        if (nodes_on_this_process.empty())
+        {
+            continue; //Move on to the next element.
+        }
         //If there are any non-local nodes on this element then we need to add to the data exchange
         if(!nodes_not_on_this_process.empty()) 
         {
