@@ -70,14 +70,15 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
 }
 
 
-AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver /* unused */,
+AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
                                      unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-    : AbstractCardiacCellInterface(pSolver, voltageIndex, pIntracellularStimulus),
+    : AbstractCardiacCellInterface(boost::shared_ptr<AbstractIvpOdeSolver>(), voltageIndex, pIntracellularStimulus),
       AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mpCvodeMem(NULL),
-      mMaxSteps(0)
+      mMaxSteps(0),
+      mMaxDt(DOUBLE_UNSET)
 {
     SetTolerances();
 }
@@ -178,10 +179,20 @@ void AbstractCvodeCell::SetVoltageDerivativeToZero(bool clamp)
     mSetVoltageDerivativeToZero = clamp;
 }
 
+
+void AbstractCvodeCell::SetTimestep(double maxDt)
+{
+    mMaxDt = maxDt;
+}
+
+
 void AbstractCvodeCell::SolveAndUpdateState(double tStart, double tEnd)
 {
-    double max_dt = HeartConfig::Instance()->GetPrintingTimeStep();
-    Solve(tStart, tEnd, max_dt);
+    if (mMaxDt == DOUBLE_UNSET)
+    {
+        SetTimestep(HeartConfig::Instance()->GetPrintingTimeStep());
+    }
+    Solve(tStart, tEnd, mMaxDt);
 }
 
 OdeSolution AbstractCvodeCell::Compute(double tStart, double tEnd, double tSamp)
@@ -190,7 +201,11 @@ OdeSolution AbstractCvodeCell::Compute(double tStart, double tEnd, double tSamp)
     {
         tSamp = HeartConfig::Instance()->GetPrintingTimeStep();
     }
-    return Solve(tStart, tEnd, tSamp, tSamp);
+    if (mMaxDt == DOUBLE_UNSET)
+    {
+        SetTimestep(tSamp);
+    }
+    return Solve(tStart, tEnd, mMaxDt, tSamp);
 }
 
 

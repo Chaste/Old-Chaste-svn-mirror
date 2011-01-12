@@ -78,6 +78,13 @@ public:
     virtual void ResetToInitialConditions()=0;
     
     /**
+     * Set the timestep (or maximum timestep) to use for simulating this cell.
+     *
+     * @param dt  the timestep
+     */
+    virtual void SetTimestep(double dt)=0;
+
+    /**
      * Simulate this cell's behaviour between the time interval [tStart, tEnd],
      * updating the internal state variable values.
      * The timestep used will depend on the subclass implementation.

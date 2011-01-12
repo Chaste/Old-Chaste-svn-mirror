@@ -150,6 +150,13 @@ public:
     void ResetToInitialConditions();
     
     /**
+     * Set the timestep to use for simulating this cell.
+     *
+     * @param dt  the timestep
+     */
+    void SetTimestep(double dt);
+
+    /**
      * Simulate this cell's behaviour between the time interval [tStart, tEnd],
      * with timestemp #mDt, updating the internal state variable values.
      *

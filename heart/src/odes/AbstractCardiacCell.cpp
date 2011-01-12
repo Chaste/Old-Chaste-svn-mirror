@@ -60,6 +60,11 @@ void AbstractCardiacCell::ResetToInitialConditions()
     SetStateVariables(GetInitialConditions());
 }
 
+void AbstractCardiacCell::SetTimestep(double dt)
+{
+    mDt = dt;
+}
+
 void AbstractCardiacCell::SolveAndUpdateState(double tStart, double tEnd)
 {
     mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);

@@ -127,8 +127,8 @@ public:
 
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
-        // More "coverage"
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetSolver(), p_solver);
+        // More "coverage" - CVODE cells don't have a solver
+        TS_ASSERT(!lr91_cvode_system.GetSolver());
 
         boost::shared_ptr<AbstractStimulusFunction> p_abs_stim = lr91_cvode_system.GetStimulusFunction();
         double period_back = boost::static_pointer_cast<RegularStimulus>(p_abs_stim)->GetPeriod();

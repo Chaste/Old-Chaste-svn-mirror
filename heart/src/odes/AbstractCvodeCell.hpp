@@ -85,6 +85,9 @@ protected:
     /** The size of the previous timestep. */
     double mLastInternalStepSize;
 
+    /** The maximum timestep to use. */
+    double mMaxDt;
+
     /**
      * Used to include extra debugging information in exception messages, e.g.
      *  EXCEPTION(DumpState("Gating variable out of range"));
@@ -198,11 +201,18 @@ public:
     //
 
     /**
+     * Set the maximum timestep to use for simulating this cell.
+     *
+     * @param maxDt  the maximum timestep
+     */
+    void SetTimestep(double maxDt);
+
+    /**
      * Simulate this cell's behaviour between the time interval [tStart, tEnd],
      * updating the internal state variable values.
      * 
-     * The maximum time step to use is given by HeartConfig::Instance()->GetPrintingTimeStep().
-     * This is a bit of a hack.
+     * The maximum time step to use is given by #mMaxDt, which defaults to
+     * HeartConfig::Instance()->GetPrintingTimeStep() if unset.
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
@@ -213,9 +223,9 @@ public:
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * and return state variable values.
      * 
-     * The maximum time step to use will be taken the same as the sampling time
-     * step, which defaults to HeartConfig::Instance()->GetPrintingTimeStep().
-     * This is a bit of a hack.
+     * The maximum time step to use will be taken as #mMaxDt.  If this is unset
+     * it is the same as the sampling interval, which defaults to
+     * HeartConfig::Instance()->GetPrintingTimeStep().
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate

@@ -152,6 +152,8 @@ public:
         TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
         CheckCai(normal, true, 0.0002);
         double normal_initial_i_ionic = normal.GetIIonic();
+        // Coverage
+        normal.SetTimestep(HeartConfig::Instance()->GetOdeTimeStep());
 
         // Optimised model
         CellLuoRudy1991FromCellMLOpt opt(p_solver, p_stimulus);
