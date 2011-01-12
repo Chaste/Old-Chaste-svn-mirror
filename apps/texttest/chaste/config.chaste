@@ -67,7 +67,7 @@ resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
 
 [collate_script]
 #Some HDF5 files (S1S2) we only check for size - as number of blocks
-size_of_h5:stat -b %s
+size_of_h5:stat -c %b
 # We need to translate hdf5 files into text in order to compare them with diff
 results_h5:h5dump
 # (After h5dump) some HDF5 file results are piped through a filter to round to a certain number of decimal places
