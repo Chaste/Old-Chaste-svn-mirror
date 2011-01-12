@@ -1,11 +1,20 @@
 = Running a simple example: propagation in a tissue fibre =
 
-=== Running the simulation ===
+=== Getting the data ===
 
-Change directory to {{{simulations/propagation1d}}}
+Download and save the attached file [attachment:Propagation1d.tgz Propagation1d.tgz].
+Either use an Archive Manager to extract the content to disk or save it and then unpack it with
 {{{
 #!sh
-cd simulations/propagation1d
+tar xvfz  Propagation1d.tgz
+}}}
+
+=== Running the simulation ===
+
+Change directory to {{{Propagation1d}}}
+{{{
+#!sh
+cd Propagation1d
 }}}
 
 In this folder you will find the following files:
