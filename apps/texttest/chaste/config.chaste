@@ -47,8 +47,8 @@ results_phi_e_dat:ChasteResults/output/SimulationResults_Phi_e.dat
 mesh_pts:ChasteResults/output/SimulationResults_mesh.pts
 mesh_tetras:ChasteResults/output/SimulationResults_mesh.tetras
 mesh_tri:ChasteResults/output/SimulationResults_mesh.tri
-mesh_pts:ChasteResults/output/S1S2Results_mesh.pts
-mesh_tri:ChasteResults/output/S1S2Results_mesh.tri
+mesh_s1s2_pts:ChasteResults/output/S1S2Results_mesh.pts
+mesh_s1s2_tri:ChasteResults/output/S1S2Results_mesh.tri
 size_of_h5:ChasteResults/S1S2Results.h5
 
 # Extra files to test against in postprocess_monodomain
@@ -103,6 +103,8 @@ output:from revision number
 mesh_tri:Created by Chaste
 mesh_pts:Created by Chaste
 mesh_tetras:Created by Chaste
+mesh_s1s2_tri:Created by Chaste
+mesh_s1s2_pts:Created by Chaste
 # Ignore provenance in Meshalyzer data output
 results_v_dat: Created by Chaste
 results_phi_e_dat: Created by Chaste
