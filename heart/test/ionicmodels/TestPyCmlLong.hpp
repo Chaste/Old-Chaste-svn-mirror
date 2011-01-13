@@ -131,7 +131,7 @@ private:
     void CheckResults(const std::string& rModelName,
                       std::vector<double>& rVoltages,
                       std::vector<double>& rTimes,
-                      double tolerance=1e-3)
+                      double tolerance=1.0)
     {
         // Read data entries for the reference file
         ColumnDataReader data_reader("heart/test/data/cellml", rModelName, false);
