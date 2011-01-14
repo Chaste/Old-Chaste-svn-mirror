@@ -1721,8 +1721,8 @@ public:
 
     void TestNodeExchange()
     {
-        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
-        TetrahedralMesh<3,3> mesh;
+        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_800_elements");
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
         
         std::vector<std::vector<unsigned> > nodes_to_send_per_process; 
