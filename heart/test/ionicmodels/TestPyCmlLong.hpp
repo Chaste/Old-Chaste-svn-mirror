@@ -112,25 +112,22 @@ private:
                 pCell->SetTimestep(dt);
             }
         }
-        if (GetAttribute(pCell, "StandardStimulusFails", 0.0) != 0.0 && pCell->HasCellMLDefaultStimulus())
-        {
-            pCell->UseCellMLDefaultStimulus();
-            std::cout << "*** Using CellML stimulus for " << rModelName << std::endl;
-        }
         double sampling_interval = 2.0; // ms
         OdeSolution solution = pCell->Compute(0.0, end_time, sampling_interval);
-        solution.WriteToFile(rOutputDirName, rModelName, "ms", 1, false);
+        const unsigned output_freq = 5; // Only output every N samples
+        solution.WriteToFile(rOutputDirName, rModelName, "ms", output_freq, false);
         // Check an AP was produced
         std::vector<double> voltages = solution.GetVariableAtIndex(pCell->GetVoltageIndex());
         CellProperties props(voltages, solution.rGetTimes());
-        props.GetLastActionPotentialDuration(90.0); // Don't catch the exception if it's thrown
+        props.GetLastActionPotentialDuration(90.0); // Don't catch the exception here if it's thrown
         // Compare against saved results
-        CheckResults(rModelName, voltages, solution.rGetTimes());
+        CheckResults(rModelName, voltages, solution.rGetTimes(), output_freq);
     }
 
     void CheckResults(const std::string& rModelName,
                       std::vector<double>& rVoltages,
                       std::vector<double>& rTimes,
+                      unsigned outputFreq,
                       double tolerance=1.0)
     {
         // Read data entries for the reference file
@@ -138,11 +135,11 @@ private:
         std::vector<double> valid_times = data_reader.GetValues("Time");
         std::vector<double> valid_voltages = GetVoltages(data_reader);
 
-        TS_ASSERT_EQUALS(rTimes.size(), valid_times.size());
+        TS_ASSERT_EQUALS(rTimes.size(), (valid_times.size()-1)*outputFreq+1);
         for (unsigned i=0; i<valid_times.size(); i++)
         {
-            TS_ASSERT_DELTA(rTimes[i], valid_times[i], 1e-12);
-            TS_ASSERT_DELTA(rVoltages[i], valid_voltages[i], tolerance);
+            TS_ASSERT_DELTA(rTimes[i*outputFreq], valid_times[i], 1e-12);
+            TS_ASSERT_DELTA(rVoltages[i*outputFreq], valid_voltages[i], tolerance);
         }
     }
 
@@ -203,7 +200,8 @@ private:
         CellMLToSharedLibraryConverter converter;
         FileFinder copied_file(rOutputDirName + "/" + rModelName + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
-        boost::shared_ptr<AbstractCardiacCellInterface> p_cell(CreateCellWithStandardStimulus(*p_loader));
+        // Apply a stimulus of -40 uA/cm^2 - should work for all models
+        boost::shared_ptr<AbstractCardiacCellInterface> p_cell(CreateCellWithStandardStimulus(*p_loader, -40.0));
 
         // Check lookup tables exist if they should
         if (testLookupTables && rModelName != "hodgkin_huxley_squid_axon_model_1952_modified")

@@ -92,11 +92,12 @@ void CopyFile(const OutputFileHandler& rDestDir,
  * Create a new cell object from a cell model loader.
  *
  * @param rLoader  the loader
+ * @param magnitude  the magnitude of the stimulus to apply, in uA/cm^2 (duration of 2ms and when of 50ms are fixed)
  */
-AbstractCardiacCellInterface* CreateCellWithStandardStimulus(DynamicCellModelLoader& rLoader)
+AbstractCardiacCellInterface* CreateCellWithStandardStimulus(DynamicCellModelLoader& rLoader,
+                                                             double magnitude=-25.5) // uA/cm^2
 {
     // Set stimulus
-    double magnitude = -25.5; // uA/cm^2
     double duration  = 2.0; // ms
     double when = 50.0; // ms
     boost::shared_ptr<AbstractStimulusFunction> p_stimulus(new SimpleStimulus(magnitude, duration, when));
