@@ -42,6 +42,10 @@ ChasteEllipsoid<SPACE_DIM>::ChasteEllipsoid(ChastePoint<SPACE_DIM>& rCentre, Cha
     }
 }
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template <>
 bool ChasteEllipsoid<1>::DoesContain(const ChastePoint<1>& rPointToCheck) const
 {
@@ -55,7 +59,15 @@ bool ChasteEllipsoid<1>::DoesContain(const ChastePoint<1>& rPointToCheck) const
         return true;
     }
 }
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template <>
 bool ChasteEllipsoid<2>::DoesContain(const ChastePoint<2>& rPointToCheck) const
 {
@@ -71,7 +83,15 @@ bool ChasteEllipsoid<2>::DoesContain(const ChastePoint<2>& rPointToCheck) const
         return true;
     }
 }
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template <>
 bool ChasteEllipsoid<3>::DoesContain(const ChastePoint<3>& rPointToCheck) const
 {
@@ -88,6 +108,10 @@ bool ChasteEllipsoid<3>::DoesContain(const ChastePoint<3>& rPointToCheck) const
         return true;
     }
 }
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 
 template <unsigned SPACE_DIM>
 const ChastePoint<SPACE_DIM>& ChasteEllipsoid<SPACE_DIM>::rGetCentre() const
