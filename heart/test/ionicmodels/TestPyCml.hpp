@@ -294,7 +294,7 @@ public:
         double opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tOptimised: " << opt_time << std::endl;
 
-        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 2e-3, true);
+        CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlOpt", 2e-3, true);
 
         RunOdeSolverWithIonicModel(&opt,
                                    i_ionic_end_time,
@@ -313,7 +313,7 @@ public:
         double be_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tBackward Euler: " << be_time << std::endl;
 
-        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEuler", 2e-2, true);
+        CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlBackwardEuler", 2e-2, true);
 
         RunOdeSolverWithIonicModel(&be,
                                    i_ionic_end_time,
@@ -396,12 +396,12 @@ public:
             RunOdeSolverWithIonicModel(p_opt_cell,
                                        end_time,
                                        "Lr91FromPyCmlOptAfterArchive");
-            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOptAfterArchive", 2e-3, true);
+            CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlOptAfterArchive", 2e-3, true);
 
             RunOdeSolverWithIonicModel(p_be_cell,
                                        end_time,
                                        "Lr91FromPyCmlBackwardEulerAfterArchive");
-            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEulerAfterArchive", 1e-2, true);
+            CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlBackwardEulerAfterArchive", 1e-2, true);
 
             delete p_normal_cell;
             delete p_opt_cell;

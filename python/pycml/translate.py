@@ -4496,7 +4496,8 @@ class ConfigurationStore(object):
                 if find_units_match(u, current_units, keep_only_match=True):
                     ionic_vars.append(v.get_source_variable(recurse=True))
             # Fake this variable being 1 so we can check the sign of GetIIonic
-            v.set_value(1.0)
+            if not v.is_statically_const(ignore_annotations=True):
+                v.set_value(1.0)
         
         def bfs(func, vars, *args, **kwargs):
             """Do a breadth first search of the definitions of variables in vars.
@@ -4534,7 +4535,9 @@ class ConfigurationStore(object):
             
             Initially, A_per_F is removed from the list, since the RHS of dV/dt should always
             have equivalent dimensions.  If another option can't be found within maxdepth levels,
-            we restart the search with A_per_F included.
+            we restart the search with A_per_F included.  The depth limit is intended to guard against
+            unexpectedly finding something that isn't a current; it's somewhat dodgy, but won't
+            break on any model I know, and I haven't thought of a better approach yet.
             
             When one variable with suitable units is found, further ionic currents must have units
             equivalent to its to be found.  Also once one ionic current is found, only the remaining
@@ -4578,7 +4581,7 @@ class ConfigurationStore(object):
                     u = v.component.get_units_by_name(v.units)
                     if u.dimensionally_equivalent(current_units[0]):
                         v.set_value(0.0)
-                    else:
+                    elif not v.is_statically_const(ignore_annotations=True):
                         v.set_value(1.0)
                     vars.append(v)
             for expr in exprs:
@@ -4636,10 +4639,10 @@ class ConfigurationStore(object):
                     raise ConfigurationError(msg)
                 else:
                     print >>sys.stderr, msg
-        # For other ionic currents, try using the equation for dV/dt first
-        self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
-        # Otherwise use the config file, if permitted
-        if not self.i_ionic_vars and self.options.allow_i_ionic_fallback:
+        # For other ionic currents, try using the equation for dV/dt unless told otherwise
+        if not self.options.use_i_ionic_regexp:
+            self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
+        else:
             for defn in self.i_ionic_definitions:
                 if getattr(defn, u'type', u'name') != u'name':
                     raise ConfigurationError('Ionic current definitions have to have type "name"')
@@ -4919,10 +4922,10 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="perform units conversions at interfaces to Chaste."
                       " (only works if -t Chaste is used)")
-    parser.add_option('--no-i-ionic-fallback', dest='allow_i_ionic_fallback',
-                      action='store_false', default=True,
-                      help="don't fall back to using currents specified in the config file"
-                      " if they can't be determined from the voltage derivative equation")
+    parser.add_option('--use-i-ionic-regexp', dest='use_i_ionic_regexp',
+                      action='store_true', default=False,
+                      help="determine ionic currents from the regexp specified in the config file"
+                      " rather than analysing the voltage derivative equation")
     parser.add_option('--fast-fixed-timestep',
                       action='store_true', default=False,
                       help="[experimental] fix ODE timestep to be equal to the PDE timestep"

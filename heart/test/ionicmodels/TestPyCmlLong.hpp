@@ -265,7 +265,6 @@ public:
         std::string dirname("TestPyCmlNightlyNormal");
         std::vector<std::string> args;
         args.push_back("--Wu");
-        args.push_back("--no-i-ionic-fallback");
         std::vector<std::string> models;
         AddAllModels(models);
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.1, 1.0);
@@ -277,7 +276,6 @@ public:
         std::string dirname("TestPyCmlNightlyOpt");
         std::vector<std::string> args;
         args.push_back("--Wu");
-        args.push_back("--no-i-ionic-fallback");
         args.push_back("--opt");
         std::vector<std::string> models;
         AddAllModels(models);
@@ -289,7 +287,6 @@ public:
         std::string dirname("TestPyCmlNightlyCvode");
         std::vector<std::string> args;
         args.push_back("--Wu");
-        args.push_back("--no-i-ionic-fallback");
         args.push_back("--cvode");
         std::vector<std::string> models;
         AddAllModels(models);
@@ -301,7 +298,6 @@ public:
         std::string dirname("TestPyCmlNightlyBE");
         std::vector<std::string> args;
         args.push_back("--Wu");
-        args.push_back("--no-i-ionic-fallback");
         args.push_back("--backward-euler");
         std::vector<std::string> models;
 
@@ -342,7 +338,7 @@ public:
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.1, 1.0);
         RunTests(dirname, models, args, true);
-        
+
         dirname = dirname + "-difficult";
         models.clear();
         models.push_back("bondarenko_model_2004_apex");
