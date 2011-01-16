@@ -218,7 +218,7 @@ private:
     void AddAllModels(std::vector<std::string>& rModels)
     {
         rModels.push_back("aslanidi_model_2009");
-//        rModels.push_back("beeler_reuter_model_1977");
+        rModels.push_back("beeler_reuter_model_1977");
         rModels.push_back("bondarenko_model_2004_apex");
         rModels.push_back("courtemanche_ramirez_nattel_model_1998");
         rModels.push_back("decker_2009");
@@ -302,7 +302,7 @@ public:
         std::vector<std::string> models;
 
         models.push_back("aslanidi_model_2009");
-//        models.push_back("beeler_reuter_model_1977");
+        models.push_back("beeler_reuter_model_1977");
         models.push_back("courtemanche_ramirez_nattel_model_1998");
         models.push_back("demir_model_1994");
         models.push_back("dokos_model_1996");

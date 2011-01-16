@@ -15,7 +15,7 @@ http://www.CellML.org/
 	     <named-attribute xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#"> 
 	        <rdf:Description> 
 	           <name rdf:datatype="http://www.w3.org/2000/10/XMLSchema#string">SuggestedForwardEulerTimestep</name> 
-	           <value rdf:datatype="http://www.w3.org/2000/10/XMLSchema#double">0.0005</value> 
+	           <value rdf:datatype="http://www.w3.org/2000/10/XMLSchema#double">0.0001</value> 
 	        </rdf:Description> 
 	     </named-attribute> 
 	  </rdf:Description> 

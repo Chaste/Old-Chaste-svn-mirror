@@ -83,12 +83,15 @@ http://www.CellML.org/
             <apply>
                <divide/>
                   <apply>
-                     <plus/>
+                     <minus/>
                      <ci>Istim</ci>
-                     <ci>i_Na</ci>
-                     <ci>i_s</ci>
-                     <ci>i_x1</ci>
-                     <ci>i_K1</ci>
+                     <apply>
+                        <plus/>
+                        <ci>i_Na</ci>
+                        <ci>i_s</ci>
+                        <ci>i_x1</ci>
+                        <ci>i_K1</ci>
+                     </apply>
                   </apply>
                <ci>C</ci>
             </apply>
@@ -1045,7 +1048,7 @@ http://www.CellML.org/
          </rdf:RDF>
       </variable>
       <variable name="IstimEnd" units="ms" initial_value="50000"/>
-      <variable name="IstimAmplitude" units="uA_per_mm2" initial_value="-0.5" cmeta:id="membrane_stimulus_current_amplitude">
+      <variable name="IstimAmplitude" units="uA_per_mm2" initial_value="0.5" cmeta:id="membrane_stimulus_current_amplitude">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_amplitude">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_amplitude"/>
