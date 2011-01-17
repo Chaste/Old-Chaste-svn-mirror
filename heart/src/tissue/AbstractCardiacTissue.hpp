@@ -276,6 +276,13 @@ protected:
     std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;
 
 
+    /**
+     * If the mesh is a tetrahedral mesh then all elements and nodes are known.
+     * The halo nodes to the ones which are actually used in as cardiac cells
+     * must be calculated explicitly.
+     */
+    void CalculateHaloNodesFromNodeExchange();
+    
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.

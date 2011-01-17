@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscVecTools.hpp"
+#include "Debug.hpp"
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -53,6 +54,11 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     assert(pCellFactory != NULL);
     assert(pCellFactory->GetMesh() != NULL);
 
+    if (PetscTools::IsSequential())
+    {
+        //Remove the request for a halo exchange
+        mExchangeHalos = false;
+    }
     if (mExchangeHalos)
     {
         mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
@@ -100,7 +106,9 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     // Halo nodes (if required)
     if (mExchangeHalos)
     {
-        mpMesh->GetHaloNodeIndices( mHaloNodes );
+        //Note that the following call will not work for a TetrahedralMesh which has no concept of halo nodes.
+        //mpMesh->GetHaloNodeIndices( mHaloNodes );
+        CalculateHaloNodesFromNodeExchange();
         unsigned num_halo_nodes = mHaloNodes.size();
         mHaloCellsDistributed.resize( num_halo_nodes );
 
@@ -391,6 +399,21 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
     message << "Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank();
     EXCEPTION(message.str().c_str());
 }
+
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CalculateHaloNodesFromNodeExchange()
+{
+    PRINT_VECTOR(mHaloNodes);
+    std::set<unsigned> halos_as_set;
+    for (unsigned proc=0; proc<PetscTools::GetNumProcs(); proc++)
+    {
+        halos_as_set.insert(mNodesToReceivePerProcess[proc].begin(), mNodesToReceivePerProcess[proc].end());
+    }
+    mHaloNodes = std::vector<unsigned>(halos_as_set.begin(), halos_as_set.end());
+    PRINT_VECTOR(mHaloNodes);
+}
+
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime, bool updateVoltage)
