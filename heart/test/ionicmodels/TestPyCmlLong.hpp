@@ -97,6 +97,7 @@ private:
             return GetAttribute(p_cvode, rAttrName, defaultValue);
         }
 #endif
+        EXCEPTION("Unrecognised cell type.");
     }
 
     void Simulate(const std::string& rOutputDirName,
