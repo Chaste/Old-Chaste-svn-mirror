@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscVecTools.hpp"
-#include "Debug.hpp"
-
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
@@ -404,14 +402,12 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CalculateHaloNodesFromNodeExchange()
 {
-    PRINT_VECTOR(mHaloNodes);
     std::set<unsigned> halos_as_set;
     for (unsigned proc=0; proc<PetscTools::GetNumProcs(); proc++)
     {
         halos_as_set.insert(mNodesToReceivePerProcess[proc].begin(), mNodesToReceivePerProcess[proc].end());
     }
     mHaloNodes = std::vector<unsigned>(halos_as_set.begin(), halos_as_set.end());
-    PRINT_VECTOR(mHaloNodes);
 }
 
 
@@ -485,7 +481,8 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
 
                 for ( unsigned cell = 0; cell < number_of_cells_to_send; cell++ )
                 {
-                    std::vector<double>& cell_data = mCellsDistributed[mHaloGlobalToLocalIndexMap[mNodesToSendPerProcess[send_to][cell]]]->rGetStateVariables();
+                    unsigned global_cell_index = mNodesToSendPerProcess[send_to][cell];
+                    std::vector<double>& cell_data = mCellsDistributed[global_cell_index - mpDistributedVectorFactory->GetLow() ]->rGetStateVariables();
                     for (unsigned state_variable = 0; state_variable < number_of_state_variables; state_variable++)
                     {
                         send_data[ cell*number_of_state_variables + state_variable ] = cell_data[state_variable];

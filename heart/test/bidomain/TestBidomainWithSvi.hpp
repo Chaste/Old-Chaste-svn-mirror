@@ -90,7 +90,7 @@ public:
         std::vector<double> conduction_vel_nci(3);
         std::vector<double> conduction_vel_svi(3);
 
-        ReplicatableVector final_solution_nci;
+        ReplicatableVector final_voltage_ici;
         ReplicatableVector final_solution_svi;
 
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
@@ -98,13 +98,13 @@ public:
 
         for(unsigned i=0; i<3; i++)
         {
-            // NCI - nodal current interpolation - the default
+            // ICI - ionic current interpolation - the default
             {
                 TetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
     
                 std::stringstream output_dir;
-                output_dir << "BidomainNci_" << h[i];
+                output_dir << "BidomainIci_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
     
@@ -118,7 +118,7 @@ public:
             
                 bidomain_problem.Solve();
                     
-                final_solution_nci.ReplicatePetscVector(bidomain_problem.GetSolution());
+                final_voltage_ici.ReplicatePetscVector(bidomain_problem.GetSolution());
             }
        
             // SVI - state variable interpolation
@@ -153,24 +153,24 @@ public:
             double voltage_at_0_03_finest_mesh;
             if(i==0) // finest mesh
             {        
-                for(unsigned j=0; j<final_solution_nci.GetSize(); j++)
+                for(unsigned j=0; j<final_voltage_ici.GetSize(); j++)
                 {
                     // visually checked they agree at this mesh resolution, and chosen tolerance from results
-                    TS_ASSERT_DELTA(final_solution_nci[j], final_solution_svi[j], 0.35);
+                    TS_ASSERT_DELTA(final_voltage_ici[j], final_solution_svi[j], 0.35);
                     
-                    if(j%2==0 /* just look at voltage */ && final_solution_nci[j]>-80) 
+                    if(j%2==0 /* just look at voltage */ && final_voltage_ici[j]>-80) 
                     {
                         // shouldn't be exactly equal, as long as away from resting potential
-                        TS_ASSERT_DIFFERS(final_solution_nci[j], final_solution_svi[j]);
+                        TS_ASSERT_DIFFERS(final_voltage_ici[j], final_solution_svi[j]);
                     }
                 }
                 
-                voltage_at_0_03_finest_mesh = final_solution_nci[600];
+                voltage_at_0_03_finest_mesh = final_voltage_ici[600];
                 TS_ASSERT_DELTA(voltage_at_0_03_finest_mesh, -65.2218, 1e-3); //hardcoded value
             }
             else if(i==1)
             {
-                double nci_voltage_at_0_03_middle_mesh = final_solution_nci[60];
+                double nci_voltage_at_0_03_middle_mesh = final_voltage_ici[60];
                 double svi_voltage_at_0_03_middle_mesh = final_solution_svi[60];
                 // NCI conduction velocity > SVI conduction velocity
                 // and both should be greater than CV on finesh mesh 
@@ -179,7 +179,7 @@ public:
             }
             else
             {
-                double nci_voltage_at_0_03_coarse_mesh = final_solution_nci[30];
+                double nci_voltage_at_0_03_coarse_mesh = final_voltage_ici[30];
                 double svi_voltage_at_0_03_coarse_mesh = final_solution_svi[30];
                 // NCI conduction velocity even greater than SVI conduction 
                 // velocity
@@ -193,7 +193,7 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        ReplicatableVector final_solution_nci;
+        ReplicatableVector final_voltage_ici;
         ReplicatableVector final_solution_svi;
 
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
@@ -219,7 +219,7 @@ public:
             bidomain_problem.Initialise();
             bidomain_problem.Solve();
         
-            final_solution_nci.ReplicatePetscVector(bidomain_problem.GetSolution());
+            final_voltage_ici.ReplicatePetscVector(bidomain_problem.GetSolution());
         }
    
         // SVI - state variable interpolation
@@ -247,10 +247,10 @@ public:
         // directions
 
         // node 20 (for h=0.02) is on the x-axis (fibre direction)
-        TS_ASSERT_DELTA(final_solution_nci[20*2], 22.1924, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_ici[20*2], 22.1924, 1e-3);
         TS_ASSERT_DELTA(final_solution_svi[20*2], 14.7526, 1e-3);
         // node 234 (for h=0.02) is on the y-axis (cross-fibre direction)
-        TS_ASSERT_DELTA(final_solution_nci[234*2], 19.5676, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_ici[234*2], 19.5676, 1e-3);
         TS_ASSERT_DELTA(final_solution_svi[234*2], 13.6111, 1e-3);
     }
 };

@@ -125,24 +125,33 @@ public:
         EXIT_IF_PARALLEL;
         
         double h[3] = {0.001,0.01,0.02};
+        unsigned probe_node_index[3] = {300, 30, 15};
+        unsigned number_of_nodes[3] = {1001, 101, 51};
         std::vector<double> conduction_vel_nci(3);
         std::vector<double> conduction_vel_svi(3);
 
-        ReplicatableVector final_voltage_nci;
+        ReplicatableVector final_voltage_ici;
         ReplicatableVector final_voltage_svi;
 
+        //HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         for(unsigned i=0; i<3; i++)
         {
-            // NCI - nodal current interpolation - the default
+            // ICI - ionic current interpolation - the default
             {
-                TetrahedralMesh<1,1> mesh;
+                DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
-    
+                TS_ASSERT_EQUALS(mesh.GetNumNodes(), number_of_nodes[i]);
+                
+                //Double check (for later) that the indexing is as expected
+                if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index[i] ))
+                {
+                    TS_ASSERT_DELTA(mesh.GetNode( probe_node_index[i] )->rGetLocation()[0], 0.3, 1e-8);
+                }
                 std::stringstream output_dir;
-                output_dir << "MonodomainNci_" << h[i];
+                output_dir << "MonodomainIci_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
     
@@ -156,7 +165,7 @@ public:
             
                 monodomain_problem.Solve();
                     
-                final_voltage_nci.ReplicatePetscVector(monodomain_problem.GetSolution());
+                final_voltage_ici.ReplicatePetscVector(monodomain_problem.GetSolution());
 
 //// see #1633
 //// end time needs to be increased for these (say, to 7ms)
@@ -176,6 +185,11 @@ public:
                 DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
     
+                //Double check (for later) that the indexing is as expected
+                if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index[i] ))
+                {
+                    TS_ASSERT_DELTA(mesh.GetNode( probe_node_index[i] )->rGetLocation()[0], 0.3, 1e-8);
+                }
                 std::stringstream output_dir;
                 output_dir << "MonodomainSvi_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
@@ -190,8 +204,10 @@ public:
 
                 if(i==0)
                 {
+                    //This block is for exception coverage
                     monodomain_problem.UseMatrixBasedRhsAssembly(false);
                     TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),"State variable interpolation only available");
+                    
                     monodomain_problem.UseMatrixBasedRhsAssembly(true);
                 }
                             
@@ -210,40 +226,41 @@ public:
 //                std::cout << "conduction_vel_svi = " << conduction_vel_svi[i] << "\n";
             }
 
-            double voltage_at_0_03_finest_mesh;
             if(i==0) // finest mesh
             {        
-                for(unsigned j=0; j<final_voltage_nci.GetSize(); j++)
+                for(unsigned j=0; j<final_voltage_ici.GetSize(); j++)
                 {
                     // visually checked they agree at this mesh resolution, and chosen tolerance from results
-                    TS_ASSERT_DELTA(final_voltage_nci[j], final_voltage_svi[j], 0.3);
+                    TS_ASSERT_DELTA(final_voltage_ici[j], final_voltage_svi[j], 0.3);
                     
-                    if(final_voltage_nci[j]>-80)
+                    if(final_voltage_ici[j]>-80)
                     {
                         // shouldn't be exactly equal, as long as away from resting potential
-                        TS_ASSERT_DIFFERS(final_voltage_nci[j], final_voltage_svi[j]);
+                        TS_ASSERT_DIFFERS(final_voltage_ici[j], final_voltage_svi[j]);
                     }
                 }
                 
-                voltage_at_0_03_finest_mesh = final_voltage_nci[300];
-                TS_ASSERT_DELTA(voltage_at_0_03_finest_mesh, 11.1182, 1e-3); //hardcoded value
+                double ici_voltage_at_0_03_finest_mesh = final_voltage_ici[ probe_node_index[i] ];
+                double svi_voltage_at_0_03_finest_mesh = final_voltage_svi[ probe_node_index[i] ];
+                TS_ASSERT_DELTA(svi_voltage_at_0_03_finest_mesh, 11.0067, 1e-4); //hardcoded value from fine svi
+                TS_ASSERT_DELTA(ici_voltage_at_0_03_finest_mesh, 11.0067, 1.2e-1); //hardcoded value from fine svi
             }
             else if(i==1)
             {
-                double nci_voltage_at_0_03_middle_mesh = final_voltage_nci[30];
-                double svi_voltage_at_0_03_middle_mesh = final_voltage_svi[30];
-                // NCI conduction velocity > SVI conduction velocity
+                double ici_voltage_at_0_03_middle_mesh = final_voltage_ici[ probe_node_index[i] ];
+                double svi_voltage_at_0_03_middle_mesh = final_voltage_svi[ probe_node_index[i] ];
+                // ICI conduction velocity > SVI conduction velocity
                 // and both should be greater than CV on finesh mesh 
-                TS_ASSERT_DELTA(nci_voltage_at_0_03_middle_mesh, 19.8924, 1e-3);
+                TS_ASSERT_DELTA(ici_voltage_at_0_03_middle_mesh, 19.8924, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_middle_mesh, 14.9579, 1e-3);
             }
             else
             {
-                double nci_voltage_at_0_03_coarse_mesh = final_voltage_nci[15];
-                double svi_voltage_at_0_03_coarse_mesh = final_voltage_svi[15];
-                // NCI conduction velocity even greater than SVI conduction 
+                double ici_voltage_at_0_03_coarse_mesh = final_voltage_ici[ probe_node_index[i] ];
+                double svi_voltage_at_0_03_coarse_mesh = final_voltage_svi[ probe_node_index[i] ];
+                // ICI conduction velocity even greater than SVI conduction 
                 // velocity
-                TS_ASSERT_DELTA(nci_voltage_at_0_03_coarse_mesh, 24.4938, 1e-3);
+                TS_ASSERT_DELTA(ici_voltage_at_0_03_coarse_mesh, 24.4938, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_coarse_mesh, 17.3131, 1e-3);
             }
         }
@@ -253,16 +270,16 @@ public:
     {
         EXIT_IF_PARALLEL;
 
-        ReplicatableVector final_voltage_nci;
+        ReplicatableVector final_voltage_ici;
         ReplicatableVector final_voltage_svi;
 
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.01);
         
-        // much lower conductivity in cross-fibre direction - NCI will struggle
+        // much lower conductivity in cross-fibre direction - ICI will struggle
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.17));
         
-        // NCI - nodal current interpolation - the default
+        // ICI - nodal current interpolation - the default
         {
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
@@ -278,7 +295,7 @@ public:
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
         
-            final_voltage_nci.ReplicatePetscVector(monodomain_problem.GetSolution());
+            final_voltage_ici.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
    
         // SVI - state variable interpolation
@@ -303,16 +320,16 @@ public:
         
         // Visualised results with h=0.02 and h=0.01 - results looks sensible according to 
         // paper:
-        // 1. SVI h=0.01 and h=0.02 match more closely than NCI results - ie SVI converges faster
-        // 2. CV in fibre direction faster for NCI (both values of h)
-        // 3. CV in cross fibre direction: (i) h=0.01, faster for NCI; h=0.02 slower for NCI. 
+        // 1. SVI h=0.01 and h=0.02 match more closely than ICI results - ie SVI converges faster
+        // 2. CV in fibre direction faster for ICI (both values of h)
+        // 3. CV in cross fibre direction: (i) h=0.01, faster for ICI; h=0.02 slower for ICI. 
         // (Matches results in paper)
         
         // node 20 (for h=0.02) is on the x-axis (fibre direction), SVI CV is slower
-        TS_ASSERT_DELTA(final_voltage_nci[20], -9.2269, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_ici[20], -9.2269, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svi[20], -60.8510, 1e-3);
-        // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), NCI CV is slower
-        TS_ASSERT_DELTA(final_voltage_nci[130], 14.7918, 1e-3);
+        // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), ICI CV is slower
+        TS_ASSERT_DELTA(final_voltage_ici[130], 14.7918, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
     }
     

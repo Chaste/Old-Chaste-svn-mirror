@@ -58,7 +58,7 @@ c_vector<double,1*(ELEM_DIM+1)> MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE
     AbstractCardiacCell* p_any_cell = this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_global_index);
     double ionic_sv_interp = p_any_cell->GetIIonic(&(this->mStateVariablesAtQuadPoint));
 
-    // add on the SVI ionic current, and take away the original NCI (linearly
+    // add on the SVI ionic current, and take away the original ICI (linearly
     // interpolated ionic current) that would have been added as part of
     // the matrix-based assembly stage.
     return rPhi * (-Am) * ( ionic_sv_interp - this->mIionicInterp );
