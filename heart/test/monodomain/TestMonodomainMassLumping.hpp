@@ -98,6 +98,7 @@ public:
 
     void TestCompareCubePlaneStimulusOnlyPrecondLumping() throw(Exception)
     {
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSimulationDuration(20); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01,0.1,0.1);
         double spatial_step = 0.05;
