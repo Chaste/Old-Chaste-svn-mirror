@@ -209,6 +209,79 @@ public:
         TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(),13u);
     }
 
+    void TestResetTimeStep() throw(Exception)
+    {
+        double timestep = 0.1;
+        TimeStepper stepper(0.0, 0.5, timestep, false);
+        
+        TS_ASSERT_EQUALS(stepper.GetNextTimeStep(), timestep);
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.0);
+        TS_ASSERT_EQUALS(stepper.GetNextTime(), timestep);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 5u);
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.1);
+        
+        timestep = 0.05;
+        stepper.ResetTimeStep(timestep);
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), timestep, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.15, 1e-12);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 8u);
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_DELTA(stepper.GetTime(), 0.15, 1e-12);
+        
+        timestep = 0.25;
+        stepper.ResetTimeStep(timestep);
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), timestep, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.4, 1e-12);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 1u); // just an estimate
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_DELTA(stepper.GetTime(), 0.4, 1e-12);
+        
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.1, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.5, 1e-12);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 1u);
+        
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
+    }
+
+
+    void TestResetTimeStepWithAdditionalSteppingPoints() throw(Exception)
+    {
+        double timestep = 0.1;
+        std::vector<double> additional_times;
+        additional_times.push_back(0.33);
+
+        TimeStepper stepper(0.0, 0.5, timestep, false, additional_times);
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.1);
+        
+        timestep = 0.25;
+        stepper.ResetTimeStep(timestep);
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.23, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.33, 1e-12);
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.33);
+
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.02, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.35, 1e-12);
+        
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.35);
+
+        TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.15, 1e-12);
+        TS_ASSERT_DELTA(stepper.GetNextTime(), 0.5, 1e-12);
+
+        stepper.AdvanceOneTimeStep();
+        TS_ASSERT_EQUALS(stepper.GetTime(), 0.5);
+
+        TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
+    }
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/

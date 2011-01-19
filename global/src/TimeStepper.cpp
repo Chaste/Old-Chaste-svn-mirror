@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 #include <cassert>
 
+#include "Debug.hpp"
+
 const double SMIDGE = 1e-10;
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
@@ -81,6 +83,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
 double TimeStepper::CalculateNextTime() 
 {
     double next_time = mStart + (mTotalTimeStepsTaken-mAdditionalTimesReached+1) * mDt;
+
     if ((next_time) + SMIDGE*(mDt) >= mEnd)
     {
         next_time = mEnd;
@@ -93,7 +96,7 @@ double TimeStepper::CalculateNextTime()
         next_time = mAdditionalTimes[mAdditionalTimesReached];
         mAdditionalTimesReached++;
     }
-    
+
     return next_time;
 }
 
@@ -152,4 +155,16 @@ unsigned TimeStepper::EstimateTimeSteps() const
 unsigned TimeStepper::GetTotalTimeStepsTaken() const
 {
     return mTotalTimeStepsTaken;
+}
+
+void TimeStepper::ResetTimeStep(double dt)
+{
+    assert(dt>0);
+    //assert(mEnforceConstantTimeStep == false);
+    
+    mDt = dt;    
+    mStart = mTime;
+    mTotalTimeStepsTaken = 0;
+
+    mNextTime = CalculateNextTime();    
 }

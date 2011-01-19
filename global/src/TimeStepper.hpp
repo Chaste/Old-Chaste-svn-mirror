@@ -50,9 +50,9 @@ public:
      * @param dt  the time step to use.
      * @param enforceConstantTimeStep If this is true the stepper estimates whether non-constant
      *  timesteps will be used and quits if so.
-     * @param additionalTimes If the timestepper needs to stop at certain additional times, that aren't (necessarily) 
-     *  multiples of dt, they can be passed in in this std::vector. Defaults to empty. These times must be in ascending
-     *  order. 
+     * @param additionalTimes If the timestepper needs to stop at certain additional times, they can be passed in in this std::vector. 
+     *  Defaults to empty. These times must be in ascending order. Note that if, for example, start=0, end=0.5, dt=0.1, and the additional
+     *  stopping time is 0.33, the times used will be 0,0.1,0.2,0.3,0.33,0.4,0.5  NOT  ..,0.33,0.43,0.5
      */
     TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep=false, std::vector<double> additionalTimes=std::vector<double> ());
 
@@ -78,20 +78,28 @@ public:
     double GetNextTimeStep();
 
     /**
-     * True when GetTime ==  endTime
+     * True when GetTime == endTime
      */
     bool IsTimeAtEnd() const;
 
     /**
-     * Estimate number of time steps, which may be an overestimate
+     * Estimate number of time steps remaining, which may be an overestimate
      * Used to reserve memory for writing intermediate solutions.
      */
     unsigned EstimateTimeSteps() const;
 
     /**
-     * The number of time AdvanceOneTimeStep() has been called.
+     * The number of time AdvanceOneTimeStep() has been called SINCE
+     * the last time ResetTimeStep() was called.
      */
     unsigned GetTotalTimeStepsTaken() const;
+
+    /**
+     * Set the time step to use for adaptive time integration. Note that
+     * this also resets mStart to be the current time and zeroes
+     * mTotalTimeStepsTaken.
+     */
+    void ResetTimeStep(double dt);
 
 private:
     friend class TestTimeStepper;
