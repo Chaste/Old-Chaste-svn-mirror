@@ -19,5 +19,6 @@ TestSimpleLinearEllipticSolver.hpp
 TestSimpleNonlinearEllipticSolver.hpp
 TestSolvingCoupledPdes.hpp
 TestSolveLaplacianWithQuadratics.hpp
+TestTimeAdaptivityController.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp
