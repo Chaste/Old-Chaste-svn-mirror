@@ -35,14 +35,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacTissue.hpp"
 
 
+//todo - rename as MonodomainStiffnessMatrixAssembler as bidomain will require a different matrix
+
 /** 
- *  Simple implementation of AbstractFeObjectAssembler which provides stiffness matrices
- *  for a given mesh, multiplied by a scale factor if required. In other words, the matrix
+ *  Implementation of AbstractFeObjectAssembler which provides stiffness matrices
+ *  required in monodomain problems: 
  *   
- *  M_{ij} = k integral_{domain}  phi_i(x) phi_j(x) dV
+ *  K_{ij} = integral_{domain}  grad_phi_i(x)^T (sigma * grad_phi_j(x)) dV
  * 
- *  where phi_i is the i-th (linear) basis function and k the scale factor (constant 
- *  throughout the mesh).
+ *  where phi_i is the i-th (linear) basis function 
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class CardiacStiffnessMatrixAssembler

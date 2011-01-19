@@ -160,7 +160,6 @@ unsigned TimeStepper::GetTotalTimeStepsTaken() const
 void TimeStepper::ResetTimeStep(double dt)
 {
     assert(dt>0);
-    //assert(mEnforceConstantTimeStep == false);
     
     mDt = dt;    
     mStart = mTime;

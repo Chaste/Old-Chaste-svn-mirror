@@ -74,7 +74,7 @@ public:
      *  @param currentTime current time 
      *  @param currentSolution current solution
      */
-    double GetTimeStep(double currentTime, Vec currentSolution)
+    double GetNextTimeStep(double currentTime, Vec currentSolution)
     {
         double dt = ComputeTimeStep(currentTime, currentSolution);
         if(dt < mMinimumTimeStep)
