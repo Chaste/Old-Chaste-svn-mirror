@@ -698,7 +698,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 	}
 	*parameter_file << "\t</CellKillers>\n" ;
 
-    *parameter_file << "</Chaste>\n" ;
+    *parameter_file << "\n</Chaste>\n" ;
 
     parameter_file->close();
 }
