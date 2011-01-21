@@ -156,13 +156,23 @@ void PetscTools::ReplicateException(bool flag)
 // Vector & Matrix creation routines
 //
 
-Vec PetscTools::CreateVec(int size, int localSize)
+Vec PetscTools::CreateVec(int size, int localSize, bool ignoreOffProcEntries)
 {
     assert(size>=0); //There is one test where we create a zero-sized vector
     Vec ret;
     VecCreate(PETSC_COMM_WORLD, &ret);
     VecSetSizes(ret, localSize, size); //localSize usually defaults to PETSC_DECIDE
     VecSetFromOptions(ret);
+
+    if (ignoreOffProcEntries)
+    {
+#if (PETSC_VERSION_MAJOR == 3)
+        VecSetOption(ret, VEC_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
+#else
+        VecSetOption(ret, VEC_IGNORE_OFF_PROC_ENTRIES);
+#endif
+    }
+
     return ret;
 }
 
@@ -182,6 +192,8 @@ Vec PetscTools::CreateVec(std::vector<double> data)
         p_ret[local_index] = data[global_index];
     }
     VecRestoreArray(ret, &p_ret);
+
+    /// \todo: #1682 needed?
     VecAssemblyBegin(ret);
     VecAssemblyEnd(ret);
 
@@ -199,15 +211,18 @@ Vec PetscTools::CreateAndSetVec(int size, double value)
     VecSet(ret, value);
 #endif
 
+    /// \todo: #1682 needed?
     VecAssemblyBegin(ret);
     VecAssemblyEnd(ret);
+
     return ret;
 }
 
 void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
                           unsigned rowPreallocation,
                           int numLocalRows,
-                          int numLocalColumns)
+                          int numLocalColumns,
+                          bool ignoreOffProcEntries)
 {
     assert(numRows>0);
     assert(numColumns>0);
@@ -244,6 +259,15 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     }
 
     MatSetFromOptions(rMat);
+
+    if (ignoreOffProcEntries)
+    {
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+        MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
+#else
+        MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES);
+#endif
+    }
 }
 
 
@@ -311,7 +335,7 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
         
         Mat temp_mat;
         /// \todo: #1082 work out appropriate nz allocation.
-        PetscTools::SetupMat(temp_mat, num_rows, num_rows, 100, num_local_rows, num_local_rows);
+        PetscTools::SetupMat(temp_mat, num_rows, num_rows, 100, num_local_rows, num_local_rows, false);
      
         MatCopy(rMat, temp_mat, DIFFERENT_NONZERO_PATTERN);        
         

@@ -363,22 +363,21 @@ public:
          *      0 0 0 ... 1
          *
          */
-        /// \todo: this is very naughty. Must be checked in parallel as well.
-        if (PetscTools::IsSequential())
+        int lo, hi;
+        some_system.GetOwnershipRange(lo, hi);
+
+        for (int row=lo; row<hi; row++)
         {
-            for (int row=0; row<SIZE; row++)
+            for (int column=0; column<row; column++)
             {
-                for (int column=0; column<row; column++)
-                {
-                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
-                }
+                TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
+            }
 
-                TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,row), 1);
+            TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,row), 1);
 
-                for (int column=row+1; column<SIZE; column++)
-                {
-                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
-                }
+            for (int column=row+1; column<SIZE; column++)
+            {
+                TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
             }
         }
 

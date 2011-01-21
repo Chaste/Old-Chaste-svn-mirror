@@ -146,9 +146,10 @@ public:
      *
      * @param size  the size of the vector
      * @param localSize  the local number of items owned by this process
+     * @param ignoreOffProcEntries whether to ignore entries destined to be stored on a separate processor when assembling (eliminates global reductions).
      * 
      */
-    static Vec CreateVec(int size, int localSize=PETSC_DECIDE);
+    static Vec CreateVec(int size, int localSize=PETSC_DECIDE, bool ignoreOffProcEntries = true);
 
     /**
      * Create a Vec from the given data.
@@ -178,11 +179,13 @@ public:
      *   preallocate the memory for the matrix themselves.
      * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
+     * @param ignoreOffProcEntries tells PETSc to drop off-processor entries
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          unsigned rowPreallocation,
                          int numLocalRows=PETSC_DECIDE,
-                         int numLocalColumns=PETSC_DECIDE);
+                         int numLocalColumns=PETSC_DECIDE,
+                         bool ignoreOffProcEntries=true);
 
     /**
      * Boolean AND of a flags between processes

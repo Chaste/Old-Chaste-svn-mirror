@@ -332,8 +332,11 @@ void LinearSystem::SetMatrixRow(PetscInt row, double value)
 
 Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
 {
-    Vec lhs_ith_row;
-    VecDuplicate(mRhsVector, &lhs_ith_row); // Allocate same parallel layout
+    /*
+     *   We need to make sure that lhs_ith_row doesn't ignore off processor entries when assemblying,
+     *  otherwise the VecSetValuesm call a few lines below will not work as expected.
+     */
+    Vec lhs_ith_row = PetscTools::CreateVec(mSize, mOwnershipRangeHi-mOwnershipRangeLo, false);
 
     PetscInt num_entries;
     const PetscInt *column_indices;
