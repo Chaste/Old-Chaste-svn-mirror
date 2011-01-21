@@ -262,7 +262,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
 
     if (ignoreOffProcEntries)
     {
-#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+#if (PETSC_VERSION_MAJOR == 3)
         MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
 #else
         MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES);
