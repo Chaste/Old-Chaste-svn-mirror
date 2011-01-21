@@ -19,3 +19,5 @@ simulation/TestCryptSimulation2d.hpp
 simulation/TestVertexCryptSimulation2d.hpp
 statistics/TestCryptProjectionStatistics.hpp
 statistics/TestCryptStatistics.hpp
+tutorial/TestRunningCryptSimulationsTutorial.hpp
+tutorial/TestRunningVertexBasedSimulationsTutorial.hpp
