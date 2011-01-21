@@ -30,13 +30,14 @@ simulation protocol.
 
 import pycml
 from pycml import *
+import processors
 import validator
 
 class ProtocolError(ValueError):
     """Error thrown if a Protocol instance is invalid."""
     pass
 
-class Protocol(object):
+class Protocol(processors.ModelModifier):
     """A class representing a simulation protocol.
 
      * When a protocol is initialised, it should be passed a cellml_model, and
@@ -113,36 +114,13 @@ class Protocol(object):
             self._add_maths_to_model(input)
         self._fix_model_connections()
         self._clear_model_caches()
-        self._reanalyse_model()
+        self._reanalyse_model(self._error_handler)
         self._filter_assignments()
         
-    def _reanalyse_model(self):
-        """Re-do the model validation steps needed for further processing of the model.
-        
-        Checks connections, etc. and builds up the dependency graph again, then performs
-        a topological sort.
-        """
-        # We want to see any errors
-        logging_info = validator.CellMLValidator.setup_logging(show_errors=True, show_warnings=False)
-        # Re-run validation & analysis
-        self.model._check_variable_mappings()
-        if not self.model._cml_validation_errors:
-            assignment_exprs = self.model.search_for_assignments()
-            self.model._check_assigned_vars(assignment_exprs)
-        if not self.model._cml_validation_errors:
-            self.model._classify_variables(assignment_exprs)
-            self.model._order_variables(assignment_exprs)
-        if not self.model._cml_validation_errors:
-            warn_on_units_errors = False
-            self.model._check_dimensional_consistency(assignment_exprs,
-                                                      False,
-                                                      warn_on_units_errors,
-                                                      False)
-        if self.model._cml_validation_errors:
-            raise ProtocolError("Applying protocol created an invalid model.")
-        # Clear up logging
-        validator.CellMLValidator.cleanup_logging(logging_info)
-    
+    def _error_handler(self, errors):
+        """Deal with errors found when re-analysing a modified model."""
+        raise ProtocolError("Applying protocol created an invalid model.")
+            
     def _fix_model_connections(self):
         """Ensure the modified model has all the necessary connections between variables.
         

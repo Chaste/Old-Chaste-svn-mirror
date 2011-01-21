@@ -30,15 +30,15 @@ import unittest
 # Get PyCml modules
 sys.path[0:0] = ['python/pycml']
 import protocol
-import translate
+import translators
 import pycml
 
 class TestProtocol(unittest.TestCase):
     """Tests of the Protocol system."""
     def LoadModel(self, model_filename, options=[]):
         args = ['-C', '-A', '--assume-valid', model_filename] + options
-        options, model_file = translate.get_options(args)
-        doc = translate.load_model(model_file, options)
+        options, model_file = translators.get_options(args)
+        doc = translators.load_model(model_file, options)
         self._doc = doc
         return doc
     
@@ -187,7 +187,7 @@ class TestProtocol(unittest.TestCase):
         # Check the changes
         self.assertEqual(Cai, doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai'))
         self.assertEqual(ode.xml_parent, None)
-        self.assertRaises(translate.MathsError, Cai._get_ode_dependency, time)
+        self.assertRaises(translators.MathsError, Cai._get_ode_dependency, time)
         self.assertEqual(Cai._get_dependencies()[0], Cai_const)
         self.assertEqual(Cai.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(old_g_K.xml_parent, None)
@@ -476,7 +476,7 @@ class TestProtocol(unittest.TestCase):
         self.assertRaises(IndexError, self.FindConn, 'time_dependent_potassium_current,Ki', 'ionic_concentrations,Ki')
         # Check the model is still valid
         p._clear_model_caches()
-        p._reanalyse_model()
+        p._reanalyse_model(p._error_handler)
         # We also need a test that no outputs = don't change the list
         p = self.CreateLr91Test()
         orig_assignments = self._doc.model.get_assignments()[:]

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # We want 1/2==0.5
 from __future__ import division
 
@@ -40,11 +38,6 @@ import re
 import time
 import sys
 from cStringIO import StringIO
-
-# Make sure PyCml is on sys.path
-pycml_path = os.path.dirname(os.path.realpath(__file__))
-if not pycml_path in sys.path:
-    sys.path[0:0] = [pycml_path]
 
 # Common CellML processing stuff
 import pycml
