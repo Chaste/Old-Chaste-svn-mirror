@@ -1724,8 +1724,7 @@ class cellml_variable(Colourable, element_base):
         """
         # If this is becoming a state variable, increment its usage
         # count
-        if var_type is VarTypes.State and \
-           not self._cml_var_type is VarTypes.State:
+        if var_type is VarTypes.State and not self._cml_var_type is VarTypes.State:
             self._cml_usage_count += 1
         if self._cml_var_type == VarTypes.Mapped and not _orig is self:
             # Guard against infinite loops, since we haven't done a cyclic
