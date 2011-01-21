@@ -357,6 +357,24 @@ public:
             SimulationTime::Destroy();
         }
     }
+
+    void TestCellCycleModelOutputParameters()
+    {
+        std::string output_directory = "TestCellCycleModelOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        // Test with SingleOdeWntCellCycleModel
+        SingleOdeWntCellCycleModel single_ode_wnt_cell_cycle_model;
+        TS_ASSERT_EQUALS(single_ode_wnt_cell_cycle_model.GetIdentifier(), "SingleOdeWntCellCycleModel");
+
+        out_stream single_ode_wnt_parameter_file = output_file_handler.OpenOutputFile("single_ode_wnt_results.parameters");
+        single_ode_wnt_cell_cycle_model.OutputCellCycleModelParameters(single_ode_wnt_parameter_file);
+        single_ode_wnt_parameter_file->close();
+
+        std::string single_ode_wnt_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + single_ode_wnt_results_dir + "single_ode_wnt_results.parameters crypt/test/data/TestCellCycleModels/single_ode_wnt_results.parameters").c_str()), 0);
+    }
+
 };
 
 

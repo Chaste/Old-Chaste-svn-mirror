@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <boost/shared_ptr.hpp>
 
-#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "WntCellCycleModel.hpp"
@@ -1158,6 +1157,57 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
+
+    void TestCellCycleModelOutputParameters()
+    {
+        std::string output_directory = "TestCellCycleModelOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        // Test with VanLeeuwen2009WntSwatCellCycleModelHypothesisOne
+        VanLeeuwen2009WntSwatCellCycleModelHypothesisOne van_leeuwen_hypothesis_one_cell_cycle_model;
+        TS_ASSERT_EQUALS(van_leeuwen_hypothesis_one_cell_cycle_model.GetIdentifier(), "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne");
+
+        out_stream van_leeuwen_hypothesis_one_parameter_file = output_file_handler.OpenOutputFile("van_leeuwen_hypothesis_one_results.parameters");
+        van_leeuwen_hypothesis_one_cell_cycle_model.OutputCellCycleModelParameters(van_leeuwen_hypothesis_one_parameter_file);
+        van_leeuwen_hypothesis_one_parameter_file->close();
+
+        std::string van_leeuwen_hypothesis_one_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + van_leeuwen_hypothesis_one_results_dir + "van_leeuwen_hypothesis_one_results.parameters crypt/test/data/TestCellCycleModels/van_leeuwen_hypothesis_one_results.parameters").c_str()), 0);
+
+        // Test with VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo
+        VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo van_leeuwen_hypothesis_two_cell_cycle_model;
+        TS_ASSERT_EQUALS(van_leeuwen_hypothesis_two_cell_cycle_model.GetIdentifier(), "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo");
+
+        out_stream van_leeuwen_hypothesis_two_parameter_file = output_file_handler.OpenOutputFile("van_leeuwen_hypothesis_two_results.parameters");
+        van_leeuwen_hypothesis_two_cell_cycle_model.OutputCellCycleModelParameters(van_leeuwen_hypothesis_two_parameter_file);
+        van_leeuwen_hypothesis_two_parameter_file->close();
+
+        std::string van_leeuwen_hypothesis_two_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + van_leeuwen_hypothesis_two_results_dir + "van_leeuwen_hypothesis_two_results.parameters crypt/test/data/TestCellCycleModels/van_leeuwen_hypothesis_two_results.parameters").c_str()), 0);
+
+        // Test with WntCellCycleModel
+        WntCellCycleModel wnt_cell_cycle_model;
+        TS_ASSERT_EQUALS(wnt_cell_cycle_model.GetIdentifier(), "WntCellCycleModel");
+
+        out_stream wnt_parameter_file = output_file_handler.OpenOutputFile("wnt_results.parameters");
+        wnt_cell_cycle_model.OutputCellCycleModelParameters(wnt_parameter_file);
+        wnt_parameter_file->close();
+
+        std::string wnt_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + wnt_results_dir + "wnt_results.parameters crypt/test/data/TestCellCycleModels/wnt_results.parameters").c_str()), 0);
+
+        // Test with StochasticWntCellCycleModel
+        StochasticWntCellCycleModel stochastic_wnt_cell_cycle_model;
+        TS_ASSERT_EQUALS(stochastic_wnt_cell_cycle_model.GetIdentifier(), "StochasticWntCellCycleModel");
+
+        out_stream stochastic_wnt_parameter_file = output_file_handler.OpenOutputFile("stochastic_wnt_results.parameters");
+        stochastic_wnt_cell_cycle_model.OutputCellCycleModelParameters(stochastic_wnt_parameter_file);
+        stochastic_wnt_parameter_file->close();
+
+        std::string stochastic_wnt_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + stochastic_wnt_results_dir + "stochastic_wnt_results.parameters crypt/test/data/TestCellCycleModels/stochastic_wnt_results.parameters").c_str()), 0);
+    }
+
 };
 
 #endif /*TESTODEBASEDCELLCYCLEMODELSFORCRYPT_HPP_*/

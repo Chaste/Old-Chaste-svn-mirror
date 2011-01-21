@@ -529,6 +529,25 @@ public:
         WntConcentration<1>::Destroy();
         WntConcentration<2>::Destroy();
     }
+
+
+    void TestCellCycleModelOutputParameters()
+    {
+        std::string output_directory = "TestCellCycleModelOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        // Test with SimpleWntCellCycleModel
+        SimpleWntCellCycleModel simple_wnt_cell_cycle_model;
+        TS_ASSERT_EQUALS(simple_wnt_cell_cycle_model.GetIdentifier(), "SimpleWntCellCycleModel");
+
+        out_stream simple_wnt_parameter_file = output_file_handler.OpenOutputFile("simple_wnt_results.parameters");
+        simple_wnt_cell_cycle_model.OutputCellCycleModelParameters(simple_wnt_parameter_file);
+        simple_wnt_parameter_file->close();
+
+        std::string simple_wnt_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + simple_wnt_results_dir + "simple_wnt_results.parameters crypt/test/data/TestCellCycleModels/simple_wnt_results.parameters").c_str()), 0);
+    }
+
 };
 
 #endif /*TESTSIMPLECELLCYCLEMODELSFORCRYPT_HPP_*/

@@ -696,7 +696,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 		// Output cell killer details
 		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
-	*parameter_file << "\n\t</CellKillers>\n" ;
+	*parameter_file << "\t</CellKillers>\n" ;
 
     *parameter_file << "</Chaste>\n" ;
 

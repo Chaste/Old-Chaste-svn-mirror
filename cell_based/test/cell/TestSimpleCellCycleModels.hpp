@@ -853,6 +853,57 @@ public:
             TS_ASSERT_DELTA(p_model->GetG2Duration(), randomly_allocated_number, 1e-4);
         }
     }
+
+    void TestCellCycleModelOutputParameters()
+    {
+        std::string output_directory = "TestCellCycleModelOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        // Test with FixedDurationGenerationBasedCellCycleModel
+        FixedDurationGenerationBasedCellCycleModel fixed_duration_generation_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(fixed_duration_generation_based_cell_cycle_model.GetIdentifier(), "FixedDurationGenerationBasedCellCycleModel");
+
+        out_stream fixed_duration_generation_based_parameter_file = output_file_handler.OpenOutputFile("fixed_duration_generation_based_results.parameters");
+        fixed_duration_generation_based_cell_cycle_model.OutputCellCycleModelParameters(fixed_duration_generation_based_parameter_file);
+        fixed_duration_generation_based_parameter_file->close();
+
+        std::string fixed_duration_generation_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + fixed_duration_generation_based_results_dir + "fixed_duration_generation_based_results.parameters cell_based/test/data/TestCellCycleModels/fixed_duration_generation_based_results.parameters").c_str()), 0);
+
+        // Test with StochasticDurationGenerationBasedCellCycleModel
+        StochasticDurationGenerationBasedCellCycleModel stochastic_duration_generation_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(stochastic_duration_generation_based_cell_cycle_model.GetIdentifier(), "StochasticDurationGenerationBasedCellCycleModel");
+
+        out_stream stochastic_duration_generation_based_parameter_file = output_file_handler.OpenOutputFile("stochastic_duration_generation_based_results.parameters");
+        stochastic_duration_generation_based_cell_cycle_model.OutputCellCycleModelParameters(stochastic_duration_generation_based_parameter_file);
+        stochastic_duration_generation_based_parameter_file->close();
+
+        std::string stochastic_duration_generation_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + stochastic_duration_generation_based_results_dir + "stochastic_duration_generation_based_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_duration_generation_based_results.parameters").c_str()), 0);
+
+        // Test with SimpleOxygenBasedCellCycleModel
+        SimpleOxygenBasedCellCycleModel simple_oxygen_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(simple_oxygen_based_cell_cycle_model.GetIdentifier(), "SimpleOxygenBasedCellCycleModel");
+
+        out_stream simple_oxygen_based_parameter_file = output_file_handler.OpenOutputFile("simple_oxygen_based_results.parameters");
+        simple_oxygen_based_cell_cycle_model.OutputCellCycleModelParameters(simple_oxygen_based_parameter_file);
+        simple_oxygen_based_parameter_file->close();
+
+        std::string simple_oxygen_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + simple_oxygen_based_results_dir + "simple_oxygen_based_results.parameters cell_based/test/data/TestCellCycleModels/simple_oxygen_based_results.parameters").c_str()), 0);
+
+        // Test with StochasticOxygenBasedCellCycleModel
+        StochasticOxygenBasedCellCycleModel stochastic_oxygen_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(stochastic_oxygen_based_cell_cycle_model.GetIdentifier(), "StochasticOxygenBasedCellCycleModel");
+
+        out_stream stochastic_oxygen_based_parameter_file = output_file_handler.OpenOutputFile("stochastic_oxygen_based_results.parameters");
+        stochastic_oxygen_based_cell_cycle_model.OutputCellCycleModelParameters(stochastic_oxygen_based_parameter_file);
+        stochastic_oxygen_based_parameter_file->close();
+
+        std::string stochastic_oxygen_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + stochastic_oxygen_based_results_dir + "stochastic_oxygen_based_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_oxygen_based_results.parameters").c_str()), 0);
+    }
+
 };
 
 #endif /*TESTSIMPLECELLCYCLEMODELS_HPP_*/

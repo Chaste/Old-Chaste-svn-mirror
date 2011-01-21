@@ -487,6 +487,35 @@ public:
             TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
         }
     }
+
+    void TestCellCycleModelOutputParameters()
+    {
+        std::string output_directory = "TestCellCycleModelOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        // Test with Alarcon2004OxygenBasedCellCycleModel
+        Alarcon2004OxygenBasedCellCycleModel alarcon_oxygen_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(alarcon_oxygen_based_cell_cycle_model.GetIdentifier(), "Alarcon2004OxygenBasedCellCycleModel");
+
+        out_stream alarcon_oxygen_based_parameter_file = output_file_handler.OpenOutputFile("alarcon_oxygen_based_results.parameters");
+        alarcon_oxygen_based_cell_cycle_model.OutputCellCycleModelParameters(alarcon_oxygen_based_parameter_file);
+        alarcon_oxygen_based_parameter_file->close();
+
+        std::string alarcon_oxygen_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + alarcon_oxygen_based_results_dir + "alarcon_oxygen_based_results.parameters cell_based/test/data/TestCellCycleModels/alarcon_oxygen_based_results.parameters").c_str()), 0);
+
+        // Test with TysonNovakCellCycleModel
+        TysonNovakCellCycleModel tyson_novak_based_cell_cycle_model;
+        TS_ASSERT_EQUALS(tyson_novak_based_cell_cycle_model.GetIdentifier(), "TysonNovakCellCycleModel");
+
+        out_stream tyson_novak_based_parameter_file = output_file_handler.OpenOutputFile("tyson_novak_based_results.parameters");
+        tyson_novak_based_cell_cycle_model.OutputCellCycleModelParameters(tyson_novak_based_parameter_file);
+        tyson_novak_based_parameter_file->close();
+
+        std::string tyson_novak_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + tyson_novak_based_results_dir + "tyson_novak_based_results.parameters cell_based/test/data/TestCellCycleModels/tyson_novak_based_results.parameters").c_str()), 0);
+    }
+
 };
 
 #endif /*TESTODEBASEDCELLCYCLEMODELS_HPP_*/
