@@ -462,11 +462,6 @@ def CreatePyCmlBuilder(build, buildenv):
     -conf.xml file may be given to tune this process somewhat, by specifying extra
     arguments to be passed to ConvertCellModel.py; it will also be used as the
     configuration file for PyCml itself.
-    
-    CVODE code is only generated for models shipped with Chaste, not those compiled on the fly.
-    
-    First step just runs with default args.  Later step will be to customize the
-    process with a separate options file (e.g. <cellml_file>.opts).
     """
     def IsDynamicSource(source):
         parts = source[0].srcnode().path.split(os.path.sep)
