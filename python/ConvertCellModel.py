@@ -36,21 +36,6 @@ import sys
 import tempfile
 
 
-# Use external PyCml if requested
-if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
-    print 'Using external PyCml from PYCML_DIR =', os.environ['PYCML_DIR']
-    pycml_dir = os.environ['PYCML_DIR']
-else:
-    pycml_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pycml')
-
-# Options that we will supply to PyCml anyway
-essential_options = ['--conf=' + os.path.join(pycml_dir, 'config.xml'),
-                     '--use-chaste-stimulus',
-                     '--convert-interfaces']
-validation_options = ['-u', '--Wu']
-# Options supplied if the user doesn't give a config file
-default_options = []
-
 # Parse command-line options
 class OptionParser(optparse.OptionParser):
     def __init__(self, *args, **kwargs):
@@ -129,6 +114,26 @@ options, args = parser.parse_args()
 option_names = ['opt', 'normal', 'cvode', 'backward_euler']
 def arg2name(arg):
     return str(arg)[2:].replace('-', '_')
+
+
+
+# Use external PyCml if requested
+if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
+    if not options.show_outputs:
+        print 'Using external PyCml from PYCML_DIR =', os.environ['PYCML_DIR']
+    pycml_dir = os.environ['PYCML_DIR']
+else:
+    pycml_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pycml')
+
+# Options that we will supply to PyCml anyway
+essential_options = ['--conf=' + os.path.join(pycml_dir, 'config.xml'),
+                     '--use-chaste-stimulus',
+                     '--convert-interfaces']
+validation_options = ['-u', '--Wu']
+# Options supplied if the user doesn't give a config file
+default_options = []
+
+
 
 # Read further arguments from config file?
 if options.config_file:
