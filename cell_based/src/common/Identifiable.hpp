@@ -32,6 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "ChasteSerialization.hpp"
 
+#include <typeinfo>
+#include <boost/serialization/extended_type_info.hpp>
+#include <boost/serialization/extended_type_info_typeid.hpp>
+#include <boost/serialization/extended_type_info_no_rtti.hpp>
+#include <boost/serialization/type_info_implementation.hpp>
+
 /**
  * "Mix-in" base class for any class that needs to provide a unique ID specifying
  * what type the derived class is.
