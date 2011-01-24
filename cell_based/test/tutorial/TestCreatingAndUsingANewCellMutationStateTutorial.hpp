@@ -141,6 +141,15 @@ public:
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(P53GainOfFunctionCellMutationState)
 
+/* Since we're defining the new cell mutation state within the test file, we need to include the
+ * following stanza as well, to make the code work with newer versions of the Boost libraries.
+ * Normally the above export declaration would occur in the cell property's .hpp file, and
+ * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
+ * more information.
+ */
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(P53GainOfFunctionCellMutationState)
+
 /*
  * This completes the code for {{{P53GainOfFunctionCellMutationState}}}. Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
