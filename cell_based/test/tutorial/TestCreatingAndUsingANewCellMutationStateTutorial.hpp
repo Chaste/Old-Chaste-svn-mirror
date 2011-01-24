@@ -143,7 +143,7 @@ CHASTE_CLASS_EXPORT(P53GainOfFunctionCellMutationState)
 
 /* Since we're defining the new cell mutation state within the test file, we need to include the
  * following stanza as well, to make the code work with newer versions of the Boost libraries.
- * Normally the above export declaration would occur in the cell property's .hpp file, and
+ * Normally the above export declaration would occur in the cell mutation state's .hpp file, and
  * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
  * more information.
  */

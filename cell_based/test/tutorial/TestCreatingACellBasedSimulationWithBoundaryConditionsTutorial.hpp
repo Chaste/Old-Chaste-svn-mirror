@@ -99,7 +99,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyCellBasedSimulation : public CellBasedSimulation<2>
 {
 /* The first public method is a default constructor, which just calls the base
- * constructor. There are four input argument: a reference to a cell population object,
+ * constructor. There are three input argument: a reference to a cell population object,
  * {{{rCellPopulation}}}; an optional flag, {{{deleteCellPopulationAndForceCollection}}},
  * telling the simulation whether to delete the cell population and force collection
  * on destruction to free up memory; and another optional flag, {{{initialiseCells}}},
@@ -154,6 +154,15 @@ public:
  * {{{load_construct_data}}} methods, which archive the cell-based simulation
  * constructor input argument(s) (in this case, a cell population). */
 #include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(MyCellBasedSimulation)
+
+/* Since we're defining the new cell-based simulation within the test file, we need to include the
+ * following stanza as well, to make the code work with newer versions of the Boost libraries.
+ * Normally the above export declaration would occur in the simulation's .hpp file, and
+ * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
+ * more information.
+ */
+#include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(MyCellBasedSimulation)
 
 namespace boost
