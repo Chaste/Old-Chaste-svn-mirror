@@ -375,8 +375,8 @@ public:
         simulator.AddForce(&linear_force);
 
         /* We now pass the cell killer into the cell-based simulation. */
-        MyCellKiller* p_killer = new MyCellKiller(&cell_population);
-        simulator.AddCellKiller(p_killer);
+        MyCellKiller killer = MyCellKiller(&cell_population);
+        simulator.AddCellKiller(&killer);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
