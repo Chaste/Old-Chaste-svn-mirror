@@ -84,7 +84,7 @@ public:
 
 
 //This test passes on 1,2 processes
-//Used to fail on 3: Note that x=0.3 is the probe position, which is near the proc 0/1 boundary
+//Fail on 3: Note that x=0.3 is the probe position, which is near the proc 0/1 boundary
 
 ///\todo #1462 Test a bit more thoroughly -- then delete this suite and move onto the ICI/SVI test suites.
 class TestMonodomainWithSvi : public CxxTest::TestSuite
@@ -93,11 +93,11 @@ public:
     void TestWithSvi1d() throw(Exception)
     {
         double h = 0.02;
-        unsigned probe_node_index =  15;
+        unsigned probe_node_index =  3;
 
         ReplicatableVector final_voltage_svi;
 
-        //HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
+        HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
@@ -108,7 +108,7 @@ public:
         //Double check (for later) that the indexing is as expected
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index ))
         {
-            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.3, 1e-8);
+            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.06, 1e-8);
         }
         std::stringstream output_dir;
         output_dir << "MonodomainSvi_" << h<<"_"<<PetscTools::GetNumProcs();
@@ -128,7 +128,52 @@ public:
 
 
         double svi_voltage_at_0_03 = final_voltage_svi[ probe_node_index ];
-        TS_ASSERT_DELTA(svi_voltage_at_0_03, 17.3131, 0.05); //hardcoded value from this mesh with svi sequential
+        double hard_coded_at_0_03 = 27.248867409512754989; //hardcoded value from this mesh with svi sequential
+        std::cout<<std::setprecision(20)<<svi_voltage_at_0_03<<"\t"<<svi_voltage_at_0_03 - hard_coded_at_0_03<<"\n";
+        TS_ASSERT_DELTA(svi_voltage_at_0_03 - hard_coded_at_0_03, 0.0, 7e-14);
+    }
+    void TestWithIci1d() throw(Exception)
+    {
+        //This gives and indication of the drift that more processes adds
+        double h = 0.02;
+        unsigned probe_node_index =  3;
+
+        ReplicatableVector final_voltage_svi;
+
+        HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
+        HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+
+        DistributedTetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(h, 1.0);
+
+        //Double check (for later) that the indexing is as expected
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index ))
+        {
+            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.06, 1e-8);
+        }
+        std::stringstream output_dir;
+        output_dir << "MonodomainSvi_" << h<<"_"<<PetscTools::GetNumProcs();
+        HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+
+        HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
+
+        BlockCellFactory<1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+        monodomain_problem.SetMesh(&mesh);
+        monodomain_problem.Initialise();
+                    
+        monodomain_problem.Solve();
+            
+        final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
+
+
+        double svi_voltage_at_0_03 = final_voltage_svi[ probe_node_index ];
+        double hard_coded_at_0_03 = 28.906213911163483488; //hardcoded value from this mesh with svi sequential
+        std::cout<<std::setprecision(20)<<svi_voltage_at_0_03<<"\t"<<svi_voltage_at_0_03 - hard_coded_at_0_03<<"\n";
+        TS_ASSERT_DELTA(svi_voltage_at_0_03 - hard_coded_at_0_03, 0.0, 7e-14);
     }
     
 };
