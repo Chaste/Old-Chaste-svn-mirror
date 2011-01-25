@@ -93,7 +93,7 @@ public:
     void TestWithSvi1d() throw(Exception)
     {
         double h = 0.02;
-        unsigned probe_node_index =  3;
+        unsigned probe_node_index =  15;
 
         ReplicatableVector final_voltage_svi;
 
@@ -108,7 +108,7 @@ public:
         //Double check (for later) that the indexing is as expected
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index ))
         {
-            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.06, 1e-8);
+            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.3, 1e-8);
         }
         std::stringstream output_dir;
         output_dir << "MonodomainSvi_" << h<<"_"<<PetscTools::GetNumProcs();
@@ -127,16 +127,16 @@ public:
         final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
 
 
-        double svi_voltage_at_0_03 = final_voltage_svi[ probe_node_index ];
-        double hard_coded_at_0_03 = 27.248867409512754989; //hardcoded value from this mesh with svi sequential
-        std::cout<<std::setprecision(20)<<svi_voltage_at_0_03<<"\t"<<svi_voltage_at_0_03 - hard_coded_at_0_03<<"\n";
-        TS_ASSERT_DELTA(svi_voltage_at_0_03 - hard_coded_at_0_03, 0.0, 7e-14);
+        double svi_voltage_at_0_3 = final_voltage_svi[ probe_node_index ];
+        double hard_coded_at_0_3 = 17.313147483511354352; //hardcoded value from this mesh with svi sequential
+        std::cout<<std::setprecision(20)<<svi_voltage_at_0_3<<"\t"<<svi_voltage_at_0_3 - hard_coded_at_0_3<<"\n";
+        TS_ASSERT_DELTA(svi_voltage_at_0_3 - hard_coded_at_0_3, 0.0, 1e-13);
     }
     void TestWithIci1d() throw(Exception)
     {
         //This gives and indication of the drift that more processes adds
         double h = 0.02;
-        unsigned probe_node_index =  3;
+        unsigned probe_node_index =  15;
 
         ReplicatableVector final_voltage_svi;
 
@@ -151,7 +151,7 @@ public:
         //Double check (for later) that the indexing is as expected
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index ))
         {
-            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.06, 1e-8);
+            TS_ASSERT_DELTA(mesh.GetNode( probe_node_index )->rGetLocation()[0], 0.3, 1e-8);
         }
         std::stringstream output_dir;
         output_dir << "MonodomainSvi_" << h<<"_"<<PetscTools::GetNumProcs();
@@ -170,10 +170,10 @@ public:
         final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
 
 
-        double svi_voltage_at_0_03 = final_voltage_svi[ probe_node_index ];
-        double hard_coded_at_0_03 = 28.906213911163483488; //hardcoded value from this mesh with svi sequential
-        std::cout<<std::setprecision(20)<<svi_voltage_at_0_03<<"\t"<<svi_voltage_at_0_03 - hard_coded_at_0_03<<"\n";
-        TS_ASSERT_DELTA(svi_voltage_at_0_03 - hard_coded_at_0_03, 0.0, 7e-14);
+        double svi_voltage_at_0_3 = final_voltage_svi[ probe_node_index ];
+        double hard_coded_at_0_3 = 24.493851957613916426; //hardcoded value from this mesh with svi sequential
+        std::cout<<std::setprecision(20)<<svi_voltage_at_0_3<<"\t"<<svi_voltage_at_0_3 - hard_coded_at_0_3<<"\n";
+        TS_ASSERT_DELTA(svi_voltage_at_0_3 - hard_coded_at_0_3, 0.0, 1e-13);
     }
     
 };
