@@ -310,7 +310,7 @@ public:
         models.push_back("earm_noble_model_1990");
         models.push_back("espinosa_model_1998_normal");
         models.push_back("fink_noble_giles_model_2008");
-        models.push_back("grandi2010ss");
+//        models.push_back("grandi2010ss");
         models.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
         models.push_back("kurata_model_2002");
         models.push_back("livshitz_rudy_2007");
