@@ -257,16 +257,26 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
             MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.7), PETSC_NULL);
         }
     }
-
+    
     MatSetFromOptions(rMat);
 
-    if (ignoreOffProcEntries)
+
+        
+    if (ignoreOffProcEntries)//&& !IsSequential())
     {
+        if (rowPreallocation == 0)
+        {
+           ///\todo #1682 We aren't allowed to do non-zero allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
+           WARNING("Ignoring MAT_IGNORE_OFF_PROC_ENTRIES flag because we might set non-zeroes later");
+        }
+        else
+        {
 #if (PETSC_VERSION_MAJOR == 3)
-        MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
+            MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
 #else
-        MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES);
+            MatSetOption(rMat, MAT_IGNORE_OFF_PROC_ENTRIES);
 #endif
+        }
     }
 }
 

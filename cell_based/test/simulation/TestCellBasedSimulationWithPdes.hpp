@@ -1136,11 +1136,7 @@ public:
      */
     void TestArchivingWithCellwisePde() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL;
 
         std::string output_directory = "TestArchivingWithCellwisePde";
         double end_time = 0.1;

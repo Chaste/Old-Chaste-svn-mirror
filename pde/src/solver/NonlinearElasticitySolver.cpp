@@ -772,7 +772,10 @@ void NonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
         // be of type MATSEQAIJ if num_procs=1 and MATMPIAIJ otherwise. In the former case
         // MatSeqAIJSetPreallocation MUST be called [MatMPIAIJSetPreallocation will have 
         // no effect (silently)], and vice versa in the latter case
-        if(PetscTools::GetNumProcs()==1)
+        
+        ///\todo #1682 We aren't allowed to do this row allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
+        
+        if(PetscTools::IsSequential())
         {
             MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
             MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
