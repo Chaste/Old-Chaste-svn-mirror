@@ -139,14 +139,15 @@ public:
         ProcessSpecificArchive<boost::archive::text_oarchive>::Set(NULL);
     }
 
-public:
+    std::string mArchiveDir;
+
     void TestArchiveOpenerReadAndWrite() throw(Exception)
     {
         //Should this test fail with an exception involving
         // apps/texttest/chaste/resume_bidomain/save_bidomain
         // then look at TestCardiacSimulationArchiver
-
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        mArchiveDir = "archiving_helpers";
+        FileFinder archive_dir(mArchiveDir, RelativeTo::ChasteTestOutput);
         std::string archive_file = "archive_opener.arch";
         const unsigned test_int = 123;
 
@@ -209,10 +210,9 @@ public:
     // This test relies on TestArchiveOpenerReadAndWrite succeeding.
     void TestArchiveOpenerExceptions() throw(Exception)
     {
-        std::string archive_dir = "archive";
-        OutputFileHandler handler(archive_dir, false);
+        OutputFileHandler handler(mArchiveDir, false);
         handler.SetArchiveDirectory();
-        FileFinder archive_dir_finder(archive_dir, RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir_finder(mArchiveDir, RelativeTo::ChasteTestOutput);
         std::string archive_base_name = "archive_opener.arch";
 
         // Remove the process-specific archive for this process

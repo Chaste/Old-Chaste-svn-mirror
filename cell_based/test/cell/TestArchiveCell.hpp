@@ -59,7 +59,7 @@ public:
     void TestArchivingOfCell() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cell->arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cell.arch";
 
         // Archive a cell
         {

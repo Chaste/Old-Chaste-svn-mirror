@@ -23,15 +23,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
 import sys
 import unittest
 
 # Get PyCml modules
 sys.path[0:0] = ['python/pycml']
+import processors
 import protocol
-import translators
 import pycml
+import translators
 
 class TestProtocol(unittest.TestCase):
     """Tests of the Protocol system."""
@@ -348,7 +348,7 @@ class TestProtocol(unittest.TestCase):
         time2 = self.NewVariable(u'environment,time2', u'millisecond')
         t2def = self.NewAssign(time2.name, u'membrane,time')
         p.inputs = [time2, t2def]
-        self.assertRaises(protocol.ProtocolError, p.modify_model)
+        self.assertRaises(processors.ModelModificationError, p.modify_model)
         
         # The following are odd cases that do actually work!
         # Where we use the real source variable as target
@@ -476,7 +476,7 @@ class TestProtocol(unittest.TestCase):
         self.assertRaises(IndexError, self.FindConn, 'time_dependent_potassium_current,Ki', 'ionic_concentrations,Ki')
         # Check the model is still valid
         p._clear_model_caches()
-        p._reanalyse_model(p._error_handler)
+        p.reanalyse_model(p._error_handler)
         # We also need a test that no outputs = don't change the list
         p = self.CreateLr91Test()
         orig_assignments = self._doc.model.get_assignments()[:]
