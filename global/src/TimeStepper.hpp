@@ -98,6 +98,8 @@ public:
      * Set the time step to use for adaptive time integration. Note that
      * this also resets mStart to be the current time and zeroes
      * mTotalTimeStepsTaken.
+     * 
+     * @param dt  is the new time-step
      */
     void ResetTimeStep(double dt);
 

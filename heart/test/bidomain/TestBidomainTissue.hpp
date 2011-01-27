@@ -185,7 +185,7 @@ public:
         
         // Check that if we're in parallel no single process owns every element (to ensure that the conductivities
         // really are distributed).
-        if (PetscTools::GetNumProcs() > 1)
+        if (PetscTools::IsParallel())
         {
             TS_ASSERT_DIFFERS( mesh.GetNumElements(), mesh.GetNumLocalElements() );
         }

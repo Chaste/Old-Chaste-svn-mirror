@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscVecTools.hpp"
+//#include "Debug.hpp"
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
@@ -383,13 +384,30 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
     //First search the halo
     if ((node_position=mHaloGlobalToLocalIndexMap.find(globalIndex)) != mHaloGlobalToLocalIndexMap.end())
     {
+//        if (globalIndex==16 || globalIndex==17)
+//        {
+//            TRACE("Halo");
+//            std::vector<double> temp= mHaloCellsDistributed[node_position->second]->rGetStateVariables();
+//            for (unsigned i=0;i<temp.size();i++)
+//            {
+//                PRINT_3_VARIABLES(globalIndex, i, temp[i]);
+//            }
+//        }
         return mHaloCellsDistributed[node_position->second];
     }
     //Then search the owned node
-    if ( mpDistributedVectorFactory->GetLow() <= globalIndex &&
-         globalIndex < mpDistributedVectorFactory->GetHigh()    )
+    if ( mpDistributedVectorFactory->IsGlobalIndexLocal(globalIndex)  )
     {
         //Found an owned node
+//        if (globalIndex==16 || globalIndex==17)
+//        {
+//            TRACE("Real");
+//            std::vector<double> temp= mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()]->rGetStateVariables();
+//            for (unsigned i=0;i<temp.size();i++)
+//            {
+//                PRINT_3_VARIABLES(globalIndex, i, temp[i]);
+//            }
+//        }
         return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
     }
     //Not here
@@ -408,6 +426,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CalculateHaloNodesFromNodeExc
         halos_as_set.insert(mNodesToReceivePerProcess[proc].begin(), mNodesToReceivePerProcess[proc].end());
     }
     mHaloNodes = std::vector<unsigned>(halos_as_set.begin(), halos_as_set.end());
+    //PRINT_VECTOR(mHaloNodes);
 }
 
 

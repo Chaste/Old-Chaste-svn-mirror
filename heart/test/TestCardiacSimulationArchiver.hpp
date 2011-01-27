@@ -843,7 +843,7 @@ private:
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
         std::string my_archive = handler.GetOutputDirectoryFullPath() + "archive.arch";
         ///\todo When #1199 is done, re-instate this if
-//        if (PetscTools::GetNumProcs() > 1)
+//        if (PetscTools::IsParallel())
 //        {
             // If we're loading on 1 process, then the archives will differ in one digit:
             // DistributedTetrahedralMesh::mMetisPartitioning !
