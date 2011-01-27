@@ -283,7 +283,7 @@ public:
             PetscTools::Barrier();
             if (turn == PetscTools::GetMyRank())
             {
-                if (!PetscTools::IsSequential())
+                if (PetscTools::IsParallel())
                 {
                     // Report the process number at the beginning of the line
                     printf("%3i: ", turn); //5 chars
@@ -299,7 +299,7 @@ public:
         }
 
         // If there is a collection of processes then report an average
-        if (!PetscTools::IsSequential())
+        if (PetscTools::IsParallel())
         {
             double total_cpu_time[NUM_EVENTS];
             MPI_Reduce(&mWallTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE,
@@ -352,7 +352,7 @@ public:
         std::cout.flush();
         if (PetscTools::AmMaster())
         {
-            if (!PetscTools::IsSequential())
+            if (PetscTools::IsParallel())
             {
                 // Report the process number at the beginning of the line
                 printf("Proc "); //5 chars

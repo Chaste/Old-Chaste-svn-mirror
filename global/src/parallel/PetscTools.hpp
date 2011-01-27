@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif //SPECIAL_SERIAL
 
 /** For use in tests that do not work when run in parallel. */
-#define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
+#define EXIT_IF_PARALLEL if(PetscTools::IsParallel()){TS_TRACE("This test does not pass in parallel yet.");return;}
 /** For use in tests that should ONLY be run in parallel. */
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
 
@@ -105,6 +105,11 @@ public:
      * Just returns whether there is one process or not.
      */
     static bool IsSequential();
+
+    /**
+     * Just returns whether there is more than one process.
+     */
+    static bool IsParallel();
 
     /**
      *  Returns total number of processors

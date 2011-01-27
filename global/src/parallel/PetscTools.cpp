@@ -85,6 +85,12 @@ bool PetscTools::IsSequential()
     return (mNumProcessors == 1);
 }
 
+bool PetscTools::IsParallel()
+{
+    CheckCache();
+    return (mNumProcessors > 1);
+}
+
 unsigned PetscTools::GetNumProcs()
 {
     CheckCache();
@@ -262,7 +268,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
 
 
         
-    if (ignoreOffProcEntries)//&& !IsSequential())
+    if (ignoreOffProcEntries)//&& IsParallel())
     {
         if (rowPreallocation == 0)
         {

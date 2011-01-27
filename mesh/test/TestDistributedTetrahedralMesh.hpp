@@ -684,7 +684,7 @@ public:
         
         TS_ASSERT(num_local_nodes_petsc_parmetis <= max_local_nodes_binary);
         //Watch out for dumb partition and warn about it
-        if (!PetscTools::IsSequential())
+        if (PetscTools::IsParallel())
         {
             //Dumb partition is ceil(n/p), ceil(n/p), .... [ceil(n/p) + n - p*ceil(n/p)]
             //i.e. most processes get ceil(n/p)  = floor((n+p-1)/p)

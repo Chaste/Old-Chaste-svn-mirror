@@ -93,7 +93,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
 {
     ///\todo #1293 add a timing event for the partitioning
 
-    if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY && !PetscTools::IsSequential())
+    if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY && PetscTools::IsParallel())
     {
         /*
          *  With ParMetisLibraryNodePartitioning we compute the element partition first
@@ -106,11 +106,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
         /*
          *  Otherwise we compute the node partition and then we workout element distribution
          */
-        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::METIS_LIBRARY && !PetscTools::IsSequential())
+        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::METIS_LIBRARY && PetscTools::IsParallel())
         {
             MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
         }
-        else if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+        else if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && PetscTools::IsParallel())
         {
             PetscMatrixPartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
         }
@@ -191,7 +191,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
             }
         }
         
-        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+        if (mMetisPartitioning==DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION && PetscTools::IsParallel())
         {
             PetscTools::Barrier();
             if(PetscTools::AmMaster())
@@ -417,7 +417,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     PetscTools::ReplicateException(false);
 //    std::cout << "went past this!" << std::flush <<std::endl;
 
-    if (mMetisPartitioning != DistributedTetrahedralMeshPartitionType::DUMB && !PetscTools::IsSequential())
+    if (mMetisPartitioning != DistributedTetrahedralMeshPartitionType::DUMB && PetscTools::IsParallel())
     {
         assert(this->mNodesPermutation.size() != 0);
         // We reorder so that each process owns a contiguous set of the indices and we can then build a distributed vector factory.
@@ -676,7 +676,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
                                                                                  std::set<unsigned>& rNodesOwned,
                                                                                  std::vector<unsigned>& rProcessorsOffset)
 {
-    assert(!PetscTools::IsSequential());
+    assert(PetscTools::IsParallel());
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
     unsigned num_nodes = rMeshReader.GetNumNodes();
@@ -894,7 +894,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartiti
                                                                                   std::set<unsigned>& rNodesOwned,
                                                                                   std::vector<unsigned>& rProcessorsOffset)
 {
-    assert(!PetscTools::IsSequential());
+    assert(PetscTools::IsParallel());
 
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
@@ -998,7 +998,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartiti
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes()
 {
-    assert(!PetscTools::IsSequential());
+    assert(PetscTools::IsParallel());
 
     // Need to rebuild global-local maps
     mNodesMapping.clear();
@@ -1560,7 +1560,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
                                                                                        std::set<unsigned>& rHaloNodesOwned,
                                                                                        std::vector<unsigned>& rProcessorsOffset)
 {
-    assert(!PetscTools::IsSequential());
+    assert(PetscTools::IsParallel());
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
     const unsigned num_elements = rMeshReader.GetNumElements();

@@ -57,6 +57,7 @@ public:
         TS_ASSERT_EQUALS( PetscTools::GetNumProcs(), (unsigned)num_procs);
         bool is_sequential = (num_procs==1);
         TS_ASSERT_EQUALS( PetscTools::IsSequential(), is_sequential);
+        TS_ASSERT_EQUALS( PetscTools::IsParallel(), !is_sequential);
         bool am_right = (my_rank == num_procs - 1 );
         TS_ASSERT_EQUALS( PetscTools::AmTopMost(), am_right);
 

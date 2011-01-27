@@ -100,7 +100,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
 void ExecutableSupport::ShowParallelLaunching()
 {
-    if (!PetscTools::IsSequential())
+    if (PetscTools::IsParallel())
     {
         ///Information to show that Chaste is being run in parallel
         for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)

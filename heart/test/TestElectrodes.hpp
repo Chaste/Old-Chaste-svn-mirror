@@ -170,7 +170,7 @@ public:
             unsigned index = 120;
 
             // In parallel work out the new index for 120
-            if (!PetscTools::IsSequential())
+            if (PetscTools::IsParallel())
             {
                 index =  mesh.rGetNodePermutation()[120];
             }

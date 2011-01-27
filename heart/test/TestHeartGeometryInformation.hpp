@@ -466,7 +466,7 @@ public:
 
 //#ifdef CHASTE_VTK
 //// Requires  "sudo aptitude install libvtk5-dev" or similar
-//        if  (!PetscTools::IsSequential())
+//        if  (PetscTools::IsParallel())
 //        {
 //            VtkMeshWriter<3,3> writer("", "epi_distance_par", false);
 //            // Add distance from origin into the node "point" data
