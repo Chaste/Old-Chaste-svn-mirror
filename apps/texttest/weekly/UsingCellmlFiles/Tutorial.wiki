@@ -1,5 +1,3 @@
-'''This tutorial is in the process of being converted into an automated test, but at present it needs to be run from inside the Chaste source tree.'''
-
 The executable can be used with a general CellML file to specify the cell model, rather than just choosing from the list of hardcoded cell model options (although some names in the CellML file have to match the names Chaste is expecting). However, in order to run Chaste with CellML files, a full developer installation is (currently) required, as !PyCml is used to convert the CellML into code which is then compiled and dynamically loaded, all when running the executable.
 
 To run a simulation with this, you have to provide the path and name of the CellML model as follows.
@@ -9,7 +7,8 @@ To run a simulation with this, you have to provide the path and name of the Cell
     <Default><Dynamic><Path relative_to="cwd">LuoRudy1991.cellml</Path></Dynamic></Default>
 </IonicModels>
 }}}
-In this example, the file `LuoRudy1991.cellml` should be placed in the same folder as the `UsingCellmlFiles.xml` file.
+In this example, the file `LuoRudy1991.cellml` should be placed in the same folder as the `UsingCellmlFiles.xml` file,
+which should be your current directory when running the simulation.
 
 The executable can also output any of the variables that are used in the cell model. The following block needs to be added to the `Simulation` block of `UsingCellmlFiles.xml`. 
 {{{

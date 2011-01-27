@@ -20,76 +20,65 @@ Further experiments can be run with different conductivities in the myocardial t
 {{{
 #!xml
 
-	<Simulation>
-	    <!-- 
-		Problem definition 
-	    -->
-	    <SpaceDimension>3</SpaceDimension>
-	    <SimulationDuration unit="ms">150.0</SimulationDuration>
-	    <Domain>Mono</Domain>
-       <!-- 
-		Mesh definition 
-	   -->
-	   <Mesh unit="cm">
-		<Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
-       </Mesh>
+    <Simulation>
+        <!-- Problem definition -->
+        <SpaceDimension>3</SpaceDimension>
+        <SimulationDuration unit="ms">150.0</SimulationDuration>
+        <Domain>Mono</Domain>
+        <!-- Mesh definition -->
+        <Mesh unit="cm">
+            <Slab x="0.3" y="0.3" z="0.075" inter_node_space="0.015"/>    
+        </Mesh>
 
-	    <IonicModels>
-			<Default>
-			    <Hardcoded>MahajanShiferaw</Hardcoded>
-			</Default>
-         <!-- 
-	         Conductivity heterogeneity
-	     -->
-	  			<Region>
-				<IonicModel>
-				   <Hardcoded>DifrancescoNoble</Hardcoded>
-				</IonicModel>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="0.13" y="0.0" z="0.03"/>
-						<UpperCoordinates x="0.17" y="0.15" z="0.05"/>
-					</Cuboid>
-				</Location>				
-			</Region>
-    	   </IonicModels>
-	    
-	
-	   <!-- 
-	    	Stimuli (as many <Stimulus> definitions as needed) 
-	   -->
-	   <Stimuli>
-	  	<Stimulus> <!-- #1 -->
-			<Strength unit="uA/cm^3">-355000.0</Strength>
-			<Duration unit="ms">2.0</Duration>
-			<Delay unit="ms">0</Delay>
-			<Location unit="cm">
-				<Cuboid>
-					<LowerCoordinates x="0.13" y="0.0" z="0.03"/>
-					<UpperCoordinates x="0.17" y="0.02" z="0.05"/>
-				</Cuboid>
-			</Location>
-		</Stimulus>	
-        </Stimuli>	
-	    <!-- 
-	         Conductivity heterogeneities 
-	     -->
-	    <ConductivityHeterogeneities>
-		<ConductivityHeterogeneity> <!-- #1 -->
-		    <IntracellularConductivities longi="0.0" trans="2.75" normal="0.0" unit="mS/cm"/>
-	    	    <ExtracellularConductivities longi="0.0"  trans="2.75"  normal="0.0" unit="mS/cm"/>
-			<Location unit="cm">
-				<Cuboid>
-					<LowerCoordinates x="0.12" y="0.0" z="0.015"/>
-					<UpperCoordinates x="0.18" y="0.14" z="0.065"/>
-				</Cuboid>
-			</Location>				
-		</ConductivityHeterogeneity>				
-	     </ConductivityHeterogeneities>	
-	     <!-- 
-		  etc ... 
-             -->
-	</Simulation>
+        <IonicModels>
+            <Default>
+                <Hardcoded>MahajanShiferaw</Hardcoded>
+            </Default>
+            <!-- Cell model heterogeneity -->
+              <Region>
+                <IonicModel>
+                   <Hardcoded>DifrancescoNoble</Hardcoded>
+                </IonicModel>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="0.13" y="0.0" z="0.03"/>
+                        <UpperCoordinates x="0.17" y="0.15" z="0.05"/>
+                    </Cuboid>
+                </Location>
+            </Region>
+        </IonicModels>
+        
+        <!-- Stimuli (as many <Stimulus> definitions as needed) -->
+        <Stimuli>
+          <Stimulus> <!-- #1 -->
+            <Strength unit="uA/cm^3">-355000.0</Strength>
+            <Duration unit="ms">2.0</Duration>
+            <Delay unit="ms">0</Delay>
+            <Location unit="cm">
+                <Cuboid>
+                    <LowerCoordinates x="0.13" y="0.0" z="0.03"/>
+                    <UpperCoordinates x="0.17" y="0.02" z="0.05"/>
+                </Cuboid>
+            </Location>
+          </Stimulus>    
+        </Stimuli>    
+        <!-- 
+             Conductivity heterogeneities 
+         -->
+        <ConductivityHeterogeneities>
+          <ConductivityHeterogeneity> <!-- #1 -->
+            <IntracellularConductivities longi="0.0" trans="2.75" normal="0.0" unit="mS/cm"/>
+            <ExtracellularConductivities longi="0.0"  trans="2.75"  normal="0.0" unit="mS/cm"/>
+            <Location unit="cm">
+                <Cuboid>
+                    <LowerCoordinates x="0.12" y="0.0" z="0.015"/>
+                    <UpperCoordinates x="0.18" y="0.14" z="0.065"/>
+                </Cuboid>
+            </Location>                
+          </ConductivityHeterogeneity>                
+          <!-- etc ... -->
+        </ConductivityHeterogeneities>    
+    </Simulation>
 
 }}}
 
