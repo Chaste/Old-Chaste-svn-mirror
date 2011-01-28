@@ -203,9 +203,7 @@ class CellMLValidator(object):
             DEBUG('validator', 'Loading model with Amara')
             if stream == source:
                 source.seek(0)
-            binder = make_xml_binder()
-            rules = [bt.ws_strip_element_rule(u'*')]
-            doc = amara_parse(source, rules=rules, binderobj=binder)
+            doc = amara_parse_cellml(source)
             DEBUG('validator', 'Validating loaded model')
             res = doc.model.validate(assume_valid=assume_valid, **kw)
             DEBUG('validator', 'Validation complete:', res)

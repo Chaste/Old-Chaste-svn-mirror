@@ -179,6 +179,12 @@ def make_xml_binder():
                              mathml_or)
     return binder
 
+def amara_parse_cellml(source, uri=None, prefixes=None):
+    """Parse a CellML source with default rules and bindings."""
+    binder = make_xml_binder()
+    rules = [bt.ws_strip_element_rule(u'*')]
+    return amara_parse(source, rules=rules, binderobj=binder)
+
 def check_append_safety(elt):
     """
     Check whether elt is safe to make a child, i.e. that it isn't
@@ -230,10 +236,7 @@ class element_base(amara.bindery.element_base):
         Optionally can also pass a default value if the attribute
         doesn't exist (defaults to the empty string).
         """
-        try:
-            attrs = self.xml_attributes
-        except AttributeError:
-            return {}
+        attrs = getattr(self, 'xml_attributes', {})
         keys = [ (ns_, SplitQName(qname)[1]) 
                    for _, (qname, ns_) in attrs.items() ]
         values = [ unicode(getattr(self, attr))
@@ -1722,8 +1725,7 @@ class cellml_variable(Colourable, element_base):
         If this variable already has type Mapped, then update the type of
         our source variable, instead.
         """
-        # If this is becoming a state variable, increment its usage
-        # count
+        # If this is becoming a state variable, increment its usage count
         if var_type is VarTypes.State and not self._cml_var_type is VarTypes.State:
             self._cml_usage_count += 1
         if self._cml_var_type == VarTypes.Mapped and not _orig is self:
@@ -2149,9 +2151,9 @@ class cellml_variable(Colourable, element_base):
         """
         attrs = {(u'units', None): units,
                  (u'name', None): name}
-        if id is not None:
+        if id:
             attrs[(u'cmeta:id', NSS[u'cmeta'])] = id
-        if initial_value is not None:
+        if initial_value:
             attrs[(u'initial_value', None)] = initial_value
         for iface, val in interfaces.items():
             attrs[(iface + u'_interface', None)] = val

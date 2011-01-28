@@ -93,7 +93,7 @@ class ModelModifier(object):
         """
         while True:
             try:
-                comp = self.model.get_component_by_name(cname)
+                self.model.get_component_by_name(cname)
                 cname += u'_'
             except KeyError:
                 # Component with this name doesn't exist
@@ -243,6 +243,25 @@ class ModelModifier(object):
             var = cellml_variable.create_new(comp, vname, source.units) # TODO: what if units are defined locally to source's component?
             comp._add_variable(var)
         return var
+    
+    def add_variable(self, comp, vname, units, id=None, initial_value=None, interfaces={}):
+        """Add a new variable to the given component.
+        
+        Remaining arguments are as for cellml_variable.create_new.
+        Returns the new variable object.
+        
+        TODO: Add ability to add the units to the model if needed, and cope with comp being a cname.
+        """
+        var = cellml_variable.create_new(comp, vname, units.name)
+        comp._add_variable(var)
+        return var
+
+    def del_attr(self, elt, localName, ns=None):
+        """Delete an XML attribute from an element."""
+        for (pyname, (qname, ns_)) in elt.xml_attributes.items():
+            _, name = SplitQName(qname)
+            if ns_ == ns and name == localName:
+                delattr(elt, pyname)
 
 
 class InterfaceGenerator(ModelModifier):
@@ -253,4 +272,100 @@ class InterfaceGenerator(ModelModifier):
     within the CellML model containing these variables, and add units conversions where required.  The
     external code then only needs to interact with this new component.
     """
-    pass
+    def __init__(self, model):
+        super(InterfaceGenerator, self).__init__(model)
+        self._interface_component = None
+
+    def add_input(self, var, units):
+        """Specify a variable as an input to the model.
+        
+        var should be a cellml_variable object already existing in the model.
+        units should be a suitable input to self._get_units_object.
+        
+        If adding both State and Free variables as inputs, make sure to add the Free variable(s) first,
+        or they will implicitly be added as outputs when adding the State variables.
+        """
+        assert isinstance(var, cellml_variable)
+        units = self._get_units_object(units)
+        var = var.get_source_variable(recurse=True) # Ensure we work with source variables only
+        var_name = var.name # TODO: May provide this as an optional input instead
+        # Check that the variable has a suitable type to be an input
+        t = var.get_type()
+        if t == VarTypes.Computed:
+            raise ModelModificationError("Cannot specify computed variable " + var.fullname()
+                                         + " as an input")
+        elif t not in [VarTypes.Constant, VarTypes.Free, VarTypes.State]:
+            raise ModelModificationError("Variable " + var.fullname() + " has unexpected type " + t)
+        # Add a new variable with desired units to the interface component
+        comp = self._get_interface_component()
+        newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
+                                   initial_value=getattr(var, u'initial_value', None),
+                                   interfaces={u'public': u'out'})
+        # If the original variable is exported on its public_interface, re-route mapped variables
+        # to connect directly to the new variable
+        if getattr(var, u'public_interface', u'none') == u'in':
+            raise NotImplementedError
+        # If the original variable was a state variable, move the defining equation to the interface
+        # component
+        if t == VarTypes.State:
+            raise NotImplementedError
+        # Annotate the new variable as a parameter if the original was a constant
+        if t == VarTypes.Constant:
+            newvar.set_is_modifiable_parameter(True)
+        # Set the original variable to be mapped to the new one
+        var._set_type(VarTypes.Unknown)
+        self.del_attr(var, u'initial_value')
+        self.del_attr(var, u'id', NSS['cmeta'])
+        self.connect_variables((comp.name, newvar.name), (var.component.name, var.name))
+        return newvar
+
+    def add_output(self, var, units, annotate=True):
+        """Specify a variable as an output of the model.
+        
+        var should be a cellml_variable object already existing in the model.
+        units should be a suitable input to self._get_units_object.
+        If annotate is set to True, the new variable will be annotated as a derived quantity.
+        """
+        assert isinstance(var, cellml_variable)
+        units = self._get_units_object(units)
+        var = var.get_source_variable(recurse=True)
+        var_name = var.name
+        comp = self._get_interface_component()
+        newvar = self.add_variable(comp, var_name, units)
+        self.connect_variables((var.component.name, var.name), (comp.name, newvar.name))
+        if annotate:
+            newvar.set_is_derived_quantity(True)
+        return newvar
+    
+    def add_output_function(self):
+        pass
+    
+    def _get_interface_component(self):
+        """Get the new component that will contain the interface.
+        
+        The name will be 'interface' component, unless a component with that name already exists,
+        in which case underscores will be added to the component name to make it unique.
+        """
+        if self._interface_component is None:
+            self._interface_component = self.create_new_component(u'interface')
+        return self._interface_component
+    
+    def _get_units_object(self, units):
+        """Helper function to convert a units specification into a cellml_units object.
+        
+        The input can be a cellml_units object, in which case we just return it.
+        However, it can also be a serialised CellML units definition, in which case it
+        will be parsed to create the object.
+        """
+        if isinstance(units, cellml_units):
+            # We're done
+            pass
+        else:
+            units = amara_parse_cellml(unicode(units))
+        assert isinstance(units, cellml_units)
+        return units
+
+# When calling connect_variables, we'll probably need to have created the target in the new interface
+# component already, so that it has the desired units.
+# For i_ionic, we don't need to do that - individual currents should have model units, and we'll add
+# the conversion for the summation.

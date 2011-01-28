@@ -3927,16 +3927,13 @@ class SolverInfo(object):
             solver_info.xml_append(jac_elt)
             jac_vars = model._cml_jacobian.keys()
             jac_vars.sort() # Will sort by variable name
-            rules = [bt.ws_strip_element_rule(u'*')]
             for v_i, v_j in jac_vars:
                 # Add (i,j)-th entry
-                binder = make_xml_binder()
                 attrs = {u'var_i': self._fix_jac_var_name(v_i),
                          u'var_j': self._fix_jac_var_name(v_j)}
                 entry = model.xml_create_element(u'entry', NSS[u'solver'], attributes=attrs)
                 jac_elt.xml_append(entry)
-                entry_doc = amara_parse(model._cml_jacobian[(v_i, v_j)].xml(),
-                                        rules=rules, binderobj=binder)
+                entry_doc = amara_parse_cellml(model._cml_jacobian[(v_i, v_j)].xml())
                 entry.xml_append(entry_doc.math)
         return
 
