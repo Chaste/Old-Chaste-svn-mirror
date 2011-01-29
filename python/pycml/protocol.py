@@ -269,7 +269,7 @@ class Protocol(processors.ModelModifier):
             cname, vname = self._split_name(unicode(lhs))
             assigned_var = self.model.get_variable_by_name(cname, vname)
             self._remove_existing_definition(assigned_var, False)
-            self._add_expr_to_comp(cname, expr)
+            self.add_expr_to_comp(cname, expr)
         else:
             # This had better be an ODE
             assert lhs.localName == u'apply', 'Expression is not a straight assignment or ODE'
@@ -279,7 +279,7 @@ class Protocol(processors.ModelModifier):
             cname, dep_var_name = self._split_name(unicode(dep_var))
             dep_var = self.model.get_variable_by_name(cname, dep_var_name)
             self._remove_existing_definition(dep_var, True)
-            self._add_expr_to_comp(cname, expr)
+            self.add_expr_to_comp(cname, expr)
 
     def _remove_existing_definition(self, var, keep_initial_value):
         """Remove any existing definition (as an equation) of the given variable.
@@ -298,17 +298,7 @@ class Protocol(processors.ModelModifier):
             assert isinstance(dep, mathml_apply)
             dep.xml_parent.xml_remove_child(dep)
             dep.xml_parent = None # Not done by Amara...
-    
-    def _add_expr_to_comp(self, cname, expr):
-        """Add an expression to the mathematics in the given component."""
-        comp = self.model.get_component_by_name(cname)
-        if not hasattr(comp, u'math'):
-            # Create the math element
-            math = comp.xml_create_element(u'math', NSS[u'm'])
-            comp.xml_append(math)
-        # Append this expression
-        comp.math.xml_append(expr)
-    
+        
     def _filter_assignments(self):
         """Apply protocol outputs to reduce the model size.
         

@@ -43,6 +43,7 @@ from cStringIO import StringIO
 import pycml
 from pycml import *  # Put contents in the local namespace as well
 import optimize
+import processors
 import validator
 
 __version__ = "$Revision$"[11:-2]
@@ -110,6 +111,14 @@ class CellMLTranslator(object):
             raise cls.NameAlreadyRegistered(name)
         cls.translators[name] = subclass
         return
+    
+    @staticmethod
+    def generate_interface(doc):
+        """Generate an interface component connecting the model to whatever will use it.
+        
+        Stub method that subclasses can override to implement this functionality.
+        """
+        pass
 
     # Methods we could add:
     # start_func(name, args, rettype)
@@ -2761,6 +2770,26 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                            {'units': 'farad', 'exponent': '-1'}])
         return [chaste_units, microamps, A_per_F]
 
+    @staticmethod
+    def generate_interface(doc):
+        """Generate an interface component connecting the model to Chaste.
+        
+        On return from this method, Chaste code will only need to interact with variables in
+        the new interface component.  It will contain the transmembrane potential, the ionic
+        and stimulus currents, and the simulation time.
+        
+        It may also contain other variables depending on the model, for example the intracellular
+        calcium concentration (if annotated), modifiable parameters, and derived quantities.
+        
+        Performing units conversion on the model subsequent to calling this method will ensure
+        that all these variables are in the units expected by Chaste, and linked by suitable
+        conversions to the rest of the model.
+        
+        Note that if partial evaluation is then performed, the model will be collapsed into a
+        single component.  However, the interface will still be preserved in the correct units.
+        """
+        pass
+
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):
     """Translate a CellML model to C++ code for use with Chaste+CVODE."""
@@ -5047,8 +5076,11 @@ def run():
         # Use defaults
         config.find_transmembrane_potential()
         config.find_current_vars()
-
     config.validate_metadata(options.assume_valid)
+
+    # Generate an interface component, if desired
+    translator_klass = CellMLTranslator.translators[options.translate_type]
+    translator_klass.generate_interface(doc)
 
     # These bits could do with improving, as they annotate more than is really needed!
     # We need to ensure PE doesn't remove ionic currents needed for GetIIonic
@@ -5122,8 +5154,6 @@ def run():
 
     if options.translate:
         # Translate to code
-        klasses = CellMLTranslator.translators
-        klass = klasses[options.translate_type]
         initargs = {'add_timestamp': not options.no_timestamp,
                     'options': options}
         transargs = {'v_variable': config.V_variable}
@@ -5131,10 +5161,10 @@ def run():
         transargs['lt_index_uses_floor'] = options.lt_index_uses_floor
         transargs['constrain_table_indices'] = options.constrain_table_indices
         transargs['bad_tables_for_cache'] = options.bad_tables_for_cache
-        if issubclass(klass, CellMLToMapleTranslator):
+        if issubclass(translator_klass, CellMLToMapleTranslator):
             initargs['omit_constants'] = options.omit_constants
             initargs['compute_full_jacobian'] = options.compute_full_jacobian
-        elif issubclass(klass, CellMLToChasteTranslator):
+        elif issubclass(translator_klass, CellMLToChasteTranslator):
             solver_info.add_membrane_ionic_current()
             transargs['use_chaste_stimulus'] = options.use_chaste_stimulus
             transargs['separate_lut_class'] = options.separate_lut_class
@@ -5143,7 +5173,7 @@ def run():
             transargs['use_modifiers'] = options.use_modifiers
             transargs['dynamically_loadable'] = options.dynamically_loadable
             transargs['use_protocol'] = bool(options.protocol)
-        t = klass(**initargs)
+        t = translator_klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
         cellml_metadata.remove_model(doc.model)
     else:

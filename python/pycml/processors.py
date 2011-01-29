@@ -106,14 +106,20 @@ class ModelModifier(object):
     def connect_variables(self, source, target):
         """Create a connection between the given source and target variables.
         
-        The variables are both specified by a pair (cname,vname).  The source
-        variable must exist within the model, whereas the target might not, in
+        The variables are both specified either by a pair (cname,vname), or as cellml_variable objects.
+        The source variable must exist within the model, whereas the target might not, in
         which case it will be created.
         
         The variable names must currently be identical.  TODO: This will probably have to change.
         """
-        src_cname, src_vname = source
-        target_cname, target_vname = target
+        if isinstance(source, cellml_variable):
+            src_cname, src_vname = source.component.name, source.name
+        else:
+            src_cname, src_vname = source
+        if isinstance(target, cellml_variable):
+            target_cname, target_vname = target.component.name, target.name
+        else:
+            target_cname, target_vname = target
         assert target_vname == src_vname
         src_comp = self.model.get_component_by_name(src_cname)
         target_comp = self.model.get_component_by_name(target_cname)
@@ -177,11 +183,12 @@ class ModelModifier(object):
             raise ModelModificationError("Cannot connect " + target_var.fullname() + " to source " +
                                          src_var.fullname() + " as the target has the wrong type.")
     
-    def _create_connection_element(self, var1, var2):
-        """Create a connection element connecting the given variables and add to the model.
+    def _find_connection_element(self, var1, var2):
+        """Find any connection element containing a connection of the given variables.
         
-        If there's already a connection element for the relevant pair of components,
-        we just add another map_variables element to that.
+        Returns a pair, the first element of which is either the element or None, and the
+        second of which is a boolean indicating whether the variables need to be swapped
+        in order to match the order of the components in the connection.
         """
         xpath_template = u'(cml:map_components/@component_1 = "%s" and cml:map_components/@component_2 = "%s")'
         cn1, cn2 = var1.component.name, var2.component.name
@@ -189,8 +196,21 @@ class ModelModifier(object):
         conn = self.model.xml_xpath(u'cml:connection[%s]' % (xpath_predicate,))
         if conn:
             conn = conn[0]
-            # Check if we need to swap the variables
-            if conn.map_components.component_1 == cn2:
+            swap = conn.map_components.component_1 == cn2
+        else:
+            conn = None
+            swap = False
+        return conn, swap
+    
+    def _create_connection_element(self, var1, var2):
+        """Create a connection element connecting the given variables and add to the model.
+        
+        If there's already a connection element for the relevant pair of components,
+        we just add another map_variables element to that.
+        """
+        conn, swap = self._find_connection_element(var1, var2)
+        if conn:
+            if swap:
                 var1, var2 = var2, var1
         else:
             conn = var1.xml_create_element(u'connection', NSS[u'cml'])
@@ -203,6 +223,26 @@ class ModelModifier(object):
                                        attributes={u'variable_1': var1.name,
                                                    u'variable_2': var2.name})
         conn.xml_append(mapv)
+    
+    def remove_connection(self, var1, var2):
+        """Remove a connection between two variables.
+        
+        Removes the relevant map_variables element.
+        If this results in an empty connection element, remove that as well.
+        """
+        conn, swap = self._find_connection_element(var1, var2)
+        if not conn:
+            raise ModelModificationError("Cannot remove non-existent connection.")
+        if swap:
+            var1, var2 = var2, var1
+        # Find the relevant map_variables element
+        mapv = conn.xml_xpath(u'cml:map_variables[@variable_1="%s" and @variable_2="%s"]'
+                              % (var1.name, var2.name))
+        if not mapv:
+            raise ModelModificationError("Cannot remove non-existent connection.")
+        conn.xml_remove_child(mapv[0])
+        if not hasattr(conn, u'map_variables'):
+            conn.xml_parent.xml_remove_child(conn)
     
     def _find_common_tail(self, l1, l2):
         """Find the first element at which both lists are identical from then on."""
@@ -255,9 +295,23 @@ class ModelModifier(object):
         var = cellml_variable.create_new(comp, vname, units.name)
         comp._add_variable(var)
         return var
+    
+    def add_expr_to_comp(self, comp, expr):
+        """Add an expression to the mathematics in the given component.
+        
+        comp may be a cellml_component instance or a component name.
+        """
+        if not isinstance(comp, cellml_component):
+            comp = self.model.get_component_by_name(comp)
+        if not hasattr(comp, u'math'):
+            # Create the math element
+            math = comp.xml_create_element(u'math', NSS[u'm'])
+            comp.xml_append(math)
+        # Append this expression
+        comp.math.xml_append(expr)
 
     def del_attr(self, elt, localName, ns=None):
-        """Delete an XML attribute from an element."""
+        """Delete an XML attribute from an element, if it exists."""
         for (pyname, (qname, ns_)) in elt.xml_attributes.items():
             _, name = SplitQName(qname)
             if ns_ == ns and name == localName:
@@ -303,12 +357,12 @@ class InterfaceGenerator(ModelModifier):
                                    interfaces={u'public': u'out'})
         # If the original variable is exported on its public_interface, re-route mapped variables
         # to connect directly to the new variable
-        if getattr(var, u'public_interface', u'none') == u'in':
-            raise NotImplementedError
+        if getattr(var, u'public_interface', u'none') == u'out':
+            self._reconnect_variables(var, newvar, u'public')
         # If the original variable was a state variable, move the defining equation to the interface
         # component
         if t == VarTypes.State:
-            raise NotImplementedError
+            self._move_equations(var._get_all_expr_dependencies(), comp)
         # Annotate the new variable as a parameter if the original was a constant
         if t == VarTypes.Constant:
             newvar.set_is_modifiable_parameter(True)
@@ -316,7 +370,7 @@ class InterfaceGenerator(ModelModifier):
         var._set_type(VarTypes.Unknown)
         self.del_attr(var, u'initial_value')
         self.del_attr(var, u'id', NSS['cmeta'])
-        self.connect_variables((comp.name, newvar.name), (var.component.name, var.name))
+        self.connect_variables(newvar, var)
         return newvar
 
     def add_output(self, var, units, annotate=True):
@@ -332,13 +386,49 @@ class InterfaceGenerator(ModelModifier):
         var_name = var.name
         comp = self._get_interface_component()
         newvar = self.add_variable(comp, var_name, units)
-        self.connect_variables((var.component.name, var.name), (comp.name, newvar.name))
+        self.connect_variables(var, newvar)
         if annotate:
             newvar.set_is_derived_quantity(True)
         return newvar
     
-    def add_output_function(self):
-        pass
+    def add_output_function(self, operator, argVars, units):
+        """Add an output that's defined as a (MathML) function of existing model variables.
+        
+        The desired units are those of the function's result.  The function arguments will be
+        imported with their units as given by the model, and the function calculated.  This result
+        will then be units-converted if necessary.
+        """
+        raise NotImplementedError
+    
+    def _reconnect_variables(self, oldVar, newVar, interface):
+        """Change any variables that take their value from oldVar on interface to obtain it from newVar instead."""
+        # Find variables that need to change
+        for var in self.model.get_all_variables():
+            if var.get_source_variable(recurse=False) is oldVar:
+                # Check it uses the right interface
+                if ((interface == u'public' and var.component.parent() is oldVar.component.parent()) or
+                    (interface == u'private' and var.component.parent() is oldVar.component)):
+                    self.remove_connection(oldVar, var)
+                    var._set_type(VarTypes.Unknown)
+                    self.connect_variables(newVar, var)
+    
+    def _move_equations(self, exprs, comp):
+        """Remove the given equations from their current component and place them in comp.
+        
+        For variables used in exprs and not already in comp, new variables will be added to comp
+        and connected to the source variables.
+        """
+        for expr in exprs:
+            # Move the expression
+            assert isinstance(expr, mathml_apply)
+            expr.xml_parent.safe_remove_child(expr)
+            self.add_expr_to_comp(comp, expr)
+            # Ensure it has all the variables it needs
+            for var in expr._get_dependencies():
+                assert isinstance(var, cellml_variable)
+                self.connect_variables(var, (comp.name, var.name))
+            # It now assigns to and depends on new variable objects
+            expr.clear_dependency_info()
     
     def _get_interface_component(self):
         """Get the new component that will contain the interface.
@@ -364,8 +454,3 @@ class InterfaceGenerator(ModelModifier):
             units = amara_parse_cellml(unicode(units))
         assert isinstance(units, cellml_units)
         return units
-
-# When calling connect_variables, we'll probably need to have created the target in the new interface
-# component already, so that it has the desired units.
-# For i_ionic, we don't need to do that - individual currents should have model units, and we'll add
-# the conversion for the summation.
