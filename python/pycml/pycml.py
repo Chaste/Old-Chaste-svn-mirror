@@ -5511,10 +5511,6 @@ class mathml_exp(mathml_operator, mathml_units_mixin_set_operands):
 
 class mathml_ln(mathml_operator, mathml_units_mixin_set_operands):
     """Class representing the MathML <ln> operator."""
-    def __init__(self):
-        super(mathml_ln, self).__init__()
-        return
-
     def evaluate(self):
         """Return the natural logarithm of the single operand."""
         app = self.xml_parent
@@ -5525,10 +5521,6 @@ class mathml_ln(mathml_operator, mathml_units_mixin_set_operands):
 
 class mathml_log(mathml_operator, mathml_units_mixin_set_operands):
     """Class representing the MathML <log> operator."""
-    def __init__(self):
-        super(mathml_ln, self).__init__()
-        return
-
     def evaluate(self):
         """Return the logarithm of the single operand."""
         app = self.xml_parent
