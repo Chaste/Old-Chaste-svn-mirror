@@ -312,8 +312,7 @@ class PartialEvaluator(object):
                 # Only move used source variables
                 self._debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
                            'type', var.get_type(), 'kept', var.pe_keep)
-                if (var.get_usage_count() and
-                    var.get_type() != VarTypes.Mapped) or var.pe_keep:
+                if (var.get_usage_count() and var.get_type() != VarTypes.Mapped) or var.pe_keep:
                     self._debug('Moving variable', var.fullname())
                     # Remove from where it was
                     comp._del_variable(var, keep_annotations=True)

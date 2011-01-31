@@ -168,7 +168,7 @@ def make_xml_binder():
                              cellml_unit)
     for mathml_elt in ['math', 'degree', 'logbase', 'otherwise',
                        'diff', 'plus', 'minus', 'times', 'divide',
-                       'exp', 'ln', 'power', 'root',
+                       'exp', 'ln', 'log', 'abs', 'power', 'root',
                        'leq', 'geq', 'lt', 'gt', 'eq', 'neq',
                        'ci', 'cn', 'apply', 'piecewise']:
         exec "binder.set_binding_class(NSS[u'm'], '%s', mathml_%s)" % \
@@ -1213,30 +1213,25 @@ class cellml_model(element_base):
                 if not u1 == u2:
                     # We need a conversion
                     # Add a copy of var1 to comp1, with units as var2
-                    attrs = {}
-                    for apyname, aname in var1.xml_attributes.iteritems():
-                        attrs[aname] = getattr(var1, apyname)
-                    attrs[(u'units',None)] = var2.units
-                    attrs[(u'name',None)] = var1.name + u'_converter'
+                    if getattr(var1, u'public_interface', '') == u'in':
+                        in_interface = u'public_interface'
+                    else:
+                        in_interface = u'private_interface'
+                    attrs = {(in_interface, None): u'in',
+                             (u'units', None): var2.units,
+                             (u'name', None): var1.name + u'_converter'}
                     var1_converter = var1.xml_create_element(
                         u'variable', NSS[u'cml'], attributes=attrs)
                     var1._cml_var_type = VarTypes.Computed
                     var1._cml_source_var = None
+                    delattr(var1, in_interface)
                     var1_converter._cml_var_type = VarTypes.Mapped
                     var1_converter._cml_source_var = var2
                     var1_converter._cml_depends_on = [var2]
                     var1_converter._cml_binding_time = var1._cml_binding_time
-                    var1_converter._cml_usage_count = var1._cml_usage_count
                     comp1._add_variable(var1_converter)
-                    # Remove the interface from var1
-                    if getattr(var1, u'public_interface', '') == u'in':
-                        del var1.public_interface
-                    elif getattr(var1, u'private_interface', '') == u'in':
-                        del var1.private_interface
                     # Add assignment maths for var1 := var1_converter
-                    app = mathml_apply.create_new(
-                        self, u'eq', [var1.name,
-                                      var1_converter.name])
+                    app = mathml_apply.create_new(self, u'eq', [var1.name, var1_converter.name])
                     if hasattr(comp1, u'math'):
                         math = comp1.math
                     else:
@@ -1244,11 +1239,16 @@ class cellml_model(element_base):
                         comp1.xml_append(math)
                     math.xml_append(app)
                     var1._cml_depends_on = [app]
+                    app._cml_assigns_to = var1
                     # Update mapping to var1_converter := var2
                     if swapped:
                         mapping.variable_2 = var1_converter.name
                     else:
                         mapping.variable_1 = var1_converter.name
+                    # Fix usage counts - var1_converter is only used by app, and so var2 usage decreases
+                    var1_converter._used()
+                    for _ in range(var1.get_usage_count()):
+                        var2._decrement_usage_count()
                     # Apply units conversion to the assignment
                     app.get_units()
                     app._set_in_units(boolean)
@@ -1263,19 +1263,17 @@ class cellml_model(element_base):
     def find_state_vars(self):
         """Return a list of the state variable elements in this model."""
         state_vars = []
-        for comp in getattr(self, u'component', []):
-            for var in getattr(comp, u'variable', []):
-                if var.get_type() == VarTypes.State:
-                    state_vars.append(var)
+        for var in self.get_all_variables():
+            if var.get_type() == VarTypes.State:
+                state_vars.append(var)
         return state_vars
 
     def find_free_vars(self):
         """Return a list of the free variable elements in this model."""
         free_vars = []
-        for comp in getattr(self, u'component', []):
-            for var in getattr(comp, u'variable', []):
-                if var.get_type() == VarTypes.Free:
-                    free_vars.append(var)
+        for var in self.get_all_variables():
+            if var.get_type() == VarTypes.Free:
+                free_vars.append(var)
         return free_vars
     
     def calculate_extended_dependencies(self, nodes, prune=[],
@@ -1602,7 +1600,7 @@ class cellml_variable(Colourable, element_base):
         return 'cellml_variable' + self.fullname()
     
     def __repr__(self):
-        return '<cellml_variable %s at 0x%x>' % (self.fullname(), id(self))
+        return '<cellml_variable %s @ 0x%x>' % (self.fullname(), id(self))
 
     def get_component(self):
         return self.xml_parent
@@ -1652,6 +1650,7 @@ class cellml_variable(Colourable, element_base):
         else:
             self._cml_depends_on_ode[independent_var] = expr
         return
+    
     def _get_ode_dependency(self, independent_var, context=None):
         """
         Return the expression defining the ODE giving the derivative of this
@@ -1660,13 +1659,16 @@ class cellml_variable(Colourable, element_base):
         """
         independent_var = independent_var.get_source_variable(recurse=True)
         if self.get_type() == VarTypes.Mapped:
-            return self.get_source_variable()._get_ode_dependency(independent_var,
-                                                                  context=context)
-        if not independent_var in self._cml_depends_on_ode:
+            return self.get_source_variable()._get_ode_dependency(independent_var, context=context)
+        free_vars = self._cml_depends_on_ode.keys()
+        free_vars = dict(zip(map(lambda v: v.get_source_variable(recurse=True), free_vars),
+                             free_vars))
+        if not independent_var in free_vars:
             raise MathsError(context or self, u''.join([
                 u'The ODE d',self.fullname(),u'/d',independent_var.fullname(),
                 u'is used but not defined.']))
-        return self._cml_depends_on_ode[independent_var]
+        return self._cml_depends_on_ode[free_vars[independent_var]]
+    
     def _get_all_expr_dependencies(self):
         """Return all expressions this variable depends on, either directly or as an ODE."""
         deps = filter(lambda d: isinstance(d, mathml_apply), self._cml_depends_on)
@@ -2141,24 +2143,21 @@ class cellml_variable(Colourable, element_base):
                 self._cml_source_var = None
     
     @staticmethod
-    def create_new(elt, name, units, id=None, initial_value=None,
-                   interfaces={}):
+    def create_new(elt, name, units, id=None, initial_value=None, interfaces={}):
         """Create a new <variable> element with the given name and units.
         
         Optionally id, initial_value, and interfaces may also be given.
         
         elt may be any existing XML element.
         """
-        attrs = {(u'units', None): units,
-                 (u'name', None): name}
+        attrs = {(u'units', None): units, (u'name', None): name}
         if id:
             attrs[(u'cmeta:id', NSS[u'cmeta'])] = id
         if initial_value:
             attrs[(u'initial_value', None)] = initial_value
         for iface, val in interfaces.items():
             attrs[(iface + u'_interface', None)] = val
-        new_elt = elt.xml_create_element(u'variable', NSS[u'cml'],
-                                         attributes=attrs)
+        new_elt = elt.xml_create_element(u'variable', NSS[u'cml'], attributes=attrs)
         return new_elt
 
 class UnitsSet(set):
@@ -2167,21 +2166,20 @@ class UnitsSet(set):
     This class behaves like a normal set, but also has additional
     methods for operations specific to sets of <units> objects:
       simplify - allow for multiplication of sets of units
-      dimensionally_equivalent - compare 2 sets of units for
-          dimensional equivalence
+      dimensionally_equivalent - compare 2 sets of units for dimensional equivalence
       description - describe the units in this set
 
     All units in the set must be dimensionally equivalent.
     """
     def __new__(cls, iterable=[], expression=None):
         """
-        Work around annoyance in set implementation of python 2.4.2c1
-        and on.  setobject.c checks for keyword arguments in it's
-        __new__ instead of its __init__, so we get an error
-        'TypeError: set() does not take keyword arguments' if we don't
-        do this.
+        Work around annoyance in set implementation of python 2.4.2c1 and on.
+        setobject.c checks for keyword arguments in its __new__ instead of its
+        __init__, so we get an error
+        'TypeError: set() does not take keyword arguments' if we don't do this.
         """
         return super(UnitsSet, cls).__new__(cls, iterable)
+    
     def __init__(self, iterable=[], expression=None):
         super(UnitsSet, self).__init__(iterable)
         self._expression = expression
@@ -2354,6 +2352,9 @@ class cellml_units(Colourable, element_base):
         self._cml_quotients = {}
         self._cml_hash = None
         return
+    
+    def __repr__(self):
+        return '<cellml_units %s @ 0x%x>' % (self.name, id(self))
 
     @property
     def _hash_tuple(self):
@@ -3060,14 +3061,14 @@ class cellml_unit(element_base):
             # Chase the reference and cache it
             self._cml_units_obj = self.xml_parent.get_units_by_name(self.units)
         return self._cml_units_obj
-    def _set_units_element(self, obj):
+    def _set_units_element(self, obj, override=False):
         """
         Set the object representing the <units> element
         that this <unit> element references.
         
         Don't use unless you know what you're doing.
         """
-        assert(self._cml_units_obj is None)
+        assert override or self._cml_units_obj is None
         self._cml_units_obj = obj
         return
 
@@ -3386,7 +3387,7 @@ class mathml_units_mixin_equalise_operands(mathml_units_mixin):
     def _set_in_units(self, units, no_act=False):
         """Set the units of the application of this operator.
 
-        This method is used for the relation operators.  It ignores the
+        This method is used for the relational operators.  It ignores the
         given units, and instead ensures that all operands have the same
         units.  The units it chooses are those that are 'least' amongst the
         possibilities for the operand units, i.e. that have the smallest
@@ -4321,6 +4322,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                 expr = src_units_set.get_expression()
                 self._set_element_in_units(expr, src_units, no_act)
                 done = True
+            if not done and not no_act:
+                # Some operators need this to be a UnitsSet
+                self._cml_units = UnitsSet([units], self)
         if not done:
             # The behaviour now depends on the operator
             op = self.operator()
@@ -5536,6 +5540,16 @@ class mathml_log(mathml_operator, mathml_units_mixin_set_operands):
         else:
             base = 10
         return math.log(self.eval(ops[0]), base)
+
+class mathml_abs(mathml_operator, mathml_units_mixin_set_operands):
+    """Class representing the MathML <abs> operator."""
+    def evaluate(self):
+        """Return the absolute value of the single operand."""
+        app = self.xml_parent
+        ops = list(app.operands())
+        if len(ops) != 1:
+            self.wrong_number_of_operands(len(ops), [1])
+        return abs(self.eval(ops[0]))
 
 class mathml_power(mathml_operator, mathml_units_mixin):
     """Class representing the MathML <power> operator."""

@@ -368,8 +368,8 @@ class TestProtocol(unittest.TestCase):
         p.modify_model()
         # Likewise for the order in which they appear in the model
         p = self.CreateLr91Test()
-        n2 = u'fast_sodium_current,stim1'
         n1 = u'slow_inward_current,stim2'
+        n2 = u'fast_sodium_current,stim1'
         p.inputs = [self.NewVariable(n1, u'microA_per_cm2'),
                     self.NewVariable(n2, u'microA_per_cm2'),
                     self.NewAssign(n2, n1),
@@ -475,8 +475,7 @@ class TestProtocol(unittest.TestCase):
         self.assert_(self.FindConn('time_dependent_potassium_current,Ko', 'ionic_concentrations,Ko'))
         self.assertRaises(IndexError, self.FindConn, 'time_dependent_potassium_current,Ki', 'ionic_concentrations,Ki')
         # Check the model is still valid
-        p._clear_model_caches()
-        p.reanalyse_model(p._error_handler)
+        p.finalize(p._error_handler)
         # We also need a test that no outputs = don't change the list
         p = self.CreateLr91Test()
         orig_assignments = self._doc.model.get_assignments()[:]

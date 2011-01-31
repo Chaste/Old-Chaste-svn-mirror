@@ -52,7 +52,7 @@ class ModelModifier(object):
         """Constructor."""
         self.model = model
         
-    def reanalyse_model(self, error_handler):
+    def finalize(self, error_handler):
         """Re-do the model validation steps needed for further processing of the model.
         
         Checks connections, etc. and builds up the dependency graph again, then performs
@@ -64,6 +64,7 @@ class ModelModifier(object):
         TODO: figure out how to determine how much of this is actually needed - InterfaceGenerator
         can probably get away with less work.
         """
+        self._clear_model_caches()
         # We want to see any errors
         logging_info = validator.CellMLValidator.setup_logging(show_errors=True, show_warnings=False)
         # Re-run validation & analysis
@@ -84,7 +85,21 @@ class ModelModifier(object):
             error_handler(self.model._cml_validation_errors)
         # Clear up logging
         validator.CellMLValidator.cleanup_logging(logging_info)
-        
+
+    def _clear_model_caches(self):
+        """
+        Clear cached links in the model, since we'll need to recompute many of them
+        once we've finished modifying it.  Also clears dependency information.
+        """
+        for comp in getattr(self.model, u'component', []):
+            for math in getattr(comp, u'math', []):
+                math._unset_cached_links()
+        for var in self.model.get_all_variables():
+            var.clear_dependency_info()
+        assignment_exprs = self.model.search_for_assignments()
+        for expr in assignment_exprs:
+            expr.clear_dependency_info()
+    
     def create_new_component(self, cname):
         """Create a new component in the model, ensuring the name is unique.
         
@@ -110,8 +125,13 @@ class ModelModifier(object):
         The source variable must exist within the model, whereas the target might not, in
         which case it will be created.
         
+        Note that in the case that both source and target exist, it might NOT be the case that
+        target obtains its value from source.  They might already be connected, and source obtains
+        its value from target.  Or they might both obtain their value from a common source.
+        
         The variable names must currently be identical.  TODO: This will probably have to change.
         """
+#        print "Connecting", target, "to source", source
         if isinstance(source, cellml_variable):
             src_cname, src_vname = source.component.name, source.name
         else:
@@ -123,6 +143,8 @@ class ModelModifier(object):
         assert target_vname == src_vname
         src_comp = self.model.get_component_by_name(src_cname)
         target_comp = self.model.get_component_by_name(target_cname)
+        if src_comp == target_comp:
+            return
         # Determine encapsulation paths from target & source to the root
         src_path = self._parent_path(src_comp)
         target_path = self._parent_path(target_comp)
@@ -139,14 +161,18 @@ class ModelModifier(object):
             self._make_connection(src_comp, target_comp, src_vname)
     
     def _make_connection(self, src_comp, target_comp, vname):
-        """Make a connection between two components using the given variable name."""
+        """Make a connection between two components using the given variable name.
+        
+        Note that in the case that both variables already exist and are connected, the existing
+        connection is allowed to flow in either direction.
+        """
         src_var = src_comp.get_variable_by_name(vname)
         target_var = self._find_or_create_variable(target_comp.name, vname, src_var)
         # Sanity check the target variable
         if target_var.get_type() == VarTypes.Mapped:
             # It must already be mapped to src_var; we're done
-            assert (target_var.get_source_variable() == src_var or
-                    src_var.get_source_variable() == target_var)
+            assert (target_var.get_source_variable() is src_var
+                    or src_var.get_source_variable() is target_var)
 #            print "Connection exists between", src_var, "and target", target_var
             return
         elif target_var.get_type() == VarTypes.Unknown:
@@ -228,7 +254,7 @@ class ModelModifier(object):
         """Remove a connection between two variables.
         
         Removes the relevant map_variables element.
-        If this results in an empty connection element, remove that as well.
+        If this results in an empty connection element, removes that as well.
         """
         conn, swap = self._find_connection_element(var1, var2)
         if not conn:
@@ -243,6 +269,30 @@ class ModelModifier(object):
         conn.xml_remove_child(mapv[0])
         if not hasattr(conn, u'map_variables'):
             conn.xml_parent.xml_remove_child(conn)
+    
+    def remove_connections(self, var):
+        """Remove all connection elements for the given variable.
+        
+        Removes each relevant map_variables element.
+        If this results in an empty connection element, removes that as well.
+        """
+#        print "Removing all connections to", var
+        cname, vname = var.component.name, var.name
+        for conn in list(getattr(self.model, u'connection', [])):
+            if cname == conn.map_components.component_1:
+                vid = u'variable_1'
+            elif cname == conn.map_components.component_2:
+                vid = u'variable_2'
+            else:
+                continue
+            for mapv in conn.map_variables:
+                if vname == getattr(mapv, vid, ''):
+                    # Found a connection
+                    conn.xml_remove_child(mapv)
+                    if not hasattr(conn, u'map_variables'):
+                        conn.xml_parent.xml_remove_child(conn)
+                    # There can't be any more matching map_variables in this connection
+                    break
     
     def _find_common_tail(self, l1, l2):
         """Find the first element at which both lists are identical from then on."""
@@ -279,22 +329,49 @@ class ModelModifier(object):
             var = self.model.get_variable_by_name(cname, vname)
         except KeyError:
             # Create it and add to model
-            comp = self.model.get_component_by_name(cname)
-            var = cellml_variable.create_new(comp, vname, source.units) # TODO: what if units are defined locally to source's component?
-            comp._add_variable(var)
+            units = source.component.get_units_by_name(source.units)
+            var = self.add_variable(cname, vname, units)
         return var
     
-    def add_variable(self, comp, vname, units, id=None, initial_value=None, interfaces={}):
+    def add_variable(self, comp, vname, units, **kwargs):
         """Add a new variable to the given component.
         
         Remaining arguments are as for cellml_variable.create_new.
         Returns the new variable object.
-        
-        TODO: Add ability to add the units to the model if needed, and cope with comp being a cname.
         """
-        var = cellml_variable.create_new(comp, vname, units.name)
+        if not isinstance(comp, cellml_component):
+            comp = self.model.get_component_by_name(comp)
+        units = self.add_units(units)
+        var = cellml_variable.create_new(comp, vname, units.name, **kwargs)
         comp._add_variable(var)
         return var
+    
+    def add_units(self, units):
+        """Add a units definition to the model, if it doesn't already exist.
+        
+        If the definition isn't in the model, at whole-model level, it will be added.  If the same
+        definition is already available, however, that definition should be used by preference.
+        Will return the actual units object to use.
+        """
+#        print "add_units(",repr(units),")",
+        units = self.model._get_units_obj(units)
+#        print "now",repr(units),
+        try:
+            model_units = self.model.get_units_by_name(units.name)
+        except KeyError:
+            model_units = None
+        if model_units:
+#            print "in model", repr(model_units)
+            units = model_units # TODO: Check they're the same definition!
+        else:
+#            print "adding with name", units.name
+            self.model.add_units(units.name, units)
+            self.model.xml_append(units)
+            # Ensure referenced units exist
+            for unit in getattr(units, u'unit', []):
+                unit._set_units_element(self.add_units(unit.get_units_element()), override=True)
+                unit.units = unit.get_units_element().name
+        return units
     
     def add_expr_to_comp(self, comp, expr):
         """Add an expression to the mathematics in the given component.
@@ -338,6 +415,8 @@ class InterfaceGenerator(ModelModifier):
         
         If adding both State and Free variables as inputs, make sure to add the Free variable(s) first,
         or they will implicitly be added as outputs when adding the State variables.
+        
+        The new variable added to the interface component is returned.
         """
         assert isinstance(var, cellml_variable)
         units = self._get_units_object(units)
@@ -355,10 +434,9 @@ class InterfaceGenerator(ModelModifier):
         newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
                                    initial_value=getattr(var, u'initial_value', None),
                                    interfaces={u'public': u'out'})
-        # If the original variable is exported on its public_interface, re-route mapped variables
-        # to connect directly to the new variable
-        if getattr(var, u'public_interface', u'none') == u'out':
-            self._reconnect_variables(var, newvar, u'public')
+        # Remove initial value and id from the original, if they exist
+        self.del_attr(var, u'initial_value')
+        self.del_attr(var, u'id', NSS['cmeta'])
         # If the original variable was a state variable, move the defining equation to the interface
         # component
         if t == VarTypes.State:
@@ -366,11 +444,18 @@ class InterfaceGenerator(ModelModifier):
         # Annotate the new variable as a parameter if the original was a constant
         if t == VarTypes.Constant:
             newvar.set_is_modifiable_parameter(True)
-        # Set the original variable to be mapped to the new one
-        var._set_type(VarTypes.Unknown)
-        self.del_attr(var, u'initial_value')
-        self.del_attr(var, u'id', NSS['cmeta'])
-        self.connect_variables(newvar, var)
+
+        # Set all variables connected to the original variable to be mapped to the new one
+        vars = [v for v in self.model.get_all_variables() if v.get_source_variable(True) is var]
+        # Remove old connections, including interfaces and types so creating the new connection works
+        for v in vars:
+            self.remove_connections(v)
+            self.del_attr(v, u'public_interface')
+            self.del_attr(v, u'private_interface')
+            v.clear_dependency_info()
+        # Create new connections
+        for v in vars:
+            self.connect_variables(newvar, v)
         return newvar
 
     def add_output(self, var, units, annotate=True):
@@ -379,6 +464,8 @@ class InterfaceGenerator(ModelModifier):
         var should be a cellml_variable object already existing in the model.
         units should be a suitable input to self._get_units_object.
         If annotate is set to True, the new variable will be annotated as a derived quantity.
+        
+        The new variable added to the interface component is returned.
         """
         assert isinstance(var, cellml_variable)
         units = self._get_units_object(units)
@@ -397,36 +484,27 @@ class InterfaceGenerator(ModelModifier):
         The desired units are those of the function's result.  The function arguments will be
         imported with their units as given by the model, and the function calculated.  This result
         will then be units-converted if necessary.
+        
+        The new variable added to the interface component is returned.
         """
         raise NotImplementedError
-    
-    def _reconnect_variables(self, oldVar, newVar, interface):
-        """Change any variables that take their value from oldVar on interface to obtain it from newVar instead."""
-        # Find variables that need to change
-        for var in self.model.get_all_variables():
-            if var.get_source_variable(recurse=False) is oldVar:
-                # Check it uses the right interface
-                if ((interface == u'public' and var.component.parent() is oldVar.component.parent()) or
-                    (interface == u'private' and var.component.parent() is oldVar.component)):
-                    self.remove_connection(oldVar, var)
-                    var._set_type(VarTypes.Unknown)
-                    self.connect_variables(newVar, var)
-    
+        
     def _move_equations(self, exprs, comp):
         """Remove the given equations from their current component and place them in comp.
         
         For variables used in exprs and not already in comp, new variables will be added to comp
         and connected to the source variables.
         """
-        for expr in exprs:
+        for expr in list(exprs):
             # Move the expression
             assert isinstance(expr, mathml_apply)
             expr.xml_parent.safe_remove_child(expr)
             self.add_expr_to_comp(comp, expr)
             # Ensure it has all the variables it needs
             for var in expr._get_dependencies():
+#                print "Eqn dep", var, "connecting to target", comp.name, var.name
                 assert isinstance(var, cellml_variable)
-                self.connect_variables(var, (comp.name, var.name))
+                self.connect_variables(var.get_source_variable(recurse=True), (comp.name, var.name))
             # It now assigns to and depends on new variable objects
             expr.clear_dependency_info()
     

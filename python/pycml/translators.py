@@ -2776,7 +2776,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         
         On return from this method, Chaste code will only need to interact with variables in
         the new interface component.  It will contain the transmembrane potential, the ionic
-        and stimulus currents, and the simulation time.
+        and stimulus currents, the simulation time, and the derivatives.
         
         It may also contain other variables depending on the model, for example the intracellular
         calcium concentration (if annotated), modifiable parameters, and derived quantities.
@@ -2788,7 +2788,23 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Note that if partial evaluation is then performed, the model will be collapsed into a
         single component.  However, the interface will still be preserved in the correct units.
         """
-        pass
+        return # Not working yet!
+        # Create Chaste units definitions
+        ms = cellml_units.create_new(doc.model, 'milliseconds',
+                                     [{'units': 'second', 'prefix': 'milli'}])
+        mV = cellml_units.create_new(doc.model, 'millivolts',
+                                     [{'units': 'volt', 'prefix': 'milli'}])
+        # Generate the interface
+        generator = processors.InterfaceGenerator(doc.model)
+        t = doc.model.find_free_vars()[0]
+        generator.add_input(t, ms)
+        V = doc._cml_config.V_variable
+        doc._cml_config.V_variable = generator.add_input(V, mV)
+        # Finish up
+        doc._cml_config.options.units_conversions = True
+        def errh(errors):
+            raise TranslationError("Creation of Chaste interface component failed:\n  " + str(errors))
+        generator.finalize(errh)
 
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):

@@ -113,8 +113,7 @@ class Protocol(processors.ModelModifier):
         for input in filter(lambda i: isinstance(i, mathml_apply), self.inputs):
             self._add_maths_to_model(input)
         self._fix_model_connections()
-        self._clear_model_caches()
-        self.reanalyse_model(self._error_handler)
+        self.finalize(self._error_handler)
         self._filter_assignments()
         
     def _error_handler(self, errors):
@@ -143,20 +142,6 @@ class Protocol(processors.ModelModifier):
                         self.connect_variables((cname,vname), (comp.name,vname))
                     # Now just rename to be local
                     ci_elt._rename(vname)
-    
-    def _clear_model_caches(self):
-        """
-        Clear cached links in the model, since we'll need to recompute many of them
-        once we've finished modifying it.  Also clears dependency information.
-        """
-        for comp in getattr(self.model, u'component', []):
-            for math in getattr(comp, u'math', []):
-                math._unset_cached_links()
-        for var in self.model.get_all_variables():
-            var.clear_dependency_info()
-        assignment_exprs = self.model.search_for_assignments()
-        for expr in assignment_exprs:
-            expr.clear_dependency_info()
     
     def _get_protocol_component(self):
         """Get the protocol component in the model, creating it if necessary.
@@ -240,9 +225,7 @@ class Protocol(processors.ModelModifier):
             # We're replacing a variable
             for iface in [u'public', u'private']:
                 n = iface + u'_interface'
-                assert hasattr(orig_var, n) == hasattr(var, n), "You are not allowed to change a variable's interfaces"
-                if hasattr(var, n):
-                    assert getattr(orig_var, n) == getattr(var, n), "You are not allowed to change a variable's interfaces"
+                assert getattr(orig_var, n, u'none') == getattr(var, n, u'none'), "You are not allowed to change a variable's interfaces"
             # Only keep RDF annotations if the cmeta:id is unchanged
             comp._del_variable(orig_var, keep_annotations=(orig_var.cmeta_id == var.cmeta_id))
         var.name = vname
