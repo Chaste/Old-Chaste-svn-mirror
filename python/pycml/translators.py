@@ -2363,11 +2363,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             i_stim = [self.doc._cml_config.i_stim_var]
         else:
             i_stim = []
-        nonv_nodeset = self.calculate_extended_dependencies(
-            derivs, prune_deps=i_stim)
+        nonv_nodeset = self.calculate_extended_dependencies(derivs, prune_deps=i_stim)
         if dvdt:
-            v_nodeset = self.calculate_extended_dependencies(
-                [dvdt], prune=nonv_nodeset, prune_deps=i_stim)
+            v_nodeset = self.calculate_extended_dependencies([dvdt], prune=nonv_nodeset, prune_deps=i_stim)
         else:
             v_nodeset = set()
         # State variable inputs
@@ -2795,7 +2793,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         mV = cellml_units.create_new(doc.model, 'millivolts',
                                      [{'units': 'volt', 'prefix': 'milli'}])
         # Generate the interface
-        generator = processors.InterfaceGenerator(doc.model)
+        generator = processors.InterfaceGenerator(doc.model, name='chaste_interface')
         t = doc.model.find_free_vars()[0]
         generator.add_input(t, ms)
         V = doc._cml_config.V_variable
@@ -4909,8 +4907,7 @@ def get_options(args, default_options=None):
     parser.add_option('--Wu', '--warn-on-units-errors',
                       action='store_true', default=False,
                       dest='warn_on_units_errors',
-                      help="give a warning instead of an error for"
-                      " dimensional inconsistencies")
+                      help="give a warning instead of an error for dimensional inconsistencies")
     parser.add_option('-j', '--maple-output',
                       metavar='FILENAME', default=None,
                       help="file containing output from a Maple script "

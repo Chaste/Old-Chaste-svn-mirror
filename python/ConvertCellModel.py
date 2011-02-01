@@ -128,7 +128,8 @@ else:
 # Options that we will supply to PyCml anyway
 essential_options = ['--conf=' + os.path.join(pycml_dir, 'config.xml'),
                      '--use-chaste-stimulus',
-                     '--convert-interfaces']
+                     '--convert-interfaces',
+                     '--Wu']
 validation_options = ['-u', '--Wu']
 # Options supplied if the user doesn't give a config file
 default_options = []

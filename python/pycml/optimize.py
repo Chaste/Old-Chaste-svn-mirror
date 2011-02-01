@@ -87,7 +87,7 @@ class PartialEvaluator(object):
         if elt.xml_parent.localName == u'bvar':
             # The free variable in a derivative must refer directly to the ultimate source,
             # since this is assumed in later stages and in code generation.
-            elt._cml_variable = elt.variable.get_source_variable(recurse=True)
+            elt._set_variable_obj(elt.variable.get_source_variable(recurse=True))
         elt._rename()
         self._debug("Using canonical name", unicode(elt))
 
@@ -265,7 +265,7 @@ class PartialEvaluator(object):
                     var = expr._cml_assigns_to
                     ci = mathml_ci.create_new(lhs, var.fullname(cellml=True))
                     self._debug('Re-targetting', lhs, var, ci)
-                    ci._cml_variable = var
+                    ci._set_variable_obj(var)
                     lhs.xml_parent.xml_insert_after(lhs, ci)
                     lhs.xml_parent.xml_remove_child(lhs)
         
@@ -358,6 +358,8 @@ class PartialEvaluator(object):
                 indep_var = expr.eq.lhs.diff.independent_variable
                 if not indep_var in expr._cml_depends_on:
                     expr._cml_depends_on.append(indep_var)
+                # Update ODE definition dependency if needed
+                expr.eq.lhs.diff.dependent_variable._update_ode_dependency(indep_var, expr)
         return
 
 
@@ -1142,7 +1144,7 @@ class LinearityAnalyser(object):
                 if ci_var._cml_linear_kind == self.LINEAR_KINDS.None:
                     # Just put the <ci> in g, but with full name
                     gh = (mathml_ci.create_new(expr, ci_var.fullname()), None)
-                    gh[0]._cml_variable = ci_var
+                    gh[0]._set_variable_obj(ci_var)
                 else:
                     # ci_var is a linear function of var, so rearrange
                     # its definition

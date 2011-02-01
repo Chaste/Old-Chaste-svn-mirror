@@ -1186,11 +1186,17 @@ class cellml_model(element_base):
 
     def add_units_conversions(self):
         """Add explicit units conversion mathematics where necessary."""
+        def try_convert(func, *args, **kwargs):
+            try:
+                func(*args, **kwargs)
+            except UnitsError, e:
+                if not self.get_option('warn_on_units_errors'):
+                    raise e
         # Mathematical expressions
         boolean = self.get_units_by_name('cellml:boolean')
         for expr in self._cml_assignments:
             if isinstance(expr, mathml_apply):
-                expr._set_in_units(boolean)
+                try_convert(expr._set_in_units, boolean)
         # Connections
         for conn in getattr(self, u'connection', []):
             comp1 = self.get_component_by_name(conn.map_components.component_1)
@@ -1250,8 +1256,8 @@ class cellml_model(element_base):
                     for _ in range(var1.get_usage_count()):
                         var2._decrement_usage_count()
                     # Apply units conversion to the assignment
-                    app.get_units()
-                    app._set_in_units(boolean)
+                    try_convert(app.get_units)
+                    try_convert(app._set_in_units, boolean)
                     # Add the assignment into the sorted list
                     idx = self._cml_assignments.index(var1)
                     self._cml_assignments[idx:idx+1] = [var1_converter, app]
@@ -1626,21 +1632,20 @@ class cellml_variable(Colourable, element_base):
         else:
             self._cml_depends_on.append(dep)
         return
+    
     def _get_dependencies(self):
         """
         Return the list of things this variable depends on.
         """
         return self._cml_depends_on
+    
     def _add_ode_dependency(self, independent_var, expr):
+        """Add a dependency of this variable as the dependent variable in an ODE.
+        
+        independent_var is the corresponding independent variable, and expr is the
+        expression defining the ODE.
+        Triggers a validation error if the same ODE is defined by multiple expressions.
         """
-        Add a dependency of this variable as the dependent variable in an
-        ODE.
-        independent_var is the corresponding independent variable, and
-        expr is the expression defining the ODE.
-        Triggers a validation error if the same ODE is defined by multiple
-        expressions.
-        """
-        independent_var = independent_var.get_source_variable(recurse=True)
         if independent_var in self._cml_depends_on_ode:
             if self._cml_depends_on_ode[independent_var] != expr:
                 # Multiple definitions.  TODO: Give more info.
@@ -1651,23 +1656,37 @@ class cellml_variable(Colourable, element_base):
             self._cml_depends_on_ode[independent_var] = expr
         return
     
+    def _update_ode_dependency(self, free_var, defn):
+        """Update an ODE dependency due to partial evaluation.
+        
+        When the PE processes the LHS of a derivative equation, it alters the independent
+        variable to reference its source directly.  If this new source wasn't originally
+        our independent variable's source (e.g. due to a units conversion expression) then
+        this will break lookups of the ODE via _get_ode_dependency, so we need to update
+        the reference.
+        """
+        if self.get_type() == VarTypes.Mapped:
+            return self.get_source_variable()._update_ode_dependency(free_var, defn)
+        self._cml_depends_on_ode.clear()
+        self._cml_depends_on_ode[free_var] = defn
+    
     def _get_ode_dependency(self, independent_var, context=None):
         """
         Return the expression defining the ODE giving the derivative of this
         variable w.r.t. independent_var.
         Triggers a validation error if the ODE has not been defined.
         """
-        independent_var = independent_var.get_source_variable(recurse=True)
         if self.get_type() == VarTypes.Mapped:
             return self.get_source_variable()._get_ode_dependency(independent_var, context=context)
         free_vars = self._cml_depends_on_ode.keys()
         free_vars = dict(zip(map(lambda v: v.get_source_variable(recurse=True), free_vars),
                              free_vars))
-        if not independent_var in free_vars:
+        independent_src = independent_var.get_source_variable(recurse=True)
+        if not independent_src in free_vars:
             raise MathsError(context or self, u''.join([
                 u'The ODE d',self.fullname(),u'/d',independent_var.fullname(),
                 u'is used but not defined.']))
-        return self._cml_depends_on_ode[free_vars[independent_var]]
+        return self._cml_depends_on_ode[free_vars[independent_src]]
     
     def _get_all_expr_dependencies(self):
         """Return all expressions this variable depends on, either directly or as an ODE."""
@@ -1676,9 +1695,7 @@ class cellml_variable(Colourable, element_base):
         return deps
 
     def _set_source_variable(self, src_var):
-        """
-        Set this to be a mapped variable which imports its value from
-        src_var.
+        """Set this to be a mapped variable which imports its value from src_var.
         A validation error is generated if we are already mapped.
         """
         if not self._cml_source_var is None:
@@ -2452,6 +2469,14 @@ class cellml_units(Colourable, element_base):
 
         Used for interface compatibility with UnitsSet."""
         return self
+
+    def copy(self):
+        """Return a new UnitsSet containing this cellml_units object.
+
+        Used for interface compatibility with UnitsSet, where the method performs
+        a shallow copy.
+        """
+        return UnitsSet([self])
 
     def description(self, force=False, cellml=False):
         """Return a human-readable name for these units.
@@ -4023,13 +4048,15 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
 
     @property
     def variable(self):
-        """
-        Cache & return the variable object refered to by this element.
-        """
+        """Cache & return the variable object refered to by this element."""
         if self._cml_variable is None:
             vname = unicode(self).strip()
             self._cml_variable = self.component.get_variable_by_name(vname)
         return self._cml_variable
+    
+    def _set_variable_obj(self, var):
+        """Set the variable object referred to by this element."""
+        self._cml_variable = var
 
     def get_units(self, return_set=True):
         """Return the units of the variable represented by this element."""
@@ -4063,7 +4090,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
         self.xml_remove_child(unicode(self))
         if new_name is None:
             new_name = self.variable.fullname(cellml=True)
-        self.xml_append(new_name)
+        self.xml_append(unicode(new_name))
         return
 
     def _reduce(self):
@@ -4108,7 +4135,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     ci = self.xml_create_element(
                         u'ci', NSS[u'm'], content=defn.fullname(cellml=True))
                     self._xfer_complexity(ci)
-                    ci._cml_variable = defn
+                    ci._set_variable_obj(defn)
                     DEBUG('partial-evaluator', "  to", defn.fullname())
                     self.xml_parent.xml_insert_after(self, ci)
                     self.xml_parent.xml_remove_child(self)
@@ -4374,14 +4401,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                         u'dimensionally equivalent units;',u.description(),
                         u'and',our_units.description(),u'differ']))
                 our_units.update(u)
-##                # TODO: More like this when new logging framework used
-##                if not ref_units is u:
-##                    logging.getLogger('validator').info(self._conversion_needed)
             if op in self.OPS.relations:
                 # Result has cellml:boolean units
                 our_units = UnitsSet([boolean])
-                # TODO: Think about coercion of operands to same units
-                # (this applies elsewhere too, e.g. where result :: d'less)
         elif op in self.OPS.logical:
             # Operand units must be cellml:boolean
             for u, i in operand_units_idx:
@@ -4557,6 +4579,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                              level=logging.WARNING_TRANSLATE_ERROR)
 
         # Cache & return result
+        if isinstance(our_units, cellml_units):
+            # Units conversion has been done, then PE
+            our_units = UnitsSet([our_units])
         self._cml_units = our_units
         our_units.set_expression(self)
         return self._cml_units
@@ -5341,7 +5366,7 @@ class mathml_diff(mathml_operator):
         else:
             # Just update names to be canonical.
             for ci in [app.ci, app.bvar.ci]:
-                ci._cml_variable = ci.variable.get_source_variable(recurse=True)
+                ci._set_variable_obj(ci.variable.get_source_variable(recurse=True))
                 ci._rename()
         return
     

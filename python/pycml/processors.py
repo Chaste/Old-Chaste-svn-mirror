@@ -76,11 +76,10 @@ class ModelModifier(object):
             self.model._classify_variables(assignment_exprs)
             self.model._order_variables(assignment_exprs)
         if not self.model._cml_validation_errors:
-            warn_on_units_errors = False
             self.model._check_dimensional_consistency(assignment_exprs,
-                                                      False,
-                                                      warn_on_units_errors,
-                                                      False)
+                                                      xml_context=False,
+                                                      warn_on_units_errors=self.model.get_option('warn_on_units_errors'),
+                                                      check_for_units_conversions=False)
         if self.model._cml_validation_errors:
             error_handler(self.model._cml_validation_errors)
         # Clear up logging
@@ -403,9 +402,10 @@ class InterfaceGenerator(ModelModifier):
     within the CellML model containing these variables, and add units conversions where required.  The
     external code then only needs to interact with this new component.
     """
-    def __init__(self, model):
+    def __init__(self, model, name='interface'):
         super(InterfaceGenerator, self).__init__(model)
         self._interface_component = None
+        self._interface_component_name = name
 
     def add_input(self, var, units):
         """Specify a variable as an input to the model.
@@ -515,7 +515,7 @@ class InterfaceGenerator(ModelModifier):
         in which case underscores will be added to the component name to make it unique.
         """
         if self._interface_component is None:
-            self._interface_component = self.create_new_component(u'interface')
+            self._interface_component = self.create_new_component(unicode(self._interface_component_name))
         return self._interface_component
     
     def _get_units_object(self, units):
