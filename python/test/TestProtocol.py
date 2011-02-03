@@ -102,7 +102,7 @@ class TestProtocol(unittest.TestCase):
         V = doc.model.get_variable_by_name('membrane', 'V')
         self.failIfEqual(V.initial_value, v_init)
         time = doc.model.get_variable_by_name(u'environment', u'time')
-        dv_dt = V._get_ode_dependency(time)
+        dv_dt = V.get_ode_dependency(time)
         # Apply protocol to model
         p.modify_model()
         # Check the changes
@@ -110,8 +110,8 @@ class TestProtocol(unittest.TestCase):
         self.assert_(V is new_V)
         self.assertEqual(V.initial_value, v_init)
         self.assertEqual(V.get_type(), pycml.VarTypes.State)
-        self.assertEqual(V._get_dependencies(), [])
-        self.assert_(V._get_ode_dependency(time) is dv_dt)
+        self.assertEqual(V.get_dependencies(), [])
+        self.assert_(V.get_ode_dependency(time) is dv_dt)
         # An error case: changing interfaces is not allowed
         new_V = self.NewVariable(u'membrane,V', u'millivolt',
                                  initial_value=v_init,
@@ -164,7 +164,7 @@ class TestProtocol(unittest.TestCase):
         # TODO: What would happen if dCai/dt was used in the model?
         Cai = doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai')
         time = doc.model.get_variable_by_name(u'environment', u'time')
-        ode = Cai._get_ode_dependency(time)
+        ode = Cai.get_ode_dependency(time)
         Cai_const = self.NewAssign(u'intracellular_calcium_concentration,Cai',
                                    (u'0.0002', u'millimolar'))
         p.inputs.append(Cai_const)
@@ -174,7 +174,7 @@ class TestProtocol(unittest.TestCase):
         g_K_const = self.NewAssign(u'time_dependent_potassium_current,g_K',
                                    (u'0.282', u'milliS_per_cm2'))
         p.inputs.append(g_K_const)
-        old_g_K = g_K._get_dependencies()[0]
+        old_g_K = g_K.get_dependencies()[0]
         self.failUnlessEqual(g_K.get_type(), pycml.VarTypes.Computed)
         # Change PR_NaK from constant->computed (with same value)
         PR_NaK = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'PR_NaK')
@@ -187,15 +187,15 @@ class TestProtocol(unittest.TestCase):
         # Check the changes
         self.assertEqual(Cai, doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai'))
         self.assertEqual(ode.xml_parent, None)
-        self.assertRaises(translators.MathsError, Cai._get_ode_dependency, time)
-        self.assertEqual(Cai._get_dependencies()[0], Cai_const)
+        self.assertRaises(translators.MathsError, Cai.get_ode_dependency, time)
+        self.assertEqual(Cai.get_dependencies()[0], Cai_const)
         self.assertEqual(Cai.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(old_g_K.xml_parent, None)
-        self.assertEqual(g_K._get_dependencies()[0], g_K_const)
+        self.assertEqual(g_K.get_dependencies()[0], g_K_const)
         self.assertEqual(g_K.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(PR_NaK, doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'PR_NaK'))
         self.failIf(hasattr(PR_NaK, u'initial_value'))
-        self.assertEqual(PR_NaK._get_dependencies()[0], PR_NaK_const)
+        self.assertEqual(PR_NaK.get_dependencies()[0], PR_NaK_const)
         self.assertEqual(PR_NaK.get_type(), pycml.VarTypes.Computed)
 
     def TestChangeMathsToState(self):
@@ -209,7 +209,7 @@ class TestProtocol(unittest.TestCase):
         V = doc.model.get_variable_by_cmeta_id('membrane_voltage')
         self.failUnlessEqual(V.get_type(), pycml.VarTypes.State)
         time = doc.model.get_variable_by_name(u'membrane', u'time')
-        V_old = V._get_ode_dependency(time)
+        V_old = V.get_ode_dependency(time)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'K', 'b'])
         currents = self.NewApply(u'plus', currents)
         rhs = self.NewApply(u'divide', [currents, u'membrane,C'])
@@ -219,7 +219,7 @@ class TestProtocol(unittest.TestCase):
         # constant->state: membrane,T
         T = doc.model.get_variable_by_name(u'membrane', u'T')
         self.assertEqual(T.get_type(), pycml.VarTypes.Constant)
-        self.assertEqual(T._get_dependencies(), [])
+        self.assertEqual(T.get_dependencies(), [])
         T_new = self.NewOde(u'membrane,T', u'membrane,time', (u'1', u'K_per_ms'))
         p.inputs.append(T_new)
         p.inputs.append(self.NewUnits(u'K_per_ms',
@@ -228,7 +228,7 @@ class TestProtocol(unittest.TestCase):
         # computed->state: membrane,FonRT
         FonRT = doc.model.get_variable_by_name(u'membrane', u'FonRT')
         self.assertEqual(FonRT.get_type(), pycml.VarTypes.Computed)
-        FonRT_old = FonRT._get_dependencies()[0]
+        FonRT_old = FonRT.get_dependencies()[0]
         FonRT_new = self.NewOde(u'membrane,FonRT', u'membrane,time',
                                 (u'0', u'per_millivolt_millisecond'))
         # TODO: FonRT now has no initial condition; this is a validation warning so OK...
@@ -238,17 +238,17 @@ class TestProtocol(unittest.TestCase):
         # Check the changes
         self.assertEqual(V, doc.model.get_variable_by_name(u'membrane', u'V'))
         self.assertEqual(V_old.xml_parent, None)
-        self.assertNotEqual(V_old, V._get_ode_dependency(time))
-        self.assertEqual(V_new, V._get_ode_dependency(time))
+        self.assertNotEqual(V_old, V.get_ode_dependency(time))
+        self.assertEqual(V_new, V.get_ode_dependency(time))
         self.assertEqual(V.get_type(), pycml.VarTypes.State)
         self.assertNotEqual(str(V_new), V_new_str) # Variable refs get renamed
         self.assertEqual(str(V_new), 'timeVi_Nai_sii_Ki_bC')
         self.assertEqual(T.get_type(), pycml.VarTypes.State)
-        self.assertEqual(T_new, T._get_ode_dependency(time))
+        self.assertEqual(T_new, T.get_ode_dependency(time))
         self.assertEqual(FonRT.id, u'FonRT')
         self.assertEqual(FonRT.get_type(), pycml.VarTypes.State)
-        self.assertEqual(FonRT_new, FonRT._get_ode_dependency(time))
-        self.assertEqual(FonRT._get_dependencies(), [])
+        self.assertEqual(FonRT_new, FonRT.get_ode_dependency(time))
+        self.assertEqual(FonRT.get_dependencies(), [])
         self.assertEqual(FonRT_old.xml_parent, None)
 
     def TestAddNewVariables(self):
@@ -276,7 +276,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(I_total.component, doc.model.get_component_by_name(u'membrane'))
         self.assertEqual(I_total.component, I_total.xml_parent)
         self.assertEqual(I_total.get_type(), pycml.VarTypes.Computed)
-        self.assertEqual(I_total._get_dependencies()[0], defn)
+        self.assertEqual(I_total.get_dependencies()[0], defn)
         self.assertEqual(I_total.component, defn.component)
         self.assertEqual(str(defn), 'I_totali_Nai_sii_bI_stimpotassium_currents')
         self.assertEqual(one, doc.model.get_variable_by_name(u'protocol', u'one'))
@@ -333,10 +333,10 @@ class TestProtocol(unittest.TestCase):
         self.assertNotEqual(src1.get_source_variable(), src)
         self.assertEqual(src2.get_source_variable(recurse=True), src)
         self.assertNotEqual(src2.get_source_variable(), src)
-        self.assertEqual(targ1._get_dependencies()[0], use1)
-        self.assertEqual(use1._get_dependencies()[0], src1)
-        self.assertEqual(targ2._get_dependencies()[0], use2)
-        self.assertEqual(use2._get_dependencies()[0], src2)
+        self.assertEqual(targ1.get_dependencies()[0], use1)
+        self.assertEqual(use1.get_dependencies()[0], src1)
+        self.assertEqual(targ2.get_dependencies()[0], use2)
+        self.assertEqual(use2.get_dependencies()[0], src2)
         self.assertEqual(src1.get_type(), pycml.VarTypes.Mapped)
         self.assertEqual(src2.get_type(), pycml.VarTypes.Mapped)
         self.assertEqual(targ1.get_type(), pycml.VarTypes.Computed)
@@ -418,12 +418,12 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(Var(c_sicd, 'd').get_type(), pycml.VarTypes.State)
         self.assertEqual(Var(c_sicf, 'f').get_type(), pycml.VarTypes.State)
         def VarDefn(cname, vname):
-            return Var(cname, vname)._get_dependencies()[0]
+            return Var(cname, vname).get_dependencies()[0]
         expected = set([V, VarDefn('membrane', 'V'), Cm, time, Cai, gK,
                         Var('ionic_concentrations', 'Ko'), Var(c_tdpc, 'Ko'),
                         VarDefn(c_tdpc, 'g_K'), V_tdpc,
                         Var(c_icc, 'time'), Var(c_icc, 'i_si'),
-                        Cai._get_ode_dependency(time),
+                        Cai.get_ode_dependency(time),
                         Var(c_sic, 'V'), Var(c_sic, 'Cai'),
                         Var(c_sic, 'time'), Var(c_sic, 'V'), Var(c_sic, 'E_si'),
                         VarDefn(c_sic, 'E_si'), VarDefn(c_sic, 'i_si'),
@@ -431,11 +431,11 @@ class TestProtocol(unittest.TestCase):
                         Var(c_sicd, 'time'), Var(c_sicd, 'V'), Var(c_sicd, 'd'),
                         Var(c_sicd, 'alpha_d'), Var(c_sicd, 'beta_d'),
                         VarDefn(c_sicd, 'alpha_d'), VarDefn(c_sicd, 'beta_d'),
-                        Var(c_sicd, 'd')._get_ode_dependency(time),
+                        Var(c_sicd, 'd').get_ode_dependency(time),
                         Var(c_sicf, 'time'), Var(c_sicf, 'V'), Var(c_sicf, 'f'),
                         Var(c_sicf, 'alpha_f'), Var(c_sicf, 'beta_f'),
                         VarDefn(c_sicf, 'alpha_f'), VarDefn(c_sicf, 'beta_f'),
-                        Var(c_sicf, 'f')._get_ode_dependency(time)
+                        Var(c_sicf, 'f').get_ode_dependency(time)
                         ])
         self.assertEqual(actual, expected)
         # Check output variables are properly annotated
@@ -466,7 +466,7 @@ class TestProtocol(unittest.TestCase):
                 self.failIf(var.is_derived_quantity)
         # Check non-needed parts of the model have been removed
         self.assertRaises(KeyError, Var, 'membrane', 'T')
-        self.assertRaises(pycml.MathsError, V._get_ode_dependency, time)
+        self.assertRaises(pycml.MathsError, V.get_ode_dependency, time)
         # Check some connection elements
         self.assert_(self.FindConn('intracellular_calcium_concentration,time', 'environment,time'))
         self.assertRaises(IndexError, self.FindConn, 'environment,time', 'fast_sodium_current,time')

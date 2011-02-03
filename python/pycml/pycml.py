@@ -229,33 +229,10 @@ class element_base(amara.bindery.element_base):
         else:
             return super(element_base, self).rootNode
 
-    def getAttributeNS(self, ns, local, default=u""):
-        """
-        Get the value of an attribute specified by namespace and localname.
-
-        Optionally can also pass a default value if the attribute
-        doesn't exist (defaults to the empty string).
-        """
-        attrs = getattr(self, 'xml_attributes', {})
-        keys = [ (ns_, SplitQName(qname)[1]) 
-                   for _, (qname, ns_) in attrs.items() ]
-        values = [ unicode(getattr(self, attr))
-                   for attr, (qname, ns_) in attrs.items() ]
-        attr_dict = dict(zip(keys, values))
-        return attr_dict.get((ns, local), default)
-    
     @property
     def cmeta_id(self):
         """Get the value of the cmeta:id attribute, or the empty string if not set."""
         return self.getAttributeNS(NSS['cmeta'], u'id')
-
-    def xml_element_children(self, elt=None):
-        """Return an iterable over child elements of this element."""
-        if elt is None:
-            elt = self
-        for child in elt.xml_children:
-            if getattr(child, 'nodeType', None) == Node.ELEMENT_NODE:
-                yield child
 
     def xml_remove_child_at(self, index=-1):
         """
@@ -332,8 +309,51 @@ class element_base(amara.bindery.element_base):
                 properties[attr] = self.__dict__[attr]
         return properties
 
-setattr(amara.bindery.element_base, 'getAttributeNS',
-        element_base.getAttributeNS.__get__(amara.bindery.element_base))
+# Add some improved/new methods to all bindings
+def add_methods_to_amara():
+    def getAttributeNS(self, ns, local, default=u""):
+        """
+        Get the value of an attribute specified by namespace and localname.
+    
+        Optionally can also pass a default value if the attribute
+        doesn't exist (defaults to the empty string).
+        """
+        attrs = getattr(self, 'xml_attributes', {})
+        keys = [ (ns_, SplitQName(qname)[1]) 
+                   for _, (qname, ns_) in attrs.items() ]
+        values = [ unicode(getattr(self, attr))
+                   for attr, (qname, ns_) in attrs.items() ]
+        attr_dict = dict(zip(keys, values))
+        return attr_dict.get((ns, local), default)
+    
+    def xml_element_children(self, elt=None):
+        """Return an iterable over child elements of this element."""
+        if elt is None:
+            elt = self
+        for child in elt.xml_children:
+            if getattr(child, 'nodeType', None) == Node.ELEMENT_NODE:
+                yield child
+    
+    def safe_remove_child(self, child, parent=None):
+        """Remove a child element from parent in such a way that it can safely be added elsewhere."""
+        if parent is None: parent = self
+        parent.xml_remove_child(child)
+        child.next_elem = None
+        
+    def replace_child(self, old, new, parent=None):
+        """Replace child old of parent with new."""
+        if parent is None: parent = self
+        parent.xml_insert_after(old, new)
+        self.safe_remove_child(old, parent)
+    
+    import new
+    for method in ['getAttributeNS', 'xml_element_children', 'safe_remove_child', 'replace_child']:
+        meth = new.instancemethod(locals()[method], None, amara.bindery.element_base)
+        setattr(amara.bindery.element_base, method, meth)
+    #    setattr(amara.bindery.element_base, method,
+    #            getattr(element_base, method).__get__(amara.bindery.element_base))
+
+add_methods_to_amara()
 
 class comment_base(amara.bindery.comment_base):
     """An iterable version of comment nodes."""
@@ -391,10 +411,9 @@ class cellml_model(element_base):
                 if self.component.ignore_component_name:
                     compname = self.component.name
                 else:
-                    parts = varname.split(u'__')
-                    if len(parts) == 2:
-                        compname, varname = parts
-                    else:
+                    try:
+                        compname, varname = cellml_variable.split_name(varname)
+                    except ValueError:
                         raise e
                 var = self._cml_variables[(compname, varname)]
             else:
@@ -888,7 +907,7 @@ class cellml_model(element_base):
         in the model.
 
         node should be an expression or variable object that inherits from
-        Colourable and has methods _get_dependencies, get_component
+        Colourable and has methods get_dependencies, get_component
         """
         node.set_colour(DFS.Gray)
         # Keep track of gray variables, for reporting cycles
@@ -900,10 +919,10 @@ class cellml_model(element_base):
             n1, n2 = map(lambda v: v.fullname(), node.assigned_variable())
             self._cml_sorting_variables_stack.append(u'd'+n1+u'/d'+n2)
         # Visit children in the dependency graph
-        for dep in node._get_dependencies():
+        for dep in node.get_dependencies():
             if type(dep) == types.TupleType:
                 # This is an ODE dependency, so get the defining expression
-                dep = dep[0]._get_ode_dependency(dep[1], node)
+                dep = dep[0].get_ode_dependency(dep[1], node)
             if dep.get_colour() == DFS.White:
                 self.topological_sort(dep)
             elif dep.get_colour() == DFS.Gray:
@@ -1320,7 +1339,7 @@ class cellml_model(element_base):
                 # instead.
                 ode = True
                 orig_node = node
-                node = node[0]._get_ode_dependency(node[1])
+                node = node[0].get_ode_dependency(node[1])
                 if orig_node in prune_deps:
                     # Include the defining expression, but skip its dependencies
                     deps.add(node)
@@ -1332,7 +1351,7 @@ class cellml_model(element_base):
             if node in prune_deps:
                 # Skip dependencies of this node
                 continue
-            nodedeps = set(node._get_dependencies())
+            nodedeps = set(node.get_dependencies())
             if ode and not node._cml_ode_has_free_var_on_rhs:
                 # ODEs depend on their independent variable.  However,
                 # when writing out code we don't want to pull the free
@@ -1342,7 +1361,7 @@ class cellml_model(element_base):
             if (state_vars_depend_on_odes and isinstance(node, cellml_variable)
                 and node.get_type() == VarTypes.State
                 and node not in state_vars_examined):
-                nodedeps.update(node._get_all_expr_dependencies())
+                nodedeps.update(node.get_all_expr_dependencies())
                 state_vars_examined.add(node)
             deps.update(self.calculate_extended_dependencies(nodedeps,
                                                              prune=prune,
@@ -1545,7 +1564,7 @@ class cellml_component(element_base):
     def create_new(elt, name):
         """Create a new component with the given name."""
         new_comp = elt.xml_create_element(u'component', NSS[u'cml'],
-                                          attributes={u'name': name})
+                                          attributes={u'name': unicode(name)})
         return new_comp
 
 
@@ -1602,6 +1621,19 @@ class cellml_variable(Colourable, element_base):
             vn = u'(' + self.xml_parent.name + u',' + self.name + u')'
         return vn
 
+    @staticmethod
+    def split_name(varname):
+        """Split a variable name as given by cellml_variable.fullname into constituent parts.
+        
+        Returns a tuple (component name, local variable name).
+        """
+        if varname[0] == u'(':
+            cname, vname = varname[1:-1].split(u',')
+        else:
+            cname, vname = varname.split(u'__', 1)
+        return cname, vname
+
+
     def __str__(self):
         return 'cellml_variable' + self.fullname()
     
@@ -1615,11 +1647,15 @@ class cellml_variable(Colourable, element_base):
     @property
     def model(self):
         return self.component.xml_parent
+    
+    def get_units(self):
+        """Get the cellml_units object giving this variable's units."""
+        return self.component.get_units_by_name(self.units)
 
     def _add_dependency(self, dep):
-        """
-        Add a dependency of this variable, e.g. an expression defining
-        it, or a variable it's mapped from.
+        """Add a dependency of this variable.
+        
+        This could be an expression defining it, or a variable it's mapped from.
         Triggers a validation error if we already have another dependency,
         since a variable can't be defined in more than one way.
         """
@@ -1633,7 +1669,7 @@ class cellml_variable(Colourable, element_base):
             self._cml_depends_on.append(dep)
         return
     
-    def _get_dependencies(self):
+    def get_dependencies(self):
         """
         Return the list of things this variable depends on.
         """
@@ -1670,14 +1706,14 @@ class cellml_variable(Colourable, element_base):
         self._cml_depends_on_ode.clear()
         self._cml_depends_on_ode[free_var] = defn
     
-    def _get_ode_dependency(self, independent_var, context=None):
+    def get_ode_dependency(self, independent_var, context=None):
         """
         Return the expression defining the ODE giving the derivative of this
         variable w.r.t. independent_var.
         Triggers a validation error if the ODE has not been defined.
         """
         if self.get_type() == VarTypes.Mapped:
-            return self.get_source_variable()._get_ode_dependency(independent_var, context=context)
+            return self.get_source_variable().get_ode_dependency(independent_var, context=context)
         free_vars = self._cml_depends_on_ode.keys()
         free_vars = dict(zip(map(lambda v: v.get_source_variable(recurse=True), free_vars),
                              free_vars))
@@ -1688,7 +1724,7 @@ class cellml_variable(Colourable, element_base):
                 u'is used but not defined.']))
         return self._cml_depends_on_ode[free_vars[independent_src]]
     
-    def _get_all_expr_dependencies(self):
+    def get_all_expr_dependencies(self):
         """Return all expressions this variable depends on, either directly or as an ODE."""
         deps = filter(lambda d: isinstance(d, mathml_apply), self._cml_depends_on)
         deps.extend(self._cml_depends_on_ode.values())
@@ -1748,8 +1784,7 @@ class cellml_variable(Colourable, element_base):
         if var_type is VarTypes.State and not self._cml_var_type is VarTypes.State:
             self._cml_usage_count += 1
         if self._cml_var_type == VarTypes.Mapped and not _orig is self:
-            # Guard against infinite loops, since we haven't done a cyclic
-            # dependency check yet
+            # Guard against infinite loops, since we haven't done a cyclic dependency check yet
             if _orig is None: _orig = self
             self.get_source_variable()._set_type(var_type, _orig=_orig)
         else:
@@ -1821,7 +1856,7 @@ class cellml_variable(Colourable, element_base):
         meta_id = self.cmeta_id
         if not meta_id:
             # Create ID for this variable, so we can refer to it in RDF
-            meta_id = unicode(self.fullname(cellml=True))
+            meta_id = cellml_metadata.create_unique_id(self.model, unicode(self.fullname(cellml=True)))
             self.xml_set_attribute((u'cmeta:id', NSS['cmeta']), meta_id)
         property = cellml_metadata.create_rdf_node(property)
         target = cellml_metadata.create_rdf_node(target)
@@ -1852,6 +1887,7 @@ class cellml_variable(Colourable, element_base):
         """
         meta_id = self.cmeta_id
         if meta_id:
+            DEBUG('cellml-metadata', "Removing RDF annotations for", self, "with id", meta_id)
             source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
             if property:
                 property = cellml_metadata.create_rdf_node(property)
@@ -2128,9 +2164,8 @@ class cellml_variable(Colourable, element_base):
         elif self.get_type() == VarTypes.Mapped:
             # Manually recurse down maps to find a suitable source
             src = self.get_source_variable()
-            while not src.pe_keep and src.get_type() == VarTypes.Mapped and \
-                      src.get_usage_count() == 1:
-                src = self.get_source_variable()
+            while not src.pe_keep and src.get_type() == VarTypes.Mapped and src.get_usage_count() == 1:
+                src = src.get_source_variable()
             if src.pe_keep or src.get_usage_count() > 1:
                 # Depend directly on src
                 self._cml_depends_on = [src]
@@ -2143,7 +2178,7 @@ class cellml_variable(Colourable, element_base):
                 # This variable is the only reference to the ultimate defining
                 # expression, so become computed.
                 self._cml_var_type = VarTypes.Computed
-                defn = src._get_dependencies()[0]
+                defn = src.get_dependencies()[0]
                 assert isinstance(defn, mathml_apply)
                 ## Move the definition to this component
                 #defn._unset_cached_links()
@@ -2167,13 +2202,14 @@ class cellml_variable(Colourable, element_base):
         
         elt may be any existing XML element.
         """
-        attrs = {(u'units', None): units, (u'name', None): name}
+        attrs = {(u'units', None): unicode(units),
+                 (u'name', None): unicode(name)}
         if id:
-            attrs[(u'cmeta:id', NSS[u'cmeta'])] = id
+            attrs[(u'cmeta:id', NSS[u'cmeta'])] = unicode(id)
         if initial_value:
-            attrs[(u'initial_value', None)] = initial_value
+            attrs[(u'initial_value', None)] = unicode(initial_value)
         for iface, val in interfaces.items():
-            attrs[(iface + u'_interface', None)] = val
+            attrs[(iface + u'_interface', None)] = unicode(val)
         new_elt = elt.xml_create_element(u'variable', NSS[u'cml'], attributes=attrs)
         return new_elt
 
@@ -3303,8 +3339,7 @@ class mathml_units_mixin(object):
         dummy = expr.xml_create_element(u'dummy', NSS[u'm'])
         parent.xml_insert_after(expr, dummy) # Mark where to put the new elt
         model = expr.model # So we still have a reference after the next line
-        parent.xml_remove_child(expr)
-        expr.next_elem = None # Work around amara wierdness
+        parent.safe_remove_child(expr)
         if defn_units_exp.get_offset() != 0:
             # Create expr-o1 expression
             uattr = orig_expr._ensure_units_exist(defn_units, no_act=no_act)
@@ -3618,18 +3653,6 @@ class mathml(element_base):
             self._cml_model = self.rootNode.model
         return self._cml_model
     
-    def safe_remove_child(self, child, parent=None):
-        """Remove a child element from parent in such a way that it can safely be added elsewhere."""
-        if parent is None: parent = self
-        parent.xml_remove_child(child)
-        child.next_elem = None
-        
-    def replace_child(self, old, new, parent=None):
-        """Replace child old of parent with new."""
-        if parent is None: parent = self
-        parent.xml_insert_after(old, new)
-        self.safe_remove_child(old, parent)
-
     def eval(self, elt):
         """Evaluate the given element.
 
@@ -3708,14 +3731,12 @@ class mathml(element_base):
             var = None
         if not var:
             varname = unicode(ci_elt).strip()
+            if varname[:4] == 'var_':
+                varname = varname[4:]
+            cname, vname = cellml_variable.split_name(varname)
             if varname[0] == '(':
-                cname, vname = varname[1:-1].split(',')
                 name = vname
             else:
-                if varname[:4] == 'var_':
-                    cname, vname = varname[4:].split('__')
-                else:
-                    cname, vname = varname.split('__')
                 name = cname + u'__' + vname
             if len(self.model.component) == 1:
                 var = self.model.component.get_variable_by_name(name)
@@ -3744,7 +3765,7 @@ class mathml(element_base):
                  expr.operator().localName == u'diff':
             dep_var = self.varobj(expr.ci)
             indep_var = self.varobj(expr.bvar.ci)
-            res.add(dep_var._get_ode_dependency(indep_var))
+            res.add(dep_var.get_ode_dependency(indep_var))
         elif hasattr(expr, 'xml_children'):
             for child in expr.xml_children:
                 res.update(self.vars_in(child))
@@ -4118,7 +4139,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
             self.xml_parent.xml_remove_child(self)
             self.variable._decrement_usage_count()
         else:
-            defns = self.variable._get_dependencies()
+            defns = self.variable.get_dependencies()
             if defns:
                 defn = defns[0]
             else:
@@ -4207,7 +4228,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         self._cml_assigns_to = None
         self.clear_colour()
 
-    def _get_dependencies(self):
+    def get_dependencies(self):
         """Return the list of variables this expression depends on."""
         return self._cml_depends_on
 
@@ -4852,7 +4873,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         qualifiers specifies a list of qualifier elements.
         """
         app = elt.xml_create_element(u'apply', NSS[u'm'])
-        app.xml_append(app.xml_create_element(operator, NSS[u'm']))
+        app.xml_append(app.xml_create_element(unicode(operator), NSS[u'm']))
         for qual in qualifiers:
             check_append_safety(qual)
             app.xml_append(qual)
@@ -4866,10 +4887,10 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                 if isinstance(op[1], dict):
                     attrs = op[1]
                 else:
-                    attrs = {(u'cml:units', NSS[u'cml']): op[1]}
+                    attrs = {(u'cml:units', NSS[u'cml']): unicode(op[1])}
                 op = app.xml_create_element(u'cn', NSS[u'm'],
                                             attributes=attrs,
-                                            content=op[0])
+                                            content=unicode(op[0]))
             else:
                 # Should already be an element
                 check_append_safety(op)
@@ -5342,7 +5363,7 @@ class mathml_diff(mathml_operator):
 
         This is the binding time of the expression defining this ODE.
         """
-        expr = self.dependent_variable._get_ode_dependency(
+        expr = self.dependent_variable.get_ode_dependency(
             self.independent_variable)
         return expr._get_binding_time()
 

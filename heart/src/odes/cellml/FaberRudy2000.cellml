@@ -161,7 +161,7 @@ All the original paper references are cited below:
    </units>
    <units name="milliS_per_microF">
       <unit units="siemens" prefix="milli"/>
-      <unit units="farad" prefix="milli" exponent="-1"/>
+      <unit units="farad" prefix="micro" exponent="-1"/>
    </units>
    <units name="milliS_per_cm2">
       <unit units="siemens" prefix="milli"/>
@@ -456,7 +456,7 @@ All the original paper references are cited below:
       <variable units="per_second" name="alpha_m"/>
       <variable units="per_second" name="beta_m"/>
       <variable units="millivolt" public_interface="in" name="V"/>
-      <variable units="dimensionless" name="delta_m" initial_value="1e-5"/>
+      <variable units="millivolt" name="delta_m" initial_value="1e-5"/>
       <variable units="millivolt" name="E0_m"/>
       <variable units="second" public_interface="in" name="time"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">

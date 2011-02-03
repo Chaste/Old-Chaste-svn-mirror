@@ -449,7 +449,8 @@ class CellMLTranslator(object):
         """Return a display name for the given variable.
         
         If it has an oxmeta name, uses that.  Otherwise uses the cmeta:id if present, or the name
-        attribute if not.
+        attribute if not.  If there is an interface component, strip the name of it out of the
+        display name.
         """
         if var.oxmeta_name:
             name = var.oxmeta_name
@@ -457,6 +458,9 @@ class CellMLTranslator(object):
             name = var.id
         else:
             name = var.name
+        iface = getattr(self.model, 'interface_component_name', '#N/A#')
+        if iface in name:
+            name = name[len(iface)+2:]
         return name
 
     @property
@@ -888,6 +892,7 @@ class CellMLTranslator(object):
 
     def varobj(self, varname):
         """Return the variable object that has code_name varname."""
+        varname = unicode(varname)
         if varname[0] == '(':
             cname, vname = varname[1:-1].split(',')
             if self.single_component and cname != self.model.component.name:
@@ -931,7 +936,7 @@ class CellMLTranslator(object):
                  expr.operator().localName == u'diff':
             dep_varname = unicode(expr.ci)
             varobj = self.varobj(dep_varname.strip())
-            res.add(varobj._get_ode_dependency(self.free_vars[0]))
+            res.add(varobj.get_ode_dependency(self.free_vars[0]))
         elif hasattr(expr, 'xml_children'):
             for child in expr.xml_children:
                 res.update(self._vars_in(child))
@@ -1177,7 +1182,7 @@ class CellMLTranslator(object):
         self.output_comment('Row lookup methods memory')
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             min, max, step, var = key
-            table_size = unicode(1+int((float(max) - float(min)) / float(step)))
+#            table_size = unicode(1+int((float(max) - float(min)) / float(step)))
             num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
             self.writeln('double _lookup_table_', idx, '_row[', num_tables,
                          '];')
@@ -1374,6 +1379,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 conversion += ' * ' + str(conversion_factor)
         elif current_units and var_units.dimensionally_equivalent(current_units): # Check against current
             conversion, nodes_used = self.ionic_current_units_conversion(conversion, var_units, to_chaste)
+#        if conversion != self.code_name(varobj):
+#            print "***Conv***", varobj, "from", var_units.name, "by", conversion
         return conversion, nodes_used
     
     def ionic_current_units_conversion(self, varname, all_units, to_chaste=True):
@@ -1462,6 +1469,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             problem("Units of the ionic current are not in the "
                     "dimensions expected by Chaste (uA/cm^2) and cannot "
                     "be converted automatically.")
+#        if conversion != varname:
+#            print "***Conv***", varname, "from", model_units.name, "by", conversion
         return conversion, nodes_used
     
     def check_time_units(self):
@@ -1821,8 +1830,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.include_serialization = not self.use_modifiers # TODO: Implement
         self.check_time_units()
         # Check if we're generating a Backward Euler model
-        if hasattr(self.model, u'solver_info') and \
-               hasattr(self.model.solver_info, u'jacobian'):
+        if hasattr(self.model, u'solver_info') and hasattr(self.model.solver_info, u'jacobian'):
             self.use_backward_euler = True
             # Find the size of the nonlinear system
             num_linear_odes = len(self.model.solver_info.xml_xpath(
@@ -1830,8 +1838,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.nonlinear_system_size = len(self.state_vars) - 1 - num_linear_odes
             nonlinear_entries = self.model.solver_info.xml_xpath(
                 u'solver:jacobian/solver:entry/@var_j')
-            self.nonlinear_system_vars = \
-                map(unicode, nonlinear_entries[:self.nonlinear_system_size])
+            self.nonlinear_system_vars = map(self.varobj, nonlinear_entries[:self.nonlinear_system_size])
         else:
             self.use_backward_euler = False
         # Start output
@@ -1865,7 +1872,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln_hpp('archive & boost::serialization::base_object<AbstractDynamicallyLoadableEntity>(*this);')
             self.close_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
-        param_vars = self.output_cell_parameters()
+        self.output_cell_parameters()
         if self.config.options.fast_fixed_timestep:
             self.writeln_hpp(self.TYPE_CONST_DOUBLE, 'mFixedDt', self.STMT_END)
         # Constructor
@@ -1915,10 +1922,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         error_template = 'EXCEPTION(DumpState("State variable %s has gone out of range. Check model parameters, for example spatial stepsize"));'
         for var in low_range_vars:
             self.writeln('if (', self.code_name(var), ' < ', var.get_rdf_annotation(low_prop), ')')
-            self.writeln(error_template % self.code_name(var), indent_offset=1)
+            self.writeln(error_template % self.var_display_name(var), indent_offset=1)
         for var in high_range_vars:
             self.writeln('if (', self.code_name(var), ' > ', var.get_rdf_annotation(high_prop), ')')
-            self.writeln(error_template % self.code_name(var), indent_offset=1)
+            self.writeln(error_template % self.var_display_name(var), indent_offset=1)
         self.close_block(True)
   
     def output_constructor(self, params, base_class_params):
@@ -2072,9 +2079,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         used_vars = set()
         for var in self.state_vars:
-            if ((not exclude_nonlinear or 
-                 self.code_name(var) not in self.nonlinear_system_vars)
-                 and (nodeset is None or var in nodeset)):
+            if ((not exclude_nonlinear or var not in self.nonlinear_system_vars)
+                and (nodeset is None or var in nodeset)):
                 used_vars.add(var)
         if assign_rY and used_vars:
             if pointer and self.TYPE_VECTOR_REF == CellMLToChasteTranslator.TYPE_VECTOR_REF:
@@ -2120,11 +2126,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     def output_nonlinear_state_assignments(self, nodeset=None):
         """Output assignments for nonlinear state variables."""
-        if nodeset:
-            var_names = set([self.code_name(node) for node in nodeset if isinstance(node, cellml_variable)])
-        for i, varname in enumerate(self.nonlinear_system_vars):
-            if not nodeset or varname in var_names:
-                self.writeln(self.TYPE_CONST_DOUBLE, varname, self.EQ_ASSIGN,
+        for i, var in enumerate(self.nonlinear_system_vars):
+            if not nodeset or var in nodeset:
+                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var), self.EQ_ASSIGN,
                              self.vector_index('rCurrentGuess', i), self.STMT_END)
                 #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
@@ -2428,8 +2432,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                  'void', access='public')
         self.open_block()
         # Output mathematics for computing du/dt for each nonlinear state var u
-        nodes = map(lambda u: (self.varobj(u), self.free_vars[0]),
-                    self.nonlinear_system_vars)
+        nodes = map(lambda u: (u, self.free_vars[0]), self.nonlinear_system_vars)
         nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
@@ -2440,7 +2443,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Fill in residual
         for i, var in enumerate(self.state_vars):
             try:
-                j = self.nonlinear_system_vars.index(self.code_name(var))
+                j = self.nonlinear_system_vars.index(var)
             except ValueError:
                 j = -1
             if j != -1:
@@ -2472,8 +2475,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Jacobian entries
         for entry in self.model.solver_info.jacobian.entry:
             var_i, var_j = entry.var_i, entry.var_j
-            i = self.nonlinear_system_vars.index(var_i)
-            j = self.nonlinear_system_vars.index(var_j)
+            i = self.nonlinear_system_vars.index(self.varobj(var_i))
+            j = self.nonlinear_system_vars.index(self.varobj(var_j))
             self.writeln('rJacobian[', i, '][', j, '] = ', nl=False)
             if hasattr(entry.math, u'apply'):
                 self.output_expr(entry.math.apply, False)
@@ -2555,13 +2558,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln(self.STMT_END, indent=False)
         # Set up the Newton iteration
         self.writeln()
-        self.writeln('double _guess[', self.nonlinear_system_size,
-                     '] = {', nl=False)
+        self.writeln('double _guess[', self.nonlinear_system_size, '] = {', nl=False)
         comma = False
         idx_map = [0] * self.nonlinear_system_size
         for i, var in enumerate(self.state_vars):
             try:
-                j = self.nonlinear_system_vars.index(self.code_name(var))
+                j = self.nonlinear_system_vars.index(var)
                 idx_map[j] = i
             except ValueError:
                 pass
@@ -2787,22 +2789,36 @@ class CellMLToChasteTranslator(CellMLTranslator):
         single component.  However, the interface will still be preserved in the correct units.
         """
         return # Not working yet!
+        if doc.model.get_option('maple_output'):
+            # The Maple output doesn't use an interface component...
+            return
+        model = doc.model
+        config = doc._cml_config
         # Create Chaste units definitions
-        ms = cellml_units.create_new(doc.model, 'milliseconds',
+        ms = cellml_units.create_new(model, 'millisecond',
                                      [{'units': 'second', 'prefix': 'milli'}])
-        mV = cellml_units.create_new(doc.model, 'millivolts',
+        mV = cellml_units.create_new(model, 'millivolt',
                                      [{'units': 'volt', 'prefix': 'milli'}])
         # Generate the interface
-        generator = processors.InterfaceGenerator(doc.model, name='chaste_interface')
-        t = doc.model.find_free_vars()[0]
+        generator = processors.InterfaceGenerator(model, name='chaste_interface')
+        t = model.find_free_vars()[0]
+        if not ms.dimensionally_equivalent(t.get_units()):
+            # Oops!
+            raise TranslationError('Time does not have dimensions of time')
         generator.add_input(t, ms)
-        V = doc._cml_config.V_variable
-        doc._cml_config.V_variable = generator.add_input(V, mV)
+        #if config.options.use_chaste_stimulus:
+        #    config.i_stim_var = generator.add_input(config.i_stim_var, config.i_stim_var.get_units())
+        config.V_variable = generator.add_input(config.V_variable, mV)
+        ionic_vars = config.i_ionic_vars
+        i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, ionic_vars[0].get_units())
+        config.i_ionic_vars = [i_ionic]
         # Finish up
-        doc._cml_config.options.units_conversions = True
+        if config.options.convert_interfaces:
+            config.options.units_conversions = True
         def errh(errors):
             raise TranslationError("Creation of Chaste interface component failed:\n  " + str(errors))
         generator.finalize(errh)
+
 
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):
@@ -4509,7 +4525,7 @@ class ConfigurationStore(object):
                 var.unset_values()
                 var._unset_binding_time(only_temporary=True)
                 if process_definitions:
-                    defn = var._get_dependencies()
+                    defn = var.get_dependencies()
                     if defn:
                         if isinstance(defn[0], mathml_apply):
                             clear_values(defn[0].eq.rhs, process_definitions=True)
@@ -4539,7 +4555,7 @@ class ConfigurationStore(object):
             as its first argument, and args and kwargs as remaining arguments.
             """
             def get_defn(var):
-                defn = var._get_dependencies()
+                defn = var.get_dependencies()
                 if defn:
                     var._set_binding_time(BINDING_TIMES.static, temporary=True)
                     if isinstance(defn[0], cellml_variable):
@@ -4780,28 +4796,25 @@ class ConfigurationStore(object):
         self.Cm_variable = self._find_var('membrane_capacitance', self.Cm_definitions)
         DEBUG('config', 'Found capacitance', self.Cm_variable)
 
-    def find_lookup_variables(self, pe_done=False):
+    def find_lookup_variables(self):
         """Find the variable objects used as lookup table keys.
 
-        This method translates the variable names given in the
-        configuration file into objects in the document, and then uses
-        those objects as keys in our lut_config dictionary.
-
-        If pe_done is True, then partial evaluation has been performed
-        on the model, so look for variables called compname__varname
-        in the single component.  Otherwise, we look for variables
-        called varname in component compname.
+        This method translates the variable names given in the configuration file into objects
+        in the document, and then uses those objects as keys in our lut_config dictionary.
+        The ultimate source variable for the variable specified is used, in order to avoid
+        complications caused by intermediaries being removed (e.g. by PE).
         """
         new_config = {}
         for key in self.lut_config_keys:
             defn_type, content = key
             defn = self._create_var_def(content, defn_type)
-            var = self._find_variable(defn, pe_done)
+            var = self._find_variable(defn)
             if not var:
                 # Variable doesn't exist, so we can't index on it
                 LOG('lookup-tables', logging.WARNING, 'Variable', content,
                     'not found, so not using as table index.')
             else:
+                var = var.get_source_variable(recurse=True)
                 if not var in new_config:
                     new_config[var] = {}
                 new_config[var].update(self.lut_config[key])
@@ -4952,7 +4965,7 @@ def get_options(args, default_options=None):
                       " rather than that defined in the model")
     parser.add_option('-i', '--convert-interfaces',
                       action='store_true', default=False,
-                      help="perform units conversions at interfaces to Chaste."
+                      help="perform units conversions at interfaces to Chaste"
                       " (only works if -t Chaste is used)")
     parser.add_option('--use-i-ionic-regexp', dest='use_i_ionic_regexp',
                       action='store_true', default=False,
@@ -5094,12 +5107,16 @@ def run():
     # Generate an interface component, if desired
     translator_klass = CellMLTranslator.translators[options.translate_type]
     translator_klass.generate_interface(doc)
+    
+    if options.lut:
+        config.find_lookup_variables()
 
     # These bits could do with improving, as they annotate more than is really needed!
-    # We need to ensure PE doesn't remove ionic currents needed for GetIIonic
-    config.annotate_currents_for_pe()
-    # "Need" to ensure pe doesn't remove metadata-annotated variables (when using modifiers or default stimulus?)
-    config.annotate_metadata_for_pe()
+    if options.pe:
+        # We need to ensure PE doesn't remove ionic currents needed for GetIIonic
+        config.annotate_currents_for_pe()
+        # "Need" to ensure pe doesn't remove metadata-annotated variables (when using modifiers or default stimulus?)
+        config.annotate_metadata_for_pe()
     # Deal with the 'expose' options
     config.expose_variables()
 
@@ -5152,7 +5169,6 @@ def run():
     if options.lut:
         # Create the analyser so PE knows which variables are table keys
         lut = optimize.LookupTableAnalyser()
-        config.find_lookup_variables()
     else:
         lut = None
 

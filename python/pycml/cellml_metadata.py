@@ -110,6 +110,14 @@ def create_rdf_node(node_content=None, fragment_id=None):
     """
     return _wrapper.create_rdf_node(node_content, fragment_id)
 
+def create_unique_id(cellml_model, base_id):
+    """Create a fragment identifier that hasn't already been used.
+    
+    If base_id hasn't been used, it will be returned.  Otherwise, underscores will
+    be added until a unique id is obtained.
+    """
+    return _wrapper.create_unique_id(cellml_model, base_id)
+
 def replace_statement(cellml_model, source, property, target):
     """Add a statement to the model, avoiding duplicates.
     
@@ -142,6 +150,7 @@ def get_targets(cellml_model, source, property):
     """Get a list of all targets of property from source.
     
     If no such targets exist, returns an empty list.
+    If property is None, targets of any property will be returned.
     
     For each target, if it is a literal node then its string value is given.
     Otherwise the list will contain an RDF node.
@@ -251,6 +260,15 @@ class RdfWrapper(object):
     def create_rdf_node(self, node_content=None, fragment_id=None):
         raise NotImplementedError
     create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__ + _must_provide
+    
+    def create_unique_id(self, cellml_model, base_id):
+        while True:
+            node = self.create_rdf_node(fragment_id=base_id)
+            if not self.get_targets(cellml_model, node, None):
+                break
+            base_id += u'_'
+        return base_id
+    create_unique_id.__doc__ = globals()['create_unique_id'].__doc__
 
     def replace_statement(self, cellml_model, source, property, target):
         raise NotImplementedError
@@ -373,7 +391,8 @@ class RedlandWrapper(RdfWrapper):
 
     def get_targets(self, cellml_model, source, property):
         rdf_model = self.get_rdf_from_model(cellml_model)
-        targets = list(rdf_model.targets(source, property))
+        query = RDF.Statement(source, property, None)
+        targets = [stmt.object for stmt in rdf_model.find_statements(query)]
         for i, target in enumerate(targets):
             if target.is_literal():
                 targets[i] = target.literal_value['string']

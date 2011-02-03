@@ -277,10 +277,8 @@ class Protocol(processors.ModelModifier):
             del var.initial_value
         # Note: if this is a variable added by the protocol, then it shouldn't have
         # any dependencies set up yet, so this is a no-op.
-        for dep in var._get_all_expr_dependencies():
-            assert isinstance(dep, mathml_apply)
-            dep.xml_parent.xml_remove_child(dep)
-            dep.xml_parent = None # Not done by Amara...
+        for dep in var.get_all_expr_dependencies():
+            self.remove_expr(dep)
         
     def _filter_assignments(self):
         """Apply protocol outputs to reduce the model size.

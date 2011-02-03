@@ -202,7 +202,7 @@ class PartialEvaluator(object):
         """
         # Is this a retarget?
         var = ci_elt.variable
-        root_defn = var.get_source_variable(recurse=True)._get_dependencies()
+        root_defn = var.get_source_variable(recurse=True).get_dependencies()
         if root_defn:
             root_defn = root_defn[0]
         else:
@@ -313,7 +313,7 @@ class PartialEvaluator(object):
                 self._debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
                            'type', var.get_type(), 'kept', var.pe_keep)
                 if (var.get_usage_count() and var.get_type() != VarTypes.Mapped) or var.pe_keep:
-                    self._debug('Moving variable', var.fullname())
+                    self._debug('Moving variable', var.fullname(cellml=True))
                     # Remove from where it was
                     comp._del_variable(var, keep_annotations=True)
                     # Set name to canonical version
@@ -336,8 +336,7 @@ class PartialEvaluator(object):
             doc.model.xml_remove_child(conn)
 
         # Remove unused variable assignments from the list
-        vs = [v for v in doc.model.get_assignments()
-              if isinstance(v, cellml_variable)]
+        vs = [v for v in doc.model.get_assignments() if isinstance(v, cellml_variable)]
         for v in vs:
             if not v.xml_parent is new_comp:
                 doc.model._remove_assignment(v)
@@ -839,7 +838,7 @@ class LookupTableAnalyser(object):
                 if isinstance(node, mathml_apply):
                     self._find_tables(node, table_dict)
         for u, t, eqns in self.solver_info.get_linearised_odes():
-            original_defn = u._get_ode_dependency(t)
+            original_defn = u.get_ode_dependency(t)
             f([original_defn], original_tables)
             f(eqns, new_tables)
         for id_ in set(original_tables.keys()) - set(new_tables.keys()):
@@ -947,7 +946,7 @@ class LinearityAnalyser(object):
             elif var.get_type(follow_maps=True) == VarTypes.Computed:
                 # Recurse into defining expression
                 src_var = var.get_source_variable(recurse=True)
-                src_expr = self._get_rhs(src_var._get_dependencies()[0])
+                src_expr = self._get_rhs(src_var.get_dependencies()[0])
                 DEBUG('find-linear-deps', "--recurse for", src_var.name,
                       "to", src_expr)
                 result = self._check_expr(src_expr, state_var, bad_vars)
@@ -1046,7 +1045,7 @@ class LinearityAnalyser(object):
         candidates = set(state_vars) - set([V])
         linear_vars = []
         for var in candidates:
-            ode_expr = var._get_ode_dependency(free_var)
+            ode_expr = var.get_ode_dependency(free_var)
             if self._check_expr(self._get_rhs(ode_expr), var,
                                 candidates - set([var])) == kind.Linear:
                 linear_vars.append(var)
@@ -1149,7 +1148,7 @@ class LinearityAnalyser(object):
                     # ci_var is a linear function of var, so rearrange
                     # its definition
                     if not hasattr(ci_var, '_cml_linear_split'):
-                        ci_defn = ci_var._get_dependencies()[0]
+                        ci_defn = ci_var.get_dependencies()[0]
                         ci_var._cml_linear_split = self._rearrange_expr(
                             self._get_rhs(ci_defn), var)
                     gh = ci_var._cml_linear_split
@@ -1263,7 +1262,7 @@ class LinearityAnalyser(object):
         mapping from variable object u to pair (g, h).
         """
 
-        odes = map(lambda v: v._get_ode_dependency(doc.model._cml_free_var),
+        odes = map(lambda v: v.get_ode_dependency(doc.model._cml_free_var),
                    doc.model._cml_linear_vars)
         result = {}
         for var, ode in itertools.izip(doc.model._cml_linear_vars, odes):
@@ -1285,6 +1284,6 @@ class LinearityAnalyser(object):
             print var.fullname()
             print "G:", expr[0].xml()
             print "H:", expr[1].xml()
-            print "ODE:", var._get_ode_dependency(
+            print "ODE:", var.get_ode_dependency(
                 var.model._cml_free_var).xml()
             print

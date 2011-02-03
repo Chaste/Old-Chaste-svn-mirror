@@ -116,13 +116,13 @@ std::vector<double> GetVoltages(ColumnDataReader& rReader)
     {
         voltages = rReader.GetValues("V");
     }
-    else if (rReader.HasValues("membrane__V"))
-    {
-        voltages = rReader.GetValues("membrane__V");
-    }
     else if (rReader.HasValues("membrane_voltage"))
     {
         voltages = rReader.GetValues("membrane_voltage");
+    }
+    else if (rReader.HasValues("membrane__V"))
+    {
+        voltages = rReader.GetValues("membrane__V");
     }
     else
     {
@@ -140,13 +140,13 @@ std::vector<double> GetIntracellularCalcium(ColumnDataReader& rReader)
     {
         cai = rReader.GetValues("CaI");
     }
-    else if (rReader.HasValues("Cai"))
-    {
-        cai = rReader.GetValues("Cai");
-    }
     else if (rReader.HasValues("cytosolic_calcium_concentration"))
     {
         cai = rReader.GetValues("cytosolic_calcium_concentration");
+    }
+    else if (rReader.HasValues("Cai"))
+    {
+        cai = rReader.GetValues("Cai");
     }
     else
     {

@@ -517,7 +517,7 @@ public:
 
         bidomain_problem.Initialise();
 
-        TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "State variable var_fast_sodium_current_m_gate__m has gone out of range. "
+        TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "State variable fast_sodium_current_m_gate__m has gone out of range. "
                                   "Check model parameters, for example spatial stepsize\n");
 
         // Make sure that there's time for the files to be written
@@ -773,7 +773,7 @@ public:
             unsigned global_index = 2+i*2;
             std::vector<double> values = data_reader1.GetVariableOverTime(output_variables[i], global_index);
             TS_ASSERT_EQUALS( values.size(), num_steps);
-        
+
             // Check the last values match the cells' state
             if (bidomain_problem.rGetMesh().GetDistributedVectorFactory()->IsGlobalIndexLocal(global_index))
             {

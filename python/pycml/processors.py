@@ -317,7 +317,14 @@ class ModelModifier(object):
             path.append(comp.parent())
             comp = comp.parent()
         return path
-    
+
+    def _process_operator(self, expr, operator, func, *args, **kwargs):
+        """Apply func to any application of the given operator within the given tree."""
+        for elt in self.model.xml_element_children(expr):
+            self._process_operator(elt, operator, func, *args, **kwargs)
+        if isinstance(expr, mathml_apply) and expr.operator().localName == operator:
+            func(expr, *args, **kwargs)
+
     def _find_or_create_variable(self, cname, vname, source):
         """Find the given variable in the model, creating it if necessary.
         
@@ -385,6 +392,13 @@ class ModelModifier(object):
             comp.xml_append(math)
         # Append this expression
         comp.math.xml_append(expr)
+    
+    def remove_expr(self, expr):
+        """Remove an expression (ODE or assignment) from its parent."""
+        assert isinstance(expr, mathml_apply)
+        expr.xml_parent.safe_remove_child(expr)
+        expr.xml_parent = None # Not done by Amara...
+        return expr
 
     def del_attr(self, elt, localName, ns=None):
         """Delete an XML attribute from an element, if it exists."""
@@ -413,8 +427,8 @@ class InterfaceGenerator(ModelModifier):
         var should be a cellml_variable object already existing in the model.
         units should be a suitable input to self._get_units_object.
         
-        If adding both State and Free variables as inputs, make sure to add the Free variable(s) first,
-        or they will implicitly be added as outputs when adding the State variables.
+        If adding both State and Free variables as inputs, make sure to add the Free variable first,
+        otherwise you will not be able to specify units for it.
         
         The new variable added to the interface component is returned.
         """
@@ -434,13 +448,13 @@ class InterfaceGenerator(ModelModifier):
         newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
                                    initial_value=getattr(var, u'initial_value', None),
                                    interfaces={u'public': u'out'})
+        newvar._set_type(t)
         # Remove initial value and id from the original, if they exist
         self.del_attr(var, u'initial_value')
         self.del_attr(var, u'id', NSS['cmeta'])
-        # If the original variable was a state variable, move the defining equation to the interface
-        # component
+        # If the original variable was a state variable, split the defining equation
         if t == VarTypes.State:
-            self._move_equations(var._get_all_expr_dependencies(), comp)
+            self._split_ode(newvar, var)
         # Annotate the new variable as a parameter if the original was a constant
         if t == VarTypes.Constant:
             newvar.set_is_modifiable_parameter(True)
@@ -457,13 +471,15 @@ class InterfaceGenerator(ModelModifier):
         for v in vars:
             self.connect_variables(newvar, v)
         return newvar
-
+    
     def add_output(self, var, units, annotate=True):
         """Specify a variable as an output of the model.
         
         var should be a cellml_variable object already existing in the model.
         units should be a suitable input to self._get_units_object.
         If annotate is set to True, the new variable will be annotated as a derived quantity.
+        
+        TODO: Figure out what to do with metadata annotations so users get the expected behaviour.
         
         The new variable added to the interface component is returned.
         """
@@ -478,7 +494,7 @@ class InterfaceGenerator(ModelModifier):
             newvar.set_is_derived_quantity(True)
         return newvar
     
-    def add_output_function(self, operator, argVars, units):
+    def add_output_function(self, resultName, operator, argVars, units):
         """Add an output that's defined as a (MathML) function of existing model variables.
         
         The desired units are those of the function's result.  The function arguments will be
@@ -487,26 +503,111 @@ class InterfaceGenerator(ModelModifier):
         
         The new variable added to the interface component is returned.
         """
-        raise NotImplementedError
+        # Add the result variable
+        comp = self._get_interface_component()
+        units = self._get_units_object(units)
+        result_var = self.add_variable(comp, resultName, units)
+        result_var.set_pe_keep(True)
+        # Map the argument variables
+        operands = []
+        for var in argVars:
+            operands.append(self.add_output(var, var.get_units(), annotate=False).name)
+        # Create the new function and assign it to result_var
+        expr = mathml_apply.create_new(self.model, operator, operands)
+        assign = mathml_apply.create_new(self.model, u'eq', [result_var.name, expr])
+        self.add_expr_to_comp(comp, assign)
+        return result_var
+
+    def finalize(self, *args, **kwargs):
+        """Override finalize to also set up standard interface elements not defined individually."""
+        self._add_all_odes_to_interface()
+        self._transform_derivatives_on_rhs()
+        super(InterfaceGenerator, self).finalize(*args, **kwargs)
+
+    def _transform_derivatives_on_rhs(self):
+        """Transform any equations with derivatives on the RHS to use the variable defining it instead.
         
-    def _move_equations(self, exprs, comp):
-        """Remove the given equations from their current component and place them in comp.
-        
-        For variables used in exprs and not already in comp, new variables will be added to comp
-        and connected to the source variables.
+        self._split_ode must have been used for all derivatives before calling this method.  This means
+        that each ODE now has a variable to which the RHS is assigned.  Rather than using the derivative
+        directly, which could break the dependency chain if units conversions are used for time, equations
+        should refer to this new variable instead.
         """
-        for expr in list(exprs):
-            # Move the expression
-            assert isinstance(expr, mathml_apply)
-            expr.xml_parent.safe_remove_child(expr)
-            self.add_expr_to_comp(comp, expr)
-            # Ensure it has all the variables it needs
-            for var in expr._get_dependencies():
-#                print "Eqn dep", var, "connecting to target", comp.name, var.name
-                assert isinstance(var, cellml_variable)
-                self.connect_variables(var.get_source_variable(recurse=True), (comp.name, var.name))
-            # It now assigns to and depends on new variable objects
-            expr.clear_dependency_info()
+        for expr in self.model.search_for_assignments():
+            self._process_operator(list(expr.operands())[1], u'diff', self._transform_derivative_on_rhs)
+
+    def _transform_derivative_on_rhs(self, expr):
+        """Transform a derivative on the RHS of an equation to refer to the defining variable.
+        
+        Helper method used by self._transform_derivatives_on_rhs to do the actual transformation.
+        """
+        # Find the variable to use
+        dep_var = expr.diff.dependent_variable.get_source_variable(recurse=True)
+        indep_var = expr.diff.independent_variable.get_source_variable(recurse=True)
+        ode = dep_var.get_ode_dependency(indep_var)
+        rhs_var = ode.get_dependencies()[0].get_source_variable(recurse=True)
+        # Ensure there's something mapped to it in this component
+        self.connect_variables(rhs_var, (expr.component.name, rhs_var.name))
+        # Update this expression
+        parent = expr.xml_parent
+        parent.xml_insert_after(expr, mathml_ci.create_new(parent, rhs_var.name))
+        parent.safe_remove_child(expr)
+    
+    def _split_ode(self, newVar, oldVar):
+        """Split an ODE definition so the derivative goes into the interface component.
+        
+        The RHS stays where it is, and is assigned to a new variable, which is connected to the interface
+        component and assigned to the new derivative.  newVar is the new state variable in the interface
+        component, and oldVar will soon be mapped to it by the caller.
+        
+        Any other equations in the model which use the derivative are transformed to use the new variable
+        instead.
+        """
+        # Get the free variable in the interface component
+        free_var = self.model.find_free_vars()[0]
+        if free_var.component is not newVar.component:
+            free_var = self.add_input(free_var, free_var.get_units())
+        # Add a new variable to assign the RHS to, with units of the original derivative
+        deriv_name = self._uniquify_var_name(u'd_%s_d_%s' % (oldVar.name, free_var.name), oldVar.component)
+        orig_ode = oldVar.get_all_expr_dependencies()[0]
+        orig_rhs_var = self.add_variable(oldVar.component, deriv_name, orig_ode.eq.lhs.get_units().extract())
+        # Add an output version of this in the interface, with desired units
+        desired_units = newVar.get_units().quotient(free_var.get_units())
+        mapped_rhs_var = self.add_output(orig_rhs_var, desired_units, annotate=False)
+        # Replace the original ODE with an assignment
+        orig_rhs = orig_ode.eq.rhs
+        orig_ode.safe_remove_child(orig_rhs)
+        self.remove_expr(orig_ode)
+        self.add_expr_to_comp(oldVar.component,
+                              mathml_apply.create_new(self.model, u'eq',
+                                                      [orig_rhs_var.name, orig_rhs]))
+        # Create a new ODE in the interface component
+        new_ode = mathml_diff.create_new(self.model, free_var.name, newVar.name, mapped_rhs_var.name)
+        self.add_expr_to_comp(newVar.component, new_ode)
+        new_ode.classify_variables(root=True, dependencies_only=True)
+    
+    def _uniquify_var_name(self, varname, comp):
+        """Ensure varname is unique within the given component.
+        
+        Underscores will be appended to the name until it is unique.  The unique name will be returned.
+        """
+        while True:
+            try:
+                comp.get_variable_by_name(varname)
+                varname += u'_'
+            except:
+                break
+        return varname
+    
+    def _add_all_odes_to_interface(self):
+        """All the derivatives should be considered as model outputs, and state variables as model inputs.
+        
+        For any that haven't been done explicitly, this method will add the corresponding state variable
+        as an input, with its original units, which has the desired effect.
+        """
+        comp = self._get_interface_component()
+        for var in self.model.find_state_vars():
+            if var.component is not comp:
+                self.add_input(var, var.get_units())
     
     def _get_interface_component(self):
         """Get the new component that will contain the interface.
@@ -516,6 +617,8 @@ class InterfaceGenerator(ModelModifier):
         """
         if self._interface_component is None:
             self._interface_component = self.create_new_component(unicode(self._interface_component_name))
+            self.model.interface_component_name = unicode(self._interface_component_name)
+            assert not self._interface_component.ignore_component_name
         return self._interface_component
     
     def _get_units_object(self, units):

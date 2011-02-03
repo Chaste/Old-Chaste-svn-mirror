@@ -54,7 +54,7 @@ public:
 
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -102,7 +102,7 @@ public:
     //
     // Note that this space step ought to be too big!
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -127,7 +127,7 @@ public:
         // EvaluateYDerivatives() method of the cell model
 
         TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),
-                "State variable var_fast_sodium_current_m_gate__m has gone out of range. Check model parameters, for example spatial stepsize");
+                "State variable fast_sodium_current_m_gate__m has gone out of range. Check model parameters, for example spatial stepsize");
 
     }
 
