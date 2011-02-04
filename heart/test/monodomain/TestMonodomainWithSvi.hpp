@@ -122,8 +122,6 @@ class TestMonodomainWithSvi : public CxxTest::TestSuite
 public:
     void TestConductionVelocityConvergesFasterWithSvi1d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-        
         double h[3] = {0.001,0.01,0.02};
         unsigned probe_node_index[3] = {300, 30, 15};
         unsigned number_of_nodes[3] = {1001, 101, 51};
@@ -242,7 +240,7 @@ public:
                 
                 double ici_voltage_at_0_03_finest_mesh = final_voltage_ici[ probe_node_index[i] ];
                 double svi_voltage_at_0_03_finest_mesh = final_voltage_svi[ probe_node_index[i] ];
-                TS_ASSERT_DELTA(svi_voltage_at_0_03_finest_mesh, 11.0067, 1e-4); //hardcoded value from fine svi
+                TS_ASSERT_DELTA(svi_voltage_at_0_03_finest_mesh, 11.0067, 2e-4); //hardcoded value from fine svi
                 TS_ASSERT_DELTA(ici_voltage_at_0_03_finest_mesh, 11.0067, 1.2e-1); //hardcoded value from fine svi
             }
             else if(i==1)
@@ -268,8 +266,7 @@ public:
     
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
+ 
         ReplicatableVector final_voltage_ici;
         ReplicatableVector final_voltage_svi;
 
@@ -300,7 +297,8 @@ public:
    
         // SVI - state variable interpolation
         {
-            TetrahedralMesh<2,2> mesh;
+            ///\todo #1462 - TetrahedralMesh<2,2> mesh messes with Halo nodes causing GetCardiac.. to fail;
+            DistributedTetrahedralMesh<2,2> mesh;
             mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
 
             HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");
@@ -326,8 +324,9 @@ public:
         // (Matches results in paper)
         
         // node 20 (for h=0.02) is on the x-axis (fibre direction), SVI CV is slower
-        TS_ASSERT_DELTA(final_voltage_ici[20], -9.2269, 1e-3);
-        TS_ASSERT_DELTA(final_voltage_svi[20], -60.8510, 1e-3);
+        ///\todo #1462 Check that these nodes are where expected
+        TS_ASSERT_DELTA(final_voltage_ici[20], -9.2270,  8e-3);  //These tolerances show difference in parallel - note that SVI is more stable in the presence of multicore...
+        TS_ASSERT_DELTA(final_voltage_svi[20], -60.8510, 4e-3);
         // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), ICI CV is slower
         TS_ASSERT_DELTA(final_voltage_ici[130], 14.7918, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
@@ -335,7 +334,6 @@ public:
     
     void TestCoverage3d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
 
         HeartConfig::Instance()->SetSimulationDuration(0.1); //ms
         HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
@@ -352,7 +350,6 @@ public:
 
     void TestWithHeterogeneousCellModels() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
 
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         HeartConfig::Instance()->SetUseStateVariableInterpolation(true);

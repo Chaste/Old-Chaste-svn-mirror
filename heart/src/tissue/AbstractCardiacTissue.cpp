@@ -393,6 +393,7 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
         return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
     }
     //Not here
+    ///\todo #1462 assert(globalIndex == 0);
     std::stringstream message;
     message << "Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank();
     EXCEPTION(message.str().c_str());
