@@ -36,7 +36,7 @@ AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorrect
     : AbstractCardiacFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>(pMesh,pTissue,numQuadPoints)
 {
     mElementsHasIdenticalCellModels.resize(pMesh->GetNumElements(), true);
-//1462 - finish setting up mElementsHasIdenticalCellModels
+///\todo #1462 - finish setting up mElementsHasIdenticalCellModels
 
     // note: the mStateVariables std::vector is resized if correction will
     // be applied to a given element
@@ -79,20 +79,21 @@ bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAss
     {
         return false;
     }
-    
     double DELTA_IIONIC = 1; // tolerance
 
+    //The criterion and the correction both need the ionic cache, so we better make sure that it's up-to-date
+    assert( this->mpCardiacTissue->GetDoCacheReplication());
     ReplicatableVector& r_cache = this->mpCardiacTissue->rGetIionicCacheReplicated();
     
     double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
     
-    if(SPACE_DIM > 1)
+    if(ELEM_DIM > 1)
     {
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );    
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(2)]) ); 
     }
 
-    if(SPACE_DIM > 2)
+    if(ELEM_DIM > 2)
     {
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(3)]) ); 
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );    

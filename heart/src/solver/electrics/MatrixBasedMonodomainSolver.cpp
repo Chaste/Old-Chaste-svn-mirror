@@ -178,6 +178,8 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
     {
         mpMonodomainCorrectionTermAssembler 
             = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
+        //We are going to need those caches after all
+        pTissue->SetCacheReplication(true);
     }
     else
     {

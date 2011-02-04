@@ -233,6 +233,8 @@ MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
     {
         mpBidomainCorrectionTermAssembler 
             = new BidomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
+        //We are going to need those caches after all
+        pTissue->SetCacheReplication(true);
     }
     else
     {
