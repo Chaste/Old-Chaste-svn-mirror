@@ -251,7 +251,7 @@ class Protocol(processors.ModelModifier):
             # Straight assignment to variable
             cname, vname = self._split_name(unicode(lhs))
             assigned_var = self.model.get_variable_by_name(cname, vname)
-            self._remove_existing_definition(assigned_var, False)
+            self.remove_definition(assigned_var, False)
             self.add_expr_to_comp(cname, expr)
         else:
             # This had better be an ODE
@@ -261,24 +261,8 @@ class Protocol(processors.ModelModifier):
             assert dep_var.localName == u'ci', 'ODE is malformed'
             cname, dep_var_name = self._split_name(unicode(dep_var))
             dep_var = self.model.get_variable_by_name(cname, dep_var_name)
-            self._remove_existing_definition(dep_var, True)
+            self.remove_definition(dep_var, True)
             self.add_expr_to_comp(cname, expr)
-
-    def _remove_existing_definition(self, var, keep_initial_value):
-        """Remove any existing definition (as an equation) of the given variable.
-        
-        If keep_initial_value is False, then also remove any initial_value attribute.
-        
-        If the variable is Mapped, throw a ProtocolError.
-        """
-        if var.get_type() == VarTypes.Mapped:
-            raise ProtocolError("Cannot add new mathematics defining a mapped variable - change the definition of its source instead")
-        if not keep_initial_value and hasattr(var, u'initial_value'):
-            del var.initial_value
-        # Note: if this is a variable added by the protocol, then it shouldn't have
-        # any dependencies set up yet, so this is a no-op.
-        for dep in var.get_all_expr_dependencies():
-            self.remove_expr(dep)
         
     def _filter_assignments(self):
         """Apply protocol outputs to reduce the model size.

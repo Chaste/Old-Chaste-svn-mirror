@@ -136,13 +136,13 @@ class TestProtocol(unittest.TestCase):
         T_const = self.NewAssign(u'time_dependent_potassium_current,T',
                                  (unicode(T.get_value()), T.units))
         p.inputs.append(T_const)
-        self.assertRaises(protocol.ProtocolError, p.modify_model)
+        self.assertRaises(processors.ModelModificationError, p.modify_model)
         # Same should apply if we replace by an ODE
         T_ode = self.NewOde(u'time_dependent_potassium_current,T',
                             u'time_dependent_potassium_current,time',
                             (u'1', u'dimensionless'))
         p.inputs = [T_ode]
-        self.assertRaises(protocol.ProtocolError, p.modify_model)
+        self.assertRaises(processors.ModelModificationError, p.modify_model)
         # Referencing a missing variable is also an error
         T = m.get_variable_by_name(u'membrane', u'T')
         T_const = self.NewAssign(u'membrane,T', u'membrane,missing')

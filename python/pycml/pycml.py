@@ -1235,7 +1235,7 @@ class cellml_model(element_base):
                 # Get units
                 u1 = comp1.get_units_by_name(var1.units)
                 u2 = comp2.get_units_by_name(var2.units)
-                if not u1 == u2:
+                if not u1.equals(u2):
                     # We need a conversion
                     # Add a copy of var1 to comp1, with units as var2
                     if getattr(var1, u'public_interface', '') == u'in':
@@ -2146,7 +2146,6 @@ class cellml_variable(Colourable, element_base):
         If update_usage is True then this variable is used in an equation,
         so reduce the usage of any source variables it no longer depends on.
         """
-        # TODO: Add some better tests for this method!
         assert self.pe_keep
         src = self.get_source_variable(recurse=True)
         if src._get_binding_time() is BINDING_TIMES.static:
@@ -2172,8 +2171,8 @@ class cellml_variable(Colourable, element_base):
                 self._cml_source_var = src
                 # Fix up usage counts
                 if update_usage:
-                    src._used()
                     self.get_source_variable()._decrement_usage_count()
+                    src._used()
             else: # src.get_type() != VarTypes.Mapped
                 # This variable is the only reference to the ultimate defining
                 # expression, so become computed.
@@ -2446,7 +2445,7 @@ class cellml_units(Colourable, element_base):
         and the remaining elements of which are our <unit> elements.
         """
         if self._cml_hash is None:
-            hash_tup = self._hash_tuple
+            _ = self._hash_tuple
         return self._cml_hash
 
     def __cmp__(self, other):
@@ -3337,36 +3336,28 @@ class mathml_units_mixin(object):
         # m[to_units/defn_units]*(expr-o1[defn_units]) + o2[to_units]
         orig_expr, parent = expr, expr.xml_parent
         dummy = expr.xml_create_element(u'dummy', NSS[u'm'])
-        parent.xml_insert_after(expr, dummy) # Mark where to put the new elt
         model = expr.model # So we still have a reference after the next line
-        parent.safe_remove_child(expr)
+        parent.replace_child(expr, dummy) # Mark where to put the new elt
         if defn_units_exp.get_offset() != 0:
             # Create expr-o1 expression
             uattr = orig_expr._ensure_units_exist(defn_units, no_act=no_act)
-            new_expr = mathml_apply.create_new(
-                expr, u'minus', [expr,
-                                 (unicode(defn_units_exp.get_offset()),
-                                  uattr)])
+            new_expr = mathml_apply.create_new(expr, u'minus',
+                                               [expr, (unicode(defn_units_exp.get_offset()), uattr)])
             new_expr._cml_units = defn_units
             expr = new_expr
         if m != 1:
             quotient_units = to_units.quotient(defn_units)
             # Add units element to model if needed
-            uattr = orig_expr._ensure_units_exist(quotient_units,
-                                                  no_act=no_act)
+            uattr = orig_expr._ensure_units_exist(quotient_units, no_act=no_act)
             # Create m*expr expression
-            new_expr = mathml_apply.create_new(
-                expr, u'times', [(unicode(m), uattr),
-                                 expr])
+            new_expr = mathml_apply.create_new(expr, u'times', [(unicode(m), uattr), expr])
             new_expr._cml_units = to_units
             expr = new_expr
         if to_units_exp.get_offset() != 0:
             # Create expr+o2 expression
             uattr = orig_expr._ensure_units_exist(to_units, no_act=no_act)
-            new_expr = mathml_apply.create_new(
-                expr, u'plus', [expr,
-                                (unicode(to_units_exp.get_offset()),
-                                 uattr)])
+            new_expr = mathml_apply.create_new(expr, u'plus',
+                                               [expr, (unicode(to_units_exp.get_offset()), uattr)])
             new_expr._cml_units = to_units
             expr = new_expr
         # Note that the model needed conversions
@@ -3374,10 +3365,7 @@ class mathml_units_mixin(object):
             model._cml_conversions_needed = True
         if no_act:
             expr = orig_expr
-##        import pdb
-##        pdb.set_trace()
-        parent.xml_insert_before(dummy, expr)
-        parent.xml_remove_child(dummy)
+        parent.replace_child(dummy, expr)
         return
         
     def _set_element_in_units(self, elt, units, no_act=False):
@@ -3556,9 +3544,7 @@ class mathml(element_base):
         these should be copied as references to the originals.
         """
         new_elt = copy.copy(self)
-#        print "deepcopy", prid(self), "to", prid(new_elt)
-        # Children may refer to us, so need to update memo before
-        # copying children
+        # Children may refer to us, so need to update memo before copying children
         assert id(self) not in memo
         memo[id(self)] = new_elt
         new_dict = {}
@@ -3566,19 +3552,9 @@ class mathml(element_base):
             name_copy = copy.deepcopy(name, memo)
             if not name.startswith('_cml'):
                 new_dict[name_copy] = copy.deepcopy(value, memo)
-#                if id(value) in memo:
-#                    print "in memo", name, prid(value), "->", prid(new_dict[name_copy])
             else:
                 new_dict[name_copy] = value
-#            if name == 'xml_parent':
-#                print "parent of", prid(self), "was", prid(self.xml_parent), "now", prid(new_dict[name_copy])
         new_elt.__dict__.update(new_dict)
-#        if hasattr(self, 'xml_parent') and self.xml_parent:
-#            assert self.xml_parent is not new_elt.xml_parent
-#        for i, child in enumerate(new_elt.xml_children):
-#            if isinstance(child, mathml):
-#                print "child", i, "of", prid(self), '->', prid(new_elt), "is", prid(self.xml_children[i]), '->', prid(child), "parent", prid(self.xml_children[i].xml_parent), '->', prid(child.xml_parent)
-#                assert child.xml_parent is new_elt
         return new_elt
 
     @staticmethod

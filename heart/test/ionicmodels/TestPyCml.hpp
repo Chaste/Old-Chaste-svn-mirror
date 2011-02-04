@@ -302,7 +302,7 @@ public:
         TS_ASSERT_DELTA( opt.GetIIonic(), i_ionic, 1e-3);
 
         // No stimulus at end time
-        TS_ASSERT_DELTA(opt.Get_membrane__I_stim(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(opt.GetIntracellularAreaStimulus(i_ionic_end_time), 0.0, 1e-12);
 
         // Backward Euler
         ck_start = clock();
@@ -369,7 +369,7 @@ public:
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), i_ionic, 1e-1);
 
         // No stimulus at end time
-        TS_ASSERT_DELTA(cvode_opt.Get_membrane__I_stim(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(cvode_opt.GetIntracellularAreaStimulus(i_ionic_end_time), 0.0, 1e-12);
 #endif // CHASTE_CVODE
 
         // Load and check simulation results still match

@@ -399,6 +399,24 @@ class ModelModifier(object):
         expr.xml_parent.safe_remove_child(expr)
         expr.xml_parent = None # Not done by Amara...
         return expr
+    
+    def remove_definition(self, var, keep_initial_value=False):
+        """Remove any existing definition (as an equation) of the given variable.
+        
+        If keep_initial_value is False, then also remove any initial_value attribute.
+        
+        If the variable is Mapped, throw a ModelModificationError.
+        """
+        if var.get_type() == VarTypes.Mapped:
+            raise ModelModificationError("Cannot remove the equation defining a mapped variable - remove the definition of its source instead")
+        if not keep_initial_value:
+            self.del_attr(var, u'initial_value')
+        # Note: if this is a variable added by a protocol, then it shouldn't have
+        # any dependencies set up yet, so this is a no-op.
+        for dep in var.get_all_expr_dependencies():
+            self.remove_expr(dep)
+        # We know don't know how it will be defined
+        var._set_type(VarTypes.Unknown)
 
     def del_attr(self, elt, localName, ns=None):
         """Delete an XML attribute from an element, if it exists."""
@@ -421,7 +439,7 @@ class InterfaceGenerator(ModelModifier):
         self._interface_component = None
         self._interface_component_name = name
 
-    def add_input(self, var, units):
+    def add_input(self, var, units, annotate=True):
         """Specify a variable as an input to the model.
         
         var should be a cellml_variable object already existing in the model.
@@ -429,6 +447,9 @@ class InterfaceGenerator(ModelModifier):
         
         If adding both State and Free variables as inputs, make sure to add the Free variable first,
         otherwise you will not be able to specify units for it.
+        
+        Set annotate to False if you do not wish a Constant variable to be annotated as a modifiable
+        parameter.
         
         The new variable added to the interface component is returned.
         """
@@ -442,7 +463,7 @@ class InterfaceGenerator(ModelModifier):
             raise ModelModificationError("Cannot specify computed variable " + var.fullname()
                                          + " as an input")
         elif t not in [VarTypes.Constant, VarTypes.Free, VarTypes.State]:
-            raise ModelModificationError("Variable " + var.fullname() + " has unexpected type " + t)
+            raise ModelModificationError("Variable " + var.fullname() + " has unexpected type " + str(t))
         # Add a new variable with desired units to the interface component
         comp = self._get_interface_component()
         newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
@@ -456,7 +477,7 @@ class InterfaceGenerator(ModelModifier):
         if t == VarTypes.State:
             self._split_ode(newvar, var)
         # Annotate the new variable as a parameter if the original was a constant
-        if t == VarTypes.Constant:
+        if t == VarTypes.Constant and annotate:
             newvar.set_is_modifiable_parameter(True)
 
         # Set all variables connected to the original variable to be mapped to the new one
@@ -517,6 +538,22 @@ class InterfaceGenerator(ModelModifier):
         assign = mathml_apply.create_new(self.model, u'eq', [result_var.name, expr])
         self.add_expr_to_comp(comp, assign)
         return result_var
+    
+    def make_var_constant(self, var, value):
+        """Turn a variable into a constant."""
+        self.remove_definition(var)
+        var.clear_dependency_info()
+        var.initial_value = unicode(str(value))
+        var._set_type(VarTypes.Constant)
+    
+    def make_var_computed_constant(self, var, value):
+        """Turn a variable into a Computed variable with constant value definition."""
+        self.remove_definition(var)
+        var.clear_dependency_info()
+        defn = mathml_apply.create_new(self.model, u'eq', 
+                                       [var.name, (unicode(str(value)), var.get_units().name)])
+        self.add_expr_to_comp(var.component, defn)
+        var._set_type(VarTypes.Computed)
 
     def finalize(self, *args, **kwargs):
         """Override finalize to also set up standard interface elements not defined individually."""

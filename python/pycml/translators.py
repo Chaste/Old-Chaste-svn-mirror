@@ -2806,8 +2806,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Oops!
             raise TranslationError('Time does not have dimensions of time')
         generator.add_input(t, ms)
-        #if config.options.use_chaste_stimulus:
-        #    config.i_stim_var = generator.add_input(config.i_stim_var, config.i_stim_var.get_units())
+        if config.options.use_chaste_stimulus and config.i_stim_var:
+            # We need to make it a constant so add_input doesn't complain, then make it computed
+            # again so that exposing metadata-annotated variables doesn't make it a parameter!
+            generator.make_var_constant(config.i_stim_var, 0)
+            config.i_stim_var = generator.add_input(config.i_stim_var, config.i_stim_var.get_units(),
+                                                    annotate=False)
+            generator.make_var_computed_constant(config.i_stim_var, 0)
         config.V_variable = generator.add_input(config.V_variable, mV)
         ionic_vars = config.i_ionic_vars
         i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, ionic_vars[0].get_units())
@@ -4000,15 +4005,12 @@ class SolverInfo(object):
         """Add ionic current information as XML for solvers to use."""
         solver_info = self._solver_info
         model = self._model
-        # The total ionic current.  This relies on having a
-        # configuration store.
-        if hasattr(model.xml_parent, '_cml_config') and \
-               not hasattr(solver_info, u'ionic_current'):
+        # The total ionic current.  This relies on having a configuration store.
+        if hasattr(model.xml_parent, '_cml_config') and not hasattr(solver_info, u'ionic_current'):
             conf = model.xml_parent._cml_config
             ionic_elt = model.xml_create_element(u'ionic_current', NSS[u'solver'])
             # Adds each ionic var to the xml doc from the config store
             for var in conf.i_ionic_vars:
-                DEBUG("translate", var.name, var.xml_parent.name, var.fullname())
                 varelt = model.xml_create_element(u'var', NSS[u'solver'],
                                                   content=var.fullname())
                 ionic_elt.xml_append(varelt)
@@ -4759,9 +4761,11 @@ class ConfigurationStore(object):
             for var in self.metadata_vars:
                 if not var.oxmeta_name in cellml_metadata.STIMULUS_NAMES:
                     annotate(var)
+            DEBUG('translate', "+++ Exposed annotated variables")
         if self.options.expose_all_variables:
             for var in self.doc.model.get_all_variables():
                 annotate(var)
+            DEBUG('translate', "+++ Exposed all variables")
     
     def annotate_metadata_for_pe(self):
         "Annotate all vars tagged with metadata so PE doesn't remove them."
@@ -5092,6 +5096,7 @@ def run():
     if options.protocol:
         import protocol
         protocol.apply_protocol_file(doc, options.protocol)
+        DEBUG('translate', "+++ Applied protocol")
 
     config = ConfigurationStore(doc, options=options)
     if options.config_file:
@@ -5102,14 +5107,17 @@ def run():
         # Use defaults
         config.find_transmembrane_potential()
         config.find_current_vars()
-    config.validate_metadata(options.assume_valid)
+    DEBUG('translate', "+++ Read config")
 
     # Generate an interface component, if desired
     translator_klass = CellMLTranslator.translators[options.translate_type]
     translator_klass.generate_interface(doc)
+    config.validate_metadata(options.assume_valid)
+    DEBUG('translate', "+++ Generated interface")
     
     if options.lut:
         config.find_lookup_variables()
+        DEBUG('translate', "+++ Found LT keys")
 
     # These bits could do with improving, as they annotate more than is really needed!
     if options.pe:
@@ -5117,6 +5125,7 @@ def run():
         config.annotate_currents_for_pe()
         # "Need" to ensure pe doesn't remove metadata-annotated variables (when using modifiers or default stimulus?)
         config.annotate_metadata_for_pe()
+        DEBUG('translate', "+++ Annotated variables")
     # Deal with the 'expose' options
     config.expose_variables()
 
@@ -5140,12 +5149,14 @@ def run():
 
     if options.units_conversions:
         doc.model.add_units_conversions()
+        DEBUG('translate', "+++ Added units conversions")
 
     if options.do_jacobian_analysis:
         lin = optimize.LinearityAnalyser()
         lin.analyse_for_jacobian(doc, V=config.V_variable)
         options.translate_type = 'Maple'
         options.maple_output = False # Just in case...!
+        DEBUG('translate', "+++ Analysed model for Jacobian")
 
     if options.maple_output:
         # Parse Jacobian matrix
@@ -5163,6 +5174,7 @@ def run():
         # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
         solver_info.add_linear_ode_update_equations()
+        DEBUG('translate', "+++ Parsed and incorporated Maple output")
     else:
         options.fast_fixed_timestep = False
 
@@ -5176,10 +5188,12 @@ def run():
         # Do partial evaluation
         pe = optimize.PartialEvaluator()
         pe.parteval(doc, solver_info, lut)
+        DEBUG('translate', "+++ Done PE")
 
     if options.lut:
         # Do the lookup table analysis
         lut.analyse_model(doc, solver_info)
+        DEBUG('translate', "+++ Done LT analysis")
 
     if options.translate:
         # Translate to code
@@ -5214,4 +5228,6 @@ def run():
         stream = open_output_stream(output_filename)
         doc.xml(indent=u'yes', stream=stream)
         close_output_stream(stream)
+        
+    DEBUG('translate', "+++ Done translation")
 
