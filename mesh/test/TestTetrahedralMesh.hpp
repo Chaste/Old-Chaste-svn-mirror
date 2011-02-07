@@ -729,32 +729,27 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        unsigned lo = 300;
-        unsigned hi = 302;
 
-        mesh.SetElementOwnerships(lo, hi);
+        mesh.SetElementOwnerships();
 
+        bool unowned_element = false;
         for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)
         {
-            bool owned = mesh.GetElement(ele_num)->GetOwnership();
-            if (ele_num==26  ||
-                ele_num==195 ||
-                ele_num==330 ||
-                ele_num==351 ||
-                ele_num==498 ||
-                ele_num==499 || //...these contain node 300
-                ele_num==186 ||
-                ele_num==208 ||
-                ele_num==480 ||
-                ele_num==500 ||
-                ele_num==501)  //... these contain node 301
+            if (mesh.GetElement(ele_num)->GetOwnership() == false)
             {
-                TS_ASSERT_EQUALS(owned, true);
+                unowned_element = true;
+                break;
             }
-            else
-            {
-                TS_ASSERT_EQUALS(owned, false);
-            }
+        }
+        if (PetscTools::IsSequential())
+        {
+            //We own everything
+            TS_ASSERT_EQUALS(unowned_element, false);
+        }
+        else
+        {
+            //We do not own everything
+            TS_ASSERT_EQUALS(unowned_element, true);
         }
     }
 

@@ -34,9 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships()
 {
-    assert(hi >= lo);
+    unsigned lo=this->GetDistributedVectorFactory()->GetLow();
+    unsigned hi=this->GetDistributedVectorFactory()->GetHigh();
     for (unsigned element_index=0; element_index<mElements.size(); element_index++)
     {
         Element<ELEMENT_DIM, SPACE_DIM>* p_element = mElements[element_index];

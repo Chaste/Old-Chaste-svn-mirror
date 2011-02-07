@@ -569,7 +569,8 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         {
             Element<ELEMENT_DIM, SPACE_DIM>& r_element = *iter;
     
-            if (ElementAssemblyCriterion(r_element)==true && r_element.GetOwnership() == true)
+            //Test for ownership first, since it's pointless to test the criterion on something which we might know nothing about.
+            if ( r_element.GetOwnership() == true && ElementAssemblyCriterion(r_element)==true )
             {
                 AssembleOnElement(r_element, a_elem, b_elem);
     

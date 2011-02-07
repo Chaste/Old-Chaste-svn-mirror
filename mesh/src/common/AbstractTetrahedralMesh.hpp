@@ -374,12 +374,10 @@ public:
      * Sets the ownership of each element according to which nodes are owned by the
      * process.
      *
-     * @param lo is the lowest node number owned by the process
-     * @param hi is one higher than the highest node number owned by the process
-     * ie. this process owns nodes [lo..hi)
-     * and element is "owned" if one or more of its nodes are owned
+     * Information on node ownership comes from the distributed vector factory and
+     * an element is "owned" if one or more of its nodes are owned
      */
-    virtual void SetElementOwnerships(unsigned lo, unsigned hi);
+    virtual void SetElementOwnerships();
 
     /**
      * Construct the mesh using a MeshReader.

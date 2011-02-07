@@ -269,6 +269,7 @@ public:
  
         ReplicatableVector final_voltage_ici;
         ReplicatableVector final_voltage_svi;
+        ReplicatableVector final_voltage_svit;
 
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.01);
@@ -316,6 +317,26 @@ public:
             final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
         
+        // SVIT - state variable interpolation on non-distributed tetrahedral mesh 
+        {
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
+
+            HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+
+            HeartConfig::Instance()->SetUseStateVariableInterpolation();
+
+            BlockCellFactory<2> cell_factory;
+            MonodomainProblem<2> monodomain_problem( &cell_factory );
+            monodomain_problem.SetMesh(&mesh);
+            monodomain_problem.Initialise();
+
+            monodomain_problem.Solve();
+                
+            final_voltage_svit.ReplicatePetscVector(monodomain_problem.GetSolution());
+        }
+
         // Visualised results with h=0.02 and h=0.01 - results looks sensible according to 
         // paper:
         // 1. SVI h=0.01 and h=0.02 match more closely than ICI results - ie SVI converges faster
@@ -327,9 +348,11 @@ public:
         ///\todo #1462 Check that these nodes are where expected
         TS_ASSERT_DELTA(final_voltage_ici[20], -9.2270,  8e-3);  //These tolerances show difference in parallel - note that SVI is more stable in the presence of multicore...
         TS_ASSERT_DELTA(final_voltage_svi[20], -60.8510, 4e-3);
+        TS_ASSERT_DELTA(final_voltage_svit[20], -60.8510, 4e-3);
         // node 130 (for h=0.02) is on the y-axis (cross-fibre direction), ICI CV is slower
         TS_ASSERT_DELTA(final_voltage_ici[130], 14.7918, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_svit[130], 30.5281, 1e-3);
     }
     
     void TestCoverage3d() throw(Exception)

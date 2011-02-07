@@ -284,16 +284,6 @@ public:
      */
     std::vector<unsigned> GetContainingElementIndices(const ChastePoint<SPACE_DIM>& rTestPoint);
 
-//    /*
-//     * Sets the ownership of each element according to which nodes are owned by the
-//     * process.
-//     * @param lo is the lowest node number owned by the process
-//     * @param hi is one higher than the highest node number owned by the process
-//     * ie. this process owns nodes [lo..hi)
-//     * and element is "owned" if one or more of its nodes are owned
-//     */
-//    void SetElementOwnerships(unsigned lo, unsigned hi);
-
     /**
      * Clear all the data in the mesh.
      */

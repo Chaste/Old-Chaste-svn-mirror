@@ -307,7 +307,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100u);
 
         // For coverage purposes
-        mesh.SetElementOwnerships(0,1); // see comment in DistributedTetrahedralMesh
+        mesh.SetElementOwnerships(); // see comment in DistributedTetrahedralMesh
 
         for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
