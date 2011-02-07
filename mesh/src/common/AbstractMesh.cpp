@@ -104,12 +104,23 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::
     NEVER_REACHED;
 }
 
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships()
+{
+    //Does nothing, since an AbstractMesh has no elements
+}
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
 {
     if (mpDistributedVectorFactory == NULL)
     {
         mpDistributedVectorFactory = new DistributedVectorFactory(GetNumNodes());
+        if (PetscTools::IsParallel())
+        {
+            SetElementOwnerships();  //So any parallel implementation with shared mesh has owners set
+        }
     }
     return mpDistributedVectorFactory;
 }

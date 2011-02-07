@@ -290,6 +290,14 @@ protected:  // Give access of these variables to subclasses
     /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
 
+    /**
+     * Sets the ownership of each element according to which nodes are owned by the
+     * process.
+     *
+     * Information on node ownership comes from the distributed vector factory and
+     * an element is "owned" if one or more of its nodes are owned
+     */
+    void SetElementOwnerships();
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -370,14 +378,6 @@ public:
      */
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
 
-    /**
-     * Sets the ownership of each element according to which nodes are owned by the
-     * process.
-     *
-     * Information on node ownership comes from the distributed vector factory and
-     * an element is "owned" if one or more of its nodes are owned
-     */
-    virtual void SetElementOwnerships();
 
     /**
      * Construct the mesh using a MeshReader.

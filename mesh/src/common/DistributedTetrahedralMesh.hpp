@@ -112,6 +112,15 @@ private:
     }
 
 
+    /**
+     * Sets the ownership of each element according to which nodes are owned by the
+     * process.
+     *
+     * Information on node ownership comes from the distributed vector factory and
+     * an element is "owned" if one or more of its nodes are owned
+     */
+    void SetElementOwnerships();
+
 
 public:
 
@@ -192,15 +201,6 @@ public:
      * @param rHaloIndices  A vector to fill with the global indices of the nodes which are locally halos
      */
     void GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const;
-
-    /**
-     * Sets the ownership of each element according to which nodes are owned by the
-     * process.
-     *
-     * Information on node ownership comes from the distributed vector factory and
-     * an element is "owned" if one or more of its nodes are owned
-     */
-    void SetElementOwnerships();
 
 
     /**

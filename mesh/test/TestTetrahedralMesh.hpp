@@ -730,7 +730,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
 
-        mesh.SetElementOwnerships();
+        //mesh.SetElementOwnerships();
 
         bool unowned_element = false;
         for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)

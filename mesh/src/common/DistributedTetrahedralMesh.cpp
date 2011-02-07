@@ -507,16 +507,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std:
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships()
 {
-    // This method exists just to keep compatibility with TetrahedralMesh.
-    // In parallel, you only create the data structures for the elements you have been assigned.
-    // Therefore, all the local elements are owned by the processor (obviously...)
-    
-    //This ought to be redundant since elements are created owned...
-    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
-    {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
-        p_element->SetOwnership(true);
-    }
+    // All the local elements are owned by the processor (obviously...)
+    //Does nothing - unlike the non-distributed version
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

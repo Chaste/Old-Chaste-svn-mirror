@@ -265,7 +265,6 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Abs
     mWeAllocatedSolverMemory = true;
 
     assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetProblemSize());
-    mpMesh->SetElementOwnerships();
 }
 
 

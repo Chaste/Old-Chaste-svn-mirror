@@ -107,6 +107,10 @@ protected:  // Give access of these variables to subclasses
      */
     bool mMeshChangesDuringSimulation;
 
+    /**
+     * Does nothing.  Used in derived classes which have elements
+     */
+    virtual void SetElementOwnerships();
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -204,7 +208,7 @@ public:
     /**
      * Get method for DistributedVectorFactory.
      */
-    DistributedVectorFactory * GetDistributedVectorFactory();
+    virtual DistributedVectorFactory * GetDistributedVectorFactory();
 
     /**
      * Set method for #mpDistributedVectorFactory.
