@@ -60,11 +60,11 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double x = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[0];
         double y;
         if(DIM==2)
         {
-            y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
+            y = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[1];
         }
 
         if (    (DIM==1 && fabs(x)<0.02+1e-6)
@@ -84,14 +84,13 @@ class TestBidomainWithSvi : public CxxTest::TestSuite
 public:
     void TestConductionVelocityConvergesFasterWithSvi1d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-        
         double h[3] = {0.001,0.01,0.02};
         std::vector<double> conduction_vel_nci(3);
         std::vector<double> conduction_vel_svi(3);
 
         ReplicatableVector final_voltage_ici;
         ReplicatableVector final_solution_svi;
+        ReplicatableVector final_solution_svit;
 
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
@@ -123,7 +122,7 @@ public:
        
             // SVI - state variable interpolation
             {
-                TetrahedralMesh<1,1> mesh;
+                DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
     
                 std::stringstream output_dir;
@@ -140,6 +139,7 @@ public:
 
                 if(i==0)
                 {
+                    //This is only for exception coverage
                     bidomain_problem.UseMatrixBasedRhsAssembly(false);
                     TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(),"State variable interpolation only available");
                     bidomain_problem.UseMatrixBasedRhsAssembly(true);
@@ -150,6 +150,34 @@ public:
                 final_solution_svi.ReplicatePetscVector(bidomain_problem.GetSolution());
             }
 
+            // SVIT - state variable interpolation on straight (not distributed) tetrahedral mesh
+            {
+                TetrahedralMesh<1,1> mesh;
+                mesh.ConstructRegularSlabMesh(h[i], 1.0);
+    
+                std::stringstream output_dir;
+                output_dir << "BidomainSviTet_" << h[i];
+                HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
+                HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+    
+                HeartConfig::Instance()->SetUseStateVariableInterpolation();
+    
+                BlockCellFactory<1> cell_factory;
+                BidomainProblem<1> bidomain_problem( &cell_factory );
+                bidomain_problem.SetMesh(&mesh);
+                bidomain_problem.Initialise();
+                if(i==0)
+                {
+                    //This is only for exception coverage
+                    bidomain_problem.UseMatrixBasedRhsAssembly(false);
+                    TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(),"State variable interpolation only available");
+                    bidomain_problem.UseMatrixBasedRhsAssembly(true);
+                }
+                            
+                bidomain_problem.Solve();
+                    
+                final_solution_svit.ReplicatePetscVector(bidomain_problem.GetSolution());
+            }
             double voltage_at_0_03_finest_mesh;
             if(i==0) // finest mesh
             {        
@@ -157,6 +185,7 @@ public:
                 {
                     // visually checked they agree at this mesh resolution, and chosen tolerance from results
                     TS_ASSERT_DELTA(final_voltage_ici[j], final_solution_svi[j], 0.35);
+                    TS_ASSERT_DELTA(final_solution_svit[j], final_solution_svi[j], 1e-8);
                     
                     if(j%2==0 /* just look at voltage */ && final_voltage_ici[j]>-80) 
                     {
@@ -172,27 +201,29 @@ public:
             {
                 double nci_voltage_at_0_03_middle_mesh = final_voltage_ici[60];
                 double svi_voltage_at_0_03_middle_mesh = final_solution_svi[60];
+                double svit_voltage_at_0_03_middle_mesh = final_solution_svit[60];
                 // NCI conduction velocity > SVI conduction velocity
                 // and both should be greater than CV on finesh mesh 
                 TS_ASSERT_DELTA(nci_voltage_at_0_03_middle_mesh, -44.3111, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_middle_mesh, -60.7765, 1e-3);
+                TS_ASSERT_DELTA(svit_voltage_at_0_03_middle_mesh, -60.7765, 1e-3);
             }
             else
             {
                 double nci_voltage_at_0_03_coarse_mesh = final_voltage_ici[30];
                 double svi_voltage_at_0_03_coarse_mesh = final_solution_svi[30];
+                double svit_voltage_at_0_03_coarse_mesh = final_solution_svit[30];
                 // NCI conduction velocity even greater than SVI conduction 
                 // velocity
                 TS_ASSERT_DELTA(nci_voltage_at_0_03_coarse_mesh,  -6.5622, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_coarse_mesh, -51.8848, 1e-3);
+                TS_ASSERT_DELTA(svit_voltage_at_0_03_coarse_mesh, -51.8848, 1e-3);
             }
         }
     }
     
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         ReplicatableVector final_voltage_ici;
         ReplicatableVector final_solution_svi;
 

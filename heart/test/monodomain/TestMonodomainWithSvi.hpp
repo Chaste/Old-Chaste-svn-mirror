@@ -322,7 +322,7 @@ public:
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
 
-            HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");
+            HeartConfig::Instance()->SetOutputDirectory("MonodomainSviTet2d");
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
             HeartConfig::Instance()->SetUseStateVariableInterpolation();
