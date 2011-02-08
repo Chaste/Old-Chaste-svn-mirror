@@ -75,7 +75,8 @@ METADATA_NAMES = frozenset(
      'calcium_concentration_intracellular',
      'diadicspace_calcium_concentration',
      'SR_release_current',
-     'concentration_clamp_onoff'
+     'concentration_clamp_onoff',
+     'extracellular_potassium_concentration', 'bath_potassium_concentration'
 ])
 
 # Parameters for the stimulus current
