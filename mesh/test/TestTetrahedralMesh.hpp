@@ -731,7 +731,8 @@ public:
 
 
         //mesh.SetElementOwnerships();
-
+        mesh.GetDistributedVectorFactory(); //First touch should run SetElementOwnerships
+        
         bool unowned_element = false;
         for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)
         {
