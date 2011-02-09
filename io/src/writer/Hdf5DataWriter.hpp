@@ -81,6 +81,10 @@ private:
     
     Mat mSingleIncompleteOutputMatrix; /**< Stores nodes to be output as a matrix */ 
     Mat mDoubleIncompleteOutputMatrix; /**< Stores striped nodes to be output as a matrix */
+
+    bool mUseOptimalChunkSizeAlgorithm; /**< Whether to use the built-in algorithm for optimal chunk size */
+    unsigned mFixedChunkSize; /**< User-provided chunk size */
+
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
@@ -231,7 +235,15 @@ public:
      * @param vecSize
      */
     void DefineFixedDimensionUsingMatrix(const std::vector<unsigned>& rNodesToOuput, long vecSize);
-     
+
+    /**
+     * Use a particular chunk size, ignoring the algorithm that figures out the optimal value. Useful for reducing
+     * size of checkpoints. USE WITH CAUTION.
+     *
+     * @param chunkSize user provided chunk size
+     */
+    void SetFixedChunkSize(unsigned chunkSize);
+
 };
 
 #endif /*HDF5DATAWRITER_HPP_*/

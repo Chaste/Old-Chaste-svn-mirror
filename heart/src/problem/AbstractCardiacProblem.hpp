@@ -150,7 +150,11 @@ private:
             Hdf5DataWriter writer(*mpMesh->GetDistributedVectorFactory(), ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution", false);
             writer.DefineFixedDimension(mpMesh->GetDistributedVectorFactory()->GetProblemSize());
 
-            writer.DefineUnlimitedDimension("Time", "msec");
+            writer.DefineUnlimitedDimension("Time", "msec", 1);
+
+            // Make sure the file does not take more disc space than really needed (#1200)
+            writer.SetFixedChunkSize(1);
+
             int vm_col = writer.DefineVariable("Vm","mV");
 
             ///\todo #1369

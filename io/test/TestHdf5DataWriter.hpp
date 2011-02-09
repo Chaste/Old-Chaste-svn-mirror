@@ -484,6 +484,9 @@ public:
         int ina_id = writer.DefineVariable("I_Na", "milliamperes");
         writer.DefineUnlimitedDimension("Time", "msec", 10);
 
+        // Suggested unlimited dimension size above (10) is smaller than the minimum chunk size, you can save some memory here...
+        writer.SetFixedChunkSize(10);
+
         writer.EndDefineMode();
 
         Vec petsc_data_1 = factory.CreateVec();
