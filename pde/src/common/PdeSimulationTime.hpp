@@ -40,15 +40,32 @@ class PdeSimulationTime
 public:
     /**
      * Set the current time
-     *
      * @param time  the current time
      */
     static void SetTime(double time);
+
     /** Get the current time */
     static double GetTime();
+
+    /**
+     * Set the current PDE timestep
+     * @param timestep  the current timestep
+     */
+    static void SetPdeTimeStep(double timestep);
+    
+    /** Get the current PDE timestep */
+    static double GetPdeTimeStep();
+
+    /** Get 1/dt  */
+    static double GetPdeTimeStepInverse();
+    
 private:
     /** The current time */
     static double mTime;
+    /** The timestep used in the PDE solve */
+    static double mPdeTimeStep;
+    /** 1/dt */
+    static double mPdeTimeStepInverse;
 };
 
 #endif /*PDESIMULATIONTIME_HPP_*/

@@ -358,6 +358,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         {
             delete mpSolver;
             AbstractCardiacProblem<DIM,DIM,2>::mpSolver = CreateSolver();
+            mpSolver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());
         }
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the

@@ -138,7 +138,9 @@ public:
 
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.001);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -197,7 +199,9 @@ public:
 
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.001);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -274,7 +278,10 @@ public:
         VecRestoreArray(initial_condition, &p_initial_condition);
 
         double t_end = 0.1;
-        solver.SetTimes(0, 0.1, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
+
         solver.SetInitialCondition(initial_condition);
         Vec result = solver.Solve();
 
@@ -381,7 +388,9 @@ public:
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
 
-        solver.SetTimes(0, 0.1, 0.01);
+        solver.SetTimes(0, 0.1);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
         Vec result = solver.Solve();
 

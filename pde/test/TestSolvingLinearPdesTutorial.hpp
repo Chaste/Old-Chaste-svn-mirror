@@ -337,7 +337,8 @@ public:
         double t_start = 0;
         double t_end = 1;
         double dt = 0.01;
-        solver.SetTimes(t_start, t_end, dt);
+        solver.SetTimes(t_start, t_end);
+        solver.SetTimeStep(dt);
 
         /* Now we can solve the problem. The {{{Vec}}} that is returned can be passed into a
          * {{{ReplicatableVector}}} as before

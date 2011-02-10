@@ -88,10 +88,11 @@ public:
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
-        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0, 0.01),"Starting time has to less than ending time");
-        TS_ASSERT_THROWS_THIS(solver.SetTimes(0.0, 1.0, 0.0), "Time step has to be greater than zero");
+        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0),"Starting time has to less than ending time");
+        TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -145,7 +146,9 @@ public:
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+        
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -198,7 +201,9 @@ public:
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
         // set time and initial condition
-        solver.SetTimes(0, 0.5, 0.01);
+        solver.SetTimes(0, 0.5);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
 
         // solve
@@ -249,7 +254,9 @@ public:
 
         // Solve
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.001);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -309,7 +316,10 @@ public:
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.001);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -379,7 +389,9 @@ public:
         VecRestoreArray(initial_condition, &p_initial_condition);
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.001);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -465,7 +477,9 @@ public:
 
 
         double t_end = 0.1;
-        solver.SetTimes(0, t_end, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -549,7 +563,9 @@ public:
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
-        solver.SetTimes(0, 0.1, 0.01);
+        solver.SetTimes(0, 0.1);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -596,7 +612,9 @@ public:
         Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
 
         double t_end = 1.0;
-        solver.SetTimes(0, t_end, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -639,7 +657,9 @@ public:
         Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
 
         double t_end = 1;
-        solver.SetTimes(0, t_end, 0.01);
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -736,11 +756,13 @@ public:
 
         Vec result;
 
+        solver.SetTimeStep(0.01);
+
         while (time < t_end)
         {
             time += dt;
-            solver.SetTimes(time, time+dt, dt);
-
+            solver.SetTimes(time, time+dt);
+    
             result = solver.Solve();
 
             solver.SetInitialCondition(result);

@@ -40,7 +40,7 @@ c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)> SimpleLinearParabolicSolv
     c_matrix<double, SPACE_DIM, SPACE_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
 
     return    prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
-            + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
+            + PdeSimulationTime::GetPdeTimeStepInverse() * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -53,7 +53,7 @@ c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     return (mpParabolicPde->ComputeSourceTerm(rX, rU(0))
-            + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * rU(0)) * rPhi;
+            + PdeSimulationTime::GetPdeTimeStepInverse() * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * rU(0)) * rPhi;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

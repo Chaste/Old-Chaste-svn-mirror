@@ -103,11 +103,11 @@ void BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseAssembler()
     {
         if(this->mBathSimulation)
         {
-            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
         }
         else
         {
-            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
         }
     }        
 }

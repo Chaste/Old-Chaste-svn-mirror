@@ -39,8 +39,9 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
 
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
     }        
+
 
     /////////////////////////////////////////
     // set up LHS matrix (and mass matrix)
@@ -61,7 +62,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
         {
             this->mpLinearSystem->SetPrecondMatrixIsDifferentFromLhs();
             
-            MonodomainAssembler<ELEMENT_DIM,SPACE_DIM> lumped_mass_assembler(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);            
+            MonodomainAssembler<ELEMENT_DIM,SPACE_DIM> lumped_mass_assembler(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);            
             lumped_mass_assembler.SetMatrixToAssemble(this->mpLinearSystem->rGetPrecondMatrix());
 
             HeartConfig::Instance()->SetUseMassLumping(true);
@@ -95,7 +96,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
         double F = - Am*this->mpMonodomainTissue->rGetIionicCacheReplicated()[index.Global]
                    - this->mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
 
-        dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse + F;
+        dist_vec_matrix_based[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse() + F;
     }
     dist_vec_matrix_based.Restore();
     

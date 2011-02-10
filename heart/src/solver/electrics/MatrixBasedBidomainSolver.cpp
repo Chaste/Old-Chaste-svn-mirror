@@ -69,11 +69,11 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     {
         if(this->mBathSimulation)
         {
-            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
         }
         else
         {
-            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
         }
     }    
 
@@ -127,7 +127,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
             double F = - Am*this->mpBidomainTissue->rGetIionicCacheReplicated()[index.Global]
                        - this->mpBidomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
 
-            dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
+            dist_vec_matrix_based_vm[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse() + F;
             dist_vec_matrix_based_phie[index] = 0.0;
         }
     }
@@ -146,7 +146,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
                 double F = - Am*this->mpBidomainTissue->rGetIionicCacheReplicated()[index.Global]
                            - this->mpBidomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
     
-                dist_vec_matrix_based_vm[index] = Am*Cm*V*this->mDtInverse + F;
+                dist_vec_matrix_based_vm[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse() + F;
             }
             else
             {

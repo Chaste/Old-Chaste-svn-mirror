@@ -36,8 +36,12 @@ class TestPdeSimulationTime : public CxxTest::TestSuite
 public:
     void TestTime()
     {
-        PdeSimulationTime::SetTime(1.0);
-        TS_ASSERT_EQUALS(PdeSimulationTime::GetTime(), 1.0);
+        PdeSimulationTime::SetTime(1.0453346);
+        TS_ASSERT_EQUALS(PdeSimulationTime::GetTime(), 1.0453346);
+
+        PdeSimulationTime::SetPdeTimeStep(0.025);
+        TS_ASSERT_EQUALS(PdeSimulationTime::GetPdeTimeStep(), 0.025);
+        TS_ASSERT_EQUALS(PdeSimulationTime::GetPdeTimeStepInverse(), 1.0/0.025);
     }
 };
 #endif /*TESTPDESIMULATIONTIME_HPP_*/

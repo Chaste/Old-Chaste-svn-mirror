@@ -538,6 +538,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             // rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
         }
 
+        p_electrics_solver->SetTimeStep(mElectricsTimeStep);
 
         /////////////////////////////////////////////////////////////////////////
         ////
@@ -552,7 +553,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             double next_time = stepper.GetTime() + (i+1)*mElectricsTimeStep;
 
             // solve the electrics
-            p_electrics_solver->SetTimes(current_time, next_time, mElectricsTimeStep);
+            p_electrics_solver->SetTimes(current_time, next_time);
             p_electrics_solver->SetInitialCondition( initial_voltage );
 
             voltage = p_electrics_solver->Solve();

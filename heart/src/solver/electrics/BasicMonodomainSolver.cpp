@@ -40,7 +40,7 @@ void BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec current
     // create assembler
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
     }        
 
     // use assembler to assemble LHS matrix and RHS vector

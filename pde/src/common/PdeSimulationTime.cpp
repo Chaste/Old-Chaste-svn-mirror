@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PdeSimulationTime.hpp"
 
 double PdeSimulationTime::mTime;
+double PdeSimulationTime::mPdeTimeStep;
+double PdeSimulationTime::mPdeTimeStepInverse;
 
 void PdeSimulationTime::SetTime(double time)
 {
@@ -37,4 +39,22 @@ void PdeSimulationTime::SetTime(double time)
 double PdeSimulationTime::GetTime()
 {
     return mTime;
+}
+
+
+void PdeSimulationTime::SetPdeTimeStep(double timestep)
+{
+    mPdeTimeStep = timestep;
+    mPdeTimeStepInverse = 1.0/timestep;
+}
+
+double PdeSimulationTime::GetPdeTimeStep()
+{
+    return mPdeTimeStep;
+}
+
+
+double PdeSimulationTime::GetPdeTimeStepInverse()
+{
+    return mPdeTimeStepInverse;
 }

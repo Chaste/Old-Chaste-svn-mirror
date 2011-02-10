@@ -51,9 +51,6 @@ protected:
     double mIionic;
     /** Intracellular stimulus to be interpolated from cache*/
     double mIIntracellularStimulus;
-
-    /** Timestep to use in LHS matrix or RHS vector */
-    double mDt;
     
     /** Assembler for the mass matrix */
     MassMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mMassMatrixAssembler;
@@ -144,12 +141,10 @@ public:
      *
      * @param pMesh pointer to the mesh
      * @param pTissue pointer to the tissue
-     * @param dt timestep
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
-                        double dt,
                         unsigned numQuadPoints = 2);
 };
 

@@ -51,9 +51,7 @@ protected:
     double mIIntracellularStimulus;
     /** Extracellular stimulus to be interpolated from cache*/
     double mIExtracellularStimulus;
-    /** Timestep (used in LHS matrix creation) */
-    double mDt;
-    
+
     /**
      * Overridden ResetInterpolatedQuantities() method.
      */
@@ -133,12 +131,10 @@ public:
      *
      * @param pMesh pointer to the mesh
      * @param pTissue pointer to the tissue
-     * @param dt timestep 
      * @param numQuadPoints number of quadrature points in each dimension
      */
     BidomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                       BidomainTissue<SPACE_DIM>* pTissue,
-                      double dt,
                       unsigned numQuadPoints = 2);
 
     /**

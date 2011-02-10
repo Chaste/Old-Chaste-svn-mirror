@@ -56,6 +56,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpMesh(NULL),
       mSolution(NULL),
       mCurrentTime(0.0),
+      mpTimeAdaptivityController(NULL),
       mpWriter(NULL)
 {
     assert(mNodesToOutput.empty());
@@ -85,6 +86,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpMesh(NULL),
       mSolution(NULL),
       mCurrentTime(0.0),
+      mpTimeAdaptivityController(NULL),
       mpWriter(NULL)
 {
 }
@@ -321,6 +323,30 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdaptivityController(
+        bool useAdaptivity, 
+        AbstractTimeAdaptivityController* pController)
+{
+    if(useAdaptivity)
+    {
+        if(pController)
+        {
+            mpTimeAdaptivityController = pController;
+        }
+        else
+        {
+            NEVER_REACHED; ///\todo - #1632 write default controller
+        }
+    }
+    else
+    {
+        mpTimeAdaptivityController = NULL;
+    } 
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 {
     PreSolveChecks();
@@ -404,11 +430,17 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
                                        HeartConfig::Instance()->GetSimulationDuration());
     progress_reporter.Update(mCurrentTime);
 
+    mpSolver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());
+    if(mpTimeAdaptivityController)
+    {
+        mpSolver->SetTimeAdaptivityController(mpTimeAdaptivityController);
+    }
+
 
     while ( !stepper.IsTimeAtEnd() )
     {
         // solve from now up to the next printing time
-        mpSolver->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
+        mpSolver->SetTimes(stepper.GetTime(), stepper.GetNextTime());
         mpSolver->SetInitialCondition( initial_condition );
 
         AtBeginningOfTimestep(stepper.GetTime());

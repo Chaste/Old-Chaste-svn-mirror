@@ -23,6 +23,7 @@ monodomain/TestMonodomainFitzHughNagumo.hpp
 monodomain/TestMonodomainMassLumping.hpp
 monodomain/TestMonodomainTissue.hpp
 monodomain/TestMonodomainWithSvi.hpp
+monodomain/TestMonodomainWithTimeAdaptivity.hpp
 monodomain/TestOperatorSplittingMonodomainSolver.hpp
 postprocessing/TestCellProperties.hpp
 postprocessing/TestHdf5ToVisualizerConverters.hpp

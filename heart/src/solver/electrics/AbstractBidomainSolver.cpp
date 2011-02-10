@@ -113,7 +113,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec existingSolution)
 {
     double time = PdeSimulationTime::GetTime();
-    mpBidomainTissue->SolveCellSystems(existingSolution, time, time+this->mDt);
+    double dt = PdeSimulationTime::GetPdeTimeStep();
+    mpBidomainTissue->SolveCellSystems(existingSolution, time, time+dt);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

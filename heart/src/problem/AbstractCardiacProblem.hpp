@@ -396,6 +396,11 @@ protected:
      */
     double mCurrentTime;
 
+    /** Adaptivity controller (defaults to NULL). */
+    AbstractTimeAdaptivityController* mpTimeAdaptivityController;
+
+
+
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
      *
@@ -650,6 +655,15 @@ public:
      */
     virtual void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
     {}
+
+    /** 
+     *  Set whether (or not) to use a time adaptivity controller
+     *  @param useAdaptivity whether to use adaptivity
+     *  @pController The controller (only relevant is useAdaptivity==true, defaults to NULL in 
+     *    case a default controller will be used).
+     */
+    void SetUseTimeAdaptivityController(bool useAdaptivity, 
+                                        AbstractTimeAdaptivityController* pController = NULL);
 
     /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.

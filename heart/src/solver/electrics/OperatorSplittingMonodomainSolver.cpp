@@ -37,7 +37,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
 
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
     }
 
     /////////////////////////////////////////
@@ -80,7 +80,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
         //double F = - Am*this->mpMonodomainTissue->rGetIionicCacheReplicated()[index.Global]
         //           - this->mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
 
-        dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse;
+        dist_vec_matrix_based[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse();
     }
     dist_vec_matrix_based.Restore();
 
@@ -113,7 +113,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec currentSolution)
 {
     double time = PdeSimulationTime::GetTime();
-    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+this->mDt/2.0, true);
+    double dt = PdeSimulationTime::GetPdeTimeStep();
+    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+dt/2.0, true);
 }
 
 
@@ -122,7 +123,8 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::FollowingSolveLin
 {
     // solve cell models for second half timestep
     double time = PdeSimulationTime::GetTime();
-    mpMonodomainTissue->SolveCellSystems(currentSolution, time + this->mDt/2, time+this->mDt, true);
+    double dt = PdeSimulationTime::GetPdeTimeStep();
+    mpMonodomainTissue->SolveCellSystems(currentSolution, time + dt/2, time+dt, true);
 }
 
 

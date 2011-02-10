@@ -159,11 +159,13 @@ unsigned TimeStepper::GetTotalTimeStepsTaken() const
 
 void TimeStepper::ResetTimeStep(double dt)
 {
-    assert(dt>0);
+    if (fabs(mDt-dt) > 1e-8)
+    {
+        assert(dt>0);
+        mDt = dt;    
+        mStart = mTime;
+        mTotalTimeStepsTaken = 0;
     
-    mDt = dt;    
-    mStart = mTime;
-    mTotalTimeStepsTaken = 0;
-
-    mNextTime = CalculateNextTime();    
+        mNextTime = CalculateNextTime();
+    }    
 }

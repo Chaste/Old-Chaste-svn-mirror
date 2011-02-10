@@ -67,7 +67,8 @@ void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSyste
 {
     // solve cell models
     double time = PdeSimulationTime::GetTime();
-    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+this->mDt);
+    double dt = PdeSimulationTime::GetPdeTimeStep();
+    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+dt);
 }
 
 

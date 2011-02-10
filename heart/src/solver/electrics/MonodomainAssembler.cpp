@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MONODOMAINASSEMBLER_CPP_
 
 #include "MonodomainAssembler.hpp"
+#include "PdeSimulationTime.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
@@ -46,7 +47,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
     
-    return (Am*Cm/this->mDt)*mMassMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement)
+    return (Am*Cm*PdeSimulationTime::GetPdeTimeStepInverse())*mMassMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement)
             + mStiffnessMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
 }
 
@@ -64,7 +65,7 @@ c_vector<double,1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::C
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
     
-    return  rPhi * (Am*Cm*rU(0)/mDt - Am*mIionic - mIIntracellularStimulus);
+    return  rPhi * (Am*Cm*rU(0)*PdeSimulationTime::GetPdeTimeStepInverse() - Am*mIionic - mIIntracellularStimulus);
 }
 
 
@@ -93,15 +94,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
-                        double dt,
                         unsigned numQuadPoints)
     : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
-      mDt(dt),
       mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping()),
       mStiffnessMatrixAssembler(pMesh, pTissue)
 {
     assert(pTissue);
-    assert(dt>0);
     mpConfig = HeartConfig::Instance();
 }
 
