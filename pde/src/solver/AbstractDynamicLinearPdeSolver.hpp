@@ -132,6 +132,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDyn
       mMatrixIsAssembled(false),
       mMatrixIsConstant(false),
       mIdealTimeStep(-1.0),
+      mLastWorkingTimeStep(-1),
       mpTimeAdaptivityController(NULL)
 {
 }
