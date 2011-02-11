@@ -659,7 +659,7 @@ public:
     /** 
      *  Set whether (or not) to use a time adaptivity controller
      *  @param useAdaptivity whether to use adaptivity
-     *  @pController The controller (only relevant is useAdaptivity==true, defaults to NULL in 
+     *  @param pController The controller (only relevant if useAdaptivity==true, defaults to NULL in 
      *    case a default controller will be used).
      */
     void SetUseTimeAdaptivityController(bool useAdaptivity, 

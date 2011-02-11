@@ -92,7 +92,9 @@ public:
      */
     void SetTimes(double tStart, double tEnd);
 
-    /** Set (or reset) the timestep to use */
+    /** Set (or reset) the timestep to use
+     *  @param dt timestep
+     */
     void SetTimeStep(double dt);
 
     /**
