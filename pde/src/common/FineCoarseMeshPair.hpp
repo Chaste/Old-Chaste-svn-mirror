@@ -106,8 +106,8 @@ private:
     /** Fine mesh */
     TetrahedralMesh<DIM,DIM>& mrFineMesh;
     
-    /** Coarse mesh (usually be a quadratic mesh) */
-    QuadraticMesh<DIM>& mrCoarseMesh;
+    /** Coarse mesh (often be a quadratic mesh) */
+    TetrahedralMesh<DIM,DIM>& mrCoarseMesh;
 
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
@@ -238,7 +238,7 @@ public:
      *  @param rFineMesh Fine mesh (reference)
      *  @param rCoarseMesh Coarse mesh (reference)
      */
-    FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh, QuadraticMesh<DIM>& rCoarseMesh);
+    FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh, TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
     /**
      *  Destructor just deletes the box collection
