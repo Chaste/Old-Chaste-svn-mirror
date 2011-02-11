@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 #include <cassert>
 
-#include "Debug.hpp"
-
 const double SMIDGE = 1e-10;
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)

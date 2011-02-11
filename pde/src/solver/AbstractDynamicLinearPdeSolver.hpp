@@ -131,7 +131,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDyn
       mInitialCondition(NULL),
       mMatrixIsAssembled(false),
       mMatrixIsConstant(false),
-      mIdealTimeStep(-1),
+      mIdealTimeStep(-1.0),
       mpTimeAdaptivityController(NULL)
 {
 }
@@ -172,7 +172,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 {
     assert(mTimesSet);
-    assert(mIdealTimeStep > 0);
+    assert(mIdealTimeStep > 0.0);
     assert(mInitialCondition != NULL);
 
     this->InitialiseForSolve(mInitialCondition);
