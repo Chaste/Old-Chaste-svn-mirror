@@ -45,6 +45,16 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
     // Set the values of the new cell cycle model's member variables
     p_model->SetDimension(mDimension);
     p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetUseCellProliferativeTypeDependentG1Duration(mUseCellProliferativeTypeDependentG1Duration);
+    p_model->SetWntStemThreshold(mWntStemThreshold);
+    p_model->SetWntTransitThreshold(mWntTransitThreshold);
+
+    // These should be moved to AbstractCellCycleModel
+    p_model->SetStemCellG1Duration(GetStemCellG1Duration());
+    p_model->SetTransitCellG1Duration(GetTransitCellG1Duration());
+    p_model->SetSDuration(GetSDuration());
+    p_model->SetG2Duration(GetG2Duration());
+    p_model->SetMDuration(GetMDuration());
 
     return p_model;
 }
