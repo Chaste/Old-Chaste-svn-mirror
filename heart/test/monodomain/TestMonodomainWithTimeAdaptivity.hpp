@@ -109,6 +109,7 @@ public:
         adaptive_problem.SetUseTimeAdaptivityController(true, &controller);
         adaptive_problem.Initialise();
         adaptive_problem.Solve();
+        adaptive_problem.SetUseTimeAdaptivityController(false);
 
         //HeartEventHandler::Headings();
         //HeartEventHandler::Report();   // note: adaptive is slower in this short sim due to second matrix assemble

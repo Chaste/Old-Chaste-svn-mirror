@@ -335,7 +335,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdapti
         }
         else
         {
-            NEVER_REACHED; ///\todo - #1632 write default controller
+            ///\todo - #1632 write default controller
+            NEVER_REACHED;
         }
     }
     else
