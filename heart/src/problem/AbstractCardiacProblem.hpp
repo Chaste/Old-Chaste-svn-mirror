@@ -233,7 +233,7 @@ private:
         //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
-        if (has_solution)
+        if ((has_solution) && PROBLEM_DIM < 3)
         {
             /// \todo #1317 code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
             /// \todo #1317 is there a reason we can't use PETSc's load/save vector functionality?
