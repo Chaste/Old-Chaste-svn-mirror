@@ -1,3 +1,4 @@
+			<UseCellProliferativeTypeDependentG1Duration>0</UseCellProliferativeTypeDependentG1Duration>
 			<WntStemThreshold>0.8</WntStemThreshold>
 			<WntTransitThreshold>0.65</WntTransitThreshold>
 			<WntLabelledThreshold>0.65</WntLabelledThreshold>

@@ -49,7 +49,7 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
     p_model->SetWntStemThreshold(mWntStemThreshold);
     p_model->SetWntTransitThreshold(mWntTransitThreshold);
 
-    // These should be moved to AbstractCellCycleModel
+    // These should be moved to AbstractCellCycleModel #1689
     p_model->SetStemCellG1Duration(GetStemCellG1Duration());
     p_model->SetTransitCellG1Duration(GetTransitCellG1Duration());
     p_model->SetSDuration(GetSDuration());
