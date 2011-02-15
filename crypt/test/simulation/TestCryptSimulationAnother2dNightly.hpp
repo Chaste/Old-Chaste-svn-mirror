@@ -294,6 +294,7 @@ public:
 		TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.parameters crypt/test/data/TestResultsFileForLongerCryptSimulation/results.parameters").c_str()), 0);
 
 		// Tidy up
 		delete p_cell_killer;
