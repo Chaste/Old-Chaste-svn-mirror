@@ -185,6 +185,11 @@ public:
         CardiacSimulation simulation2("heart/test/data/xml/bidomain_with_bath3d_resume.xml");
     }
 
+    void TestBiWith2dHeterogeneousConductivities() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_heterogeneous.xml", true);
+    }
+
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)
     {
         // Fox2002BackwardEuler cell model

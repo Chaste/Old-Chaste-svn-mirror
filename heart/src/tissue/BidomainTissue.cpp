@@ -134,9 +134,13 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
-                if ( conductivities_heterogeneity_areas[region_index]->DoesContain( element_centroid ) )
+              if ( conductivities_heterogeneity_areas[region_index]->DoesContain( element_centroid ) )
                 {
-                    hetero_extra_conductivities[local_element_index] = extra_h_conductivities[region_index];
+                    //We don't use ublas vector assignment here, because we might be getting a subvector of a 3-vector
+                    for (unsigned i=0; i<SPACE_DIM; i++)
+                    {
+                        hetero_extra_conductivities[local_element_index][i] = extra_h_conductivities[region_index][i];
+                    }
                 }
             }
             local_element_index++;
