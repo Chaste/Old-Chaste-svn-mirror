@@ -777,12 +777,13 @@
   <xs:simpleType name="ksp_solver_type">
     <xs:annotation>
       <xs:documentation>Type of KSP solver method. It can be specified as conjugate gradient (cg),
-        symmetric LQ (symmlq) or generalized minimum residual method (gmres).</xs:documentation>
+        symmetric LQ (symmlq), generalized minimum residual method (gmres), or Chebyshev iteration (chebychev).</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="cg"/>
       <xs:enumeration value="symmlq"/>
       <xs:enumeration value="gmres"/>
+      <xs:enumeration value="chebychev"/>      
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="ksp_preconditioner_type">

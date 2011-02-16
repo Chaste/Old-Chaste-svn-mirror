@@ -1054,6 +1054,9 @@ public:
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "symmlq")==0);
 
+        HeartConfig::Instance()->SetKSPSolver("chebychev");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "chebychev")==0);
+
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetKSPSolver("foobar"),"Unknown solver type provided");
 
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");

@@ -1694,6 +1694,8 @@ const char* HeartConfig::GetKSPSolver() const
             return "cg";
         case cp::ksp_solver_type::symmlq :
             return "symmlq";
+        case cp::ksp_solver_type::chebychev :
+            return "chebychev";
     }
 #define COVERAGE_IGNORE
     EXCEPTION("Unknown ksp solver");
@@ -2581,6 +2583,11 @@ void HeartConfig::SetKSPSolver(const char* kspSolver)
     if ( strcmp(kspSolver, "symmlq") == 0)
     {
         mpUserParameters->Numerical().KSPSolver().set(cp::ksp_solver_type::symmlq);
+        return;
+    }
+    if ( strcmp(kspSolver, "chebychev") == 0)
+    {
+        mpUserParameters->Numerical().KSPSolver().set(cp::ksp_solver_type::chebychev);
         return;
     }
 

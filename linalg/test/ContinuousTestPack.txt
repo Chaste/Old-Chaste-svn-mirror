@@ -1,3 +1,4 @@
+TestChebyshevIteration.hpp
 TestFourthOrderTensor.hpp
 TestLinearSystem.hpp
 TestNonlinearSolvers.hpp
