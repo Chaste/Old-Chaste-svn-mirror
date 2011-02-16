@@ -397,6 +397,7 @@ bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::IsMeshChanging() const
 {
     return mMeshChangesDuringSimulation;
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumContainingElementsPerProcess() const
 {

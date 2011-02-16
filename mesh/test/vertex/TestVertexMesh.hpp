@@ -204,7 +204,7 @@ public:
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
         TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), false);
+        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
     }
 
     void TestBasic1dVertexMesh() throw(Exception)

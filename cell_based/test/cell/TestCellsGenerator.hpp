@@ -139,7 +139,6 @@ public:
         HoneycombVertexMeshGenerator mesh_generator(2, 2);
         VertexMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
-
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

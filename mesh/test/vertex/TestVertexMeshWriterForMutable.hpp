@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VtkMeshWriter.hpp"
 #include "VertexMeshReader.hpp"
@@ -44,8 +44,8 @@ public:
     void TestMeshWriterWithDeletedNode() throw (Exception)
     {
         // Create mesh
-        HoneycombMutableVertexMeshGenerator generator(3, 3, false, 0.1, 2.0);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(3, 3, false, 0.1, 2.0);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);

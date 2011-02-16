@@ -28,12 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HoneycombVertexMeshGenerator.hpp"
 
-
 HoneycombVertexMeshGenerator::HoneycombVertexMeshGenerator(unsigned numElementsAcross,
-                                                           unsigned numElementsUp)
+                                                           unsigned numElementsUp,
+                                                           bool isFlatBottom,
+                                                           double cellRearrangementThreshold,
+                                                           double t2Threshold)
 {
     assert(numElementsAcross > 0);
     assert(numElementsUp > 0);
+    assert(cellRearrangementThreshold > 0.0);
+    assert(t2Threshold > 0.0);
 
     std::vector<Node<2>*> nodes;
     std::vector<VertexElement<2,2>*>  elements;
@@ -129,19 +133,16 @@ HoneycombVertexMeshGenerator::HoneycombVertexMeshGenerator(unsigned numElementsA
             elements.push_back(p_element);
         }
     }
-    mpMesh = new VertexMesh<2,2>(nodes, elements);
-}
 
+    mpMesh = new MutableVertexMesh<2,2>(nodes, elements, cellRearrangementThreshold, t2Threshold);
+}
 
 HoneycombVertexMeshGenerator::~HoneycombVertexMeshGenerator()
 {
     delete mpMesh;
 }
 
-VertexMesh<2,2>* HoneycombVertexMeshGenerator::GetMesh()
+MutableVertexMesh<2,2>* HoneycombVertexMeshGenerator::GetMesh()
 {
     return mpMesh;
 }
-
-
-

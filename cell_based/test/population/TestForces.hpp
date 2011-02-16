@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "ChemotacticForce.hpp"
 #include "NagaiHondaForce.hpp"
 #include "WelikyOsterForce.hpp"
@@ -797,8 +797,8 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3*0.25, 3);
 
         // Create mesh
-        HoneycombMutableVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;

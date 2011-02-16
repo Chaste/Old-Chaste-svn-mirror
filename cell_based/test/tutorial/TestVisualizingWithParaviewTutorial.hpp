@@ -73,7 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header file defines a helper class for generating a suitable mesh for a cell-centre model. */
 #include "HoneycombMeshGenerator.hpp"
 /* The next header file defines a helper class for generating a suitable vertex mesh. */
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 /* The next header file defines a helper class for generating
  * a vector of cells for a given mesh. */
 #include "CellsGenerator.hpp"
@@ -232,13 +232,13 @@ public:
 		SimulationTime::Instance()->SetStartTime(0.0);
 
 		/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
-		* the {{{HoneycombMutableVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
+		* the {{{HoneycombVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
 		* in which all nodes are equidistant. Here the first and second arguments
 		* define the size of the mesh - we have chosen a mesh that is 6 elements (i.e.
 		* cells) wide, and 9 elements high.
 		*/
-		HoneycombMutableVertexMeshGenerator generator(6, 9);	// Parameters are: cells across, cells up
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+		HoneycombVertexMeshGenerator generator(6, 9);	// Parameters are: cells across, cells up
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
 		/* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
 		* To do this, we the `CellsGenerator` helper class, which is templated over the type

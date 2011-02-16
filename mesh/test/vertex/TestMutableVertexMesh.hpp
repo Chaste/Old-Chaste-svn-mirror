@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "MutableVertexMesh.hpp"
 #include "ArchiveOpener.hpp"
@@ -127,8 +127,8 @@ public:
     void TestMutableVertexElementIterator() throw (Exception)
     {
         // Create mesh
-        HoneycombMutableVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
 
@@ -1307,8 +1307,8 @@ public:
         ArchiveLocationInfo::SetMeshFilename("mutable_vertex_2d");
 
         // Create mesh
-        HoneycombMutableVertexMeshGenerator generator(5, 3);
-        MutableVertexMesh<2,2>* p_mutable_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(5, 3);
+        MutableVertexMesh<2,2>* p_mutable_mesh = generator.GetMesh();
 
         // Set member variables
         p_mutable_mesh->SetCellRearrangementThreshold(0.54);

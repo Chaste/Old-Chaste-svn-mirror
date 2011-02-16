@@ -378,7 +378,6 @@ public:
      */
     bool IsMeshChanging() const;
 
-
     /**
      * @return Iterates through local nodes and finds the maximum number of containing elements for all locally owned nodes
      * Useful for determining FEM matrix fill.

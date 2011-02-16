@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "VertexBasedCellPopulation.hpp"
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 #include "WildTypeCellMutationState.hpp"

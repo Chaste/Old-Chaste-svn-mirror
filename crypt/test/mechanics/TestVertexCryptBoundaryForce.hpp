@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexCryptBoundaryForce.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
@@ -64,8 +64,8 @@ public:
     void TestVertexCryptBoundaryForceMethods() throw (Exception)
 	{
 		// Create a simple 2D VertexMesh
-		HoneycombMutableVertexMeshGenerator generator(5, 5, false, 0.1, 0.5);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+		HoneycombVertexMeshGenerator generator(5, 5, false, 0.1, 0.5);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
 		// Translate mesh so that some points are below y=0
 		p_mesh->Translate(0.0, -3.0);

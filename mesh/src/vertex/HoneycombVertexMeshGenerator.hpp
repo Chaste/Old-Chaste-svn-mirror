@@ -31,22 +31,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <vector>
 
-#include "VertexMesh.hpp"
+#include "MutableVertexMesh.hpp"
 
 /**
- *  Generator of honeycomb meshes, used as starting points for many simulations.
+ * Generator of honeycomb meshes, used as starting points for many simulations.
  *
- *  This class takes in options such as width, height, number of ghost nodes
- *  and generates a honeycomb mesh (with equal distance between nodes).
+ * This class takes in options such as width and height and generates a honeycomb
+ * mesh (with equal distance between nodes).
  *
- *  NOTE: the user should delete the mesh after use to manage memory.
+ * NOTE: the user should delete the mesh after use to manage memory.
  */
 class HoneycombVertexMeshGenerator
 {
 protected:
 
     /** A pointer to the mesh this class creates */
-    VertexMesh<2,2>* mpMesh;
+    MutableVertexMesh<2,2>* mpMesh;
 
 public:
 
@@ -55,9 +55,15 @@ public:
      *
      * @param numElementsAcross  The number of columns of elements in the mesh
      * @param numElementsUp  The number of rows of elements in the mesh
+     * @param isFlatBottom  Whether to enforce a flat bottom to the mesh (defaults to false; only used if isCylindrical is true)
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
     HoneycombVertexMeshGenerator(unsigned numElementsAcross,
-                                 unsigned numElementsUp);
+                                 unsigned numElementsUp,
+                                 bool isFlatBottom=false,
+                                 double cellRearrangementThreshold=0.01,
+                                 double t2Threshold=0.001);
 
     /**
      * Null constructor for derived classes to call...
@@ -74,7 +80,7 @@ public:
     /**
      * @return a mutable honeycomb mesh based on a 2D plane.
      */
-    virtual VertexMesh<2,2>* GetMesh();
+    virtual MutableVertexMesh<2,2>* GetMesh();
 };
 
 #endif /*HONEYCOMBVERTEXMESHGENERATOR_HPP_*/

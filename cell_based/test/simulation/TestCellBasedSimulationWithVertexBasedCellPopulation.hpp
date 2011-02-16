@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 #include "TargetedCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "HoneycombMutableVertexMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
@@ -183,8 +183,8 @@ public:
     void TestSingleCellDividing() throw (Exception)
     {
         // Create a simple 2D MutableVertexMesh with only one cell
-        HoneycombMutableVertexMeshGenerator generator(1, 1);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(1, 1);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cell.
         std::vector<CellPtr> cells;
@@ -231,8 +231,8 @@ public:
     void TestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D MutableVertexMesh
-        HoneycombMutableVertexMeshGenerator generator(5, 5);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(5, 5);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -287,8 +287,8 @@ public:
     void TestVertexMonolayerWithVoid() throw (Exception)
     {
         // Create a simple 2D MutableVertexMesh
-        HoneycombMutableVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create a horseshoe-shaped mesh
         p_mesh->DeleteElementPriorToReMesh(0);
@@ -349,8 +349,8 @@ public:
          */
 
         // Create a simple 2D MutableVertexMesh
-        HoneycombMutableVertexMeshGenerator generator(4,4);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(4,4);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
         p_mesh->SetT2Threshold(1.0); // so T2Swaps once it becomes a triangle
         
@@ -415,8 +415,8 @@ public:
 	void TestVertexMonolayerWithTwoMutationTypes() throw (Exception)
 	{
 		// Create a simple 2D MutableVertexMesh with only four cells
-		HoneycombMutableVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+		HoneycombVertexMeshGenerator generator(2, 2);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -536,8 +536,8 @@ public:
         std::string output_directory = "StressTestVertex";
 
         // Create a simple 2D MutableVertexMesh
-        HoneycombMutableVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -591,8 +591,8 @@ public:
         double end_time = 0.1;
 
         // Create a simple 2D MutableVertexMesh
-        HoneycombMutableVertexMeshGenerator generator(6, 6);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+        HoneycombVertexMeshGenerator generator(6, 6);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
