@@ -1,4 +1,3 @@
-
 /*
 
 Copyright (C) University of Oxford, 2005-2011
@@ -27,16 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
 
-HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, double scaleFactor)
-  : mpMesh(NULL),
-    mDomainWidth(numNodesAlongWidth*scaleFactor),
-    mNumCellWidth(numNodesAlongWidth), //*1 because cells are considered to be size one
-    mNumCellLength(numNodesAlongLength)
+CylindricalHoneycombMeshGenerator::CylindricalHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, double scaleFactor)
 {
+    mpMesh = NULL;
+    mDomainWidth = numNodesAlongWidth*scaleFactor;
+    mNumCellWidth = numNodesAlongWidth; //*1 because cells are considered to be size one
+    mNumCellLength = numNodesAlongLength;
+
     // The getpid code below won't work in parallel
     assert(PetscTools::IsSequential());
 
@@ -61,7 +61,6 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         mDomainDepth = (double)(numNodesAlongLength) * vertical_spacing;
 
         // Take account of ghost nodes
-        numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
         numNodesAlongLength = numNodesAlongLength + 2*ghosts;
 
         unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
@@ -70,7 +69,7 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length;
         unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length;
 
-        double x0 = -horizontal_spacing*ghosts;
+        double x0 = 0;
         double y0 = -vertical_spacing*ghosts;
 
         mBottom = -vertical_spacing*ghosts;
@@ -90,12 +89,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
                 {
                     mGhostNodeIndices.insert(node);
                 }
-                else if (j < ghosts || j >= (ghosts+mNumCellWidth))
-                {
-                    mGhostNodeIndices.insert(node);
-                }
                 unsigned boundary = 0;
-                if (i==0 || i==numNodesAlongLength-1 || j==0 || j==numNodesAlongWidth-1)
+                if ((i==0) || (i==numNodesAlongLength-1))
                 {
                     boundary = 1;
                 }
@@ -150,10 +145,6 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
                 {
                     horizontal_edge_is_boundary_edge = 1;
                 }
-                if (j==0 && i%2==0)
-                {
-                    vertical_edge_is_boundary_edge = 1;
-                }
 
                 (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 <<  "\t" << horizontal_edge_is_boundary_edge << std::endl;
                 (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;
@@ -205,8 +196,12 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
 
     // Having written the mesh to file, now construct it using TrianglesMeshReader
     TrianglesMeshReader<2,2> mesh_reader(output_dir + mMeshFilename);
-    mpMesh = new MutableMesh<2,2>;
+    mpMesh = new Cylindrical2dMesh(mDomainWidth);
     mpMesh->ConstructFromMeshReader(mesh_reader);
+    NodeMap map(mpMesh->GetNumNodes());
+
+    // Make the mesh cylindrical (we use Triangle library mode inside this ReMesh call)
+    mpMesh->ReMesh(map);
 
     // Delete the temporary files
     std::string command = "rm " + output_dir + mMeshFilename + ".*";
@@ -223,76 +218,13 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     mpMesh->SetMeshHasChangedSinceLoading();
 }
 
-HoneycombMeshGenerator::~HoneycombMeshGenerator()
+MutableMesh<2,2>* CylindricalHoneycombMeshGenerator::GetMesh()
 {
-    delete mpMesh;
+    EXCEPTION("A cylindrical mesh was created but a normal mesh is being requested.");
+    return mpMesh; // Not really
 }
 
-MutableMesh<2,2>* HoneycombMeshGenerator::GetMesh()
+Cylindrical2dMesh* CylindricalHoneycombMeshGenerator::GetCylindricalMesh()
 {
-    return mpMesh;
-}
-
-std::vector<unsigned> HoneycombMeshGenerator::GetCellLocationIndices()
-{
-    std::vector<unsigned> location_indices;
-
-    for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
-    {
-        if (mGhostNodeIndices.find(i)==mGhostNodeIndices.end())
-        {
-            location_indices.push_back(i);
-        }
-    }
-    return location_indices;
-}
-
-MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
-{
-    // Centre the mesh at (0,0)
-    c_vector<double,2> centre = zero_vector<double>(2);
-    for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
-    {
-        centre += mpMesh->GetNode(i)->rGetLocation();
-    }
-    centre /= (double)mpMesh->GetNumNodes();
-
-    mpMesh->Translate(-centre[0], -centre[1]);
-
-    // Iterate over nodes, deleting any that lie more
-    // than the specified radius from (0,0)
-    for (unsigned i=0; i<mpMesh->GetNumAllNodes(); i++)
-    {
-        if ( norm_2(mpMesh->GetNode(i)->rGetLocation()) >= radius)
-        {
-            mpMesh->DeleteNodePriorToReMesh(i);
-        }
-        else
-        {
-            // Jiggle the data
-            c_vector<double,2>& r_location = mpMesh->GetNode(i)->rGetModifiableLocation();
-            c_vector<double,2> shift;
-            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            double max_jiggle = radius*5e-6;
-            shift[0] = max_jiggle*(p_gen->ranf()-0.5);
-            shift[1] = max_jiggle*(p_gen->ranf()-0.5);
-            r_location += shift;
-        }
-    }
-
-    // Remesh
-    NodeMap map(mpMesh->GetNumNodes());
-    mpMesh->ReMesh(map);
-
-    return mpMesh;
-}
-
-double HoneycombMeshGenerator::GetDomainDepth()
-{
-    return mDomainDepth;
-}
-
-double HoneycombMeshGenerator::GetDomainWidth()
-{
-    return mDomainWidth;
+    return (Cylindrical2dMesh*) mpMesh;
 }

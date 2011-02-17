@@ -25,49 +25,45 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CYLINDRICALHONEYCOMBVERTEXMESHGENERATOR_HPP_
-#define CYLINDRICALHONEYCOMBVERTEXMESHGENERATOR_HPP_
+#ifndef CYLINDRICALHONEYCOMBMESHGENERATOR_HPP_
+#define CYLINDRICALHONEYCOMBMESHGENERATOR_HPP_
 
 #include <cmath>
 #include <vector>
 
-#include "Cylindrical2dVertexMesh.hpp"
-#include "HoneycombVertexMeshGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "Cylindrical2dMesh.hpp"
 
 /**
  * Honeycomb mesh generator that creates a 2D "cylindrical" mesh (one in which
- * periodicity is imposed on the left and right boundaries) for use in vertex
+ * periodicity is imposed on the left and right boundaries) for use in cell-centre
  * simulations.
  * 
  * NOTE: the user should delete the mesh after use to manage memory.
  */
-class CylindricalHoneycombVertexMeshGenerator : HoneycombVertexMeshGenerator
+class CylindricalHoneycombMeshGenerator : public HoneycombMeshGenerator
 {
 public:
 
     /**
-     * Constructor.
+     * Default constructor.
      *
-     * @param numElementsAcross  The number of columns of elements in the mesh
-     * @param numElementsUp  The number of rows of elements in the mesh
-     * @param isFlatBottom  Whether to enforce a flat bottom to the mesh (defaults to false; only used if isCylindrical is true)
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
-     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
+     * @param numNodesAlongWidth  The number of cells you want alopng the bottom of the domain
+     * @param numNodesAlongLength  The number of cells you want sides of the domain
+     * @param ghosts  The thickness of ghost nodes to put around the edge (defaults to 3)
+     * @param scaleFactor  The scale factor for the width (circumference) of the cells (defaults to 1.0)
      */
-    CylindricalHoneycombVertexMeshGenerator(unsigned numElementsAcross,
-                                 unsigned numElementsUp,
-                                 bool isFlatBottom=false,
-                                 double cellRearrangementThreshold=0.01,
-                                 double t2Threshold=0.001);
+    CylindricalHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, double scaleFactor=1.0);
+
     /**
      * @return a 2D honeycomb mesh
      */
-    MutableVertexMesh<2,2>* GetMesh();
+    MutableMesh<2,2>* GetMesh();
 
     /**
      * @return a 2D honeycomb mesh with periodic left/right boundaries
      */
-    Cylindrical2dVertexMesh* GetCylindricalMesh();
+    Cylindrical2dMesh* GetCylindricalMesh();
 };
 
-#endif /*CYLINDRICALHONEYCOMBVERTEXMESHGENERATOR_HPP_*/
+#endif /*CYLINDRICALHONEYCOMBMESHGENERATOR_HPP_*/

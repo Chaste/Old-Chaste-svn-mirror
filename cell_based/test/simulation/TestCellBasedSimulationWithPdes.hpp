@@ -210,7 +210,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -321,7 +321,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -414,7 +414,7 @@ public:
 		// Set up mesh
 		unsigned num_cells_depth = 5;
 		unsigned num_cells_width = 5;
-		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
 		// Set up cells
@@ -517,7 +517,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -634,7 +634,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -823,7 +823,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -1034,7 +1034,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -1144,7 +1144,7 @@ public:
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -1314,7 +1314,7 @@ public:
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells

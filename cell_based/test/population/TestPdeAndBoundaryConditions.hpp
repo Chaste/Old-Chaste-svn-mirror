@@ -185,7 +185,7 @@ public:
         // Set up cell population
         EXIT_IF_PARALLEL; //HoneycombMeshGenerator doesn't work in parallel
 
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

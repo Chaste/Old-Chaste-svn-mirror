@@ -49,7 +49,7 @@ public:
     void TestCryptCellsGeneratorWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -107,7 +107,7 @@ public:
     void TestCryptCellsGeneratorWithStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -170,7 +170,7 @@ public:
     void TestCryptCellsGeneratorWithTysonNovakCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -200,7 +200,7 @@ public:
     void TestCryptCellsGeneratorWithWntCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -234,7 +234,7 @@ public:
     void TestCryptCellsGeneratorWithSimpleWntCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -257,7 +257,7 @@ public:
     void TestCryptCellsGeneratorWithStochasticWntCellCycleModel() throw(Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
+        HoneycombMeshGenerator mesh_generator(5, 10, 0);
         TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -346,7 +346,6 @@ public:
               }
           }
       }
-
 
       void TestCryptCellsGeneratorWithSimpleWntCellCycleModelAndVertexMesh() throw(Exception)
       {

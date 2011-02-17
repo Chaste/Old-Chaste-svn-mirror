@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -74,7 +74,7 @@ public:
         unsigned cells_up = 3;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -166,7 +166,7 @@ public:
         double crypt_width = 12.1;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -368,7 +368,7 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2>* p_crypt;
 
-        HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         std::vector<unsigned> location_indices;
 
         Cylindrical2dMesh* p_mesh;

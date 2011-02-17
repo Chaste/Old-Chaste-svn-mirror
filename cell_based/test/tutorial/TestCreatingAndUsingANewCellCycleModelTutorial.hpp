@@ -373,7 +373,7 @@ public:
         /* We use the honeycomb mesh generator to create a honeycomb mesh covering a
          * circular domain of given radius.
          */
-        HoneycombMeshGenerator generator(10, 10, 0, false);
+        HoneycombMeshGenerator generator(10, 10, 0);
         /* Get the mesh using the {{{GetCircularMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 

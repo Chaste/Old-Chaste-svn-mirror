@@ -36,9 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-
 #include "StochasticWntCellCycleModel.hpp"
 
 class TestGenerateSteadyStateCrypt : public CxxTest::TestSuite
@@ -68,7 +67,7 @@ public:
         double crypt_width = 12.1;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         double crypt_length = cells_up*(sqrt(3.0)/2.0)*crypt_width/cells_across;

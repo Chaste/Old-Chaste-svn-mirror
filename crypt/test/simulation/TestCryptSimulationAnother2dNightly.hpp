@@ -31,23 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "CheckpointArchiveTypes.hpp" 
-
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "WntConcentration.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "NumericFileComparison.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
-
-
 #include "WntCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
+
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
 private:
@@ -81,7 +79,7 @@ public:
         double domain_height = ((double)cells_up-1.0)*sqrt(3.0)/2.0;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -118,7 +116,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer,true,crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         double crypt_length = cells_up*(sqrt(3)/2)*crypt_width/cells_across;
@@ -175,7 +173,7 @@ public:
         unsigned num_cells_width = 6;
         //double crypt_length = num_cells_depth - 1.0;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -214,7 +212,7 @@ public:
         unsigned cells_across = 16;
         unsigned cells_up = 19;
         unsigned thickness_of_ghost_layer = 0;
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
 		Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
 		double crypt_length = cells_up*(sqrt(3)/2);

@@ -46,7 +46,7 @@ public:
     void TestSimpleUniformSourcePde()
     {
         // Set up mesh
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up PDE
@@ -64,7 +64,7 @@ public:
     void TestCellwiseSourcePde()
     {
         // Set up cell population
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
@@ -101,7 +101,7 @@ public:
     void TestAveragedSourcePde()
     {
         // Set up cell population
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

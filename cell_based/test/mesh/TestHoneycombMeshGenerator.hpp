@@ -25,35 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTCRYPTHONECOMBMESHGENERATOR_HPP_
-#define TESTCRYPTHONECOMBMESHGENERATOR_HPP_
+#ifndef TESTHONEYCOMBMESHGENERATOR_HPP_
+#define TESTHONEYCOMBMESHGENERATOR_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include "HoneycombMeshGenerator.hpp"
-
 
 class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:
 
     void Output2DNodesToFile(MutableMesh<2,2>* pMesh, std::string fileName)
-    {
-        OutputFileHandler handler("");
-        out_stream file = handler.OpenOutputFile(fileName);
-
-        unsigned num_nodes = pMesh->GetNumNodes();
-
-        for (unsigned i=0; i<num_nodes; i++)
-        {
-            c_vector<double, 2> location = pMesh->GetNode(i)->rGetLocation();
-            (*file) << location[0] << "\t" << location[1] << "\n" << std::flush;
-        }
-
-        file->close();
-    }
-
-    void Output2DNodesToFileCylindrical(Cylindrical2dMesh* pMesh, std::string fileName)
     {
         OutputFileHandler handler("");
         out_stream file = handler.OpenOutputFile(fileName);
@@ -76,10 +59,9 @@ public:
         unsigned cells_across = 2;
         unsigned cells_up = 2;
         double crypt_width = 0.5;
-        bool cylindrical = false;
         unsigned thickness_of_ghost_layer = 1;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
 
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
@@ -92,157 +74,6 @@ public:
         TS_ASSERT_DELTA(generator.GetDomainWidth(), 0.5000, 1e-4);
     }
 
-    void TestHoneycombMeshGeneratorCylindricalRelaxed() throw(Exception)
-    {
-        unsigned num_cells_width = 8;
-        unsigned num_cells_depth = 22;
-        unsigned ghosts = 2;
-
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-
-        // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
-        TS_ASSERT_THROWS_THIS(p_mesh2 = generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
-
-        Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), (num_cells_width)*(num_cells_depth+2*ghosts));
-
-        // Zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -(double)ghosts*sqrt(3.0)/2.0, 1e-5);
-
-        // First real node
-        int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0, 1e-12);
-
-        // Last real node
-        index = (ghosts+num_cells_depth)*(num_cells_width)-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.5, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 21.0*sqrt(3)/2.0, 1e-4);
-
-        // Last node
-        int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 7.5, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], (ghosts+num_cells_depth-1)*sqrt(3.0)/2.0, 1e-4);
-
-        // Check the ghost nodes
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width)));
-
-        std::set<unsigned> correct_ghost_node_indices;
-
-        for (unsigned i=0; i< num_cells_width*ghosts; i++)
-        {
-            correct_ghost_node_indices.insert(i);
-        }
-        correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
-
-        // Create a set of node indices corresponding to ghost nodes
-        std::set<unsigned> node_indices;
-        std::set<unsigned> location_indices_set;
-        std::set<unsigned> ghost_node_indices;
-
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
-        }
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            location_indices_set.insert(location_indices[i]);
-        }
-
-        std::set_difference(node_indices.begin(), node_indices.end(),
-                            location_indices_set.begin(), location_indices_set.end(),
-                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
-
-        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
-                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
-
-        TS_ASSERT_EQUALS(all_included, true);
-
-        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), (double)num_cells_width, 1e-7);
-        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 21.6506, 1e-4);
-    }
-
-    void TestHoneycombMeshGeneratorCylindricalCompressed() throw(Exception)
-    {
-        unsigned num_cells_width = 8;
-        unsigned num_cells_depth = 22;
-        double width = 7.0;
-        unsigned ghosts = 2;
-
-        double x_factor = width/(double)num_cells_width;
-
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-
-        // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
-        TS_ASSERT_THROWS_THIS(p_mesh2 = generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
-
-        Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
-
-        // Zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1], -x_factor*(double)ghosts*sqrt(3.0)/2.0, 1e-5);
-
-        // First real node
-        int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0, 1e-12);
-
-        // Last real node
-        index = (ghosts+num_cells_depth)*(num_cells_width)-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], x_factor*7.5, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], x_factor*21.0*sqrt(3)/2.0, 1e-4);
-
-        // Last node
-        int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], x_factor*7.5, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], x_factor*(ghosts+num_cells_depth-1)*sqrt(3.0)/2.0, 1e-4);
-
-        // Check the ghost nodes
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-        TS_ASSERT_EQUALS(location_indices.size(), p_mesh->GetNumNodes() - 2*(ghosts*(num_cells_width)));
-
-        std::set<unsigned> correct_ghost_node_indices;
-
-        for (unsigned i=0; i< num_cells_width*ghosts; i++)
-        {
-            correct_ghost_node_indices.insert(i);
-        }
-        correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
-
-        // Create a set of node indices corresponding to ghost nodes
-        std::set<unsigned> node_indices;
-        std::set<unsigned> location_indices_set;
-        std::set<unsigned> ghost_node_indices;
-
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            node_indices.insert(p_mesh->GetNode(i)->GetIndex());
-        }
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            location_indices_set.insert(location_indices[i]);
-        }
-
-        std::set_difference(node_indices.begin(), node_indices.end(),
-                            location_indices_set.begin(), location_indices_set.end(),
-                            std::inserter(ghost_node_indices, ghost_node_indices.begin()));
-
-        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
-                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
-
-        TS_ASSERT_EQUALS(all_included, true);
-
-        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), x_factor*(double)num_cells_width, 1e-7);
-        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), 18.9443, 1e-4);
-    }
-
     void TestMonolayerHoneycombMeshGeneratorRelaxed() throw(Exception)
     {
         int num_cells_width = 8;
@@ -250,16 +81,15 @@ public:
         double width = 8.0;
         unsigned ghosts = 2;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // Check the mesh
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        TS_ASSERT_THROWS_THIS(p_mesh = generator.GetCylindricalMesh(),"A normal mesh was created but a cylindrical mesh is being requested.");
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
 
-        // Scaling Factor
+        // Scaling factor
         double spooky = (double) ghosts;
 
         // Zeroth node
@@ -328,13 +158,12 @@ public:
         double width = 6.0;
         unsigned ghosts = 4;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, false, width/num_cells_width);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, width/num_cells_width);
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // Check the mesh
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        TS_ASSERT_THROWS_THIS(p_mesh = generator.GetCylindricalMesh(),"A normal mesh was created but a cylindrical mesh is being requested.");
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(), (num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
 
         // Scaling factor
@@ -405,11 +234,9 @@ public:
         unsigned cells_across = 4;
         unsigned cells_up = 4;
         double crypt_width = 4;
-        bool cylindrical = false;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
-
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
@@ -431,8 +258,7 @@ public:
         unsigned num_cells_width = 10;
         double radius = 3.5;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(radius);
 
         double epsilon = 1e-5;
@@ -445,11 +271,10 @@ public:
 
     void TestCircularMeshIsJacobian() throw(Exception)
     {
-        HoneycombMeshGenerator generator(20, 20, 0, false);
+        HoneycombMeshGenerator generator(20, 20, 0);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
 
         NodeMap map(p_mesh->GetNumAllNodes());
-
         p_mesh->ReMesh(map);
     }
 
@@ -457,11 +282,9 @@ public:
     {
         unsigned cells_across = 100;
         unsigned cells_up = 100;
-        bool cylindrical = false;
         unsigned thickness_of_ghost_layer = 1;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical);
-
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 10404u);
@@ -472,9 +295,6 @@ public:
         TS_ASSERT_DELTA(generator.GetDomainDepth(), 86.6025, 1e-4);
         TS_ASSERT_DELTA(generator.GetDomainWidth(), 100, 1e-4);
     }
-
-
 };
 
-
-#endif /*TESTCRYPTHONECOMBMESHGENERATOR_HPP_*/
+#endif /*TESTHONEYCOMBMESHGENERATOR_HPP_*/

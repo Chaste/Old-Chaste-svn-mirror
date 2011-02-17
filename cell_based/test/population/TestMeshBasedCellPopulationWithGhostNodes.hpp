@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -103,7 +103,7 @@ public:
     {
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2);
 
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -232,7 +232,7 @@ public:
         unsigned thickness_of_ghost_layer = 2;
 
         double scale_factor = 1.2;
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, scale_factor);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, scale_factor);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -493,7 +493,7 @@ public:
 
     void TestUpdateNodeLocations() throw(Exception)
     {
-        HoneycombMeshGenerator generator(3, 3, 1, false);
+        HoneycombMeshGenerator generator(3, 3, 1);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -626,7 +626,7 @@ public:
         unsigned num_cells_width = 2;
         unsigned thickness_of_ghosts = 1;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts);
 
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -840,7 +840,7 @@ public:
     void TestVoronoiAreasAndPerimetersWithGhostNodes() throw (Exception)
     {
         // Create a small honeycomb mesh surrounded by a single layer of ghost nodes
-        HoneycombMeshGenerator generator(2, 2, 1, false);
+        HoneycombMeshGenerator generator(2, 2, 1);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 

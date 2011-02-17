@@ -225,7 +225,7 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 

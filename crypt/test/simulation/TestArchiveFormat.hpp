@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include "CryptSimulation2d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "StochasticWntCellCycleModel.hpp"

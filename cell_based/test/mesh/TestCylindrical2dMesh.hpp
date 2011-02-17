@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "VertexMesh.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "ArchiveOpener.hpp"
 #include "TrianglesMeshWriter.hpp"
 
@@ -55,8 +55,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Reset the mesh
@@ -109,7 +108,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghost nodes in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Create a mirrored load of nodes for the normal remesher to work with
@@ -221,7 +220,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         NodeMap map(p_mesh->GetNumNodes());
@@ -243,7 +242,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         unsigned num_old_nodes = p_mesh->GetNumNodes();
@@ -280,7 +279,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         NodeMap map(p_mesh->GetNumNodes());
@@ -299,7 +298,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double, 2> location1 = p_mesh->GetNode(1)->rGetLocation();
@@ -316,7 +315,6 @@ public:
         vector = p_mesh->GetVectorFromAtoB(location2, location1);
         TS_ASSERT_DELTA(vector[0], -0.5, 1e-7);
         TS_ASSERT_DELTA(vector[1], -sqrt(3.0)/2.0, 1e-4);
-
 
         // Test a periodic calculation
         location1[0] = 0.5;
@@ -363,7 +361,7 @@ public:
         double crypt_width = 3.0;
         unsigned thickness_of_ghost_layer = 2;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         /*
@@ -426,7 +424,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Check that there are the correct number of everything
@@ -468,7 +466,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double,2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
@@ -518,7 +516,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double,2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
@@ -561,7 +559,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         AbstractTetrahedralMesh<2,2>* const p_mesh = generator.GetCylindricalMesh();
 
         /*
@@ -870,7 +868,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         TS_ASSERT_EQUALS(p_mesh->CheckIsVoronoi(), true);

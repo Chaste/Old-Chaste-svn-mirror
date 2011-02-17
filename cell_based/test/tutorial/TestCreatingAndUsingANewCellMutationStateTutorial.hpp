@@ -262,7 +262,7 @@ public:
 
         /* We use the {{{HoneycombMeshGenerator}}} to create a honeycomb mesh covering a
          * circular domain of given radius, as follows. */
-        HoneycombMeshGenerator generator(10, 10, 0, false);
+        HoneycombMeshGenerator generator(10, 10, 0);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
         /* We now create a shared pointer to our new cell mutation state, as follows. */

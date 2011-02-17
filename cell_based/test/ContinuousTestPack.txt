@@ -10,6 +10,7 @@ cell/TestSimpleCellCycleModels.hpp
 common/TestSimulationTime.hpp
 mesh/TestCylindrical2dMesh.hpp
 mesh/TestCylindrical2dVertexMesh.hpp
+mesh/TestCylindricalHoneycombMeshGenerator.hpp
 mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp

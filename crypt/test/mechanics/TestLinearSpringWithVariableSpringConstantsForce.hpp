@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptCellsGenerator.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -51,7 +51,7 @@ public:
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
-        HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
+        CylindricalHoneycombMeshGenerator generator(6, 12, 0, 1.1);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -96,7 +96,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false, crypt_width/cells_across);
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -241,7 +241,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -409,7 +409,7 @@ public:
     void TestGeneralisedLinearSpringForceWithSpringConstantsForApoptoticCells()
     {
         // Set up stretched cell population
-        HoneycombMeshGenerator generator(4, 4, 0, false, 2.0);
+        HoneycombMeshGenerator generator(4, 4, 0, 2.0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -439,7 +439,7 @@ public:
         TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_cell_population)), 1.8750, 1e-4);
 
         // Now do similar tests for a squashed cell population
-        HoneycombMeshGenerator generator2(4, 4, 0, false, 0.5);
+        HoneycombMeshGenerator generator2(4, 4, 0, 0.5);
         MutableMesh<2,2>* p_mesh2 = generator2.GetMesh();
         std::vector<unsigned> location_indices2 = generator2.GetCellLocationIndices();
 

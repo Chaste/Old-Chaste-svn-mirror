@@ -31,24 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <vector>
 
-#include "Cylindrical2dMesh.hpp"
+#include "MutableMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 
 
 /**
- *  Generator of honeycomb meshes, used as starting points for many simulations.
- *
- *  This class takes in options such as width, height, number of ghost nodes
- *  and generates a honeycomb mesh (with equal distance between nodes), and ghost
- *  node information when requested.
- *
- *  NOTE: the user should delete the mesh after use to manage memory.
+ * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance 
+ * between nodes) for use in cell-centre simulations.
+ * 
+ * NOTE: the user should delete the mesh after use to manage memory.
  */
 class HoneycombMeshGenerator
 {
-private:
+protected:
 
     /** A pointer to the mesh this class creates */
     MutableMesh<2,2>* mpMesh;
@@ -77,49 +74,38 @@ private:
     /** The number of rows of cells to put up the y coordinate of the mesh */
     unsigned mNumCellLength;
 
-    /** Whether we are creating a cylindrical mesh or not */
-    bool mCylindrical;
-
-    /**
-     * Make a periodic honeycomb mesh.
-     *
-     * @param width  The periodic length scale to base this mesh around
-     * @param ghosts  The number of rows of ghost nodes to add on at the top and bottom
-     */
-    void Make2dPeriodicMesh(double width, unsigned ghosts);
-
 public:
 
     /**
-     * Honeycomb Mesh Generator
+     * Default constructor.
      *
-     * @param numNodesAlongWidth  The number of cells you want alopng the bottom of the domain,
-     * @param numNodesAlongLength  The number of cells you want sides of the domain,
-     * @param ghosts  The thickness of ghost nodes to put around the edge (defaults to 3),
-     * @param cylindrical  Whether the mesh should be cylindrically periodic (defaults to true),
-     * @param scaleFactor  The scale factor for the width (circumference) of the cells.
-     *
+     * @param numNodesAlongWidth  The number of cells you want alopng the bottom of the domain
+     * @param numNodesAlongLength  The number of cells you want sides of the domain
+     * @param ghosts  The thickness of ghost nodes to put around the edge (defaults to 3)
+     * @param scaleFactor  The scale factor for the width (circumference) of the cells (defaults to 1.0)
      */
-    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical=true, double scaleFactor=1.0);
+    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, double scaleFactor=1.0);
+
+    /**
+     * Null constructor for derived classes to call.
+     */
+    HoneycombMeshGenerator()
+    {
+    }
 
     /**
      * Destructor - deletes the mesh object and pointer
      */
-    ~HoneycombMeshGenerator();
+    virtual ~HoneycombMeshGenerator();
 
     /**
-     * @return a honeycomb mesh based on a 2D plane.
+     * @return a 2D honeycomb mesh based on a 2D plane
      */
-    MutableMesh<2,2>* GetMesh();
-
-    /**
-     * @return a honeycomb mesh with cylindrical boundaries.
-     */
-    Cylindrical2dMesh* GetCylindricalMesh();
+    virtual MutableMesh<2,2>* GetMesh();
 
     /**
      * Returns the indices of the nodes in the mesh which correspond to
-     * real cells. This information needs to be passed in when constructing
+     * real cells. This information is needed when constructing
      * a MeshBasedCellPopulationWithGhostNodes.
      *
      * @return indices of nodes
@@ -142,4 +128,5 @@ public:
      */
     double GetDomainWidth();
 };
+
 #endif /*HONEYCOMBMESHGENERATOR_HPP_*/

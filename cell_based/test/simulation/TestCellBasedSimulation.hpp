@@ -73,7 +73,7 @@ public:
     void TestOutputNodeVelocities() throw(Exception)
     {
         // Create a simple mesh
-        HoneycombMeshGenerator generator(5, 5, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
@@ -113,7 +113,7 @@ public:
     void TestOutputNodeVelocitiesWithGhostNodes() throw(Exception)
     {
         // Create a simple mesh with a surrounding layer of ghost nodes
-        HoneycombMeshGenerator generator(3, 3, 1, false);
+        HoneycombMeshGenerator generator(3, 3, 1);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -161,7 +161,7 @@ public:
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
@@ -210,7 +210,7 @@ public:
 		// Create a simple mesh
 		int num_cells_depth = 5;
 		int num_cells_width = 5;
-		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
@@ -254,7 +254,7 @@ public:
 
     void TestCellBasedSimulationWithStoppingEvent() throw (Exception)
     {
-        HoneycombMeshGenerator generator(2, 2, 0, false);
+        HoneycombMeshGenerator generator(2, 2, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -361,7 +361,7 @@ public:
         unsigned num_cells_depth = 2;
         unsigned num_cells_width = 2;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -451,7 +451,7 @@ public:
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells

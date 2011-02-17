@@ -76,7 +76,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header file defines a helper class for generating a suitable mesh
  * for the crypt simulation, such that the cell corresponding to each node is initially
  * in mechanical equilibrium with its neighours. */
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 /* The next header file defines a {{{CellPopulation}}} class that uses a tetrahedral mesh, and allows
  * for the inclusion of 'ghost nodes'. These are nodes in the mesh that do not correspond
  * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
@@ -130,19 +130,17 @@ public:
          * To enforce periodicity at the left- and right-hand sides of the mesh, we
          * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use
-         * the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh,
+         * the {{{CylindricalHoneycombMeshGenerator}}}. This generates a periodic honeycomb-shaped mesh,
          * in which all nodes are equidistant to their neighbours. Here the first and second arguments
          * define the size of the mesh - we have chosen a mesh that is 6 nodes (i.e.
          * cells) wide, and 9 nodes high. The third argument indicates that we require
          * a double layer of ghost nodes around the mesh (technically, just above
-         * and below the mesh, since it is periodic). The fourth argument, {{{true}}},
-         * tells the {{{HoneycombMeshGenerator}}} to generate a mesh that is periodic.
-         * We call {{{GetCylindricalMesh()}}} on the {{{HoneycombMeshGenerator}}} to
+         * and below the mesh, since it is periodic). We call {{{GetCylindricalMesh()}}} on the {{{CylindricalHoneycombMeshGenerator}}} to
          * return our {{{Cylindrical2dMesh}}}, and call {{{ GetCellLocationIndices()}}}
          * to return a {{{std::vector}}} of indices of nodes in the mesh that correspond to real cells (as opposed
          * to ghost nodes).
          */
-        HoneycombMeshGenerator generator(6, 9, 2, true);
+        CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -243,7 +241,7 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
-        HoneycombMeshGenerator generator(6, 9, 2, true);
+        CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();

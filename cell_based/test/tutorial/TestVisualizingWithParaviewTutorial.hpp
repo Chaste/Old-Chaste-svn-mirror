@@ -123,7 +123,7 @@ public:
          * conditions. We generate a pointer to the mesh, and then get the location indices of
          * the real cells.
          */
-        HoneycombMeshGenerator generator(10, 10, 2, false);
+        HoneycombMeshGenerator generator(10, 10, 2);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 

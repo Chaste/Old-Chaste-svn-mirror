@@ -60,7 +60,7 @@ public:
         int num_cells_width = 20;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         double crypt_length = (double)num_cells_depth *sqrt(3)/2.0;

@@ -180,7 +180,7 @@ public:
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
@@ -244,7 +244,7 @@ public:
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
@@ -1026,7 +1026,7 @@ public:
     void TestIsCellAssociatedWithADeletedLocation() throw (Exception)
     {
         // Create a simple mesh
-        HoneycombMeshGenerator generator(4, 4, 0, false);
+        HoneycombMeshGenerator generator(4, 4, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         p_mesh->GetNode(0)->MarkAsDeleted();
 

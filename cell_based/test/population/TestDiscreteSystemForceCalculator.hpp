@@ -49,7 +49,7 @@ public:
     void TestPrivateMethods() throw (Exception)
     {
         // Set up a cell population
-        HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
+        HoneycombMeshGenerator mesh_generator(7, 5, 0, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
@@ -139,7 +139,7 @@ public:
     void TestCalculateExtremalNormalForces() throw (Exception)
     {
         // Set up a cell population
-        HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
+        HoneycombMeshGenerator mesh_generator(7, 5, 0, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
@@ -208,7 +208,7 @@ public:
 
         // Set up a cell population
 
-        HoneycombMeshGenerator mesh_generator(7, 5, 0, false, 2.0);
+        HoneycombMeshGenerator mesh_generator(7, 5, 0, 2.0);
         MutableMesh<2,2>* p_mesh = mesh_generator.GetMesh();
 
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

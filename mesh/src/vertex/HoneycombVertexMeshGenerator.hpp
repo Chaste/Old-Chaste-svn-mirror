@@ -34,11 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableVertexMesh.hpp"
 
 /**
- * Generator of honeycomb meshes, used as starting points for many simulations.
- *
- * This class takes in options such as width and height and generates a honeycomb
- * mesh (with equal distance between nodes).
- *
+ * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance 
+ * between nodes) for use in vertex simulations.
+ * 
  * NOTE: the user should delete the mesh after use to manage memory.
  */
 class HoneycombVertexMeshGenerator
@@ -55,7 +53,7 @@ public:
      *
      * @param numElementsAcross  The number of columns of elements in the mesh
      * @param numElementsUp  The number of rows of elements in the mesh
-     * @param isFlatBottom  Whether to enforce a flat bottom to the mesh (defaults to false; only used if isCylindrical is true)
+     * @param isFlatBottom  Whether to enforce a flat bottom to the mesh (defaults to false)
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
      * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
@@ -66,19 +64,19 @@ public:
                                  double t2Threshold=0.001);
 
     /**
-     * Null constructor for derived classes to call...
+     * Null constructor for derived classes to call.
      */
     HoneycombVertexMeshGenerator()
     {
     }
 
     /**
-     * Destructor - deletes the mesh object and pointer
+     * Destructor - deletes the mesh object and pointer.
      */
     virtual ~HoneycombVertexMeshGenerator();
 
     /**
-     * @return a mutable honeycomb mesh based on a 2D plane.
+     * @return a 2D honeycomb mesh
      */
     virtual MutableVertexMesh<2,2>* GetMesh();
 };

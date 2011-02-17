@@ -132,7 +132,7 @@ public:
          * tutorial, here we call {{{GetMesh()}}} on the {{{HoneycombMeshGenerator}}}
          * object to return the mesh, which is of type {{{MutableMesh}}}.
          */
-        HoneycombMeshGenerator generator(10, 10, 0, false);
+        HoneycombMeshGenerator generator(10, 10, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /*

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptCellsGenerator.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "TargetedCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
@@ -200,7 +200,7 @@ public:
        unsigned cells_up = 11;
        unsigned thickness_of_ghost_layer = 4;
 
-       HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+       HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
        MutableMesh<2,2>* p_mesh = generator.GetMesh();
        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -270,7 +270,7 @@ public:
     void TestUpdatePositions() throw (Exception)
     {
         // Create mesh
-        HoneycombMeshGenerator generator(3, 3, 1, false);
+        HoneycombMeshGenerator generator(3, 3, 1);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -356,7 +356,7 @@ public:
         double crypt_length = DBL_MAX; // so no sloughing
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -425,7 +425,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         double crypt_length = cells_up*(sqrt(3)/2)*crypt_width/cells_across;
 
@@ -533,7 +533,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -590,7 +590,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -653,7 +653,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -709,7 +709,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         double crypt_length = cells_up*(sqrt(3)/2);
 
@@ -782,7 +782,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         double crypt_length = cells_up*(sqrt(3)/2);
 
@@ -906,7 +906,7 @@ public:
         double crypt_width = 0.5; // Make this bigger if want to visualise output
         unsigned thickness_of_ghost_layer = 1;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -1022,7 +1022,7 @@ public:
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -1077,7 +1077,7 @@ public:
         unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 4;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         double crypt_length = cells_up*(sqrt(3)/2);
 
@@ -1328,7 +1328,7 @@ public:
         double crypt_width = 2.0;
         unsigned thickness_of_ghost_layer = 0;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -1382,7 +1382,7 @@ public:
         unsigned cells_up = 1;
         unsigned thickness_of_ghost_layer = 1;
 
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false);
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -1406,7 +1406,6 @@ public:
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
-
         // Create cell killer and pass in to crypt simulation
         RandomCellKiller<2> random_cell_killer(&crypt, 0.999996771);
         simulator.AddCellKiller(&random_cell_killer);
@@ -1422,7 +1421,7 @@ public:
     void TestUsingJiggledBottomSurface()
     {
         // Create mesh
-        HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
+        CylindricalHoneycombMeshGenerator generator(4, 4, 0, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -1470,7 +1469,7 @@ public:
     void TestCellCountInitialization()
     {
         // Create mesh
-        HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
+        CylindricalHoneycombMeshGenerator generator(4, 4, 0, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
@@ -1672,8 +1671,8 @@ public:
         unsigned cells_across = 5;
         unsigned cells_up = 4;
         unsigned thickness_of_ghost_layer = 1;
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
 
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         double crypt_length = cells_up*(sqrt(3)/2);
 
@@ -1728,7 +1727,7 @@ public:
 		double crypt_width = 5.0;
 		unsigned thickness_of_ghost_layer = 0;
 
-		HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+		CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
 		Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
 		// Get location indices corresponding to real cells
@@ -1746,13 +1745,11 @@ public:
 		// Create crypt simulation from cell population
 		CryptSimulation2d simulator(crypt);
 
-
-
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
-        // \TODO #1453 add an killer and test the output is correct
+        ///\todo #1453 add an killer and test the output is correct
 		std::string output_directory = "TestCryptSimulation2dOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);
 		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_2d_results.parameters");
@@ -1777,7 +1774,7 @@ public:
         double crypt_width = 12.1;
         unsigned thickness_of_ghost_layer = 3;
 
-        HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
