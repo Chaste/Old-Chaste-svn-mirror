@@ -151,6 +151,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
  * This VertexMesh constructor is currently only defined for 2D meshes.
  *
  * @param rMesh a tetrahedral mesh
+ * @param isPeriodic a boolean that indicates whether the mesh is periodic or not
  */
 template<>
 VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
