@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include "MutableMesh.hpp"
-#include "HoneycombVertexMeshGenerator.hpp"
+#include "MutableVertexMesh.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VtkMeshWriter.hpp"
 #include "VertexMeshReader.hpp"
@@ -251,7 +251,35 @@ public:
 #endif //CHASTE_VTK
     }
 
-};
+    void TestMeshWriterWithDeletedNode() throw (Exception)
+    {
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        MutableVertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 30u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9u);
+
+        /*
+         * Delete element 0. This element contains 3 nodes that are
+         * not contained in any other element and so will be marked
+         * as deleted.
+         */
+        mesh.DeleteElementPriorToReMesh(0);
+
+        // Write mesh to file
+        VertexMeshWriter<2,2> mesh_writer("TestMeshWriterWithDeletedNode", "vertex_mesh");
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        // Read mesh back in from file
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        VertexMeshReader<2,2> mesh_reader2(output_dir + "vertex_mesh");
+
+        // We should have one less element and three less nodes
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 27u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 8u);
+    }
+};
 
 #endif /*TESTVERTEXMESHWRITER_HPP_*/

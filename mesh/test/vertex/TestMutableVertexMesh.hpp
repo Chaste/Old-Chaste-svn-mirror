@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "HoneycombVertexMeshGenerator.hpp"
+#include "VertexMeshReader.hpp"
 #include "VertexMeshWriter.hpp"
 #include "MutableVertexMesh.hpp"
 #include "ArchiveOpener.hpp"
@@ -127,14 +127,15 @@ public:
     void TestMutableVertexElementIterator() throw (Exception)
     {
         // Create mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        MutableVertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9u);
 
         unsigned counter = 0;
-        for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-             iter != p_mesh->GetElementIteratorEnd();
+        for (MutableVertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
             unsigned element_index = iter->GetIndex();
@@ -142,7 +143,7 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
 
         // For coverage, test with an empty mesh
         MutableVertexMesh<2,2> empty_mesh;
@@ -156,11 +157,11 @@ public:
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
 
         // Delete an element from mesh and test the iterator
-        p_mesh->DeleteElementPriorToReMesh(0);
+        mesh.DeleteElementPriorToReMesh(0);
 
         counter = 0;
-        for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-             iter != p_mesh->GetElementIteratorEnd();
+        for (MutableVertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
             unsigned element_index = iter->GetIndex();
@@ -168,9 +169,9 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter+1);
-        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), counter+1);
+        TS_ASSERT_EQUALS(mesh.IsMeshChanging(), true);
     }
 
     void TestBasic2dMutableVertexMesh() throw(Exception)
@@ -1307,15 +1308,16 @@ public:
         ArchiveLocationInfo::SetMeshFilename("mutable_vertex_2d");
 
         // Create mesh
-        HoneycombVertexMeshGenerator generator(5, 3);
-        MutableVertexMesh<2,2>* p_mutable_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_5_by_3");
+        MutableVertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set member variables
-        p_mutable_mesh->SetCellRearrangementThreshold(0.54);
-        p_mutable_mesh->SetT2Threshold(0.012);
-        p_mutable_mesh->SetCellRearrangementRatio(1.6);
+        mesh.SetCellRearrangementThreshold(0.54);
+        mesh.SetT2Threshold(0.012);
+        mesh.SetCellRearrangementRatio(1.6);
 
-        AbstractMesh<2,2>* const p_mesh = p_mutable_mesh;
+        AbstractMesh<2,2>* const p_mesh = &mesh;
 
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.

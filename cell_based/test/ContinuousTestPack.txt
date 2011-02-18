@@ -13,6 +13,7 @@ mesh/TestCylindrical2dVertexMesh.hpp
 mesh/TestCylindricalHoneycombMeshGenerator.hpp
 mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
 mesh/TestHoneycombMeshGenerator.hpp
+mesh/TestHoneycombVertexMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestPdesForCellBasedSimulations.hpp

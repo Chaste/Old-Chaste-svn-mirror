@@ -51,7 +51,6 @@ public:
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
     }
 
-
     /**
      * Check that the nodes are read correctly. Checks that the output vector
      * for a given input file is the correct length and that if the input file
@@ -71,7 +70,6 @@ public:
         // Reads node 3 from file when expecting number 1
         TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(), "Data for node 1 missing");
     }
-
 
     /**
      * Check that the elements are read correctly. Checks that the output vector
@@ -132,7 +130,6 @@ public:
         TS_ASSERT_THROWS_THIS(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();}, "Data for node 3 missing")
     }
 
-
     /**
      * Check that GetNextNode() returns the coordinates of the correct node.
      * Compares the coordinates of the first two nodes with their known
@@ -164,7 +161,6 @@ public:
                 "Cannot get the next line from node or element file due to incomplete data");
     }
 
-
     /**
      * Check that GetNextElementData() works. Checks that no errors are thrown for
      * all of the elements and that an error is thrown if we try to call the
@@ -183,7 +179,6 @@ public:
         TS_ASSERT_THROWS_THIS(next_element = mesh_reader.GetNextElementData().NodeIndices,
                 "Cannot get the next line from node or element file due to incomplete data");
     }
-
 
     /**
      * Check that GetNextElementDataWithFaces() works. Checks that no errors are thrown for
@@ -285,7 +280,7 @@ public:
          * as they are pure virtual in the base class. When they are
          * implemented, these lines need to be replaced by proper tests.
          *
-         * See also #1001
+         * See also #1001.
          */
         ElementData face_data = mesh_reader.GetNextFaceData();
         TS_ASSERT_EQUALS(face_data.NodeIndices.empty(), true);

@@ -21,5 +21,4 @@ vertex/TestVertexElement.hpp
 vertex/TestVertexMesh.hpp
 vertex/TestVertexMeshReader.hpp
 vertex/TestVertexMeshWriter.hpp
-vertex/TestVertexMeshWriterForMutable.hpp
 writer/TestMeshWriters.hpp

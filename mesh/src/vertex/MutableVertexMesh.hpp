@@ -138,7 +138,6 @@ protected:
      */
     bool CheckForIntersections();
 
-
     /**
      * Helper method for ReMesh to Identify the type of swap when nodes are too close, T2Swap or NodeMerge.
      *
@@ -229,12 +228,7 @@ protected:
         archive & boost::serialization::base_object<VertexMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
 
-
 public:
-
-    //////////////////////////////////////////////////////////////////////
-    //                             Methods                              //
-    //////////////////////////////////////////////////////////////////////
 
     /**
      * Default constructor.

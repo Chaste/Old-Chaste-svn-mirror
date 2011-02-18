@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "HoneycombVertexMeshGenerator.hpp"
+#include "VertexMeshReader.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
 #include "ArchiveOpener.hpp"
@@ -127,29 +127,29 @@ public:
     void TestNodeIterator() throw (Exception)
     {
         // Create mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
-
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 30u);
 
         unsigned counter = 0;
-        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
-             iter != p_mesh->GetNodeIteratorEnd();
+        for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
             unsigned node_index = iter->GetIndex();
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give nodes 0,1..,N in that order
             counter++;
         }
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), counter);
 
         // Check that the node iterator correctly handles deleted nodes
-        p_mesh->GetNode(0)->MarkAsDeleted();
+        mesh.GetNode(0)->MarkAsDeleted();
 
         counter = 0;
-        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
-             iter != p_mesh->GetNodeIteratorEnd();
+        for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
             unsigned node_index = iter->GetIndex();
@@ -157,7 +157,7 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), counter+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), counter+1);
 
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
@@ -174,14 +174,15 @@ public:
     void TestVertexElementIterator() throw (Exception)
     {
         // Create mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9u);
 
         unsigned counter = 0;
-        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-             iter != p_mesh->GetElementIteratorEnd();
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
             unsigned element_index = iter->GetIndex();
@@ -189,7 +190,7 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
 
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
@@ -202,9 +203,10 @@ public:
         bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+        // Check that the number of elements matches and that the mesh is not mutable
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), counter);
+        TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
     }
 
     void TestBasic1dVertexMesh() throw(Exception)
@@ -637,19 +639,20 @@ public:
     void TestMeshGetWidthAndBoundingBoxMethod()
     {
         // Create mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
         // Test CalculateBoundingBox() method
-        ChasteCuboid<2> bounds=p_mesh->CalculateBoundingBox();
+        ChasteCuboid<2> bounds = mesh.CalculateBoundingBox();
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 3.50,   1e-4);
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[1], 2.8867, 1e-4);
         TS_ASSERT_DELTA(bounds.rGetLowerCorner()[0], 0.0,    1e-4);
         TS_ASSERT_DELTA(bounds.rGetLowerCorner()[1], 0.0,    1e-4);
 
         // Test GetWidth() method
-        double width = p_mesh->GetWidth(0);
-        double height = p_mesh->GetWidth(1);
+        double width = mesh.GetWidth(0);
+        double height = mesh.GetWidth(1);
 
         TS_ASSERT_DELTA(height, 2.8867, 1e-4);
         TS_ASSERT_DELTA(width, 3.5000, 1e-4);
@@ -817,8 +820,12 @@ public:
         std::string archive_file = "vertex_mesh_2d.arch";
         ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
 
-        HoneycombVertexMeshGenerator generator(5, 3);
-        AbstractMesh<2,2>* const p_mesh = generator.GetMesh();
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_5_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        AbstractMesh<2,2>* const p_mesh = &mesh;
 
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
@@ -895,7 +902,6 @@ public:
             // Tidy up
             delete p_mesh_loaded;
         }
-        //HoneycombVertexMeshGenerator deletes the original
     }
 
     void TestArchive3dVertexMesh()
@@ -1017,30 +1023,31 @@ public:
     void TestNeighbouringNodeAndElementMethods() throw(Exception)
     {
         // Create mesh
-        HoneycombVertexMeshGenerator generator(2, 2);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_2_by_2");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 16u);
 
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNumNodes(), 6u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(0), 0u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(1), 3u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(2), 6u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(3), 8u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(4), 5u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetNodeGlobalIndex(5), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(1), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(4), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 2u);
 
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNumNodes(), 6u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(0), 6u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(1), 9u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(2), 12u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(3), 14u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(4), 11u);
-        TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(5), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(0), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(1), 9u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(2), 12u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(3), 14u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(4), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(5), 8u);
 
         // Check we have the correct neighbours for node 6
-        std::set<unsigned> node_neighbours = p_mesh->GetNeighbouringNodeIndices(6);
+        std::set<unsigned> node_neighbours = mesh.GetNeighbouringNodeIndices(6);
 
         std::set<unsigned> expected_node_neighbours;
         expected_node_neighbours.insert(3);
@@ -1050,17 +1057,17 @@ public:
         TS_ASSERT_EQUALS(node_neighbours, expected_node_neighbours);
 
         // Check that the only neighbour not also in element 2 is node 3
-        std::set<unsigned> node_neighbours_not_in_elem2 = p_mesh->GetNeighbouringNodeNotAlsoInElement(6, 2);
+        std::set<unsigned> node_neighbours_not_in_elem2 = mesh.GetNeighbouringNodeNotAlsoInElement(6, 2);
 
         TS_ASSERT_EQUALS(node_neighbours_not_in_elem2.size(), 1u);
         TS_ASSERT_EQUALS(*(node_neighbours_not_in_elem2.begin()), 3u);
 
         // Check an exception is thrown if we use the index of a node not contained in this element
-        TS_ASSERT_THROWS_THIS(p_mesh->GetNeighbouringNodeNotAlsoInElement(0, 2),
+        TS_ASSERT_THROWS_THIS(mesh.GetNeighbouringNodeNotAlsoInElement(0, 2),
                               "The given node is not contained in the given element.");
 
         // Check element neighbours
-        std::set<unsigned> element_neighbours = p_mesh->GetNeighbouringElementIndices(0);
+        std::set<unsigned> element_neighbours = mesh.GetNeighbouringElementIndices(0);
 
         std::set<unsigned> expected_element_neighbours;
         expected_element_neighbours.insert(1);
@@ -1092,36 +1099,37 @@ public:
         TS_ASSERT_DELTA(moments(2), -5.0/90.0, 1e-6); // Ixy
 
         // Hexagonal mesh from mesh generator
-        HoneycombVertexMeshGenerator generator(4, 4);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_4_by_4");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 48u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 48u);
 
         // Test area and perimeter calculations for all elements
-        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-             iter != p_mesh->GetElementIteratorEnd();
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
             unsigned elem_index = iter->GetIndex();
 
-            TS_ASSERT_DELTA(p_mesh->GetVolumeOfElement(elem_index), 0.8660, 1e-4);
-            TS_ASSERT_DELTA(p_mesh->GetSurfaceAreaOfElement(elem_index), 3.4641, 1e-4);
+            TS_ASSERT_DELTA(mesh.GetVolumeOfElement(elem_index), 0.8660, 1e-4);
+            TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(elem_index), 3.4641, 1e-4);
         }
 
         // Test centroid calculations for random elements
-        c_vector<double, 2> centroid = p_mesh->GetCentroidOfElement(5);
+        c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
         TS_ASSERT_DELTA(centroid(0), 2.0, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 1.4433, 1e-4);
 
-        centroid = p_mesh->GetCentroidOfElement(7);
+        centroid = mesh.GetCentroidOfElement(7);
         TS_ASSERT_DELTA(centroid(0), 4.0, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 1.4433, 1e-4);
 
         // Test CalculateMomentOfElement() for all elements
         // all elements are regular hexagons with edge 1/sqrt(3)
-        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            moments = p_mesh->CalculateMomentsOfElement(i);
+            moments = mesh.CalculateMomentsOfElement(i);
 
             TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16/9, 1e-6); // Ixx
             TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6); // Iyy
@@ -1227,24 +1235,25 @@ public:
 
     void TestScaleAndTranslate()
     {
-        // Create 2D mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_DELTA(p_mesh->GetWidth(0), 3.5000, 1e-4);
-        TS_ASSERT_DELTA(p_mesh->GetWidth(1), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 2.8867, 1e-4);
 
         // Squash in the x direction by a factor of 2
-        p_mesh->Scale(0.5);
+        mesh.Scale(0.5);
 
-        TS_ASSERT_DELTA(p_mesh->GetWidth(0), 1.7500, 1e-4);
-        TS_ASSERT_DELTA(p_mesh->GetWidth(1), 2.8867, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 1.7500, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 2.8867, 1e-4);
 
         // Stretch in the x and y directions by a factor of 2
-        p_mesh->Scale(2.0, 2.0);
+        mesh.Scale(2.0, 2.0);
 
-        TS_ASSERT_DELTA(p_mesh->GetWidth(0), 3.5000, 1e-4);
-        TS_ASSERT_DELTA(p_mesh->GetWidth(1), 5.7735, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(0), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetWidth(1), 5.7735, 1e-4);
 
         // Create 3D mesh
         std::vector<Node<3>*> nodes;
@@ -1312,22 +1321,24 @@ public:
         }
 
         // Create a mesh with some interior nodes
-        HoneycombVertexMeshGenerator generator1(2, 2);
-        VertexMesh<2,2>* p_mesh1 = generator1.GetMesh();
+        VertexMeshReader<2,2> mesh_reader1("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_2_by_2");
+        VertexMesh<2,2> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader1);
 
         // Test boundary property of nodes
-        for (unsigned i=0; i<p_mesh1->GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh2.GetNumNodes(); i++)
         {
             bool expected_boundary_node = (i==6 || i==9) ? false : true;
-            TS_ASSERT_EQUALS(p_mesh1->GetNode(i)->IsBoundaryNode(), expected_boundary_node);
+            TS_ASSERT_EQUALS(mesh2.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
 
-        // Create a larger mesh with some interior nodes
-        HoneycombVertexMeshGenerator generator2(3, 3);
-        VertexMesh<2,2>* p_mesh2 = generator2.GetMesh();
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader2("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh3;
+        mesh3.ConstructFromMeshReader(mesh_reader2);
 
         // Test boundary property of nodes
-        for (unsigned i=0; i<p_mesh2->GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh3.GetNumNodes(); i++)
         {
             bool expected_boundary_node = true;
             if (i==8 || i==9 || i==12 || i==13 || i==16 || i==17 || i==20 || i==21)
@@ -1335,18 +1346,19 @@ public:
                 expected_boundary_node = false;
             }
 
-            TS_ASSERT_EQUALS(p_mesh2->GetNode(i)->IsBoundaryNode(), expected_boundary_node);
+            TS_ASSERT_EQUALS(mesh3.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
     }
 
     void TestTranslation2DWithUblas()
     {
-        // Create 2D mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-        c_vector<double, 2> old_location1 = p_mesh->GetNode(4)->rGetLocation();
-        c_vector<double, 2> old_location2 = p_mesh->GetNode(9)->rGetLocation();
+        c_vector<double, 2> old_location1 = mesh.GetNode(4)->rGetLocation();
+        c_vector<double, 2> old_location2 = mesh.GetNode(9)->rGetLocation();
 
         // Set translation vector
         c_vector<double, 2> trans_vec;
@@ -1354,9 +1366,9 @@ public:
         trans_vec(1) = 3.0;
 
         // Translate
-        p_mesh->Translate(trans_vec);
-        c_vector<double, 2> new_location1 = p_mesh->GetNode(4)->rGetLocation();
-        c_vector<double, 2> new_location2 = p_mesh->GetNode(9)->rGetLocation();
+        mesh.Translate(trans_vec);
+        c_vector<double, 2> new_location1 = mesh.GetNode(4)->rGetLocation();
+        c_vector<double, 2> new_location2 = mesh.GetNode(9)->rGetLocation();
 
         // Spot check a couple of nodes
         TS_ASSERT_DELTA(new_location1[0], old_location1[0] + 2.0, 1e-6);
@@ -1368,20 +1380,21 @@ public:
 
     void TestTranslation2DMethod() throw (Exception)
     {
-        // Create 2D mesh
-        HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create mesh
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/honeycomb_vertex_mesh_3_by_3");
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
         // Pick a random node and store spatial position
-        Node<2>* p_node = p_mesh->GetNode(10);
+        Node<2>* p_node = mesh.GetNode(10);
         ChastePoint<2> original_coordinate = p_node->GetPoint();
 
         const double x_movement = 1.0;
         const double y_movement = 2.5;
 
-        p_mesh->Translate(x_movement, y_movement);
+        mesh.Translate(x_movement, y_movement);
 
-        ChastePoint<2>  new_coordinate = p_node->GetPoint();
+        ChastePoint<2> new_coordinate = p_node->GetPoint();
 
         TS_ASSERT_DELTA(original_coordinate[0], new_coordinate[0] - x_movement, 1e-6);
         TS_ASSERT_DELTA(original_coordinate[1], new_coordinate[1] - y_movement, 1e-6);
