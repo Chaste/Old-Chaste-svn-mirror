@@ -144,10 +144,11 @@ template<unsigned SPACE_DIM>
 void StreeterFibreGenerator<SPACE_DIM>::SetSurfaceFiles(
             const std::string &epicardiumFile,
             const std::string &rightVentricleFile,
-            const std::string &leftVentricleFile)
+            const std::string &leftVentricleFile,
+            bool indexFromZero)
 {
     // Compute the distance map of each surface
-     mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, epicardiumFile, leftVentricleFile, rightVentricleFile, false);
+     mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, epicardiumFile, leftVentricleFile, rightVentricleFile, indexFromZero);
 }
 
 template<unsigned SPACE_DIM>
@@ -471,12 +472,17 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
     //Check that LV midway point is not inside the RV interval
     double lv_y_midway=lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1];
     lv_y_midway /= 2.0;
-    assert(lv_y_midway < rv_bounds.rGetLowerCorner()[1]  || lv_y_midway > rv_bounds.rGetUpperCorner()[1]);
+    bool lv_y_mid_in_rv = (lv_y_midway > rv_bounds.rGetLowerCorner()[1]  && lv_y_midway < rv_bounds.rGetUpperCorner()[1]);
 
     //Check that RV midway point is not inside the LV interval
     double rv_y_midway=rv_bounds.rGetUpperCorner()[1] + rv_bounds.rGetLowerCorner()[1];
     rv_y_midway /= 2.0;
-    assert(rv_y_midway < lv_bounds.rGetLowerCorner()[1]  || rv_y_midway > lv_bounds.rGetUpperCorner()[1]);
+    bool rv_y_mid_in_lv = (rv_y_midway > lv_bounds.rGetLowerCorner()[1]  && rv_y_midway < lv_bounds.rGetUpperCorner()[1]);
+
+    if (lv_y_mid_in_rv || rv_y_mid_in_lv)
+    {
+        EXCEPTION("Ventricular surfaces overlap too much in the y-axis");
+    }
 }
 
 /////////////////////////////////////////////////////////////////////

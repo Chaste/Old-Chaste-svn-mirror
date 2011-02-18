@@ -86,11 +86,12 @@ public:
      * @param epicardiumFile Epicardium surface
      * @param rightVentricleFile Right Ventricle surface
      * @param leftVentricleFile Left Ventricle surface
-     *
+     * @bool indexFromZero  Are the nodes in the original mesh file/surfaces indexed from 0?
      */
     void SetSurfaceFiles(const std::string &epicardiumFile,
                          const std::string &rightVentricleFile,
-                         const std::string &leftVentricleFile);
+                         const std::string &leftVentricleFile,
+                         bool indexFromZero);
 
     /**
      * Generates an orthotropic fibre orientation model of the ventricular mesh provided. Assumes that the base-apex axis is x. Based on Streeter 1969 and Potse 2006
