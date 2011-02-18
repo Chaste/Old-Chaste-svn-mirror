@@ -1601,12 +1601,33 @@ void HeartConfig::GetExtracellularConductivities(c_vector<double, 1>& extraCondu
     extraConductivities[0] = extra_x_cond;
 }
 
-double HeartConfig::GetBathConductivity() const
+double HeartConfig::GetBathConductivity(unsigned bathRegion) const
 {
-    /*bath conductivity mS/cm*/
-    return DecideLocation( & mpUserParameters->Physiological().BathConductivity(),
-                           & mpDefaultParameters->Physiological().BathConductivity(),
-                           "BathConductivity")->get();
+    if (bathRegion == 0)
+    {
+        EXCEPTION("Region label 0 is reserved for tissue");
+    }
+    
+    if (bathRegion == 1)
+    {
+        /*bath conductivity mS/cm*/
+        return DecideLocation( & mpUserParameters->Physiological().BathConductivity(),
+                               & mpDefaultParameters->Physiological().BathConductivity(),
+                               "BathConductivity")->get();
+    }
+    else
+    {
+        std::map<unsigned, double>::const_iterator it = mBathConductivities.find(bathRegion);
+        
+        if (it == mBathConductivities.end())
+        {
+            std::stringstream msg;
+            msg << "Bath conductivity not defined for region " << bathRegion;
+            EXCEPTION(msg.str());
+        }
+        
+        return it->second;
+    }
 }
 
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
@@ -2467,6 +2488,12 @@ void HeartConfig::SetBathConductivity(double bathConductivity)
 {
     XSD_CREATE_WITH_FIXED_ATTR1(cp::conductivity_type, cond, bathConductivity, "mS/cm");
     mpUserParameters->Physiological().BathConductivity().set(cond);
+}
+
+void HeartConfig::SetBathMultipleConductivities(std::map<unsigned, double> bathConductivities)
+{
+    /// \todo: This implementation is temporary until we incorporate the bath heterogeneities to the XML schema
+    mBathConductivities = bathConductivities;
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)

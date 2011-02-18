@@ -540,7 +540,7 @@ public:
      */
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
-    double GetBathConductivity() const; /**< @return conductivity for perfusing bath (mS/cm)*/
+    double GetBathConductivity(unsigned bathRegion=1) const; /**< @return conductivity for perfusing bath (mS/cm)*/
 
 
     double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio chi a.k.a Am for PDE (1/cm)*/
@@ -897,11 +897,16 @@ public:
     void SetExtracellularConductivities(const c_vector<double, 1>& rExtraConductivities);
 
     /**
-     * Set bath conductivity
-     * @param bathConductivity conductivity for perfusing bath (mS/cm)
+     * Set bath default conductivity
+     * @param bathConductivity default conductivity for perfusing bath (mS/cm)
      * \todo Is this used anywhere?
      */
     void SetBathConductivity(double bathConductivity);
+
+    /**
+     * Set multiple bath conductivities based on element region label (mS/cm)
+     */
+    void SetBathMultipleConductivities(std::map<unsigned, double> bathConductivities);
 
     /**
      * Set surface area to volume ratio Am (for PDE)
@@ -1220,6 +1225,11 @@ private:
      *  Set method documentation).
      */
     bool mUseReactionDiffusionOperatorSplitting;
+
+    /**
+     *  Map defining bath conductivity for multiple bath regions
+     */
+    std::map<unsigned, double> mBathConductivities;
 
 
     /**
