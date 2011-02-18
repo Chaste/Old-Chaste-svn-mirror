@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Need to include all (or at least some) of these files!
 
 #include "GeneralisedLinearSpringForce.hpp"
-#include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
