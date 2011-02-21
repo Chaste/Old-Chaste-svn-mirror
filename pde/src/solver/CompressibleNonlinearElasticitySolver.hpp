@@ -50,11 +50,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Finite elasticity solver. Solves static *compressible* nonlinear elasticity
  *  problems with arbitrary (compressible) material laws and a body force.
  *
- *  Uses quadratic for displacement, and is therefore outside the other assembler or solver hierachy.
+ *  Uses quadratic basis functions for displacement, and is therefore outside the other assembler or solver hierarchy.
  */
 template<size_t DIM>
-class CompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
+class CompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<COMPRESSIBLE, DIM>
 {
+    friend class TestCompressibleNonlinearElasticitySolver;
 
 protected:
 
@@ -62,43 +63,27 @@ protected:
     static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
     /** Number of nodes per element */
     static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
-    /** Stencil size */
+    /** Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
+     *  no pressure unknowns
+     */
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT;
     /** Number of nodes per boundary element */
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
     /** Boundary stencil size */
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT;
 
-    /**
-     *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
-     *  as quadratic bases are used.
-     */
-    QuadraticMesh<DIM>* mpQuadMesh;
-
-    /** Boundary elements with (non-zero) surface tractions defined on them */
-    std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
-
-    /** Gaussian quadrature rule */
-    GaussianQuadratureRule<DIM>* mpQuadratureRule;
-
-    /** Boundary Gaussian quadrature rule */
-    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
 
     /**
-     *  The material laws for each element. This will either be of size
-     *  1 (same material law for all elements, ie homogeneous), or size
-     *  num_elem.
+     *  The material laws for each element. This will either be of size 1 (same material law for all elements,
+     *  ie homogeneous), or size num_elem.
      */
     std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
 
 
-
     /**
-     * TODO:update
-     *
      * Assemble residual or jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
-     * rBElem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
+     * rBElem = [u0 v0 u1 v1 .. u5 v5].
      *
      * @param rElement The element to assemble on.
      * @param rAElem The element's contribution to the LHS matrix is returned in this
@@ -154,19 +139,7 @@ protected:
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 
-    /**
-     * Initialise the solver.
-     *
-     * @param pFixedNodeLocations
-     */
-    void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
 
-    /**
-     * Allocates memory for the Jacobian and preconditioner matrices (larger number of
-     * non-zeros per row than with say linear problems)
-     */
-    void AllocateMatrixMemory();
-    
     /**
      *  Simple (one-line function which just calls ComputeStressAndStressDerivative() on the material law, using C,
      *  inv(C), and p as the input and with rT and rDTdE as the output. Overloaded by other assemblers (eg cardiac 
@@ -198,17 +171,15 @@ protected:
 public:
 
     /**
-     * Constructor taking in mesh, material law (assuming homogeniety at the moment)
-     * body force, density, the fixed nodes (all the fixed nodes, including non-vertices),
-     * and the output directory.
+     * Constructor for homogeneous problems.
      *
-     * @param pQuadMesh
-     * @param pMaterialLaw
-     * @param bodyForce
-     * @param density
-     * @param outputDirectory
-     * @param fixedNodes
-     * @param pFixedNodeLocations (defaults to NULL)
+     * @param pQuadMesh The quadratic mesh to solve on
+     * @param pMaterialLaw A single material law to use on all elements
+     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
+     * @param density The density (assumed constant)
+     * @param outputDirectory The output directory
+     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
+     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
                                           AbstractMaterialLaw<DIM>* pMaterialLaw,
@@ -219,15 +190,15 @@ public:
                                           std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /**
-     * Variant constructor taking a vector of material laws.
+     * Variant constructor taking a vector of material laws for heterogeneous problems
      *
-     * @param pQuadMesh
-     * @param rMaterialLaws
-     * @param bodyForce
-     * @param density
-     * @param outputDirectory
-     * @param fixedNodes
-     * @param pFixedNodeLocations (defaults to NULL)
+     * @param pQuadMesh The quadratic mesh to solve on
+     * @param rMaterialLaws Vector of material laws for each element
+     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
+     * @param density The density (assumed constant)
+     * @param outputDirectory The output directory
+     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
+     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
                                           std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
@@ -237,35 +208,8 @@ public:
                                           std::vector<unsigned>& fixedNodes,
                                           std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
-    /** Destructor frees memory for quadrature rules. */
+    /** Destructor. */
     ~CompressibleNonlinearElasticitySolver();
-
-    /**
-     * Specify traction boundary conditions (if this is not called zero surface
-     * tractions are assumed. This method takes in a list of boundary elements
-     * and a corresponding list of surface tractions.
-     *
-     * @param rBoundaryElements
-     * @param rSurfaceTractions
-     */
-    void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                              std::vector<c_vector<double,DIM> >& rSurfaceTractions);
-
-    /**
-     * Set a function which gives the surface traction as a function of X (undeformed position),
-     * together with the surface elements which make up the Neumann part of the boundary.
-     *
-     * @param rBoundaryElements
-     * @param pFunction
-     */
-    void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-                                                c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
-
-
-    /**
-     *  Get the deformed position. Note returnvalue[i](j) = x_j for node i.
-     */
-    std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };
 
 #endif /*COMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_*/

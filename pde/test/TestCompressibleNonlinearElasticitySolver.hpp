@@ -34,11 +34,80 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CompressibleNonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
+#include "NonlinearElasticityTools.hpp"
+
+
+
+/// todos: #1699:
+///   more compressibility tests, nonlinear (I3) material law, possible material law refactor
+///   stop using linear systems, two matrices in compressible case, matrix memory allocation
+
+
 
 
 class TestCompressibleNonlinearElasticitySolver : public CxxTest::TestSuite
 {
 public:
+    // This is purely for coverage of assembling a 3D system (and also uses alternative, heterogeneous
+    // constructor, also for coverage)
+    void TestAssembleSystem3D() throw (Exception)
+    {
+        QuadraticMesh<3> mesh;
+        TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
+
+        mesh.ConstructFromMeshReader(mesh_reader1);
+
+        CompressibleMooneyRivlinMaterialLaw<3> law(1.0, 0.0, -1.0);
+        std::vector<AbstractMaterialLaw<3>*> laws;
+        laws.push_back(&law);
+
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+
+        CompressibleNonlinearElasticitySolver<3> solver(&mesh,
+                                                        laws,
+                                                        zero_vector<double>(3),
+                                                        1.0,
+                                                        "",
+                                                        fixed_nodes);
+
+
+        solver.AssembleSystem(true, true);
+    }
+
+    // It just tests that nothing happens if zero force and tractions are given
+    void TestWithZeroDisplacement() throw(Exception)
+    {
+        QuadraticMesh<2> mesh;
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        CompressibleMooneyRivlinMaterialLaw<2> law(1.0, 0.0, -1.0);
+
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
+        CompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                        &law,
+                                                        zero_vector<double>(2),
+                                                        1.0,
+                                                        "",
+                                                        fixed_nodes);
+
+        solver.Solve();
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 0u);
+
+        // get deformed position
+        std::vector<c_vector<double,2> >& r_deformed_position
+            = solver.rGetDeformedPosition();
+
+        for (unsigned i=0; i<r_deformed_position.size(); i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[0], r_deformed_position[i](0), 1e-8);
+            TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[1], r_deformed_position[i](1), 1e-8);
+        }
+    }
+
     /**    *** fill in ***
      *
      */

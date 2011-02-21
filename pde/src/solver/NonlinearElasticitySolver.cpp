@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp"
 #include <algorithm>
 
-//#include "Debug.hpp"
+
 template<size_t DIM>
 void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
                                                     bool assembleJacobian)
@@ -72,14 +72,14 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
     ////////////////////////////////////////////////////////
     // loop over elements
     ////////////////////////////////////////////////////////
-    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
-         iter != mpQuadMesh->GetElementIteratorEnd();
+    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = this->mpQuadMesh->GetElementIteratorBegin();
+         iter != this->mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
         #ifdef MECH_VERY_VERBOSE
         if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
         {
-            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << mpQuadMesh->GetNumElements() << std::flush;
+            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
         }
         #endif
 
@@ -112,7 +112,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
             for (unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
             {
-                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
+                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*this->mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
             }
 
             if (assembleJacobian)
@@ -134,11 +134,11 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
     ////////////////////////////////////////////////////////////
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
     c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
-    if (mBoundaryElements.size()>0)
+    if (this->mBoundaryElements.size()>0)
     {
-        for (unsigned i=0; i<mBoundaryElements.size(); i++)
+        for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
         {
-            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
+            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mBoundaryElements[i]);
             AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, this->mSurfaceTractions[i], assembleResidual, assembleJacobian);
 
             unsigned p_indices[BOUNDARY_STENCIL_SIZE];
@@ -152,7 +152,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
             for (unsigned i=0; i<DIM /*vertices per boundary elem */; i++)
             {
-                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
+                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*this->mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
             }
 
             if (assembleJacobian)
@@ -213,7 +213,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
     
-    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
+    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {
@@ -244,7 +244,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
     ///////////////////////////////////////////////
     for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
     {
-        element_current_pressures(II) = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
+        element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
     }
 
     // allocate memory for the basis functions values and derivative values
@@ -330,7 +330,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
                 // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
                 for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
                 {
-                    X += linear_phi(node_index)*mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                    X += linear_phi(node_index)*this->mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
                 }
                 body_force = (*(this->mpBodyForceFunction))(X);
             }
@@ -606,7 +606,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     c_vector<double, DIM> weighted_direction;
     double jacobian_determinant;
-    mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
+    this->mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
     c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
@@ -626,7 +626,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             c_vector<double,DIM> X = zero_vector<double>(DIM);
             for (unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
             {
-                X += phi(node_index)*mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
             }
             traction = (*(this->mpTractionBoundaryConditionFunction))(X);
         }
@@ -655,7 +655,7 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
 {
     this->mCurrentSolution.resize(this->mNumDofs, 0.0);
 
-    for (unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
+    for (unsigned i=0; i<this->mpQuadMesh->GetNumElements(); i++)
     {
         double zero_strain_pressure;
         if (this->mMaterialLaws.size()==1)
@@ -672,141 +672,11 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
         // loop over vertices and set pressure solution to be zero-strain-pressure
         for (unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
         {
-            unsigned index = mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
-            this->mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
+            unsigned index = this->mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
+            this->mCurrentSolution[ DIM*this->mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
         }
     }
 }
-
-template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-{
-    assert(mpQuadMesh);
-
-    AllocateMatrixMemory();
-
-    for (unsigned i=0; i<this->mFixedNodes.size(); i++)
-    {
-        assert(this->mFixedNodes[i] < mpQuadMesh->GetNumNodes());
-    }
-
-    this->mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
-    this->mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
-
-    FormInitialGuess();
-
-    // compute the displacements at each of the fixed nodes, given the
-    // fixed nodes locations.
-    if (pFixedNodeLocations == NULL)
-    {
-        this->mFixedNodeDisplacements.clear();
-        for (unsigned i=0; i<this->mFixedNodes.size(); i++)
-        {
-            this->mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
-        }
-    }
-    else
-    {
-        assert(pFixedNodeLocations->size()==this->mFixedNodes.size());
-        for (unsigned i=0; i<this->mFixedNodes.size(); i++)
-        {
-            unsigned index = this->mFixedNodes[i];
-            c_vector<double,DIM> displacement = (*pFixedNodeLocations)[i]-mpQuadMesh->GetNode(index)->rGetLocation();
-            this->mFixedNodeDisplacements.push_back(displacement);
-        }
-    }
-    assert(this->mFixedNodeDisplacements.size()==this->mFixedNodes.size());
-}
-
-template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
-{
-    if(DIM==2)
-    {
-        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
-        unsigned num_non_zeros = std::min(75u, this->mNumDofs);
-
-        this->mpLinearSystem = new LinearSystem(this->mNumDofs, num_non_zeros);
-        this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs, num_non_zeros);
-    }
-    else
-    {
-        assert(DIM==3);
-
-        // pass in 0 as the preallocation number, and the false says don't preallocate
-        this->mpLinearSystem = new LinearSystem(this->mNumDofs, 0);
-        this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs, 0);
-
-        // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
-
-        // in 3d we get the number of containing elements for each node and use that to obtain an upper bound
-        // for the number of non-zeros for each DOF associated with that node.
-
-        int* num_non_zeros_each_row = new int[this->mNumDofs];
-        for(unsigned i=0; i<this->mNumDofs; i++)
-        {
-            num_non_zeros_each_row[i] = 0;
-        }
-
-        for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
-        {
-            // this upper bound neglects the fact that two containing elements will share the same nodes..
-            // 4 = max num dofs associated with this node
-            // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
-            unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
-            
-            num_non_zeros_upper_bound = std::min(num_non_zeros_upper_bound, this->mNumDofs);
-
-            num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
-            num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
-            num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
-
-            //Could do !mpQuadMesh->GetNode(i)->IsInternal()
-            if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
-            {
-                num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
-            }
-        }
-        
-        // NOTE: PetscTools::SetupMat() creates a MATAIJ matrix, which means the matrix will
-        // be of type MATSEQAIJ if num_procs=1 and MATMPIAIJ otherwise. In the former case
-        // MatSeqAIJSetPreallocation MUST be called [MatMPIAIJSetPreallocation will have 
-        // no effect (silently)], and vice versa in the latter case
-        
-        ///\todo #1682 We aren't allowed to do this row allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
-        
-        if(PetscTools::IsSequential())
-        {
-            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
-            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
-        }
-        else
-        {
-            PetscInt lo, hi;
-            this->mpLinearSystem->GetOwnershipRange(lo, hi);
-            int* num_non_zeros_each_row_this_proc = new int[hi-lo];
-            int* zero = new int[hi-lo];
-            for(unsigned i=0; i<unsigned(hi-lo); i++)
-            {
-                num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
-                zero[i] = 0;
-            }
-
-            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
-            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
-        }
-
-        //unsigned total_non_zeros = 0;
-        //for(unsigned i=0; i<this->mNumDofs; i++)
-        //{
-        //   total_non_zeros += num_non_zeros_each_row[i];
-        //}
-        //std::cout << total_non_zeros << " versus " << 500*this->mNumDofs << "\n" << std::flush;
-
-        delete [] num_non_zeros_each_row;
-    }
-}
-
 
 
 template<size_t DIM>
@@ -818,15 +688,15 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
-                                             bodyForce, density,
-                                             outputDirectory, fixedNodes),
-      mpQuadMesh(pQuadMesh)
+    : AbstractNonlinearElasticitySolver<INCOMPRESSIBLE,DIM>(pQuadMesh,
+                                                            bodyForce, density,
+                                                            outputDirectory, fixedNodes)
 {
     assert(pMaterialLaw != NULL);
     mMaterialLaws.push_back(pMaterialLaw);
 
     Initialise(pFixedNodeLocations);
+    FormInitialGuess();
 }
 
 
@@ -839,10 +709,9 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
-                                             bodyForce, density,
-                                             outputDirectory, fixedNodes),
-      mpQuadMesh(pQuadMesh)
+    : AbstractNonlinearElasticitySolver<INCOMPRESSIBLE,DIM>(pQuadMesh,
+                                                            bodyForce, density,
+                                                            outputDirectory, fixedNodes)
 {
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
@@ -853,6 +722,7 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
 
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
     Initialise(pFixedNodeLocations);
+    FormInitialGuess();
 }
 
 
@@ -861,10 +731,10 @@ NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 {
 //    //Post-hoc debugging
 //    Mat matrix = this->mpLinearSystem->rGetLhsMatrix();
-//    for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+//    for(unsigned i=0; i<this->mpQuadMesh->GetNumNodes(); i++)
 //    {
-//        unsigned elements = mpQuadMesh->GetNode(i)->GetNumContainingElements();
-//        if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//        unsigned elements = this->mpQuadMesh->GetNode(i)->GetNumContainingElements();
+//        if(i<this->mpQuadMesh->GetNumVertices()) // then this is a vertex
 //        {
 //            TRACE("VERT");
 //        }
@@ -881,65 +751,33 @@ NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 //            PRINT_3_VARIABLES(i,row,ncols);
 //        }
 // 
-//        if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//        if(i<this->mpQuadMesh->GetNumVertices()) // then this is a vertex
 //        {
-//            int row=DIM*mpQuadMesh->GetNumNodes() + i;
+//            int row=DIM*this->mpQuadMesh->GetNumNodes() + i;
 //            int ncols;
 //            MatGetRow(matrix, row, &ncols, NULL, NULL);
 //            PRINT_3_VARIABLES(i,row,ncols);
 //        }
 //    }
 
-    delete mpQuadratureRule;
-    delete mpBoundaryQuadratureRule;
+
 }
 
-template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::SetSurfaceTractionBoundaryConditions(
-            std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-            std::vector<c_vector<double,DIM> >& rSurfaceTractions)
-{
-    assert(rBoundaryElements.size()==rSurfaceTractions.size());
-    mBoundaryElements = rBoundaryElements;
-    this->mSurfaceTractions = rSurfaceTractions;
-}
 
-template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::SetFunctionalTractionBoundaryCondition(
-            std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-            c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
-{
-    mBoundaryElements = rBoundaryElements;
-    this->mUsingTractionBoundaryConditionFunction = true;
-    this->mpTractionBoundaryConditionFunction = pFunction;
-}
 
 template<size_t DIM>
 std::vector<double>& NonlinearElasticitySolver<DIM>::rGetPressures()
 {
     mPressures.clear();
-    mPressures.resize(mpQuadMesh->GetNumVertices());
+    mPressures.resize(this->mpQuadMesh->GetNumVertices());
 
-    for (unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
+    for (unsigned i=0; i<this->mpQuadMesh->GetNumVertices(); i++)
     {
-        mPressures[i] = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + i];
+        mPressures[i] = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + i];
     }
     return mPressures;
 }
 
-template<size_t DIM>
-std::vector<c_vector<double,DIM> >& NonlinearElasticitySolver<DIM>::rGetDeformedPosition()
-{
-    this->mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
-    for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
-    {
-        for (unsigned j=0; j<DIM; j++)
-        {
-            this->mDeformedPosition[i](j) = mpQuadMesh->GetNode(i)->rGetLocation()[j] + this->mCurrentSolution[DIM*i+j];
-        }
-    }
-    return this->mDeformedPosition;
-}
 
 
 //////////////////////////////////////////////////////////////////////

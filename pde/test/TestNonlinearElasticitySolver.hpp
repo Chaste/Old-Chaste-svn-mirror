@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
+#include "NonlinearElasticityTools.hpp"
 
 double MATERIAL_PARAM = 1.0;
 double ALPHA = 0.2;
@@ -88,11 +89,9 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
 class TestNonlinearElasticitySolver : public CxxTest::TestSuite
 {
 public:
-
-    // Solve using quadratics..
+    // This is purely for coverage of assembling a 3D system...
     void TestAssembleSystem3D() throw (Exception)
     {
-        //Currently this is purely for coverage of assembling a 3D system...
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
 
@@ -289,14 +288,8 @@ public:
         double c1 = 3.0;
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
 
-        std::vector<unsigned> fixed_nodes;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-            }
-        }
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         NonlinearElasticitySolver<2> solver(&mesh,
                                             &mooney_rivlin_law,
@@ -343,14 +336,9 @@ public:
         laws.push_back(&law_1);
         laws.push_back(&law_2);
 
-        std::vector<unsigned> fixed_nodes;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-            }
-        }
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
 
         NonlinearElasticitySolver<2> solver(&mesh,
                                             laws,
@@ -381,14 +369,9 @@ public:
         body_force(0) = 3.0;
         body_force(1) = 0.0;
 
-        std::vector<unsigned> fixed_nodes;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-            }
-        }
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
 
         NonlinearElasticitySolver<2> solver(&mesh,
                                             &law,
@@ -576,14 +559,9 @@ public:
 
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
 
-        std::vector<unsigned> fixed_nodes;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-            }
-        }
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
