@@ -107,6 +107,27 @@ public:
         assert(rDimension<SPACE_DIM);
         return mUpperCorner[rDimension] - mLowerCorner[rDimension];
     }
+    
+    /**
+     * @return the longest axis of the cuboid (<SPACE_DIM).  
+     * In the case where there's a tie, then any of the longest
+     * axes are returned.
+     */
+     unsigned GetLongestAxis() const
+     {
+        unsigned axis=0;
+        double max_dimension = 0.0;
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            double dimension =  mUpperCorner[i] - mLowerCorner[i];
+            if ( dimension > max_dimension)
+            {
+                axis=i;
+                max_dimension = dimension;
+            }
+        }
+        return axis;
+     }
 };
 
 #endif /*CHASTECUBOID_HPP_*/

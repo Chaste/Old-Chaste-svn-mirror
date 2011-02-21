@@ -49,6 +49,8 @@ private:
 
     HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo; /**< Provides a method to calculate the relative position of a node with respect to two (or three) given surfaces*/
 
+    c_vector <double, SPACE_DIM> mApexToBase; /**< Normalised direction from apex to base */
+    
     /**
      * Compute the wallthickness of a given node based on a
      * neighbourhood average of its thickness and of those in the forward star.
@@ -117,6 +119,17 @@ public:
      */
     void CheckVentricleAlignment();
 
+    /**
+     * Set the direction from apex to base
+     * @param apexToBase  is a non-zero vector.  It will be stored in normalised form
+     */
+    void SetApexToBase(const c_vector<double, SPACE_DIM>& apexToBase);
+
+    /**
+     * Set the direction from apex to base
+     * @param axis  is the Cartesian axis from apex to base.
+     */
+    void SetApexToBase(unsigned axis);
 };
 
 #endif /*STREETERFIBREGENERATOR_HPP_*/

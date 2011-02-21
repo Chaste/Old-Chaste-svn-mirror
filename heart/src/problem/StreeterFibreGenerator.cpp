@@ -130,7 +130,8 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
 template<unsigned SPACE_DIM>
 StreeterFibreGenerator<SPACE_DIM>::StreeterFibreGenerator(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
     : mrMesh(rMesh),
-      mpGeometryInfo(NULL)
+      mpGeometryInfo(NULL),
+      mApexToBase(zero_vector<double>(SPACE_DIM))
 {
 }
 
@@ -364,10 +365,10 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
              *   Normal to the gradient (v in Streeter paper) which is then the circumferential direction
              * (it will be the fibre direction after rotation)
              *
-             *  Computed as the cross product with the x-axis (assuming base-apex axis is x). The output vector is not normal,
+             *  Computed as the cross product with the base-apex direction (originally assumed base-apex axis is x). The output vector is not normal,
              * since the angle between them may be != 90, normalise it.
              */
-            c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));
+            c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, mApexToBase);
             fibre_direction /= norm_2(fibre_direction);
 
             /*
@@ -465,10 +466,16 @@ template<unsigned SPACE_DIM>
 void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
 {
     assert(SPACE_DIM == 3);
-
+    
+    //We expect that the apex to base has been set
+    if (fabs(norm_2(mApexToBase)) < DBL_EPSILON)
+    {
+        EXCEPTION("Apex to base vector has not been set");
+    }
     ChasteCuboid<SPACE_DIM> lv_bounds=mpGeometryInfo->CalculateBoundingBoxOfLV();
     ChasteCuboid<SPACE_DIM> rv_bounds=mpGeometryInfo->CalculateBoundingBoxOfRV();
-
+    
+ 
     //Check that LV midway point is not inside the RV interval
     double lv_y_midway=lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1];
     lv_y_midway /= 2.0;
@@ -483,6 +490,30 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
     {
         EXCEPTION("Ventricular surfaces overlap too much in the y-axis");
     }
+    //This is a bit nasty - note that it's currently after the exception test
+    assert(lv_bounds.GetLongestAxis() == 0);
+    assert(rv_bounds.GetLongestAxis() == 0);
+ }
+
+template<unsigned SPACE_DIM>
+void StreeterFibreGenerator<SPACE_DIM>::SetApexToBase(const c_vector<double, SPACE_DIM>& apexToBase)
+{
+    double norm = norm_2(apexToBase);
+    if (norm < DBL_EPSILON)
+    {
+        EXCEPTION("Apex to base vector should be non-zero");
+    }
+    mApexToBase = apexToBase / norm;
+}
+template<unsigned SPACE_DIM>
+void StreeterFibreGenerator<SPACE_DIM>::SetApexToBase(unsigned axis)
+{
+    if (axis >= SPACE_DIM)
+    {
+        EXCEPTION("Apex to base coordinate axis was out of range");
+    }
+    mApexToBase = zero_vector<double>(SPACE_DIM);
+    mApexToBase[axis] = 1.0;
 }
 
 /////////////////////////////////////////////////////////////////////

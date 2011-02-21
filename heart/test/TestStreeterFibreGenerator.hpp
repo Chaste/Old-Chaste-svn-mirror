@@ -52,6 +52,7 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, false);
+        fibre_generator.SetApexToBase(0);
 
         fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "box_heart.ortho", true);
 
@@ -74,6 +75,7 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, false);
+        fibre_generator.SetApexToBase(0);
 
         fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "box_heart_not_dist.ortho", true);
 
@@ -96,6 +98,7 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
+        fibre_generator.SetApexToBase(0);
 
         fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho");
 
@@ -131,7 +134,24 @@ public:
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
 
         TS_ASSERT_THROWS_THIS(fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho"),
+            "Apex to base vector has not been set");
+        TS_ASSERT_THROWS_THIS(fibre_generator.SetApexToBase(999),
+            "Apex to base coordinate axis was out of range");
+        
+        c_vector<double, 3> axis;
+        axis[0] = 0.0;
+        axis[1] = 0.0;
+        axis[2] = 0.0;
+        TS_ASSERT_THROWS_THIS(fibre_generator.SetApexToBase(axis),
+            "Apex to base vector should be non-zero");
+        
+        axis[0] = 1.0;
+        
+        fibre_generator.SetApexToBase(axis);
+        
+        TS_ASSERT_THROWS_THIS(fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho"),
             "Ventricular surfaces overlap too much in the y-axis");
+            
         
     }
 };

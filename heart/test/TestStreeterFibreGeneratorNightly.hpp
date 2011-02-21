@@ -52,6 +52,7 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, false);
+        fibre_generator.SetApexToBase(0);
 
         fibre_generator.GenerateOrthotropicFibreOrientation("streeter_parallel", "point50.ortho", true);
 
@@ -77,6 +78,7 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, false);
+        fibre_generator.SetApexToBase(0);
 
         fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "point50_not_dist.ortho", true);
 

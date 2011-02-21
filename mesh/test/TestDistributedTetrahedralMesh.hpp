@@ -1432,11 +1432,26 @@ public:
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(0), (double) width);
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(1), (double) height);
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(2), (double) depth);
-        
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 1U); //Tie between 1 and 2 
+        }
+        else
+        {
+            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 2U); //2 wins outright
+        }        
         ChasteCuboid<3> constructed_bounding_box=constructed_mesh.CalculateBoundingBox();
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(0), (double) width);
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(1), (double) height);
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(2), (double) depth);
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 1U); //Tie between 1 and 2 
+        }
+        else
+        {
+            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 2U); //2 wins outright
+        }        
         TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumContainingElementsPerProcess(), 24U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
         TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumNodeConnectivityPerProcess(), 15U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
  
