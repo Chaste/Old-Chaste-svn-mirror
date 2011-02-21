@@ -174,6 +174,12 @@ void AbstractParameterisedSystem<VECTOR>::SetParameter(const std::string& rName,
 }
 
 template<typename VECTOR>
+double AbstractParameterisedSystem<VECTOR>::GetParameter(const std::string& rName) const
+{
+    return GetParameter(GetParameterIndex(rName));
+}
+
+template<typename VECTOR>
 const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetParameterNames() const
 {
     assert(mpSystemInfo);

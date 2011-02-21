@@ -178,6 +178,13 @@ public:
     double GetParameter(unsigned index) const;
 
     /**
+     * Get the value of a given parameter.
+     *
+     * @param rName the name of the parameter
+     */
+    double GetParameter(const std::string& rName) const;
+
+    /**
      * Set the value of a given parameter.
      *
      * @param rName the name of the parameter

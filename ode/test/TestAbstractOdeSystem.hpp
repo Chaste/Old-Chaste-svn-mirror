@@ -111,6 +111,7 @@ public:
         TS_ASSERT_EQUALS(ode.GetParameter(0), a);
         ode.SetParameter("a", a);
         TS_ASSERT_EQUALS(ode.GetParameter(0), a);
+        TS_ASSERT_EQUALS(ode.GetParameter("a"), a);
 
         TS_ASSERT_EQUALS(ode.HasParameter("a"), true);
         TS_ASSERT_EQUALS(ode.rGetParameterNames()[0], "a");
@@ -158,6 +159,7 @@ public:
 
         TS_ASSERT_EQUALS(ode.HasParameter("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetParameterIndex("b"), "No parameter named 'b'.");
+        TS_ASSERT_THROWS_THIS(ode.GetParameter("b"), "No parameter named 'b'.");
         TS_ASSERT_EQUALS(ode.HasStateVariable("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableIndex("b"), "No state variable named 'b'.");
         TS_ASSERT_EQUALS(ode.HasAnyVariable("b"), false);
