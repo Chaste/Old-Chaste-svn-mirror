@@ -26,17 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractMaterialLaw.hpp"
 
 template<unsigned DIM>
-AbstractIncompressibleMaterialLaw<DIM>::~AbstractIncompressibleMaterialLaw()
+AbstractMaterialLaw<DIM>::~AbstractMaterialLaw()
 {
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
-                                                                 double pressure,
-                                                                 c_matrix<double,DIM,DIM>& rSigma)
+void AbstractMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
+                                                   double pressure,
+                                                   c_matrix<double,DIM,DIM>& rSigma)
 {
     double detF = Determinant(rF);
 
@@ -70,9 +70,9 @@ void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rF,
-                                                                           double pressure,
-                                                                           c_matrix<double,DIM,DIM>& rS)
+void AbstractMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rF,
+                                                             double pressure,
+                                                             c_matrix<double,DIM,DIM>& rS)
 {
     c_matrix<double,DIM,DIM> C = prod(trans(rF), rF);
     c_matrix<double,DIM,DIM> invC = Inverse(C);
@@ -87,9 +87,9 @@ void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_mat
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC,
-                                                                           double pressure,
-                                                                           c_matrix<double,DIM,DIM>& rT)
+void AbstractMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC,
+                                                             double pressure,
+                                                             c_matrix<double,DIM,DIM>& rT)
 {
     c_matrix<double,DIM,DIM> invC = Inverse(rC);
 
@@ -99,7 +99,7 @@ void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_mat
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
+void AbstractMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
 {
     #define COVERAGE_IGNORE
     EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not been implemented\n");
@@ -111,6 +111,6 @@ void AbstractIncompressibleMaterialLaw<DIM>::ScaleMaterialParameters(double scal
 // Explicit instantiation
 ////////////////////////////////////////////////////////////////////////////////////
 
-//template class AbstractIncompressibleMaterialLaw<1>;
-template class AbstractIncompressibleMaterialLaw<2>;
-template class AbstractIncompressibleMaterialLaw<3>;
+//template class AbstractMaterialLaw<1>;
+template class AbstractMaterialLaw<2>;
+template class AbstractMaterialLaw<3>;

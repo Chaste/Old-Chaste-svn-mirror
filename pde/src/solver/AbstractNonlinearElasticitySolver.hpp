@@ -32,12 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cmath>
 #include "LinearSystem.hpp"
-#include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"
 #include "LogFile.hpp"
 #include "PetscTools.hpp"
 #include "MechanicsEventHandler.hpp"
 #include "ReplicatableVector.hpp"
+#include "FourthOrderTensor.hpp"
 
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
@@ -83,17 +83,11 @@ protected:
     double mKspAbsoluteTol;
 
     /**
-     * Number of degrees of freedom (eg equal to DIM*N + M if quadratic-linear
-     * bases are used, where there are N total nodes and M vertices).
+     * Number of degrees of freedom (equal to, in the incompressible case:
+     * DIM*N + M if quadratic-linear bases are used, where there are N total 
+     * nodes and M vertices; or DIM*N in the compressible case).
      */
     unsigned mNumDofs;
-
-    /**
-     *  The material laws for each element. This will either be of size
-     *  1 (same material law for all elements, ie homogeneous), or size
-     *  num_elem.
-     */
-    std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
 
     /**
      *  The linear system where we store all residual vectors which are calculated
@@ -102,6 +96,8 @@ protected:
      */
     LinearSystem* mpLinearSystem;
 
+
+//TODO:
     /**
      *  The linear system which stores the matrix used for preconditioning (given
      *  the helper functions on LinearSystem it is best to use LinearSystem and
@@ -141,8 +137,9 @@ protected:
     bool mWriteOutput;
 
     /**
-     *  The current solution, in the form (in 2d)
-     *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
+     *  The current solution, in the form (assuming 2d):
+     *    Incompressible problem: [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
+     *    Compressible problem:   [u1 v1 u2 v2 ... uN vN]
      *  where there are N total nodes and M vertices
      */
     std::vector<double> mCurrentSolution;
@@ -159,11 +156,6 @@ protected:
     /** Deformed position: mDeformedPosition[i](j) = x_j for node i */
     std::vector<c_vector<double,DIM> > mDeformedPosition;
 
-    /**
-     *  The solution pressures. mPressures[i] = pressure at node i (ie
-     *  vertex i).
-     */
-    std::vector<double> mPressures;
 
     /**
      *  The surface tractions (which should really be non-zero)
@@ -185,12 +177,6 @@ protected:
 
     /** Whether the functional version of the surface traction is being used or not */
     bool mUsingTractionBoundaryConditionFunction;
-
-    /**
-     * Set up the current guess to be the solution given no displacement.
-     * Must be overridden in concrete derived classes.
-     */
-    virtual void FormInitialGuess()=0;
 
     /**
      * Assemble the residual vector (using the current solution stored
@@ -284,35 +270,17 @@ public:
      * Constructor.
      *
      * @param numDofs
-     * @param pMaterialLaw
      * @param bodyForce
      * @param density
      * @param outputDirectory
      * @param fixedNodes
      */
     AbstractNonlinearElasticitySolver(unsigned numDofs,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                       c_vector<double,DIM> bodyForce,
                                       double density,
                                       std::string outputDirectory,
                                       std::vector<unsigned>& fixedNodes);
 
-    /**
-     * Variant constructor taking a vector of material laws.
-     *
-     * @param numDofs
-     * @param rMaterialLaws
-     * @param bodyForce
-     * @param density
-     * @param outputDirectory
-     * @param fixedNodes
-     */
-    AbstractNonlinearElasticitySolver(unsigned numDofs,
-                                      std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                                      c_vector<double,DIM> bodyForce,
-                                      double density,
-                                      std::string outputDirectory,
-                                      std::vector<unsigned>& fixedNodes);
 
     /**
      * Destructor.
@@ -784,7 +752,6 @@ void AbstractNonlinearElasticitySolver<DIM>::PostNewtonStep(unsigned counter, do
 
 template<unsigned DIM>
 AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(unsigned numDofs,
-                                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                                                           c_vector<double,DIM> bodyForce,
                                                                           double density,
                                                                           std::string outputDirectory,
@@ -799,45 +766,12 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(unsign
       mUsingBodyForceFunction(false),
       mUsingTractionBoundaryConditionFunction(false)
 {
-    assert(pMaterialLaw != NULL);
-    mMaterialLaws.push_back(pMaterialLaw);
-
     assert(DIM==2 || DIM==3);
     assert(density > 0);
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 }
 
-
-template<unsigned DIM>
-AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(unsigned numDofs,
-                                                                          std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                                                                          c_vector<double,DIM> bodyForce,
-                                                                          double density,
-                                                                          std::string outputDirectory,
-                                                                          std::vector<unsigned>& fixedNodes)
-    : mKspAbsoluteTol(-1),
-      mNumDofs(numDofs),
-      mBodyForce(bodyForce),
-      mDensity(density),
-      mOutputDirectory(outputDirectory),
-      mFixedNodes(fixedNodes),
-      mNumNewtonIterations(0),
-      mUsingBodyForceFunction(false),
-      mUsingTractionBoundaryConditionFunction(false)
-{
-    mMaterialLaws.resize(rMaterialLaws.size(), NULL);
-    for (unsigned i=0; i<mMaterialLaws.size(); i++)
-    {
-        assert(rMaterialLaws[i] != NULL);
-        mMaterialLaws[i] = rMaterialLaws[i];
-    }
-
-    assert(DIM==2 || DIM==3);
-    assert(density > 0);
-    assert(fixedNodes.size() > 0);
-    mWriteOutput = (mOutputDirectory != "");
-}
 
 
 template<unsigned DIM>

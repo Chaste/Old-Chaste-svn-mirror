@@ -25,11 +25,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef NONLINEARELASTICITYSOLVER_HPP_
-#define NONLINEARELASTICITYSOLVER_HPP_
+#ifndef COMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
+#define COMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
 
 /*
  * NOTE ON COMPILATION ERRORS:
+ *
+ * (The following applies to NonlinearElasticityAssembler; possibly/probably holds for this class too).
  *
  * This file won't compile with Intel icpc version 9.1.039, with error message:
  * "Terminate with:
@@ -39,26 +41,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-///\todo: factor out Dof handling?
-
 #include "AbstractNonlinearElasticitySolver.hpp"
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractMaterialLaw.hpp"
 #include "QuadraticMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 /**
- *  Finite elasticity solver. Solves static *incompressible* nonlinear elasticity
- *  problems with arbitrary (incompressible) material laws and a body force.
+ *  Finite elasticity solver. Solves static *compressible* nonlinear elasticity
+ *  problems with arbitrary (compressible) material laws and a body force.
  *
- *  Uses quadratic-linear bases (for displacement and pressure), and is therefore
- *  outside other assembler or solver hierachy.
+ *  Uses quadratic for displacement, and is therefore outside the other assembler or solver hierachy.
  */
 template<size_t DIM>
-class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
+class CompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
-    friend class TestNonlinearElasticitySolver;
-    friend class TestNonlinearElasticityAdjointSolver;
-    friend class TestAdaptiveNonlinearElasticityProblem;
 
 protected:
 
@@ -67,11 +63,11 @@ protected:
     /** Number of nodes per element */
     static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
     /** Stencil size */
-    static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
+    static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT;
     /** Number of nodes per boundary element */
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
     /** Boundary stencil size */
-    static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
+    static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT;
 
     /**
      *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
@@ -93,16 +89,13 @@ protected:
      *  1 (same material law for all elements, ie homogeneous), or size
      *  num_elem.
      */
-    std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
+    std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
 
-    /**
-     *  The solution pressures. mPressures[i] = pressure at node i (ie
-     *  vertex i).
-     */
-    std::vector<double> mPressures;
 
 
     /**
+     * TODO:update
+     *
      * Assemble residual or jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
      * rBElem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
@@ -149,23 +142,6 @@ protected:
                                            bool assembleResidual,
                                            bool assembleJacobian);
 
-    /**
-     *  Set up the current guess to be the solution given no displacement.
-     *  The current solution (in 2d) is order as
-     *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
-     *  (where there are N total nodes and M vertices)
-     *  so the initial guess is
-     *  [0 0 0 0 ... 0 0 p1 p2 .. pM]
-     *  where p_i are such that T is zero (depends on material law).
-     *
-     *  In a homogeneous problem, all p_i are the same.
-     *  In a heterogeneous problem, p for a given vertex is the
-     *  zero-strain-pressure for ONE of the elements containing that
-     *  vertex (which element containing the vertex is reached LAST). In
-     *  this case the initial guess will be close but not exactly the
-     *  solution given zero body force.
-     */
-    void FormInitialGuess();
 
     /**
      * Assemble the residual vector (using the current solution stored
@@ -209,7 +185,7 @@ protected:
      *  @param computeDTdE A boolean flag saying whether the stress derivative is
      *    required or not.
      */ 
-    virtual void ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+    virtual void ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
                                                   c_matrix<double,DIM,DIM>& rC, 
                                                   c_matrix<double,DIM,DIM>& rInvC,
                                                   double pressure,
@@ -234,13 +210,13 @@ public:
      * @param fixedNodes
      * @param pFixedNodeLocations (defaults to NULL)
      */
-    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                              c_vector<double,DIM> bodyForce,
-                              double density,
-                              std::string outputDirectory,
-                              std::vector<unsigned>& fixedNodes,
-                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+    CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                          AbstractMaterialLaw<DIM>* pMaterialLaw,
+                                          c_vector<double,DIM> bodyForce,
+                                          double density,
+                                          std::string outputDirectory,
+                                          std::vector<unsigned>& fixedNodes,
+                                          std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /**
      * Variant constructor taking a vector of material laws.
@@ -253,16 +229,16 @@ public:
      * @param fixedNodes
      * @param pFixedNodeLocations (defaults to NULL)
      */
-    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                              c_vector<double,DIM> bodyForce,
-                              double density,
-                              std::string outputDirectory,
-                              std::vector<unsigned>& fixedNodes,
-                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+    CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                          std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
+                                          c_vector<double,DIM> bodyForce,
+                                          double density,
+                                          std::string outputDirectory,
+                                          std::vector<unsigned>& fixedNodes,
+                                          std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /** Destructor frees memory for quadrature rules. */
-    ~NonlinearElasticitySolver();
+    ~CompressibleNonlinearElasticitySolver();
 
     /**
      * Specify traction boundary conditions (if this is not called zero surface
@@ -287,14 +263,9 @@ public:
 
 
     /**
-     * Get pressures.
-     */
-    std::vector<double>& rGetPressures();
-
-    /**
      *  Get the deformed position. Note returnvalue[i](j) = x_j for node i.
      */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };
 
-#endif /*NONLINEARELASTICITYSOLVER_HPP_*/
+#endif /*COMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_*/

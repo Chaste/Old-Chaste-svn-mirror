@@ -2,6 +2,8 @@ Test1D3DLinearEllipticSolver.hpp
 TestAbstractFeObjectAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
+TestCompressibleNonlinearElasticitySolver.hpp
+TestNonlinearElasticitySolver.hpp
 TestConstBoundaryCondition.hpp
 TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp

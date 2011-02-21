@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PoleZeroMaterialLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
 #include "SchmidCostaExponentialLaw2d.hpp"
+#include "CompressibleMooneyRivlinMaterialLaw.hpp"
 #include <cassert>
 
 
@@ -947,6 +948,143 @@ public:
             }
         }
     }
+
+
+    void TestCompressibleMooneyRivlinLaw()
+    {
+        TS_ASSERT_THROWS_THIS(CompressibleMooneyRivlinMaterialLaw<3> bad_mr_law2(1.0,1.0,-1.0),"c1+c2+c3 should be equal to zero");
+
+        double c1 = 2.0;
+
+        CompressibleMooneyRivlinMaterialLaw<2> ml_law_2d(c1, 0.0, -c1);
+
+        TS_ASSERT_DELTA(ml_law_2d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_2d.GetC2(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(ml_law_2d.GetC3(), -c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
+
+        TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI3(2.0),  -c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI3(2.0), 0.0, 1e-12);
+
+
+        // compute the stress given C=delta_{MN}, obviously it should be zero
+        c_matrix<double,2,2> identity_strain_2d = identity_matrix<double>(2);
+
+        c_matrix<double,2,2> T_2d;
+        ml_law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
+                                                0.0,
+                                                T_2d);
+        for (unsigned i=0; i<2; i++)
+        {
+            for (unsigned j=0; j<2; j++)
+            {
+                TS_ASSERT_DELTA(T_2d(i,j),0.0,1e-12);
+            }
+        }
+
+
+        double c2 = 3.0;
+
+        CompressibleMooneyRivlinMaterialLaw<3> ml_law_3d(c1, c2, -c1-c2);
+
+        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI2(1.0,0.0), c2, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
+
+        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI3(2.0),  -c1-c2, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI3(2.0), 0.0, 1e-12);
+
+
+        // compute stress given a non-zero deformation
+        c_matrix<double,3,3> F;
+        F(0,0) = 3.0;
+        F(0,1) = 1.0;
+        F(1,0) = -1.0;
+        F(0,2) = 2.0;
+        F(2,0) = 1.0;
+        F(1,1) = 6.0;
+        F(1,2) = -1.0;
+        F(2,1) = 1.5;
+        F(2,2) = 0.5;
+
+        c_matrix<double,3,3> C = prod(trans(F),F);
+
+        double I1 =  Trace(C);
+
+        c_matrix<double,3,3> invC = Inverse(C);
+
+        c_matrix<double,3,3> T;
+        c_matrix<double,3,3> T2;
+        c_matrix<double,3,3> S;
+        c_matrix<double,3,3> sigma;
+
+        FourthOrderTensor<3,3,3,3> dTdE;
+
+        ml_law_3d.ComputeStressAndStressDerivative(C, invC, 0.0, T, dTdE, true);
+        ml_law_3d.Compute1stPiolaKirchoffStress(F,0.0,S);
+        ml_law_3d.Compute2ndPiolaKirchoffStress(C,0.0,T2);
+        ml_law_3d.ComputeCauchyStress(F,0.0,sigma);
+
+        c_matrix<double,3,3> FT = prod(F,T);
+        c_matrix<double,3,3> F_T_tranF_over_detF = (1.0/Determinant(F))*prod(FT,trans(F));//F*T_as_unsym_tensor*transpose(F);
+
+        c_matrix<double,3,3> T_transposeF = prod(T,trans(F));//T_as_unsym_tensor*transpose(F);
+
+
+        // check sigma is correct - sigma should be (1/detF) F * T * trans(F)
+        for (unsigned i=0; i<3; i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(sigma(i,j), F_T_tranF_over_detF(i,j), 1e-12);
+            }
+        }
+
+        // check S is correct
+        for (unsigned M=0; M<3; M++)
+        {
+            for (unsigned i=0; i<3; i++)
+            {
+                TS_ASSERT_DELTA(S(M,i), T_transposeF(M,i), 1e-12);
+            }
+        }
+
+        for (unsigned M=0; M<3; M++)
+        {
+            for (unsigned N=0; N<3; N++)
+            {
+                // check we gave a symmetric C
+                assert(C(M,N)==C(N,M));
+
+                // check the stress
+                TS_ASSERT_DELTA(T(M,N), (2*c1+2*c2*I1)*(M==N) - 2*c2*C(M,N) - 2*(c1+c2)*invC(M,N), 1e-12);
+
+                // check alternative computation of the stress
+                TS_ASSERT_DELTA(T(M,N), T2(M,N), 1e-12);
+
+                for (unsigned P=0;P<3;P++)
+                {
+                    for (unsigned Q=0;Q<3;Q++)
+                    {
+                        double true_val =   4*c2*((M==N)*(P==Q)-(M==P)*(N==Q))
+                                            + 4*(c1+c2)*invC(M,P)*invC(Q,N);
+
+                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), true_val, 1e-12);
+                    }
+                }
+            }
+        }
+
+        ml_law_3d.ScaleMaterialParameters(10);
+        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1/10, 1e-12);
+        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2/10, 1e-12);
+    }
+
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/
