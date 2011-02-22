@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLBASEDSIMULATIONARCHIVER_HPP_
 #define CELLBASEDSIMULATIONARCHIVER_HPP_
 
-// Must be included before any other serialisation headers
+// Must be included before any other serialization headers
 #include "CheckpointArchiveTypes.hpp"
 
 #include <string>

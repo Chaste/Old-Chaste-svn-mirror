@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
-// Must be included before any other serialisation headers
+// Must be included before any other serialization headers
 #include "CheckpointArchiveTypes.hpp"
 
 #include "Exception.hpp"
