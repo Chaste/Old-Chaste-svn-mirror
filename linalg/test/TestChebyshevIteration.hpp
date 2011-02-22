@@ -71,7 +71,7 @@ public:
             ls.SetMatrixIsSymmetric();
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("bjacobi");
+            ls.SetPcType("jacobi");
 
             Vec solution = ls.Solve();
 
@@ -97,7 +97,7 @@ public:
             ls.SetMatrixIsSymmetric();
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("chebychev");
-            ls.SetPcType("bjacobi");
+            ls.SetPcType("jacobi");
 
             Vec solution = ls.Solve();
 
@@ -109,8 +109,8 @@ public:
         }
         Timer::Print("Chebyshev");
 
-        TS_ASSERT_EQUALS(cg_its, 7u);
-        TS_ASSERT_EQUALS(chebyshev_its, 8u);
+        TS_ASSERT_EQUALS(cg_its, 101u);
+        TS_ASSERT_EQUALS(chebyshev_its, 175u);
 
         VecDestroy(parallel_layout);
     }
