@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if you intend to archive (save or load) a cell-based simulation in this test
  * suite. In this case, these headers must be included before any other
- * serialisation headers. */
+ * serialization headers. */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -256,7 +256,7 @@ public:
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            /* For each node we create a cell with our cell cycle model and the wild-type cell mutation state.
+            /* For each node we create a cell with our cell-cycle model and the wild-type cell mutation state.
              * We then add the property {{{MotileCellProperty}}} to a random selection of the cells, as follows. */
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);

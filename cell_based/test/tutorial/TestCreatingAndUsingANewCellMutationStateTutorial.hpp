@@ -64,7 +64,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if we intend to archive (save or load) a cell-based simulation in this test
  * suite. In this case, these headers must be included before any other
- * serialisation headers. */
+ * serialization headers. */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 

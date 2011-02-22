@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_
 
 /*
- * = Examples showing how to create, run and visualize vertex-based simulations on periodic meshes with different cell cycle models =
+ * = Examples showing how to create, run and visualize vertex-based simulations on periodic meshes with different cell-cycle models =
  *
  * EMPTYLINE
  *
@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 /* Any test in which the {{{GetIdentifier()}}} method is used, 
- * even via the main cell_based code ({{{AbstraceCellPopulation}}} output methods), must 
+ * even via the main cell_based code ({{{AbstractCellPopulation}}} output methods), must 
  * include {{{CheckpointArchiveTypes.hpp}}} 
  * or {{{CellBasedSimulationArchiver.hpp}}} as the first Chaste header included. 
  */
@@ -280,7 +280,7 @@ public:
 	*
 	* EMPTYLINE
 	*
-	* == Test 3 - create a vertex-based crypt simulation with a simple wnt dependent cell cycle model ==
+	* == Test 3 - create a vertex-based crypt simulation with a simple wnt dependent cell-cycle model ==
 	*
 	* EMPTYLINE
 	*
@@ -318,7 +318,7 @@ public:
 	/* The other change needed: Cells with a Wnt-based cell cycle need to know
 	* the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
 	* class. This is another singleton class (ie accessible from anywhere), so all
-	* cells and cell cycle models can access it. We need to say what the profile of the
+	* cells and cell-cycle models can access it. We need to say what the profile of the
 	* Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
 	* from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
 	* of the cell population.*/

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 /*
- * = Examples showing how to run crypt simulations on periodic meshes with different cell cycle models =
+ * = Examples showing how to run crypt simulations on periodic meshes with different cell-cycle models =
  *
  * EMPTYLINE
  *
@@ -77,7 +77,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * for the crypt simulation, such that the cell corresponding to each node is initially
  * in mechanical equilibrium with its neighours. */
 #include "CylindricalHoneycombMeshGenerator.hpp"
-/* The next header file defines a {{{CellPopulation}}} class that uses a tetrahedral mesh, and allows
+/* The next header file defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
  * for the inclusion of 'ghost nodes'. These are nodes in the mesh that do not correspond
  * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
  * at each timestep (since the triangulation algorithm requires a convex hull). */
@@ -89,13 +89,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 /*
  * The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
- * specialized to deal with the cylindrical crypt model.
+ * specialized to deal with the cylindrical crypt geometry.
  */
 #include "CryptSimulation2d.hpp"
 /*
  * The next header file defines a Wnt singleton class, which (if used) deals with the
  * imposed Wnt gradient in our crypt model. This affects cell proliferation in the case
- * where we construct each cell with a {{{WntCellCycleModel}}.
+ * where we construct each cell with a {{{WntCellCycleModel}}}.
  */
 #include "WntConcentration.hpp"
 /*
@@ -112,7 +112,7 @@ class TestRunningCryptSimulationsTutorial : public CxxTest::TestSuite
 public:
     /* EMPTYLINE
      *
-     * == Test 1 - a basic crypt simulation ==
+     * == Test 1: a basic crypt simulation ==
      *
      * EMPTYLINE
      *
@@ -120,7 +120,7 @@ public:
      * cylindrical mesh, with each cell progressing through a fixed cell-cycle model,
      * and sloughing enforced at the top of the crypt.
      */
-    void TestCryptFixedCellCycle() throw(Exception)
+    void TestCryptWithFixedCellCycle() throw(Exception)
     {
         /* As in '''all''' cell-based simulations, we must first set the start time.
          */
@@ -129,8 +129,8 @@ public:
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left- and right-hand sides of the mesh, we
          * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
-         * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use
-         * the {{{CylindricalHoneycombMeshGenerator}}}. This generates a periodic honeycomb-shaped mesh,
+         * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use a helper class called
+         * {{{CylindricalHoneycombMeshGenerator}}}. This generates a periodic honeycomb-shaped mesh,
          * in which all nodes are equidistant to their neighbours. Here the first and second arguments
          * define the size of the mesh - we have chosen a mesh that is 6 nodes (i.e.
          * cells) wide, and 9 nodes high. The third argument indicates that we require
@@ -168,7 +168,7 @@ public:
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /*
-         * Next we use the ''CellPopulation'' object to construct a {{{CryptSimulation2d}}} object,
+         * Next we use the {{{CellPopulation}}} object to construct a {{{CryptSimulation2d}}} object,
          * which will be used to simulate the crypt model. */
         CryptSimulation2d simulator(cell_population);
 
@@ -222,19 +222,19 @@ public:
      * Finally, to visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
      * You may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
+     * java executable. For further details on visualization, see RunningCellBasedVisualization.
      *
      * EMPTYLINE
      *
-     * == Test 2 - a Wnt-dependent crypt simulation ==
+     * == Test 2: a Wnt-dependent crypt simulation ==
      *
      * EMPTYLINE
      *
      * The next test is very similar to Test 1, except that instead of
-     * using a fixed cell-cycle model, we use a Wnt-dependent cell cycle model,
+     * using a fixed cell-cycle model, we use a Wnt-dependent cell-cycle model,
      * with the Wnt concentration varying within the crypt in a predefined manner.
      */
-    void TestCryptWntCellCycle() throw(Exception)
+    void TestCryptWithWntCellCycle() throw(Exception)
     {
         /* First re-initialize time to zero and reseed the random number generator. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -251,7 +251,7 @@ public:
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Create the cell_population, as before. */
+        /* Create the cell population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /*
@@ -264,7 +264,7 @@ public:
          * When using a {{{WntCellCycleModel}}}, we need a way of telling each cell what the Wnt concentration
          * is at its location. To do this, we set up a {{{WntConcentration}}} object. Like {{{SimulationTime}}},
          * {{{WntConcentration}}} is a singleton class, so when instantiated it is accessible from anywhere in
-         * the code (and in particular, all cells and cell cycle models can access it). We need to say what 
+         * the code (and in particular, all cells and cell-cycle models can access it). We need to say what 
          * the profile of the Wnt concentation should be up the crypt: here, we say it is {{{LINEAR}}} (linear
          * decreasing from 1 to 0 from the bottom of the crypt to the top). We also need to inform the
          * {{{WntConcentration}}} of the cell population and the height of the crypt.
@@ -297,6 +297,6 @@ public:
     /*
      * EMPTYLINE
      *
-     * The results of this test can be visualized as in Test 1, just with the different output directory.
+     * The results of this test can be visualized as in Test 1, with the correct output directory.
      */
 #endif /*TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_*/

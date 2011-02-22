@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two headers are used in archiving, and only need to be included
  * if you want to be able to archive (save or load) the new cell killer object
  * in a cell-based simulation (in this case, these headers must be included before
- * any other serialisation headers). */
+ * any other serialization headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -213,7 +213,7 @@ public:
     /*
      * == Testing the cell killer ==
      *
-     * We begin by testing that our new cell cycle model is implemented correctly.
+     * We begin by testing that our new cell-cycle model is implemented correctly.
      */
     void TestMyCellKiller() throw(Exception)
     {

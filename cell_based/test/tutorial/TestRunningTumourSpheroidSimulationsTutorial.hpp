@@ -80,7 +80,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in the crypt simulation tutorial we used a helper class ({{{CryptCellsGenerator}}}) that
  * allowed us to avoid having to construct cells directly.
  */
- #include "SimpleOxygenBasedCellCycleModel.hpp"
+#include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
 /* 
  * The next header file defines a PDE that describes how oxygen is transported via through the
@@ -157,7 +157,7 @@ public:
              * ...then create a cell, giving it a {{{SimpleOxygenBasedCellCycleModel}}}.
              * The spatial dimension (1, 2 or 3) and
              * cell proliferative type (STEM, TRANSIT or DIFFERENTIATED) needs to be
-             * set on the cell cycle model before it is passed to the cell.
+             * set on the cell-cycle model before it is passed to the cell.
              */
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
@@ -219,9 +219,9 @@ public:
          * This will be passed into the {{{CellBasedSimulationWithPdes}}} object. The
          * {{{CellwiseSourcePde}}} is a {{{PDE}}} class which inherits from
          * {{{AbstractLinearEllipticPde}}} and represents
-         * the PDE ''u_xx'' + ''u_yy'' = ''k''(''x'',''y'') u'', where ''u''(''x'',''y'') denotes
+         * the PDE ''u_xx'' + ''u_yy'' = ''k''(''x'',''y'') ''u'', where ''u''(''x'',''y'') denotes
          * the oxygen concentration at
-         * position (''x'',''y'') and the function ''k(x,y)'' specifies the rate of consumption by live cells
+         * position (''x'',''y'') and the function ''k''(''x'',''y'') specifies the rate of consumption by live cells
          * there. Here ''k''(''x'',''y'')'' takes the value -0.03 (the coefficient below) if
          * the cell located at (''x'',''y'') is a live cell, and zero if the cell has died due
          * to oxygen deprivation.
@@ -285,7 +285,7 @@ public:
 
         /*
          * Finally, call {{{Destroy()}}} on the singleton classes. The results
-         * can be visualised as in the crypt simulation tutorial.
+         * can be visualized as in the crypt simulation tutorial.
          */
         SimulationTime::Destroy();
         CellwiseData<2>::Destroy();

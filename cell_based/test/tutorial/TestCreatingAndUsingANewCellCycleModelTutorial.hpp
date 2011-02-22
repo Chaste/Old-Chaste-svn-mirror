@@ -38,47 +38,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCREATINGANDUSINGANEWCELLCYCLEMODELTUTORIAL_HPP_
 
 /*
- * = An example showing how to create a new cell cycle model and use it in a cell-based simulation =
+ * = An example showing how to create a new cell-cycle model and use it in a cell-based simulation =
  *
  * == Introduction ==
  *
- * In this tutorial we show how to create a new cell cycle model class and how this
+ * In this tutorial we show how to create a new cell-cycle model class and how this
  * can be used in a cell-based simulation.
  *
- * == 1. Including header files ==
+ * == Including header files ==
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test):
- */
+ * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
 
 /* The next two headers are used in archiving, and only need to be included
- * if you want to be able to archive (save or load) the new cell killer object
+ * if you want to be able to archive (save or load) the new cell-cycle model object
  * in a cell-based simulation (in this case, these headers must be included before
- * any other serialisation headers). */
+ * any other serialization headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-/* The next header defines a base class for simple generation-based cell
- * cycle models.
- *
- * A cell cycle model is 'simple' if the duration of each phase of the cell
- * cycle is determined when the cell cycle model is created, rather than
- * evaluated 'on the fly' (e.g. by solving a system of ordinary differential
+/* The next header defines a base class for simple generation-based cell-cycle models. 
+ * A cell-cycle model is ''simple'' if the duration of each phase of the cell
+ * cycle is determined when the cell-cycle model is created, rather than
+ * evaluated on the fly (e.g. by solving a system of ordinary differential
  * equations for the concentrations of key cell cycle proteins), and may
- * depend on the cell type.
- *
- * A simple cell cycle model is generation-based if it keeps track of the
+ * depend on the cell type. A simple cell-cycle model is ''generation-based'' if it keeps track of the
  * generation of the corresponding cell, and sets the cell type according
  * to this.
  *
- * Our new cell cycle model will inherit from this abstract class. */
+ * Our new cell-cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
- * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines
+ * class for testing a cell-cycle model; {{{HoneycombMeshGenerator}}} defines
  * a helper class for generating a suitable mesh; {{{WildTypeCellMutationState}}}
  * defines a wild-type or 'healthy' cell mutation state; {{{GeneralisedLinearSpringForce}}}
  * defines a force law for describing the mechanical interactions between neighbouring
@@ -91,17 +84,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 
 /*
- * == Defining the cell cycle model class ==
+ * == Defining the cell-cycle model class ==
  *
- * As an example, let us consider a cell cycle model in which the durations
+ * As an example, let us consider a cell-cycle model in which the durations
  * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential
- * random variable with rate parameter lambda.
- *
- * The rate parameter is a constant, dependent on cell type, whose value is
+ * random variable with rate parameter lambda. This rate parameter is a constant, dependent on cell type, whose value is
  * chosen such that the mean of the distribution, 1/lambda, equals the mean
  * G1 duration as defined in the {{{AbstractCellCycleModel}}} class.
  *
- * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}},
+ * To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
  * 
@@ -113,7 +104,7 @@ class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 private:
 
     /* You only need to include the next block of code if you want to be able
-     * to archive (save or load) the cell cycle model object in a cell-based simulation.
+     * to archive (save or load) the cell-cycle model object in a cell-based simulation.
      * The code consists of a serialize method, in which we first archive the cell
      * cycle model using the serialization code defined in the base class
      * {{{AbstractSimpleGenerationBasedCellCycleModel}}}. We then archive an instance
@@ -174,13 +165,13 @@ public:
     {}
 
     /* The second public method overrides {{{CreateCellCycleModel()}}}. This is a
-     * builder method to create new copies of the cell cycle model. */
+     * builder method to create new copies of the cell-cycle model. */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
-        // Create a new cell cycle model
+        // Create a new cell-cycle model
         MyCellCycleModel* p_model = new MyCellCycleModel();
         
-        // Set the values of the new cell cycle model's member variables
+        // Set the values of the new cell-cycle model's member variables
         p_model->SetGeneration(mGeneration);
         p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
 
@@ -189,16 +180,16 @@ public:
 };
 
 /* You need to include the next block of code if you want to be able to archive (save or load)
- * the cell cycle model object in a cell-based simulation.  It is also required for writing out
+ * the cell-cycle model object in a cell-based simulation.  It is also required for writing out
  * the parameters file describing the settings for a simulation - it provides the unique
- * identifier for our new cell cycle model.  Thus every cell cycle model class must provide this,
+ * identifier for our new cell-cycle model.  Thus every cell-cycle model class must provide this,
  * or you'll get errors when running simulations. */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
-/* Since we're defining the new cell cycle model within the test file, we need to include the
+/* Since we're defining the new cell-cycle model within the test file, we need to include the
  * following stanza as well, to make the code work with newer versions of the Boost libraries.
- * Normally the above export declaration would occur in the cell cycle model's .hpp file, and
+ * Normally the above export declaration would occur in the cell-cycle model's .hpp file, and
  * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
  * more information.
  */
@@ -218,9 +209,9 @@ class TestCreatingAndUsingANewCellCycleModelTutorial : public CxxTest::TestSuite
 public:
 
     /*
-     * == Testing the cell cycle model ==
+     * == Testing the cell-cycle model ==
      *
-     * We begin by testing that our new cell cycle model is implemented correctly.
+     * We begin by testing that our new cell-cycle model is implemented correctly.
      */
     void TestMyCellCycleModel() throw(Exception)
     {
@@ -300,7 +291,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
 
-            /* Create a cell with associated cell cycle model. */
+            /* Create a cell with associated cell-cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel;
             p_model->SetCellProliferativeType(TRANSIT);
             CellPtr p_cell(new Cell(p_state, p_model));
@@ -316,7 +307,7 @@ public:
 
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
 
-            /* Now archive the cell cycle model through its cell. */
+            /* Now archive the cell-cycle model through its cell. */
             CellPtr const p_const_cell = p_cell;
 
             std::ofstream ofs(archive_filename.c_str());
@@ -360,7 +351,7 @@ public:
     }
 
     /*
-     * == Using the cell cycle model in a cell-based simulation ==
+     * == Using the cell-cycle model in a cell-based simulation ==
      *
      * We conclude with a brief test demonstrating how {{{MyCellCycleModel}}} can be used
      * in a cell-based simulation.
@@ -383,7 +374,7 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            /* For each node we create a cell with our cell cycle model. */
+            /* For each node we create a cell with our cell-cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
             CellPtr p_cell(new Cell(p_state, p_model));
