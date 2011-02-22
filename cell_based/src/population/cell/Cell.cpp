@@ -68,12 +68,12 @@ Cell::Cell(boost::shared_ptr<AbstractCellProperty> pMutationState,
 {
     if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
-        EXCEPTION("Cell is setting up a cell cycle model but SimulationTime has not been set up");
+        EXCEPTION("Cell is setting up a cell-cycle model but SimulationTime has not been set up");
     }
 
     if (pCellCycleModel == NULL)
     {
-        EXCEPTION("Cell cycle model is null");
+        EXCEPTION("Cell-cycle model is null");
     }
 
     mpCellCycleModel->SetCell(CellPtr(this, null_deleter()));

@@ -82,12 +82,12 @@ private :
 protected:
 
     /**
-    * Spring stiffness.
-    *
-    * Represented by the parameter mu in the model by Meineke et al (2001) in
-    * their off-lattice model of the intestinal crypt
-    * (doi:10.1046/j.0960-7722.2001.00216.x).
-    */
+     * Spring stiffness.
+     *
+     * Represented by the parameter mu in the model by Meineke et al (2001) in
+     * their off-lattice model of the intestinal crypt
+     * (doi:10.1046/j.0960-7722.2001.00216.x).
+     */
     double mMeinekeSpringStiffness;
 
     /**
@@ -106,7 +106,6 @@ protected:
      * The value of this parameter is usually the same as the M Phase of the cell cycle and defaults to 1.
      */
     double mMeinekeSpringGrowthDuration;
-
 
 public :
 
@@ -158,10 +157,12 @@ public :
      * @return mMeinekeSpringStiffness
      */
     double GetMeinekeSpringStiffness();
+
     /**
      * @return mMeinekeDivisionRestingSpringLength
      */
     double GetMeinekeDivisionRestingSpringLength();
+
     /**
      * @return mMeinekeSpringGrowthDuration
      */
@@ -173,6 +174,7 @@ public :
      * @param springStiffness the new value of mMeinekeSpringStiffness
      */
     void SetMeinekeSpringStiffness(double springStiffness);
+
     /**
      * Set mMeinekeDivisionRestingSpringLength.
      *

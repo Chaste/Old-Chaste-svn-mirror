@@ -58,10 +58,10 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 
 AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     Alarcon2004OxygenBasedCellCycleModel* p_model = new Alarcon2004OxygenBasedCellCycleModel(mpOdeSolver);
 
-    // Create the new cell cycle model's ODE system
+    // Create the new cell-cycle model's ODE system
     bool is_labelled = mpCell->HasCellProperty<CellLabel>();
     switch (mDimension)
     {
@@ -87,11 +87,11 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleMod
             NEVER_REACHED;
     }
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
     assert(mpOdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetLastTime(mLastTime);
     p_model->SetDivideTime(mDivideTime);
     p_model->SetFinishedRunningOdes(mFinishedRunningOdes);

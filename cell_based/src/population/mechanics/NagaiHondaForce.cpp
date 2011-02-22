@@ -243,7 +243,7 @@ double NagaiHondaForce<DIM>::GetTargetAreaOfCell(const CellPtr pCell) const
     // If the cell is differentiated then its G1 duration is infinite
     if (g1_duration == DBL_MAX) // don't use magic number, compare to DBL_MAX
     {
-        // This is just for fixed cell cycle models, need to work out how to find the g1 duration
+        // This is just for fixed cell-cycle models, need to work out how to find the g1 duration
         g1_duration = pCell->GetCellCycleModel()->GetTransitCellG1Duration();
     }
 

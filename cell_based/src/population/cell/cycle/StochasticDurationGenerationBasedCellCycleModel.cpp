@@ -34,10 +34,10 @@ StochasticDurationGenerationBasedCellCycleModel::StochasticDurationGenerationBas
 
 AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetGeneration(mGeneration);
     p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
     p_model->SetCellProliferativeType(mCellProliferativeType);

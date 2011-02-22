@@ -79,9 +79,9 @@ public:
         p_cell->InitialiseCellCycleModel();
 
         /*
-         * For coverage, we create another cell cycle model that is identical except that we
+         * For coverage, we create another cell-cycle model that is identical except that we
          * manually pass in an ODE solver. In this case, our ODE solver (BackwardEulerIvpOdeSolver)
-         * is the same type as the solver used by the cell cycle model if no solver is provided
+         * is the same type as the solver used by the cell-cycle model if no solver is provided
          * (unless CVODE is used), so our results should be identical.
          */
         boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
@@ -183,9 +183,9 @@ public:
 
     /**
      * Test for Tyson & Novak self-cycling cells without having their
-     * initial conditions reset. When using CVODE, the cell cycle model
+     * initial conditions reset. When using CVODE, the cell-cycle model
      * resets itself by halving the mass of the cell.
-     * When not using CVODE, the cell cycle model resets its initial
+     * When not using CVODE, the cell-cycle model resets its initial
      * conditions, since the oscillatory solution computed using the Chaste
      * ODE solver is not stable.
      */
@@ -196,7 +196,7 @@ public:
         double standard_divide_time = 75.19/60.0;
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(100.1*standard_divide_time, num_timesteps);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         TysonNovakCellCycleModel* p_repeating_cell_model = new TysonNovakCellCycleModel;
         p_repeating_cell_model->SetCellProliferativeType(STEM);
 
@@ -205,7 +205,7 @@ public:
         CellPtr p_tyson_novak_cell(new Cell(p_mutation, p_repeating_cell_model));
         p_tyson_novak_cell->InitialiseCellCycleModel();
 
-        // Run through the cell cycle model for a certain duration
+        // Run through the cell-cycle model for a certain duration
         // and test how many times it has stopped for division
         unsigned num_divisions = 0;
         for (unsigned i=0; i<num_timesteps; i++)
@@ -258,7 +258,7 @@ public:
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
         CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // Create cell cycle models
+        // Create cell-cycle models
         Alarcon2004OxygenBasedCellCycleModel* p_model_1d = new Alarcon2004OxygenBasedCellCycleModel();
         p_model_1d->SetDimension(1);
         p_model_1d->SetCellProliferativeType(STEM);
@@ -283,7 +283,7 @@ public:
         CellPtr p_cell_3d(new Cell(p_state, p_model_3d));
         p_cell_3d->InitialiseCellCycleModel();
 
-        // For coverage, we create another cell cycle model that is identical to p_model_2d except for the ODE solver
+        // For coverage, we create another cell-cycle model that is identical to p_model_2d except for the ODE solver
         boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
             p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
         p_solver->Initialise();
@@ -295,7 +295,7 @@ public:
         CellPtr p_other_cell_2d(new Cell(p_state, p_other_model_2d));
         p_other_cell_2d->InitialiseCellCycleModel();
 
-        // Check oxygen concentration is correct in cell cycle model
+        // Check oxygen concentration is correct in cell-cycle model
         TS_ASSERT_DELTA(p_model_2d->GetProteinConcentrations()[5], 1.0, 1e-5);
         TS_ASSERT_EQUALS(p_model_2d->ReadyToDivide(), false);
 
@@ -361,7 +361,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
             p_model->SetCellProliferativeType(TRANSIT);
 
@@ -424,7 +424,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);

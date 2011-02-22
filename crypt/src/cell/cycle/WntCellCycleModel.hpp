@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 
 /**
- * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
+ * Wnt-dependent cell-cycle model. Needs to operate with a WntConcentration
  * singleton object.
  *
  * This model has a constant length M phase, runs ODEs to decide when
@@ -55,7 +55,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and ODE system.
+     * Archive the cell-cycle model and ODE system.
      *
      * @param archive the archive
      * @param version the archive version
@@ -87,18 +87,18 @@ public:
     /**
      * Default constructor.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This overridden method sets up a new WntCellCycleOdeSystem
      * and sets the cell type according to the current beta catenin
@@ -107,7 +107,7 @@ public:
     void Initialise();
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

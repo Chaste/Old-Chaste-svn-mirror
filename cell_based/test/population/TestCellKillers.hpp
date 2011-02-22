@@ -244,7 +244,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Set some model parameters for the cell cycle model
+        // Set some model parameters for the cell-cycle model
         for (unsigned index=0; index < cells.size(); index++)
 		{
         	cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);

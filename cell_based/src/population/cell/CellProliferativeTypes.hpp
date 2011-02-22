@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * The possible proliferative types of a Cell. This property of a cell is
- * updated by its cell cycle model.
+ * updated by its cell-cycle model.
  */
 typedef enum CellProliferativeType_
 {

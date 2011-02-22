@@ -36,10 +36,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  Tyson-Novak 2001 cell cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
+ *  Tyson-Novak 2001 cell-cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
  *
  *  Note that this is not a model for murine or human colonic-cell cycling, but is
- *  included in chaste as one of the most commonly known ODE based cell cycle models.
+ *  included in chaste as one of the most commonly known ODE based cell-cycle models.
  *
  *  Time taken to progress through the cycle is deterministic and given by
  *  an ODE system independent of external factors.
@@ -53,7 +53,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -69,12 +69,12 @@ public:
     /**
      * Default constructor.
      *
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This method will be called precisely once per cell set up in the initial
      * cell population. It is not called on cell division; use ResetForDivision(),
@@ -87,14 +87,14 @@ public:
     void Initialise();
 
     /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
+     * Reset cell-cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */
     void ResetForDivision();
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 

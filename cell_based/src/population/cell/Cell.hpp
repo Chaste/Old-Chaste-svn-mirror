@@ -53,7 +53,7 @@ typedef boost::shared_ptr<Cell> CellPtr;
 
 /**
  * Cell is the basic container for all the biological information about a cell.
- * It contains the cell cycle model and all other biological properties such as mutation
+ * It contains the cell-cycle model and all other biological properties such as mutation
  * state, cell type, whether it is undergoing apoptosis or not.
  *
  * This class should not store any spatial information - cells are linked to space by the AbstractCellPopulation subclasses.
@@ -136,7 +136,7 @@ public:
      * Create a new cell.
      *
      * @param pMutationState the mutation state of the cell
-     * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
+     * @param pCellCycleModel  the cell-cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently! (defaults to false)
      * @param cellPropertyCollection the cell property collection (defaults to NULL)
@@ -147,7 +147,7 @@ public:
                CellPropertyCollection cellPropertyCollection=CellPropertyCollection());
 
     /**
-     * Destructor, which frees the memory allocated for our cell cycle model.
+     * Destructor, which frees the memory allocated for our cell-cycle model.
      */
     ~Cell();
 
@@ -159,29 +159,29 @@ public:
     void SetBirthTime(double birthTime);
 
     /**
-     * Change the cell cycle model used. This takes effect immediately.
+     * Change the cell-cycle model used. This takes effect immediately.
      *
-     * @param pCellCycleModel pointer to the cell cycle model to use
+     * @param pCellCycleModel pointer to the cell-cycle model to use
      */
     void SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel);
 
     /**
-     * Returns a pointer to the Cell's cell cycle model.
+     * Returns a pointer to the Cell's cell-cycle model.
      */
     AbstractCellCycleModel* GetCellCycleModel() const;
 
     /**
-     * Calls Initialise on the cell cycle model associated with this cell.
+     * Calls Initialise on the cell-cycle model associated with this cell.
      */
     void InitialiseCellCycleModel();
 
     /**
-     * Get the cell's age from its cell cycle model.
+     * Get the cell's age from its cell-cycle model.
      */
     double GetAge() const;
 
     /**
-     * Get the cell's birth time from its cell cycle model.
+     * Get the cell's birth time from its cell-cycle model.
      */
     double GetBirthTime() const;
 

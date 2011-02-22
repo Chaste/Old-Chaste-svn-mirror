@@ -32,9 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 
 /**
- * Stochastic oxygen-based cell cycle model.
+ * Stochastic oxygen-based cell-cycle model.
  *
- * A simple oxygen-dependent cell cycle model that inherits from
+ * A simple oxygen-dependent cell-cycle model that inherits from
  * SimpleOxygenBasedCellCycleModel and in addition spends a random
  * duration in G2 phase.
  */
@@ -80,7 +80,7 @@ public:
     void InitialiseDaughterCell();
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      */
     void Initialise();
 
@@ -103,7 +103,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 

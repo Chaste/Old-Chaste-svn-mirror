@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 /**
- *  Fixed cell cycle model.
+ *  Fixed cell-cycle model.
  *
  *  Cell cycle time is deterministic for stem and transit cells (with values
  *  StemCellG1Duration + SG2MDuration
@@ -44,7 +44,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -66,7 +66,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 

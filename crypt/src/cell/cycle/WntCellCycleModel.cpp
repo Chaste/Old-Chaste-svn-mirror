@@ -47,18 +47,18 @@ WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOde
 
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     WntCellCycleModel* p_model = new WntCellCycleModel(mpOdeSolver);
 
-    // Create the new cell cycle model's ODE system
+    // Create the new cell-cycle model's ODE system
     double wnt_level = GetWntLevel();
     p_model->SetOdeSystem(new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState()));
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
     assert(mpOdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetBirthTime(mBirthTime);
     p_model->SetLastTime(mLastTime);
     p_model->SetDivideTime(mDivideTime);

@@ -51,7 +51,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and member variables.
+     * Archive the cell-cycle model and member variables.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -71,7 +71,7 @@ protected:
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor. */
     double mDivideTime;
 
-    /** Whether the cell cycle model is currently in a delay (not solving ODEs). */
+    /** Whether the cell-cycle model is currently in a delay (not solving ODEs). */
     bool mFinishedRunningOdes;
 
     /** The start time for the G2 phase. */
@@ -85,7 +85,7 @@ public:
      * cells which did not divide at the current time.
      *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetTime(),
                                    boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
@@ -96,7 +96,7 @@ public:
     virtual ~AbstractOdeBasedCellCycleModel();
 
     /**
-     * Default UpdateCellCyclePhase() method for an ODE-based cell cycle model.
+     * Default UpdateCellCyclePhase() method for an ODE-based cell-cycle model.
      * This method calls SolveOdeToTime() for G1 phase and adds time for the other phases.
      *
      * Can be overridden if they should do something more subtle.
@@ -114,7 +114,7 @@ public:
 
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)
-     * because an ODE based cell cycle model has more to reset...
+     * because an ODE based cell-cycle model has more to reset...
      *
      * @param birthTime the simulation time when the cell was born
      */

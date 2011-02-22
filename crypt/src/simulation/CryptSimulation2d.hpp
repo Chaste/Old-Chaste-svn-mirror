@@ -69,7 +69,7 @@ protected:
     bool mUseJiggledBottomCells;
 
     /**
-     * Whether the simulation includes the cell cycle models
+     * Whether the simulation includes the cell-cycle models
      * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne or
      * VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, and
      * hence whether beta catenin results are written to file.

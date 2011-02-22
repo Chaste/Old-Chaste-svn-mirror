@@ -223,7 +223,7 @@ public:
     virtual ~AbstractCellPopulation();
 
     /**
-     * Initialise each cell's cell cycle model.
+     * Initialise each cell's cell-cycle model.
      */
     void InitialiseCells();
 

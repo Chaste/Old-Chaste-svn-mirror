@@ -65,7 +65,7 @@ bool ClassesAreSame()
 /**
  * A subclass of CellsGenerator that generates cells for crypt simulations.
  *
- * It is templated over types of cell cycle model.
+ * It is templated over types of cell-cycle model.
  */
 template<class CELL_CYCLE_MODEL>
 class CryptCellsGenerator : public CellsGenerator<CELL_CYCLE_MODEL,2>
@@ -86,7 +86,7 @@ public:
      * @param y1  below this line cells are generation 1 (defaults to 2.0)
      * @param y2  below this line cells are generation 2 (defaults to 3.0)
      * @param y3  below this line cells are generation 3 (defaults to 4.0)
-     * @param initialiseCells  whether to initialise the cell cycle models as each
+     * @param initialiseCells  whether to initialise the cell-cycle models as each
      *   cell is created
      */
     void Generate(std::vector<CellPtr>& rCells,

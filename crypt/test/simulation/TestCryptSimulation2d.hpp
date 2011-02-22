@@ -893,7 +893,7 @@ public:
      * and try to come together to simulate birth.
      *
      * It is potentially an expensive test computationally, because all
-     * Wnt cells have to run cell cycle models for a large time
+     * Wnt cells have to run cell-cycle models for a large time
      * to be 'mature' cells which won't shrink together.
      * Limited this by using only four cells of minimum age.
      */
@@ -928,7 +928,7 @@ public:
         crypt.SetOutputCellAges(true);
 
         AbstractCellPopulation<2>::Iterator cell_iterator = crypt.Begin();
-        cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+        cell_iterator->SetBirthTime(-1.0);   // Make cell-cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
 

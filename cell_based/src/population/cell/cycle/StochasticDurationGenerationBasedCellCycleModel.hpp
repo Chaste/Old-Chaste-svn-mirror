@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * A stochastic cell cycle model employed by Meineke et al (2001) in their off-lattice
+ * A stochastic cell-cycle model employed by Meineke et al (2001) in their off-lattice
  * model of the intestinal crypt (doi:10.1046/j.0960-7722.2001.00216.x).
  */
 class StochasticDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
@@ -46,7 +46,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and random number generator, never used directly - boost uses this.
+     * Archive the cell-cycle model and random number generator, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -79,7 +79,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 

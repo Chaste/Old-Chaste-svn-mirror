@@ -44,7 +44,7 @@ CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
 
     /*
      * To check if beta-catenin results will be written to file, we test if the first
-     * cell has a cell cycle model that is a subclass of AbstractVanLeeuwen2009WntSwatCellCycleModel.
+     * cell has a cell-cycle model that is a subclass of AbstractVanLeeuwen2009WntSwatCellCycleModel.
      * In doing so, we assume that all cells in the simulation have the same cell cycle
      * model.
      */

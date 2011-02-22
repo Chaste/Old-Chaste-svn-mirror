@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Wnt-dependent cell cycle model.
+ * Wnt-dependent cell-cycle model.
  */
 class AbstractVanLeeuwen2009WntSwatCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
@@ -51,7 +51,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -82,7 +82,7 @@ public:
     /**
      * Default constructor.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     AbstractVanLeeuwen2009WntSwatCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
@@ -119,7 +119,7 @@ public:
     virtual void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)=0;
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

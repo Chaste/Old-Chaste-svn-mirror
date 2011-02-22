@@ -58,7 +58,7 @@ public:
         // Create a cell mutation state
         boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
 
-        // Create a cell cycle model
+        // Create a cell-cycle model
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(TRANSIT);
 
@@ -70,7 +70,7 @@ public:
         TS_ASSERT_EQUALS(p_cell->GetCellId(), 0u);
         TS_ASSERT_DELTA(p_cell->GetBirthTime(), -0.5, 1e-6);
 
-        // Test members of cell through cell cycle model
+        // Test members of cell through cell-cycle model
         TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCell()->GetCellId(), 0u);
         TS_ASSERT_DELTA(p_cell->GetCellCycleModel()->GetCell()->GetBirthTime(), -0.5, 1e-6);
     }
@@ -84,7 +84,7 @@ public:
         // Create a cell mutation state
         boost::shared_ptr<AbstractCellProperty> p_wild_type(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        // Create a cell cycle model
+        // Create a cell-cycle model
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
 
@@ -207,7 +207,7 @@ public:
         boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         TS_ASSERT_THROWS_THIS(CellPtr p_bad_cell(new Cell(p_healthy_state, &fixed_model)),
-                              "Cell is setting up a cell cycle model but SimulationTime has not been set up");
+                              "Cell is setting up a cell-cycle model but SimulationTime has not been set up");
 
         // Cell wasn't created - count should be zero
         TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
@@ -217,7 +217,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
         TS_ASSERT_THROWS_THIS(CellPtr p_stem_cell(new Cell(p_healthy_state, NULL)),
-                              "Cell cycle model is null");
+                              "Cell-cycle model is null");
 
         // Cell wasn't created - count should be zero
         TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
@@ -269,11 +269,11 @@ public:
         // We are going to start at t=0 and jump up in steps of 6.0
         p_simulation_time->IncrementTimeOneStep(); //t=6
 
-        // Cover bad cell cycle model
+        // Cover bad cell-cycle model
 
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        TS_ASSERT_THROWS_THIS(CellPtr p_bad_cell2(new Cell(p_healthy_state, NULL)), "Cell cycle model is null");
+        TS_ASSERT_THROWS_THIS(CellPtr p_bad_cell2(new Cell(p_healthy_state, NULL)), "Cell-cycle model is null");
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -430,13 +430,13 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours
+        //  Creating different types of cells with different cell-cycle models at SimulationTime = 6 hours
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel();
         p_stem_model->SetCellProliferativeType(STEM);
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
 
-        // This test needs particular cell cycle times could also test for other cell cycle models
+        // This test needs particular cell cycle times could also test for other cell-cycle models
         TS_ASSERT_DELTA(p_stem_model->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_stem_model->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_stem_model->GetSG2MDuration(), 10.0, 1e-12);
@@ -498,7 +498,7 @@ public:
 
     void TestStochasticCycleModel() throw(Exception)
     {
-        // Go up in steps of 0.01 to test stochasticity in cell cycle models
+        // Go up in steps of 0.01 to test stochasticity in cell-cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
 
@@ -747,7 +747,7 @@ public:
     }
 
     /*
-     * We are checking that the CellPtrs work with the T&N cell cycle models here
+     * We are checking that the CellPtrs work with the T&N cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.

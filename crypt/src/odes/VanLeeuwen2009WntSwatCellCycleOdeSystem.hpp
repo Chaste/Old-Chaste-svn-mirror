@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs
  * [doi:10.1016/j.jtbi.2007.01.019]
- * coupled to the Swat et al. cell cycle model equations.
+ * coupled to the Swat et al. cell-cycle model equations.
  * [doi:10.1093/bioinformatics/bth110]
  *
  *
@@ -240,7 +240,7 @@ public:
     /**
      * Set the mutation state of the cell.
      *
-     * This should be called by the relevant cell cycle model before any solving
+     * This should be called by the relevant cell-cycle model before any solving
      * of the ODE system (as it is used to evaluate the Y derivatives).
      *
      * @param pMutationState the mutation state.
@@ -248,7 +248,7 @@ public:
     void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
 
     /**
-     * Called by the archive function on the Wnt cell cycle model.
+     * Called by the archive function on the Wnt cell-cycle model.
      *
      * @return #mpMutationState the mutation state of the cell.
      */

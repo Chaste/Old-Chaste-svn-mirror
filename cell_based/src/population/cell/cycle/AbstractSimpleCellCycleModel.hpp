@@ -35,10 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCycleModel.hpp"
 
 /**
- * This class contains all the things common to 'simple' cell cycle models
+ * This class contains all the things common to 'simple' cell-cycle models
  *
  * i.e. models where the length of cell cycle phases are determined when
- * the cell cycle model is created, rather than evaluated 'on the fly' by ODEs and suchlike.
+ * the cell-cycle model is created, rather than evaluated 'on the fly' by ODEs and suchlike.
  *
  * N.B. Whether or not the cell should actually divide may still depend on
  * Wnt / Oxygen etc. in subclasses...
@@ -50,7 +50,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model.
+     * Archive the cell-cycle model.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -86,7 +86,7 @@ public:
     virtual void ResetForDivision();
 
     /**
-     * Default UpdateCellCyclePhase() method for a simple cell cycle model.
+     * Default UpdateCellCyclePhase() method for a simple cell-cycle model.
      *
      * Can be overridden if they should do something more subtle.
      */

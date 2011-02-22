@@ -630,9 +630,9 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
 
     *rParamsFile << "\t<CellCycleModels>\n";
 
-    /*
-     * Loop over cells to access cell cycle models to find unique ones
-     * TODO this currently ignores different parameter regimes. #1453.
+    /**
+     * Loop over cells to access cell-cycle models to find unique ones
+     * \todo this currently ignores different parameter regimes (#1453)
      */
     std::set<std::string> unique_cell_cycle_models;
     std::vector<CellPtr> first_cell_with_unique_CCM;
@@ -646,10 +646,10 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
         }
     }
 
-    //Loop over unique cell cycle models.
+    // Loop over unique cell-cycle models
     for(unsigned i=0; i<first_cell_with_unique_CCM.size(); i++)
     {
-        // Output cell cycle model details
+        // Output cell-cycle model details
         first_cell_with_unique_CCM[i]->GetCellCycleModel()->OutputCellCycleModelInfo(rParamsFile);
     }
 

@@ -49,7 +49,7 @@ class TestCellNightlyForCrypt: public AbstractCellBasedTestSuite
 {
 public:
     /*
-     * We are checking that the CellPtrs work with the Wnt cell cycle models here
+     * We are checking that the CellPtrs work with the Wnt cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.
@@ -122,7 +122,7 @@ public:
     }
 
     /*
-     * We are checking that the CellPtrs work with the Wnt cell cycle models here
+     * We are checking that the CellPtrs work with the Wnt cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.
@@ -196,7 +196,7 @@ public:
     }
 
     /*
-     * We are checking that the CellPtrs work with the Wnt cell cycle models here
+     * We are checking that the CellPtrs work with the Wnt cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.

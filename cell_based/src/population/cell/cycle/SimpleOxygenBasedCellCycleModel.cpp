@@ -56,7 +56,7 @@ double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 
 void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
-    // mG1Duration is set when the cell cycle model is given a cell
+    // mG1Duration is set when the cell-cycle model is given a cell
 
     bool cell_is_apoptotic = mpCell->HasCellProperty<ApoptoticCellProperty>();
 
@@ -110,10 +110,10 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetDimension(mDimension);
     p_model->SetCellProliferativeType(mCellProliferativeType);
     p_model->SetHypoxicConcentration(mHypoxicConcentration);

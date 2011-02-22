@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 
 /**
- * Wnt-dependent cell cycle model with a stochastic G2 duration.
+ * Wnt-dependent cell-cycle model with a stochastic G2 duration.
  *
  * Note that this class uses C++'s default copying semantics, and so
  * doesn't implement a copy constructor or operator=.
@@ -47,7 +47,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and member variables.
+     * Archive the cell-cycle model and member variables.
      * Used by boost, never directly by chaste code.
      *
      * Serialization of singleton objects must be done with care.
@@ -89,13 +89,13 @@ public:
     /**
      * The standard constructor called in tests.
      *
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
@@ -105,7 +105,7 @@ public:
     void InitialiseDaughterCell();
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This overridden method sets up a new WntCellCycleOdeSystem,
      * sets the cell type according to the current beta catenin level
@@ -114,7 +114,7 @@ public:
     void Initialise();
 
     /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
+     * Reset cell-cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
      * and setting a new random G2 duration.
      */
     void ResetForDivision();
@@ -125,7 +125,7 @@ public:
     double GetG2Duration();
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

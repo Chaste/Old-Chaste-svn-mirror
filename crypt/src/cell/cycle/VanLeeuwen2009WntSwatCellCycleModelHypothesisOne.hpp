@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
 /**
- * Concrete Van Leeuwen 2009 cell cycle model, using hypothesis one (see paper).
+ * Concrete Van Leeuwen 2009 cell-cycle model, using hypothesis one (see paper).
  */
 class VanLeeuwen2009WntSwatCellCycleModelHypothesisOne : public AbstractVanLeeuwen2009WntSwatCellCycleModel
 {
@@ -50,7 +50,7 @@ public:
     /**
      * Default constructor calls base class.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
@@ -64,12 +64,12 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

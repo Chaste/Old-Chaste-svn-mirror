@@ -62,7 +62,7 @@ public:
 
     /**
      * In this test we use a WntCellCycleModel and begin with a steady-state
-     * Wnt concentration of 1.0. Under such circumstances, the cell cycle model
+     * Wnt concentration of 1.0. Under such circumstances, the cell-cycle model
      * would normally go into S phase at time t=5.971. Instead, we reduce the
      * Wnt concentration linearly to zero over the time interval 1<t<2, and the
      * cell doesn't divide.
@@ -73,7 +73,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -98,9 +98,9 @@ public:
         TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         /*
-         * For coverage, we create another cell cycle model that is identical except that we
+         * For coverage, we create another cell-cycle model that is identical except that we
          * manually pass in an ODE solver. In this case, our ODE solver (RungeKutta4IvpOdeSolver)
-         * is the same type as the solver used by the cell cycle model if no solver is provided
+         * is the same type as the solver used by the cell-cycle model if no solver is provided
          * (unless CVODE is used), so our results should be identical.
          */
 #ifdef CHASTE_CVODE
@@ -142,7 +142,7 @@ public:
             }
             WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-            // Test that the cell cycle model does not stop for division
+            // Test that the cell-cycle model does not stop for division
             TS_ASSERT_EQUALS(result, false);
             TS_ASSERT_EQUALS(other_result, false);
         }
@@ -212,7 +212,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         VanLeeuwen2009WntSwatCellCycleModelHypothesisOne* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -251,7 +251,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
         }
 
-        // Test that the cell cycle model stopped for division correctly
+        // Test that the cell-cycle model stopped for division correctly
         TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 21.0, 1e-4);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
@@ -282,8 +282,8 @@ public:
         TS_ASSERT_DELTA(test_results[20], 2.235636835087684, tol);
         TS_ASSERT_DELTA(test_results[21], 1.000000000000000, tol);
 
-        // The cell cycle model acts as if it was divided at time = 16.1877. This
-        // is fine as the cell cycle model dictates the division time, not when
+        // The cell-cycle model acts as if it was divided at time = 16.1877. This
+        // is fine as the cell-cycle model dictates the division time, not when
         // the cell is actually divided.
         CellPtr p_daughter_cell = p_stem_cell->Divide();
         AbstractCellCycleModel* p_cell_model2 = p_daughter_cell->GetCellCycleModel();
@@ -445,7 +445,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -456,7 +456,7 @@ public:
         p_stem_cell->InitialiseCellCycleModel();
 
         /*
-         * In this cell cycle model, there is no such thing as a 'stem cell'. Instead, the
+         * In this cell-cycle model, there is no such thing as a 'stem cell'. Instead, the
          * cell proliferative type is changed to transit or differentiated, depending on the
          * Wnt concentration, when InitialiseCellCycleModel() is called.
          */
@@ -485,8 +485,8 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
         }
 
-        // The cell cycle model acts as if it was divided at time = 16.1877. This
-        // is fine as the cell cycle model dictates the division time, not when
+        // The cell-cycle model acts as if it was divided at time = 16.1877. This
+        // is fine as the cell-cycle model dictates the division time, not when
         // the cell is actually divided.
         CellPtr p_daughter_cell = p_stem_cell->Divide();
         AbstractCellCycleModel* p_cell_model2 = p_daughter_cell->GetCellCycleModel();
@@ -514,7 +514,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -527,7 +527,7 @@ public:
         double SG2M_duration = p_cell_model->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
-        // Create another cell cycle model and associated cell
+        // Create another cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
         p_cell_model_1->SetCellProliferativeType(STEM);
@@ -580,7 +580,7 @@ public:
         double wnt_level = 0.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -592,7 +592,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
-        // Create another cell cycle model and associated cell
+        // Create another cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
         p_cell_model_1->SetCellProliferativeType(STEM);
@@ -643,7 +643,7 @@ public:
         double wnt_level = 0.738; // the Wnt concentrationshouldn't matter for a cell with APC double hit
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
         p_cell_model_1->SetCellProliferativeType(STEM);
@@ -653,7 +653,7 @@ public:
         CellPtr p_stem_cell_1(new Cell(p_mutation, p_cell_model_1));
         p_stem_cell_1->InitialiseCellCycleModel();
 
-        // Create another cell cycle model and associated cell
+        // Create another cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
         p_cell_model_2->SetDimension(2);
         p_cell_model_2->SetCellProliferativeType(STEM);
@@ -707,7 +707,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
         p_cell_model_1->SetCellProliferativeType(STEM);
@@ -717,7 +717,7 @@ public:
         CellPtr p_stem_cell_1(new Cell(p_healthy_state, p_cell_model_1));
         p_stem_cell_1->InitialiseCellCycleModel();
 
-        // Create another cell cycle model and associated cell
+        // Create another cell-cycle model and associated cell
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
         p_cell_model_2->SetDimension(2);
         p_cell_model_2->SetCellProliferativeType(STEM);
@@ -770,7 +770,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and associated cell
+        // Create cell-cycle model and associated cell
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -834,7 +834,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             WntCellCycleModel* p_cell_model = new WntCellCycleModel();
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);
@@ -909,7 +909,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
             p_cell_model->SetDimension(2);
             p_cell_model->SetCellProliferativeType(STEM);
@@ -979,7 +979,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
             p_cell_model->SetDimension(2);
             p_cell_model->SetCellProliferativeType(STEM);
@@ -1055,7 +1055,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17.0, 1000);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();
             p_stoc_model->SetDimension(2);
             p_stoc_model->SetCellProliferativeType(STEM);
@@ -1065,7 +1065,7 @@ public:
             CellPtr p_stoc_cell(new Cell(p_healthy_state, p_stoc_model));
             p_stoc_cell->InitialiseCellCycleModel();
 
-            // Create another cell cycle model and associated cell
+            // Create another cell-cycle model and associated cell
             WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
             p_wnt_model->SetDimension(2);
             p_wnt_model->SetCellProliferativeType(STEM);

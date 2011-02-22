@@ -69,7 +69,7 @@ public:
             // Create mutation state
             boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-            // Create cell cycle model
+            // Create cell-cycle model
             FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
             p_cell_model->SetCellProliferativeType(STEM);
 

@@ -35,13 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCycleModel.hpp"
 
 /**
- * A helper method that is called in cell cycle model tests
+ * A helper method that is called in cell-cycle model tests
  * to check that a cell is progressing through the cell cycle
  * correctly. This is a method which should only be called by
  * cxx-test classes (not source code) as it includes TS_ASSERT
  * calls.
  *
- * @param pModel Pointer to the cell cycle model
+ * @param pModel Pointer to the cell-cycle model
  * @param g1Duration Correct duration of the G1 phase, to test against
  * @param g2Duration Correct duration of the G1 phase, to test against
  */

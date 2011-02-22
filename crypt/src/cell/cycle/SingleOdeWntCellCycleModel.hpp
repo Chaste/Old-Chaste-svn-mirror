@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellCycleModelOdeHandler.hpp"
 
 /**
- * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
+ * Wnt-dependent cell-cycle model. Needs to operate with a WntConcentration
  * singleton object.
  *
  * This model has a constant length M phase, runs ODEs to decide when
@@ -54,7 +54,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and member variables.
+     * Archive the cell-cycle model and member variables.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -99,12 +99,12 @@ public:
     /**
      * Default constructor.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This overridden method sets up a new WntCellCycleOdeSystem,
      * sets the cell type according to the current beta catenin level
@@ -119,7 +119,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
@@ -141,7 +141,7 @@ public:
     double GetBetaCateninDivisionThreshold();
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

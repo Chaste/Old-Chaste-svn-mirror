@@ -80,10 +80,10 @@ void StochasticOxygenBasedCellCycleModel::SetStochasticG2Duration(double g2Durat
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel();
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetDimension(mDimension);
     p_model->SetCellProliferativeType(mCellProliferativeType);
     p_model->SetHypoxicConcentration(mHypoxicConcentration);

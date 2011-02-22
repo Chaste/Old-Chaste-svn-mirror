@@ -480,7 +480,7 @@ void CellBasedSimulation<DIM>::Solve()
          ++cell_iter)
     {
         // We don't use the result; this call is just to force the cells to age
-        // to the current time running their cell cycle models to get there
+        // to the current time running their cell-cycle models to get there
         cell_iter->ReadyToDivide();
     }
     LOG(1, "\tdone\n");
@@ -672,7 +672,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 
     *parameter_file << "\n";
 
-    // Output cell population details (includes cell cycle model details)
+    // Output cell population details (includes cell-cycle model details)
     mrCellPopulation.OutputCellPopulationInfo(parameter_file);
 
     // Loop over forces

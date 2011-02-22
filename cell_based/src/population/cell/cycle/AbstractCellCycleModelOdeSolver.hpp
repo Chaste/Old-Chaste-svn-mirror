@@ -39,11 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This provides a wrapper around any ODE solver class, exposing roughly the same interface,
- * for use by ODE-based cell cycle models.  Its main purpose is to allow multiple instances
- * of the same cell cycle model to share the same ODE solver instance.
+ * for use by ODE-based cell-cycle models.  Its main purpose is to allow multiple instances
+ * of the same cell-cycle model to share the same ODE solver instance.
  * 
  * The recommended way to use this wrapper is via the CellCycleModelOdeSolver subclass, which
- * is templated over cell cycle model class and ODE solver class, providing a singleton
+ * is templated over cell-cycle model class and ODE solver class, providing a singleton
  * instance for each combination of template parameters.
  */
 class AbstractCellCycleModelOdeSolver

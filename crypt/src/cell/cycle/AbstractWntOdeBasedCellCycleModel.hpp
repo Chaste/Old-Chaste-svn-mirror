@@ -54,7 +54,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -82,7 +82,7 @@ public:
     /**
      * Default constructor.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
@@ -103,7 +103,7 @@ public:
     /**
      * Updates the current cell type to reflect whether the
      * beta-catenin level has dropped low enough to make it stop dividing.
-     * This should only be called when the cell cycle model has been
+     * This should only be called when the cell-cycle model has been
      * evaluated to the current time, or it may give misleading results.
      */
     void UpdateCellProliferativeType();
@@ -130,7 +130,7 @@ public:
     virtual bool CanCellTerminallyDifferentiate();
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

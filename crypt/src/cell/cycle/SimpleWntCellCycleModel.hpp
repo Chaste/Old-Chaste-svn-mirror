@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  Simple Wnt-dependent cell cycle model
+ *  Simple Wnt-dependent cell-cycle model
  */
 class SimpleWntCellCycleModel : public AbstractSimpleCellCycleModel
 {
@@ -50,7 +50,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -134,7 +134,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel();
 
@@ -186,7 +186,7 @@ public:
     void SetWntLabelledThreshold(double wntLabelledThreshold);
 
     /**
-     * Outputs cell cycle model parameters to file
+     * Outputs cell-cycle model parameters to file
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

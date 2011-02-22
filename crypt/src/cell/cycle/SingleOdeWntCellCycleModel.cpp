@@ -49,18 +49,18 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<Abstrac
 
 AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     SingleOdeWntCellCycleModel* p_model = new SingleOdeWntCellCycleModel(this->mpOdeSolver);
 
-    // Create the new cell cycle model's ODE system
+    // Create the new cell-cycle model's ODE system
     double wnt_level = this->GetWntLevel();
     p_model->SetOdeSystem(new Mirams2010WntOdeSystem(wnt_level, mpCell->GetMutationState()));
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
     assert(mpOdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetCellProliferativeType(mCellProliferativeType);
     p_model->SetBirthTime(mBirthTime);
     p_model->SetLastTime(mLastTime);

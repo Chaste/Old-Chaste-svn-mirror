@@ -107,7 +107,7 @@ public:
     }
 
     /*
-     * We are checking that the CellPtrs work with the Wnt cell cycle models here
+     * We are checking that the CellPtrs work with the Wnt cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.
@@ -189,7 +189,7 @@ public:
     }
 
     /*
-     * We are checking that the CellPtrs work with the StochasticWnt cell cycle models here
+     * We are checking that the CellPtrs work with the StochasticWnt cell-cycle models here
      * That division of wnt cells and stuff works OK.
      *
      * It checks that the cell division thing works nicely too.
@@ -280,7 +280,7 @@ public:
 
     /*
      * We are checking that the CellPtrs work with the Wnt
-     * cell cycle models here. This just tests the set-up and checks that
+     * cell-cycle models here. This just tests the set-up and checks that
      * the functions can all be called (not what they return).
      *
      * For more in depth tests see TestNightlyCellPtr.hpp

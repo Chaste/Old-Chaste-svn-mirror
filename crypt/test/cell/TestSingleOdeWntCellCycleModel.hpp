@@ -70,21 +70,21 @@ public:
         // Create cell mutation state
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
-        // Create cell cycle model
+        // Create cell-cycle model
         SingleOdeWntCellCycleModel* p_cycle_model = new SingleOdeWntCellCycleModel();
         p_cycle_model->SetDimension(2);
         p_cycle_model->SetCellProliferativeType(STEM);
 
-        // Construct a cell with this cell cycle model and cell mutation state
+        // Construct a cell with this cell-cycle model and cell mutation state
         CellPtr p_cell(new Cell(p_state, p_cycle_model));
         p_cell->InitialiseCellCycleModel();
 
-        // Test the cell cycle model is behaving correctly
+        // Test the cell-cycle model is behaving correctly
         for (unsigned i=0; i<num_timesteps/3; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
 
-            // Stem cell should have been changed into a transit cell by wnt cell cycle model
+            // Stem cell should have been changed into a transit cell by wnt cell-cycle model
             TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
             // The number for the G1 duration is taken from the first random number generated
@@ -199,7 +199,7 @@ public:
         wnt_level = 1.0;
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and cell and test behaviour
+        // Create cell-cycle model and cell and test behaviour
         SingleOdeWntCellCycleModel* p_cell_model_1d = new SingleOdeWntCellCycleModel;
         p_cell_model_1d->SetDimension(1);
         p_cell_model_1d->SetUseCellProliferativeTypeDependentG1Duration();
@@ -227,7 +227,7 @@ public:
         // Instantiate 3D Wnt concentration
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and cell and test behaviour
+        // Create cell-cycle model and cell and test behaviour
         SingleOdeWntCellCycleModel* p_cell_model_3d = new SingleOdeWntCellCycleModel;
         p_cell_model_3d->SetDimension(3);
         p_cell_model_3d->SetCellProliferativeType(STEM);
@@ -268,7 +268,7 @@ public:
             // Set up the Wnt concentration for testing
             WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.7);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             SingleOdeWntCellCycleModel* p_cell_model = new SingleOdeWntCellCycleModel;
             p_cell_model->SetDimension(2);
             p_cell_model->SetBirthTime(-1.0);

@@ -65,7 +65,7 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
         mGeneration = 1;
     }
     /*
-     * In generation-based cell cycle models, the daughter cell
+     * In generation-based cell-cycle models, the daughter cell
      * is always of type transit or differentiated.
      */
     mCellProliferativeType = TRANSIT;

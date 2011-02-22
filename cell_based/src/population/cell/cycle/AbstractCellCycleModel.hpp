@@ -46,10 +46,10 @@ class Cell; // Circular definition (cells need to know about cycle models and vi
 typedef boost::shared_ptr<Cell> CellPtr;
 
 /**
- * The AbstractCellCycleModel contains basic information to all cell cycle models.
+ * The AbstractCellCycleModel contains basic information to all cell-cycle models.
  * It handles assignment of birth time, cell cycle phase and a Cell.
  *
- * Cell cycle models are noncopyable since cells are noncopyable.
+ * Cell-cycle models are noncopyable since cells are noncopyable.
  */
 class AbstractCellCycleModel : public Identifiable, boost::noncopyable
 {
@@ -131,21 +131,21 @@ protected:
      * Minimum possbile duration of either of the gap phases (G1 or G2).
      * Has units of hours.
      *
-     * Used to guarantee a strictly positive duration in cell cycle models that
+     * Used to guarantee a strictly positive duration in cell-cycle models that
      * use normal random deviates for G1 or G2 phases.
      */
     double mMinimumGapDuration;
 
     /**
 	 * Duration of G1 phase for stem cells.
-	 * May be used as a mean duration for stochastic cell cycle models.
+	 * May be used as a mean duration for stochastic cell-cycle models.
 	 *
 	 */
 	double mStemCellG1Duration;
 
 	/**
 	 * Duration of G1 phase for transit cells.
-	 * May be used as a mean duration for stochastic cell cycle models.
+	 * May be used as a mean duration for stochastic cell-cycle models.
 	 */
 	double mTransitCellG1Duration;
 
@@ -176,14 +176,14 @@ public:
     /**
      * Base class with virtual methods needs a virtual destructor. The destructor
      * does not delete mpCell. Instead, the cell takes responsibility for deleting
-     * the cell cycle model when it is destroyed.
+     * the cell-cycle model when it is destroyed.
      */
     virtual ~AbstractCellCycleModel();
 
     /**
-     * Gives the cell cycle model a pointer to its host cell.
+     * Gives the cell-cycle model a pointer to its host cell.
      *
-     * Some cell cycle models pass this pointer to other classes,
+     * Some cell-cycle models pass this pointer to other classes,
      * which use this information to determine other information based upon the location
      * of the cell (e.g. the Wnt concentration at this location).
      *
@@ -192,7 +192,7 @@ public:
     void SetCell(CellPtr pCell);
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This method will be called precisely once per cell set up in the initial
      * cell population. It is not called on cell division; use ResetForDivision(),
@@ -214,12 +214,12 @@ public:
      * Note that much initialisation can be performed using the
      * combination of ResetForDivision() (called on the parent prior to
      * division) and CreateCellCycleModel() (called on the reset
-     * parent to create the new cell cycle model object).
+     * parent to create the new cell-cycle model object).
      */
     virtual void InitialiseDaughterCell();
 
     /**
-     * @return The cell which plays host to this cell cycle model.
+     * @return The cell which plays host to this cell-cycle model.
      */
     CellPtr GetCell();
 
@@ -241,7 +241,7 @@ public:
     void SetDimension(unsigned dimension);
 
     /**
-     *  Get the dimension this cell cycle model thinks the simulation is in.
+     *  Get the dimension this cell-cycle model thinks the simulation is in.
      */
     unsigned GetDimension();
 
@@ -267,24 +267,24 @@ public:
 
     /**
      * This method must be implemented by subclasses in order to set the phase
-     * the cell cycle model is currently in. It is called from ReadyToDivide()
+     * the cell-cycle model is currently in. It is called from ReadyToDivide()
      * just prior to deciding whether to divide the cell based on how far through
      * the cell cycle it is, i.e. whether it has completed M, G1, S and G2 phases.
      */
     virtual void UpdateCellCyclePhase()=0;
 
     /**
-     * Each cell cycle model must be able to be reset 'after' a cell division.
+     * Each cell-cycle model must be able to be reset 'after' a cell division.
      *
      * Actually, this method is called from Cell::Divide() to
      * reset the cell cycle just before the daughter cell is created.
      * CreateCellCycleModel() can then clone our state to generate a
-     * cell cycle model instance for the daughter cell.
+     * cell-cycle model instance for the daughter cell.
      */
     virtual void ResetForDivision();
 
     /**
-     * Builder method to create new instances of the cell cycle model.
+     * Builder method to create new instances of the cell-cycle model.
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
      *
@@ -385,7 +385,7 @@ public:
     virtual double GetAverageStemCellCycleTime();
 
     /**
-     * Whether a cell with this cell cycle model is able to fully (terminally) differentiate.
+     * Whether a cell with this cell-cycle model is able to fully (terminally) differentiate.
      */
     virtual bool CanCellTerminallyDifferentiate();
 
@@ -414,7 +414,7 @@ public:
     void SetMinimumGapDuration(double minimumGapDuration);
 
     /**
-     * Outputs cell cycle model used in the simulation to file and then calls
+     * Outputs cell-cycle model used in the simulation to file and then calls
      * OutputCellCyclemodelParameters to output all relevant parameters.
      *
      * @param rParamsFile the file stream to which the parameters are output

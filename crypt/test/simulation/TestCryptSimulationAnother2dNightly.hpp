@@ -220,12 +220,12 @@ public:
 		// Get location indices corresponding to real cells in mesh
 		std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-		// Set up each cell with a simple Wnt-based cell cycle model
+		// Set up each cell with a simple Wnt-based cell-cycle model
 		std::vector<CellPtr> cells;
 		CryptCellsGenerator<SimpleWntCellCycleModel> cell_generator;
 		cell_generator.Generate(cells, p_mesh, location_indices, true);
 
-		// Set some model parameters for the cell cycle model
+		// Set some model parameters for the cell-cycle model
 		for (unsigned index=0; index < cells.size(); index++)
 		{
 		   cells[index]->GetCellCycleModel()->SetSDuration(7.4);

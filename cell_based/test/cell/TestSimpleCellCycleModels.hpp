@@ -277,7 +277,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(SimpleOxygenBasedCellCycleModel model);
 
-        // Create cell cycle models and cells
+        // Create cell-cycle models and cells
         SimpleOxygenBasedCellCycleModel* p_hepa_one_model = new SimpleOxygenBasedCellCycleModel;
         p_hepa_one_model->SetDimension(2);
         p_hepa_one_model->SetCellProliferativeType(STEM);
@@ -330,7 +330,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_hepa_one_model2->GetCriticalHypoxicDuration(), num_steps);
 
-        // Create a cell with a simple oxygen-based cell cycle model
+        // Create a cell with a simple oxygen-based cell-cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel;
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -464,7 +464,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(StochasticOxygenBasedCellCycleModel model);
 
-        // Create cell cycle model
+        // Create cell-cycle model
         StochasticOxygenBasedCellCycleModel* p_hepa_one_model = new StochasticOxygenBasedCellCycleModel;
         p_hepa_one_model->SetDimension(2);
         p_hepa_one_model->SetCellProliferativeType(STEM);
@@ -516,7 +516,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_hepa_one_model2->GetCriticalHypoxicDuration(), num_steps);
 
-        // Create a cell with a simple oxygen-based cell cycle model
+        // Create a cell with a simple oxygen-based cell-cycle model
         StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
@@ -800,7 +800,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            // Create cell cycle model and associated cell
+            // Create cell-cycle model and associated cell
             StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);

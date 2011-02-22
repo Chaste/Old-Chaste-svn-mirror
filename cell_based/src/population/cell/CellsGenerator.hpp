@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A helper class for generating a vector of cells for a given mesh.
  *
- * It is templated over types of cell cycle model and spatial dimension.
+ * It is templated over types of cell-cycle model and spatial dimension.
  */
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 class CellsGenerator
@@ -46,7 +46,7 @@ class CellsGenerator
 public:
 
     /**
-     * Fills a vector of cells with a specified cell cycle model, to match
+     * Fills a vector of cells with a specified cell-cycle model, to match
      * a given number of cells. Gives them birth times of 0 for node 0,
      * -1 for node 1, -2 for node 2 etc...
      *
@@ -62,7 +62,7 @@ public:
                        CellProliferativeType cellProliferativeType=STEM);
 
     /**
-     * Fills a vector of cells with a specified cell cycle model, to match
+     * Fills a vector of cells with a specified cell-cycle model, to match
      * a given number of cells. Gives cells a random birth time drawn uniformly
      * from 0 to the AverageStemCellCycleTime.
      *

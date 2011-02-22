@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 
 /**
- * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
+ * Oxygen-dependent ODE-based cell-cycle model. Published by Alarcon et al.
  * (doi:10.1016/j.jtbi.2004.04.016).
  */
 class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
@@ -47,7 +47,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and ODE system.
+     * Archive the cell-cycle model and ODE system.
      *
      * @param archive the archive
      * @param version the archive version
@@ -70,7 +70,7 @@ public:
     /**
      * Default constructor.
      * 
-     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
@@ -86,12 +86,12 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Initialise the cell cycle model at the start of a simulation.
+     * Initialise the cell-cycle model at the start of a simulation.
      *
      * This overridden method sets up a new ODE system.
      */

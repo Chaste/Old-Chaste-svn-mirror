@@ -54,18 +54,18 @@ void VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::InitialiseOdeSystem(doubl
 
 AbstractCellCycleModel* VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne* p_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(mpOdeSolver);
 
-    // Create the new cell cycle model's ODE system
+    // Create the new cell-cycle model's ODE system
     double wnt_level = GetWntLevel();
     p_model->InitialiseOdeSystem(wnt_level, mpCell->GetMutationState());
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
     assert(mpOdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetBirthTime(mBirthTime);
     p_model->SetLastTime(mLastTime);
     p_model->SetDivideTime(mDivideTime);

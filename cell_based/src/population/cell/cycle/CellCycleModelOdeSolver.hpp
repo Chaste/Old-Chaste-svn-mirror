@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A concrete implementation of AbstractCellCycleModelOdeSolver, that uses templates
- * to provide an implementation for any pair of cell cycle model and ODE solver classes.
+ * to provide an implementation for any pair of cell-cycle model and ODE solver classes.
  *
- * All ODE-based cell cycle model developers need to do is set mpOdeSolver in their constructor:
+ * All ODE-based cell-cycle model developers need to do is set mpOdeSolver in their constructor:
  *   mpOdeSolver = CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::Instance();
  *
  * This class contains all the machinery to make it a singleton, hence providing
@@ -59,7 +59,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -156,7 +156,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model, never used directly - boost uses this.
+     * Archive the cell-cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class

@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef ABSTRACTCELLCENTREBASEDCELLPOPULATION_HPP_
-#define ABSTRACTCELLCENTREBASEDCELLPOPULATION_HPP_
+#ifndef ABSTRACTCENTREBASEDCELLPOPULATION_HPP_
+#define ABSTRACTCENTREBASEDCELLPOPULATION_HPP_
 
 #include "AbstractCellPopulation.hpp"
 
@@ -199,4 +199,4 @@ public:
     virtual void OutputCellPopulationParameters(out_stream& rParamsFile);
 };
 
-#endif /*ABSTRACTCELLCENTREBASEDCELLPOPULATION_HPP_*/
+#endif /*ABSTRACTCENTREBASEDCELLPOPULATION_HPP_*/

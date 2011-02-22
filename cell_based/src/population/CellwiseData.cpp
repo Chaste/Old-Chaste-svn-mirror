@@ -81,7 +81,7 @@ double CellwiseData<DIM>::GetValue(CellPtr pCell, unsigned variableNumber)
     	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
     }
 
-	// To test a cell and cell cycle models without a cell population
+	// To test a cell and cell-cycle models without a cell population
     if (mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];

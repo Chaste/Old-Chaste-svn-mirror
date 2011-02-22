@@ -42,7 +42,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model.
+     * Archive the cell mutation state.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -58,7 +58,6 @@ public:
      * Constructor.
      */
     BetaCateninOneHitCellMutationState();
-
 };
 
 #include "SerializationExportWrapper.hpp"

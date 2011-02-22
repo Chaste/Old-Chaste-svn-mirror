@@ -33,9 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 
 /**
- * Simple oxygen-based cell cycle model.
+ * Simple oxygen-based cell-cycle model.
  *
- * A simple oxygen-dependent cell cycle model that inherits from
+ * A simple oxygen-dependent cell-cycle model that inherits from
  * AbstractSimpleCellCycleModel. The duration of G1 phase depends
  * on the local oxygen concentration. A prolonged period of acute
  * hypoxia leads to the cell being labelled as apoptotic. This model
@@ -128,7 +128,7 @@ public:
 
     /**
      * Overridden builder method to create new copies of
-     * this cell cycle model.
+     * this cell-cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 

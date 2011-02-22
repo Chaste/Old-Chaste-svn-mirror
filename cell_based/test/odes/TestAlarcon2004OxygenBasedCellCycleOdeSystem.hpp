@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class contains tests for Alarcon2004OxygenBasedCellCycleOdeSystem,
- * a system of ODEs that are used by the cell cycle model
+ * a system of ODEs that are used by the cell-cycle model
  * Alarcon2004OxygenBasedCellCycleModel to determine when a cell is ready
  * to divide.
  */

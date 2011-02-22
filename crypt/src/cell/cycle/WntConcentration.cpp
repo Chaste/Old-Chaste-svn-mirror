@@ -75,7 +75,7 @@ void WntConcentration<DIM>::Destroy()
 template<unsigned DIM>
 double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 {
-    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a cell population
+    if (mUseConstantWntValueForTesting)  // to test a cell and cell-cycle models without a cell population
     {
         return mConstantWntValueForTesting;
     }
@@ -103,7 +103,7 @@ double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 template<unsigned DIM>
 c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(CellPtr pCell)
 {
-    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a cell population
+    if (mUseConstantWntValueForTesting)  // to test a cell and cell-cycle models without a cell population
     {
         return zero_vector<double>(DIM);
     }

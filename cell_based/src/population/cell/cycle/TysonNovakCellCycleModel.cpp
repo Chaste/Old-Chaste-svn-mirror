@@ -93,15 +93,15 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
-    // Create a new cell cycle model
+    // Create a new cell-cycle model
     TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel(mpOdeSolver);
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
     assert(mpOdeSystem);
     p_model->SetOdeSystem(new TysonNovak2001OdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
-    // Set the values of the new cell cycle model's member variables
+    // Set the values of the new cell-cycle model's member variables
     p_model->SetBirthTime(mBirthTime);
     p_model->SetLastTime(mLastTime);
     p_model->SetDivideTime(mDivideTime);

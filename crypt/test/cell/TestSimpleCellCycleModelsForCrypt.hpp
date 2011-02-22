@@ -108,7 +108,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, mFirstRandomNumber);
         }
 
-        // Stem cell should have been changed into a transit cell by wnt cell cycle model
+        // Stem cell should have been changed into a transit cell by wnt cell-cycle model
         TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         // Divide the cell
@@ -204,7 +204,7 @@ public:
         WntConcentration<2>::Instance()->SetType(RADIAL);
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Set up a cell cycle model and cell
+        // Set up a cell-cycle model and cell
         SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel;
         p_cycle_model4->SetDimension(2);
         p_cycle_model4->SetCellProliferativeType(STEM);
@@ -322,7 +322,7 @@ public:
             // Set up the Wnt concentration for testing
             WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
 
-            // Create cell cycle model
+            // Create cell-cycle model
             SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
             p_cell_model->SetDimension(1);
             p_cell_model->SetBirthTime(-1.0);
@@ -429,11 +429,11 @@ public:
 
         // Create an output archive
         {
-        	// Set up the simulation time note here it needs to be done before we create a cell cycle model.
+        	// Set up the simulation time note here it needs to be done before we create a cell-cycle model.
         	SimulationTime* p_simulation_time = SimulationTime::Instance();
         	p_simulation_time->SetStartTime(0.0);
 
-            // Create cell cycle model
+            // Create cell-cycle model
             SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
             p_cell_model->SetDimension(2);
             p_cell_model->SetBirthTime(-1.0);
