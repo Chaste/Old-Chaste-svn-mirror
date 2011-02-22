@@ -422,27 +422,29 @@ public:
         mesh.ConstructRegularSlabMesh(0.05, 0.9, 0.9);
         
         // set the x<0.25 and x>0.75 regions as the bath region
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            double x = mesh.GetElement(i)->CalculateCentroid()[0];
-            double y = mesh.GetElement(i)->CalculateCentroid()[1];
+        for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {        
+            double x = iter->CalculateCentroid()[0];
+            double y = iter->CalculateCentroid()[1];
             if( (x>0.3) && (x<0.6) && (y>0.3) && (y<0.6) )
             {
-                mesh.GetElement(i)->SetRegion(0);
+                iter->SetRegion(0);
             }
             else
             {
                 if (y<0.2)
                 {
-                    mesh.GetElement(i)->SetRegion(2);
+                    iter->SetRegion(2);
                 }
                 else if (y<0.7) 
                 {
-                    mesh.GetElement(i)->SetRegion(3);
+                    iter->SetRegion(3);
                 }
                 else if (y<0.9)
                 {
-                    mesh.GetElement(i)->SetRegion(4);
+                    iter->SetRegion(4);
                 }
             }            
         }
@@ -466,30 +468,30 @@ public:
 
         bidomain_problem.Solve();
 
-        Vec sol = bidomain_problem.GetSolution();
-        ReplicatableVector sol_repl(sol);
+        DistributedVector distributed_solution = bidomain_problem.GetSolutionDistributedVector();
+        DistributedVector::Stripe voltage(distributed_solution, 0);
 
-        bool ap_triggered = false;
         /*
-         * We are checking the last time step. This test will only make sure that an upstroke is triggered.
-         * We ran longer simulation for 350 ms and a nice AP was observed.
+         * We are checking the last time step. This test will only make sure that an AP is triggered.
          */
+        bool ap_triggered = false;
 
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (DistributedVector::Iterator index = distributed_solution.Begin();
+             index!= distributed_solution.End();
+             ++index)
         {
             // test V = 0 for all bath nodes and that an AP is triggered in the tissue
-            if (HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() )) // bath
+            if (HeartRegionCode::IsRegionBath( mesh.GetNode(index.Global)->GetRegion() )) // bath
             {
-                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+                TS_ASSERT_DELTA(voltage[index], 0.0, 1e-12);
             }
-            else if (sol_repl[2*i] > 0.0)//at the last time step
+            else if (voltage[index] > 0.0)//at the last time step
             {
                 ap_triggered = true;
             }
         }
 
-        TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
-        TS_ASSERT(ap_triggered);
+        TS_ASSERT(PetscTools::ReplicateBool(ap_triggered));
     }
 
 
