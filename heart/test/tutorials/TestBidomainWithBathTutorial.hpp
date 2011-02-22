@@ -109,7 +109,7 @@ public: // Tests should be public!
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
             }
         }
 
@@ -165,7 +165,7 @@ public: // Tests should be public!
         bool ap_triggered = false;
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::TISSUE)
+            if (HeartRegionCode::IsRegionTissue( mesh.GetNode(i)->GetRegion() ))
             {
                 if (solution_repl[2*i] > 0.0) // 2*i, ie the voltage for this node (would be 2*i+1 for phi_e for this node)
                 {

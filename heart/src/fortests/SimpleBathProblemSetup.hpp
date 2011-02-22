@@ -73,7 +73,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // paranoia - check this is really a tissue node
-        assert(this->GetMesh()->GetNode(node)->GetRegion() == HeartRegionCode::TISSUE);
+        assert(HeartRegionCode::IsRegionTissue( this->GetMesh()->GetNode(node)->GetRegion() ));
 
         // stimulate centre node normally..
         bool is_centre;
@@ -125,7 +125,7 @@ void SetCircularTissueIn2dMesh(MeshType* pMesh,
         double y = it->CalculateCentroid()[1];
         if ( (x-centreX)*(x-centreX) + (y-centreY)*(y-centreY) > radius*radius )
         {
-            it->SetRegion(HeartRegionCode::BATH);
+            it->SetRegion(HeartRegionCode::BathRegion());
         }
     }
     pMesh->SetMeshHasChangedSinceLoading();

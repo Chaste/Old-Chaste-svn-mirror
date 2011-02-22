@@ -1102,13 +1102,13 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
         DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
-            mesh.GetNode(i)->SetRegion(HeartRegionCode::BATH);
+            mesh.GetNode(i)->SetRegion(HeartRegionCode::BathRegion());
         }
         for (DistributedTetrahedralMesh<1,1>::ElementIterator it = mesh.GetElementIteratorBegin();
              it != mesh.GetElementIteratorEnd();
              ++it)
         {
-            it->SetRegion(HeartRegionCode::BATH);
+            it->SetRegion(HeartRegionCode::BathRegion());
         }
         mesh.SetMeshHasChangedSinceLoading();
 

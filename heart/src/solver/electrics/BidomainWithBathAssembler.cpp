@@ -39,13 +39,13 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion() != HeartRegionCode::BATH) // ie if a tissue element
+    if (!HeartRegionCode::IsRegionBath( pElement->GetRegion() )) // ie if a tissue element
     {
         return BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
     }
     else // bath element
     {
-        double bath_cond=HeartConfig::Instance()->GetBathConductivity();
+        double bath_cond=HeartConfig::Instance()->GetBathConductivity(pElement->GetRegion());
 
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
             bath_cond * prod(trans(rGradPhi), rGradPhi);
@@ -87,7 +87,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    if (pElement->GetRegion() != HeartRegionCode::BATH) // ie if a tissue element
+    if (HeartRegionCode::IsRegionTissue( pElement->GetRegion() )) // ie if a tissue element
     {
         return BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
     }

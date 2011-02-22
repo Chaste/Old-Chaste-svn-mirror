@@ -290,7 +290,7 @@ public:
 //            double x = mesh.GetElement(i)->CalculateCentroid()[0];
 //            if( (x<0.1) || (x>0.9) )
 //            {
-//                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+//                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
 //            }
 //        }
 //
@@ -310,7 +310,7 @@ public:
 //        unsigned num_bath_nodes = 0;
 //        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
 //        {
-//            if (mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+//            if (HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() ))
 //            {
 //                std::cout << i << ", ";
 //                num_bath_nodes++;

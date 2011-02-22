@@ -59,7 +59,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // paranoia - check this is really a tissue node
-        assert(this->GetMesh()->GetNode(node)->GetRegion() == HeartRegionCode::TISSUE);
+        assert(HeartRegionCode::IsRegionTissue( this->GetMesh()->GetNode(node)->GetRegion() ));
 
         // stimulate centre node normally..
         bool is_centre;
@@ -122,7 +122,7 @@ public:
             double z = mesh.GetElement(i)->CalculateCentroid()[2];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05) + (z-0.05)*(z-0.05)) > 0.04 )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
             }
         }
 
@@ -137,7 +137,7 @@ public:
         // test V = 0 for all bath nodes
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
+            if (HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() )) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -176,7 +176,7 @@ public:
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
             }
         }
 
@@ -267,7 +267,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // test V = 0 for all bath nodes
-            if (mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
+            if (HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() )) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }

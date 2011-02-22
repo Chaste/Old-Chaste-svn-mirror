@@ -170,7 +170,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     mpCellFactory->SetMesh( mpMesh );
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
-    HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);
+    HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);    
+    
     // if the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here.
     if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
     {

@@ -73,13 +73,14 @@ public:
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
-        unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                                             HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
-                                             HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+        HeartRegionType expected_node_regions[11]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
+                                             HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
+                                             HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
         for (unsigned i=0; i<11; i++)
         {
             if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
             {
+                /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()
                 TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
             }
         }
@@ -119,7 +120,7 @@ public:
 
         try
         {
-            mesh.GetElement(0)->SetRegion(HeartRegionCode::BATH);
+            mesh.GetElement(0)->SetRegion(HeartRegionCode::BathRegion());
         }
         catch(Exception& e)
         {
@@ -158,7 +159,7 @@ public:
             double x = mesh.GetElement(i)->CalculateCentroid()[0];
             if( (x<0.25) || (x>0.75) )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
             }
         }
 
@@ -173,7 +174,7 @@ public:
         // test V = 0 for all bath nodes
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
+            if(HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() )) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -213,7 +214,7 @@ public:
 
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+            mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
         }
 
         // create boundary conditions container
@@ -290,7 +291,7 @@ public:
         for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=p_mesh->GetNodeIteratorBegin();
              iter != p_mesh->GetNodeIteratorEnd(); ++iter)
         {
-            if ((*iter).GetRegion()==HeartRegionCode::BATH) // bath
+            if (HeartRegionCode::IsRegionBath( (*iter).GetRegion() )) // bath
             {
                 unsigned index=(*iter).GetIndex();
 
@@ -373,7 +374,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             // test V = 0 for all bath nodes and that an AP is triggered in the tissue
-            if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+            if (HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion() )) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -388,6 +389,109 @@ public:
 
         delete p_mesh;
     }
+
+    void Test2dBathMultipleBathConductivities() throw (Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dMultipleBathConductivities");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d");
+
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms ???
+
+        std::set<unsigned> tissue_ids;
+        tissue_ids.insert(0); // Same as default value defined in HeartConfig
+        HeartConfig::Instance()->SetTissueIdentifiers(tissue_ids);
+
+        std::set<unsigned> bath_ids;
+        bath_ids.insert(2);
+        bath_ids.insert(3);
+        bath_ids.insert(4);
+        HeartConfig::Instance()->SetBathIdentifiers(bath_ids);
+        
+        // need to create a cell factory but don't want any intra stim, so magnitude
+        // of stim is zero.
+        c_vector<double,2> centre;
+        centre(0) = 0.05; // cm
+        centre(1) = 0.05; // cm
+        BathCellFactory<2> cell_factory( 0.0, centre);
+
+        BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
+        
+        DistributedTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructRegularSlabMesh(0.05, 0.9, 0.9);
+        
+        // set the x<0.25 and x>0.75 regions as the bath region
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            double y = mesh.GetElement(i)->CalculateCentroid()[1];
+            if( (x>0.3) && (x<0.6) && (y>0.3) && (y<0.6) )
+            {
+                mesh.GetElement(i)->SetRegion(0);
+            }
+            else
+            {
+                if (y<0.2)
+                {
+                    mesh.GetElement(i)->SetRegion(2);
+                }
+                else if (y<0.7) 
+                {
+                    mesh.GetElement(i)->SetRegion(3);
+                }
+                else if (y<0.9)
+                {
+                    mesh.GetElement(i)->SetRegion(4);
+                }
+            }            
+        }
+        
+        std::map<unsigned, double> multiple_bath_conductivities;        
+        multiple_bath_conductivities[2] = 7.0;
+        multiple_bath_conductivities[3] = 1.0;
+        multiple_bath_conductivities[4] = 0.001;
+
+        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);        
+        
+        double boundary_flux = -3.0e3;
+        double start_time = 0.0;
+        double duration = 1.0; // of the stimulus, in ms
+
+        HeartConfig::Instance()->SetElectrodeParameters(false, 0, boundary_flux, start_time, duration);
+        
+              
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
+        bidomain_problem.Solve();
+
+        Vec sol = bidomain_problem.GetSolution();
+        ReplicatableVector sol_repl(sol);
+
+        bool ap_triggered = false;
+        /*
+         * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+         * We ran longer simulation for 350 ms and a nice AP was observed.
+         */
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // test V = 0 for all bath nodes and that an AP is triggered in the tissue
+            if (HeartRegionCode::IsRegionBath( mesh.GetNode(i)->GetRegion() )) // bath
+            {
+                TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            }
+            else if (sol_repl[2*i] > 0.0)//at the last time step
+            {
+                ap_triggered = true;
+            }
+        }
+
+        TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
+        TS_ASSERT(ap_triggered);
+    }
+
 
     void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
@@ -433,7 +537,7 @@ public:
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
                 // test phi_e close to 0 for all bath nodes since electrodes are off
-                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+                if (HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion() )) // bath
                 {
                     TS_ASSERT_DELTA(sol_repl[2*i+1], 0.0, 0.5);
                 }
@@ -462,7 +566,7 @@ public:
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
                 // test V = 0 for all bath nodes and that an AP is triggered in the tissue
-                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+                if (HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion() )) // bath
                 {
                     TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
                 }
@@ -613,11 +717,11 @@ public:
                 double y = r_mesh.GetElement(i)->CalculateCentroid()[1];
                 if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
                 {
-                    TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), HeartRegionCode::BATH);
+                    TS_ASSERT(HeartRegionCode::IsRegionBath(r_mesh.GetElement(i)->GetRegion()));
                 }
                 else
                 {
-                    TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), HeartRegionCode::TISSUE);
+                    TS_ASSERT(HeartRegionCode::IsRegionTissue(r_mesh.GetElement(i)->GetRegion()));
                 }
                 // Compare mesh before & after
                 TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), p_mesh->GetElement(i)->GetRegion());
@@ -631,7 +735,7 @@ public:
             {
                 TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), p_mesh->GetNode(i)->GetRegion());
                 FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetTissue()->GetCardiacCell(i));
-                if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+                if (HeartRegionCode::IsRegionBath(r_mesh.GetNode(i)->GetRegion()))
                 {
                     TS_ASSERT(p_fake != NULL);
                     p_fake_cell = p_fake;
@@ -656,7 +760,7 @@ public:
             for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
             {
                 // test V = 0 for all bath nodes and that an AP is triggered in the tissue
-                if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+                if (HeartRegionCode::IsRegionBath(r_mesh.GetNode(i)->GetRegion()))
                 {
                     TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
                 }
@@ -703,13 +807,14 @@ public:
 
 
             // the middle 4 elements are 'heart' elements (ie region=0),
-            unsigned expected_element_regions[10]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
-                       HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+            HeartRegionType expected_element_regions[10]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
+                       HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
+                       HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
             for (AbstractTetrahedralMesh<1,1>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
                  iter != p_mesh->GetElementIteratorEnd();
                  ++iter)
             {
+                /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()
                 TS_ASSERT_EQUALS(iter->GetRegion(), expected_element_regions[iter->GetIndex()]);
             }
 //            for (unsigned i=0; i<10; i++)
@@ -724,13 +829,14 @@ public:
 //                }
 //            }
             // so the middle 5 nodes should be heart nodes
-            unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
-                       HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+            HeartRegionType expected_node_regions[11]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
+                       HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
+                       HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
             for (unsigned i=0; i<10; i++)
             {
                 if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
                 {
+                    /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()                    
                     TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
                 }
             }

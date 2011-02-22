@@ -976,6 +976,14 @@ public:
         HeartConfig::Instance()->SetBathConductivity(150);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 150);
 
+        std::set<unsigned> bath_ids;
+        bath_ids.insert(2);
+        bath_ids.insert(4);
+        bath_ids.insert(5);
+        bath_ids.insert(10);
+        
+        HeartConfig::Instance()->SetBathIdentifiers(bath_ids);
+
         std::map<unsigned, double> multiple_bath_conductivities;        
         multiple_bath_conductivities[2] = 3.0;
         multiple_bath_conductivities[4] = 4.0;
@@ -986,9 +994,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(2), 3.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(4), 4.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(5), 5.0);
-
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetBathConductivity(0), "Region label 0 is reserved for tissue");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetBathConductivity(3), "Bath conductivity not defined for region 3");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(10), 150);        
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);

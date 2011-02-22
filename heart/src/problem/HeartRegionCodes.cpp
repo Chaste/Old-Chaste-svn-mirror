@@ -26,9 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "HeartRegionCodes.hpp"
+#include "HeartConfig.hpp"
+#include <cassert>
 
-const HeartRegionType HeartRegionCode::TISSUE = 0u;
-const HeartRegionType HeartRegionCode::BATH = 1u;
 const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_WALL;
 const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_WALL;
 const HeartRegionType HeartRegionCode::LEFT_SEPTUM;
@@ -36,3 +36,28 @@ const HeartRegionType HeartRegionCode::RIGHT_SEPTUM;
 const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_SURFACE;
 const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_SURFACE;
 const HeartRegionType HeartRegionCode::UNKNOWN;
+
+
+HeartRegionType HeartRegionCode::TissueRegion()
+{
+    // Returns the identifier of the first region defined as tissue    
+    assert(!HeartConfig::Instance()->rGetTissueIdentifiers().empty());
+    return *HeartConfig::Instance()->rGetTissueIdentifiers().begin();
+}
+
+HeartRegionType HeartRegionCode::BathRegion()
+{
+    // Returns the identifier of the first region defined as bath    
+    assert(!HeartConfig::Instance()->rGetBathIdentifiers().empty());    
+    return *HeartConfig::Instance()->rGetBathIdentifiers().begin();
+}
+
+bool HeartRegionCode::IsRegionTissue(HeartRegionType regionId)
+{
+    return (HeartConfig::Instance()->rGetTissueIdentifiers().find(regionId) != HeartConfig::Instance()->rGetTissueIdentifiers().end());     
+}
+
+bool HeartRegionCode::IsRegionBath(HeartRegionType regionId)
+{
+    return (HeartConfig::Instance()->rGetBathIdentifiers().find(regionId) != HeartConfig::Instance()->rGetBathIdentifiers().end());     
+}

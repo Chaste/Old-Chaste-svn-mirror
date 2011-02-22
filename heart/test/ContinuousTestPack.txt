@@ -41,6 +41,7 @@ TestFibreReader.hpp
 TestHeartConfig.hpp
 TestHeartFileFinder.hpp
 TestHeartGeometryInformation.hpp
+TestHeartRegionCodes.hpp
 TestHeterogeneousConductivities.hpp
 TestNeumannStimulus.hpp
 TestPapillaryFibreCalculator.hpp

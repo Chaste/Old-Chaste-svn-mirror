@@ -77,7 +77,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
         
             for(unsigned node_index=0; node_index<this->mpMesh->GetNumNodes(); node_index++)
             {
-                if (this->mpMesh->GetNode(node_index)->GetRegion() == HeartRegionCode::BATH)
+                if (HeartRegionCode::IsRegionBath( this->mpMesh->GetNode(node_index)->GetRegion() ))
                 {
                     p_bath_nodes->push_back(node_index);
                 }
@@ -359,7 +359,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
              iter != this->mpMesh->GetNodeIteratorEnd();
              ++iter)
         {
-            if ((*iter).GetRegion() == HeartRegionCode::BATH)
+            if (HeartRegionCode::IsRegionBath( (*iter).GetRegion() ))
             {
                 int num_equation = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved
 
@@ -395,7 +395,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
     {
-        if ((*iter).GetRegion() == HeartRegionCode::BATH)
+        if (HeartRegionCode::IsRegionBath((*iter).GetRegion() ))
         {
             PetscInt index[1];
             index[0] = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved

@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "UblasIncludes.hpp"
 
@@ -51,7 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
-
 
 #include <boost/shared_ptr.hpp>
 
@@ -540,7 +540,28 @@ public:
      */
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
-    double GetBathConductivity(unsigned bathRegion=1) const; /**< @return conductivity for perfusing bath (mS/cm)*/
+    /**
+     *  Returns bath conductivities for different regions of the bath. When called without a 
+     * region identifier, it will return whathever has been defined as <BathConductivity>
+     *  
+     *  @param bathRegion region identifier
+     *  @return bath conductivity (mS/cm)
+     */
+    double GetBathConductivity(unsigned bathRegion=UINT_MAX) const; 
+
+    /**
+     *  Gets  region identifiers that have to be considered as cardiac tissue.
+     * 
+     *  @param tissueIds vector of identifiers
+     */
+    const std::set<unsigned>& rGetTissueIdentifiers();
+
+    /**
+     *  Gets region identifiers that have to be considered as bath.
+     * 
+     *  @param bathIds vector of identifiers
+     */
+    const std::set<unsigned>& rGetBathIdentifiers();
 
 
     double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio chi a.k.a Am for PDE (1/cm)*/
@@ -905,8 +926,24 @@ public:
 
     /**
      * Set multiple bath conductivities based on element region label (mS/cm)
+     * 
+     * @param bathConductivities map between different bath region identifier and their conductivity (if different from default)
      */
     void SetBathMultipleConductivities(std::map<unsigned, double> bathConductivities);
+
+    /**
+     *  Sets which region identifiers have to be considered cardiac tissue.
+     * 
+     *  @param tissueIds vector of identifiers
+     */
+    void SetTissueIdentifiers(std::set<unsigned> tissueIds);
+
+    /**
+     *  Sets which region identifiers have to be considered bath.
+     * 
+     *  @param bathIds vector of identifiers
+     */
+    void SetBathIdentifiers(std::set<unsigned> bathIds);
 
     /**
      * Set surface area to volume ratio Am (for PDE)
@@ -1230,8 +1267,17 @@ private:
      *  Map defining bath conductivity for multiple bath regions
      */
     std::map<unsigned, double> mBathConductivities;
-
-
+    
+    /**
+     * Mesh region identifiers to be considered as cardiac tissue 
+     */
+    std::set<unsigned> mTissueIdentifiers;
+    
+    /**
+     * Mesh region identifiers to be considered as Bath
+     */
+    std::set<unsigned> mBathIdentifiers;
+    
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)

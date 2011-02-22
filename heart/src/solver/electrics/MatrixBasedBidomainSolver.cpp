@@ -140,7 +140,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
              ++index)
         {
     
-            if (this->mpMesh->GetNode(index.Global)->GetRegion() != HeartRegionCode::BATH)
+            if ( !HeartRegionCode::IsRegionBath( this->mpMesh->GetNode(index.Global)->GetRegion() ))
             {
                 double V = distributed_current_solution_vm[index];
                 double F = - Am*this->mpBidomainTissue->rGetIionicCacheReplicated()[index.Global]

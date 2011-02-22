@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartFileFinder.hpp"
 #include "Warnings.hpp"
 
+#include "HeartRegionCodes.hpp"
+
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
@@ -316,6 +318,10 @@ HeartConfig::HeartConfig()
 
     mUseStateVariableInterpolation = false;
     mUseReactionDiffusionOperatorSplitting = false;
+    
+    /// \todo #1703 This defaults should be set in HeartConfigDefaults.hpp
+    mTissueIdentifiers.insert(0);
+    mBathIdentifiers.insert(1);    
 }
 
 HeartConfig::~HeartConfig()
@@ -1603,12 +1609,16 @@ void HeartConfig::GetExtracellularConductivities(c_vector<double, 1>& extraCondu
 
 double HeartConfig::GetBathConductivity(unsigned bathRegion) const
 {
-    if (bathRegion == 0)
-    {
-        EXCEPTION("Region label 0 is reserved for tissue");
-    }
-    
-    if (bathRegion == 1)
+    /*
+     *  We have to consider three cases: The user asks for ...
+     *    a) ... the default conductivity (bathRegion=UINT_MAX)
+     *    b) ... the conductivity of region defined to be heterogeneous
+     *    c) ... the conductivity of region NOT defined to be heterogeneous
+     * 
+     *  a) and c) should return the same
+     */
+     
+    if (bathRegion == UINT_MAX)
     {
         /*bath conductivity mS/cm*/
         return DecideLocation( & mpUserParameters->Physiological().BathConductivity(),
@@ -1616,18 +1626,32 @@ double HeartConfig::GetBathConductivity(unsigned bathRegion) const
                                "BathConductivity")->get();
     }
     else
-    {
-        std::map<unsigned, double>::const_iterator it = mBathConductivities.find(bathRegion);
+    {               
+        assert(HeartRegionCode::IsRegionBath(bathRegion));
+    
+        std::map<unsigned, double>::const_iterator map_entry = mBathConductivities.find(bathRegion);
         
-        if (it == mBathConductivities.end())
+        if (map_entry != mBathConductivities.end())
         {
-            std::stringstream msg;
-            msg << "Bath conductivity not defined for region " << bathRegion;
-            EXCEPTION(msg.str());
+            return map_entry->second;
         }
-        
-        return it->second;
+        else
+        {    
+            /*bath conductivity mS/cm*/
+            return DecideLocation( & mpUserParameters->Physiological().BathConductivity(),
+                                   & mpDefaultParameters->Physiological().BathConductivity(),
+                                   "BathConductivity")->get();
+        }
     }
+}
+const std::set<unsigned>&  HeartConfig::rGetTissueIdentifiers()
+{
+    return mTissueIdentifiers;
+}
+
+const std::set<unsigned>&  HeartConfig::rGetBathIdentifiers()
+{
+    return mBathIdentifiers;
 }
 
 double HeartConfig::GetSurfaceAreaToVolumeRatio() const
@@ -2494,6 +2518,16 @@ void HeartConfig::SetBathMultipleConductivities(std::map<unsigned, double> bathC
 {
     /// \todo: This implementation is temporary until we incorporate the bath heterogeneities to the XML schema
     mBathConductivities = bathConductivities;
+}
+
+void HeartConfig::SetTissueIdentifiers(std::set<unsigned> tissueIds)
+{
+    mTissueIdentifiers=tissueIds;
+}
+
+void HeartConfig::SetBathIdentifiers(std::set<unsigned> bathIds)
+{
+    mBathIdentifiers=bathIds;
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)

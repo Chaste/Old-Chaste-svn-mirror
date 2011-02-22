@@ -46,7 +46,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
              iter != this->mpMesh->GetNodeIteratorEnd();
             ++iter)
         {
-            (*iter).SetRegion(HeartRegionCode::BATH);
+            (*iter).SetRegion(HeartRegionCode::BathRegion());
         }
 
         bool any_bath_element_found = false;
@@ -59,16 +59,16 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
         {
             Element<DIM, DIM>& r_element = *it;
 
-            if (r_element.GetRegion() == HeartRegionCode::TISSUE)
+            if (HeartRegionCode::IsRegionTissue( r_element.GetRegion() ))
             {
                 for (unsigned j=0; j<r_element.GetNumNodes(); j++)
                 {
-                    r_element.GetNode(j)->SetRegion(HeartRegionCode::TISSUE);
+                    r_element.GetNode(j)->SetRegion(HeartRegionCode::TissueRegion());
                 }
             }
             else
             {
-                assert(r_element.GetRegion() == HeartRegionCode::BATH);
+                assert(HeartRegionCode::IsRegionBath( r_element.GetRegion() ));
                 any_bath_element_found = true;
             }
         }
@@ -95,7 +95,7 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
              index!= ic.End();
              ++index)
         {
-            if (this->mpMesh->GetNode( index.Global )->GetRegion() == HeartRegionCode::BATH)
+            if (HeartRegionCode::IsRegionBath( this->mpMesh->GetNode( index.Global )->GetRegion() ))
             {
                 voltage_stripe[index] = 0.0;
             }
