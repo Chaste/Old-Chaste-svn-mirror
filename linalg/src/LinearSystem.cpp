@@ -952,7 +952,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             std::stringstream num_it_str;
             num_it_str << num_it;
             
-            KSPSetNormType(mKspSolver, KSP_NORM_NO);            
+            //KSPSetNormType(mKspSolver, KSP_NORM_NO);   KSP_NORM_NONE? Won't compile            
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
             KSPSetFromOptions(mKspSolver);
 

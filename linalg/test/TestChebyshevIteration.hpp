@@ -115,7 +115,7 @@ public:
         VecDestroy(parallel_layout);
     }
 
-    void TestFixedNumberOfIterations()
+    void MiguelTestFixedNumberOfIterations()
     {
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
