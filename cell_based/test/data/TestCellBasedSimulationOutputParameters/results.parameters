@@ -34,7 +34,7 @@
 			<G2Duration>4</G2Duration>
 			<MDuration>1</MDuration>
 		</FixedDurationGenerationBasedCellCycleModel>
-	</CellCycleModels
+	</CellCycleModels>
 
 	<Forces>
 	</Forces>
