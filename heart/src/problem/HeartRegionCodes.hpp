@@ -63,10 +63,10 @@ public:
     static const HeartRegionType UNKNOWN=1007;
     
     /** Convenience method that returns a valid tissue identifier */
-    static HeartRegionType TissueRegion();
+    static HeartRegionType GetValidTissueId();
 
     /** Convenience method that returns a valid bath identifier */
-    static HeartRegionType BathRegion();   
+    static HeartRegionType GetValidBathId();   
     
     /**
      *  For a given region identifier, determines whether it is a tissue identifier

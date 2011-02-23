@@ -73,15 +73,41 @@ public:
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
-        HeartRegionType expected_node_regions[11]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
-                                             HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
-                                             HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
+        HeartRegionType expected_node_regions[11]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
+                                             HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
+                                             HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
         for (unsigned i=0; i<11; i++)
         {
             if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
             {
                 /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()
+                /// \todo #1703 DELETE THIS and BELOW
                 TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
+            }
+        }
+        
+        //The first nodes aren't heart
+        for (unsigned i=0; i<3; i++)
+        {
+            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
+            {
+                TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion()) );
+            }
+        }
+        //The middle nodes are heart
+        for (unsigned i=3; i<8; i++)
+        {
+            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
+            {
+                TS_ASSERT(HeartRegionCode::IsRegionTissue( p_mesh->GetNode(i)->GetRegion()) );
+            }
+        }
+        //The last nodes aren't heart
+        for (unsigned i=8; i<11; i++)
+        {
+            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
+            {
+                TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion()) );
             }
         }
         // we need to call solve as otherwise an EventHandler exception is thrown
@@ -120,7 +146,7 @@ public:
 
         try
         {
-            mesh.GetElement(0)->SetRegion(HeartRegionCode::BathRegion());
+            mesh.GetElement(0)->SetRegion(HeartRegionCode::GetValidBathId());
         }
         catch(Exception& e)
         {
@@ -159,7 +185,7 @@ public:
             double x = mesh.GetElement(i)->CalculateCentroid()[0];
             if( (x<0.25) || (x>0.75) )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());
             }
         }
 
@@ -214,7 +240,7 @@ public:
 
         for(unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
+            mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());
         }
 
         // create boundary conditions container
@@ -400,13 +426,12 @@ public:
 
         std::set<unsigned> tissue_ids;
         tissue_ids.insert(0); // Same as default value defined in HeartConfig
-        HeartConfig::Instance()->SetTissueIdentifiers(tissue_ids);
 
         std::set<unsigned> bath_ids;
         bath_ids.insert(2);
         bath_ids.insert(3);
         bath_ids.insert(4);
-        HeartConfig::Instance()->SetBathIdentifiers(bath_ids);
+        HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
         
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.
@@ -809,9 +834,9 @@ public:
 
 
             // the middle 4 elements are 'heart' elements (ie region=0),
-            HeartRegionType expected_element_regions[10]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
-                       HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
-                       HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
+            HeartRegionType expected_element_regions[10]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
+                       HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
+                       HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
             for (AbstractTetrahedralMesh<1,1>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
                  iter != p_mesh->GetElementIteratorEnd();
                  ++iter)
@@ -831,9 +856,9 @@ public:
 //                }
 //            }
             // so the middle 5 nodes should be heart nodes
-            HeartRegionType expected_node_regions[11]={ HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(), HeartRegionCode::BathRegion(),
-                       HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(), HeartRegionCode::TissueRegion(),
-                       HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion(),HeartRegionCode::BathRegion()};
+            HeartRegionType expected_node_regions[11]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
+                       HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
+                       HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
             for (unsigned i=0; i<10; i++)
             {
                 if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))

@@ -976,13 +976,16 @@ public:
         HeartConfig::Instance()->SetBathConductivity(150);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 150);
 
+        std::set<unsigned> tissue_ids;
+        tissue_ids.insert(0); //Has to be non-empty
+        
         std::set<unsigned> bath_ids;
         bath_ids.insert(2);
         bath_ids.insert(4);
         bath_ids.insert(5);
         bath_ids.insert(10);
         
-        HeartConfig::Instance()->SetBathIdentifiers(bath_ids);
+        HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
 
         std::map<unsigned, double> multiple_bath_conductivities;        
         multiple_bath_conductivities[2] = 3.0;

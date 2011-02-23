@@ -2520,13 +2520,30 @@ void HeartConfig::SetBathMultipleConductivities(std::map<unsigned, double> bathC
     mBathConductivities = bathConductivities;
 }
 
-void HeartConfig::SetTissueIdentifiers(std::set<unsigned> tissueIds)
-{
-    mTissueIdentifiers=tissueIds;
-}
+//void HeartConfig::SetTissueIdentifiers(const std::set<unsigned>& tissueIds)
+//{
+//    std::set<unsigned> empty_bath_identifiers;  //Too dangerous (see GetValidBathId) 
+//    SetTissueAndBathIdentifiers(tissueIds, mBathIdentifiers);
+//}
 
-void HeartConfig::SetBathIdentifiers(std::set<unsigned> bathIds)
+void HeartConfig::SetTissueAndBathIdentifiers(const std::set<unsigned>& tissueIds, const std::set<unsigned>& bathIds)
 {
+    if (tissueIds.empty() || bathIds.empty() )
+    {
+        EXCEPTION("Identifying set must be non-empty");
+    }
+    std::set<unsigned> shared_identifiers;
+    std::set_intersection(tissueIds.begin(),
+                          tissueIds.end(),
+                          bathIds.begin(),
+                          bathIds.end(),
+                          std::inserter(shared_identifiers, shared_identifiers.begin()));
+    
+    if (!shared_identifiers.empty())
+    {
+        EXCEPTION("Tissue identifiers and bath identifiers overlap");
+    }
+    mTissueIdentifiers=tissueIds;
     mBathIdentifiers=bathIds;
 }
 

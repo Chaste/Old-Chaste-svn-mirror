@@ -38,14 +38,14 @@ const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_SURFACE;
 const HeartRegionType HeartRegionCode::UNKNOWN;
 
 
-HeartRegionType HeartRegionCode::TissueRegion()
+HeartRegionType HeartRegionCode::GetValidTissueId()
 {
     // Returns the identifier of the first region defined as tissue    
     assert(!HeartConfig::Instance()->rGetTissueIdentifiers().empty());
     return *HeartConfig::Instance()->rGetTissueIdentifiers().begin();
 }
 
-HeartRegionType HeartRegionCode::BathRegion()
+HeartRegionType HeartRegionCode::GetValidBathId()
 {
     // Returns the identifier of the first region defined as bath    
     assert(!HeartConfig::Instance()->rGetBathIdentifiers().empty());    

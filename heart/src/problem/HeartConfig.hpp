@@ -542,7 +542,7 @@ public:
 
     /**
      *  Returns bath conductivities for different regions of the bath. When called without a 
-     * region identifier, it will return whathever has been defined as <BathConductivity>
+     * region identifier, it will return whatever has been defined as BathConductivity
      *  
      *  @param bathRegion region identifier
      *  @return bath conductivity (mS/cm)
@@ -552,14 +552,14 @@ public:
     /**
      *  Gets  region identifiers that have to be considered as cardiac tissue.
      * 
-     *  @param tissueIds vector of identifiers
+     *  @return set of identifiers
      */
     const std::set<unsigned>& rGetTissueIdentifiers();
 
     /**
      *  Gets region identifiers that have to be considered as bath.
      * 
-     *  @param bathIds vector of identifiers
+     *  @return set of identifiers
      */
     const std::set<unsigned>& rGetBathIdentifiers();
 
@@ -932,18 +932,20 @@ public:
     void SetBathMultipleConductivities(std::map<unsigned, double> bathConductivities);
 
     /**
-     *  Sets which region identifiers have to be considered cardiac tissue.
+     *  Sets which region identifiers have to be considered cardiac tissue and bath.
      * 
-     *  @param tissueIds vector of identifiers
+     *  @param tissueIds set of identifiers
+     *  @param bathIds set of identifiers
      */
-    void SetTissueIdentifiers(std::set<unsigned> tissueIds);
+    void SetTissueAndBathIdentifiers(const std::set<unsigned>& tissueIds, const std::set<unsigned>& bathIds);
 
     /**
-     *  Sets which region identifiers have to be considered bath.
+     *  Sets which region identifiers have to be considered cardiac tissue.
      * 
-     *  @param bathIds vector of identifiers
+     *  param tissueIds set of identifiers
+     * \todo #1703 Think about adding this convenience method either copying the existing BathIds, resetting them out of the way, or making them empty...
      */
-    void SetBathIdentifiers(std::set<unsigned> bathIds);
+    //void SetTissueIdentifiers(const std::set<unsigned>& tissueIds);
 
     /**
      * Set surface area to volume ratio Am (for PDE)

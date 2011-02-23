@@ -45,8 +45,7 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         bath_ids.insert(1);
         bath_ids.insert(2);
         
-        HeartConfig::Instance()->SetTissueIdentifiers(tissue_ids);
-        HeartConfig::Instance()->SetBathIdentifiers(bath_ids);
+        HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
         
         TS_ASSERT(HeartRegionCode::IsRegionTissue(0));
         TS_ASSERT(HeartRegionCode::IsRegionTissue(10));
@@ -63,24 +62,38 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         int tissue_region_one;//, tissue_region_two;
         int bath_region_one;//, bath_region_two;
         
-        tissue_region_one = HeartRegionCode::TissueRegion();
-//        tissue_region_two = HeartRegionCode::TissueSubRegion(1);        
+        tissue_region_one = HeartRegionCode::GetValidTissueId();
 
-        bath_region_one = HeartRegionCode::BathRegion();
-//        bath_region_two = HeartRegionCode::BathSubRegion(1);        
-//
+        bath_region_one = HeartRegionCode::GetValidBathId();
+
         TS_ASSERT(HeartRegionCode::IsRegionTissue(tissue_region_one));
         TS_ASSERT(!HeartRegionCode::IsRegionBath(tissue_region_one));
 
-//        TS_ASSERT(HeartRegionCode::IsRegionTissue(tissue_region_two));
-//        TS_ASSERT(!HeartRegionCode::IsRegionBath(tissue_region_two));
-//        
+
         TS_ASSERT(!HeartRegionCode::IsRegionTissue(bath_region_one));
         TS_ASSERT(HeartRegionCode::IsRegionBath(bath_region_one));
-//
-//        TS_ASSERT(!HeartRegionCode::IsRegionTissue(bath_region_two));
-//        TS_ASSERT(HeartRegionCode::IsRegionBath(bath_region_two));
-    }    
+
+    }
+    
+    void TestExceptions() throw (Exception)
+    {
+        std::set<unsigned> tissue_ids;
+        tissue_ids.insert(0);
+        tissue_ids.insert(10);
+
+        std::set<unsigned> bath_ids;
+        //Empty set
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids),
+            "Identifying set must be non-empty");
+        
+        
+        bath_ids.insert(1);
+        bath_ids.insert(10);  //Overlaps with previous
+        
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids),
+            "Tissue identifiers and bath identifiers overlap");
+        
+     }    
 };
 
 #endif /*TESTHEARTREGIONCODES_HPP_*/
