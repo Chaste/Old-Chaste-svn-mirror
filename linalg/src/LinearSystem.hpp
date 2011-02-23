@@ -113,6 +113,12 @@ private:
 
     /** The max number of nonzero entries expected on a LHS row */
     unsigned mRowPreallocation;
+    
+    /** Whether to use fixed number of iterations or not */ 
+    bool mUseFixedNumberIterations;
+    
+    /** Initialised to true, set to false after one solve */
+    bool mFirstSolve;
 
 #ifdef TRACE_KSP
     unsigned mNumSolves;
@@ -528,6 +534,12 @@ public:
      * @param precondIsDifferent  whether the matrix used for preconditioning is the same as the LHS.
      */
     void SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent = true);
+    
+    /**
+     * Set method for #mUseFixedNumberIterations
+     * @param useFixedNumberIterations whether to use fixed number of iterations
+     */
+    void SetUseFixedNumberIterations(bool useFixedNumberIterations = true);
     
     /**
      * Method to regenerate all KSP objects, including the solver and the preconditioner (e.g. after 

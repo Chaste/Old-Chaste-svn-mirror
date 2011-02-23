@@ -56,7 +56,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mpTwoLevelsBlockDiagonalPC(NULL),
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
     mPrecondMatrixIsNotLhs(false),
-    mRowPreallocation(rowPreallocation)
+    mRowPreallocation(rowPreallocation),
+    mUseFixedNumberIterations(false),
+    mFirstSolve(true)
 {
     assert(lhsVectorSize>0);
     if (mRowPreallocation == UINT_MAX)
@@ -134,7 +136,9 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mpTwoLevelsBlockDiagonalPC(NULL),
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
     mPrecondMatrixIsNotLhs(false),
-    mRowPreallocation(rowPreallocation)
+    mRowPreallocation(rowPreallocation),
+    mUseFixedNumberIterations(false),
+    mFirstSolve(true)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -169,7 +173,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mpTwoLevelsBlockDiagonalPC(NULL),
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
     mPrecondMatrixIsNotLhs(false),
-    mRowPreallocation(UINT_MAX)
+    mRowPreallocation(UINT_MAX),
+    mUseFixedNumberIterations(false),
+    mFirstSolve(true)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -797,27 +803,23 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             // Compute eigenvalues
             double eig_max, eig_min;
             Vec lhs_vector;
-            VecDuplicate(mRhsVector, &lhs_vector);            
+            VecDuplicate(mRhsVector, &lhs_vector);
+            if (lhsGuess)
+            {
+                VecCopy(lhsGuess, lhs_vector);
+            }
+                        
             KSPSolve(mKspSolver, mRhsVector, lhs_vector);
             KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
+#ifdef TRACE_KSP
             if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
+#endif
 
             // Set Chebyshev solver and max/min eigenvalues
-            assert(mKspType == "chebyshev");
+            assert(mKspType == "chebychev");
             KSPSetType(mKspSolver, mKspType.c_str());            
             KSPChebychevSetEigenvalues(mKspSolver, eig_max, eig_min);
             KSPSetComputeSingularValues(mKspSolver, PETSC_FALSE);
-
-//            PetscInt num_it;
-//            KSPGetIterationNumber(mKspSolver, &num_it);            
-//            std::stringstream num_it_str;
-//            num_it_str << num_it;
-//            
-//            KSPSetNormType(mKspSolver, KSP_NORM_NO);            
-//            PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
-//            KSPSetFromOptions(mKspSolver);
-
-//            KSPSetNormType(mKspSolver, KSP_NORM_PRECONDITIONED);
 
             // Go back to the original tolerances
             if (mUseAbsoluteTolerance)
@@ -829,7 +831,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
             }
 
-                        
 #ifdef TRACE_KSP
             Timer::Print("Computing extremal eigenvalues");
 #endif
@@ -944,6 +945,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
 #endif
 
+        if(mUseFixedNumberIterations && mFirstSolve)        
+        {
+            PetscInt num_it;
+            KSPGetIterationNumber(mKspSolver, &num_it);            
+            std::stringstream num_it_str;
+            num_it_str << num_it;
+            
+            KSPSetNormType(mKspSolver, KSP_NORM_NO);            
+            PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+            KSPSetFromOptions(mKspSolver);
+
+            mFirstSolve = false;
+        }
 
         // Check that solver converged and throw if not
         KSPConvergedReason reason;
@@ -986,6 +1000,11 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
         PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;                
         PetscTools::SetupMat(mPrecondMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);        
     }
+}
+
+void LinearSystem::SetUseFixedNumberIterations(bool useFixedNumberIterations)
+{
+    mUseFixedNumberIterations = useFixedNumberIterations;
 }
 
 void LinearSystem::ResetKspSolver()

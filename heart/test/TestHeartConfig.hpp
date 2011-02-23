@@ -1235,6 +1235,9 @@ public:
         HeartConfig::Instance()->SetUseMassLumpingForPrecond(false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumpingForPrecond(), false);
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), false);
+        HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), true);
     }
 
     void TestWrite() throw (Exception)

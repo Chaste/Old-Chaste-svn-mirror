@@ -114,6 +114,55 @@ public:
 
         VecDestroy(parallel_layout);
     }
+
+    void TestFixedNumberOfIterations()
+    {
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);               
+
+        Mat system_matrix;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
+
+        Vec system_rhs;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
+
+        LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+
+        ls.SetMatrixIsSymmetric();
+        ls.SetKspType("chebychev");
+        ls.SetPcType("jacobi");
+        ls.SetUseFixedNumberIterations();
+
+        Vec guess;
+        VecDuplicate(system_rhs, &guess);
+        VecSet(guess, 0.0);
+
+        Vec solution = ls.Solve(guess);
+
+        unsigned chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 88u);
+
+        /*
+         * We solve the same linear system again using the previous solution as the new
+         * guess. If we were checking convergence normally it would take one iteration
+         * to solve. Since we set fixed number of iterations based on first solve, it will
+         * take the same number as above.
+         */
+        Vec solution2 = ls.Solve(solution);
+        chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 88u);
+
+        MatDestroy(system_matrix);
+        VecDestroy(system_rhs);
+        VecDestroy(solution);
+        VecDestroy(solution2);
+        
+        VecDestroy(parallel_layout);
+    }
+
 };
 
 #endif /*TESTPCBLOCKDIAGONAL_HPP_*/

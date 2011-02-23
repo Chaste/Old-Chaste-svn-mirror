@@ -293,7 +293,8 @@ HeartConfig* HeartConfig::Instance()
 
 HeartConfig::HeartConfig()
     : mUseMassLumping(false),
-      mUseMassLumpingForPrecond(false)
+      mUseMassLumpingForPrecond(false),
+      mUseFixedNumberIterations(false)
 {
     assert(mpInstance.get() == NULL);
     mUseFixedSchemaLocation = true;
@@ -3102,6 +3103,16 @@ bool HeartConfig::GetUseReactionDiffusionOperatorSplitting()
 {
     return mUseReactionDiffusionOperatorSplitting;
 }
+
+void HeartConfig::SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations)
+{
+    mUseFixedNumberIterations = useFixedNumberIterations;
+}    
+
+bool HeartConfig::GetUseFixedNumberIterationsLinearSolver()
+{
+    return mUseFixedNumberIterations;
+}    
 
 
 /**********************************************************************

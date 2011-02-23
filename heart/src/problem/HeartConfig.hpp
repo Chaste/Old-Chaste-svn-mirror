@@ -750,6 +750,12 @@ public:
      *  Set method documentation).
      */
     bool GetUseReactionDiffusionOperatorSplitting();
+    
+    /**
+     * Get whether to use a fixed number of iterations in the linear solver
+     */
+    bool GetUseFixedNumberIterationsLinearSolver();
+    
 
     ///////////////////////////////////////////////////////////////
     //
@@ -1177,6 +1183,12 @@ public:
      */
     void SetUseReactionDiffusionOperatorSplitting(bool useOperatorSplitting = true);
 
+    /**
+     * Set the use of fixed number of iterations in the linear solver
+     * 
+     * @param useFixedNumberIterations Whether to use a fixed number of iterations for the linear solver
+     */
+    void SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations = true);
 
 
 private:
@@ -1280,6 +1292,11 @@ private:
      */
     std::set<unsigned> mBathIdentifiers;
     
+    /**
+     * Whether to use a fixed number of iterations for the linear solver
+     */
+    bool mUseFixedNumberIterations;    
+        
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)

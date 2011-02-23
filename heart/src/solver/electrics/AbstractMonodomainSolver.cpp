@@ -96,6 +96,7 @@ void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec ini
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
     this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
     this->mpLinearSystem->SetMatrixIsSymmetric(true);
+    this->mpLinearSystem->SetUseFixedNumberIterations(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver());
 }
 
 

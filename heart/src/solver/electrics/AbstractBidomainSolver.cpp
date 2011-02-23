@@ -105,6 +105,8 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
         // applying average(phi)=0 constraint, so matrix is not symmetric
         this->mpLinearSystem->SetMatrixIsSymmetric(false);
     }
+
+    this->mpLinearSystem->SetUseFixedNumberIterations(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver());
 }
 
 
