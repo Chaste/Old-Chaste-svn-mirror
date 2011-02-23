@@ -94,12 +94,12 @@ void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 
 void AbstractCardiacCell::SetVoltage(double voltage)
 {
-    rGetStateVariables()[mVoltageIndex] = voltage;
+    SetAnyVariable(mVoltageIndex, voltage);
 }
 
 double AbstractCardiacCell::GetVoltage()
 {
-    return rGetStateVariables()[mVoltageIndex];
+    return GetAnyVariable(mVoltageIndex);
 }
 
 double AbstractCardiacCell::GetIntracellularCalciumConcentration()

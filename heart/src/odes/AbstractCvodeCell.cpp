@@ -118,13 +118,13 @@ void AbstractCvodeCell::Init()
 double AbstractCvodeCell::GetVoltage()
 {
     assert(mStateVariables);
-    return NV_Ith_S(mStateVariables, mVoltageIndex);
+    return GetAnyVariable(mVoltageIndex);
 }
 
 void AbstractCvodeCell::SetVoltage(double voltage)
 {
     assert(mStateVariables);
-    NV_Ith_S(mStateVariables, mVoltageIndex) = voltage;
+    SetAnyVariable(mVoltageIndex, voltage);
 }
 
 

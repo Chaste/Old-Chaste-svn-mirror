@@ -107,14 +107,22 @@ class Protocol(processors.ModelModifier):
         """
         # Add units before variables before maths so the order of inputs doesn't matter so much.
         for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
+            self._check_input(input)
             self._add_units_to_model(input)
         for input in filter(lambda i: isinstance(i, cellml_variable), self.inputs):
+            self._check_input(input)
             self._add_variable_to_model(input)
         for input in filter(lambda i: isinstance(i, mathml_apply), self.inputs):
+            self._check_input(input)
             self._add_maths_to_model(input)
         self._fix_model_connections()
         self.finalize(self._error_handler)
         self._filter_assignments()
+
+    def _check_input(self, input):
+        """Inputs must not already exist in the model!"""
+        if self.model is getattr(input, 'xml_parent', None):
+            raise ProtocolError("Inputs must not already exist in the model.")
         
     def _error_handler(self, errors):
         """Deal with errors found when re-analysing a modified model."""
@@ -286,6 +294,8 @@ class Protocol(processors.ModelModifier):
             # Remove parts of the model that aren't needed
             needed_nodes = self.model.calculate_extended_dependencies(self.outputs,
                                                                       state_vars_depend_on_odes=True)
+            needed_nodes.update([input for input in self.inputs
+                                 if isinstance(input, (mathml_apply, cellml_variable))])
             for node in self.model.get_assignments()[:]:
                 if node not in needed_nodes:
                     if isinstance(node, cellml_variable):
@@ -316,7 +326,11 @@ class Protocol(processors.ModelModifier):
             var.set_pe_keep(False)
             var.set_is_derived_quantity(False)
             var.set_is_modifiable_parameter(False)
-        # Add annotations for outputs
+        # Add annotations for inputs & outputs
+        for var in [input for input in self.inputs if isinstance(input, cellml_variable)]:
+            var.set_pe_keep(True)
+            if var.get_type() == VarTypes.Constant:
+                var.set_is_modifiable_parameter(True)
         for var in self.outputs:
             assert isinstance(var, cellml_variable)
             var.set_is_output_variable(True)

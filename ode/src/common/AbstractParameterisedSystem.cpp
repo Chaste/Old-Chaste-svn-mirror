@@ -270,6 +270,23 @@ bool AbstractParameterisedSystem<VECTOR>::HasAnyVariable(const std::string& rNam
 }
 
 template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetAnyVariable(unsigned index, double value)
+{
+    if (index < mNumberOfStateVariables)
+    {
+        SetVectorComponent(mStateVariables, index, value);
+    }
+    else if (index - mNumberOfStateVariables < GetVectorSize(mParameters))
+    {
+        SetVectorComponent(mParameters, index - mNumberOfStateVariables, value);
+    }
+    else
+    {
+        EXCEPTION("Cannot set the value of a derived quantity, or invalid index.");
+    }
+}
+
+template<typename VECTOR>
 std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(unsigned index) const
 {
     assert(mpSystemInfo);

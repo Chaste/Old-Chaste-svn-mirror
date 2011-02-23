@@ -57,6 +57,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+        // In case we're loading an old archive, update mNumberOfStateVariables
+        this->mNumberOfStateVariables = 1;
     }
 
 public:
@@ -86,7 +88,7 @@ public:
 
     /**
      * Fake cells have no transmembrane currents, so this method always returns 0.
-     * 
+     *
      * @param pStateVariables  unused
      */
     double GetIIonic(const std::vector<double>* pStateVariables=NULL);

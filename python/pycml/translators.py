@@ -1952,6 +1952,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
                      self.class_name, '>::Instance();')
+        if self.v_index == -1:
+            self.writeln('this->mVoltageIndex = GetAnyVariableIndex("',
+                         self.var_display_name(self.v_variable), '");')
         if self.config.options.fast_fixed_timestep:
             dt = self.lt_class_name + '::dt'
             self.writeln('assert(%s == 0.0 || %s == mFixedDt);' % (dt,dt))
@@ -4690,6 +4693,7 @@ class ConfigurationStore(object):
                     raise ConfigurationError(msg)
                 else:
                     print >>sys.stderr, msg
+                    self.i_stim_var = None
         # For other ionic currents, try using the equation for dV/dt unless told otherwise
         if not self.options.use_i_ionic_regexp:
             self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
@@ -5048,14 +5052,14 @@ def get_options(args, default_options=None):
     options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:
         parser.error("exactly one input CellML file must be specified")
+    if options.debug_source:
+        options.debug = True
     return options, args[0]
 
 
 def load_model(model_file, options):
     """Load and validate a CellML model."""
     # Setup logging
-    if options.debug_source:
-        options.debug = True
     if options.debug:
         formatter = logging.Formatter(fmt="%(name)s: %(message)s")
         handler = logging.StreamHandler(sys.stderr)
@@ -5091,6 +5095,12 @@ def run():
     """Translate the file given on the command line."""
     options, model_file = get_options(sys.argv[1:])
     doc = load_model(model_file, options)
+    DEBUG('translate', "+++ Loaded model")
+
+    config = ConfigurationStore(doc, options=options)
+    for config_file in options.config_file:
+        config.read_configuration_file(config_file)
+    DEBUG('translate', "+++ Read config")
     
     # Apply protocol, if given
     if options.protocol:
@@ -5098,16 +5108,13 @@ def run():
         protocol.apply_protocol_file(doc, options.protocol)
         DEBUG('translate', "+++ Applied protocol")
 
-    config = ConfigurationStore(doc, options=options)
     if options.config_file:
-        for config_file in options.config_file:
-            config.read_configuration_file(config_file)
         config.finalize_config()
     else:
         # Use defaults
         config.find_transmembrane_potential()
         config.find_current_vars()
-    DEBUG('translate', "+++ Read config")
+    DEBUG('translate', "+++ Processed config")
 
     # Generate an interface component, if desired
     translator_klass = CellMLTranslator.translators[options.translate_type]

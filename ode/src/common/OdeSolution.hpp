@@ -101,18 +101,20 @@ public:
     void SetOdeSystemInformation(boost::shared_ptr<const AbstractOdeSystemInformation> pOdeSystemInfo);
 
     /**
-     * Get the values of a state variable with a given index in
+     * Get the values of a state variable, parameter or derived quantity with a given index in
      * the ODE system at each output timestep.
+     * The index is that given by AbstractOdeSystemInformation::GetAnyVariableIndex, which for state
+     * variables (the most common case) is equal to their index within the state variable vector.
      *
-     * @param index  the index of the state variable in the system
+     * @param index  the index of the variable in the system
      */
     std::vector<double> GetVariableAtIndex(unsigned index) const;
 
     /**
-     * Get the values of a state variable with a given name in
-     * the ODE system for each output timestep
+     * Get the values of a state variable, parameter or derived quantity with a given name in
+     * the ODE system for each output timestep.
      *
-     * @param rName  the name of the state variable in the system
+     * @param rName  the name of the variable to extract
      */
     std::vector<double> GetAnyVariable(const std::string& rName) const;
 

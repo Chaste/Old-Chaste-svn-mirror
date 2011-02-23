@@ -1602,7 +1602,7 @@ class cellml_variable(Colourable, element_base):
         """
         return hash(self.fullname(cellml=True))
 
-    def fullname(self, cellml=False):
+    def fullname(self, cellml=False, debug=False):
         """
         Return the full name of this variable, i.e.
         '(component_name,variable_name)'.
@@ -1611,6 +1611,8 @@ class cellml_variable(Colourable, element_base):
         the CellML spec instead, i.e. component_name__variable_name, unless
         the component has its ignore_component_name property set, in which case
         just use variable_name.
+        
+        If debug is True, also give information about the variable object.
         """
         if cellml:
             if self.component.ignore_component_name:
@@ -1619,6 +1621,8 @@ class cellml_variable(Colourable, element_base):
                 vn = self.xml_parent.name + u'__' + self.name
         else:
             vn = u'(' + self.xml_parent.name + u',' + self.name + u')'
+        if debug:
+            vn = '%s@0x%x' % (vn, id(self))
         return vn
 
     @staticmethod
@@ -1736,12 +1740,13 @@ class cellml_variable(Colourable, element_base):
         """
         if not self._cml_source_var is None:
             # Mapping already exists
-            model = self.xml_parent.xml_parent
+            model = self.model
+            debug = model.get_option('debug')
             model.validation_error(u' '.join([
                 'A variable with interface "in" may only obtain its',
                 'value from one location.\nBoth',
-                self._cml_source_var.fullname(),'and',
-                src_var.fullname(),'are exported to',self.fullname()]))
+                self._cml_source_var.fullname(debug=debug), 'and',
+                src_var.fullname(debug=debug), 'are exported to', self.fullname(debug=debug)]))
         else:
             self._cml_source_var = src_var
             self._set_type(VarTypes.Mapped)

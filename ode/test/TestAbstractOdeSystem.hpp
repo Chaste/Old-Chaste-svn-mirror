@@ -98,7 +98,7 @@ public:
     {
         ParameterisedOde ode;
         boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
-        
+
         TS_ASSERT_EQUALS(ode.GetSystemName(), "ParameterisedOde");
         TS_ASSERT_EQUALS(p_info->GetSystemName(), "ParameterisedOde");
 
@@ -136,7 +136,7 @@ public:
         TS_ASSERT_EQUALS(p_info->GetStateVariableUnits(0u), "dimensionless");
 
         double y = -1.0;
-        ode.SetStateVariable(0u, y);
+        ode.SetAnyVariable(0u, y);
         TS_ASSERT_EQUALS(ode.GetStateVariable(0u), y);
 
         TS_ASSERT_EQUALS(ode.HasAnyVariable("y"), true);
@@ -145,6 +145,9 @@ public:
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("a"), 1u);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(0u), y);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(1u), a);
+        double new_a = 12345.6789;
+        ode.SetAnyVariable(1u, new_a);
+        TS_ASSERT_EQUALS(ode.GetAnyVariable(1u), new_a);
 
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(0u), "dimensionless");
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(1u), "dimensionless");
@@ -164,6 +167,7 @@ public:
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableIndex("b"), "No state variable named 'b'.");
         TS_ASSERT_EQUALS(ode.HasAnyVariable("b"), false);
         TS_ASSERT_THROWS_THIS(ode.GetAnyVariableIndex("b"), "No state variable, parameter, or derived quantity named 'b'.");
+        TS_ASSERT_THROWS_THIS(ode.SetAnyVariable(2u, 0.0), "Cannot set the value of a derived quantity, or invalid index.");
 
         TS_ASSERT_THROWS_THIS(ode.GetAnyVariable(3u), "Invalid index passed to GetAnyVariable.");
         TS_ASSERT_THROWS_THIS(ode.GetStateVariable(1u), "The index passed in must be less than the number of state variables.");
@@ -183,7 +187,7 @@ public:
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
         TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
     }
-    
+
     void TestAttributes() throw (Exception)
     {
         ParameterisedOde ode;
@@ -201,7 +205,7 @@ public:
         TS_ASSERT_THROWS_THIS(p_info->GetAttribute("missing"), "No attribute 'missing' found.");
     }
 
-    
+
     void TestArchivingOfParameters() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -211,11 +215,11 @@ public:
         std::string param_name;
         { // Save
             AbstractOdeSystem * const p_ode = new ParameterisedOde;
-            
+
             TS_ASSERT_EQUALS(p_ode->GetNumberOfParameters(), 1u);
             param_value = p_ode->GetParameter(0);
             param_name = p_ode->rGetParameterNames()[0];
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             output_arch << p_ode;
@@ -226,12 +230,12 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
             input_arch >> p_ode;
-            
+
             TS_ASSERT_EQUALS(p_ode->GetSystemName(), "ParameterisedOde");
             TS_ASSERT_EQUALS(p_ode->GetParameter(0), param_value);
             TS_ASSERT_EQUALS(p_ode->rGetParameterNames()[0], param_name);
             TS_ASSERT_EQUALS(p_ode->GetNumberOfParameters(), 1u);
-            
+
             delete p_ode;
         }
         { // Load with param name changed
@@ -241,7 +245,7 @@ public:
             std::string new_name("new_param_name");
             TS_ASSERT_DIFFERS(p_mod_info->mParameterNames[0], new_name);
             p_mod_info->mParameterNames[0] = new_name;
-            
+
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
@@ -253,23 +257,23 @@ public:
             ParameterisedOde ode;
             boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
             AbstractOdeSystemInformation* p_mod_info = const_cast<AbstractOdeSystemInformation*>(p_info.get());
-            
+
             p_mod_info->mParameterNames.push_back("new_name");
-            
+
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
             TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Number of ODE parameters in archive does not match number in class.");
             // Mend the ode system info for the following tests.
             p_mod_info->mParameterNames.resize(1u);
-        }       
+        }
     }
-    
+
     void TestDerivedQuantities() throw (Exception)
     {
         ParameterisedOde ode;
         boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
-        
+
         TS_ASSERT_EQUALS(ode.GetNumberOfDerivedQuantities(), 1u);
         TS_ASSERT_EQUALS(ode.HasDerivedQuantity("2a_plus_y"), true);
         TS_ASSERT_EQUALS(ode.HasDerivedQuantity("Not_there"), false);
@@ -279,7 +283,7 @@ public:
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityUnits().size(), 1u);
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityNames()[0], "2a_plus_y");
         TS_ASSERT_EQUALS(ode.rGetDerivedQuantityUnits()[0], "dimensionless");
-        
+
         TS_ASSERT_EQUALS(p_info->HasDerivedQuantity("2a_plus_y"), true);
         TS_ASSERT_EQUALS(p_info->HasDerivedQuantity("Not_there"), false);
         TS_ASSERT_EQUALS(p_info->GetDerivedQuantityIndex("2a_plus_y"), 0u);
@@ -288,14 +292,14 @@ public:
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits().size(), 1u);
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames()[0], "2a_plus_y");
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits()[0], "dimensionless");
-        
+
         TS_ASSERT_EQUALS(ode.HasAnyVariable("2a_plus_y"), true);
         TS_ASSERT_EQUALS(ode.HasAnyVariable("Not_there"), false);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("2a_plus_y"), 2u);
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(2u), "dimensionless");
         TS_ASSERT_EQUALS(p_info->GetAnyVariableIndex("2a_plus_y"), 2u);
         TS_ASSERT_EQUALS(p_info->GetAnyVariableUnits(2u), "dimensionless");
-        
+
         std::vector<double> derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
         double a = ode.GetParameter(0);
         TS_ASSERT_EQUALS(a, 0.0);
@@ -311,11 +315,11 @@ public:
         derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
         TS_ASSERT_DELTA(derived[0], 2*a+y, 1e-4);
         TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 1.0/* ignored for this ODE */), 2*a+y, 1e-4);
-        
+
         // Exceptions
         TS_ASSERT_THROWS_THIS(ode.GetDerivedQuantityIndex("Missing"), "No derived quantity named 'Missing'.");
         TS_ASSERT_THROWS_THIS(ode.GetDerivedQuantityUnits(1u), "The index passed in must be less than the number of derived quantities.");
-        
+
         TwoDimOdeSystem ode2;
         TS_ASSERT_THROWS_THIS(ode2.ComputeDerivedQuantitiesFromCurrentState(0.0),
                               "This ODE system does not define derived quantities.");
@@ -379,7 +383,7 @@ public:
         TS_ASSERT_DELTA(r_state_variables[0], 2.0, 1e-12);
         TS_ASSERT_DELTA(r_state_variables[1], 5.0, 1e-12);
     }
-    
+
     void TestLoadAbstractOdeSystem()
     {
         TwoDimOdeSystem ode;

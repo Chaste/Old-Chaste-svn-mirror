@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * along with methods to access these.  It also holds the AbstractOdeSystemInformation
  * pointer, and methods to access this object to provide information about the ODE
  * system, such as state variable/parameter names and units.
- * 
+ *
  * Its main purpose is to be a common base class for both AbstractOdeSystem and
  * AbstractCvodeCell, which require similar functionality but use different vector
  * types.
@@ -73,7 +73,7 @@ public:
      * @param numberOfStateVariables  the number of state variables in the ODE system
      */
     AbstractParameterisedSystem(unsigned numberOfStateVariables);
-    
+
     /**
      * Virtual destructor.
      */
@@ -83,7 +83,7 @@ public:
      * Get the object which provides information about this ODE system.
      */
     boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
-    
+
     /**
      * Get the name of this system.
      */
@@ -247,7 +247,7 @@ public:
     /**
      * Get the value of a variable, whether a state variable, parameter,
      * or derived quantity.
-     * 
+     *
      * Note that if the variable is a derived quantity, this method will compute
      * all derived quantities, so may not be very efficient.  To avoid this, pass
      * a pre-computed vector of derived quantities as the optional third argument.
@@ -263,8 +263,8 @@ public:
     /**
      * Get the index of a variable, whether a state variable, parameter,
      * or derived quantity, with the given name.
-     * The returned index is suitable for use with GetAnyVariableUnits
-     * and GetAnyVariable.
+     * The returned index is suitable for use with GetAnyVariableUnits,
+     * GetAnyVariable, etc.
      *
      * @param rName  the name of a variable
      */
@@ -281,6 +281,15 @@ public:
      */
     bool HasAnyVariable(const std::string& rName) const;
 
+    /*
+     * Set the value of a variable, whether a state variable or parameter.
+     * Attempting to set the value of a derived quantity will raise an exception.
+     *
+     * @param index  the index of the variable, as given by GetAnyVariableIndex.
+     * @param value  the value to give the variable.
+     */
+    void SetAnyVariable(unsigned index, double value);
+
     /**
      * Get the units of a variable, whether a state variable, parameter, or
      * derived quantity, given its index as returned by GetAnyVariableIndex.
@@ -293,25 +302,25 @@ public:
     //
     // Derived quantity methods
     //
-    
+
     /**
      * Get the number of derived quantities.
      */
     unsigned GetNumberOfDerivedQuantities() const;
-    
+
     /**
      * Compute the derived quantities from the given system state.
      * Uses the current values for the parameters.
-     * 
+     *
      * @param time  the time at which to compute the derived quantities
      * @param rState  values for the state variables
      */
     virtual VECTOR ComputeDerivedQuantities(double time,
                                             const VECTOR& rState);
-    
+
     /**
      * Compute the derived quantities based on the current system state.
-     * 
+     *
      * @param time  the time at which to compute the derived quantities
      */
     VECTOR ComputeDerivedQuantitiesFromCurrentState(double time);
@@ -325,7 +334,7 @@ public:
      * Get the vector of derived quantity units.
      */
     const std::vector<std::string>& rGetDerivedQuantityUnits() const;
-    
+
     /**
      * Get the index of a derived quantity, given its name.
      *

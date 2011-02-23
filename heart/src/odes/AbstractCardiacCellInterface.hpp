@@ -42,10 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class defines a common interface to AbstractCardiacCell and AbstractCvodeCell,
  * primarily for the benefit of single-cell cardiac simulations, so that calling code
  * doesn't need to know which solver is being used.
- * 
+ *
  * Strictly speaking this isn't an interface, since some methods have implementations
  * defined.  But the name AbstractCardiacCell was already taken.
- * 
+ *
  * Note that serialization is not defined for this class.  AbstractCvodeCell does not
  * have (or need) serialization at present, so adding serialization here would break
  * archive backwards compatibility for little gain.
@@ -54,15 +54,15 @@ class AbstractCardiacCellInterface
 {
 public:
     /**
-     * Create a new cardiac cell. The state variables of the cell will be 
+     * Create a new cardiac cell. The state variables of the cell will be
      * set to AbstractOdeSystemInformation::GetInitialConditions(). Note that
      * calls to SetDefaultInitialConditions() on a particular instance of this class
-     * will not modify its state variables. You can modify them directly with 
-     * rGetStateVariables(). 
+     * will not modify its state variables. You can modify them directly with
+     * rGetStateVariables().
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      *    (ignored for some subclasses; can be an empty pointer in these cases)
-     * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
+     * @param voltageIndex  the index of the transmembrane potential within the system; see #mVoltageIndex
      * @param pIntracellularStimulus  the intracellular stimulus current
      */
     AbstractCardiacCellInterface(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
@@ -71,12 +71,12 @@ public:
 
     /** Virtual destructor */
     virtual ~AbstractCardiacCellInterface();
-    
+
     /**
      * Reset the model's state variables to the default initial conditions.
      */
     virtual void ResetToInitialConditions()=0;
-    
+
     /**
      * Set the timestep (or maximum timestep) to use for simulating this cell.
      *
@@ -93,7 +93,7 @@ public:
      * @param tEnd  end of the time interval to simulate
      */
     virtual void SolveAndUpdateState(double tStart, double tEnd)=0;
-    
+
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * and return state variable values.  The timestep used will depend on the
@@ -136,7 +136,7 @@ public:
      *
      * Chaste's value for C_m can be obtained from HeartConfig::Instance()->GetCapacitance()
      * and is measured in uF/cm^2.
-     * 
+     *
      * @param pStateVariables  optionally can be supplied to evaluate the ionic current at the
      *     given state; by default the cell's internal state will be used.
      */
@@ -153,7 +153,12 @@ public:
      */
     virtual double GetVoltage()=0;
 
-    /** Get the index of the transmembrane potential within our state variable vector. */
+    /**
+     * Get the index of the transmembrane potential within this system.
+     * Usually it will be an index into the state variable vector, but this is not guaranteed.
+     * It will however always be suitable for use with AbstractParameterisedSystem::GetAnyVariable
+     * and OdeSolution::GetVariableAtIndex.
+     */
     unsigned GetVoltageIndex();
 
     /**
@@ -212,7 +217,7 @@ public:
      * the CellML.
      */
     virtual void UseCellMLDefaultStimulus();
-    
+
     /**
      * @return Whether the cell was generated from a CellML file with stimulus metadata.
      */
@@ -228,12 +233,12 @@ public:
     {
         // See also #794.
     }
-    
+
     /**
      * @return The Intracellular stimulus function pointer
      */
     boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction();
-    
+
     /**
      * For boost archiving use only
      * (that's why the 'consts' are required)
@@ -249,9 +254,14 @@ public:
      * @return pointer to the ODE solver being used
      */
     const boost::shared_ptr<AbstractIvpOdeSolver> GetSolver() const;
-    
+
 protected:
-    /** The index of the voltage within our state variable vector. */
+    /**
+     * The index of the voltage within this system.
+     * Usually it will be an index into the state variable vector, but this is not guaranteed.
+     * It will however always be suitable for use with AbstractParameterisedSystem::GetAnyVariable
+     * and OdeSolution::GetVariableAtIndex.
+     */
     unsigned mVoltageIndex;
 
     /** Pointer to the solver used to simulate this cell. */

@@ -103,7 +103,7 @@ private:
         // Paranoia check
         assert(this->mParameters.size() == this->rGetParameterNames().size());
     }
-    
+
     /**
      * The Luo-Rudy 1991 model saved in previous Chaste versions had a different ordering of state variables.
      * If we're loading that model, we'll need to permute the state vector.
@@ -116,11 +116,11 @@ protected:
     double mDt;
 
 public:
-    /** Create a new cardiac cell. The state variables of the cell will be 
+    /** Create a new cardiac cell. The state variables of the cell will be
      *  set to AbstractOdeSystemInformation::GetInitialConditions(). Note that
      *  calls to SetDefaultInitialConditions() on a particular instance of this class
-     *  will not modify its state variables. You can modify them directly with 
-     *  rGetStateVariables(). 
+     *  will not modify its state variables. You can modify them directly with
+     *  rGetStateVariables().
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
@@ -139,7 +139,7 @@ public:
      * Initialise the cell:
      *  - set our state variables to the initial conditions,
      *  - resize model parameters vector.
-     * 
+     *
      * @note Must be called by subclass constructors.
      */
     void Init();
@@ -148,7 +148,7 @@ public:
      * Reset the model's state variables to the default initial conditions.
      */
     void ResetToInitialConditions();
-    
+
     /**
      * Set the timestep to use for simulating this cell.
      *
@@ -164,7 +164,7 @@ public:
      * @param tEnd  end of the time interval to simulate
      */
     virtual void SolveAndUpdateState(double tStart, double tEnd);
-    
+
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep #mDt, and return state variable values.
@@ -196,18 +196,18 @@ public:
     double GetVoltage();
 
     /**
-     *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than
+     *  [Ca_i] is needed for mechanics, so we explicitly have a Get method (rather than
      *  use a get by name type method, to avoid inefficiency when using different
      *  types of cells). This method by default throws an exception, so should be
      *  implemented in the concrete class if intracellular (cytosolic) calcium concentration is
      *  one of the state variables.
      */
     virtual double GetIntracellularCalciumConcentration();
-    
+
     /**
-     *  In electromechanics problems, the stretch is passed back to cell-model in case 
+     *  In electromechanics problems, the stretch is passed back to cell-model in case
      *  mechano-electric feedback has been modelled. We define an empty method here.
-     *  Stretch-dependent cell models should overload this method to use the input 
+     *  Stretch-dependent cell models should overload this method to use the input
      *  stretch accordingly.
      *  @param stretch the stretch of the cell in the axial direction
      */

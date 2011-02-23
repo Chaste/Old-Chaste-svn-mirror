@@ -31,11 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 FakeBathCell::FakeBathCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                            boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-    : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus)
+    : AbstractCardiacCell(pSolver, 1, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FakeBathCell>::Instance();
-    // Make GetVoltage() return something sensible.
-    rGetStateVariables().push_back(0.0);
+    Init();
 }
 
 FakeBathCell::~FakeBathCell()
@@ -44,6 +43,7 @@ FakeBathCell::~FakeBathCell()
 
 void FakeBathCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
+    rDY[0] = 0.0;
 }
 
 double FakeBathCell::GetIIonic(const std::vector<double>* pStateVariables)
@@ -61,9 +61,9 @@ template<>
 void OdeSystemInformation<FakeBathCell>::Initialise(void)
 {
     // State variables
-    //this->mVariableNames.push_back("Fake voltage");
-    //this->mVariableUnits.push_back("mV");
-    //this->mInitialConditions.push_back(0.0);
+    this->mVariableNames.push_back("Fake voltage");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(0.0);
 
     this->mInitialised = true;
 }
