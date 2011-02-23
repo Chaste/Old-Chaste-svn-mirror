@@ -528,6 +528,12 @@ public:
      * @param precondIsDifferent  whether the matrix used for preconditioning is the same as the LHS.
      */
     void SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent = true);
+    
+    /**
+     * Method to regenerate all KSP objects, including the solver and the preconditioner (e.g. after 
+     * changing the PDE time step when using time adaptivity).
+     */
+    void ResetKspSolver();
 };
 
 #include "SerializationExportWrapper.hpp"

@@ -988,6 +988,16 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
     }
 }
 
+void LinearSystem::ResetKspSolver()
+{
+    if (mKspIsSetup)
+    {
+        KSPDestroy(mKspSolver);
+    }
+
+    mKspIsSetup = false;
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(LinearSystem)

@@ -123,6 +123,10 @@ public:
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
+        
+        // Reset KSP stuff (this doesn't need to be done, but we're making sure we cover this method
+        // (and check that it works))
+        ls.ResetKspSolver();
 
         //SetAbsoluteTolerance
         ls.SetAbsoluteTolerance(1e-8);

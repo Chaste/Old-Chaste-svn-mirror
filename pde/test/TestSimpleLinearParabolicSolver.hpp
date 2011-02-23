@@ -54,6 +54,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 
+
+// Very simple toy time-adaptivity controller, for use in 
+// Test1DProblemUsingTimeAdaptivityController. Returns dt=0.001 for
+// the first half of simulation, dt=0.01 for the second half. 
+class ToyController : public AbstractTimeAdaptivityController
+{
+    double ComputeTimeStep(double currentTime, Vec currentSolution)
+    {
+        if(currentTime < 0.05)
+        {
+            return 0.001;
+        }
+        else
+        {
+            return 0.01;
+        }
+    }
+            
+public:
+    ToyController()
+      : AbstractTimeAdaptivityController(0.001, 0.01)
+    {
+    }
+};
+
+
+
 class TestSimpleLinearParabolicSolver : public CxxTest::TestSuite
 {
 public:
@@ -774,6 +801,67 @@ public:
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
+
+    // identical problem to TestSimpleLinearParabolicSolver1DZeroDirich(), but uses
+    // a time adaptivity controller to increase the timestep after a given time 
+    void Test1DProblemUsingTimeAdaptivityController()
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Instantiate PDE object
+        HeatEquation<1> pde;
+
+        // Boundary conditions - zero dirichlet at first and last node;
+        BoundaryConditionsContainer<1,1,1> bcc;
+        ConstBoundaryCondition<1>* p_boundary_condition =
+            new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
+
+        // Solver
+        SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
+
+        // Initial condition, u(0,x) = sin(x*pi);
+        std::vector<double> init_cond(mesh.GetNumNodes());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            init_cond[i] = sin(x*M_PI);
+        }
+        Vec initial_condition = PetscTools::CreateVec(init_cond);
+
+        ToyController controller;
+
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetInitialCondition(initial_condition);
+
+        // in this test we don't set a timestep, instead we give a timestep
+        // controller.
+        solver.SetTimeAdaptivityController(&controller);
+
+        Vec result = solver.Solve();
+        ReplicatableVector result_repl(result);
+
+        // Solution should be u = e^{-t*pi*pi} sin(x*pi), t=1
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.1);
+        }
+
+        TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, true);
+        solver.SetMatrixIsNotAssembled();
+        TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, false);
+
+        VecDestroy(initial_condition);
+        VecDestroy(result);
+    }
+
 };
 
 #endif //_TESTSIMPLELINEARPARABOLICSOLVER_HPP_

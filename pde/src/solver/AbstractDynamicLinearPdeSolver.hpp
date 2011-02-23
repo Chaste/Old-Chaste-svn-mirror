@@ -173,11 +173,16 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 {
     assert(mTimesSet);
-    assert(mIdealTimeStep > 0.0);
+    assert(mIdealTimeStep > 0.0 || mpTimeAdaptivityController);
     assert(mInitialCondition != NULL);
 
     this->InitialiseForSolve(mInitialCondition);
-    
+
+    if(mIdealTimeStep < 0) // hasn't been set, so a controller must have been given
+    {
+        mIdealTimeStep = mpTimeAdaptivityController->GetNextTimeStep(mTstart, mInitialCondition);
+    }
+
     // Note: we use the mIdealTimeStep here (the original timestep that was passed in, or
     // the last timestep suggested by the controller), rather than the last timestep used
     // (mLastWorkingTimeStep), because the timestep will be very slightly altered by
@@ -187,7 +192,6 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
     Vec current_solution = mInitialCondition;
     Vec next_solution;
-
 
     while ( !stepper.IsTimeAtEnd() )
     {    
@@ -232,6 +236,11 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         this->SetupLinearSystem(current_solution, compute_matrix);
        
         this->FinaliseLinearSystem(current_solution);
+        
+        if (compute_matrix)
+        {
+            this->mpLinearSystem->ResetKspSolver();
+        }
     
         next_solution = this->mpLinearSystem->Solve(current_solution);
 
