@@ -73,41 +73,23 @@ public:
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
-        HeartRegionType expected_node_regions[11]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
-                                             HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
-                                             HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
+        char expected_node_regions[11]={ 'B', 'B', 'B',
+                       'T', 'T', 'T', 'T', 'T',
+                       'B','B','B'};
+          
         for (unsigned i=0; i<11; i++)
         {
             if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
             {
-                /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()
-                /// \todo #1703 DELETE THIS and BELOW
-                TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
-            }
-        }
-        
-        //The first nodes aren't heart
-        for (unsigned i=0; i<3; i++)
-        {
-            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
-            {
-                TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion()) );
-            }
-        }
-        //The middle nodes are heart
-        for (unsigned i=3; i<8; i++)
-        {
-            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
-            {
-                TS_ASSERT(HeartRegionCode::IsRegionTissue( p_mesh->GetNode(i)->GetRegion()) );
-            }
-        }
-        //The last nodes aren't heart
-        for (unsigned i=8; i<11; i++)
-        {
-            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
-            {
-                TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion()) );
+                if (expected_node_regions[i] == 'B')
+                {
+                    TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion()) );
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(expected_node_regions[i], 'T' );
+                    TS_ASSERT(HeartRegionCode::IsRegionTissue( p_mesh->GetNode(i)->GetRegion()) );
+                }
             }
         }
         // we need to call solve as otherwise an EventHandler exception is thrown
@@ -834,37 +816,40 @@ public:
 
 
             // the middle 4 elements are 'heart' elements (ie region=0),
-            HeartRegionType expected_element_regions[10]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
-                       HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
-                       HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
+            char expected_element_regions[10]={ 'B', 'B', 'B',
+                       'T', 'T', 'T', 'T',
+                       'B','B','B'};
             for (AbstractTetrahedralMesh<1,1>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
                  iter != p_mesh->GetElementIteratorEnd();
                  ++iter)
             {
-                /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()
-                TS_ASSERT_EQUALS(iter->GetRegion(), expected_element_regions[iter->GetIndex()]);
+                if ( expected_element_regions[iter->GetIndex()] == 'T')
+                {
+                     TS_ASSERT(HeartRegionCode::IsRegionTissue( iter->GetRegion() ));
+                }
+                else
+                {
+                     TS_ASSERT_EQUALS( expected_element_regions[iter->GetIndex()], 'B')
+                     TS_ASSERT(HeartRegionCode::IsRegionBath( iter->GetRegion() ));
+                }
             }
-//            for (unsigned i=0; i<10; i++)
-//            {
-//                try
-//                {
-//                    TS_ASSERT_EQUALS(p_mesh->GetElement(i)->GetRegion(), expected_element_regions[i]);
-//                }
-//                catch (Exception &e)
-//                {
-//                    //Element is not local
-//                }
-//            }
             // so the middle 5 nodes should be heart nodes
-            HeartRegionType expected_node_regions[11]={ HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(), HeartRegionCode::GetValidBathId(),
-                       HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(), HeartRegionCode::GetValidTissueId(),
-                       HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId(),HeartRegionCode::GetValidBathId()};
+            char expected_node_regions[11]={ 'B', 'B', 'B',
+                       'T', 'T', 'T', 'T', 'T',
+                       'B','B','B'};
             for (unsigned i=0; i<10; i++)
             {
                 if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
                 {
-                    /// \todo #1703 this should be tested with IsRegionTissue()/IsRegionBath()                    
-                    TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
+                    if ( expected_node_regions[i] == 'T')
+                    {
+                         TS_ASSERT(HeartRegionCode::IsRegionTissue( p_mesh->GetNode(i)->GetRegion() ));
+                    }
+                    else
+                    {
+                         TS_ASSERT_EQUALS( expected_node_regions[i], 'B')
+                         TS_ASSERT(HeartRegionCode::IsRegionBath( p_mesh->GetNode(i)->GetRegion() ));
+                    }
                 }
             }
 

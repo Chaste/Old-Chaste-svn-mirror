@@ -52,7 +52,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "LuoRudy1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
+
 #include "PetscSetupAndFinalize.hpp"
 /* This test will show how to load a mesh in the test and pass it into the problem,
  * for which the following includes are needed */
@@ -82,7 +83,7 @@ public: // Tests should be public!
          * of Luo-Rudy cells. We pass the stimulus magnitude as 0.0 
          * as we don't want any stimulated cells
          */
-        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,2> cell_factory(0.0);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellMLBackwardEuler,2> cell_factory(0.0);
 
         /*
          * Now, we load up a rectangular mesh (in triangle/tetgen format), done as follows,
@@ -91,7 +92,29 @@ public: // Tests should be public!
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-
+        
+        /*
+         * In most simulations there is one valid tissue identifier and one valid bath identifier 
+         * (for elements).
+         * These can be obtained with   
+         * mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidTissueId());
+         * mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());
+         * 
+         * If we want heterogeneous conductivities outside the heart (for example for torso and blood)
+         * then we will need different identifiers
+         */
+        std::set<unsigned> tissue_ids;
+        static unsigned tissue_id=0;
+        tissue_ids.insert(tissue_id);
+        
+        std::set<unsigned> bath_ids;
+        static unsigned bath_id1=1;
+        bath_ids.insert(bath_id1);
+        static unsigned bath_id2=2;
+        bath_ids.insert(bath_id2);
+         
+        HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
+         
         /* In bath problems, each element has an attribute which must be set
          * to 0 (cardiac tissue) or 1 (bath). This can be done by having an
          * extra column in the element file (see the file formats documentation, 
@@ -109,9 +132,37 @@ public: // Tests should be public!
             double y = mesh.GetElement(i)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
             {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BathRegion());
+                if (y<0.05)
+                {
+                    //Outside circle on the bottom
+                    mesh.GetElement(i)->SetRegion(bath_id1);
+                }
+                else
+                {
+                    //Outside circle on the top
+                    mesh.GetElement(i)->SetRegion(bath_id2);
+                }
             }
+            else
+            {
+                //IDs default to 0, but we want to be safe
+                mesh.GetElement(i)->SetRegion(tissue_id);
+            }
+            
         }
+
+        /* 
+         * The external conductivity can set two ways:
+         *  * the default conductivity in the bath is set with SetBathConductivity
+         *  * heterogeneous overides can be set with SetBathMultipleConductivities(map)
+         */
+        
+        HeartConfig::Instance()->SetBathConductivity(7.0);  //bath_id1 tags will take the default value (actually 7.0 is the default)
+        std::map<unsigned, double> multiple_bath_conductivities;        
+        multiple_bath_conductivities[bath_id2] = 6.5;  // mS/cm
+     
+        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);        
+
 
         /* Now we define the electrodes. First define the magnitude of the electrodes
          * (ie the magnitude of the boundary extracellular stimulus), and the duration
@@ -119,10 +170,11 @@ public: // Tests should be public!
          * until they are switched off. (Note that this test has a small range of
          * magnitudes that will work, perhaps because the electrodes are close to the tissue).
          */
-        //-1e4 is under threshold, -1.4e4 too high - crashes the cell model
-        double magnitude = -1.1e4; // uA/cm^2
+        // For default conductivities and explicit cell model -1e4 is under threshold, -1.4e4 too high - crashes the cell model
+        // For heterogeneous conductivities as given, -1e4 is under threshold
+        double magnitude = -14.0e3; // uA/cm^2
         double start_time = 0.0;
-        double duration = 2; //ms
+        double duration = 1; //ms
 
         /* Electrodes work in two ways: the first electrode applies an input flux, and
          * the opposite electrode can either be grounded or apply an equal and opposite
