@@ -653,7 +653,7 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
         first_cell_with_unique_CCM[i]->GetCellCycleModel()->OutputCellCycleModelInfo(rParamsFile);
     }
 
-    *rParamsFile << "\t</CellCycleModels\n";
+    *rParamsFile << "\t</CellCycleModels>\n";
 }
 
 template<unsigned DIM>
