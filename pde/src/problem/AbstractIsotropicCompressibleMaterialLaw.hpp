@@ -27,22 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ABSTRACTISOTROPICSIMPLECOMPRESSIBLEMATERIALLAW_HPP_
-#define ABSTRACTISOTROPICSIMPLECOMPRESSIBLEMATERIALLAW_HPP_
+#ifndef ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_
+#define ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_
 
 #include "AbstractMaterialLaw.hpp"
 
 /**
  *  AbstractIsotropicSimpleIncompressibleMaterialLaw
  *
- *  An isotropic COMPRESSIBLE hyper-elastic material law for finite elastiticy, of the
- *  form
- *    W(E) = f(I1,I2) +  g(I3)
- *  where I1,I2,I3 are the principal invariables of C, the Lagrangian deformation tensor.
- *  (I1=trace(C), I2=trace(C)^2-trace(C^2), I3=det(C)).
+ *  An isotropic COMPRESSIBLE hyper-elastic material law for finite elasticity, of the
+ *  form W(E) = W(I1,I2,I3)
+ *  where I1,I2,I3 are the principal invariants of C, the Lagrangian deformation tensor.
+ *  (NOT the deviatoric versions of these scalars).
+ *  (I1=trace(C), I2=0.5(trace(C)^2-trace(C^2)), I3=det(C)).
  */
 template<unsigned DIM>
-class AbstractIsotropicSimpleCompressibleMaterialLaw : public AbstractMaterialLaw<DIM>
+class AbstractIsotropicCompressibleMaterialLaw : public AbstractMaterialLaw<DIM>
 {
 protected :
 
@@ -51,53 +51,83 @@ protected :
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    virtual double Get_dW_dI1(double I1, double I2)=0;
+    virtual double Get_dW_dI1(double I1, double I2, double I3)=0;
 
     /**
      * Get the first derivative dW/dI2.
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    virtual double Get_dW_dI2(double I1, double I2)=0;
+    virtual double Get_dW_dI2(double I1, double I2, double I3)=0;
+
+    /**
+     * Get the first derivative dW/dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    virtual double Get_dW_dI3(double I1, double I2, double I3)=0;
+
 
     /**
      * Get the second derivative d^2W/dI1^2.
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    virtual double Get_d2W_dI1(double I1, double I2)=0;
+    virtual double Get_d2W_dI1(double I1, double I2, double I3)=0;
 
     /**
      * Get the second derivative d^2W/dI2^2.
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    virtual double Get_d2W_dI2(double I1, double I2)=0;
+    virtual double Get_d2W_dI2(double I1, double I2, double I3)=0;
+
+    /**
+     * Get the second derivative d^2W/dI3^2.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    virtual double Get_d2W_dI3(double I1, double I2, double I3)=0;
+
+
+    /**
+     * Get the second derivative d^2W/dI2dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    virtual double Get_d2W_dI2I3(double I1, double I2, double I3)=0;
+
+    /**
+     * Get the second derivative d^2W/dI1dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    virtual double Get_d2W_dI1I3(double I1, double I2, double I3)=0;
 
     /**
      * Get the second derivative d^2W/dI1dI2.
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    virtual double Get_d2W_dI1I2(double I1, double I2)=0;
-
-    /**
-     * Get the first derivative dW/dI3.
-     *
-     * @param I3 first principal invariant of C (ie det(C))
-     */
-    virtual double Get_dW_dI3(double I3)=0;
-
-    /**
-     * Get the second derivative d^2W/dI3^2.
-     * @param I3 first principal invariant of C (ie det(C))
-     */
-    virtual double Get_d2W_dI3(double I3)=0;
+    virtual double Get_d2W_dI1I2(double I1, double I2, double I3)=0;
 
 public :
 
@@ -132,7 +162,7 @@ public :
     /**
      * Destructor.
      */
-    virtual ~AbstractIsotropicSimpleCompressibleMaterialLaw();
+    virtual ~AbstractIsotropicCompressibleMaterialLaw();
 
 
 
@@ -147,4 +177,4 @@ public :
     }
 };
 
-#endif /*ABSTRACTISOTROPICSIMPLECOMPRESSIBLEMATERIALLAW_HPP_*/
+#endif /*ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_*/

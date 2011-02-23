@@ -26,15 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractIsotropicSimpleCompressibleMaterialLaw.hpp"
+#include "AbstractIsotropicCompressibleMaterialLaw.hpp"
 
 template<unsigned DIM>
-AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>::~AbstractIsotropicSimpleCompressibleMaterialLaw()
+AbstractIsotropicCompressibleMaterialLaw<DIM>::~AbstractIsotropicCompressibleMaterialLaw()
 {
 }
 
 template<unsigned DIM>
-void AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>::ComputeStressAndStressDerivative(
+void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDerivative(
         c_matrix<double,DIM,DIM>& rC,
         c_matrix<double,DIM,DIM>& rInvC,
         double                    pressure,
@@ -56,60 +56,52 @@ void AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>::ComputeStressAndStress
     double I2 = SecondInvariant(rC);
     double I3 = Determinant(rC);
 
-    double  dW_dI1 = Get_dW_dI1(I1, I2);
-    double  dW_dI2; // only computed if DIM==3
+    static c_matrix<double,DIM,DIM> dI2dC = I1*identity - rC;
 
-    double  d2W_dI1;
-    double  d2W_dI2;
-    double  d2W_dI1I2;
+    double w1 = Get_dW_dI1(I1,I2,I3);
+    double w2 = Get_dW_dI2(I1,I2,I3);
+    double w3 = Get_dW_dI3(I1,I2,I3);
 
-    double  dW_dI3 = Get_dW_dI3(I3);
-    double  d2W_dI3;
 
     // Compute stress:
     //
     //  T = dW_dE
-    //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
-    //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC
-
-    rT = 2*dW_dI1*identity + 2*dW_dI3*rInvC;
+    //    = 2 dW_dC
+    //    = 2 (  w1 dI1/dC   +  w2 dI2/dC      +   w3 dI3/dC )
+    //    = 2 (  w1 I        +  w2 (I1*I - C)  +   w3 inv(C) )
+    //
+    //  where w1 = dW/dI1, etc
+    //
+    rT = 2*w1*identity + 2*w3*rInvC;
     if (DIM==3)
     {
-        dW_dI2 = Get_dW_dI2(I1, I2);
-        rT += 2*dW_dI2*(I1*identity - rC);
+        rT += 2*w2*dI2dC;
     }
 
     // Compute stress derivative if required:
     //
-    // The stress derivative dT_{MN}/dE_{PQ} can be expanded to be seen to be
+    // The stress derivative dT_{MN}/dE_{PQ} is
     //
-    //  dT_dE =    4 * true_d2WdI1 * dI1_dC_MN * dI1_dC_PQ
-    //           + 4 * true_dWdI1  * d2I1_dC2
-    //           + 4 * true_d2WdI2 * dI2_dC_MN * dI2_dC_PQ
-    //           + 4 * true_dWdI2  * d2I2_dC2
-    //           + 4 * true_d2WdI1I2 * (dI1_dC_MN*dI2_dC_PQ + dI1_dC_PQ*dI2_dC_MN)
-    //          - 2 * pressure * d_invC_dC;
     //
-    // where
-    //   dI1_dC_MN = (M==N); // ie delta_{MN}
-    //   dI1_dC_PQ = (P==Q);
-    //   d2I1_dC2  = 0;
+    //  dT_dE = 2 dT_dC
+    //        = 4  d/dC ( w1 I  +  w2 (I1*I - C)  +   w3 inv(C) )
+    //  so (in the following ** represents outer product):
+    //  (1/4) dT_dE =        w11 I**I          +    w12 I**(I1*I-C)           +     w13 I**inv(C)
+    //                  +    w21 (I1*I-C)**I   +    w22 (I1*I-C)**(I1*I-C)    +     w23 (I1*I-C)**inv(C)    +   w2 (I**I - dC/dC)
+    //                  +    w31 inv(C)**I     +    w32 inv(C)**(I1*I-C)      +     w33 inv(C)**inv(C)      +   w2 d(invC)/dC
     //
-    //   dI2_dC_MN = I1*(M==N)-C[M][N];
-    //   dI2_dC_PQ = I1*(P==Q)-C[P][Q];
-    //   d2I2_dC2  = (M==N)*(P==Q)-(M==P)*(N==Q);
+    //  Here, I**I represents the tensor A[M][N][P][Q] = (M==N)*(P==Q) // ie delta(M,N)delta(P,Q),   etc
     //
-    //   d_invC_dC = -invC[M][P]*invC[Q][N];
+
     if (computeDTdE)
     {
-        d2W_dI1 = Get_d2W_dI1(I1,I2);
-        d2W_dI3 = Get_d2W_dI3(I3);
+        double  w11    = Get_d2W_dI1(I1,I2,I3);
+        double  w22    = Get_d2W_dI2(I1,I2,I3);
+        double  w33    = Get_d2W_dI3(I1,I2,I3);
 
-        if (DIM==3)
-        {
-            d2W_dI2   = Get_d2W_dI2(I1, I2);
-            d2W_dI1I2 = Get_d2W_dI1I2(I1, I2);
-        }
+        double  w23  = Get_d2W_dI2I3(I1,I2,I3);
+        double  w13  = Get_d2W_dI1I3(I1,I2,I3);
+        double  w12  = Get_d2W_dI1I2(I1,I2,I3);
 
         for (unsigned M=0; M<DIM; M++)
         {
@@ -119,15 +111,17 @@ void AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>::ComputeStressAndStress
                 {
                     for (unsigned Q=0; Q<DIM; Q++)
                     {
-                        rDTdE(M,N,P,Q) =   4 * d2W_dI1  * (M==N) * (P==Q)
-                                         - 4 * dW_dI3 * rInvC(M,P) * rInvC(Q,N)
-                                         + 4 * d2W_dI3 * rInvC(M,N) * rInvC(P,Q);
+                        rDTdE(M,N,P,Q) =   4 * w11  * (M==N) * (P==Q)
+                                         + 4 * w13  * ( (M==N) * rInvC(P,Q)  +  rInvC(M,N)*(P==Q) )  // the w13 and w31 terms
+                                         + 4 * w33  * rInvC(M,N) * rInvC(P,Q)
+                                         - 4 * w3   * rInvC(M,P) * rInvC(Q,N);
 
                         if (DIM==3)
                         {
-                            rDTdE(M,N,P,Q) +=   4 * d2W_dI2   * (I1*(M==N) - rC(M,N)) * (I1*(P==Q) - rC(P,Q))
-                                              + 4 * dW_dI2    * ((M==N)*(P==Q) - (M==P)*(N==Q))
-                                              + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q) - rC(P,Q)) + (P==Q)*(I1*(M==N) - rC(M,N)));
+                            rDTdE(M,N,P,Q) +=   4 * w22  * dI2dC(M,N) * dI2dC(P,Q)
+                                              + 4 * w12  * ((M==N)*dI2dC(P,Q) + (P==Q)*dI2dC(M,N))          // the w12 and w21 terms
+                                              + 4 * w23  * ( dI2dC(M,N)*rInvC(P,Q) + rInvC(M,N)*dI2dC(P,Q)) // the w23 and w32 terms
+                                              + 4 * w2   * ((M==N)*(P==Q) - (M==P)*(N==Q));
                         }
                     }
                 }
@@ -143,6 +137,6 @@ void AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>::ComputeStressAndStress
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-//template class AbstractIsotropicSimpleCompressibleMaterialLaw<1>;
-template class AbstractIsotropicSimpleCompressibleMaterialLaw<2>;
-template class AbstractIsotropicSimpleCompressibleMaterialLaw<3>;
+//template class AbstractIsotropicCompressibleMaterialLaw<1>;
+template class AbstractIsotropicCompressibleMaterialLaw<2>;
+template class AbstractIsotropicCompressibleMaterialLaw<3>;

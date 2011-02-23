@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NashHunterPoleZeroLaw.hpp"
 #include "SchmidCostaExponentialLaw2d.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
+#include "ToyCompressibleMaterialLaw.hpp"
 #include <cassert>
 
 
@@ -52,20 +53,20 @@ public:
 
         double c1 = 2.0;
 
-        MooneyRivlinMaterialLaw<2> ml_law_2d(c1);
+        MooneyRivlinMaterialLaw<2> law_2d(c1);
 
-        TS_ASSERT_DELTA(ml_law_2d.GetC1(), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
 
         // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
         // obviously it should be zero
-        TS_ASSERT_DELTA(ml_law_2d.GetZeroStrainPressure(), 2*c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.GetZeroStrainPressure(), 2*c1, 1e-12);
         c_matrix<double,2,2> identity_strain_2d = identity_matrix<double>(2);
 
         c_matrix<double,2,2> T_2d;
-        ml_law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
-                                                ml_law_2d.GetZeroStrainPressure(),
+        law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
+                                                law_2d.GetZeroStrainPressure(),
                                                 T_2d);
         for (unsigned i=0; i<2; i++)
         {
@@ -78,24 +79,24 @@ public:
 
         double c2 = 3.0;
 
-        MooneyRivlinMaterialLaw<3> ml_law_3d(c1, c2);
+        MooneyRivlinMaterialLaw<3> law_3d(c1, c2);
 
-        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI2(1.0,0.0), c2, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_3d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(law_3d.GetC2(), c2, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI2(1.0,0.0), c2, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
 
-        TS_ASSERT_DELTA(ml_law_3d.GetZeroStrainPressure(), 2*c1+4*c2, 1e-12);
+        TS_ASSERT_DELTA(law_3d.GetZeroStrainPressure(), 2*c1+4*c2, 1e-12);
 
         // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
         // obviously it should be zero
         c_matrix<double,3,3> identity_strain_3d = identity_matrix<double>(3);
         c_matrix<double,3,3> T_3d;
-        ml_law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
-                                                ml_law_3d.GetZeroStrainPressure(),
+        law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
+                                                law_3d.GetZeroStrainPressure(),
                                                 T_3d);
         for (unsigned i=0; i<3; i++)
         {
@@ -132,10 +133,10 @@ public:
 
         FourthOrderTensor<3,3,3,3> dTdE;
 
-        ml_law_3d.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
-        ml_law_3d.Compute1stPiolaKirchoffStress(F,pressure,S);
-        ml_law_3d.Compute2ndPiolaKirchoffStress(C,pressure,T2);
-        ml_law_3d.ComputeCauchyStress(F,pressure,sigma);
+        law_3d.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
+        law_3d.Compute1stPiolaKirchoffStress(F,pressure,S);
+        law_3d.Compute2ndPiolaKirchoffStress(C,pressure,T2);
+        law_3d.ComputeCauchyStress(F,pressure,sigma);
 
         c_matrix<double,3,3> FT = prod(F,T);
         c_matrix<double,3,3> F_T_tranF_over_detF = (1.0/Determinant(F))*prod(FT,trans(F));//F*T_as_unsym_tensor*transpose(F);
@@ -187,9 +188,9 @@ public:
             }
         }
 
-        ml_law_3d.ScaleMaterialParameters(10);
-        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1/10, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2/10, 1e-12);
+        law_3d.ScaleMaterialParameters(10);
+        TS_ASSERT_DELTA(law_3d.GetC1(), c1/10, 1e-12);
+        TS_ASSERT_DELTA(law_3d.GetC2(), c2/10, 1e-12);
     }
 
 
@@ -950,29 +951,20 @@ public:
     }
 
 
-    void TestCompressibleMooneyRivlinLaw()
+    void TestCompressibleLawsUsingToyCompressibleMaterialLaw()
     {
-        TS_ASSERT_THROWS_THIS(CompressibleMooneyRivlinMaterialLaw<3> bad_mr_law2(1.0,1.0,-1.0),"c1+c2+c3 should be equal to zero");
-
         double c1 = 2.0;
 
-        CompressibleMooneyRivlinMaterialLaw<2> ml_law_2d(c1, 0.0, -c1);
+        ToyCompressibleMaterialLaw<2> law_2d(c1, 0.0, -c1);
 
-        TS_ASSERT_DELTA(ml_law_2d.GetC1(), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.GetC2(), 0.0, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.GetC3(), -c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
-
-        TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI3(2.0),  -c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI3(2.0), 0.0, 1e-12);
-
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI1(2.0,1.0,1.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI3(2.0,1.0,1.0), -c1, 1e-12);
 
         // compute the stress given C=delta_{MN}, obviously it should be zero
         c_matrix<double,2,2> identity_strain_2d = identity_matrix<double>(2);
 
         c_matrix<double,2,2> T_2d;
-        ml_law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
+        law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
                                                 0.0,
                                                 T_2d);
         for (unsigned i=0; i<2; i++)
@@ -986,18 +978,11 @@ public:
 
         double c2 = 3.0;
 
-        CompressibleMooneyRivlinMaterialLaw<3> ml_law_3d(c1, c2, -c1-c2);
+        ToyCompressibleMaterialLaw<3> law_3d(c1, c2, -c1-c2);
 
-        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI2(1.0,0.0), c2, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
-
-        TS_ASSERT_DELTA(ml_law_3d.Get_dW_dI3(2.0),  -c1-c2, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI3(2.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI1(2.0,2.0,1.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI2(2.0,2.0,1.0), c2, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI3(2.0,2.0,1.0),  -c1-c2, 1e-12);
 
 
         // compute stress given a non-zero deformation
@@ -1025,10 +1010,10 @@ public:
 
         FourthOrderTensor<3,3,3,3> dTdE;
 
-        ml_law_3d.ComputeStressAndStressDerivative(C, invC, 0.0, T, dTdE, true);
-        ml_law_3d.Compute1stPiolaKirchoffStress(F,0.0,S);
-        ml_law_3d.Compute2ndPiolaKirchoffStress(C,0.0,T2);
-        ml_law_3d.ComputeCauchyStress(F,0.0,sigma);
+        law_3d.ComputeStressAndStressDerivative(C, invC, 0.0, T, dTdE, true);
+        law_3d.Compute1stPiolaKirchoffStress(F,0.0,S);
+        law_3d.Compute2ndPiolaKirchoffStress(C,0.0,T2);
+        law_3d.ComputeCauchyStress(F,0.0,sigma);
 
         c_matrix<double,3,3> FT = prod(F,T);
         c_matrix<double,3,3> F_T_tranF_over_detF = (1.0/Determinant(F))*prod(FT,trans(F));//F*T_as_unsym_tensor*transpose(F);
@@ -1079,12 +1064,52 @@ public:
                 }
             }
         }
-
-        ml_law_3d.ScaleMaterialParameters(10);
-        TS_ASSERT_DELTA(ml_law_3d.GetC1(), c1/10, 1e-12);
-        TS_ASSERT_DELTA(ml_law_3d.GetC2(), c2/10, 1e-12);
     }
 
+
+    void TestCompressibleMooneyRivlinLaw()
+    {
+        double c1 = 3.0;
+        double c3 = 2.0;
+
+        CompressibleMooneyRivlinMaterialLaw<2> law_2d(c1, c3);
+
+        TS_ASSERT_DELTA(law_2d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.GetC3(), c3, 1e-12);
+
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI1(2.0,2.0,1.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI2(2.0,2.0,1.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI3(2.0,2.0,1.0), -c1, 1e-12);
+
+        double i1 = 2.4;
+        double i3 = 0.6;
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI1(i1,2.0,i3), c1/sqrt(i3), 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI2(i1,2.0,i3), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_dW_dI3(i1,2.0,i3), -c1*i1*pow(i3,-1.5)/2 + c3 - c3*pow(i3,-0.5), 1e-12);
+
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI1I3(i1,2.0,i3), -0.5*c1*pow(i3,-1.5), 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI3(i1,2.0,i3),0.75*c1*i1*pow(i3,-2.5) + 0.5*c3*pow(i3,-1.5), 1e-12);
+
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI1(i1,2.0,i3), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI2(i1,2.0,i3), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI1I2(i1,2.0,i3), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_2d.Get_d2W_dI2I3(i1,2.0,i3), 0.0, 1e-12);
+
+
+        law_2d.ScaleMaterialParameters(10);
+        TS_ASSERT_DELTA(law_2d.GetC1(), c1/10, 1e-12);
+        TS_ASSERT_DELTA(law_2d.GetC3(), c3/10, 1e-12);
+
+
+        CompressibleMooneyRivlinMaterialLaw<3> law_3d(c1, c3);
+
+        TS_ASSERT_DELTA(law_3d.GetC1(), c1, 1e-12);
+        TS_ASSERT_DELTA(law_3d.GetC3(), c3, 1e-12);
+
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI1(3.0,3.0,1.0), c1, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI2(3.0,3.0,1.0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI3(3.0,3.0,1.0), -c1, 1e-12);
+    }
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

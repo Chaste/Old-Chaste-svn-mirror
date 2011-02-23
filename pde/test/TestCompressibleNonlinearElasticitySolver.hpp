@@ -33,13 +33,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "CompressibleNonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ToyCompressibleMaterialLaw.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
 #include "NonlinearElasticityTools.hpp"
 
 
 
+
+
 /// todos: #1699:
-///   more compressibility tests, nonlinear (I3) material law, possible material law refactor
+///   more compressibility tests, nonlinear (I3) material law, (possible material law refactor)
 ///   stop using linear systems, two matrices in compressible case, matrix memory allocation
 
 
@@ -57,7 +60,7 @@ public:
 
         mesh.ConstructFromMeshReader(mesh_reader1);
 
-        CompressibleMooneyRivlinMaterialLaw<3> law(1.0, 0.0, -1.0);
+        ToyCompressibleMaterialLaw<3> law(1.0, 0.0, -1.0);
         std::vector<AbstractMaterialLaw<3>*> laws;
         laws.push_back(&law);
 
@@ -82,7 +85,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        CompressibleMooneyRivlinMaterialLaw<2> law(1.0, 0.0, -1.0);
+        ToyCompressibleMaterialLaw<2> law(1.0, 0.0, -1.0);
 
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
@@ -108,8 +111,15 @@ public:
         }
     }
 
-    /**    *** fill in ***
-     *
+    /**
+     *  Suppose the deformation is given to be x = (alpha X, beta Y), and the material law is the toy
+     *  law W(I1,I2,I3) = c1(I1-3) + c3(I3-1)   (where c3=-c1).
+     *  On the unit square we specify displacement boundaries on the X=0 which match the deformation,
+     *  then the deformation which corresponds to constant F=diag(a,b) => constant 1st PK stress
+     *  S=diag(2*c1*alpha + 2*c3/alpha, 2*c1*beta + 2*c3/beta) if we choose
+     *   - zero body force
+     *   - beta = sqrt(-c3/c1)  (=> S22=0) and zero traction bcs on lower/upper surfaces
+     *   - a traction bc of 2*c1*alpha + 2*c3/alpha (=S11) on the X=1 surface
      */
     void TestSolveForSimpleDeformation() throw(Exception)
     {
@@ -123,7 +133,7 @@ public:
         unsigned num_elem = 5;
 
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
-        CompressibleMooneyRivlinMaterialLaw<2> law(c1, 0.0, c3);
+        ToyCompressibleMaterialLaw<2> law(c1, 0.0, c3);
 
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;

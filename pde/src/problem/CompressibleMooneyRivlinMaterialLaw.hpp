@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef COMPRESSIBLEMOONEYRIVLINMATERIALLAW_HPP_
 #define COMPRESSIBLEMOONEYRIVLINMATERIALLAW_HPP_
 
-#include "AbstractIsotropicSimpleCompressibleMaterialLaw.hpp"
+#include "AbstractIsotropicCompressibleMaterialLaw.hpp"
 #include "Exception.hpp"
 
 
@@ -42,30 +42,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  elasticity
  *
  *  The law is given by a strain energy function
- *      W(I_1,I_2,I_3) = c1(I_1-3) + c2(I_2-3) + c3(I3-1)
- *  in 3d, or
- *      W(I_1,I_3) = c1(I_1-2) + c3(I3-1)
- *  in 2d.
+ *      W(I1,I2,I3) = c1 ( dev(I1)-3 )  +  c3(J-1)^2
  *
- *  Here I_i are the principal invariants of C, the Lagrangian deformation tensor.
- *  (I1=trace(C), I2=trace(C)^2-trace(C^2), I3=det(C)).
+ *  where (assuming Ii are the principal invariants of C, the Lagrangian deformation tensor,
+ *  I1=trace(C), I2=0.5(trace(C)^2-trace(C^2)), I3=det(C)):
+ *      J = det(F) = sqrt(I3)
+ *      dev(I1) = I1 * J^(-2/DIM)  is the first invariant of the deviatoric part of C
  *
- *  Note c1+c2+c3 must be zero (so zero strain => zero stress).
+ *  Note T(E=0) = 0 regardless of choice of c1, c3.
  */
 template<unsigned DIM>
-class CompressibleMooneyRivlinMaterialLaw : public AbstractIsotropicSimpleCompressibleMaterialLaw<DIM>
+class CompressibleMooneyRivlinMaterialLaw : public AbstractIsotropicCompressibleMaterialLaw<DIM>
 {
 private :
-
     /** Parameter c1. */
     double mC1;
-
-    /** Parameter c2. */
-    double mC2;
 
     /** Parameter c3 */
     double mC3;
 
+    /** -1.0/DIM */
+    static const double mMinusOneOverDimension = -1.0/DIM;
 public :
 
     /**
@@ -73,10 +70,11 @@ public :
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    double Get_dW_dI1(double I1, double I2)
+    double Get_dW_dI1(double I1, double I2, double I3)
     {
-        return mC1;
+        return mC1 * pow(I3, mMinusOneOverDimension);
     }
 
     /**
@@ -84,10 +82,24 @@ public :
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    double Get_dW_dI2(double I1, double I2)
+    double Get_dW_dI2(double I1, double I2, double I3)
     {
-        return mC2;
+        return 0.0;
+    }
+
+    /**
+     * Get the first derivative dW/dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    double Get_dW_dI3(double I1, double I2, double I3)
+    {
+        return     mC1*I1*mMinusOneOverDimension*pow(I3,mMinusOneOverDimension - 1)
+                +  mC3*(1 - pow(I3,-0.5));
     }
 
     /**
@@ -95,8 +107,9 @@ public :
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    double Get_d2W_dI1(double I1, double I2)
+    double Get_d2W_dI1(double I1, double I2, double I3)
     {
         return 0.0;
     }
@@ -107,53 +120,72 @@ public :
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    double Get_d2W_dI2(double I1, double I2)
+    double Get_d2W_dI2(double I1, double I2, double I3)
     {
         return 0.0;
     }
+
+
+    /**
+     * Get the second derivative d^2W/dI3^2.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    double Get_d2W_dI3(double I1, double I2, double I3)
+    {
+        return    mC1*I1*mMinusOneOverDimension*(mMinusOneOverDimension - 1)*pow(I3,mMinusOneOverDimension - 2)
+                + 0.5*mC3*pow(I3,-1.5);
+    }
+
+
+
+    /**
+     * Get the second derivative d^2W/dI2dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    double Get_d2W_dI2I3(double I1, double I2, double I3)
+    {
+        return 0.0;
+    }
+
+
+    /**
+     * Get the second derivative d^2W/dI1dI3.
+     *
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
+     */
+    double Get_d2W_dI1I3(double I1, double I2, double I3)
+    {
+        return mC1*mMinusOneOverDimension*pow(I3,mMinusOneOverDimension-1);
+    }
+
 
     /**
      * Get the second derivative d^2W/dI1dI2.
      *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
+     * @param I3 third principal invariant of C
      */
-    double Get_d2W_dI1I2(double I1, double I2)
+    double Get_d2W_dI1I2(double I1, double I2, double I3)
     {
         return 0.0;
     }
 
-
-    /**
-     * Get the first derivative dW/dI3.
-     *
-     * @param I3 first principal invariant of C (ie det(C))
-     */
-    double Get_dW_dI3(double I3)
-    {
-        return mC3;
-    }
-
-    /**
-     * Get the second derivative d^2W/dI3^2.
-     * @param I3 first principal invariant of C (ie det(C))
-     */
-    double Get_d2W_dI3(double I3)
-    {
-        return 0.0;
-    }
 
     /** Get method for mC1. */
     double GetC1()
     {
         return mC1;
-    }
-
-    /** Get method for mC2. */
-    double GetC2()
-    {
-        return mC2;
     }
 
     /** Get method for mC3. */
@@ -163,25 +195,16 @@ public :
     }
 
     /**
-     * Constructor, taking in Mooney-Rivlin parameters c1, c2 and c3.
-     * Note: c2 is not used if the dimension is 2. Just pass in 0.0.
-     * c1+c2+c3 must be equal to zero.
+     * Constructor, taking in parameters c1 and c3.
      *
      * @param c1 parameter c1
-     * @param c2 parameter c2 (should be 0.0 if 2D)
      * @param c3 parameter c3
      */
-    CompressibleMooneyRivlinMaterialLaw(double c1, double c2, double c3)
+    CompressibleMooneyRivlinMaterialLaw(double c1, double c3)
     {
         assert(c1 > 0.0);
-        assert(DIM!=2 || c2==0.0);
         mC1 = c1;
-        mC2 = c2;
         mC3 = c3;
-        if(fabs(c1+c2+c3)>1e-8)
-        {
-            EXCEPTION("c1+c2+c3 should be equal to zero");
-        }
     }
 
     /**
@@ -193,7 +216,6 @@ public :
     {
         assert(scaleFactor > 0.0);
         mC1 /= scaleFactor;
-        mC2 /= scaleFactor;
         mC3 /= scaleFactor;
     }
 };
