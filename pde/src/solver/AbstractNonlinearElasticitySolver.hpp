@@ -304,6 +304,7 @@ public:
     /**
      * Constructor.
      *
+     * @param pQuadMesh  the quadratic mesh
      * @param bodyForce  Body force
      * @param density    density
      * @param outputDirectory output directory
