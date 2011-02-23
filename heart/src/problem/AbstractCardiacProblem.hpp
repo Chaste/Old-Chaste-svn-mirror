@@ -656,11 +656,15 @@ public:
     virtual void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
     {}
 
+
+
+    ///\todo #1704 add default adaptivity controller and allow the user just to call with true 
+    // and no controller, in which case the default is used.
+
     /** 
      *  Set whether (or not) to use a time adaptivity controller
      *  @param useAdaptivity whether to use adaptivity
-     *  @param pController The controller (only relevant if useAdaptivity==true, defaults to NULL in 
-     *    case a default controller will be used).
+     *  @param pController The controller (only relevant if useAdaptivity==true)
      */
     void SetUseTimeAdaptivityController(bool useAdaptivity, 
                                         AbstractTimeAdaptivityController* pController = NULL);

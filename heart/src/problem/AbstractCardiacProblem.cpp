@@ -330,15 +330,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdapti
 {
     if(useAdaptivity)
     {
-        if(pController)
-        {
-            mpTimeAdaptivityController = pController;
-        }
-        else
-        {
-            ///\todo - #1632 write default controller
-            NEVER_REACHED;
-        }
+        assert(pController);
+        mpTimeAdaptivityController = pController;
     }
     else
     {
