@@ -783,38 +783,52 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #ifdef TRACE_KSP
             Timer::Reset();
 #endif
+            // You can stimate preconditioned matrix spectrum with CG
             KSPSetType(mKspSolver,"cg");
-            KSPSetComputeSingularValues(mKspSolver, PETSC_TRUE);
+            KSPSetComputeSingularValues(mKspSolver, PETSC_TRUE);            
+            
+            // Eigenvalues have to be computed accurately
+            KSPSetTolerances(mKspSolver, DBL_EPSILON, 1e-14, PETSC_DEFAULT, PETSC_DEFAULT);
             KSPSetUp(mKspSolver);
-    
-            
-            Vec lhs_vector;
-            VecDuplicate(mRhsVector, &lhs_vector);
-            if (lhsGuess)
-            {
-                VecCopy(lhsGuess, lhs_vector);
-            }
-            
+                            
             /// \todo: #1701 Check relationship between eigenvalues and singular values depending on symmetry...
             assert(IsMatrixSymmetric());            
-                        
+
+            // Compute eigenvalues
             double eig_max, eig_min;
+            Vec lhs_vector;
+            VecDuplicate(mRhsVector, &lhs_vector);            
             KSPSolve(mKspSolver, mRhsVector, lhs_vector);
             KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
+            if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
 
+            // Set Chebyshev solver and max/min eigenvalues
+            assert(mKspType == "chebyshev");
             KSPSetType(mKspSolver, mKspType.c_str());            
             KSPChebychevSetEigenvalues(mKspSolver, eig_max, eig_min);
             KSPSetComputeSingularValues(mKspSolver, PETSC_FALSE);
 
 //            PetscInt num_it;
-//            KSPGetIterationNumber(mKspSolver, &num_it);
-//            
+//            KSPGetIterationNumber(mKspSolver, &num_it);            
 //            std::stringstream num_it_str;
 //            num_it_str << num_it;
 //            
 //            KSPSetNormType(mKspSolver, KSP_NORM_NO);            
 //            PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
 //            KSPSetFromOptions(mKspSolver);
+
+//            KSPSetNormType(mKspSolver, KSP_NORM_PRECONDITIONED);
+
+            // Go back to the original tolerances
+            if (mUseAbsoluteTolerance)
+            {
+                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+            else
+            {
+                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+
                         
 #ifdef TRACE_KSP
             Timer::Print("Computing extremal eigenvalues");
