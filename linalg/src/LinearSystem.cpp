@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "HeartEventHandler.hpp"
 #include "Timer.hpp"
+#include "Warnings.hpp"
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -947,6 +948,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
 #endif
 
+        // Check that solver converged and throw if not
+        KSPConvergedReason reason;
+        KSPGetConvergedReason(mKspSolver, &reason);
+
+        if (mUseFixedNumberIterations && PETSC_VERSION_MAJOR < 3)
+        {
+            WARNING("Not explicitly checking convergence reason when using fixed number of iterations and PETSc 2");
+        }
+        else
+        {
+            KSPEXCEPT(reason);
+        }
+
         if(mUseFixedNumberIterations && mFirstSolve)        
         {
             PetscInt num_it;
@@ -955,6 +969,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             num_it_str << num_it;
 
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
+            assert(mKspType != "chebychev"); /// \todo: #1695/#1701 It looks like Chebyshev doesn't work with fixed number of iterations in PETSc <= 2.3.2
             KSPSetNormType(mKspSolver, KSP_NO_NORM);
 #else
             KSPSetNormType(mKspSolver, KSP_NORM_NO);
@@ -964,18 +979,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetConvergenceTest(mKspSolver, KSPSkipConverged, PETSC_NULL);
 #endif
 
-
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
             KSPSetFromOptions(mKspSolver);
+            KSPSetUp(mKspSolver);
 
             mFirstSolve = false;
         }
-
-        // Check that solver converged and throw if not
-        KSPConvergedReason reason;
-        KSPGetConvergedReason(mKspSolver, &reason);
-        KSPEXCEPT(reason);
-
 
     }
     catch (const Exception& e)
