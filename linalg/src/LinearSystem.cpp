@@ -951,8 +951,18 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPGetIterationNumber(mKspSolver, &num_it);            
             std::stringstream num_it_str;
             num_it_str << num_it;
-            
-            //KSPSetNormType(mKspSolver, KSP_NORM_NO);   KSP_NORM_NONE? Won't compile            
+
+#if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
+            KSPSetNormType(mKspSolver, KSP_NO_NORM);
+#else
+            KSPSetNormType(mKspSolver, KSP_NORM_NO);
+#endif                        
+
+#if (PETSC_VERSION_MAJOR != 3)
+            KSPSetConvergenceTest(mKspSolver, KSPSkipConverged, PETSC_NULL);
+#endif
+
+
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
             KSPSetFromOptions(mKspSolver);
 

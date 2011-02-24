@@ -115,7 +115,7 @@ public:
         VecDestroy(parallel_layout);
     }
 
-    void MiguelTestFixedNumberOfIterations()
+    void TestFixedNumberOfIterations()
     {
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
@@ -138,8 +138,13 @@ public:
 
         Vec guess;
         VecDuplicate(system_rhs, &guess);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2)
+        PetscScalar zero = 0.0;
+        VecSet(&zero, guess);
+#else
         VecSet(guess, 0.0);
-
+#endif
+        
         Vec solution = ls.Solve(guess);
 
         unsigned chebyshev_its = ls.GetNumIterations();
