@@ -70,7 +70,7 @@ private:
 
 public:
 
-    void TestSingleCellRelaxation() throw (Exception)
+    void TestSingleCellRelaxationNagaiHonda() throw (Exception)
     {
         // Construct a 2D vertex mesh consisting of a single element
         std::vector<Node<2>*> nodes;
@@ -103,7 +103,7 @@ public:
 
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestSingleCellRelaxation");
+        simulator.SetOutputDirectory("TestSingleCellRelaxationNagaiHonda");
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
