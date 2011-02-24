@@ -154,7 +154,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolv
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
     this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
     this->mpLinearSystem->SetMatrixIsSymmetric(true);
-    this->mpLinearSystem->SetUseFixedNumberIterations(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver());    
+    this->mpLinearSystem->SetUseFixedNumberIterations(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves());
 
     // initialise matrix-based RHS vector and matrix, and use the linear
     // system rhs as a template

@@ -294,7 +294,8 @@ HeartConfig* HeartConfig::Instance()
 HeartConfig::HeartConfig()
     : mUseMassLumping(false),
       mUseMassLumpingForPrecond(false),
-      mUseFixedNumberIterations(false)
+      mUseFixedNumberIterations(false),
+      mEvaluateNumItsEveryNSolves(UINT_MAX)
 {
     assert(mpInstance.get() == NULL);
     mUseFixedSchemaLocation = true;
@@ -3104,9 +3105,10 @@ bool HeartConfig::GetUseReactionDiffusionOperatorSplitting()
     return mUseReactionDiffusionOperatorSplitting;
 }
 
-void HeartConfig::SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations)
+void HeartConfig::SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations, unsigned evaluateNumItsEveryNSolves)
 {
     mUseFixedNumberIterations = useFixedNumberIterations;
+    mEvaluateNumItsEveryNSolves = evaluateNumItsEveryNSolves;
 }    
 
 bool HeartConfig::GetUseFixedNumberIterationsLinearSolver()
@@ -3114,6 +3116,10 @@ bool HeartConfig::GetUseFixedNumberIterationsLinearSolver()
     return mUseFixedNumberIterations;
 }    
 
+unsigned HeartConfig::GetEvaluateNumItsEveryNSolves()
+{
+    return mEvaluateNumItsEveryNSolves;
+}
 
 /**********************************************************************
  *                                                                    *

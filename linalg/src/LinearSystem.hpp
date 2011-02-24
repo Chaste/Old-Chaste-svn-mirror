@@ -118,7 +118,7 @@ private:
     bool mUseFixedNumberIterations;
         
     /** 
-     * When using fixed number of iterations, a solve with convergence-based 
+     * When using fixed number of iterations, a solve with residual-based 
      * stop criteria will be performed every mEvaluateNumItsEveryNSolves solves 
      * to decide how many iterations perform for the next mEvaluateNumItsEveryNSolves-1 solves 
      */

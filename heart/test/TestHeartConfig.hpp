@@ -1236,8 +1236,10 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumpingForPrecond(), false);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), false);
-        HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves(), UINT_MAX);
+        HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver(true, 20);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves(), 20u);        
     }
 
     void TestWrite() throw (Exception)

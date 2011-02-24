@@ -752,9 +752,14 @@ public:
     bool GetUseReactionDiffusionOperatorSplitting();
     
     /**
-     * Get whether to use a fixed number of iterations in the linear solver
+     *  Get whether to use a fixed number of iterations in the linear solver
      */
     bool GetUseFixedNumberIterationsLinearSolver();
+
+    /**
+     *  Get how often perform a solve with residual-based stop criteria in order to decide how many iterations to perform in following linear solves.
+     */    
+    unsigned GetEvaluateNumItsEveryNSolves();
     
 
     ///////////////////////////////////////////////////////////////
@@ -1187,8 +1192,9 @@ public:
      * Set the use of fixed number of iterations in the linear solver
      * 
      * @param useFixedNumberIterations Whether to use a fixed number of iterations for the linear solver
+     * @param evaluateNumItsEveryNSolves Perform a solve with convergence-based stop criteria every n solves to decide how many iterations perform for the next n-1 solves. Default is perfoming a single evaluation at the beginning of the simulation.
      */
-    void SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations = true);
+    void SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations = true, unsigned evaluateNumItsEveryNSolves=UINT_MAX);
 
 
 private:
@@ -1295,7 +1301,14 @@ private:
     /**
      * Whether to use a fixed number of iterations for the linear solver
      */
-    bool mUseFixedNumberIterations;    
+    bool mUseFixedNumberIterations;
+    
+    /**
+     * Perform a solve with convergence-based stop criteria every n solves 
+     * to decide how many iterations perform for the next n-1 solves. Default 
+     * is perfoming a single evaluation at the beginning of the simulation.
+     */
+    unsigned mEvaluateNumItsEveryNSolves;
         
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
