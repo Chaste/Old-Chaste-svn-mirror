@@ -258,11 +258,13 @@ LinearSystem::~LinearSystem()
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
     }
-    
+
+#if (PETSC_VERSION_MAJOR == 3)   
     if (mpConvergenceTestContext)
     {
         KSPDefaultConvergedDestroy(mpConvergenceTestContext);
     }
+#endif    
 
 #ifdef TRACE_KSP
     if (PetscTools::AmMaster())
