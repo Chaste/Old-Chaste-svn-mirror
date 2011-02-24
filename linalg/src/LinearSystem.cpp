@@ -106,7 +106,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
-    mPrecondMatrixIsNotLhs(false)
+    mPrecondMatrixIsNotLhs(false),
+    mUseFixedNumberIterations(false),
+    mFirstSolve(true)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
