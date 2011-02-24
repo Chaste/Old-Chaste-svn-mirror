@@ -114,14 +114,23 @@ private:
     /** The max number of nonzero entries expected on a LHS row */
     unsigned mRowPreallocation;
     
-    /** Whether to use fixed number of iterations or not */ 
+    /** Whether to use fixed number of iterations */ 
     bool mUseFixedNumberIterations;
-    
-    /** Initialised to true, set to false after one solve */
-    bool mFirstSolve;
+        
+    /** 
+     * When using fixed number of iterations, a solve with convergence-based 
+     * stop criteria will be performed every mEvaluateNumItsEveryNSolves solves 
+     * to decide how many iterations perform for the next mEvaluateNumItsEveryNSolves-1 solves 
+     */
+    unsigned mEvaluateNumItsEveryNSolves;
+
+    /**  Context for KSPDefaultConverged() */
+    void* mpConvergenceTestContext;
+
+    /** Number of solves performed since the current object was created */
+    unsigned mNumSolves;
 
 #ifdef TRACE_KSP
-    unsigned mNumSolves;
     unsigned mTotalNumIterations;
     unsigned mMaxNumIterations;
 #endif
@@ -538,8 +547,9 @@ public:
     /**
      * Set method for #mUseFixedNumberIterations
      * @param useFixedNumberIterations whether to use fixed number of iterations
+     * @param evaluateNumItsEveryNSolves tells LinearSystem to perform a solve with convergence-based stop criteria every n solves to decide how many iterations perform for the next n-1 solves. Default is perfoming a single evaluation at the beginning of the simulation. 
      */
-    void SetUseFixedNumberIterations(bool useFixedNumberIterations = true);
+    void SetUseFixedNumberIterations(bool useFixedNumberIterations = true, unsigned evaluateNumItsEveryNSolves = UINT_MAX);
     
     /**
      * Method to regenerate all KSP objects, including the solver and the preconditioner (e.g. after 

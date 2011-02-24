@@ -1285,7 +1285,12 @@ public:
         ls.SetMatrixIsSymmetric();
         ls.SetKspType("cg");
         ls.SetPcType("jacobi");
-        ls.SetUseFixedNumberIterations();
+        ls.SetAbsoluteTolerance(1e-4);
+        
+        /*
+         *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
+         */
+        ls.SetUseFixedNumberIterations(true, 2);
 
         Vec guess;
         VecDuplicate(system_rhs, &guess);
@@ -1297,25 +1302,49 @@ public:
 #endif
         
         Vec solution = ls.Solve(guess);
+        VecDestroy(solution);
 
         unsigned chebyshev_its = ls.GetNumIterations();
-        TS_ASSERT_EQUALS(chebyshev_its, 40u);
+        TS_ASSERT_EQUALS(chebyshev_its, 52u);
 
         /*
-         * We solve the same linear system again using the previous solution as the new
-         * guess. If we were checking convergence normally it would take one iteration
-         * to solve. Since we set fixed number of iterations based on first solve, it will
-         * take the same number as above.
+         * Solve using previous solution as new guess. If we were checking convergence
+         * normally it would take 0 iterations to solve. Since we set fixed number of
+         * iterations based on first solve, it will take the same number as above.
          */
-        Vec solution2 = ls.Solve(solution);
+        solution = ls.Solve(solution);
         chebyshev_its = ls.GetNumIterations();
-        TS_ASSERT_EQUALS(chebyshev_its, 40u);
+        TS_ASSERT_EQUALS(chebyshev_its, 52u);
+        VecDestroy(solution);
+
+        /*
+         * Solve using previous solution as new guess takes 0 iterations as 
+         * it is performed with tolerance-based stop criteria.
+         */
+        solution = ls.Solve(solution);
+        chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 0u);
+        VecDestroy(solution);
+
+        /*
+         * Solve with initial guess should take 52 iterations but the solver
+         * uses the same number of iterations as the previous call.
+         */
+        solution = ls.Solve(guess);
+        chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 0u);
+        VecDestroy(solution);
+
+        /*
+         * Solve with initial guess and tolerance-based stop criteria takes 52 iterations
+         */
+        solution = ls.Solve(guess);
+        chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 52u);
+        VecDestroy(solution);        
 
         MatDestroy(system_matrix);
         VecDestroy(system_rhs);
-        VecDestroy(solution);
-        VecDestroy(solution2);
-        
         VecDestroy(parallel_layout);
     }
 

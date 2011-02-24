@@ -59,7 +59,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mPrecondMatrixIsNotLhs(false),
     mRowPreallocation(rowPreallocation),
     mUseFixedNumberIterations(false),
-    mFirstSolve(true)
+    mEvaluateNumItsEveryNSolves(UINT_MAX),
+    mpConvergenceTestContext(NULL)
 {
     assert(lhsVectorSize>0);
     if (mRowPreallocation == UINT_MAX)
@@ -85,8 +86,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mKspType = "gmres";
     mPcType = "jacobi";
 
-#ifdef TRACE_KSP
     mNumSolves = 0;
+#ifdef TRACE_KSP
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
 #endif
@@ -109,7 +110,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() ),
     mPrecondMatrixIsNotLhs(false),
     mUseFixedNumberIterations(false),
-    mFirstSolve(true)
+    mEvaluateNumItsEveryNSolves(UINT_MAX),
+    mpConvergenceTestContext(NULL)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -118,8 +120,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 
-#ifdef TRACE_KSP
     mNumSolves = 0;
+#ifdef TRACE_KSP
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
 #endif
@@ -141,7 +143,8 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mPrecondMatrixIsNotLhs(false),
     mRowPreallocation(rowPreallocation),
     mUseFixedNumberIterations(false),
-    mFirstSolve(true)
+    mEvaluateNumItsEveryNSolves(UINT_MAX),
+    mpConvergenceTestContext(NULL)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -155,8 +158,8 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mKspType = "gmres";
     mPcType = "jacobi";
 
-#ifdef TRACE_KSP
     mNumSolves = 0;
+#ifdef TRACE_KSP
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
 #endif
@@ -178,7 +181,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mPrecondMatrixIsNotLhs(false),
     mRowPreallocation(UINT_MAX),
     mUseFixedNumberIterations(false),
-    mFirstSolve(true)
+    mEvaluateNumItsEveryNSolves(UINT_MAX),
+    mpConvergenceTestContext(NULL)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -215,8 +219,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mKspType = "gmres";
     mPcType = "jacobi";
 
-#ifdef TRACE_KSP
     mNumSolves = 0;
+#ifdef TRACE_KSP
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
 #endif
@@ -253,6 +257,11 @@ LinearSystem::~LinearSystem()
     {
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
+    }
+    
+    if (mpConvergenceTestContext)
+    {
+        KSPDefaultConvergedDestroy(mpConvergenceTestContext);
     }
 
 #ifdef TRACE_KSP
@@ -928,6 +937,40 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         Timer::Reset();
 #endif
 
+        // Current solve has to be done with tolerance-based stop criteria in order to record iterations taken
+        if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0)
+        {
+#if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))
+            KSPSetNormType(mKspSolver, KSP_PRECONDITIONED_NORM);
+#else
+            KSPSetNormType(mKspSolver, KSP_NORM_PRECONDITIONED);
+#endif
+
+#if (PETSC_VERSION_MAJOR == 3)
+            KSPDefaultConvergedCreate(&mpConvergenceTestContext);            
+            KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, &mpConvergenceTestContext, PETSC_NULL); 
+#else
+            KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, PETSC_NULL);
+#endif            
+
+            if (mUseAbsoluteTolerance)
+            {
+                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+            else
+            {
+                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+
+            /// \todo; #1695 Reset max number of iterations
+            std::stringstream num_it_str;
+            num_it_str << 100;
+            PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+            
+            KSPSetFromOptions(mKspSolver);            
+            KSPSetUp(mKspSolver);
+        }
+
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
@@ -939,8 +982,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << " "; // don't add std::endl so we get Timer::Print output in the same line (better for grep-ing)
             Timer::Print("Solve");
         }
-
-        mNumSolves++;
+        
         mTotalNumIterations += num_it;
         if ((unsigned) num_it > mMaxNumIterations)
         {
@@ -961,13 +1003,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPEXCEPT(reason);
         }
 
-        if(mUseFixedNumberIterations && mFirstSolve)        
+        if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0 )        
         {
-            PetscInt num_it;
-            KSPGetIterationNumber(mKspSolver, &num_it);            
-            std::stringstream num_it_str;
-            num_it_str << num_it;
-
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
             assert(mKspType != "chebychev"); /// \todo: #1695/#1701 It looks like Chebyshev doesn't work with fixed number of iterations in PETSc <= 2.3.2
             KSPSetNormType(mKspSolver, KSP_NO_NORM);
@@ -979,12 +1016,17 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetConvergenceTest(mKspSolver, KSPSkipConverged, PETSC_NULL);
 #endif
 
+            PetscInt num_it;
+            KSPGetIterationNumber(mKspSolver, &num_it);            
+            std::stringstream num_it_str;
+            num_it_str << num_it;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+
             KSPSetFromOptions(mKspSolver);
             KSPSetUp(mKspSolver);
-
-            mFirstSolve = false;
         }
+
+        mNumSolves++;
 
     }
     catch (const Exception& e)
@@ -1023,9 +1065,10 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
     }
 }
 
-void LinearSystem::SetUseFixedNumberIterations(bool useFixedNumberIterations)
+void LinearSystem::SetUseFixedNumberIterations(bool useFixedNumberIterations, unsigned evaluateNumItsEveryNSolves)
 {
     mUseFixedNumberIterations = useFixedNumberIterations;
+    mEvaluateNumItsEveryNSolves = evaluateNumItsEveryNSolves;
 }
 
 void LinearSystem::ResetKspSolver()
