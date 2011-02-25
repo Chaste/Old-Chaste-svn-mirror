@@ -339,6 +339,16 @@ public:
      */
     std::string GetAnyVariableUnits(unsigned index) const;
 
+    /**
+     * Get the units of a variable, whether a state variable, parameter, or
+     * derived quantity, given its index as returned by GetAnyVariableIndex.
+     *
+     * @param rName  the name of any variable in the model.
+     * @return the units of the variable.
+     */
+    std::string GetAnyVariableUnits(const std::string& rName) const;
+
+
     //
     // Derived quantity methods
     //

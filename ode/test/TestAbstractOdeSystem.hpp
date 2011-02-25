@@ -160,6 +160,8 @@ public:
 
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(0u), "dimensionless");
         TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(1u), "dimensionless");
+        TS_ASSERT_EQUALS(ode.GetAnyVariableUnits("y"), "dimensionless");
+        TS_ASSERT_EQUALS(ode.GetAnyVariableUnits("a"), "dimensionless");
 
         TS_ASSERT_EQUALS(p_info->GetAnyVariableIndex("y"), 0u);
         TS_ASSERT_EQUALS(p_info->GetAnyVariableIndex("a"), 1u);

@@ -319,6 +319,12 @@ std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(unsigned in
     return mpSystemInfo->GetAnyVariableUnits(index);
 }
 
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(const std::string& rName) const
+{
+    return GetAnyVariableUnits(GetAnyVariableIndex(rName));
+}
+
 //
 // "Derived quantities" methods
 //
