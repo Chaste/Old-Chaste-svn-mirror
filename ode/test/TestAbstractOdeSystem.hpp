@@ -137,14 +137,23 @@ public:
 
         double y = -1.0;
         ode.SetAnyVariable(0u, y);
+        TS_ASSERT_EQUALS(ode.GetStateVariable("y"), y);
         TS_ASSERT_EQUALS(ode.GetStateVariable(0u), y);
+
+        ode.SetStateVariable("y", y-1);
+        TS_ASSERT_EQUALS(ode.GetStateVariable("y"), y-1);
+        ode.SetAnyVariable("y", y);
+        TS_ASSERT_EQUALS(ode.GetStateVariable("y"), y);
+
 
         TS_ASSERT_EQUALS(ode.HasAnyVariable("y"), true);
         TS_ASSERT_EQUALS(ode.HasAnyVariable("a"), true);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("y"), 0u);
         TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("a"), 1u);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(0u), y);
+        TS_ASSERT_EQUALS(ode.GetAnyVariable("y"), y);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(1u), a);
+        TS_ASSERT_EQUALS(ode.GetAnyVariable("a"), a);
         double new_a = 12345.6789;
         ode.SetAnyVariable(1u, new_a);
         TS_ASSERT_EQUALS(ode.GetAnyVariable(1u), new_a);

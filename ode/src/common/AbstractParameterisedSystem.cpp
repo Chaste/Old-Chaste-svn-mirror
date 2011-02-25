@@ -93,6 +93,12 @@ double AbstractParameterisedSystem<VECTOR>::GetStateVariable(unsigned index) con
 }
 
 template<typename VECTOR>
+double AbstractParameterisedSystem<VECTOR>::GetStateVariable(const std::string& rName) const
+{
+    return GetStateVariable(GetStateVariableIndex(rName));
+}
+
+template<typename VECTOR>
 void AbstractParameterisedSystem<VECTOR>::SetStateVariable(unsigned index, double newValue)
 {
     if ( mNumberOfStateVariables <= index )
@@ -100,6 +106,12 @@ void AbstractParameterisedSystem<VECTOR>::SetStateVariable(unsigned index, doubl
         EXCEPTION("The index passed in must be less than the number of state variables.");
     }
     SetVectorComponent(mStateVariables, index, newValue);
+}
+
+template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetStateVariable(const std::string& rName, double newValue)
+{
+    SetStateVariable(GetStateVariableIndex(rName), newValue);
 }
 
 template<typename VECTOR>
@@ -256,6 +268,14 @@ double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index, doubl
 }
 
 template<typename VECTOR>
+double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(const std::string& rName,
+                                                           double time,
+                                                           VECTOR* pDerivedQuantities)
+{
+    return GetAnyVariable(GetAnyVariableIndex(rName), time, pDerivedQuantities);
+}
+
+template<typename VECTOR>
 unsigned AbstractParameterisedSystem<VECTOR>::GetAnyVariableIndex(const std::string& rName) const
 {
     assert(mpSystemInfo);
@@ -284,6 +304,12 @@ void AbstractParameterisedSystem<VECTOR>::SetAnyVariable(unsigned index, double 
     {
         EXCEPTION("Cannot set the value of a derived quantity, or invalid index.");
     }
+}
+
+template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetAnyVariable(const std::string& rName, double value)
+{
+    SetAnyVariable(GetAnyVariableIndex(rName), value);
 }
 
 template<typename VECTOR>

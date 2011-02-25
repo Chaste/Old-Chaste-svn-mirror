@@ -113,12 +113,27 @@ public:
     double GetStateVariable(unsigned index) const;
 
     /**
+     * Get the value of a given state variable.
+     *
+     * @param rName the name of the state variable
+     */
+    double GetStateVariable(const std::string& rName) const;
+
+    /**
      * Set the value of a single state variable in the ODE system.
      *
      * @param index index of the state variable to be set
      * @param newValue new value of the state variable
      */
     void SetStateVariable(unsigned index, double newValue);
+
+    /**
+     * Set the value of a single state variable in the ODE system.
+     *
+     * @param rName name of the state variable to be set
+     * @param newValue new value of the state variable
+     */
+    void SetStateVariable(const std::string& rName, double newValue);
 
     /**
      * Get the names of the state variables in the ODE system.
@@ -261,6 +276,22 @@ public:
                           VECTOR* pDerivedQuantities=NULL);
 
     /**
+     * Get the value of a variable, whether a state variable, parameter,
+     * or derived quantity.
+     *
+     * Note that if the variable is a derived quantity, this method will compute
+     * all derived quantities, so may not be very efficient.  To avoid this, pass
+     * a pre-computed vector of derived quantities as the optional third argument.
+     *
+     * @param rName the name of the variable, (this method is the same as doing GetAnyVariableIndex(rName) and then calling the method above).
+     * @param time  the current simulation time, possibly needed if the variable
+     *     is a derived quantity.
+     * @param pDerivedQuantities  optional vector of pre-computed derived quantity values.
+     */
+    double GetAnyVariable(const std::string& rName, double time=0.0,
+                          VECTOR* pDerivedQuantities=NULL);
+
+    /**
      * Get the index of a variable, whether a state variable, parameter,
      * or derived quantity, with the given name.
      * The returned index is suitable for use with GetAnyVariableUnits,
@@ -289,6 +320,15 @@ public:
      * @param value  the value to give the variable.
      */
     void SetAnyVariable(unsigned index, double value);
+
+    /*
+     * Set the value of a variable, whether a state variable or parameter.
+     * Attempting to set the value of a derived quantity will raise an exception.
+     *
+     * @param rName  the name of the variable.
+     * @param value  the value to give the variable.
+     */
+    void SetAnyVariable(const std::string& rName, double value);
 
     /**
      * Get the units of a variable, whether a state variable, parameter, or
