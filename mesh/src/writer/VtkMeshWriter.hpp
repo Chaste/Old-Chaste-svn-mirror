@@ -245,12 +245,17 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std
 {
     vtkDoubleArray* p_vectors = vtkDoubleArray::New();
     p_vectors->SetName(dataName.c_str());
-    p_vectors->SetNumberOfComponents(SPACE_DIM);
+    p_vectors->SetNumberOfComponents(3);
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         for (unsigned j=0; j<SPACE_DIM; j++)
         {
             p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+        //When SPACE_DIM<3, then pad 
+        for (unsigned j=SPACE_DIM; j<3; j++)
+        {
+            p_vectors->InsertNextValue(0.0);
         }
     }
 
@@ -281,12 +286,17 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
 {
     vtkDoubleArray* p_vectors = vtkDoubleArray::New();
     p_vectors->SetName(dataName.c_str());
-    p_vectors->SetNumberOfComponents(SPACE_DIM);
+    p_vectors->SetNumberOfComponents(3);
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         for (unsigned j=0; j<SPACE_DIM; j++)
         {
             p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+        //When SPACE_DIM<3, then pad 
+        for (unsigned j=SPACE_DIM; j<3; j++)
+        {
+            p_vectors->InsertNextValue(0.0);
         }
     }
 
