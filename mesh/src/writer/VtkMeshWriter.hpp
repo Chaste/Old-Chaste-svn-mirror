@@ -95,6 +95,16 @@ public:
      * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
      */
     void AddCellData(std::string name, std::vector<double> data);
+
+    /**
+     * Add a vector data field to each element (known as "cell" in VTK).
+     * @param name is a meaningful name with which to annotate the data
+     * @param data is the data which should appear in the same order as the element numbering
+     * The length of the data vector is assumed to match the number of elements in the mesh.
+     * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
+     */
+    void AddCellData(std::string name, std::vector<c_vector<double, SPACE_DIM> > data);
+    
     /**
      * Add a scalar data field to each node (known as "point" in VTK).
      * @param name is a meaningful name with which to annotate the data
@@ -103,6 +113,15 @@ public:
      * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
      */
     void AddPointData(std::string name, std::vector<double> data);
+
+    /**
+     * Add a vector data field to each node (known as "point" in VTK).
+     * @param name is a meaningful name with which to annotate the data
+     * @param data is the data which should appear in the same order as the node numbering
+     * The length of the data vector is assumed to match the number of nodes in the mesh
+     * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
+     */
+    void AddPointData(std::string name, std::vector<c_vector<double, SPACE_DIM> > data);
 
     /**
      * Destructor.
@@ -222,6 +241,25 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<c_vector<double, SPACE_DIM> > dataPayload)
+{
+    vtkDoubleArray* p_vectors = vtkDoubleArray::New();
+    p_vectors->SetName(dataName.c_str());
+    p_vectors->SetNumberOfComponents(SPACE_DIM);
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+    }
+
+    vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    p_cell_data->AddArray(p_vectors);
+    p_vectors->Delete(); //Reference counted
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
@@ -236,6 +274,28 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
     p_scalars->Delete(); //Reference counted
 
 }
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<c_vector<double, SPACE_DIM> > dataPayload)
+{
+    vtkDoubleArray* p_vectors = vtkDoubleArray::New();
+    p_vectors->SetName(dataName.c_str());
+    p_vectors->SetNumberOfComponents(SPACE_DIM);
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+    }
+
+    vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
+    p_point_data->AddArray(p_vectors);
+    p_vectors->Delete(); //Reference counted
+
+}
+
 #endif //CHASTE_VTK
 
 #endif /*VTKMESHWRITER_HPP_*/

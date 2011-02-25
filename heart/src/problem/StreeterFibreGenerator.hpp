@@ -88,7 +88,7 @@ public:
      * @param epicardiumFile Epicardium surface
      * @param rightVentricleFile Right Ventricle surface
      * @param leftVentricleFile Left Ventricle surface
-     * @bool indexFromZero  Are the nodes in the original mesh file/surfaces indexed from 0?
+     * @param indexFromZero  Are the nodes in the original mesh file/surfaces indexed from 0?
      */
     void SetSurfaceFiles(const std::string &epicardiumFile,
                          const std::string &rightVentricleFile,

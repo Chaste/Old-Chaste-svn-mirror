@@ -281,7 +281,7 @@ public:
      */
     bool HasAnyVariable(const std::string& rName) const;
 
-    /*
+    /**
      * Set the value of a variable, whether a state variable or parameter.
      * Attempting to set the value of a derived quantity will raise an exception.
      *

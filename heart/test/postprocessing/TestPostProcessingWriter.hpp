@@ -121,8 +121,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<std::pair<double,double> > apd_maps;
-        apd_maps.push_back(std::pair<double, double>(80,-30));//reploarisation percentage first, as per schema
-        apd_maps.push_back(std::pair<double, double>(90,-20));//reploarisation percentage first, as per schema
+        apd_maps.push_back(std::pair<double, double>(80,-30));//repolarisation percentage first, as per schema
+        apd_maps.push_back(std::pair<double, double>(90,-20));//repolarisation percentage first, as per schema
         HeartConfig::Instance()->SetApdMaps(apd_maps);
 
         std::vector<double> upstroke_time_map;

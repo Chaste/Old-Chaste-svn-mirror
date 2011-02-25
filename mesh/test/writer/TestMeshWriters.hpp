@@ -804,6 +804,14 @@ public:
         }
         writer.AddPointData("Distance from origin", distance);
 
+        // Add fibre type to "point" data
+        std::vector< c_vector<double, 2> > location;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            location.push_back(mesh.GetNode(i)->rGetLocation());
+        }
+        writer.AddPointData("Location", location);
+
         // Add element quality into the element "cell" data
         std::vector<double> quality;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -811,6 +819,14 @@ public:
             quality.push_back(mesh.GetElement(i)->CalculateQuality());
         }
         writer.AddCellData("Quality", quality);
+
+        // Add fibre type to "cell" data
+        std::vector< c_vector<double, 2> > centroid;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            centroid.push_back(mesh.GetElement(i)->CalculateCentroid());
+        }
+        writer.AddCellData("Centroid", centroid);
 
 
         writer.WriteFilesUsingMesh(mesh);
@@ -849,6 +865,14 @@ public:
         }
         writer.AddCellData("Quality", quality);
 
+        // Add fibre type to "cell" data
+        std::vector< c_vector<double, 3> > centroid;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            centroid.push_back(mesh.GetElement(i)->CalculateCentroid());
+        }
+        writer.AddCellData("Centroid", centroid);
+
         // Add distance from origin into the node "point" data
         std::vector<double> distance;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -856,6 +880,14 @@ public:
             distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
         }
         writer.AddPointData("Distance from origin", distance);
+
+        // Add fibre type to "point" data
+        std::vector< c_vector<double, 3> > location;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            location.push_back(mesh.GetNode(i)->rGetLocation());
+        }
+        writer.AddPointData("Location", location);
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
