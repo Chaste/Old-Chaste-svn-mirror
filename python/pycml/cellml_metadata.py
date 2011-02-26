@@ -76,7 +76,7 @@ METADATA_NAMES = frozenset(
      'diadicspace_calcium_concentration',
      'SR_release_current',
      'concentration_clamp_onoff',
-     'extracellular_potassium_concentration', 'bath_potassium_concentration',
+     'extracellular_potassium_concentration', 'extracellular_calcium_concentration', 'bath_potassium_concentration',
      'SR_leak_current_max', 'SR_release_current_max', 'SR_release_kmcacyt', 'SR_release_kmcads', 'SR_uptake_current_max', 'JSR_calcium_concentration'
 ])
 
