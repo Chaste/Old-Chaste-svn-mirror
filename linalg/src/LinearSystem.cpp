@@ -808,8 +808,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetComputeSingularValues(mKspSolver, PETSC_TRUE);            
             
             // Eigenvalues have to be computed accurately
-            KSPSetTolerances(mKspSolver, DBL_EPSILON, 1e-14, PETSC_DEFAULT, PETSC_DEFAULT);
-            KSPSetUp(mKspSolver);
+//            KSPSetTolerances(mKspSolver, DBL_EPSILON, 1e-14, PETSC_DEFAULT, PETSC_DEFAULT);
+//            KSPSetUp(mKspSolver);
                             
             /// \todo: #1701 Check relationship between eigenvalues and singular values depending on symmetry...
             assert(IsMatrixSymmetric());            
@@ -836,14 +836,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetComputeSingularValues(mKspSolver, PETSC_FALSE);
 
             // Go back to the original tolerances
-            if (mUseAbsoluteTolerance)
-            {
-                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
-            }
-            else
-            {
-                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-            }
+//            if (mUseAbsoluteTolerance)
+//            {
+//                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+//            }
+//            else
+//            {
+//                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+//            }
 
 #ifdef TRACE_KSP
             Timer::Print("Computing extremal eigenvalues");
