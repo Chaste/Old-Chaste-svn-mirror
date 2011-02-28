@@ -1069,6 +1069,10 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
 
 void LinearSystem::SetUseFixedNumberIterations(bool useFixedNumberIterations, unsigned evaluateNumItsEveryNSolves)
 {
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2)
+    EXCEPTION("PETSc functionality required to solve linear systems with fixed number of iterations seems to be broken in version 2.3.2");
+#endif
+    
     mUseFixedNumberIterations = useFixedNumberIterations;
     mEvaluateNumItsEveryNSolves = evaluateNumItsEveryNSolves;
 }

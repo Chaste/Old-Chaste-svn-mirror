@@ -1267,7 +1267,7 @@ public:
     }
 
     void TestFixedNumberOfIterations() throw (Exception)
-    {
+    {               
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
         Vec parallel_layout = factory.CreateVec(2);               
@@ -1286,14 +1286,9 @@ public:
         ls.SetKspType("cg");
         ls.SetPcType("jacobi");
         ls.SetAbsoluteTolerance(1e-4);
-        
-        /*
-         *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
-         */
-        ls.SetUseFixedNumberIterations(true, 2);
 
         Vec guess;
-        VecDuplicate(system_rhs, &guess);
+        VecDuplicate(parallel_layout, &guess);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2)
         PetscScalar zero = 0.0;
         VecSet(&zero, guess);
@@ -1301,6 +1296,14 @@ public:
         VecSet(guess, 0.0);
 #endif
         
+        /*
+         *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
+         */
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2)
+        TS_ASSERT_THROWS_THIS(ls.SetUseFixedNumberIterations(true, 2), "PETSc functionality required to solve linear systems with fixed number of iterations seems to be broken in version 2.3.2");
+#else
+        TS_ASSERT_THROWS_NOTHING(ls.SetUseFixedNumberIterations(true, 2));
+            
         Vec solution = ls.Solve(guess);
         VecDestroy(solution);
 
@@ -1341,11 +1344,13 @@ public:
         solution = ls.Solve(guess);
         chebyshev_its = ls.GetNumIterations();
         TS_ASSERT_EQUALS(chebyshev_its, 52u);
-        VecDestroy(solution);        
+        VecDestroy(solution);            
+#endif        
 
         MatDestroy(system_matrix);
         VecDestroy(system_rhs);
         VecDestroy(parallel_layout);
+        VecDestroy(guess);        
     }
 
     // this test should be the last in the suite
