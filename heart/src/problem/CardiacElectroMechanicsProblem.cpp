@@ -493,6 +493,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         if(!mNoElectricsOutput)
         {
+            // the writer inside monodomain problem uses the printing timestep
+            // inside HeartConfig to estimate total number of timesteps, so make
+            // sure this is set to what we will use. 
+            HeartConfig::Instance()->SetPrintingTimeStep(mMechanicsTimeStep);
             mpMonodomainProblem->InitialiseWriter();
             mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
         }

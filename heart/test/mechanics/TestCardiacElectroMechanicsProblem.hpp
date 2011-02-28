@@ -240,10 +240,10 @@ public:
 
         // hack into the mechanics solver and set up the current solution so that it corresponds to
         // the square of tissue being stretched
-        for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
+        for(unsigned i=0; i<mechanics_mesh.GetNumNodes(); i++)
         {
-            double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
-            double Y = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[1];
+            double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*0.2;
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
         }
@@ -280,6 +280,9 @@ public:
         // cell model and caused increased voltage
         
         Hdf5DataReader reader("TestNobleSacActivatedByStretchTissue/electrics", "voltage");
+        unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
+        TS_ASSERT_EQUALS(num_timesteps, 2u);
+        
         Vec start_voltage = PetscTools::CreateVec(36);
         Vec end_voltage = PetscTools::CreateVec(36);
         reader.GetVariableOverNodes(start_voltage, "V", 0);
@@ -334,10 +337,10 @@ public:
 
         // hack into the mechanics solver and set up the current solution so that it corresponds to
         // the some stretch in the upper element
-        for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
+        for(unsigned i=0; i<mechanics_mesh.GetNumNodes(); i++)
         {
-            double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
-            double Y = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[1];
+            double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*Y*0.1; // displacement is zero except for (1,1) node
             problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = X*Y*0.1; // displacement is zero except for (1,1) node
         }
