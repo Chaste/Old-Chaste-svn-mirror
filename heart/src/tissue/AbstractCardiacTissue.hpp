@@ -30,15 +30,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
 #include <vector>
+#include <boost/shared_ptr.hpp>
+
+#include "UblasMatrixInclude.hpp"
+
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
+#include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/serialization/version.hpp>
 #include <boost/serialization/split_member.hpp>
 
 #include "AbstractCardiacCell.hpp"
@@ -586,8 +588,7 @@ namespace serialization {
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM> >
 {
-    /** Version number */
-    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+    CHASTE_VERSION_CONTENT(1);
 };
 } // namespace serialization
 } // namespace boost

@@ -31,10 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
+#include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/serialization/version.hpp>
 
 #include <vector>
 #include <string>
@@ -633,8 +633,7 @@ namespace serialization {
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >
 {
-    /** Version number */
-    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+    CHASTE_VERSION_CONTENT(1);
 };
 } // namespace serialization
 } // namespace boost

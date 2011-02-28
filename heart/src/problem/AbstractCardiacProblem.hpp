@@ -36,14 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cassert>
 #include <climits>
+#include <boost/shared_ptr.hpp>
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include "ClassIsAbstract.hpp"
+#include "ChasteSerializationVersion.hpp"
 
 #include "AbstractTetrahedralMesh.hpp"
 #include "AbstractCardiacCell.hpp"
@@ -782,8 +783,7 @@ namespace serialization {
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM,  unsigned PROBLEM_DIM>
 struct version<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
 {
-    /** Version number */
-    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+    CHASTE_VERSION_CONTENT(1);
 };
 } // namespace serialization
 } // namespace boost
