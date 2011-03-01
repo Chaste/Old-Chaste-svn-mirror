@@ -97,8 +97,8 @@ public: // Tests should be public!
          * In most simulations there is one valid tissue identifier and one valid bath identifier 
          * (for elements).
          * These can be obtained with   
-         * mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidTissueId());
-         * mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());
+         *  * {{{mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidTissueId());}}}
+         *  * {{{mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());}}}
          * 
          * If we want heterogeneous conductivities outside the heart (for example for torso and blood)
          * then we will need different identifiers
@@ -153,8 +153,8 @@ public: // Tests should be public!
 
         /* 
          * The external conductivity can set two ways:
-         *  * the default conductivity in the bath is set with SetBathConductivity
-         *  * heterogeneous overides can be set with SetBathMultipleConductivities(map)
+         *  * the default conductivity in the bath is set with {{{SetBathConductivity(double)}}}
+         *  * heterogeneous overides can be set with {{{SetBathMultipleConductivities(std::map<unsigned, double> )}}}
          */
         
         HeartConfig::Instance()->SetBathConductivity(7.0);  //bath_id1 tags will take the default value (actually 7.0 is the default)

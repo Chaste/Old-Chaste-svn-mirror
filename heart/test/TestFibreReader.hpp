@@ -34,7 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FibreReader.hpp"
 #include "HeartFileFinder.hpp"
-
+#include "TetrahedralMesh.hpp"
+#include "VtkMeshWriter.hpp"
 
 // simple helper function
 template<unsigned DIM>
@@ -127,6 +128,45 @@ public:
         // called too many times
         TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreVector(fibre_vector), "End of file")
     }
+    
+    void TestFibretoVtk()
+    {
+        //See TestConductivityTensors
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(1,1,1);
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "simple_fibres", false);
+
+        {
+            FileFinder file("heart/test/data/fibre_tests/SimpleAxisymmetric.axi", RelativeTo::ChasteSourceRoot);
+            FibreReader<3> fibre_reader(file, AXISYM);
+            std::vector< c_vector<double, 3> > fibres;
+            fibre_reader.GetAllAxi(fibres);
+            TS_ASSERT_EQUALS(fibres.size(), mesh.GetNumElements());
+            writer.AddCellData("AxiFibres", fibres);
+        }
+        {
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+            FibreReader<3> fibre_reader(file, ORTHO);
+            std::vector< c_vector<double, 3> > fibres;
+            std::vector< c_vector<double, 3> > second;
+            std::vector< c_vector<double, 3> > third;
+            fibre_reader.GetAllOrtho(fibres, second, third);
+            TS_ASSERT_EQUALS(fibres.size(), mesh.GetNumElements());
+            TS_ASSERT_EQUALS(second.size(), mesh.GetNumElements());
+            TS_ASSERT_EQUALS(third.size(), mesh.GetNumElements());
+            writer.AddCellData("OrthoFibres", fibres);
+            writer.AddCellData("OrthoSecond", second);
+            writer.AddCellData("OrthoThird", third);
+        }
+        writer.WriteFilesUsingMesh(mesh);
+        //Check that it has been written
+        OutputFileHandler handler("TestVtkMeshWriter", false); 
+        std::ifstream vtk_file;
+        std::string command = handler.GetOutputDirectoryFullPath()+"/simple_fibres.vtu";
+        vtk_file.open(command.c_str());
+        TS_ASSERT(vtk_file.is_open());
+        vtk_file.close();
+    }
 
     void TestFibreReaderExceptions()
     {
@@ -162,12 +202,16 @@ public:
         c_vector<double, 2> fibre_vector;
         FileFinder finder5("heart/test/data/fibre_tests/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader5(finder5, ORTHO);
-        TS_ASSERT_THROWS_THIS(fibre_reader5.GetNextFibreVector(fibre_vector), "Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres.");
-
+        TS_ASSERT_THROWS_THIS(fibre_reader5.GetNextFibreVector(fibre_vector), "Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres");
+        std::vector<c_vector<double,2> > v1;
+        TS_ASSERT_THROWS_THIS(fibre_reader5.GetAllAxi(v1), "Use GetAllOrtho when reading orthotropic fibres");
         // wrong method call, can't read an 'axisymmetric matrix'
         FileFinder finder6("heart/test/data/fibre_tests/random_fibres.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader6(finder6, AXISYM);
-        TS_ASSERT_THROWS_THIS(fibre_reader6.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Use GetNextFibreVector when reading axisymmetric fibres.");
+        TS_ASSERT_THROWS_THIS(fibre_reader6.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Use GetNextFibreVector when reading axisymmetric fibres");
+        std::vector<c_vector<double,2> > v2;
+        std::vector<c_vector<double,2> > v3;
+        TS_ASSERT_THROWS_THIS(fibre_reader6.GetAllOrtho(v1, v2, v3), "Use GetAllAxi when reading axisymmetric fibres");
 
         // Incomplete axi data
         FileFinder finder7("heart/test/data/fibre_tests/bad_axi.axi", RelativeTo::ChasteSourceRoot);

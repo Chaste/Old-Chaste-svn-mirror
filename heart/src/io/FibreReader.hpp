@@ -138,6 +138,29 @@ public:
     {
         return mNumLinesOfData;
     }
+    
+    /**
+     * Get every line of a fibre file (axi-symmetric) in vector of vectors format.
+     * This is useful for adding to a visualizer.
+     * (Do not use with GetNext...)
+     * 
+     * @param direction  an empty vector which will be filled with data from file  
+     */
+    void GetAllAxi(std::vector< c_vector<double, DIM> >& direction);
+    
+    /**
+     * Get every line of a fibre file (orthotropic) in vector of vectors format.
+     * This is useful for adding to a visualizer.
+     * (Do not use with GetNext...)
+     * 
+     * @param first_direction  an empty vector which will be filled with data from file  
+     * @param second_direction  an empty vector which will be filled with data from file  
+     * @param third_direction  an empty vector which will be filled with data from file (or will remain empty in 2D) 
+     */
+    void GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction, 
+                         std::vector< c_vector<double, DIM> >& second_direction,
+                         std::vector< c_vector<double, DIM> >& third_direction);
+    
 };
 
 #endif /*FIBREREADER_HPP_*/

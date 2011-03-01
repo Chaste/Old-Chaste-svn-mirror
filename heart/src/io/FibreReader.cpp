@@ -62,12 +62,59 @@ FibreReader<DIM>::~FibreReader()
 }
 
 template<unsigned DIM>
+void FibreReader<DIM>::GetAllAxi(std::vector< c_vector<double, DIM> >& direction)
+{
+    assert(direction.empty());                                       
+    if (mNumItemsPerLine != DIM)
+    {
+        EXCEPTION("Use GetAllOrtho when reading orthotropic fibres");
+    }   
+    for (unsigned i=0; i<mNumLinesOfData; i++)
+    {
+        c_vector<double, DIM> temp_vector;
+        GetNextFibreVector(temp_vector, false);
+        direction.push_back(temp_vector);
+    }
+}    
+
+template<unsigned DIM>
+void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction, 
+                                   std::vector< c_vector<double, DIM> >& second_direction,
+                                   std::vector< c_vector<double, DIM> >& third_direction)
+{
+    assert(first_direction.empty());                                       
+    assert(second_direction.empty());                                       
+    assert(third_direction.empty());                                       
+    if (mNumItemsPerLine != DIM*DIM)
+    {
+        EXCEPTION("Use GetAllAxi when reading axisymmetric fibres");
+    }   
+    for (unsigned i=0; i<mNumLinesOfData; i++)
+    {
+        c_matrix<double, DIM, DIM> temp_matrix;
+        GetNextFibreSheetAndNormalMatrix(temp_matrix, false);
+        matrix_row<c_matrix<double, DIM, DIM> > row0(temp_matrix, 0);
+        first_direction.push_back(row0);
+        if (DIM>=2)
+        {
+            matrix_row<c_matrix<double, DIM, DIM> > row1(temp_matrix, 1);
+            second_direction.push_back(row1);
+        }
+        if (DIM==3)
+        {
+            matrix_row<c_matrix<double, DIM, DIM> > row2(temp_matrix, 2);
+            third_direction.push_back(row2);
+        }
+    }
+ 
+}                        
+template<unsigned DIM>
 void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix,
                                                         bool checkOrthogonality)
 {
     if (mNumItemsPerLine != DIM*DIM)
     {
-        EXCEPTION("Use GetNextFibreVector when reading axisymmetric fibres.");
+        EXCEPTION("Use GetNextFibreVector when reading axisymmetric fibres");
     }
 
     unsigned num_entries = GetTokensAtNextLine();
@@ -116,7 +163,7 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
 {
     if (mNumItemsPerLine != DIM)
     {
-        EXCEPTION("Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres.");
+        EXCEPTION("Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres");
     }
 
     unsigned num_entries = GetTokensAtNextLine();

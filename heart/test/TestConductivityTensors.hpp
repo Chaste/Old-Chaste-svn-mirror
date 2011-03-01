@@ -187,6 +187,10 @@ public:
         ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init(&mesh);
 
+        /* In each element the SimpleOrthotropic3D tensor is just the coordinate axes.
+         * The first direction x, which looks like the fibre direction, takes the first conductivity value etc.
+         * 
+         */
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
         {
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), constant_conductivities[0]);
@@ -204,6 +208,8 @@ public:
     void TestCompareOrthotropicAxisymmetricTensors()
     {
         c_vector<double, 3> constant_conductivities(Create_c_vector(7.0,3.5,3.5));
+        // Note that the non-primary conductivities match, so that in-sheet and trans-sheet will
+        // be equivalent in the orthotropic case - reducing it to an axisymmetric conductivity
         TetrahedralMesh<3,3> mesh;
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
         mesh.ConstructFromMeshReader(mesh_reader);
