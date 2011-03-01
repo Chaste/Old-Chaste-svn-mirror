@@ -710,13 +710,12 @@ class cellml_model(element_base):
             if not u1 == u2:
                 if not u1.dimensionally_equivalent(u2):
                     self.validation_error(u' '.join([
-                        var1.fullname(),'and',var2.fullname(),'are mapped,',
-                        'but have dimensionally inconsistent units.']))
+                        var1.fullname(), 'and', var2.fullname(),
+                        'are mapped, but have dimensionally inconsistent units.']))
                 elif check_for_units_conversions:
                     self.validation_warning(
-                        u' '.join([
-                        'Warning: mapping between',var1.fullname(),'and',
-                        var2.fullname(),'will require a units conversion.']),
+                        u' '.join(['Warning: mapping between', var1.fullname(), 'and',
+                                   var2.fullname(), 'will require a units conversion.']),
                         level=logging.WARNING_TRANSLATE_ERROR)
 
     def _check_assigned_vars(self, assignments, xml_context=False):
@@ -1010,12 +1009,6 @@ class cellml_model(element_base):
                 # Compute binding time recursively
                 item._get_binding_time()
 
-    def get_all_units(self):
-        """Get a list of all units objects, including the standard units."""
-        units = self._cml_units.values()
-        units.extend(self.xml_xpath(u'cml:component/cml:units'))
-        return units
-
     def _check_dimensional_consistency(self, assignment_exprs,
                                        xml_context=False,
                                        warn_on_units_errors=False,
@@ -1156,6 +1149,12 @@ class cellml_model(element_base):
         for u in self._cml_units.itervalues():
             self._add_units_obj(u)
 
+    def get_all_units(self):
+        """Get a list of all units objects, including the standard units."""
+        units = self._cml_units.values()
+        units.extend(self.xml_xpath(u'cml:component/cml:units'))
+        return units
+
     def get_units_by_name(self, uname):
         """
         Return an object representing the element that defines the units
@@ -1167,6 +1166,7 @@ class cellml_model(element_base):
         # so must be in our dictionary; either user-defined or standard
         # units.
         return self._cml_units[uname]
+
     def add_units(self, name, units):
         """
         Add an entry in our units dictionary for units named `name' with
@@ -1177,6 +1177,10 @@ class cellml_model(element_base):
         self._cml_units[name] = units
         self._add_units_obj(units)
         return
+
+    def has_units(self, units):
+        """Test whether a given units definition appears in the model."""
+        return units in self._cml_units.itervalues()
 
     def _add_units_obj(self, units):
         """Add a units object into the global hashmap."""

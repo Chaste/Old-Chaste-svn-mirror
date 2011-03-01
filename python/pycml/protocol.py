@@ -121,8 +121,14 @@ class Protocol(processors.ModelModifier):
 
     def _check_input(self, input):
         """Inputs must not already exist in the model!"""
-        if self.model is getattr(input, 'xml_parent', None):
-            raise ProtocolError("Inputs must not already exist in the model.")
+        if isinstance(input, cellml_units):
+            exists = self.model.has_units(input)
+        else:
+            exists = self.model is getattr(input, 'xml_parent', None)
+        if exists:
+            msg = "Inputs must not already exist in the model."
+            msg += " (Input %s exists.)" % repr(input)
+            raise ProtocolError(msg)
         
     def _error_handler(self, errors):
         """Deal with errors found when re-analysing a modified model."""
