@@ -107,7 +107,7 @@ class Protocol(processors.ModelModifier):
         """
         # Add units before variables before maths so the order of inputs doesn't matter so much.
         for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
-            self._check_input(input)
+            #self._check_input(input)
             self._add_units_to_model(input)
         for input in filter(lambda i: isinstance(i, cellml_variable), self.inputs):
             self._check_input(input)
@@ -118,7 +118,7 @@ class Protocol(processors.ModelModifier):
         self._fix_model_connections()
         self.finalize(self._error_handler)
         self._filter_assignments()
-
+        
     def _check_input(self, input):
         """Inputs must not already exist in the model!"""
         if isinstance(input, cellml_units):
@@ -207,6 +207,15 @@ class Protocol(processors.ModelModifier):
                 for ci_elt in self._find_ci_elts(child):
                     yield ci_elt
     
+    def _add_units_conversions(self):
+        """Add units conversions, in particular 'special' ones, to the protocol component."""
+        print "_add_units_conversions"
+        import translators
+        warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
+        converter = processors.UnitsConverter(self.model, warn_only)
+        translators.CellMLToChasteTranslator.add_special_conversions(converter)
+        converter.add_conversions_for_component(self._get_protocol_component())
+
     def _add_units_to_model(self, units):
         """Add a units definition to the model.
         
