@@ -633,6 +633,7 @@ namespace serialization {
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >
 {
+    ///Macro to set the version number of templated archive in known versions of Boost
     CHASTE_VERSION_CONTENT(1);
 };
 } // namespace serialization
