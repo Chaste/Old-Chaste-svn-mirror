@@ -808,8 +808,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetComputeSingularValues(mKspSolver, PETSC_TRUE);            
             
             // Eigenvalues have to be computed accurately
-//            KSPSetTolerances(mKspSolver, DBL_EPSILON, 1e-14, PETSC_DEFAULT, PETSC_DEFAULT);
-//            KSPSetUp(mKspSolver);
+            KSPSetTolerances(mKspSolver, DBL_EPSILON, DBL_EPSILON, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetUp(mKspSolver);
                             
             /// \todo: #1701 Check relationship between eigenvalues and singular values depending on symmetry...
             assert(IsMatrixSymmetric());            
@@ -825,6 +825,21 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                         
             KSPSolve(mKspSolver, mRhsVector, lhs_vector);
             KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
+
+            /*
+             *  Under certain circunstances (see Golub&Overton 1988), understimating the spectrum 
+             * of the preconditioned operator improves convergence rate.
+             * 
+             *  We need to keep the center of the ellipsoid containing the eigenvalues (line 
+             * segment if matrix is symmetric positive definite) centered at the same place. 
+             * Distance between center and foci is shortened.
+             * 
+             *  0.4 is a magic number tunned for TestFastChasteBenchmark.hpp
+             */
+            eig_max -= 0.4;
+            eig_min += 0.4;
+            assert(eig_min<eig_max);
+
 #ifdef TRACE_KSP
             if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
 #endif
@@ -836,14 +851,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetComputeSingularValues(mKspSolver, PETSC_FALSE);
 
             // Go back to the original tolerances
-//            if (mUseAbsoluteTolerance)
-//            {
-//                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
-//            }
-//            else
-//            {
-//                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-//            }
+            if (mUseAbsoluteTolerance)
+            {
+                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+            else
+            {
+                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
 
 #ifdef TRACE_KSP
             Timer::Print("Computing extremal eigenvalues");
