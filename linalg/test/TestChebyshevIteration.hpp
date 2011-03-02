@@ -47,7 +47,7 @@ class TestChebyshevIteration : public CxxTest::TestSuite
 {
 public:
 
-    void TestChebyshevVsCG()
+    void TestChebyshevVsCG() throw (Exception)
     {
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
@@ -71,7 +71,7 @@ public:
             ls.SetMatrixIsSymmetric();
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("jacobi");
+            ls.SetPcType("bjacobi");
 
             Vec solution = ls.Solve();
 
@@ -97,7 +97,7 @@ public:
             ls.SetMatrixIsSymmetric();
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("chebychev");
-            ls.SetPcType("jacobi");
+            ls.SetPcType("bjacobi");
 
             Vec solution = ls.Solve();
 
@@ -109,8 +109,8 @@ public:
         }
         Timer::Print("Chebyshev");
 
-        TS_ASSERT_EQUALS(cg_its, 101u);
-        TS_ASSERT_EQUALS(chebyshev_its, 175u);
+        TS_ASSERT_LESS_THAN(cg_its, 15u); // Takes 14 iterations with 16 cores
+        TS_ASSERT_LESS_THAN(chebyshev_its, 21u); // Takes 20 iterations with 16 cores
 
         VecDestroy(parallel_layout);
     }

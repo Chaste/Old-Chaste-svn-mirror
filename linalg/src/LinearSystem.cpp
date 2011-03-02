@@ -836,8 +836,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
              * 
              *  0.4 is a magic number tunned for TestFastChasteBenchmark.hpp
              */
-            eig_max -= 0.4;
-            eig_min += 0.4;
+            assert(eig_min<eig_max);
+            double max_min_eig_distance = eig_max - eig_min;
+            eig_max -= max_min_eig_distance/3;
+            eig_min += max_min_eig_distance/3;
             assert(eig_min<eig_max);
 
 #ifdef TRACE_KSP
