@@ -52,7 +52,7 @@ public:
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
         Vec parallel_layout = factory.CreateVec(2);
-        
+
         unsigned cg_its;
         unsigned chebyshev_its;
 

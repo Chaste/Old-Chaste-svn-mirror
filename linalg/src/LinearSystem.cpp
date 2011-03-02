@@ -680,6 +680,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
     if (!mKspIsSetup)
     {
+        // Create PETSc Vec that may be required if we use a Chebyshev solver
+        Vec chebyshev_lhs_vector = NULL;
+
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         mNonZerosUsed=mat_info.nz_used;
         //MatNorm(mLhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
@@ -816,14 +819,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
             // Compute eigenvalues
             double eig_max, eig_min;
-            Vec lhs_vector;
-            VecDuplicate(mRhsVector, &lhs_vector);
+
+            VecDuplicate(mRhsVector, &chebyshev_lhs_vector);
             if (lhsGuess)
             {
-                VecCopy(lhsGuess, lhs_vector);
+                VecCopy(lhsGuess, chebyshev_lhs_vector);
             }
                         
-            KSPSolve(mKspSolver, mRhsVector, lhs_vector);
+            KSPSolve(mKspSolver, mRhsVector, chebyshev_lhs_vector);
             KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
 
             /*
@@ -870,7 +873,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #ifdef TRACE_KSP
         Timer::Reset();
 #endif
+
         KSPSetUp(mKspSolver);
+
+        if (chebyshev_lhs_vector)
+        {
+            VecDestroy(chebyshev_lhs_vector);
+        }
+
 #ifdef TRACE_KSP
         if (PetscTools::AmMaster())
         {
