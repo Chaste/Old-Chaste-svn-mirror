@@ -116,7 +116,7 @@ class Protocol(processors.ModelModifier):
             self._check_input(input)
             self._add_maths_to_model(input)
         self._fix_model_connections()
-        self.finalize(self._error_handler)
+        self.finalize(self._error_handler, self._add_units_conversions)
         self._filter_assignments()
         
     def _check_input(self, input):
@@ -209,7 +209,6 @@ class Protocol(processors.ModelModifier):
     
     def _add_units_conversions(self):
         """Add units conversions, in particular 'special' ones, to the protocol component."""
-        print "_add_units_conversions"
         import translators
         warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
         converter = processors.UnitsConverter(self.model, warn_only)

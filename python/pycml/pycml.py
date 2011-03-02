@@ -72,7 +72,13 @@ from utilities import *
 from enum import Enum # Pythonic enums
 import cellml_metadata # Handle RDF metadata for CellML
 
-# Useful for functional-style programming
+processors = None
+def import_processors():
+    """Lazy import."""
+    global processors
+    if processors is None:
+        import processors
+
 
 __version__ = "$Revision$"[11:-2]
 
@@ -554,7 +560,8 @@ class cellml_model(element_base):
             DEBUG('validator', 'Checked for units cycles')
 
         if not self._cml_validation_errors:
-            self._check_variable_mappings(check_for_units_conversions)
+            self._check_variable_mappings()
+            self._check_connection_units(check_for_units_conversions)
 
         # Rule 4.4.4: mathematical expressions may only modify
         # variables belonging to the current component.
@@ -611,18 +618,13 @@ class cellml_model(element_base):
             self.build_component_hierarchy(hier[0], hier[1], hier[2],
                                            rels=rels)
         DEBUG('validator', 'Checked component hierachies')
-
-    def _check_variable_mappings(self, check_for_units_conversions=False):
-        """Check Rule 3.4.6.4: check variable mappings and interfaces are sane.
-        
-        Also check that the units of mapped variables are dimensionally consistent
-        if check_for_units_conversions is True.
-        """
+    
+    def _check_variable_mappings(self):
+        """Check Rule 3.4.6.4: check variable mappings and interfaces are sane."""
         # First check connection elements and build mappings dict
         self.build_name_dictionaries()
         for connection in getattr(self, u'connection', []):
-            self._validate_connection(connection,
-                                      check_for_units_conversions)
+            self._validate_connection(connection)
         # Now check for variables that should receive a value but don't
         for comp in getattr(self, u'component', []):
             for var in getattr(comp, u'variable', []):
@@ -636,18 +638,12 @@ class cellml_model(element_base):
                                 u'Variable',var.fullname(),u'has a',iface,
                                 u'attribute with value "in", but no component exports a value to that variable.']))
         DEBUG('validator', 'Checked variable mappings')
-
-    def _validate_connection(self, conn,
-                             check_for_units_conversions=False):
+    
+    def _validate_connection(self, conn):
         """Validate the given connection element.
         
         Check that the given connection object defines valid mappings
         between variables, according to rule 3.4.6.4.
-
-        Also checks that units of mapped variables are dimensionally
-        consistent.  If check_for_units_conversions is True we also warn if
-        they are not equivalent, since much processing software may not be
-        able to handle that case.
         """
         # Check we are allowed to connect these components
         comp1 = self.get_component_by_name(conn.map_components.component_1)
@@ -704,19 +700,32 @@ class cellml_model(element_base):
             if e:
                 errm.append(e)
                 self.validation_error(u' '.join(errm))
-            # Check the units
-            u1 = comp1.get_units_by_name(var1.units)
-            u2 = comp2.get_units_by_name(var2.units)
-            if not u1 == u2:
-                if not u1.dimensionally_equivalent(u2):
-                    self.validation_error(u' '.join([
-                        var1.fullname(), 'and', var2.fullname(),
-                        'are mapped, but have dimensionally inconsistent units.']))
-                elif check_for_units_conversions:
-                    self.validation_warning(
-                        u' '.join(['Warning: mapping between', var1.fullname(), 'and',
-                                   var2.fullname(), 'will require a units conversion.']),
-                        level=logging.WARNING_TRANSLATE_ERROR)
+
+    def _check_connection_units(self, check_for_units_conversions=False):
+        """Check that the units of mapped variables are dimensionally consistent.
+        
+        If check_for_units_conversions is True we also warn if they are not equivalent,
+        since much processing software may not be able to handle that case.
+        """
+        for conn in getattr(self, u'connection', []):
+            comp1 = self.get_component_by_name(conn.map_components.component_1)
+            comp2 = self.get_component_by_name(conn.map_components.component_2)
+            for mapping in conn.map_variables:
+                var1 = self.get_variable_by_name(comp1.name, mapping.variable_1)
+                var2 = self.get_variable_by_name(comp2.name, mapping.variable_2)
+                # Check the units
+                u1 = var1.get_units()
+                u2 = var2.get_units()
+                if not u1 == u2:
+                    if not u1.dimensionally_equivalent(u2):
+                        self.validation_error(u' '.join([
+                            var1.fullname(), 'and', var2.fullname(),
+                            'are mapped, but have dimensionally inconsistent units.']))
+                    elif check_for_units_conversions:
+                        self.validation_warning(
+                            u' '.join(['Warning: mapping between', var1.fullname(), 'and',
+                                       var2.fullname(), 'will require a units conversion.']),
+                            level=logging.WARNING_TRANSLATE_ERROR)
 
     def _check_assigned_vars(self, assignments, xml_context=False):
         """Check Rule 4.4.4: mathematical expressions may only modify
@@ -794,12 +803,18 @@ class cellml_model(element_base):
     apply_xpath_1 = u'/m:apply[m:eq]'
     apply_xpath_2 = u'/m:semantics/m:apply[m:eq]'
     
-    def search_for_assignments(self):
-        """Search for assignment expressions in the model's mathematics."""
+    def search_for_assignments(self, comp=None):
+        """Search for assignment expressions in the model's mathematics.
+        
+        If comp is supplied, will only return assignments in that component.
+        """
         assignments_xpath = u' | '.join([self.math_xpath_1 + self.apply_xpath_1,
                                          self.math_xpath_1 + self.apply_xpath_2,
                                          self.math_xpath_2 + self.apply_xpath_1,
                                          self.math_xpath_2 + self.apply_xpath_2])
+        if comp:
+            assignments_xpath = assignments_xpath.replace(u'component',
+                                                          u'component[@name="%s"]' % comp.name)
         return self.xml_xpath(assignments_xpath)
     
     def build_name_dictionaries(self, rebuild=False):
@@ -1033,9 +1048,6 @@ class cellml_model(element_base):
                           element_xpath(expr),
                           expr.component.name)
                     expr._set_in_units(boolean, no_act=True)
-##                    if self._cml_conversions_needed:
-##                        import pdb
-##                        pdb.set_trace()
                 except UnitsError:
                     pass
             # Warn if conversions used
@@ -1209,85 +1221,8 @@ class cellml_model(element_base):
 
     def add_units_conversions(self):
         """Add explicit units conversion mathematics where necessary."""
-        def try_convert(func, *args, **kwargs):
-            try:
-                func(*args, **kwargs)
-            except UnitsError, e:
-                if not self.get_option('warn_on_units_errors'):
-                    raise e
-        # Mathematical expressions
-        boolean = self.get_units_by_name('cellml:boolean')
-        for expr in self._cml_assignments:
-            if isinstance(expr, mathml_apply):
-                try_convert(expr._set_in_units, boolean)
-        # Connections
-        for conn in getattr(self, u'connection', []):
-            comp1 = self.get_component_by_name(conn.map_components.component_1)
-            comp2 = self.get_component_by_name(conn.map_components.component_2)
-            for mapping in conn.map_variables:
-                var1 = self.get_variable_by_name(comp1.name, mapping.variable_1)
-                var2 = self.get_variable_by_name(comp2.name, mapping.variable_2)
-                # Ensure mapping is var1 := var2; swap vars if needed
-                swapped = False
-                try:
-                    if var2.get_source_variable() is var1:
-                        swapped = True
-                        var1, var2 = var2, var1
-                        comp1, comp2 = comp2, comp1
-                except TypeError:
-                    pass
-                # Get units
-                u1 = comp1.get_units_by_name(var1.units)
-                u2 = comp2.get_units_by_name(var2.units)
-                if not u1.equals(u2):
-                    # We need a conversion
-                    # Add a copy of var1 to comp1, with units as var2
-                    if getattr(var1, u'public_interface', '') == u'in':
-                        in_interface = u'public_interface'
-                    else:
-                        in_interface = u'private_interface'
-                    attrs = {(in_interface, None): u'in',
-                             (u'units', None): var2.units,
-                             (u'name', None): var1.name + u'_converter'}
-                    var1_converter = var1.xml_create_element(
-                        u'variable', NSS[u'cml'], attributes=attrs)
-                    var1._cml_var_type = VarTypes.Computed
-                    var1._cml_source_var = None
-                    delattr(var1, in_interface)
-                    var1_converter._cml_var_type = VarTypes.Mapped
-                    var1_converter._cml_source_var = var2
-                    var1_converter._cml_depends_on = [var2]
-                    var1_converter._cml_binding_time = var1._cml_binding_time
-                    comp1._add_variable(var1_converter)
-                    # Add assignment maths for var1 := var1_converter
-                    app = mathml_apply.create_new(self, u'eq', [var1.name, var1_converter.name])
-                    if hasattr(comp1, u'math'):
-                        math = comp1.math
-                    else:
-                        math = self.xml_create_element(u'math', NSS[u'm'])
-                        comp1.xml_append(math)
-                    math.xml_append(app)
-                    var1._cml_depends_on = [app]
-                    app._cml_assigns_to = var1
-                    # Update mapping to var1_converter := var2
-                    if swapped:
-                        mapping.variable_2 = var1_converter.name
-                    else:
-                        mapping.variable_1 = var1_converter.name
-                    # Fix usage counts - var1_converter is only used by app, and so var2 usage decreases
-                    var1_converter._used()
-                    for _ in range(var1.get_usage_count()):
-                        var2._decrement_usage_count()
-                    # Apply units conversion to the assignment
-                    try_convert(app.get_units)
-                    try_convert(app._set_in_units, boolean)
-                    # Add the assignment into the sorted list
-                    idx = self._cml_assignments.index(var1)
-                    self._cml_assignments[idx:idx+1] = [var1_converter, app]
-                # Swap names back if needed
-                if swapped:
-                    comp1, comp2 = comp2, comp1
-        return
+        import_processors()
+        processors.UnitsConverter(self).add_all_conversions()
 
     def find_state_vars(self):
         """Return a list of the state variable elements in this model."""
@@ -1618,13 +1553,17 @@ class cellml_variable(Colourable, element_base):
         
         If debug is True, also give information about the variable object.
         """
+        if hasattr(self, 'xml_parent'):
+            parent_name = self.xml_parent.name
+        else:
+            parent_name = '*orphan*'
         if cellml:
             if self.component.ignore_component_name:
                 vn = self.name
             else:
-                vn = self.xml_parent.name + u'__' + self.name
+                vn = parent_name + u'__' + self.name
         else:
-            vn = u'(' + self.xml_parent.name + u',' + self.name + u')'
+            vn = u'(' + parent_name + u',' + self.name + u')'
         if debug:
             vn = '%s@0x%x' % (vn, id(self))
         return vn
@@ -3051,6 +2990,8 @@ class cellml_units(Colourable, element_base):
         units.
         """
         u1 = self.expand().simplify()
+        if isinstance(other_units, UnitsSet):
+            other_units = other_units.extract()
         u2 = other_units.expand().simplify()
         # Build dictionaries mapping base_unit_obj to exponent.
         d1, d2 = {}, {}
@@ -3389,16 +3330,12 @@ class mathml_units_mixin(object):
             if boolean is not units:
                 # TODO: *blink* this should never happen
                 self._add_units_conversion(elt, boolean, units, no_act)
-            if not no_act:
-                self._cml_units = units
         elif elt.localName in [u'notanumber', u'pi', u'infinity',
                                u'exponentiale']:
             dimensionless = self.component.get_units_by_name('dimensionless')
             if dimensionless is not units:
                 # TODO: *blink* this should never happen
                 self._add_units_conversion(elt, dimensionless, units, no_act)
-            if not no_act:
-                self._cml_units = units
         else:
             DEBUG('validator',
                   'Cannot set units (to', units.description(),
@@ -4341,13 +4278,13 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         get_units) then we need to add units conversion code.
         """
         # First check we have something to do
-        if units is self._cml_units:
+        current_units = self.get_units()
+        if units is current_units:
             return
         # Next, check if the required units can be achieved by suitable
         # choices for operand units
         done = False
-        current_units = self.get_units()
-        if units in current_units: # TODO: Add an __eq__ method to do this better
+        if units in current_units:
             # They can!
             if not no_act:
                 self._cml_units = units
@@ -6027,3 +5964,8 @@ class mathml_otherwise(mathml):
     Only defined to make it inherit from mathml.
     """
     pass
+
+
+
+## Don't export module imports to people who do "from pycml import *"
+#__all__ = filter(lambda n: type(globals()[n]) is not types.ModuleType, globals().keys())

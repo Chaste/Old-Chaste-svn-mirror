@@ -52,7 +52,7 @@ class ModelModifier(object):
         """Constructor."""
         self.model = model
         
-    def finalize(self, error_handler):
+    def finalize(self, error_handler, pre_units_check_hook=None):
         """Re-do the model validation steps needed for further processing of the model.
         
         Checks connections, etc. and builds up the dependency graph again, then performs
@@ -76,6 +76,16 @@ class ModelModifier(object):
             self.model._classify_variables(assignment_exprs)
             self.model._order_variables(assignment_exprs)
         if not self.model._cml_validation_errors:
+            if callable(pre_units_check_hook):
+                pre_units_check_hook()
+                # This is a horrendous hack!
+                self._clear_model_caches()
+                self.model._check_variable_mappings()
+                assignment_exprs = self.model.search_for_assignments()
+                self.model._check_assigned_vars(assignment_exprs)
+                self.model._classify_variables(assignment_exprs)
+                self.model._order_variables(assignment_exprs)
+            self.model._check_connection_units(check_for_units_conversions=False)
             self.model._check_dimensional_consistency(assignment_exprs,
                                                       xml_context=False,
                                                       warn_on_units_errors=self.model.get_option('warn_on_units_errors'),
@@ -465,7 +475,7 @@ class InterfaceGenerator(ModelModifier):
         elif t not in [VarTypes.Constant, VarTypes.Free, VarTypes.State]:
             raise ModelModificationError("Variable " + var.fullname() + " has unexpected type " + str(t))
         # Add a new variable with desired units to the interface component
-        comp = self._get_interface_component()
+        comp = self.get_interface_component()
         newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
                                    initial_value=getattr(var, u'initial_value', None),
                                    interfaces={u'public': u'out'})
@@ -508,7 +518,7 @@ class InterfaceGenerator(ModelModifier):
         units = self._get_units_object(units)
         var = var.get_source_variable(recurse=True)
         var_name = var.name
-        comp = self._get_interface_component()
+        comp = self.get_interface_component()
         newvar = self.add_variable(comp, var_name, units)
         self.connect_variables(var, newvar)
         if annotate:
@@ -525,7 +535,7 @@ class InterfaceGenerator(ModelModifier):
         The new variable added to the interface component is returned.
         """
         # Add the result variable
-        comp = self._get_interface_component()
+        comp = self.get_interface_component()
         units = self._get_units_object(units)
         result_var = self.add_variable(comp, resultName, units)
         result_var.set_pe_keep(True)
@@ -641,15 +651,15 @@ class InterfaceGenerator(ModelModifier):
         For any that haven't been done explicitly, this method will add the corresponding state variable
         as an input, with its original units, which has the desired effect.
         """
-        comp = self._get_interface_component()
+        comp = self.get_interface_component()
         for var in self.model.find_state_vars():
             if var.component is not comp:
                 self.add_input(var, var.get_units())
     
-    def _get_interface_component(self):
+    def get_interface_component(self):
         """Get the new component that will contain the interface.
         
-        The name will be 'interface' component, unless a component with that name already exists,
+        The name will be self._interface_component_name, unless a component with that name already exists,
         in which case underscores will be added to the component name to make it unique.
         """
         if self._interface_component is None:
@@ -672,3 +682,155 @@ class InterfaceGenerator(ModelModifier):
             units = amara_parse_cellml(unicode(units))
         assert isinstance(units, cellml_units)
         return units
+
+
+class UnitsConverter(ModelModifier):
+    """Top-level interface to the units conversion code in PyCml.
+    """
+    def __init__(self, model, warn_only=None):
+        self.model = model
+        if warn_only is None:
+            warn_only = model.get_option('warn_on_units_errors')
+        if warn_only:
+            self.try_convert = self._call_func
+        else:
+            self.try_convert = self._ignore_errors
+        self.special_conversions = {}
+    
+    def _call_func(self, func, *args, **kwargs):
+        """Call the given function."""
+        func(*args, **kwargs)
+    
+    def _ignore_errors(self, func, *args, **kwargs):
+        """Call the given function, and swallow any units errors produced."""
+        try:
+            func(*args, **kwargs)
+        except UnitsError:
+            pass
+
+    def _check_special_conversion(self, expr):
+        """Check whether a special conversion applies to the given assignment.
+        
+        Special conversions allow us to do units conversion between dimensionally non-equivalent
+        quantities, by utilising biological knowledge.  Available special conversions are added
+        using the add_special_conversion method.
+        """
+        lhs_units = expr.eq.lhs.get_units()
+        rhs_units = expr.eq.rhs.get_units()
+        if lhs_units.dimensionally_equivalent(rhs_units):
+            return
+        for from_units, to_units in self.special_conversions.iterkeys():
+            if (from_units.dimensionally_equivalent(rhs_units)
+                and to_units.dimensionally_equivalent(lhs_units)):
+                # We can apply this conversion
+                self.special_conversions[(from_units, to_units)](expr)
+                DEBUG('units-converter', "Used special conversion from", repr(from_units), "to",
+                      repr(to_units), "giving", expr.xml())
+                break
+    
+    def add_special_conversion(self, from_units, to_units, converter):
+        """Add a new special conversion to the list available.
+        
+        Special conversions allow us to do units conversion between dimensionally non-equivalent
+        quantities, by utilising biological knowledge.  The function "converter" will be called with
+        an assignment (top-level mathml_apply instance) that has RHS units equivalent to from_units,
+        and LHS units equivalent to to_units.  It should alter the equation in-place (i.e. the
+        object passed to it must contain the final equation) to do an appropriate units conversion,
+        at least so that LHS and RHS dimensions match.
+        """
+        self.special_conversions[(from_units, to_units)] = converter
+    
+    def convert_assignments(self, exprs):
+        """Apply conversions to any assignments in the given iterable."""
+        boolean = self.model.get_units_by_name('cellml:boolean')
+        for expr in exprs:
+            if isinstance(expr, mathml_apply):
+                if self.special_conversions:
+                    self.try_convert(self._check_special_conversion, expr)
+                self.try_convert(expr._set_in_units, boolean)
+
+    def convert_mapping(self, mapping, comp1, comp2, var1, var2):
+        """Apply conversions to a mapping between two variables."""
+        model = self.model
+        # Ensure mapping is var1 := var2; swap vars if needed
+        swapped = False
+        try:
+            if var2.get_source_variable() is var1:
+                swapped = True
+                var1, var2 = var2, var1
+                comp1, comp2 = comp2, comp1
+        except TypeError:
+            pass
+        # Get units
+        u1 = var1.get_units()
+        u2 = var2.get_units()
+        DEBUG('units-converter', "Converting mapping of", var1, ":=", var2,
+              "(units:", repr(u1), repr(u2), ")")
+        if not u1.equals(u2):
+            # We need a conversion
+            # Add a copy of var1 to comp1, with units as var2
+            if getattr(var1, u'public_interface', '') == u'in':
+                in_interface = u'public'
+            else:
+                in_interface = u'private'
+            var1_converter = self.add_variable(comp1, var1.name + u'_converter', u2,
+                                               interfaces={in_interface: u'in'})
+            var1._cml_var_type = VarTypes.Computed
+            var1._cml_source_var = None
+            delattr(var1, in_interface + u'_interface')
+            var1_converter._set_source_variable(var2)
+            # Add assignment maths for var1 := var1_converter
+            app = mathml_apply.create_new(model, u'eq', [var1.name, var1_converter.name])
+            self.add_expr_to_comp(comp1, app)
+            var1._cml_depends_on = [app]
+            app._cml_assigns_to = var1
+            # Update mapping to var1_converter := var2
+            if swapped:
+                mapping.variable_2 = var1_converter.name
+            else:
+                mapping.variable_1 = var1_converter.name
+            # Fix usage counts - var1_converter is only used by app, and so var2 usage decreases
+            var1_converter._used()
+            for _ in xrange(var1.get_usage_count()):
+                var2._decrement_usage_count()
+            # Apply units conversion to the assignment
+            self.convert_assignments([app])
+            # Add the assignment into the sorted list
+            assignments = model.get_assignments()
+            idx = assignments.index(var1)
+            assignments[idx:idx+1] = [var1_converter, app]
+    
+    def add_conversions_for_component(self, comp):
+        """Add all units conversions required by the given component.
+        
+        This allows us to only apply the conversions required by an interface component created
+        by an InterfaceGenerator.
+        """
+        model = self.model
+        assignments = model.search_for_assignments(comp)
+        self.convert_assignments(assignments)
+        for conn in getattr(model, u'connection', []):
+            cname1 = conn.map_components.component_1
+            cname2 = conn.map_components.component_2
+            if comp.name in [cname1, cname2]:
+                comp1 = model.get_component_by_name(cname1)
+                comp2 = model.get_component_by_name(cname2)
+                for mapping in conn.map_variables:
+                    var1 = model.get_variable_by_name(cname1, mapping.variable_1)
+                    var2 = model.get_variable_by_name(cname2, mapping.variable_2)
+                    self.convert_mapping(mapping, comp1, comp2, var1, var2)
+    
+    def add_all_conversions(self):
+        """Add all units conversions required in the given model."""
+        model = self.model
+        # Mathematical expressions
+        self.convert_assignments(model.get_assignments())
+        # Connections
+        for conn in getattr(model, u'connection', []):
+            comp1 = model.get_component_by_name(conn.map_components.component_1)
+            comp2 = model.get_component_by_name(conn.map_components.component_2)
+            for mapping in conn.map_variables:
+                var1 = model.get_variable_by_name(comp1.name, mapping.variable_1)
+                var2 = model.get_variable_by_name(comp2.name, mapping.variable_2)
+                self.convert_mapping(mapping, comp1, comp2, var1, var2)
+        return
