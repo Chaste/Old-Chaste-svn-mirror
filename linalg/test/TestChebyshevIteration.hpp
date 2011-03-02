@@ -92,6 +92,13 @@ public:
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
+            Vec zero_guess = factory.CreateVec(2);
+            double zero = 0.0;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+            VecSet(&zero, zero_guess);
+#else
+            VecSet(zero_guess, zero);
+#endif
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
 
             ls.SetMatrixIsSymmetric();
@@ -99,7 +106,8 @@ public:
             ls.SetKspType("chebychev");
             ls.SetPcType("bjacobi");
 
-            Vec solution = ls.Solve();
+            // Solving with zero guess for coverage.
+            Vec solution = ls.Solve(zero_guess);
 
             chebyshev_its = ls.GetNumIterations();
 
