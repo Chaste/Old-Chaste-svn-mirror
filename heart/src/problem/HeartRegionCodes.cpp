@@ -29,14 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include <cassert>
 
-const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_WALL;
-const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_WALL;
-const HeartRegionType HeartRegionCode::LEFT_SEPTUM;
-const HeartRegionType HeartRegionCode::RIGHT_SEPTUM;
-const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_SURFACE;
-const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_SURFACE;
-const HeartRegionType HeartRegionCode::UNKNOWN;
-
 
 HeartRegionType HeartRegionCode::GetValidTissueId()
 {

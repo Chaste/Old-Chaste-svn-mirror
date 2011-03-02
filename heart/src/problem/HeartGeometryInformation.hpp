@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include "DistanceMapCalculator.hpp"
 #include "AbstractTetrahedralMesh.hpp"
-#include "HeartRegionCodes.hpp"
 #include "ChasteCuboid.hpp"
 
 /** Names for layers in the heart wall */
@@ -43,6 +42,9 @@ typedef enum HeartLayerType_
     MID,
     EPI
 } HeartLayerType;
+
+/** Type for region codes (LEFT/RIGHT VENTRICLE or SEPTUM) walls and surfaces */
+typedef unsigned HeartRegionType;
 
 
 /**
@@ -136,6 +138,22 @@ private:
     ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfSurface(const std::vector<unsigned>& rSurfaceNodes);
 
 public:
+/// \todo #1703 Perhaps add these constants to HeartConfig...
+    /** Left ventricular wall */
+    static const HeartRegionType LEFT_VENTRICLE_WALL=1001;
+    /** Right ventricular wall */
+    static const HeartRegionType RIGHT_VENTRICLE_WALL=1002;
+    /** Left portion of the septum */
+    static const HeartRegionType LEFT_SEPTUM=1003;
+    /** Right portion of the septum */
+    static const HeartRegionType RIGHT_SEPTUM=1004;
+    /** Endocardial surface of the left ventricle */
+    static const HeartRegionType LEFT_VENTRICLE_SURFACE=1005;
+    /** Endocardial surface of the right ventricle */
+    static const HeartRegionType RIGHT_VENTRICLE_SURFACE=1006;
+    /** Unknown node type (should never occur...) */
+    static const HeartRegionType UNKNOWN=1007;
+
     /**
      * Constructor for a two surface mesh
      *

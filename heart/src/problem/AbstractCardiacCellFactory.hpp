@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "HeartGeometryInformation.hpp"
+#include "HeartRegionCodes.hpp"
 #include "ZeroStimulus.hpp"
 
 /**
