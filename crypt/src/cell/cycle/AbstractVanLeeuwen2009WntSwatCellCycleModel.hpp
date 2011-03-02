@@ -119,10 +119,7 @@ public:
     virtual void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)=0;
 
     /**
-     * Outputs cell-cycle model parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Outputs cell-cycle model parameters to file.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

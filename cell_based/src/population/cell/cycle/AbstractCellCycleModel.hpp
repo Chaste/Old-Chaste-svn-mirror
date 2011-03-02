@@ -422,7 +422,7 @@ public:
     void OutputCellCycleModelInfo(out_stream& rParamsFile);
 
     /**
-     * Outputs cell cycle mode parameters to file
+     * Outputs cell cycle model parameters to file.
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
@@ -430,7 +430,6 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputCellCycleModelParameters(out_stream& rParamsFile)=0;
-
 };
 
 CLASS_IS_ABSTRACT(AbstractCellCycleModel)

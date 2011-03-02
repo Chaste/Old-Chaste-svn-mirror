@@ -130,10 +130,7 @@ public:
     virtual bool CanCellTerminallyDifferentiate();
 
     /**
-     * Outputs cell-cycle model parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Outputs cell-cycle model parameters to file.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */
