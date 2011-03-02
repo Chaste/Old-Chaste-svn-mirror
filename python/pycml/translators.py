@@ -2810,7 +2810,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         def divide_rhs_by(expr, var):
             return change_rhs(expr, u'divide', var)
         # Add the conversions
-        model_Cm = model.xml_parent._cml_config.Cm_variable
+        model_Cm = model.get_config('Cm_variable')
         Chaste_Cm = klass.MEMBRANE_CAPACITANCE_NAME
         chaste_units, microamps, A_per_F = klass.get_current_units_options(model)
         converter.add_special_conversion(A_per_F, chaste_units,

@@ -395,6 +395,13 @@ class cellml_model(element_base):
     def clean_up(self):
         """Try to get the RDF library to clean up nicely."""
         cellml_metadata.remove_model(self)
+        
+    def get_config(self, config_attr=None):
+        """Get the configuration store if it exists, or an attribute thereof."""
+        config = getattr(self.xml_parent, '_cml_config', None)
+        if config_attr:
+            config = getattr(config, config_attr, None)
+        return config
     
     def get_option(self, option_name):
         """Get the value of a command-line option."""
