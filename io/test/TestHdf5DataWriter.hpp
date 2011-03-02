@@ -1394,5 +1394,25 @@ public:
 
         VecDestroy(petsc_data_long);
     }
+    
+    void TestHdf5BigFiles() throw(Exception)
+    {
+        // With a chunk size of 100 the chunk size in bytes will be 2^32*100/99 > 4GB 
+        // which would result in an error in HDF5 1.8.x, and bad files
+        // in previous versions - Hdf5DataWriter checks for this and throws an Exception
+        int number_nodes = 43383508; // 2^32/99 
+
+        DistributedVectorFactory vec_factory(number_nodes);
+
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_file_no_data", false);
+        writer.DefineFixedDimension(number_nodes);
+
+        writer.DefineVariable("index", "nondimensional");
+  
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        TS_ASSERT_THROWS_CONTAINS(writer.EndDefineMode(), "HDF5 may be writing more than 4GB");
+        writer.Close();
+    }
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/

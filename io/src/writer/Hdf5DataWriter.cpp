@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include "Version.hpp"
+#include "Debug.hpp"
 
 Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
                                const std::string& rDirectory,
@@ -492,8 +493,21 @@ void Hdf5DataWriter::EndDefineMode()
         {
             chunk_size = mFixedChunkSize;
         }
+        //If the size of a chunk in bytes is bigger than 4GB then there may be problems.
+        // HDF5 1.6.x does not check for this - but there may be snags further down the line
+        // HDF5 1.8.x does more error checking and produces std::cout errors and a file with no data in it
+        if ( chunk_size * mDatasetDims[1] * mDatasetDims[2] >  (uint64_t)0xffffffff)
+        {
+            // Note: this exception can be avoided by altering the lines above
+            // where chunk_size is set (at a loss of efficiency).
+            mIsInDefineMode = true; //To stop things that would be created below from being deleted on Close()
+            H5Fclose(mFileId); //This is the one thing which we have made
+            EXCEPTION("HDF5 may be writing more than 4GB to disk at any time and would fail. It may be possible to tune the Chaste code to get around this");
+        }
+
         hsize_t chunk_dims[DATASET_DIMS] = {chunk_size, mDatasetDims[1], mDatasetDims[2]};
         cparms = H5Pcreate (H5P_DATASET_CREATE);
+        
         H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims);
     }
 
