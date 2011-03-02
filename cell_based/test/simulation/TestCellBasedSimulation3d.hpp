@@ -183,6 +183,9 @@ public:
         simulator.SetSamplingTimestepMultiple(2);
         TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 2u);
 
+        // Uncommenting this line calls an error in accessing nodes in the vertex elements #
+        //cell_population.SetOutputVoronoiData(true);
+
         simulator.SetEndTime(0.1);
         simulator.Solve();
 
