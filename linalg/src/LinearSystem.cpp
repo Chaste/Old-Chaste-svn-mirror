@@ -829,25 +829,38 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSolve(mKspSolver, mRhsVector, chebyshev_lhs_vector);
             KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
 
+#ifdef TRACE_KSP
+            if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
+#endif
+
             /*
-             *  Under certain circunstances (see Golub&Overton 1988), understimating the spectrum 
-             * of the preconditioned operator improves convergence rate.
+             *  Under certain circumstances (see Golub&Overton 1988), underestimating
+             * the spectrum of the preconditioned operator improves convergence rate.
+             * See publication for a discussion and for definition of alpha and sigma_one.
              * 
              *  We need to keep the center of the ellipsoid containing the eigenvalues (line 
              * segment if matrix is symmetric positive definite) centered at the same place. 
              * Distance between center and foci is shortened.
              * 
-             *  0.4 is a magic number tunned for TestFastChasteBenchmark.hpp
+             *  Taking off a third of the original distance is a magic number tuned for TestFastChasteBenchmark.hpp
              */
-            assert(eig_min<eig_max);
-            double max_min_eig_distance = eig_max - eig_min;
-            eig_max -= max_min_eig_distance/3;
-            eig_min += max_min_eig_distance/3;
-            assert(eig_min<eig_max);
+            double alpha = 2/(eig_max+eig_min);
+            double sigma_one = 1 - alpha*eig_min;
 
+            if (sigma_one<0.75)
+            {
+                double max_min_eig_distance = eig_max - eig_min;
+                eig_max -= max_min_eig_distance/3;
+                eig_min += max_min_eig_distance/3;
+                assert(eig_min<eig_max);
 #ifdef TRACE_KSP
-            if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
+                if (PetscTools::AmMaster()) std::cout << "SVD (after shift) "<< eig_max << " " << eig_min <<std::endl;
 #endif
+            }
+            else
+            {
+                WARNING("sigma_1 seems to be to close to 1.0 to make eigenvalue shift worthwhile.");
+            }
 
             // Set Chebyshev solver and max/min eigenvalues
             assert(mKspType == "chebychev");
@@ -993,7 +1006,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
             /// \todo; #1695 Reset max number of iterations
             std::stringstream num_it_str;
-            num_it_str << 100;
+            num_it_str << 1000;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
             
             KSPSetFromOptions(mKspSolver);            

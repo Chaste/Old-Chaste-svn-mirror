@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /*
  *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
- * different compared to a real cardiac simulation. Do not take conclusions about preconditioner performance
+ * different compared to a real cardiac simulation. Do not take conclusions about preconditioner/solver performance
  * based on these tests only. 
  */
 class TestChebyshevIteration : public CxxTest::TestSuite
@@ -92,13 +92,6 @@ public:
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
-            Vec zero_guess = factory.CreateVec(2);
-            double zero = 0.0;
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-            VecSet(&zero, zero_guess);
-#else
-            VecSet(zero_guess, zero);
-#endif
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
 
             ls.SetMatrixIsSymmetric();
@@ -106,8 +99,7 @@ public:
             ls.SetKspType("chebychev");
             ls.SetPcType("bjacobi");
 
-            // Solving with zero guess for coverage.
-            Vec solution = ls.Solve(zero_guess);
+            Vec solution = ls.Solve();
 
             chebyshev_its = ls.GetNumIterations();
 
@@ -122,6 +114,59 @@ public:
 
         VecDestroy(parallel_layout);
     }
+
+    void TestChebyshevNoSpectrumShift() throw (Exception)
+    {
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);
+
+        Vec zero_guess = factory.CreateVec(2);
+        double zero = 0.0;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2)
+        VecSet(&zero, zero_guess);
+#else
+        VecSet(zero_guess, zero);
+#endif
+        unsigned chebyshev_its;
+
+        Timer::Reset();
+
+        Mat system_matrix;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
+
+        Vec system_rhs;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
+
+        LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+
+        ls.SetMatrixIsSymmetric();
+
+        // Solve to relative convergence for coverage
+        ls.SetRelativeTolerance(1e-9);
+        ls.SetKspType("chebychev");
+
+        // Solve with Jacobi to cover not using spectrum shift
+        ls.SetPcType("jacobi");
+
+        // Solving with zero guess for coverage.
+        Vec solution = ls.Solve(zero_guess);
+
+        chebyshev_its = ls.GetNumIterations();
+
+        MatDestroy(system_matrix);
+        VecDestroy(system_rhs);
+        VecDestroy(solution);
+        Timer::PrintAndReset("Chebyshev-Jacobi");
+
+        TS_ASSERT_EQUALS(chebyshev_its, 131u);
+
+        VecDestroy(parallel_layout);
+        VecDestroy(zero_guess);
+    }
+
 };
 
 #endif /*TESTPCBLOCKDIAGONAL_HPP_*/
