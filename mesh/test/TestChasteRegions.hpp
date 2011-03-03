@@ -30,12 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCHASTEREGIONS_HPP_
 #define TESTCHASTEREGIONS_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <cxxtest/TestSuite.h>
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
 #include "ChasteNodesList.hpp"
 #include "AbstractChasteRegion.hpp"
+#include "OutputFileHandler.hpp"
 #include "Node.hpp"
 
 typedef ChasteCuboid<3> POINT_3D;
@@ -46,6 +50,7 @@ public:
 
     void TestCuboidCreationAndContained() throw(Exception)
     {
+	//3D case
         ChastePoint<3> point_a(-3, -3, -3);
         ChastePoint<3> point_b(3, 3, 3);
         ChastePoint<3> point_inside(0, 0, 0);
@@ -56,17 +61,45 @@ public:
         TS_ASSERT_THROWS_THIS(POINT_3D cuboid_b_a(point_b, point_a),"Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
 
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_inside), true);
-        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_a), true);
-        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_b), true);
-
+        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_a), true);//boundary is considered in
+        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_b), true);//boundary is considered in
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_outside), false);
 
         // A point that is just outside the cuboid counts as inside to deal with rounding errors
         double just = 3.00000000000000008882; // taken from error in cuboid mesh generation
         ChastePoint<3> just_outside(just, just, just);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(just_outside), true);
-
-        // Lower dimensional cases
+	
+	//2D case
+	ChastePoint<2> point_a_2d(-3, -3);
+        ChastePoint<2> point_b_2d(3, 3);
+        ChastePoint<2> point_inside_2d(0, 0);
+        ChastePoint<2> point_outside_2d(-4, -4);
+	ChastePoint<2> point_outside_2d_one_coord(0, -4);
+	
+	ChasteCuboid<2> cuboid_a_b_2d(point_a_2d, point_b_2d);
+	
+	TS_ASSERT_EQUALS(cuboid_a_b_2d.DoesContain(point_inside_2d), true);
+        TS_ASSERT_EQUALS(cuboid_a_b_2d.DoesContain(point_a_2d), true);//boundary is considered in
+        TS_ASSERT_EQUALS(cuboid_a_b_2d.DoesContain(point_b_2d), true);//boundary is considered in
+        TS_ASSERT_EQUALS(cuboid_a_b_2d.DoesContain(point_outside_2d), false);
+	TS_ASSERT_EQUALS(cuboid_a_b_2d.DoesContain(point_outside_2d_one_coord), false);//test the algroithm when one coord is in but the other is out 
+	
+	//1D case
+	ChastePoint<1> point_a_1d(-3);
+        ChastePoint<1> point_b_1d(3);
+        ChastePoint<1> point_inside_1d(0);
+        ChastePoint<1> point_outside_1d(-4);
+	
+	ChasteCuboid<1> cuboid_a_b_1d(point_a_1d, point_b_1d);
+	
+	TS_ASSERT_EQUALS(cuboid_a_b_1d.DoesContain(point_inside_1d), true);
+        TS_ASSERT_EQUALS(cuboid_a_b_1d.DoesContain(point_a_1d), true);//boundary is considered in
+        TS_ASSERT_EQUALS(cuboid_a_b_1d.DoesContain(point_b_1d), true);//boundary is considered in
+        TS_ASSERT_EQUALS(cuboid_a_b_1d.DoesContain(point_outside_1d), false);
+	
+	
+        // Mixed dimensional cases
 
         ///\ To do The following test case has been deprecated as of r7769 because the rest of the code assumes that the point are in 3D in a 3D cuboid
 //        ChastePoint<2> two_d_point_in(0.0, 0.0);
@@ -178,6 +211,65 @@ public:
 
     }
 
+    void TestArchivingRegions() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "regions.arch";
+
+        // Create and archive 
+	{
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+	    
+	    ChastePoint<3> point_a(-3, -3, -3);
+	    ChastePoint<3> point_b(3, 3, 3);
+            // Set up a zero stimulus
+            AbstractChasteRegion<3>* const p_cuboid = new ChasteCuboid<3>(point_a, point_b);
+	   
+	    ChastePoint<3> centre(0, 0, 0);
+	    ChastePoint<3> radii(2, 4, 6);
+	
+	    AbstractChasteRegion<3>* const p_ellipsoid = new ChasteCuboid<3>(centre, radii);
+
+            // Should always archive a pointer
+            output_arch << p_cuboid;
+            output_arch << p_ellipsoid;
+
+
+            delete p_cuboid;
+            delete p_ellipsoid;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Create pointer to regions
+            AbstractChasteRegion<3>* p_cuboid;
+            AbstractChasteRegion<3>* p_ellipsoid;
+
+            input_arch >> p_cuboid;
+            input_arch >> p_ellipsoid;
+
+	    ChastePoint<3> point_inside_cuboid(0, 0, 0);
+	    ChastePoint<3> point_outside_cuboid(-4, -4, -4);
+	    
+	    ChastePoint<3> point_inside_ellipsoid(1, 0, 0);
+	    ChastePoint<3> point_outside_ellipsoid(3, 0, 0);
+	    
+	    TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
+	    TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_outside_cuboid), false);
+	    
+	    TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_ellipsoid), true);
+	    TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_ellipsoid), false);
+
+
+            delete p_cuboid;
+            delete p_ellipsoid;
+        }
+    }
 };
 
 #endif /*TESTCHASTEREGIONS_HPP_*/

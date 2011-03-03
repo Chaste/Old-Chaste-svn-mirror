@@ -30,6 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCHASTEREGION_HPP_
 
 #include <cassert>
+#include "ChasteSerialization.hpp"
+#include "ClassIsAbstract.hpp"
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include "ChastePoint.hpp"
 
@@ -40,7 +47,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned SPACE_DIM>
 class AbstractChasteRegion
 {
-
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // No member variables, but this is here so boost is happy serializing these classes.
+    }
 public:
 
     /**
@@ -66,4 +85,24 @@ public:
     virtual bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const = 0;
 
 };
+
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractChasteRegion)
+
+namespace boost {
+namespace serialization {
+/**
+ * Specify a version number for archive backwards compatibility.
+ *
+ * This is how to do BOOST_CLASS_VERSION(AbstractChasteRegion, 1)
+ * with a templated class.
+ */
+template <unsigned SPACE_DIM>
+struct version<AbstractChasteRegion<SPACE_DIM> >
+{
+    /** Version number */
+    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+};
+} // namespace serialization
+} // namespace boost
+
 #endif /*ABSTRACTCHASTEREGION_HPP_*/

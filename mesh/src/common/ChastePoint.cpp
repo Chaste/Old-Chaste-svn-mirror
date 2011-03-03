@@ -26,8 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ChastePoint.hpp"
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
+#include "ChastePoint.hpp"
+#include "OutputFileHandler.hpp"
 #include <cassert>
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -121,3 +124,7 @@ bool ChastePoint<DIM>::IsSamePoint(const ChastePoint<DIM>& rPoint) const
 template class ChastePoint<1>;
 template class ChastePoint<2>;
 template class ChastePoint<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChastePoint)

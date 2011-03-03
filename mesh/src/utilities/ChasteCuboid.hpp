@@ -29,7 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef CHASTECUBOID_HPP_
 #define CHASTECUBOID_HPP_
-
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 #include "AbstractChasteRegion.hpp"
 #include "ChastePoint.hpp"
 
@@ -42,6 +43,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned SPACE_DIM>
 class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractChasteRegion<SPACE_DIM> >(*this);
+    }
+    
 private:
     /** Lower vertex of the cuboid. */
     ChastePoint<SPACE_DIM> mLowerCorner;
@@ -56,78 +71,70 @@ public:
      * @param rLowerPoint Lower vertex of the cuboid.
      * @param rUpperPoint Upper vertex of the cuboid.
      */
-    ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint)
-        : mLowerCorner(rLowerPoint),
-          mUpperCorner(rUpperPoint)
-    {
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            if (mLowerCorner[dim] > mUpperCorner[dim])
-            {
-                EXCEPTION("Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
-            }
-        }
-    }
-
+    ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint);
+    
     /**
      * Checks if a given point is contained in the cuboid.
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
-    {
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            if (rPointToCheck[dim] < mLowerCorner[dim] - 100*DBL_EPSILON
-                || mUpperCorner[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const;
 
     /** @return the upper vertex of the cuboid */
-    const ChastePoint<SPACE_DIM>& rGetUpperCorner() const
-    {
-        return mUpperCorner;
-    }
+    const ChastePoint<SPACE_DIM>& rGetUpperCorner() const;
     
     /** @return the lower vertex of the cuboid */
-    const ChastePoint<SPACE_DIM>& rGetLowerCorner() const
-    {
-        return mLowerCorner;
-    }
+    const ChastePoint<SPACE_DIM>& rGetLowerCorner() const;
     
     /** 
      * @param rDimension dimension
      * @return the width in a particular dimension */
-    double GetWidth(unsigned rDimension) const
-    {
-        assert(rDimension<SPACE_DIM);
-        return mUpperCorner[rDimension] - mLowerCorner[rDimension];
-    }
+    double GetWidth(unsigned rDimension) const;
     
     /**
      * @return the longest axis of the cuboid (<SPACE_DIM).  
      * In the case where there's a tie, then any of the longest
      * axes are returned.
      */
-     unsigned GetLongestAxis() const
-     {
-        unsigned axis=0;
-        double max_dimension = 0.0;
-        for (unsigned i=0; i<SPACE_DIM; i++)
-        {
-            double dimension =  mUpperCorner[i] - mLowerCorner[i];
-            if ( dimension > max_dimension)
-            {
-                axis=i;
-                max_dimension = dimension;
-            }
-        }
-        return axis;
-     }
+     unsigned GetLongestAxis() const;
 };
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChasteCuboid)
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const ChasteCuboid<SPACE_DIM> * t, const unsigned int file_version)
+{
+    const ChastePoint<SPACE_DIM>* p_upper_corner =  &(t->rGetUpperCorner());
+    const ChastePoint<SPACE_DIM>* p_lower_corner =  &(t->rGetLowerCorner());
+    ar & p_upper_corner;
+    ar & p_lower_corner;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, ChasteCuboid<SPACE_DIM> * t, const unsigned int file_version)
+{
+    ChastePoint<SPACE_DIM>* p_upper_corner;
+    ChastePoint<SPACE_DIM>* p_lower_corner;
+
+    ar & p_upper_corner;
+    ar & p_lower_corner;
+
+    ::new(t)ChasteCuboid<SPACE_DIM>((*p_lower_corner), (*p_upper_corner));
+}
+}
+} // namespace ...
 
 #endif /*CHASTECUBOID_HPP_*/
