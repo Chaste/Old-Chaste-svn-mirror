@@ -919,6 +919,8 @@ class CrayGcc(Gcc):
   def __init__(self, *args, **kwargs):
     Gcc.__init__(self, *args, **kwargs)
     self.tools['mpicxx'] = 'CC'
+# -Werror caused compilation failure for mesh/src/3rdparty/tetgen1.4.2/tetgen.cpp on HECToR phase2b with g++ 4.5.1
+    self._cc_flags = ['-Wall -Wnon-virtual-dtor']
     self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
     self._cc_flags.append('-ffast-math -funroll-loops -O3')
     self.build_dir = 'craygcc'
