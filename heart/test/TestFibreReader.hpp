@@ -131,6 +131,7 @@ public:
     
     void TestFibretoVtk()
     {
+#ifdef CHASTE_VTK
         //See TestConductivityTensors
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(1,1,1);
@@ -166,6 +167,7 @@ public:
         vtk_file.open(command.c_str());
         TS_ASSERT(vtk_file.is_open());
         vtk_file.close();
+#endif
     }
 
     void TestFibreReaderExceptions()
