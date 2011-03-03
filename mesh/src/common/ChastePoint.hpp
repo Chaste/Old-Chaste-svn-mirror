@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CHASTEPOINT_HPP_
 #define _CHASTEPOINT_HPP_
 
+//#include "ChasteSerialization.hpp"
 #include "UblasVectorInclude.hpp"
 
 #include <vector>
@@ -42,19 +43,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class ChastePoint
 {
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Archive the member variables.
-     *
-     * @param archive
-     * @param version
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        archive & mLocation;
-    }
+//    /** Needed for serialization. */
+//    friend class boost::serialization::access;
+//    /**
+//     * Archive the member variables.
+//     *
+//     * atparam archive
+//     * atparam version
+//     */
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {
+//        archive & mLocation; //In what versions of Boost can we serialise c_vectors? I think the answer is some, but not all.
+//    }
     
 private:
 
@@ -132,32 +133,32 @@ public:
 };
 
 
-#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChastePoint)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a ChastePoint instance (using existing constructor)
- */
-template<class Archive,unsigned SPACE_DIM>
-inline void load_construct_data(
-    Archive & ar, ChastePoint<SPACE_DIM> * t, const unsigned int file_version)
-{
-    /**
-     * Invoke inplace constructor to initialise an instance of ChastePoint.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
-     */
-     ::new(t)ChastePoint<SPACE_DIM>(0.0, 0.0, 0.0);
-}
-}
-} // namespace ...
+//#include "SerializationExportWrapper.hpp"
+//// Declare identifier for the serializer
+//EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChastePoint)
+//
+//namespace boost
+//{
+//namespace serialization
+//{
+///**
+// * Allow us to not need a default constructor, by specifying how Boost should
+// * instantiate a ChastePoint instance (using existing constructor)
+// */
+//template<class Archive,unsigned SPACE_DIM>
+//inline void load_construct_data(
+//    Archive & ar, ChastePoint<SPACE_DIM> * t, const unsigned int file_version)
+//{
+//    /**
+//     * Invoke inplace constructor to initialise an instance of ChastePoint.
+//     * It doesn't actually matter what values we pass to our standard constructor,
+//     * provided they are valid parameter values, since the state loaded later
+//     * from the archive will overwrite their effect in this case.
+//     */
+//     ::new(t)ChastePoint<SPACE_DIM>(0.0, 0.0, 0.0);
+//}
+//}
+//} // namespace ...
 
 /**
  * A  zero-dimensional ChastePoint class.

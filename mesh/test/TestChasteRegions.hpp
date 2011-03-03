@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCHASTEREGIONS_HPP_
 #define TESTCHASTEREGIONS_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
 
 #include <cxxtest/TestSuite.h>
 #include "ChastePoint.hpp"
@@ -211,65 +211,65 @@ public:
 
     }
 
-    void TestArchivingRegions() throw(Exception)
-    {
-        OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "regions.arch";
-
-        // Create and archive 
-	{
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-	    
-	    ChastePoint<3> point_a(-3, -3, -3);
-	    ChastePoint<3> point_b(3, 3, 3);
-            // Set up a zero stimulus
-            AbstractChasteRegion<3>* const p_cuboid = new ChasteCuboid<3>(point_a, point_b);
-	   
-	    ChastePoint<3> centre(0, 0, 0);
-	    ChastePoint<3> radii(2, 4, 6);
-	
-	    AbstractChasteRegion<3>* const p_ellipsoid = new ChasteCuboid<3>(centre, radii);
-
-            // Should always archive a pointer
-            output_arch << p_cuboid;
-            output_arch << p_ellipsoid;
-
-
-            delete p_cuboid;
-            delete p_ellipsoid;
-        }
-
-        // Restore
-        {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-
-            // Create pointer to regions
-            AbstractChasteRegion<3>* p_cuboid;
-            AbstractChasteRegion<3>* p_ellipsoid;
-
-            input_arch >> p_cuboid;
-            input_arch >> p_ellipsoid;
-
-	    ChastePoint<3> point_inside_cuboid(0, 0, 0);
-	    ChastePoint<3> point_outside_cuboid(-4, -4, -4);
-	    
-	    ChastePoint<3> point_inside_ellipsoid(1, 0, 0);
-	    ChastePoint<3> point_outside_ellipsoid(3, 0, 0);
-	    
-	    TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
-	    TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_outside_cuboid), false);
-	    
-	    TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_ellipsoid), true);
-	    TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_ellipsoid), false);
-
-
-            delete p_cuboid;
-            delete p_ellipsoid;
-        }
-    }
+//    void TestArchivingRegions() throw(Exception)
+//    {
+//        OutputFileHandler handler("archive",false);
+//        std::string archive_filename;
+//        archive_filename = handler.GetOutputDirectoryFullPath() + "regions.arch";
+//
+//        // Create and archive
+//        {
+//            std::ofstream ofs(archive_filename.c_str());
+//            boost::archive::text_oarchive output_arch(ofs);
+//            
+//            ChastePoint<3> point_a(-3, -3, -3);
+//	        ChastePoint<3> point_b(3, 3, 3);
+//            // Set up a zero stimulus
+//            AbstractChasteRegion<3>* const p_cuboid = new ChasteCuboid<3>(point_a, point_b);
+//	   
+//	        ChastePoint<3> centre(0, 0, 0);
+//	        ChastePoint<3> radii(2, 4, 6);
+//	
+//	        AbstractChasteRegion<3>* const p_ellipsoid = new ChasteCuboid<3>(centre, radii);
+//
+//            // Should always archive a pointer
+//            output_arch << p_cuboid;
+//            output_arch << p_ellipsoid;
+//
+//
+//            delete p_cuboid;
+//            delete p_ellipsoid;
+//        }
+//
+//        // Restore
+//        {
+//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+//            boost::archive::text_iarchive input_arch(ifs);
+//
+//            // Create pointer to regions
+//            AbstractChasteRegion<3>* p_cuboid;
+//            AbstractChasteRegion<3>* p_ellipsoid;
+//
+//            input_arch >> p_cuboid;
+//            input_arch >> p_ellipsoid;
+//
+//	       ChastePoint<3> point_inside_cuboid(0, 0, 0);
+//	       ChastePoint<3> point_outside_cuboid(-4, -4, -4);
+//	    
+//	       ChastePoint<3> point_inside_ellipsoid(1, 0, 0);
+//	       ChastePoint<3> point_outside_ellipsoid(3, 0, 0);
+//	    
+//	       TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
+//	       TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_outside_cuboid), false);
+//	    
+//	       TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_ellipsoid), true);
+//	       TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_ellipsoid), false);
+//
+//
+//            delete p_cuboid;
+//            delete p_ellipsoid;
+//        }
+//    }
 };
 
 #endif /*TESTCHASTEREGIONS_HPP_*/

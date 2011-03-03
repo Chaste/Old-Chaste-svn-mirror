@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTCHASTEPOINT_HPP_
 #define _TESTCHASTEPOINT_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
 #include <cxxtest/TestSuite.h>
 #include "OutputFileHandler.hpp"
 #include "ChastePoint.hpp"
@@ -153,57 +153,57 @@ public:
         TS_ASSERT_EQUALS(point[2], 30.0);
     }
     
-    void TestArchivingPoint()
-    {
-	OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "points.arch";
-
-        // Create and archive 
-	{
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-	    
-	    ChastePoint<3>* p_point_3d = new ChastePoint<3>(-3.0, -2.0, -1.0);
-	    ChastePoint<2>* p_point_2d = new ChastePoint<2>(-33.0, -22.0);
-	    ChastePoint<1>* p_point_1d = new ChastePoint<1>(-185.0);
-
-            // Should always archive a pointer
-            output_arch << p_point_3d;
-            output_arch << p_point_2d;
-            output_arch << p_point_1d;
-
-            delete p_point_3d;
-            delete p_point_2d;
-            delete p_point_1d;
-
-        }
-
-        // Restore
-        {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-
-            // Create pointer to regions
-            ChastePoint<3>* p_point_3d;
-            ChastePoint<2>* p_point_2d;
-            ChastePoint<1>* p_point_1d;
-            input_arch >> p_point_3d;
-            input_arch >> p_point_2d;
-            input_arch >> p_point_1d;
-	    
-	    TS_ASSERT_EQUALS((*p_point_3d)[0], -3.0);
-	    TS_ASSERT_EQUALS((*p_point_3d)[1], -2.0);
-	    TS_ASSERT_EQUALS((*p_point_3d)[2], -1.0);
-	    TS_ASSERT_EQUALS((*p_point_2d)[0], -33.0);
-	    TS_ASSERT_EQUALS((*p_point_2d)[1], -22.0);
-	    TS_ASSERT_EQUALS((*p_point_1d)[0], -185.0);
-
-            delete p_point_3d;
-            delete p_point_2d;
-            delete p_point_1d;
-        }
-    }
+//    void TestArchivingPoint()
+//    {
+//        OutputFileHandler handler("archive",false);
+//        std::string archive_filename;
+//        archive_filename = handler.GetOutputDirectoryFullPath() + "points.arch";
+//        
+//        // Create and archive 
+//        {
+//            std::ofstream ofs(archive_filename.c_str());
+//            boost::archive::text_oarchive output_arch(ofs);
+//            
+//            ChastePoint<3>* const p_point_3d = new ChastePoint<3>(-3.0, -2.0, -1.0);
+//            ChastePoint<2>* const p_point_2d = new ChastePoint<2>(-33.0, -22.0);
+//            ChastePoint<1>* const p_point_1d = new ChastePoint<1>(-185.0);
+//                    
+//            // Should always archive a pointer
+//            output_arch << p_point_3d;
+//            output_arch << p_point_2d;
+//            output_arch << p_point_1d;
+//             
+//            delete p_point_3d;
+//            delete p_point_2d;
+//            delete p_point_1d;
+//
+//        }
+//
+//        // Restore
+//        {
+//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+//            boost::archive::text_iarchive input_arch(ifs);
+//
+//            // Create pointer to regions
+//            ChastePoint<3>* p_point_3d;
+//            ChastePoint<2>* p_point_2d;
+//            ChastePoint<1>* p_point_1d;
+//            input_arch >> p_point_3d;
+//            input_arch >> p_point_2d;
+//            input_arch >> p_point_1d;
+//            
+//            TS_ASSERT_EQUALS((*p_point_3d)[0], -3.0);
+//            TS_ASSERT_EQUALS((*p_point_3d)[1], -2.0);
+//            TS_ASSERT_EQUALS((*p_point_3d)[2], -1.0);
+//            TS_ASSERT_EQUALS((*p_point_2d)[0], -33.0);
+//            TS_ASSERT_EQUALS((*p_point_2d)[1], -22.0);
+//            TS_ASSERT_EQUALS((*p_point_1d)[0], -185.0);
+//
+//            delete p_point_3d;
+//            delete p_point_2d;
+//            delete p_point_1d;
+//        }
+//    }
 };
 
 #endif //_TESTCHASTEPOINT_HPP_
