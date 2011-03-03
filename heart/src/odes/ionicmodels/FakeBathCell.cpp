@@ -41,10 +41,13 @@ FakeBathCell::~FakeBathCell()
 {
 }
 
+// This method should never be called, but we implement it with something sensible just in case...
+#define COVERAGE_IGNORE
 void FakeBathCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     rDY[0] = 0.0;
 }
+#undef COVERAGE_IGNORE
 
 double FakeBathCell::GetIIonic(const std::vector<double>* pStateVariables)
 {
