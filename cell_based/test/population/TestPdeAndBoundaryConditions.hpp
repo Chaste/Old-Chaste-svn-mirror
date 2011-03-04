@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <ctime>
 #include "PdeAndBoundaryConditions.hpp"
+#include "ConstBoundaryCondition.hpp"
+#include "FunctionalBoundaryCondition.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "AveragedSourcePde.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -43,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-class SimplePdeForTesting : public AbstractLinearEllipticPde<2,2>
+class Simple2dPdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
 public:
     double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
@@ -61,6 +63,43 @@ public:
         return identity_matrix<double>(2);
     }
 };
+
+class Simple3dPdeForTesting : public AbstractLinearEllipticPde<3,3>
+{
+public:
+    double ComputeConstantInUSourceTerm(const ChastePoint<3>& x)
+    {
+        return -1.0;
+    }
+
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3>& x, Element<3,3>*)
+    {
+        return 0.0;
+    }
+
+    c_matrix<double,3,3> ComputeDiffusionTerm(const ChastePoint<3>& )
+    {
+        return identity_matrix<double>(3);
+    }
+};
+
+/**
+ * For use in TestPdeAndBoundaryConditions::TestWithBoundaryConditionVaryingInSpace.
+ */
+double bc_func1(const ChastePoint<2>& p)
+{
+    return p[1]*p[1];
+}
+
+/**
+ * For use in TestPdeAndBoundaryConditions::TestWithBoundaryConditionVaryingInTime.
+ */
+double bc_func2(const ChastePoint<2>& p)
+{
+    SimulationTime* p_time = SimulationTime::Instance();
+    double value = 1.0 + 0.5*p_time->GetTime();
+    return value;
+}
 
 class TestPdeAndBoundaryConditions : public AbstractCellBasedTestSuite
 {
@@ -85,15 +124,20 @@ public:
     void TestMethods() throw(Exception)
     {
     	// Create a PdeAndBoundaryConditions object
-    	SimplePdeForTesting pde;
-    	double boundary_value = 15.0;
-    	bool is_neumann_bc = false;
+    	Simple2dPdeForTesting pde;
+    	ConstBoundaryCondition<2> bc(15.0);
+        bool is_neumann_bc = false;
 
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
 
     	// Test Get methods
-    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryValue(), 15.0, 1e-6);
+    	ChastePoint<2> point;
+        point.rGetLocation()[0] = 0.0;
+        point.rGetLocation()[1] = 0.0;
+
+    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 15.0, 1e-6);
     	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), false);
+
     	bool solution_exists = pde_and_bc.GetSolution();
     	TS_ASSERT_EQUALS(solution_exists, false);
 
@@ -123,12 +167,6 @@ public:
         PetscInt size_of_solution = 0;
         VecGetSize(pde_and_bc.GetSolution(), &size_of_solution);
         TS_ASSERT_EQUALS(size_of_solution, 10);
-
-        ///\todo Test DestroySolution()
-//      pde_and_bc.DestroySolution();
-//
-//      solution_exists = pde_and_bc.GetSolution();
-//    	TS_ASSERT_EQUALS(solution_exists, false);
 
     	// Coverage
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
@@ -137,15 +175,19 @@ public:
     void TestMethodsNeumann() throw(Exception)
     {
     	// Create a PdeAndBoundaryConditions object
-    	SimplePdeForTesting pde;
-    	double boundary_value = 0.0;
-    	bool is_neumann_bc = true;
+    	Simple2dPdeForTesting pde;
+        ConstBoundaryCondition<2> bc(0.0);
 
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc); // third argument defaults to Neumann
 
     	// Test Get methods
-    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryValue(), 0.0, 1e-6);
+        ChastePoint<2> point;
+        point.rGetLocation()[0] = 0.0;
+        point.rGetLocation()[1] = 0.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
     	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
+
     	bool solution_exists = pde_and_bc.GetSolution();
     	TS_ASSERT_EQUALS(solution_exists, false);
 
@@ -178,6 +220,79 @@ public:
 
     	// Coverage
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
+    }
+
+    void TestWithBoundaryConditionVaryingInSpace() throw(Exception)
+    {
+        // Create a PdeAndBoundaryConditions object with spatially varying boundary condition
+        Simple2dPdeForTesting pde;
+        FunctionalBoundaryCondition<2> functional_bc(&bc_func1);
+        bool is_neumann_bc = false;
+
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &functional_bc, is_neumann_bc);
+
+        ChastePoint<2> point1;
+        point1.rGetLocation()[0] = 0.0;
+        point1.rGetLocation()[1] = 0.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point1), 0.0, 1e-6);
+
+        ChastePoint<2> point2;
+        point2.rGetLocation()[0] = 1.0;
+        point2.rGetLocation()[1] = 5.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point2), 25.0, 1e-6);
+        
+        ChastePoint<2> point3;
+        point3.rGetLocation()[0] = 3.0;
+        point3.rGetLocation()[1] = -3.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point3), 9.0, 1e-6);
+    }
+
+    void TestWithBoundaryConditionVaryingInTime() throw(Exception)
+    {
+        // Set up SimulationTime
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
+
+        // Create a PdeAndBoundaryConditions object with time-dependent boundary condition
+        Simple2dPdeForTesting pde;
+        FunctionalBoundaryCondition<2> functional_bc(&bc_func2);
+        bool is_neumann_bc = false;
+
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &functional_bc, is_neumann_bc);
+
+        ChastePoint<2> point;
+        point.rGetLocation()[0] = 0.0;
+        point.rGetLocation()[1] = 0.0;
+
+        // At t=0, the boundary condition should take the value 1.0
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 1.0, 1e-6);
+
+        // At t=5, the boundary condition should take the value 3.5
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 3.5, 1e-6);
+
+        // At t=10, the boundary condition should take the value 6.0
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 6.0, 1e-6);
+    }
+
+    void TestIn3d() throw(Exception)
+    {
+        // Create a 3D PdeAndBoundaryConditions object
+        Simple3dPdeForTesting pde;
+        ConstBoundaryCondition<3> bc(0.0);
+        PdeAndBoundaryConditions<3> pde_and_bc(&pde, &bc);
+
+        ChastePoint<3> point;
+        point.rGetLocation()[0] = 0.0;
+        point.rGetLocation()[1] = 0.0;
+        point.rGetLocation()[2] = 1.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
+        TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
     }
 
     void TestWithAveragedSourcePde() throw(Exception)
@@ -210,10 +325,16 @@ public:
         AveragedSourcePde<2> pde(cell_population, -1.0);
         pde.SetupSourceTerms(coarse_mesh);
 
-    	// Create a PdeAndBoundaryConditions object
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde);
+        ConstBoundaryCondition<2> bc(0.0);
 
-    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryValue(), 0.0, 1e-6);
+    	// Create a PdeAndBoundaryConditions object
+    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc);
+
+        ChastePoint<2> point;
+        point.rGetLocation()[0] = 0.0;
+        point.rGetLocation()[1] = 0.0;
+
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
     	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
 
     	// Set up source terms for PDE using coarse mesh

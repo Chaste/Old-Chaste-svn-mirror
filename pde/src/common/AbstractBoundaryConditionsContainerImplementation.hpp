@@ -34,9 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractBoundaryConditionsContainer()
+AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractBoundaryConditionsContainer(bool deleteConditions)
     : mHasDirichletBCs(false),
-      mCheckedAndCommunicatedIfDirichletBcs(false)
+      mCheckedAndCommunicatedIfDirichletBcs(false),
+      mDeleteConditions(deleteConditions)
 {
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -83,7 +84,10 @@ void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Del
                 if (alreadyDeletedConditions.count(mDirichIterator->second) == 0)
                 {
                     alreadyDeletedConditions.insert(mDirichIterator->second);
-                    delete mDirichIterator->second;
+                    if (mDeleteConditions)
+                    {
+                        delete mDirichIterator->second;
+                    }
                 }
                 mDirichIterator++;
             }

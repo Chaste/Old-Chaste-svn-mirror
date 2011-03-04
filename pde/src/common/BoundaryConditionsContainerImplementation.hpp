@@ -39,8 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer()
-            : AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>()
+BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer(bool deleteConditions)
+            : AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(deleteConditions)
 {
     mLoadedFromArchive = false;
 
@@ -74,7 +74,10 @@ BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditi
                 //Leave the zero boundary condition until last
                 if (neumann_iterator->second != mpZeroBoundaryCondition)
                 {
-                    delete neumann_iterator->second;
+                    if (this->mDeleteConditions)
+                    {
+                        delete neumann_iterator->second;
+                    }
                 }
             }
             neumann_iterator++;
@@ -84,8 +87,10 @@ BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditi
 
     delete mpZeroBoundaryCondition;
 
-    this->DeleteDirichletBoundaryConditions(deleted_conditions);
-
+    if (this->mDeleteConditions)
+    {
+        this->DeleteDirichletBoundaryConditions(deleted_conditions);
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

@@ -30,10 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 PdeAndBoundaryConditions<DIM>::PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
-		                                                double boundaryValue,
+		                                                AbstractBoundaryCondition<DIM>* pBoundaryCondition,
 		                                                bool isNeumannBoundaryCondition)
     : mpPde(pPde),
-      mBoundaryValue(boundaryValue),
+      mpBoundaryCondition(pBoundaryCondition),
       mIsNeumannBoundaryCondition(isNeumannBoundaryCondition),
       mCurrentSolution(NULL)
 {
@@ -55,6 +55,12 @@ AbstractLinearEllipticPde<DIM,DIM>* PdeAndBoundaryConditions<DIM>::GetPde()
 }
 
 template<unsigned DIM>
+AbstractBoundaryCondition<DIM>* PdeAndBoundaryConditions<DIM>::GetBoundaryCondition() const
+{
+    return mpBoundaryCondition;
+}
+
+template<unsigned DIM>
 Vec PdeAndBoundaryConditions<DIM>::GetSolution()
 {
 	return mCurrentSolution;
@@ -70,12 +76,6 @@ template<unsigned DIM>
 bool PdeAndBoundaryConditions<DIM>::IsNeumannBoundaryCondition()
 {
 	return mIsNeumannBoundaryCondition;
-}
-
-template<unsigned DIM>
-double PdeAndBoundaryConditions<DIM>::GetBoundaryValue()
-{
-	return mBoundaryValue;
 }
 
 template<unsigned DIM>

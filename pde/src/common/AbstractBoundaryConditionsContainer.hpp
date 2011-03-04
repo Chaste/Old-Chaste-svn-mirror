@@ -77,7 +77,8 @@ protected:
     bool mHasDirichletBCs;
     /** Have we calculated mHasDirichletBCs */
     bool mCheckedAndCommunicatedIfDirichletBcs;
-
+    /** Whether to delete BCs in destructor */
+    bool mDeleteConditions;
     /**
      * Delete the list of Dirichlet boundary conditions.
      * @note This should stay as a protected method to avoid it being called with default arguments and causing seg faults
@@ -91,8 +92,10 @@ protected:
 public:
     /**
      * Constructor allocates memory for the Dirichlet boundary conditions lists.
+     * 
+     * @param deleteConditions whether to delete BCs in destructor (defaults to true)
      */
-    AbstractBoundaryConditionsContainer();
+    AbstractBoundaryConditionsContainer(bool deleteConditions=true);
 
     /**
      * Destructor.

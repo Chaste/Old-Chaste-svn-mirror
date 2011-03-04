@@ -280,11 +280,9 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
         PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
 
 		// Set up boundary conditions
-		BoundaryConditionsContainer<DIM,DIM,1> bcc;
+        AbstractBoundaryCondition<DIM>* p_bc = p_pde_and_bc->GetBoundaryCondition();
 
-		///\todo The line below must be changed to enable #1475
-		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
-
+		BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
 		if (p_pde_and_bc->IsNeumannBoundaryCondition())
 		{
 			for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
@@ -301,7 +299,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
 				 ++node_iter)
 			{
 				bcc.AddDirichletBoundaryCondition(*node_iter, p_bc);
-			 }
+			}
 		}
 
 		/*
@@ -396,14 +394,11 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
 
 		// Set up boundary conditions
-		BoundaryConditionsContainer<DIM,DIM,1> bcc;
+        AbstractBoundaryCondition<DIM>* p_bc = p_pde_and_bc->GetBoundaryCondition();
 
-        ///\todo The line below must be changed to enable #1475
-		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
-
+		BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
 		if (p_pde_and_bc->IsNeumannBoundaryCondition())
 		{
-			delete p_bc;
             EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
 		}
 		else

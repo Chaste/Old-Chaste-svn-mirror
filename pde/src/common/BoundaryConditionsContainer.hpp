@@ -94,8 +94,10 @@ public:
     /**
      * Constructor calls base constuctor and allocates memory for the Neumann boundary
      * conditions lists.
+     * 
+     * @param deleteConditions whether to delete BCs in destructor (defaults to true)
      */
-    BoundaryConditionsContainer();
+    BoundaryConditionsContainer(bool deleteConditions=true);
 
     /**
      * Note that the destructor will delete memory for each boundary condition object, as

@@ -31,16 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractLinearEllipticPde.hpp"
 #include "AveragedSourcePde.hpp"
+#include "AbstractBoundaryCondition.hpp"
 #include "PetscTools.hpp"
 
 /**
  * A helper class for use in CellBasedSimulationWithPdes. The class
  * contains a pointer to a linear elliptic PDE, which is to be solved
  * on the domain defined by the cell population. The class also contains
- * information describing the boundary conditions that are to be imposed
- * when solving the PDE. Currently we allow constant boundary conditions
- * only (i.e. the same boundary condition is imposed on the entire boundary),
- * which may be Neumann (imposed flux) or Dirichlet (imposed value).
+ * information describing the boundary condition that is to be imposed
+ * when solving the PDE. Currently we allow Neumann (imposed flux) or
+ * Dirichlet (imposed value) boundary conditions. The boundary condition
+ * may be constant on the boundary or vary spatially and/or temporally.
  */
 template<unsigned DIM>
 class PdeAndBoundaryConditions
@@ -52,10 +53,10 @@ private:
      */
 	AbstractLinearEllipticPde<DIM,DIM>* mpPde;
 
-    /**
-	 * The value of the constant boundary condition.
+	/**
+	 * AbstractBoundaryCondition<SPACE_DIM>
 	 */
-	double mBoundaryValue;
+	AbstractBoundaryCondition<DIM>* mpBoundaryCondition;
 
 	/**
 	 * Whether the boundary condition is Neumann (false
@@ -75,11 +76,12 @@ public:
 	 * Constructor.
 	 *
 	 * @param pPde A pointer to a linear elliptic PDE object
-	 * @param boundaryValue The value of the constant boundary condition (defaults to zero)
+	 * @param pBoundaryCondition A pointer to an abstract boundary condition
+	 *                           (defaults to NULL, corresponding to a constant boundary condition with value zero)
 	 * @param isNeumannBoundaryCondition Whether the boundary condition is Neumann (defaults to true)
 	 */
 	PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
-			                 double boundaryValue=0.0,
+			                 AbstractBoundaryCondition<DIM>* pBoundaryCondition=NULL,
 					         bool isNeumannBoundaryCondition=true);
 
 	/**
@@ -91,6 +93,11 @@ public:
 	 * @return mpPde
 	 */
 	AbstractLinearEllipticPde<DIM,DIM>* GetPde();
+
+    /**
+     * @return mpBoundaryCondition
+     */
+    AbstractBoundaryCondition<DIM>* GetBoundaryCondition() const;
 
 	/**
 	 * @return mCurrentSolution
@@ -108,11 +115,6 @@ public:
 	 * @return mIsNeumannBoundaryCondition
 	 */
 	bool IsNeumannBoundaryCondition();
-
-	/**
-	 * @return mBoundaryValue
-	 */
-	double GetBoundaryValue();
 
     /**
      * @return whether the PDE is of type AveragedSourcePde

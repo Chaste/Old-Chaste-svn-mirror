@@ -89,7 +89,7 @@ bool CellCycleModelOdeHandler::SolveOdeToTime(double currentTime)
         AdjustOdeParameters(currentTime);
     
         mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, GetDt());
-    
+
         stopping_event_occurred = mpOdeSolver->StoppingEventOccurred();
         if (stopping_event_occurred)
         {
