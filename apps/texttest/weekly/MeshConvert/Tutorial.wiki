@@ -11,7 +11,7 @@ scale least well is the initial mesh load.
 This page shows you how to convert from a given 3D mesh format (Tetgen/Memfem/CARP/VTK) to 
 our a special binary version of the Triangle/Tetgen format.
  * This allows for random access when running in parallel
- * This also produces a "node connectivity list" {{{(.ncl)}}} file which is a map from node indices
+ * This also produces a "node connecticity list" {{{(.ncl)}}} file which is a map from node indices
  to containing element indices.  The presence of this file cuts the calculation cost at mesh load time.
 
 === Making the executable(s) ===
@@ -41,7 +41,13 @@ These files are just ASCII mesh data for the UCSD ventricular mesh.  Run the con
 ./apps/src/MeshConvert MeshConvert/heart_ucsd
 }}}
 
-The argument {{{MeshConvert/heart_ucsd}}} should be the full absolute path to the place where you unpacked the
+The argument {{{MeshConvert/heart_ucsd}}} should be the full relative path to the place where you unpacked the
 mesh files.  Note that no suffix is given.  If you have compiled with VTK enabled then you will be able to 
 convert a single {{{.vtu}}} file into a binary-format file.
 
+=== Running in parallel ===
+
+If you run the program in parallel then the original mesh is loaded (in a non-scalable way) and then
+partitioned before writing back out.  This means that the original node ordering may be permuted.
+The advantage to pre-processing by running this converter in parallel (on {{{n}}} processes) is that 
+mesh partitioning may be faster when the Chaste code is run live (also on {{{n}}} processes).
