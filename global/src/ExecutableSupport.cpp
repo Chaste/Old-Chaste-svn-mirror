@@ -257,6 +257,15 @@ void ExecutableSupport::PrintError(const std::string& rMessage, bool masterOnly)
     out_file->close();
 }
 
+void ExecutableSupport::Print(const std::string& rMessage)
+{
+    if (PetscTools::AmMaster())
+    {
+        // Write the error message to stdout
+        std::cout << rMessage << std::endl << std::flush;
+    }
+}
+
 void ExecutableSupport::FinalizePetsc()
 {
     PetscFinalize();

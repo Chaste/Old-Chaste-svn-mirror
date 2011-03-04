@@ -110,6 +110,13 @@ public:
     static void PrintError(const std::string& rMessage, bool masterOnly=false);
 
     /**
+     * Display an informative message to the user, on stdout.
+     * Message is only displayed by master process
+     * @param rMessage  the message to display
+     */
+    static void Print(const std::string& rMessage);
+
+    /**
      * Shut down PETSc so we exit cleanly.
      */
     static void FinalizePetsc();

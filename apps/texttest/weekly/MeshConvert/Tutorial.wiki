@@ -1,0 +1,15 @@
+= Still to be filled in (#1706) =
+
+
+=== Getting the data ===
+
+Download and save the attached file [attachment:Propagation3d.tgz Propagation3d.tgz].
+Either use an Archive Manager to extract the content to disk or save it and then unpack it with
+{{{
+#!sh
+tar xvfz  
+}}}
+
+=== Running ... ===
+
+

@@ -47,6 +47,7 @@ public:
         std::string msg("This is not an error, it's just for coverage.");
         ExecutableSupport::PrintError(msg, true);
         ExecutableSupport::PrintError(msg);
+        ExecutableSupport::Print(msg);
         ExecutableSupport::WriteProvenanceInfoFile();
         ExecutableSupport::WriteMachineInfoFile("write_test");
         ExecutableSupport::FinalizePetsc();

@@ -1,0 +1,23 @@
+Copyright (C) University of Oxford, 2005-2011 
+
+Chaste is free software: you can redistribute it and/or modify 
+it under the terms of the Lesser GNU General Public License as published by 
+the Free Software Foundation, either version 2.1 of the License, or 
+(at your option) any later version. 
+
+Chaste is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+Lesser GNU General Public License for more details. 
+
+You should have received a copy of the Lesser GNU General Public License 
+along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
+
+This version of Chaste was compiled on:
+Fri, 11 Feb 2011 16:15:54 +0000 by Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64 (uname)
+from revision number 11548 with build type default, shared libraries.
+
+Note: for VTK reading, give the full file path (including '.vtu' extension)
+Opening heart_ucsd mesh file(s).
+Writing  heart_ucsd_bin.node etc. mesh file in /home/jmpf/texttesttmp/chaste.04Mar132707/chaste/MeshConvert/./
+Done.
