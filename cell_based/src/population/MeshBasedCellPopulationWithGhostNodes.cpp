@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-
+#include "CellwiseData.hpp"
 
 template<unsigned DIM>
 MeshBasedCellPopulationWithGhostNodes<DIM>::MeshBasedCellPopulationWithGhostNodes(
@@ -287,6 +287,18 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
     std::vector<double> cell_ages(num_elements);
     std::vector<double> cell_cycle_phases(num_elements);
     std::vector<double> cell_volumes(num_elements);
+    std::vector<std::vector<double> > cellwise_data;
+
+    if (CellwiseData<DIM>::Instance()->IsSetUp())
+    {
+        CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
+        unsigned num_variables = p_data->GetNumVariables();
+        for (unsigned var=0; var<num_variables; var++)
+        {
+            std::vector<double> cellwise_data_var(num_elements);
+            cellwise_data.push_back(cellwise_data_var);
+        }
+    }
 
     // Loop over Voronoi elements
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = this->mpVoronoiTessellation->GetElementIteratorBegin();
@@ -334,6 +346,15 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
             {
                 double cell_volume = this->mpVoronoiTessellation->GetVolumeOfElement(elem_index);
                 cell_volumes[elem_index] = cell_volume;
+            }
+            if (CellwiseData<DIM>::Instance()->IsSetUp())
+            {
+                CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
+                unsigned num_variables = p_data->GetNumVariables();
+                for (unsigned var=0; var<num_variables; var++)
+                {
+                    cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
+                }
             }
         }
         else
@@ -389,6 +410,16 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
     if (this->mOutputCellVolumes)
     {
         mesh_writer.AddCellData("Cell volumes", cell_volumes);
+    }
+    if (CellwiseData<DIM>::Instance()->IsSetUp())
+    {
+        for (unsigned var=0; var<cellwise_data.size(); var++)
+        {
+            std::stringstream data_name;
+            data_name << "Cellwise data " << var;
+            std::vector<double> cellwise_data_var = cellwise_data[var];
+            mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
+        }
     }
 
     mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
