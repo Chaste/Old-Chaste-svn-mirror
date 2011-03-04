@@ -111,7 +111,7 @@ protected:
      *
      * @param time the current time
      */
-    void WriteBetaCatenin(double time);
+    virtual void WriteBetaCatenin(double time);
 
     /**
      * Overridden SetupSolve() method.
