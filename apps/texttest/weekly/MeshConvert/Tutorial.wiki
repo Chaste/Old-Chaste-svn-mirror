@@ -1,15 +1,47 @@
-= Still to be filled in (#1706) =
+= Making the `MeshConvert` utility and using it the help produce scalable mesh loading =
 
+=== What it's for ===
 
-=== Getting the data ===
+When you run Chaste on large clusters or supercomputers the part of the simulation that might
+scale least well is the initial mesh load.  
+ * Traditional mesh files come in ASCII format with a variable amount of characters per line.  
+ * Because random access into ASCII files is difficult each process must spool through unwanted lines
+ * This means each file is read in its entirety by all processes causing file contention
+ 
+This page shows you how to convert from a given 3D mesh format (Tetgen/Memfem/CARP/VTK) to 
+our a special binary version of the Triangle/Tetgen format.
+ * This allows for random access when running in parallel
+ * This also produces a "node connectivity list" {{{(.ncl)}}} file which is a map from node indices
+ to containing element indices.  The presence of this file cuts the calculation cost at mesh load time.
 
-Download and save the attached file [attachment:Propagation3d.tgz Propagation3d.tgz].
-Either use an Archive Manager to extract the content to disk or save it and then unpack it with
+=== Making the executable(s) ===
+
+It is assumed that as you are running on a parallel cluster or supercomputer you have access to the Chaste 
+source code.  You can produce all executables (including the standalone Chaste program) using:
 {{{
 #!sh
-tar xvfz  
+scons chaste_libs=1 compile_only=1 exe=1 build=GccOpt apps
+}}}
+Binaries {{{Chaste, MeshConvert...}}} are made in {{{app/src}}}.
+
+
+
+=== Running the converter ===
+
+You may want to download and save the attached file [attachment:MeshConvert.tgz MeshConvert.tgz] and 
+unpack the files for testing purposes. Either use an Archive Manager to extract the content to disk or save it and then unpack it with
+{{{
+#!sh
+tar xvfz  MeshConvert.tgz
 }}}
 
-=== Running ... ===
+These files are just ASCII mesh data for the UCSD ventricular mesh.  Run the converter like so:
+{{{
+#!sh
+./apps/src/MeshConvert MeshConvert/heart_ucsd
+}}}
 
+The argument {{{MeshConvert/heart_ucsd}}} should be the full absolute path to the place where you unpacked the
+mesh files.  Note that no suffix is given.  If you have compiled with VTK enabled then you will be able to 
+convert a single {{{.vtu}}} file into a binary-format file.
 
