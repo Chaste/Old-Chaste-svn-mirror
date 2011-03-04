@@ -22,7 +22,7 @@ source code.  You can produce all executables (including the standalone Chaste p
 #!sh
 scons chaste_libs=1 compile_only=1 exe=1 build=GccOpt apps
 }}}
-Binaries {{{Chaste, MeshConvert...}}} are made in {{{app/src}}}.
+Binaries {{{Chaste, MeshConvert...}}} are made in {{{apps/src}}}.
 
 
 
