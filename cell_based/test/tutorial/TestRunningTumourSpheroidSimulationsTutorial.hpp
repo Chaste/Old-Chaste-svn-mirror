@@ -83,10 +83,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
 /* 
- * The next header file defines a PDE that describes how oxygen is transported via through the
- * domain via diffusion and is consumed by live cells.
+ * The next two header files define: a PDE that describes how oxygen is transported via through the
+ * domain via diffusion and is consumed by live cells; and a constant-valued boundary condition to
+ * associate with the PDE.
  */
 #include "CellwiseSourcePde.hpp"
+#include "ConstBoundaryCondition.hpp"
 /*
  * We also include a header file defining a cell killer, which implements the process of
  * hypoxia (low oxygen)-induced cell death.
@@ -165,8 +167,8 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
-			 * We also alter the default cell-cycle times.
-			 */
+	     * We also alter the default cell-cycle times.
+             */
             p_model->SetStemCellG1Duration(8.0);
             p_model->SetTransitCellG1Duration(8.0);
 
@@ -229,6 +231,16 @@ public:
         CellwiseSourcePde<2> pde(cell_population, -0.03);
 
         /*
+         * We also create a constant-valued boundary condition to associate with the PDE.
+         * This boundary condition object takes in a single argument in its constructor,
+         * the value at the boundary. We also introduce a boolean to specify whether this value is the flux at the boundary
+         * (a Neumann boundary condition) or the value of the state variable at the boundary
+         * (a Dirichlet boundary condition) below.
+         */
+        ConstBoundaryCondition<2> bc(1.0);
+        bool is_neumann_bc = true;
+
+        /*
          * To pass the PDE to our simulator, it first needs to be encapsulated in a
          * {{{PdeAndBoundaryConditions}}} object, together with the boundary condition for
          * the PDE. The latter is specified by the second and third arguments of the
@@ -237,9 +249,10 @@ public:
          * (true) or Dirichlet type (false). Thus, in our case, we are a specifying no-flux
          * boundary condition. Note that we currently cannot impose more than one boundary
          * condition for each PDE (so that e.g. we cannot impose a zero-flux boundary condition
-         * on some part of the boundary and a fixed-value boundary condition on the rest).
+         * on some part of the boundary and a fixed-value boundary condition on the rest), although
+         * the boundary condition itself can be made spatially varying or time-dependent.
          */
-        PdeAndBoundaryConditions<2> pde_and_bc(&pde, 0.0, true);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
 
         /*
          * After having created a {{{PdeAndBoundaryConditions}}} object, we then pass it
