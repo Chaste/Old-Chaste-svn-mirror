@@ -39,7 +39,7 @@
 			<G2Duration>1.4</G2Duration>
 			<MDuration>0.72</MDuration>
 		</SimpleWntCellCycleModel>
-	</CellCycleModels
+	</CellCycleModels>
 
 	<Forces>
 		<GeneralisedLinearSpringForce-2>
