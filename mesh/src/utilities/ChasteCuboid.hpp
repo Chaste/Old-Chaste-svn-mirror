@@ -48,8 +48,8 @@ class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
     /**
      * Archive the member variables.
      *
-     * atparam archive
-     * atparam version
+     * @param archive
+     * @param version
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
