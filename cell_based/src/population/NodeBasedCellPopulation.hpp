@@ -138,6 +138,11 @@ private:
      */
     void FindMaxAndMin();
 
+    /**
+     * Overridden WriteVtkResultsToFile() method.
+     */
+    void WriteVtkResultsToFile();
+
 public:
 
     /**

@@ -211,6 +211,7 @@ unsigned MeshBasedCellPopulation<DIM>::RemoveDeadCells()
                     }
                 }
             }
+
             // Purge any marked springs that contained this cell
             for (std::vector<const std::pair<CellPtr,CellPtr>* >::iterator pair_it = pairs_to_remove.begin();
                  pair_it != pairs_to_remove.end();
@@ -366,11 +367,10 @@ CellPtr MeshBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<d
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
 
-
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    AbstractCellPopulation<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
+    AbstractCentreBasedCellPopulation<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
@@ -387,19 +387,12 @@ void MeshBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirecto
     {
         mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
     }
-    mDirPath = rDirectory;
-#ifdef CHASTE_VTK
-    mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
-    *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
-    *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
-    *mpVtkMetaFile << "    <Collection>\n";
-#endif //CHASTE_VTK
 }
 
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::CloseOutputFiles()
 {
-    AbstractCellPopulation<DIM>::CloseOutputFiles();
+    AbstractCentreBasedCellPopulation<DIM>::CloseOutputFiles();
 
     mpVizElementsFile->close();
 
@@ -415,11 +408,6 @@ void MeshBasedCellPopulation<DIM>::CloseOutputFiles()
     {
         mpCellVolumesFile->close();
     }
-#ifdef CHASTE_VTK
-    *mpVtkMetaFile << "    </Collection>\n";
-    *mpVtkMetaFile << "</VTKFile>\n";
-    mpVtkMetaFile->close();
-#endif //CHASTE_VTK
 }
 
 template<unsigned DIM>
@@ -428,7 +416,6 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
     AbstractCentreBasedCellPopulation<DIM>::WriteResultsToFiles();
 
     // Write element data to file
-
     *mpVizElementsFile << SimulationTime::Instance()->GetTime() << "\t";
 
     for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
@@ -466,7 +453,7 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
     }
     *mpVizElementsFile << "\n";
 
-    if (mpVoronoiTessellation!=NULL)
+    if (mpVoronoiTessellation != NULL)
     {
         if (mOutputVoronoiData)
         {
@@ -480,7 +467,6 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
         {
             WriteCellVolumeResultsToFile();
         }
-        WriteVtkResultsToFile();
     }
 }
 
@@ -488,131 +474,134 @@ template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
-    VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
-
-    // Write time to file
-    std::stringstream time;
-    time << SimulationTime::Instance()->GetTimeStepsElapsed();
-
-    unsigned num_elements = mpVoronoiTessellation->GetNumElements();
-    std::vector<double> cell_types(num_elements);
-    std::vector<double> cell_ancestors(num_elements);
-    std::vector<double> cell_mutation_states(num_elements);
-    std::vector<double> cell_ages(num_elements);
-    std::vector<double> cell_cycle_phases(num_elements);
-    std::vector<double> cell_volumes(num_elements);
-    std::vector<std::vector<double> > cellwise_data;
-
-    if (CellwiseData<DIM>::Instance()->IsSetUp())
+    if (mpVoronoiTessellation != NULL)
     {
-        CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
-        unsigned num_variables = p_data->GetNumVariables();
-        for (unsigned var=0; var<num_variables; var++)
-        {
-            std::vector<double> cellwise_data_var(num_elements);
-            cellwise_data.push_back(cellwise_data_var);
-        }
-    }
-
-    // Loop over elements of mpVoronoiTessellation
-    for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
-         elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
-         ++elem_iter)
-    {
-        // Get index of this element in mpVoronoiTessellation
-        unsigned elem_index = elem_iter->GetIndex();
-
-        // Get the index of the corresponding node in mrMesh
-        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
-
-        // There should be no ghost nodes
-        assert(!this->IsGhostNode(node_index));
-
-        // Get the cell corresponding to this element
-        CellPtr p_cell = this->mLocationCellMap[node_index];
-
-        if (this->mOutputCellAncestors)
-        {
-            double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
-            cell_ancestors[elem_index] = ancestor_index;
-        }
-        if (this->mOutputCellProliferativeTypes)
-        {
-            double cell_type = p_cell->GetCellCycleModel()->GetCellProliferativeType();
-            cell_types[elem_index] = cell_type;
-        }
-        if (this->mOutputCellMutationStates)
-        {
-            double mutation_state = p_cell->GetMutationState()->GetColour();
-            cell_mutation_states[elem_index] = mutation_state;
-        }
-        if (this->mOutputCellAges)
-        {
-            double age = p_cell->GetAge();
-            cell_ages[elem_index] = age;
-        }
-        if (this->mOutputCellCyclePhases)
-        {
-            double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
-            cell_cycle_phases[elem_index] = cycle_phase;
-        }
-        if (this->mOutputCellVolumes)
-        {
-            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-            cell_volumes[elem_index] = cell_volume;
-        }
+        VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
+    
+        // Write time to file
+        std::stringstream time;
+        time << SimulationTime::Instance()->GetTimeStepsElapsed();
+    
+        unsigned num_elements = mpVoronoiTessellation->GetNumElements();
+        std::vector<double> cell_types(num_elements);
+        std::vector<double> cell_ancestors(num_elements);
+        std::vector<double> cell_mutation_states(num_elements);
+        std::vector<double> cell_ages(num_elements);
+        std::vector<double> cell_cycle_phases(num_elements);
+        std::vector<double> cell_volumes(num_elements);
+        std::vector<std::vector<double> > cellwise_data;
+    
         if (CellwiseData<DIM>::Instance()->IsSetUp())
         {
             CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
             unsigned num_variables = p_data->GetNumVariables();
             for (unsigned var=0; var<num_variables; var++)
             {
-                cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
+                std::vector<double> cellwise_data_var(num_elements);
+                cellwise_data.push_back(cellwise_data_var);
             }
         }
-    }
-
-    if (this->mOutputCellProliferativeTypes)
-    {
-        mesh_writer.AddCellData("Cell types", cell_types);
-    }
-    if (this->mOutputCellAncestors)
-    {
-        mesh_writer.AddCellData("Ancestors", cell_ancestors);
-    }
-    if (this->mOutputCellMutationStates)
-    {
-        mesh_writer.AddCellData("Mutation states", cell_mutation_states);
-    }
-    if (this->mOutputCellAges)
-    {
-        mesh_writer.AddCellData("Ages", cell_ages);
-    }
-    if (this->mOutputCellCyclePhases)
-    {
-        mesh_writer.AddCellData("Cycle phases", cell_cycle_phases);
-    }
-    if (this->mOutputCellVolumes)
-    {
-        mesh_writer.AddCellData("Cell volumes", cell_volumes);
-    }
-    if (CellwiseData<DIM>::Instance()->IsSetUp())
-    {
-        for (unsigned var=0; var<cellwise_data.size(); var++)
+    
+        // Loop over elements of mpVoronoiTessellation
+        for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
+             elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
+             ++elem_iter)
         {
-            std::stringstream data_name;
-            data_name << "Cellwise data " << var;
-            std::vector<double> cellwise_data_var = cellwise_data[var];
-            mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
+            // Get index of this element in mpVoronoiTessellation
+            unsigned elem_index = elem_iter->GetIndex();
+    
+            // Get the index of the corresponding node in mrMesh
+            unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+    
+            // There should be no ghost nodes
+            assert(!this->IsGhostNode(node_index));
+    
+            // Get the cell corresponding to this element
+            CellPtr p_cell = this->mLocationCellMap[node_index];
+    
+            if (this->mOutputCellAncestors)
+            {
+                double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
+                cell_ancestors[elem_index] = ancestor_index;
+            }
+            if (this->mOutputCellProliferativeTypes)
+            {
+                double cell_type = p_cell->GetCellCycleModel()->GetCellProliferativeType();
+                cell_types[elem_index] = cell_type;
+            }
+            if (this->mOutputCellMutationStates)
+            {
+                double mutation_state = p_cell->GetMutationState()->GetColour();
+                cell_mutation_states[elem_index] = mutation_state;
+            }
+            if (this->mOutputCellAges)
+            {
+                double age = p_cell->GetAge();
+                cell_ages[elem_index] = age;
+            }
+            if (this->mOutputCellCyclePhases)
+            {
+                double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
+                cell_cycle_phases[elem_index] = cycle_phase;
+            }
+            if (this->mOutputCellVolumes)
+            {
+                double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                cell_volumes[elem_index] = cell_volume;
+            }
+            if (CellwiseData<DIM>::Instance()->IsSetUp())
+            {
+                CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
+                unsigned num_variables = p_data->GetNumVariables();
+                for (unsigned var=0; var<num_variables; var++)
+                {
+                    cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
+                }
+            }
         }
+    
+        if (this->mOutputCellProliferativeTypes)
+        {
+            mesh_writer.AddCellData("Cell types", cell_types);
+        }
+        if (this->mOutputCellAncestors)
+        {
+            mesh_writer.AddCellData("Ancestors", cell_ancestors);
+        }
+        if (this->mOutputCellMutationStates)
+        {
+            mesh_writer.AddCellData("Mutation states", cell_mutation_states);
+        }
+        if (this->mOutputCellAges)
+        {
+            mesh_writer.AddCellData("Ages", cell_ages);
+        }
+        if (this->mOutputCellCyclePhases)
+        {
+            mesh_writer.AddCellData("Cycle phases", cell_cycle_phases);
+        }
+        if (this->mOutputCellVolumes)
+        {
+            mesh_writer.AddCellData("Cell volumes", cell_volumes);
+        }
+        if (CellwiseData<DIM>::Instance()->IsSetUp())
+        {
+            for (unsigned var=0; var<cellwise_data.size(); var++)
+            {
+                std::stringstream data_name;
+                data_name << "Cellwise data " << var;
+                std::vector<double> cellwise_data_var = cellwise_data[var];
+                mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
+            }
+        }
+    
+        mesh_writer.WriteVtkUsingMesh(*mpVoronoiTessellation, time.str());
+        *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
+        *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
+        *(this->mpVtkMetaFile) << "\" group=\"\" part=\"0\" file=\"results_";
+        *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
+        *(this->mpVtkMetaFile) << ".vtu\"/>\n";
     }
-
-    mesh_writer.WriteVtkUsingMesh(*mpVoronoiTessellation, time.str());
-    *mpVtkMetaFile << "        <DataSet timestep=\"";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
-    *mpVtkMetaFile << "\" group=\"\" part=\"0\" file=\"results_";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
-    *mpVtkMetaFile << ".vtu\"/>\n";
 #endif //CHASTE_VTK
 }
 
@@ -737,7 +726,6 @@ void MeshBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     }
     *mpCellVolumesFile << "\n";
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                          Spring iterator class                           //

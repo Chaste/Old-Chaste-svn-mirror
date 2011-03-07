@@ -539,6 +539,9 @@ public:
 
     void TestNodeBasedCellPopulationOutputWriters()
     {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;
@@ -625,11 +628,13 @@ public:
 
 		// Compare output with saved files of what they should look like
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestNodeBasedCellPopulationWriters/results.parameters").c_str()), 0);
-
     }
 
     void TestWritingCellCyclePhases()
     {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;

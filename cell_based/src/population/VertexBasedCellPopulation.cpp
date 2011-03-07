@@ -370,7 +370,6 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
 
     SimulationTime* p_time = SimulationTime::Instance();
 
-
     // Write Locations of T1Swaps to file
     *mpT1SwapLocationsFile << p_time->GetTime() << "\t";
     std::vector< c_vector<double, DIM> > t1_swap_locations = mrMesh.GetLocationsOfT1Swaps();
@@ -385,7 +384,6 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     *mpT1SwapLocationsFile << "\n";
     mrMesh.ClearLocationsOfT1Swaps();
 
-
     // Write Locations of T3Swaps to file
     *mpT3SwapLocationsFile << p_time->GetTime() << "\t";
     std::vector< c_vector<double, DIM> > t3_swap_locations = mrMesh.GetLocationsOfT3Swaps();
@@ -399,7 +397,6 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     }
     *mpT3SwapLocationsFile << "\n";
     mrMesh.ClearLocationsOfT3Swaps();
-
 
     // Write element data to file
     *mpVizElementsFile << p_time->GetTime() << "\t";
@@ -437,9 +434,15 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
 		}
     }
     *mpVizElementsFile << "\n";
+}
 
+template<unsigned DIM>
+void VertexBasedCellPopulation<DIM>::WriteVtkResultsToFile()
+{
 #ifdef CHASTE_VTK
-    VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
+    SimulationTime* p_time = SimulationTime::Instance();
+
+    VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
     std::stringstream time;
     time << p_time->GetTimeStepsElapsed();
 
@@ -553,14 +556,13 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     }
 
     mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
-    *mpVtkMetaFile << "        <DataSet timestep=\"";
-    *mpVtkMetaFile << p_time->GetTimeStepsElapsed();
-    *mpVtkMetaFile << "\" group=\"\" part=\"0\" file=\"results_";
-    *mpVtkMetaFile << p_time->GetTimeStepsElapsed();
-    *mpVtkMetaFile << ".vtu\"/>\n";
+    *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
+    *(this->mpVtkMetaFile) << p_time->GetTimeStepsElapsed();
+    *(this->mpVtkMetaFile) << "\" group=\"\" part=\"0\" file=\"results_";
+    *(this->mpVtkMetaFile) << p_time->GetTimeStepsElapsed();
+    *(this->mpVtkMetaFile) << ".vtu\"/>\n";
 #endif //CHASTE_VTK
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
@@ -571,15 +573,7 @@ void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirec
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
     mpT1SwapLocationsFile = output_file_handler.OpenOutputFile("T1SwapLocations.dat");
     mpT3SwapLocationsFile = output_file_handler.OpenOutputFile("T3SwapLocations.dat");
-    mDirPath = rDirectory;
-#ifdef CHASTE_VTK
-    mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
-    *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
-    *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
-    *mpVtkMetaFile << "    <Collection>\n";
-#endif //CHASTE_VTK
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::CloseOutputFiles()
@@ -588,11 +582,6 @@ void VertexBasedCellPopulation<DIM>::CloseOutputFiles()
     mpVizElementsFile->close();
     mpT1SwapLocationsFile->close();
     mpT3SwapLocationsFile->close();
-#ifdef CHASTE_VTK
-    *mpVtkMetaFile << "    </Collection>\n";
-    *mpVtkMetaFile << "</VTKFile>\n";
-    mpVtkMetaFile->close();
-#endif //CHASTE_VTK
 }
 
 

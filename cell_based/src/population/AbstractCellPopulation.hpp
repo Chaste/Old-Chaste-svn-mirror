@@ -142,6 +142,12 @@ protected:
     /** Results file for boundary nodes. */
     out_stream mpVizBoundaryNodesFile;
 
+    /** A cache of where the results are going (used for VTK writer). */
+    std::string mDirPath;
+
+    /** Meta results file for VTK. */
+    out_stream mpVtkMetaFile;
+
     /** Whether the cell population contains a mesh. */
     bool mCellPopulationContainsMesh;
 
@@ -192,6 +198,14 @@ protected:
      * in subclasses.
      */
     virtual void Validate()=0;
+
+    /**
+     * Write the current results to mpVtkMetaFile.
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     */
+    virtual void WriteVtkResultsToFile()=0;
 
     /**
      * Constructor for use by archiving only. Please use the other constructor.

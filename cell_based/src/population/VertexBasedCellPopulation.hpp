@@ -56,12 +56,6 @@ private:
     /** Vertex-based mesh associated with the cell population. */
     MutableVertexMesh<DIM, DIM>& mrMesh;
 
-    /** A cache of where the results are going (used for VTK writer). */
-    std::string mDirPath;
-
-    /** Meta results file for VTK. */
-    out_stream mpVtkMetaFile;
-
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this cell population has been de-serialized.
@@ -76,6 +70,11 @@ private:
 
     /** Results file for locations of T3Swaps. */
     out_stream mpT3SwapLocationsFile;
+
+    /**
+     * Overridden WriteVtkResultsToFile() method.
+     */
+    void WriteVtkResultsToFile();
 
     friend class boost::serialization::access;
     /**

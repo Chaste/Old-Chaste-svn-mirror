@@ -110,12 +110,6 @@ protected:
      */
     VertexMesh<DIM, DIM>* mpVoronoiTessellation;
 
-    /** A cache of where the results are going (used for VTK writer). */
-    std::string mDirPath;
-
-    /** Meta results file for VTK. */
-    out_stream mpVtkMetaFile;
-
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this cell population has been de-serialized.
@@ -328,7 +322,7 @@ public:
     unsigned GetNumNodes();
 
     /**
-     * Write the current results to mpVtkMetaFile.
+     * Overridden WriteVtkResultsToFile() method.
      */
     virtual void WriteVtkResultsToFile();
 

@@ -298,6 +298,14 @@ void AbstractCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirector
     {
         mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
     }
+
+    mDirPath = rDirectory;
+#ifdef CHASTE_VTK
+    mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
+    *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
+    *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
+    *mpVtkMetaFile << "    <Collection>\n";
+#endif //CHASTE_VTK
 }
 
 template<unsigned DIM>
@@ -335,6 +343,11 @@ void AbstractCellPopulation<DIM>::CloseOutputFiles()
     {
         mpCellIdFile->close();
     }
+#ifdef CHASTE_VTK
+    *mpVtkMetaFile << "    </Collection>\n";
+    *mpVtkMetaFile << "</VTKFile>\n";
+    mpVtkMetaFile->close();
+#endif //CHASTE_VTK
 }
 
 template<unsigned DIM>
@@ -592,6 +605,8 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
     {
         WriteCellIdDataToFile();
     }
+
+    WriteVtkResultsToFile();
 }
 
 template<unsigned DIM>
