@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHASTEELLIPSOID_HPP_
 #define CHASTEELLIPSOID_HPP_
 
-//#include "ChasteSerialization.hpp"
-//#include <boost/serialization/base_object.hpp>
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractChasteRegion.hpp"
 #include "ChastePoint.hpp"
@@ -44,21 +44,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned SPACE_DIM>
 class ChasteEllipsoid : public AbstractChasteRegion<SPACE_DIM>
 {
-//    /** Needed for serialization. */
-//    friend class boost::serialization::access;
-//    /**
-//     * Archive the member variables.
-//     *
-//     * atparam archive
-//     * atparam version
-//     */
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & boost::serialization::base_object<AbstractChasteRegion<SPACE_DIM> >(*this);
-//	//archive & mCentre;
-//	//archive & mRadii;
-//    }
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * atparam archive
+     * atparam version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractChasteRegion<SPACE_DIM> >(*this);
+    }
     
 private:
     /** Centre of the ellipsoid. */
@@ -92,41 +90,41 @@ public:
 };
 
 // Declare identifier for the serializer
-//#include "SerializationExportWrapper.hpp"
-//EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChasteEllipsoid)
-//
-//namespace boost
-//{
-//namespace serialization
-//{
-//
-//template<class Archive, unsigned SPACE_DIM>
-//inline void save_construct_data(
-//    Archive & ar, const ChasteEllipsoid<SPACE_DIM> * t, const unsigned int file_version)
-//{
-//    const ChastePoint<SPACE_DIM>* p_centre =  &(t->rGetCentre());
-//    const ChastePoint<SPACE_DIM>* p_radii =  &(t->rGetRadii());
-//    ar & p_centre;
-//    ar & p_radii;
-//}
-//
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate an instance (using existing constructor)
-// */
-//template<class Archive, unsigned SPACE_DIM>
-//inline void load_construct_data(
-//    Archive & ar, ChasteEllipsoid<SPACE_DIM> * t, const unsigned int file_version)
-//{
-//    ChastePoint<SPACE_DIM>* p_centre;
-//    ChastePoint<SPACE_DIM>* p_radii;
-//
-//    ar & p_centre;
-//    ar & p_radii;
-//
-//    ::new(t)ChasteEllipsoid<SPACE_DIM>((*p_centre), (*p_radii));
-//}
-//}
-//} // namespace ...
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChasteEllipsoid)
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const ChasteEllipsoid<SPACE_DIM> * t, const unsigned int file_version)
+{
+    const ChastePoint<SPACE_DIM>* p_centre =  &(t->rGetCentre());
+    const ChastePoint<SPACE_DIM>* p_radii =  &(t->rGetRadii());
+    ar & p_centre;
+    ar & p_radii;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, ChasteEllipsoid<SPACE_DIM> * t, const unsigned int file_version)
+{
+    ChastePoint<SPACE_DIM>* p_centre;
+    ChastePoint<SPACE_DIM>* p_radii;
+
+    ar & p_centre;
+    ar & p_radii;
+
+    ::new(t)ChasteEllipsoid<SPACE_DIM>((*p_centre), (*p_radii));
+}
+}
+} // namespace ...
 
 #endif /*CHASTEELLIPSOID_HPP_*/

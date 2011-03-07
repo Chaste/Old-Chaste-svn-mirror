@@ -101,6 +101,6 @@ template class ChasteCuboid<2>;
 template class ChasteCuboid<3>;
 
 // Serialization for Boost >= 1.36
-//#include "SerializationExportWrapperForCpp.hpp"
-//EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChasteCuboid)
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChasteCuboid)
 
