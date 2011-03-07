@@ -1579,15 +1579,44 @@ class cellml_variable(Colourable, element_base):
     def split_name(varname):
         """Split a variable name as given by cellml_variable.fullname into constituent parts.
         
-        Returns a tuple (component name, local variable name).
+        Returns a tuple (component name, local variable name).  If the component name cannot
+        be identified, it will be returned as the empty string.
         """
-        if varname[0] == u'(':
-            cname, vname = varname[1:-1].split(u',')
-        else:
-            cname, vname = varname.split(u'__', 1)
+        try:
+            if varname[0] == u'(':
+                cname, vname = varname[1:-1].split(u',')
+            else:
+                cname, vname = varname.split(u'__', 1)
+        except ValueError:
+            cname, vname = u'', varname
         return cname, vname
 
-
+    @staticmethod
+    def get_variable_object(model, varname):
+        """Return the variable object that has name varname.
+        
+        This method tries to handle various forms of fully qualified variable name, i.e. names which
+        include the name of the component the variable occurs in, including those created by
+        CellMLTranslator.code_name.
+        """
+        varname = unicode(varname)
+        if varname[:4] == 'var_':
+            varname = varname[4:]
+        cname, vname = cellml_variable.split_name(varname)
+        if len(model.component) == 1 and cname == model.component.name:
+            var = model.component.get_variable_by_name(vname)
+        else:
+            try:
+                var = model.get_variable_by_name(cname, vname)
+            except KeyError, e:
+                try:
+                    if cname:
+                        vname = cname + u'__' + vname
+                    var = model.component.get_variable_by_name(vname)
+                except KeyError:
+                    raise e
+        return var
+    
     def __str__(self):
         return 'cellml_variable' + self.fullname()
     
@@ -3657,20 +3686,8 @@ class mathml(element_base):
         try:
             var = ci_elt.variable
         except:
-            var = None
-        if not var:
             varname = unicode(ci_elt).strip()
-            if varname[:4] == 'var_':
-                varname = varname[4:]
-            cname, vname = cellml_variable.split_name(varname)
-            if varname[0] == '(':
-                name = vname
-            else:
-                name = cname + u'__' + vname
-            if len(self.model.component) == 1:
-                var = self.model.component.get_variable_by_name(name)
-            else:
-                var = self.model.get_variable_by_name(cname, vname)
+            var = cellml_variable.get_variable_object(self.model, varname)
         return var
 
     def vars_in(self, expr):

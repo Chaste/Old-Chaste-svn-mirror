@@ -436,15 +436,13 @@ class CellMLTranslator(object):
             prefix = ['var_', 'd_dt_'][ode]
         if ode:
             var = var.get_source_variable(recurse=True)
-        if var.component.name == u'':
-            # Special case variables, that don't really exist in the model
-            name = var.name
-        elif self.single_component:
-            name = prefix + var.name
-        else:
-            name = prefix + var.component.name + '__' + var.name
+        name = prefix + var.fullname(cellml=True)
         return name
     
+    def varobj(self, varname):
+        """Return the variable object that has code_name varname."""
+        return cellml_variable.get_variable_object(self.model, varname)
+
     def var_display_name(self, var):
         """Return a display name for the given variable.
         
@@ -889,32 +887,6 @@ class CellMLTranslator(object):
         uname = varobj.units
         units = varobj.component.get_units_by_name(uname)
         return units
-
-    def varobj(self, varname):
-        """Return the variable object that has code_name varname."""
-        varname = unicode(varname)
-        if varname[0] == '(':
-            cname, vname = varname[1:-1].split(',')
-            if self.single_component and cname != self.model.component.name:
-                name = cname + u'__' + vname
-            else:
-                name = vname
-        elif '__' in varname:
-            if varname[:4] == 'var_':
-                cname, vname = varname[4:].split('__')
-            else:
-                cname, vname = varname.split('__')
-            name = cname + u'__' + vname
-        elif varname[:4] == 'var_' and self.single_component:
-            # It may have been a single component model
-            name = varname[4:]
-        else:
-            return None
-        if self.single_component:
-            var = self.model.component.get_variable_by_name(name)
-        else:
-            var = self.model.get_variable_by_name(cname, vname)
-        return var
 
     def _vars_in(self, expr):
         """Return a list of variable objects used in the given expression.
@@ -2474,7 +2446,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=nodeset|set(map(lambda e: e.math, self.model.solver_info.jacobian.entry)))
-        self.writeln(self.TYPE_CONST_DOUBLE, 'dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END, '\n');
+        self.writeln(self.TYPE_CONST_DOUBLE, 'var_dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END, '\n');
         self.output_equations(nodeset)
         self.writeln()
         # Jacobian entries
@@ -2554,7 +2526,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Update state variables:
         #   rY[i] = (rY[i] + _g_j*mDt) / (1 - _h_j*mDt)
         self.writeln()
-        self.writeln(self.TYPE_CONST_DOUBLE, 'dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END)
+        self.writeln(self.TYPE_CONST_DOUBLE, 'var_dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END)
         linear_vars.sort(key=lambda v: v.fullname())
         for i, u in enumerate(linear_vars):
             j = self.state_vars.index(u)
@@ -4231,39 +4203,14 @@ class SolverInfo(object):
 
     def _get_variable(self, varname):
         """Return the variable in the model with name varname."""
-        if varname[0] == '(':
-            # (compname,varname)
-            cname, vname = varname[1:-1].split(u',')
-        elif '__' in varname:
-            # [var_]cname__vname
-            if varname.startswith('var_'):
-                varname = varname[4:]
-            cname, vname = varname.split(u'__')
-        elif varname == u'delta_t':
-            # Special case for the timestep in ComputeJacobian and elsewhere
-            return self.get_dt()
-        elif varname[:4] == 'var_':
-            # It may be a single component model
-            cname = self._model.component.name
-            vname = varname[4:]
-        else:
-            raise ValueError("Unrecognised variable name in SolverInfo: " + varname)
-        # Determine the variable object from cname,vname
         try:
-            comp = self._model.get_component_by_name(cname)
-            var = comp.get_variable_by_name(vname)
-        except KeyError:
-            if len(list(self._model.component)) > 1:
-                raise ValueError("Cannot find component '%s' needed by ci element '%s'"
-                                 % (cname, varname))
-            elif self._model.component.ignore_component_name:
-                # Done PE already
-                try:
-                    var = self._model.component.get_variable_by_name(cname+'__'+vname)
-                except KeyError:
-                    raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
+            if varname == 'delta_t':
+                # Special case for the timestep in ComputeJacobian and elsewhere
+                var = self.get_dt()
             else:
-                raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
+                var = cellml_variable.get_variable_object(self._model, varname)
+        except KeyError:
+            raise ValueError("Cannot find variable '%s' referenced in SolverInfo" % varname)
         return var
     
     def get_dt(self):
