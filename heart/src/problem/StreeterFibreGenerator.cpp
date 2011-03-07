@@ -158,6 +158,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
             std::string fibreOrientationFile,
             bool logInfo)
 {
+    assert(SPACE_DIM == 3);
     if (mpGeometryInfo == NULL)
     {
         EXCEPTION("Files defining the heart surfaces not set");
@@ -190,9 +191,12 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
         p_ave_thickness_file = handler.OpenOutputFile("averaged_thickness.data");
     }
 
-    // Compute the distance map of each surface
-
-    CheckVentricleAlignment();
+    
+    //We expect that the apex to base has been set
+    if (fabs(norm_2(mApexToBase)) < DBL_EPSILON)
+    {
+        EXCEPTION("Apex to base vector has not been set");
+    }
 
     // Compute wall thickness parameter
     unsigned num_nodes = mrMesh.GetNumNodes();
@@ -462,38 +466,6 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
 }
 
-template<unsigned SPACE_DIM>
-void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
-{
-    assert(SPACE_DIM == 3);
-    
-    //We expect that the apex to base has been set
-    if (fabs(norm_2(mApexToBase)) < DBL_EPSILON)
-    {
-        EXCEPTION("Apex to base vector has not been set");
-    }
-    ChasteCuboid<SPACE_DIM> lv_bounds=mpGeometryInfo->CalculateBoundingBoxOfLV();
-    ChasteCuboid<SPACE_DIM> rv_bounds=mpGeometryInfo->CalculateBoundingBoxOfRV();
-    
- 
-    //Check that LV midway point is not inside the RV interval
-    double lv_y_midway=lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1];
-    lv_y_midway /= 2.0;
-    bool lv_y_mid_in_rv = (lv_y_midway > rv_bounds.rGetLowerCorner()[1]  && lv_y_midway < rv_bounds.rGetUpperCorner()[1]);
-
-    //Check that RV midway point is not inside the LV interval
-    double rv_y_midway=rv_bounds.rGetUpperCorner()[1] + rv_bounds.rGetLowerCorner()[1];
-    rv_y_midway /= 2.0;
-    bool rv_y_mid_in_lv = (rv_y_midway > lv_bounds.rGetLowerCorner()[1]  && rv_y_midway < lv_bounds.rGetUpperCorner()[1]);
-
-    if (lv_y_mid_in_rv || rv_y_mid_in_lv)
-    {
-        EXCEPTION("Ventricular surfaces overlap too much in the y-axis");
-    }
-    //This is a bit nasty - note that it's currently after the exception test
-    assert(lv_bounds.GetLongestAxis() == 0);
-    assert(rv_bounds.GetLongestAxis() == 0);
- }
 
 template<unsigned SPACE_DIM>
 void StreeterFibreGenerator<SPACE_DIM>::SetApexToBase(const c_vector<double, SPACE_DIM>& apexToBase)

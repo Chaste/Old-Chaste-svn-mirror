@@ -24,6 +24,8 @@ scons chaste_libs=1 compile_only=1 exe=1 build=GccOpt apps
 }}}
 Binaries {{{Chaste, MeshConvert...}}} are made in {{{apps/src}}}.
 
+You may get a speed improvement from using a "no debug" build-type like {{{build=GccOpt_ndebug}}}, but
+this is at the expense of doing less error checking.
 
 
 === Running the converter ===
@@ -44,6 +46,26 @@ These files are just ASCII mesh data for the UCSD ventricular mesh.  Run the con
 The argument {{{MeshConvert/heart_ucsd}}} should be the full relative path to the place where you unpacked the
 mesh files.  Note that no suffix is given.  If you have compiled with VTK enabled then you will be able to 
 convert a single {{{.vtu}}} file into a binary-format file.
+
+You will see the usual Chaste Copyright notice and information about the compilation details followed by:
+{{{
+...
+Note: for VTK reading, give the full file path (including '.vtu' extension)
+Opening heart_ucsd mesh file(s).
+Writing  heart_ucsd_bin.node etc. mesh file in [PATH_TO_OUTPUT]
+Done.
+}}}
+
+You can control the location of the folder for the output using {{{$CHASTE_TEST_OUTPUT}}}:  The space 
+labelled {{{[PATH_TO_OUTPUT]}}} in the above will be taken from the environmental variable
+{{{$CHASTE_TEST_OUTPUT}}}, if it is set, but will be {{{./testoutput}}} otherwise.
+{{{
+du -h ./testoutput/heart_ucsd_bin.*
+6.2M    ./testoutput/heart_ucsd_bin.ele
+496K    ./testoutput/heart_ucsd_bin.face
+12M     ./testoutput/heart_ucsd_bin.ncl
+1.5M    ./testoutput/heart_ucsd_bin.node
+}}}
 
 === Running in parallel ===
 

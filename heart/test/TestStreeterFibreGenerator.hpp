@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+#include "VtkMeshWriter.hpp"
+#include "FibreReader.hpp"
 class TestStreeterFibreGenerator : public CxxTest::TestSuite
 {
 public:
@@ -86,24 +88,6 @@ public:
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
     
-    void todoTestDownSampled() throw (Exception)
-    {
-        
-        TrianglesMeshReader<3,3> mesh_reader("apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles");
-        std::string epi_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.epi";
-        std::string rv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.rv";
-        std::string lv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.lv";
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        StreeterFibreGenerator<3> fibre_generator(mesh);
-        fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
-        fibre_generator.SetApexToBase(0);
-
-        fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho");
-
-    }
-    
     void TestExceptions()
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
@@ -120,38 +104,24 @@ public:
         // Wrong surface filename
         TS_ASSERT_THROWS_THIS(fibre_generator.SetSurfaceFiles("wrong_name", "wrong_name", "wrong_name", false),
                 "Wrong surface definition file name wrong_name");
-    }
-    void TestOrientationException()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles");
-        std::string epi_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.epi";
-        std::string rv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.rv";
-        std::string lv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.lv";
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
 
-        StreeterFibreGenerator<3> fibre_generator(mesh);
-        fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
+        std::string epi_face_file = "heart/test/data/box_shaped_heart/epi.tri";
+        std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
+        std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
 
+
+        fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, false);
         TS_ASSERT_THROWS_THIS(fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho"),
             "Apex to base vector has not been set");
         TS_ASSERT_THROWS_THIS(fibre_generator.SetApexToBase(999),
             "Apex to base coordinate axis was out of range");
-        
+
         c_vector<double, 3> axis;
         axis[0] = 0.0;
         axis[1] = 0.0;
         axis[2] = 0.0;
         TS_ASSERT_THROWS_THIS(fibre_generator.SetApexToBase(axis),
             "Apex to base vector should be non-zero");
-        
-        axis[0] = 1.0;
-        
-        fibre_generator.SetApexToBase(axis);
-        
-        TS_ASSERT_THROWS_THIS(fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "downsampled.ortho"),
-            "Ventricular surfaces overlap too much in the y-axis");
-            
         
     }
 };

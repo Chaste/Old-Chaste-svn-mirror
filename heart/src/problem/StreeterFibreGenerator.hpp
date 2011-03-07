@@ -109,17 +109,6 @@ public:
     void GenerateOrthotropicFibreOrientation(std::string outputDirectory, std::string fibreOrientationFile, bool logInfo=false);
 
     /**
-     * Check that the two ventricles are separated in the y-axis
-     * The heart ought to have
-     * x: apex to base
-     * y: right to left
-     * z: front to back
-     *
-     * Note this method only covers some of the possible missalignments of the mesh
-     */
-    void CheckVentricleAlignment();
-
-    /**
      * Set the direction from apex to base
      * @param apexToBase  is a non-zero vector.  It will be stored in normalised form
      */

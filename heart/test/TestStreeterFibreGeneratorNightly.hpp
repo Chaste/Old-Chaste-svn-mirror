@@ -91,6 +91,46 @@ public:
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
+        void TestDownSampledRabbit() throw (Exception)
+    {
+        
+        TrianglesMeshReader<3,3> mesh_reader("apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles");
+        std::string epi_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.epi";
+        std::string rv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.rv";
+        std::string lv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.lv";
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        StreeterFibreGenerator<3> fibre_generator(mesh);
+        fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
+        fibre_generator.SetApexToBase(0);
+
+        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "downsampled.ortho");
+
+        OutputFileHandler handler("streeter", false);
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "downsampled.ortho";
+
+        NumericFileComparison comp(fibre_file,"heart/test/data/fibre_tests/downsampled.ortho");
+        TS_ASSERT(comp.CompareFiles(1e-11));
+        
+        //Output to VTK.  Output isn't tested, so a non-VTK compilation ought to work.
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "downsampled_fibres", false);
+        FileFinder file("heart/test/data/fibre_tests/downsampled.ortho", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file, ORTHO);
+        std::vector< c_vector<double, 3> > fibres;
+        std::vector< c_vector<double, 3> > second;
+        std::vector< c_vector<double, 3> > third;
+        fibre_reader.GetAllOrtho(fibres, second, third);
+        TS_ASSERT_EQUALS(fibres.size(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(second.size(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(third.size(), mesh.GetNumElements());
+        writer.AddCellData("OrthoFibres", fibres);
+        writer.AddCellData("OrthoSecond", second);
+        writer.AddCellData("OrthoThird", third);
+        writer.WriteFilesUsingMesh(mesh);
+    
+    }
+    
 
 };
 
