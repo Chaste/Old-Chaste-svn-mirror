@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "MemfemMeshReader.hpp"
 #include "NumericFileComparison.hpp"
+#include "VtkMeshWriter.hpp"
+#include "FibreReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 

@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
-#include "VtkMeshWriter.hpp"
-#include "FibreReader.hpp"
 class TestStreeterFibreGenerator : public CxxTest::TestSuite
 {
 public:
