@@ -446,9 +446,9 @@ public:
      *  x = [ q(X + aX^2/2), Y/(1+aX) ]
      *
      *  Note that when q=1, this is an incompressible nonlinear deformation (see similar test of
-     *  incompressible solver). q adds so compressibility
+     *  incompressible solver). q adds some compressibility
      *
-     *  The after a page of algebra, we can derive what the 1st PK stress is, which allows us to
+     *  Then after a page of algebra, we can derive what the 1st PK stress is, which allows us to
      *  determine the required traction and body force.
      *
      */

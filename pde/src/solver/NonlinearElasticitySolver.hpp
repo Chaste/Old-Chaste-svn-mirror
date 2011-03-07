@@ -54,7 +54,7 @@ class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<INCOM
 {
     friend class TestNonlinearElasticitySolver;
     friend class TestNonlinearElasticityAdjointSolver;
-    friend class TestAdaptiveNonlinearElasticityProblem;
+    friend class AdaptiveNonlinearElasticityProblem;
 
 protected:
 

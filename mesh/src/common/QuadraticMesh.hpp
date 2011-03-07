@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class QuadraticMesh : public TetrahedralMesh<DIM, DIM>
 {
-private:
+protected:
 
     /** Number of vertices, ie non-internal (non-quadratic), nodes. */
     unsigned mNumVertices;
@@ -157,6 +157,9 @@ private:
     /** 
      * Create a quadratic mesh on the interval [0,numElemX] with numElemX elements in each 
      * direction.  This is private, users should call ConstructRegularSlabMesh();
+     *
+     * Very badly named. This creates a QUADRATIC mesh, the linear just refers to the fact the
+     * mesh is a line in 1D. The name is inherited from the parent class.
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
      */
