@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "CellwiseData.hpp"
 
 class TestNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -572,6 +573,25 @@ public:
         node_based_cell_population.GetCellUsingLocationIndex(4)->AddCellProperty(p_apoptotic_state);
         node_based_cell_population.SetCellAncestorsToLocationIndices();
 
+        TS_ASSERT_EQUALS(node_based_cell_population.GetOutputCellIdData(), false);
+        node_based_cell_population.SetOutputCellIdData(true);
+        TS_ASSERT_EQUALS(node_based_cell_population.GetOutputCellIdData(), true);
+
+        // Coverage of writing CellwiseData to VTK
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(node_based_cell_population.GetNumRealCells(), 2);
+        p_data->SetCellPopulation(&node_based_cell_population);
+        for (unsigned var=0; var<2; var++)
+        {
+            for (AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
+                 cell_iter != node_based_cell_population.End();
+                 ++cell_iter)
+            {
+                p_data->SetValue((double) 3.0*var, node_based_cell_population.GetLocationIndexUsingCell(*cell_iter), var);
+            }
+        }
+
+        // Test set methods
         std::string output_directory = "TestNodeBasedCellPopulationWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
@@ -611,10 +631,9 @@ public:
         TS_ASSERT_EQUALS(cell_types[1], 1u);
         TS_ASSERT_EQUALS(cell_types[2], 1u);
 
-        //Test the Get and set MechanicsCutOfLengthMethods
+        // Test the Get and set MechanicsCutOfLengthMethods
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
         TS_ASSERT_DELTA(node_based_cell_population.GetMechanicsCutOffLength(),1.5, 1e-9);
-
 
         // For coverage
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.WriteResultsToFiles());
@@ -628,6 +647,9 @@ public:
 
 		// Compare output with saved files of what they should look like
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestNodeBasedCellPopulationWriters/results.parameters").c_str()), 0);
+
+		// Tidy up
+		CellwiseData<2>::Destroy();
     }
 
     void TestWritingCellCyclePhases()

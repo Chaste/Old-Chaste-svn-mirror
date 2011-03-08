@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellwiseData.hpp"
 
 class TestMeshBasedCellPopulationWithGhostNodes : public AbstractCellBasedTestSuite
 {
@@ -790,6 +791,20 @@ public:
         cell_population.SetOutputCellAges(true);
         cell_population.SetOutputCellCyclePhases(true);
 
+        // Coverage of writing CellwiseData to VTK
+        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 2);
+        p_data->SetCellPopulation(&cell_population);
+        for (unsigned var=0; var<2; var++)
+        {
+            for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
+                 cell_iter != cell_population.End();
+                 ++cell_iter)
+            {
+                p_data->SetValue((double) 3.0*var, cell_population.GetLocationIndexUsingCell(*cell_iter), var);
+            }
+        }
+
         // This method is usually called by Update()
         cell_population.CreateVoronoiTessellation();
 
@@ -835,6 +850,8 @@ public:
 		// Compare output with saved files of what they should look like
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/results.parameters").c_str()), 0);
 
+        // Tidy up
+        CellwiseData<3>::Destroy();
     }
 
     void TestVoronoiAreasAndPerimetersWithGhostNodes() throw (Exception)
