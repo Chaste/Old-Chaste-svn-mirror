@@ -1082,7 +1082,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	        
 //	        if (vis.cell_types[vis.timeStep][i]== LATE_CANCER_COLOUR)
 //	        {
-		        if (vis.drawCells)
+		        if (vis.drawCells && !vis.drawPotts)
 	            {
 	                int xpoints[] = new int[num_nodes_in_this_element];
 	                int ypoints[] = new int[num_nodes_in_this_element];
