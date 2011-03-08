@@ -52,7 +52,7 @@ class ModelModifier(object):
         """Constructor."""
         self.model = model
         
-    def finalize(self, error_handler, pre_units_check_hook=None):
+    def finalize(self, error_handler, pre_units_check_hook=None, check_units=True):
         """Re-do the model validation steps needed for further processing of the model.
         
         Checks connections, etc. and builds up the dependency graph again, then performs
@@ -75,16 +75,9 @@ class ModelModifier(object):
         if not self.model._cml_validation_errors:
             self.model._classify_variables(assignment_exprs)
             self.model._order_variables(assignment_exprs)
-        if not self.model._cml_validation_errors:
+        if not self.model._cml_validation_errors and check_units:
             if callable(pre_units_check_hook):
                 pre_units_check_hook()
-                # This is a horrendous hack!
-                self._clear_model_caches()
-                self.model._check_variable_mappings()
-                assignment_exprs = self.model.search_for_assignments()
-                self.model._check_assigned_vars(assignment_exprs)
-                self.model._classify_variables(assignment_exprs)
-                self.model._order_variables(assignment_exprs)
             self.model._check_connection_units(check_for_units_conversions=False)
             self.model._check_dimensional_consistency(assignment_exprs,
                                                       xml_context=False,
@@ -138,9 +131,12 @@ class ModelModifier(object):
         target obtains its value from source.  They might already be connected, and source obtains
         its value from target.  Or they might both obtain their value from a common source.
         
-        The variable names must currently be identical.  TODO: This will probably have to change.
+        If the variable names are not identical, any variables created will have the same name as the
+        target.  Note that we do check for variables in intermediate components that have the same
+        name as the source and are connected to it, to avoid adding unnecessary variables.
+        
+        Returns the target variable object.
         """
-#        print "Connecting", target, "to source", source
         if isinstance(source, cellml_variable):
             src_cname, src_vname = source.component.name, source.name
         else:
@@ -149,11 +145,10 @@ class ModelModifier(object):
             target_cname, target_vname = target.component.name, target.name
         else:
             target_cname, target_vname = target
-        assert target_vname == src_vname
         src_comp = self.model.get_component_by_name(src_cname)
         target_comp = self.model.get_component_by_name(target_cname)
         if src_comp == target_comp:
-            return
+            return target_comp.get_variable_by_name(target_vname)
         # Determine encapsulation paths from target & source to the root
         src_path = self._parent_path(src_comp)
         target_path = self._parent_path(target_comp)
@@ -167,23 +162,24 @@ class ModelModifier(object):
         # Traverse this path, adding connections at each step
         for i, src_comp in enumerate(path[:-1]):
             target_comp = path[i+1]
-            self._make_connection(src_comp, target_comp, src_vname)
+            target_var = self._make_connection(src_comp, target_comp, src_vname, target_vname)
+        return target_var
     
-    def _make_connection(self, src_comp, target_comp, vname):
-        """Make a connection between two components using the given variable name.
+    def _make_connection(self, src_comp, target_comp, src_vname, target_vname):
+        """Make a connection between two components using the given variable names.
         
         Note that in the case that both variables already exist and are connected, the existing
         connection is allowed to flow in either direction.
         """
-        src_var = src_comp.get_variable_by_name(vname)
-        target_var = self._find_or_create_variable(target_comp.name, vname, src_var)
+        src_var = src_comp.get_variable_by_name(src_vname)
+        target_var = self._find_or_create_variable(target_comp.name, target_vname, src_var)
         # Sanity check the target variable
         if target_var.get_type() == VarTypes.Mapped:
             # It must already be mapped to src_var; we're done
             assert (target_var.get_source_variable() is src_var
                     or src_var.get_source_variable() is target_var)
 #            print "Connection exists between", src_var, "and target", target_var
-            return
+            return target_var
         elif target_var.get_type() == VarTypes.Unknown:
             # We've created this variable, so should be ok, but check for gotchas
             assert not(hasattr(target_var, u'initial_value'))
@@ -217,6 +213,7 @@ class ModelModifier(object):
             # Ouch!  The model has used the same variable name for different things...
             raise ModelModificationError("Cannot connect " + target_var.fullname() + " to source " +
                                          src_var.fullname() + " as the target has the wrong type.")
+        return target_var
     
     def _find_connection_element(self, var1, var2):
         """Find any connection element containing a connection of the given variables.
@@ -336,17 +333,24 @@ class ModelModifier(object):
             func(expr, *args, **kwargs)
 
     def _find_or_create_variable(self, cname, vname, source):
-        """Find the given variable in the model, creating it if necessary.
+        """Find a given variable in the model, creating it if necessary.
         
+        We look for a variable in the component named cname with the same name as the source.
+        If it doesn't exist, a variable named vname will be created in that component (unless
+        it already exists).
         The variable will become a mapped variable with the given source.
         Hence if it is created it will have the same units.
         """
         try:
-            var = self.model.get_variable_by_name(cname, vname)
+            var = self.model.get_variable_by_name(cname, source.name)
         except KeyError:
-            # Create it and add to model
-            units = source.component.get_units_by_name(source.units)
-            var = self.add_variable(cname, vname, units)
+            # Have we created it already?
+            try:
+                var = self.model.get_variable_by_name(cname, vname)
+            except KeyError:
+                # Create it and add to model
+                units = source.component.get_units_by_name(source.units)
+                var = self.add_variable(cname, vname, units)
         return var
     
     def add_variable(self, comp, vname, units, **kwargs):
@@ -739,6 +743,55 @@ class UnitsConverter(ModelModifier):
         at least so that LHS and RHS dimensions match.
         """
         self.special_conversions[(from_units, to_units)] = converter
+    
+    def modify_rhs(self, expr, operator, var):
+        """Helper method of use to special units conversions.
+        
+        Will modify the given expr in-place, replacing the RHS by an application of the given operator.
+        The operands will be the existing RHS and a ci element referencing the supplied variable object.
+        Connections and variables will be added to ensure that the given variable is available in the
+        component in which expr appears.
+        
+        Returns expr, for ease of chaining expressions.
+        """
+        assert isinstance(var, cellml_variable)
+        # Ensure var is available in expr's component
+        local_var_name = var.name
+        source_comp = var.component
+        expr_comp = expr.component
+        if source_comp != expr_comp:
+            local_var = self.connect_variables(var, (expr_comp.name, var.fullname(cellml=True)))
+            local_var_name = local_var.name
+        # Change expr
+        rhs = expr.eq.rhs
+        expr.safe_remove_child(rhs)
+        new_rhs = mathml_apply.create_new(var.model, operator, [rhs, local_var_name])
+        expr.xml_append(new_rhs)
+        return expr
+    
+    def times_rhs_by(self, expr, var):
+        """Helper method of use to special units conversions.
+        
+        Will modify the given expr in-place, post-multiplying the RHS by a reference to the given variable
+        object.
+        Connections and variables will be added to ensure that the given variable is available in the
+        component in which expr appears.
+        
+        Returns expr, for ease of chaining expressions.
+        """
+        return self.modify_rhs(expr, u'times', var)
+
+    def divide_rhs_by(self, expr, var):
+        """Helper method of use to special units conversions.
+        
+        Will modify the given expr in-place, post-dividing the RHS by a reference to the given variable
+        object.
+        Connections and variables will be added to ensure that the given variable is available in the
+        component in which expr appears.
+        
+        Returns expr, for ease of chaining expressions.
+        """
+        return self.modify_rhs(expr, u'divide', var)
     
     def convert_assignments(self, exprs):
         """Apply conversions to any assignments in the given iterable."""

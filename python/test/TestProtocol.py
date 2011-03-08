@@ -477,7 +477,9 @@ class TestProtocol(unittest.TestCase):
         # Check the model is still valid
         p.finalize(p._error_handler)
         # We also need a test that no outputs = don't change the list
+        # (except for a variable added for units conversion purposes)
         p = self.CreateLr91Test()
-        orig_assignments = self._doc.model.get_assignments()[:]
+        orig_assignments = set(self._doc.model.get_assignments())
         p.modify_model()
-        self.assertEqual(orig_assignments, self._doc.model.get_assignments())
+        curr_assignments = set(self._doc.model.get_assignments())
+        self.assertEqual(curr_assignments - orig_assignments, set([p.model._cml_Chaste_Cm]))

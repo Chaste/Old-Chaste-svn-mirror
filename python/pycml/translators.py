@@ -1791,6 +1791,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         if hasattr(var, '_cml_param_index') and not (self.use_modifiers and getattr(var, '_cml_has_modifier', False)):
             return self.vector_index('mParameters', var._cml_param_index)
+        elif var is getattr(self.model, u'_cml_Chaste_Cm', None):
+            return 'HeartConfig::Instance()->GetCapacitance()'
         else:
             return super(CellMLToChasteTranslator, self).code_name(var, *args, **kwargs)
 
@@ -2751,7 +2753,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
     MEMBRANE_CAPACITANCE_NAME = u'chaste_membrane_capacitance'
 
     @staticmethod
-    def add_special_conversions(converter):
+    def add_special_conversions(converter, comp):
         """Add special units conversions for ionic currents.
         
         Adds conversions for the two other common conventions to/from the units expected by Chaste,
@@ -2765,37 +2767,33 @@ class CellMLToChasteTranslator(CellMLTranslator):
            that its membrane capacitance is supposed to represent the same
            thing as Chaste's.  Thus convert current to uA, capacitance to uF,
            and return current/capacitance * Chaste's capacitance.
+        
+        comp is a component to which we should add any necessary variables, i.e. Chaste's capacitance.
         """
         klass = CellMLToChasteTranslator
         model = converter.model
-        # The functions we'll need to perform conversions
-        def change_rhs(expr, operator, var):
-            if isinstance(var, cellml_variable):
-                var = var.name
-            rhs = expr.eq.rhs
-            expr.safe_remove_child(rhs)
-            new_rhs = mathml_apply.create_new(model, operator, [rhs, var])
-            expr.xml_append(new_rhs)
-            return expr
-        def times_rhs_by(expr, var):
-            return change_rhs(expr, u'times', var)
-        def divide_rhs_by(expr, var):
-            return change_rhs(expr, u'divide', var)
-        # Add the conversions
+        # Variables needed by some conversions
         model_Cm = model.get_config('Cm_variable')
-        Chaste_Cm = klass.MEMBRANE_CAPACITANCE_NAME
+#        if model_Cm:
+#            model_Cm.set_pe_keep(True) # Ensure it doesn't disappear
+        uF_per_cm2 = cellml_units.create_new(model, 'uF_per_cm2',
+                                             [{'units': 'farad', 'prefix': 'micro'},
+                                              {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
+        Chaste_Cm = converter.add_variable(comp, klass.MEMBRANE_CAPACITANCE_NAME, uF_per_cm2)
+        model._cml_Chaste_Cm = Chaste_Cm # Record for use in code_name
+        # Add the conversions
         chaste_units, microamps, A_per_F = klass.get_current_units_options(model)
         converter.add_special_conversion(A_per_F, chaste_units,
-                                         lambda expr: times_rhs_by(expr, Chaste_Cm))
+                                         lambda expr: converter.times_rhs_by(expr, Chaste_Cm))
         converter.add_special_conversion(chaste_units, A_per_F,
-                                         lambda expr: divide_rhs_by(expr, Chaste_Cm))
+                                         lambda expr: converter.divide_rhs_by(expr, Chaste_Cm))
         if model_Cm:
             converter.add_special_conversion(microamps, chaste_units,
-                                             lambda expr: times_rhs_by(divide_rhs_by(expr, model_Cm),
-                                                                       Chaste_Cm))
+                    lambda expr: converter.times_rhs_by(converter.divide_rhs_by(expr, model_Cm),
+                                                        Chaste_Cm))
             converter.add_special_conversion(chaste_units, microamps,
-                                             lambda expr: divide_rhs_by(times_rhs_by(expr, model_Cm),
-                                                                        Chaste_Cm))
+                    lambda expr: converter.divide_rhs_by(converter.times_rhs_by(expr, model_Cm),
+                                                         Chaste_Cm))
 
     @staticmethod
     def generate_interface(doc):
@@ -2817,7 +2815,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         return # Not working yet!
         if doc.model.get_option('maple_output'):
-            # The Maple output doesn't use an interface component...
+            # TODO: The Maple output doesn't use an interface component...
             return
         model = doc.model
         config = doc._cml_config
@@ -2827,11 +2825,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                      [{'units': 'second', 'prefix': 'milli'}])
         mV = cellml_units.create_new(model, 'millivolt',
                                      [{'units': 'volt', 'prefix': 'milli'}])
-        uF_per_cm2 = cellml_units.create_new(model, 'uF_per_cm2',
-                                             [{'units': 'farad', 'prefix': 'micro'},
-                                              {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
-#        current_units = klass.get_current_units_options(model)[0]
-        current_units = config.i_ionic_vars[0].get_units()
+        current_units = klass.get_current_units_options(model)[0]
         # Generate the interface
         generator = processors.InterfaceGenerator(model, name='chaste_interface')
         iface_comp = generator.get_interface_component()
@@ -2847,14 +2841,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             config.i_stim_var = generator.add_input(config.i_stim_var, current_units,
                                                     annotate=False)
             generator.make_var_computed_constant(config.i_stim_var, 0)
-        if config.options.convert_interfaces:
-            # Add an input for Chaste's membrane capacitance
-            generator.add_variable(iface_comp, klass.MEMBRANE_CAPACITANCE_NAME, uF_per_cm2)
-            # And ensure the model capacitance is available, if it exists
-            if config.Cm_variable:
-                config.Cm_variable = generator.add_output(config.Cm_variable,
-                                                          config.Cm_variable.get_units(),
-                                                          annotate=False)
         config.V_variable = generator.add_input(config.V_variable, mV)
         ionic_vars = config.i_ionic_vars
         i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, current_units)
@@ -2862,13 +2848,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Finish up
         def errh(errors):
             raise TranslationError("Creation of Chaste interface component failed:\n  " + str(errors))
-        generator.finalize(errh)
+        generator.finalize(errh, check_units=False)
         # Apply units conversions just to the interface, if desired
         if config.options.convert_interfaces:
             warn_only = not config.options.fully_automatic and config.options.warn_on_units_errors
             converter = processors.UnitsConverter(model, warn_only)
-            klass.add_special_conversions(converter)
+            klass.add_special_conversions(converter, iface_comp)
             converter.add_conversions_for_component(iface_comp)
+            converter.finalize(errh, check_units=False)
 
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):

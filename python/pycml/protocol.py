@@ -212,8 +212,10 @@ class Protocol(processors.ModelModifier):
         import translators
         warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
         converter = processors.UnitsConverter(self.model, warn_only)
-        translators.CellMLToChasteTranslator.add_special_conversions(converter)
-        converter.add_conversions_for_component(self._get_protocol_component())
+        proto_comp = self._get_protocol_component()
+        translators.CellMLToChasteTranslator.add_special_conversions(converter, proto_comp)
+        converter.add_conversions_for_component(proto_comp)
+        converter.finalize(self._error_handler, check_units=False)
 
     def _add_units_to_model(self, units):
         """Add a units definition to the model.
