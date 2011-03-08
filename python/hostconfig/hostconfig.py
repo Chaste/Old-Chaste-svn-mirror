@@ -420,7 +420,7 @@ def Configure(build):
         # Switch to use Intel toolchain
         if hasattr(conf, 'icpc'):
             build.tools['mpicxx'] += ' -CC="'+conf.icpc+'"'
-        intel_bin_path = os.path.join(intel_path, 'bin/intel64')
+        intel_bin_path = os.path.join(intel_path, 'bin')
         CheckPathExists(intel_bin_path, 'Intel compilers')
         build.tools['cxx'] = os.path.join(intel_bin_path, 'icpc')
         build.tools['ar'] = os.path.join(intel_bin_path, 'xiar')
