@@ -114,8 +114,9 @@ public:
 
         NumericFileComparison comp(fibre_file,"heart/test/data/fibre_tests/downsampled.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
-        
+#ifdef CHASTE_VTK
         //Output to VTK.  Output isn't tested, so a non-VTK compilation ought to work.
+        //It doesn't because the entire VtkMeshWriter class is wrapped by #ifdef CHASTE_VTK, hence it is not seen by the compiler.
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "downsampled_fibres", false);
         FileFinder file("heart/test/data/fibre_tests/downsampled.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file, ORTHO);
@@ -130,10 +131,8 @@ public:
         writer.AddCellData("OrthoSecond", second);
         writer.AddCellData("OrthoThird", third);
         writer.WriteFilesUsingMesh(mesh);
-    
+#endif
     }
-    
-
 };
 
 #endif /*TESTSTREETERFIBREGENERATORNIGHTLY_HPP_*/
