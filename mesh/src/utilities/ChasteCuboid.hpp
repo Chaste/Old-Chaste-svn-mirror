@@ -133,6 +133,9 @@ inline void load_construct_data(
     ar & p_lower_corner;
 
     ::new(t)ChasteCuboid<SPACE_DIM>((*p_lower_corner), (*p_upper_corner));
+
+    delete p_upper_corner;
+    delete p_lower_corner;
 }
 }
 } // namespace ...

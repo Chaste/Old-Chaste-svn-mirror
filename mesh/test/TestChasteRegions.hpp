@@ -236,7 +236,6 @@ public:
             output_arch << p_cuboid;
             output_arch << p_ellipsoid;
 
-
             delete p_cuboid;
             delete p_ellipsoid;
         }

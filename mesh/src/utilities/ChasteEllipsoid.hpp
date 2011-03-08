@@ -123,6 +123,9 @@ inline void load_construct_data(
     ar & p_radii;
 
     ::new(t)ChasteEllipsoid<SPACE_DIM>((*p_centre), (*p_radii));
+
+    delete p_centre;
+    delete p_radii;
 }
 }
 } // namespace ...
