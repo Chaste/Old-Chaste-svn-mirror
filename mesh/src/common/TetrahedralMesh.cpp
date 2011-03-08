@@ -1151,15 +1151,15 @@ template void TetrahedralMesh<2u, 2u>::ImportFromMesher<tetgen::tetgenio>(tetgen
 template void TetrahedralMesh<1u, 1u>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
 
 // Intel v11 compilation thinks that it's missing even more bizarre instantiations
-template void TetrahedralMesh<2,2>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
-template void TetrahedralMesh<3,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
-template void TetrahedralMesh<1,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
-template void TetrahedralMesh<1,1>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
-template void TetrahedralMesh<1,2>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
-template void TetrahedralMesh<2,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
-template void TetrahedralMesh<1,3>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
-template void TetrahedralMesh<2,3>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
-template void TetrahedralMesh<1,2>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
+//template void TetrahedralMesh<2,2>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
+//template void TetrahedralMesh<3,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
+//template void TetrahedralMesh<1,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
+//template void TetrahedralMesh<1,1>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
+//template void TetrahedralMesh<1,2>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
+//template void TetrahedralMesh<2,3>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
+//template void TetrahedralMesh<1,3>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
+//template void TetrahedralMesh<2,3>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
+//template void TetrahedralMesh<1,2>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
