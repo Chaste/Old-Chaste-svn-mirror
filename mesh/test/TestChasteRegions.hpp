@@ -224,13 +224,13 @@ public:
             
             ChastePoint<3> point_a(-3, -3, -3);
 	        ChastePoint<3> point_b(3, 3, 3);
-            // Set up a zero stimulus
+
             AbstractChasteRegion<3>* const p_cuboid = new ChasteCuboid<3>(point_a, point_b);
 	   
 	        ChastePoint<3> centre(0, 0, 0);
 	        ChastePoint<3> radii(2, 4, 6);
 	
-	        AbstractChasteRegion<3>* const p_ellipsoid = new ChasteCuboid<3>(centre, radii);
+	        AbstractChasteRegion<3>* const p_ellipsoid = new ChasteEllipsoid<3>(centre, radii);
 
             // Should always archive a pointer
             output_arch << p_cuboid;
@@ -254,17 +254,29 @@ public:
             input_arch >> p_ellipsoid;
 
             ChastePoint<3> point_inside_cuboid(0, 0, 0);
+            ChastePoint<3> point_just_inside_cuboid(-2.99, -2.99, -2.99);
             ChastePoint<3> point_outside_cuboid(-4, -4, -4);
+            ChastePoint<3> point_just_outside_cuboid(-3.01, -3.01, -3.01);
 
-            ChastePoint<3> point_inside_ellipsoid(1, 0, 0);
-            ChastePoint<3> point_outside_ellipsoid(3, 0, 0);
+            ChastePoint<3> point_inside_x_ellipsoid(1, 0, 0);
+            ChastePoint<3> point_inside_y_ellipsoid(0, 2, 0);
+            ChastePoint<3> point_inside_z_ellipsoid(0, 0, 3);
+            ChastePoint<3> point_outside_x_ellipsoid(3, 0, 0);
+            ChastePoint<3> point_outside_y_ellipsoid(0, 5, 0);
+            ChastePoint<3> point_outside_z_ellipsoid(0, 0, 7);
 
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_outside_cuboid), false);
+            TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_just_inside_cuboid), true);
+            TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_just_outside_cuboid), false);
 
-            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_ellipsoid), true);
-            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_ellipsoid), false);
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_x_ellipsoid), true);
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_y_ellipsoid), true);
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_inside_z_ellipsoid), true);
 
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_x_ellipsoid), false);
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_y_ellipsoid), false);
+            TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_z_ellipsoid), false);
 
             delete p_cuboid;
             delete p_ellipsoid;
