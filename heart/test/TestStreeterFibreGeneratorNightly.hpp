@@ -93,7 +93,8 @@ public:
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
-        void TestDownSampledRabbit() throw (Exception)
+    
+    void TestDownSampledRabbit() throw (Exception)
     {
         
         TrianglesMeshReader<3,3> mesh_reader("apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles");
@@ -105,9 +106,9 @@ public:
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file, true);
-        fibre_generator.SetApexToBase(0);
+        fibre_generator.SetApexToBase(2);
 
-        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "downsampled.ortho");
+        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "downsampled.ortho", true);
 
         OutputFileHandler handler("streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "downsampled.ortho";
@@ -115,8 +116,7 @@ public:
         NumericFileComparison comp(fibre_file,"heart/test/data/fibre_tests/downsampled.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
 #ifdef CHASTE_VTK
-        //Output to VTK.  Output isn't tested, so a non-VTK compilation ought to work.
-        //It doesn't because the entire VtkMeshWriter class is wrapped by #ifdef CHASTE_VTK, hence it is not seen by the compiler.
+        //Output to VTK.
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "downsampled_fibres", false);
         FileFinder file("heart/test/data/fibre_tests/downsampled.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file, ORTHO);
@@ -130,6 +130,24 @@ public:
         writer.AddCellData("OrthoFibres", fibres);
         writer.AddCellData("OrthoSecond", second);
         writer.AddCellData("OrthoThird", third);
+        
+        //Add debugging data
+        std::string debug_files[3] = {"wall_thickness", "node_regions", "averaged_thickness"};
+        for (unsigned file=0; file<3; file++)
+        {
+            std::ifstream ifs((handler.GetOutputDirectoryFullPath()+debug_files[file]+".data").c_str());
+            TS_ASSERT(ifs.is_open());
+            std::vector<double> payload;
+            payload.reserve(mesh.GetNumElements());
+            for (unsigned i=0; i<mesh.GetNumElements(); i++)
+            {
+                double temp;
+                ifs >> temp;
+                payload.push_back(temp);
+            }
+            writer.AddPointData(debug_files[file], payload);
+            
+        }
         writer.WriteFilesUsingMesh(mesh);
 #endif
     }
