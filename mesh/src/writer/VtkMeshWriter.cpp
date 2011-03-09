@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VtkMeshWriter.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 
 #ifdef CHASTE_VTK
 ///////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::VtkMeshWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
                      const bool& rCleanDirectory)
-    : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
+    : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory),
+      mWriteParallelFiles(false)
 {
     this->mIndexFromZero = true;
 
@@ -202,7 +204,32 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
     vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
     p_point_data->AddArray(p_vectors);
     p_vectors->Delete(); //Reference counted
+}
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetParallelFiles()
+{
+    mWriteParallelFiles = true;
+}
+
+///\todo #1322 Mesh should be const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
+      AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
+      bool keepOriginalElementIndexing)
+{
+    //Have we got a parallel mesh?
+    this->mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    
+    if ( PetscTools::IsSequential() || this->mpDistributedMesh == NULL )
+    {
+        AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFilesUsingMesh( rMesh,keepOriginalElementIndexing );
+    }
+    else
+    {
+        /// \todo #1494 Do something different from below
+        AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFilesUsingMesh( rMesh,keepOriginalElementIndexing );
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

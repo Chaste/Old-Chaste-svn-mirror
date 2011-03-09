@@ -58,6 +58,8 @@ class VtkMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DI
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 
 private:
+    bool mWriteParallelFiles; /**< Whether to write parallel (.pvtu + .vtu for each process) files, defaults to false */
+
     /**
      * A VTK mesh data structure.
      * Created at construction, has data associated with it by AddCellData
@@ -122,6 +124,27 @@ public:
      * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
      */
     void AddPointData(std::string name, std::vector<c_vector<double, SPACE_DIM> > data);
+    
+    /**
+     * Should be called to enable files to be written in parallel (i.e. a .pvtu file and .vtu files for each
+     * process's sub-mesh).
+     */
+     void SetParallelFiles();
+     
+    /**
+     * Write files. Overrides the method implemented in AbstractTetrahedralMeshWriter, which concentrates mesh
+     * data onto a single file in order to output a monolithic file. For VTK, a DistributedTetrahedralMesh in
+     * parallel is instead written out as a set of .vtu files (one for each sub-mesh) and a .pvtu file that
+     * provides the visualizer with information about them.  
+     *
+     * @param rMesh the mesh
+     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
+     *                                     Optimisations can be applied if this is not needed. 
+     * 
+     * \todo #1322 Mesh should really be const!
+     */
+    void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, 
+                                     bool keepOriginalElementIndexing=true);     
 
     /**
      * Destructor.

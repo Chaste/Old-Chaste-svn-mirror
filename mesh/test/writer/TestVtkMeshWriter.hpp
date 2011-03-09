@@ -78,34 +78,34 @@ public:
 #endif //CHASTE_VTK
     }
 
-//    void TestParallelVtkMeshWriter() throw(Exception)
-//    {
-//#ifdef CHASTE_VTK
-//// Requires  "sudo aptitude install libvtk5-dev" or similar
-//        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
-//        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
-//        mesh.ConstructFromMeshReader(reader);
-//
-//        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-//
-//        writer.SetParallelFiles();
-//        writer.WriteFilesUsingMesh(mesh);
-//
-//        //1.6K uncompressed, 1.3K compressed
-//        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-//
-////        std::string target_file;
-////        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-////        {
-////            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
-////        }
-////        else
-////        {
-////            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
-////        }
-////        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
-//#endif //CHASTE_VTK
-//    }
+    void TestParallelVtkMeshWriter() throw(Exception)
+    {
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        mesh.ConstructFromMeshReader(reader);
+
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
+
+        writer.SetParallelFiles();
+        writer.WriteFilesUsingMesh(mesh);
+
+        //1.6K uncompressed, 1.3K compressed
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
+#endif //CHASTE_VTK
+    }
 
     void TestVtkMeshWriter2D() throw(Exception)
     {
