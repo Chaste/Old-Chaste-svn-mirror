@@ -27,24 +27,45 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCorrectionTermAssembler.hpp"
+#include <typeinfo>
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorrectionTermAssembler(
-        AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-        AbstractCardiacTissue<ELEM_DIM,SPACE_DIM>* pTissue,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorrectionTermAssembler(
+        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+        AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
         unsigned numQuadPoints)
-    : AbstractCardiacFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>(pMesh,pTissue,numQuadPoints)
+    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,false,CARDIAC>(pMesh,pTissue,numQuadPoints)
 {
+    // Work out which elements have the same cell at every node, and hence can have SVI done
     mElementsHasIdenticalCellModels.resize(pMesh->GetNumElements(), true);
-///\todo #1462 - finish setting up mElementsHasIdenticalCellModels
-
-    // note: the mStateVariables std::vector is resized if correction will
-    // be applied to a given element
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = pMesh->GetElementIteratorBegin();
+         iter != pMesh->GetElementIteratorEnd();
+         ++iter)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>& r_element = *iter;
+        assert(r_element.GetOwnership());
+        unsigned node_zero = r_element.GetNodeGlobalIndex(0);
+        AbstractCardiacCell* p_cell_zero = this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_zero);
+        const std::type_info& r_zero_info = typeid(*p_cell_zero);
+        // Check the other nodes match
+        for (unsigned local_index=1; local_index<r_element.GetNumNodes(); local_index++)
+        {
+            unsigned global_index = r_element.GetNodeGlobalIndex(local_index);
+            AbstractCardiacCell* p_cell = this->mpCardiacTissue->GetCardiacCellOrHaloCell(global_index);
+            const std::type_info& r_info = typeid(*p_cell);
+            if (r_zero_info != r_info)
+            {
+                mElementsHasIdenticalCellModels[r_element.GetIndex()] = false;
+                break;
+            }
+        }
+    }
+    // Note: the mStateVariables std::vector is resized if correction will be applied to a given element
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ResetInterpolatedQuantities()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ResetInterpolatedQuantities()
 {
     // reset ionic current, and state variables
     mIionicInterp = 0;
@@ -54,8 +75,8 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ResetInter
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementInterpolatedQuantities(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementInterpolatedQuantities(
             double phiI, const Node<SPACE_DIM>* pNode)
 {
     // interpolate ionic current, and state variables
@@ -63,7 +84,7 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementI
     unsigned node_global_index = pNode->GetIndex();
 
     mIionicInterp  += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
-    for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
+    for (unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
     {
         mStateVariablesAtQuadPoint[i] += phiI * this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_global_index)->rGetStateVariables()[i];
     }
@@ -71,29 +92,29 @@ void AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::IncrementI
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-bool AbstractCorrectionTermAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAssemblyCriterion(Element<ELEM_DIM,SPACE_DIM>& rElement)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+bool AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ElementAssemblyCriterion(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
 {
     // if element doesn't have identical cell models, can't do SVI.
-    if(!mElementsHasIdenticalCellModels[rElement.GetIndex()])
+    if (!mElementsHasIdenticalCellModels[rElement.GetIndex()])
     {
         return false;
     }
     double DELTA_IIONIC = 1; // tolerance
 
     //The criterion and the correction both need the ionic cache, so we better make sure that it's up-to-date
-    assert( this->mpCardiacTissue->GetDoCacheReplication());
+    assert(this->mpCardiacTissue->GetDoCacheReplication());
     ReplicatableVector& r_cache = this->mpCardiacTissue->rGetIionicCacheReplicated();
     
     double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
     
-    if(ELEM_DIM > 1)
+    if (ELEMENT_DIM > 1)
     {
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );    
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(2)]) ); 
     }
 
-    if(ELEM_DIM > 2)
+    if (ELEMENT_DIM > 2)
     {
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(3)]) ); 
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );    

@@ -385,7 +385,7 @@ public:
         monodomain_problem.SetMesh(&mesh);
         monodomain_problem.Initialise();
         
-        //// really very difficult to get hold of the correction assembler from here.
+        //// It's really very difficult to get hold of the correction assembler from here.
         //// The following, which requires 2 classes to be friends of this test compiles
         //// but fails asserts in the first line as bcc is not set up. 
         //AbstractDynamicLinearPdeSolver<1,1,1>* p_solver = monodomain_problem.CreateSolver();
@@ -393,14 +393,9 @@ public:
         //MonodomainCorrectionTermAssembler<1,1>* p_assembler = p_mono_solver->mpMonodomainCorrectionTermAssembler;
         //TS_ASSERT_EQUALS(p_assembler->mElementsHasIdenticalCellModels.size(), 10u);        
         
-        // therefore, we just test that calling Solve() runs (without the checking that
+        // Therefore, we just test that calling Solve() runs (without the checking that
         // cell models are identical, this fails).
-
-//#1462
-// currently this fails (as expected) with an isnan assert, as the checking of identical cell models is
-// not yet implemented (see constructor of AbstractCorrectionTermAssembler).
-// Implement and uncomment
-//        monodomain_problem.Solve();
+        monodomain_problem.Solve();
     }
 };
 
