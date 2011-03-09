@@ -138,15 +138,15 @@ public:
             std::ifstream ifs((handler.GetOutputDirectoryFullPath()+debug_files[file]+".data").c_str());
             TS_ASSERT(ifs.is_open());
             std::vector<double> payload;
-            payload.reserve(mesh.GetNumElements());
-            for (unsigned i=0; i<mesh.GetNumElements(); i++)
+            payload.reserve(mesh.GetNumNodes());
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 double temp;
                 ifs >> temp;
                 payload.push_back(temp);
             }
             writer.AddPointData(debug_files[file], payload);
-            
+            ifs.close();
         }
         writer.WriteFilesUsingMesh(mesh);
 #endif

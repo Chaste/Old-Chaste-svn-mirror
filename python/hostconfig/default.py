@@ -102,7 +102,7 @@ use_vtk = False
 if use_vtk:
     other_includepaths.append(chaste_libs_path+'Vtk5/include/vtk-5.2')
     other_libpaths.append(chaste_libs_path+'Vtk5/lib/vtk-5.2')
-    other_libraries.extend(['vtkFiltering','vtkIO',  'vtkCommon', 'vtksys', 'vtkzlib'])
+    other_libraries.extend(['vtkFiltering', 'vtkIO', 'vtkCommon', 'vtksys', 'vtkzlib', 'vtkexpat', 'vtkGraphics'])
 
 # Chaste may also optionally link against CVODE.
 use_cvode = False

@@ -120,7 +120,8 @@ public:
         axis[2] = 0.0;
         TS_ASSERT_THROWS_THIS(fibre_generator.SetApexToBase(axis),
             "Apex to base vector should be non-zero");
-        
+        axis[1] = 42.0; //Will be normalised
+        fibre_generator.SetApexToBase(axis);
     }
 };
 
