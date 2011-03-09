@@ -163,7 +163,7 @@ public:
     	* "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
     	*/
     	simulator.SetOutputDirectory("MonolayerFixedCellCycle");
-    	simulator.SetEndTime(1.0);
+    	simulator.SetEndTime(0.1);
     
     	/* For longer simulations, you may not want to output the results
     	* every time step. In this case you can use the following method,
@@ -240,7 +240,7 @@ public:
 	    /* Create a simulator as before (except setting a different output directory). */
 	    VertexCryptSimulation2d simulator(crypt);
 	    simulator.SetOutputDirectory("VertexCrypt");
-        simulator.SetEndTime(1);
+        simulator.SetEndTime(0.1);
 
         /* Before running the simulation, we add a one or more force laws, which determine the mechanics of
          * the cell population.  For this test, we use a {{{NagaiHondaForce}}}.
@@ -329,7 +329,7 @@ public:
 	/* Create a simulator as before (except setting a different output directory). */
 	VertexCryptSimulation2d simulator(crypt);
 	simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
-	simulator.SetEndTime(1);
+	simulator.SetEndTime(0.1);
 
     /* Before running the simulation, we add a one or more force laws, as before. */
     NagaiHondaForce<2> nagai_honda_force;
