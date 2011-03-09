@@ -1299,9 +1299,6 @@ public:
         /*
          *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
          */
-#if ( (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2 ) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2) )
-        TS_ASSERT_THROWS_THIS(ls.SetUseFixedNumberIterations(true, 2), "PETSc functionality required to solve linear systems with fixed number of iterations seems to be broken in version 2.3.2");
-#else
         TS_ASSERT_THROWS_NOTHING(ls.SetUseFixedNumberIterations(true, 2));
 
         Vec solution = ls.Solve(guess);
@@ -1310,6 +1307,10 @@ public:
         TS_ASSERT_EQUALS(chebyshev_its, 52u);
 
         Vec new_solution;
+        Vec difference;
+        VecDuplicate(parallel_layout, &difference);
+        PetscReal l_inf_norm;
+
 
         /*
          * Solve using previous solution as new guess. If we were checking convergence
@@ -1318,7 +1319,12 @@ public:
          */
         new_solution = ls.Solve(solution);
         chebyshev_its = ls.GetNumIterations();
+
         TS_ASSERT_EQUALS(chebyshev_its, 52u);
+
+        PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
+        VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+        TS_ASSERT_DELTA(l_inf_norm, 0.0, 4e-4);
         VecDestroy(new_solution);
 
         /*
@@ -1327,7 +1333,12 @@ public:
          */
         new_solution = ls.Solve(solution);
         chebyshev_its = ls.GetNumIterations();
+
         TS_ASSERT_EQUALS(chebyshev_its, 0u);
+
+        PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
+        VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+        TS_ASSERT_DELTA(l_inf_norm, 0.0, 4e-4);
         VecDestroy(new_solution);
 
         /*
@@ -1336,7 +1347,16 @@ public:
          */
         new_solution = ls.Solve(guess);
         chebyshev_its = ls.GetNumIterations();
+
+#if (PETSC_VERSION_MAJOR == 3)
         TS_ASSERT_EQUALS(chebyshev_its, 0u);
+#else
+        TS_ASSERT_EQUALS(chebyshev_its, 1u);
+#endif
+
+        PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
+        VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+        TS_ASSERT_DELTA(l_inf_norm, 22.43, 2.0);
         VecDestroy(new_solution);
 
         /*
@@ -1344,10 +1364,16 @@ public:
          */
         new_solution = ls.Solve(guess);
         chebyshev_its = ls.GetNumIterations();
+
         TS_ASSERT_EQUALS(chebyshev_its, 52u);
+
+        PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
+        VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+        TS_ASSERT_DELTA(l_inf_norm, 0.0, 4e-4);
+
         VecDestroy(solution);
         VecDestroy(new_solution);
-#endif
+        VecDestroy(difference);
 
         MatDestroy(system_matrix);
         VecDestroy(system_rhs);
