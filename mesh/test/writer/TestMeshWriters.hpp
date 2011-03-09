@@ -40,14 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
-#include "VtkMeshWriter.hpp"
 #include "QuadraticMesh.hpp"
 #include <iostream>
-
-#ifdef CHASTE_VTK
-#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
-#include <vtkVersion.h>
-#endif
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -758,156 +752,6 @@ public:
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "bad_myoldsolution", 1), "Error occurred when reading file");
     }
 
-    void TestVtkMeshWriter() throw(Exception)
-    {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
-        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(reader);
-
-        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-
-        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
-
-        //1.6K uncompressed, 1.3K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
-        }
-        else
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
-        }
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
-#endif //CHASTE_VTK
-    }
-
-    void TestVtkMeshWriter2D() throw(Exception)
-    {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_200_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
-
-        VtkMeshWriter<2,2> writer("TestVtkMeshWriter", "2D_0_to_1mm_200_elements", false);
-
-        // Add distance from origin into the node "point" data
-        std::vector<double> distance;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
-        }
-        writer.AddPointData("Distance from origin", distance);
-
-        // Add fibre type to "point" data
-        std::vector< c_vector<double, 2> > location;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            location.push_back(mesh.GetNode(i)->rGetLocation());
-        }
-        writer.AddPointData("Location", location);
-
-        // Add element quality into the element "cell" data
-        std::vector<double> quality;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            quality.push_back(mesh.GetElement(i)->CalculateQuality());
-        }
-        writer.AddCellData("Quality", quality);
-
-        // Add fibre type to "cell" data
-        std::vector< c_vector<double, 2> > centroid;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            centroid.push_back(mesh.GetElement(i)->CalculateCentroid());
-        }
-        writer.AddCellData("Centroid", centroid);
-
-
-        writer.WriteFilesUsingMesh(mesh);
-        //13K uncompressed, 3.7K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements.vtu";
-        }
-        else
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements_v52.vtu";
-        }
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu " + target_file).c_str()), 0);
-#endif //CHASTE_VTK
-    }
-
-
-    void TestVtkMeshWriterWithData() throw(Exception)
-    {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
-        TrianglesMeshReader<3,3> reader("heart/test/data/HeartDecimation_173nodes");
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(reader);
-
-        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "heart_decimation", false);
-
-        // Add element quality into the element "cell" data
-        std::vector<double> quality;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            quality.push_back(mesh.GetElement(i)->CalculateQuality());
-        }
-        writer.AddCellData("Quality", quality);
-
-        // Add fibre type to "cell" data
-        std::vector< c_vector<double, 3> > centroid;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            centroid.push_back(mesh.GetElement(i)->CalculateCentroid());
-        }
-        writer.AddCellData("Centroid", centroid);
-
-        // Add distance from origin into the node "point" data
-        std::vector<double> distance;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
-        }
-        writer.AddPointData("Distance from origin", distance);
-
-        // Add fibre type to "point" data
-        std::vector< c_vector<double, 3> > location;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            location.push_back(mesh.GetNode(i)->rGetLocation());
-        }
-        writer.AddPointData("Location", location);
-
-        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
-
-
-        //32K uncompressed, 19K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu";
-        }
-        else
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/heart_decimation_v52.vtu";
-        }
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu " + target_file).c_str()), 0);
-#endif //CHASTE_VTK
-    }
-
     /**
      * This test is based on TestTrianglesMeshReader.hpp TestReadingElementAttributes.
      */
@@ -1031,4 +875,4 @@ public:
 
 };
 
-#endif //_TESTMEMFEMMESHREADER_HPP_
+#endif //_TESTMESHWRITERS_HPP_

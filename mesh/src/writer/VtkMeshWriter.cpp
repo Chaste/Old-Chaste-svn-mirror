@@ -1,0 +1,215 @@
+/*
+
+Copyright (C) University of Oxford, 2005-2011
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#include "VtkMeshWriter.hpp"
+
+#ifdef CHASTE_VTK
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::VtkMeshWriter(const std::string& rDirectory,
+                     const std::string& rBaseName,
+                     const bool& rCleanDirectory)
+    : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
+{
+    this->mIndexFromZero = true;
+
+    // Dubious, since we shouldn't yet know what any details of the mesh are.
+    mpVtkUnstructedMesh = vtkUnstructuredGrid::New();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::~VtkMeshWriter()
+{
+    mpVtkUnstructedMesh->Delete(); // Reference counted
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
+{
+    assert(SPACE_DIM==3 || SPACE_DIM == 2);
+    assert(SPACE_DIM==ELEMENT_DIM);
+    vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
+    p_pts->GetData()->SetName("Vertex positions");
+    for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
+    {
+        std::vector<double> current_item = this->GetNextNode(); //this->mNodeData[item_num];
+        if (SPACE_DIM==2)
+        {
+            current_item.push_back(0.0);//For z-coordinate
+        }
+        assert(current_item.size() == 3);
+        p_pts->InsertPoint(item_num, current_item[0], current_item[1], current_item[2]);
+    }
+
+    mpVtkUnstructedMesh->SetPoints(p_pts);
+    p_pts->Delete(); //Reference counted
+    for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
+    {
+        std::vector<unsigned> current_element = this->GetNextElement().NodeIndices; // this->mElementData[item_num];
+        assert(current_element.size() == ELEMENT_DIM + 1);
+        vtkCell* p_cell=NULL;
+        if (SPACE_DIM == 3)
+        {
+            p_cell = vtkTetra::New();
+        }
+        if (SPACE_DIM == 2)
+        {
+            p_cell = vtkTriangle::New();
+        }
+        vtkIdList* p_cell_id_list = p_cell->GetPointIds();
+        for (unsigned j = 0; j < ELEMENT_DIM+1; ++j)
+        {
+            p_cell_id_list->SetId(j, current_element[j]);
+        }
+        mpVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
+        p_cell->Delete(); //Reference counted
+    }
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
+{
+    // Using separate scope here to make sure file is properly closed before re-opening it to add provenance info.
+    {
+        MakeVtkMesh();
+        assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
+        vtkXMLUnstructuredGridWriter* p_writer = vtkXMLUnstructuredGridWriter::New();
+        p_writer->SetInput(mpVtkUnstructedMesh);
+        //Uninitialised stuff arises (see #1079), but you can remove
+        //valgrind problems by removing compression:
+        // **** REMOVE WITH CAUTION *****
+        p_writer->SetCompressor(NULL);
+        // **** REMOVE WITH CAUTION *****
+        std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName+".vtu";
+        p_writer->SetFileName(vtk_file_name.c_str());
+        //p_writer->PrintSelf(std::cout, vtkIndent());
+        p_writer->Write();
+        p_writer->Delete(); //Reference counted
+    }    
+
+    std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
+    
+    std::string node_file_name = this->mBaseName + ".vtu";
+    out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name, std::ios::out | std::ios::app);
+
+    *p_node_file << "\n" << comment << "\n";    
+    p_node_file->close();
+    
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
+{
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+
+    vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    p_cell_data->AddArray(p_scalars);
+    p_scalars->Delete(); //Reference counted
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<c_vector<double, SPACE_DIM> > dataPayload)
+{
+    vtkDoubleArray* p_vectors = vtkDoubleArray::New();
+    p_vectors->SetName(dataName.c_str());
+    p_vectors->SetNumberOfComponents(3);
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+        //When SPACE_DIM<3, then pad 
+        for (unsigned j=SPACE_DIM; j<3; j++)
+        {
+            p_vectors->InsertNextValue(0.0);
+        }
+    }
+
+    vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    p_cell_data->AddArray(p_vectors);
+    p_vectors->Delete(); //Reference counted
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
+{
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+
+    vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
+    p_point_data->AddArray(p_scalars);
+    p_scalars->Delete(); //Reference counted
+
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<c_vector<double, SPACE_DIM> > dataPayload)
+{
+    vtkDoubleArray* p_vectors = vtkDoubleArray::New();
+    p_vectors->SetName(dataName.c_str());
+    p_vectors->SetNumberOfComponents(3);
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            p_vectors->InsertNextValue(dataPayload[i][j]);
+        }
+        //When SPACE_DIM<3, then pad 
+        for (unsigned j=SPACE_DIM; j<3; j++)
+        {
+            p_vectors->InsertNextValue(0.0);
+        }
+    }
+
+    vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
+    p_point_data->AddArray(p_vectors);
+    p_vectors->Delete(); //Reference counted
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////////////
+
+template class VtkMeshWriter<2,2>;
+template class VtkMeshWriter<3,3>;
+
+#endif //CHASTE_VTK

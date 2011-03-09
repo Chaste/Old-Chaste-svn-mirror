@@ -22,3 +22,4 @@ vertex/TestVertexMesh.hpp
 vertex/TestVertexMeshReader.hpp
 vertex/TestVertexMeshWriter.hpp
 writer/TestMeshWriters.hpp
+writer/TestVtkMeshWriter.hpp
