@@ -412,7 +412,8 @@ void HeartConfig::CopySchema(const std::string& rToDirectory)
     }
     if (schema_location.Exists())
     {
-        system(("cp " + schema_location.GetAbsolutePath() + " " + rToDirectory).c_str());
+        // Called by master only so use this instead of EXPECT0
+        MPIABORTIFNON0(system,("cp " + schema_location.GetAbsolutePath() + " " + rToDirectory).c_str());
     }
 }
 
