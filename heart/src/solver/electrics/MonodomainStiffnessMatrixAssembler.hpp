@@ -26,16 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef STIFFNESSMATRIXASSEMBLER_HPP_
-#define STIFFNESSMATRIXASSEMBLER_HPP_
+#ifndef MONODOMAINSTIFFNESSMATRIXASSEMBLER_HPP_
+#define MONODOMAINSTIFFNESSMATRIXASSEMBLER_HPP_
 
 
 #include "AbstractCardiacFeObjectAssembler.hpp"
 #include "HeartConfig.hpp"
 #include "AbstractCardiacTissue.hpp"
-
-
-//todo - rename as MonodomainStiffnessMatrixAssembler as bidomain will require a different matrix
 
 /** 
  *  Implementation of AbstractFeObjectAssembler which provides stiffness matrices
@@ -46,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  where phi_i is the i-th (linear) basis function 
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class CardiacStiffnessMatrixAssembler
+class MonodomainStiffnessMatrixAssembler
    : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 public:
@@ -83,11 +80,11 @@ public:
      *  @param pMesh the mesh
      *  @param pTissue  pointer to the tissue used for getting conductivity values
      */
-    CardiacStiffnessMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    MonodomainStiffnessMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                              AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue)
         : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh,pTissue)
     {
     }
 };
 
-#endif /*MASSMATRIXASSEMBLER_HPP_*/
+#endif /*MONODOMAINSTIFFNESSMATRIXASSEMBLER_HPP_*/

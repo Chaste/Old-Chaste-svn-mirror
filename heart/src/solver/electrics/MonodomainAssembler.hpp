@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacFeObjectAssembler.hpp"
 #include "MonodomainTissue.hpp"
 #include "MassMatrixAssembler.hpp"
-#include "CardiacStiffnessMatrixAssembler.hpp"
+#include "MonodomainStiffnessMatrixAssembler.hpp"
 
 /**
  *  Assembler for assembling the LHS matrix and RHS vector of the linear
@@ -56,7 +56,7 @@ protected:
     MassMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mMassMatrixAssembler;
 
     /** Assembler for the stiffness matrix */    
-    CardiacStiffnessMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mStiffnessMatrixAssembler;
+    MonodomainStiffnessMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mStiffnessMatrixAssembler;
 
     /**
      * ComputeMatrixTerm()

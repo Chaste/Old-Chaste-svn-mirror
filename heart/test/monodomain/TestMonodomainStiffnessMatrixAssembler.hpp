@@ -26,22 +26,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCARDIACSTIFFNESSMATRIX_HPP_
-#define TESTCARDIACSTIFFNESSMATRIX_HPP_
+#ifndef TESTMONODOMAINSTIFFNESSMATRIX_HPP_
+#define TESTMONODOMAINSTIFFNESSMATRIX_HPP_
 
 #include "TetrahedralMesh.hpp"
-#include "CardiacStiffnessMatrixAssembler.hpp"
+#include "MonodomainStiffnessMatrixAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudy1991.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "MonodomainTissue.hpp"
 #include "PetscMatTools.hpp"
 
-class TestCardiacStiffnessMatrixAssembler : public CxxTest::TestSuite
+class TestMonodomainStiffnessMatrixAssembler : public CxxTest::TestSuite
 {
 public:
 
-    void TestCardiacStiffnessMatrixAssembler1d() throw(Exception)
+    void TestMonodomainStiffnessMatrixAssembler1d() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh;
         double h = 0.1;
@@ -53,7 +53,7 @@ public:
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         cell_factory.SetMesh(&mesh);
         MonodomainTissue<1> monodomain_tissue( &cell_factory );
-        CardiacStiffnessMatrixAssembler<1,1> assembler(&mesh, &monodomain_tissue);
+        MonodomainStiffnessMatrixAssembler<1,1> assembler(&mesh, &monodomain_tissue);
 
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
@@ -128,4 +128,4 @@ public:
 
 };
 
-#endif /* TESTCARDIACSTIFFNESSMATRIX_HPP_ */
+#endif /* TESTMONODOMAINSTIFFNESSMATRIX_HPP_ */
