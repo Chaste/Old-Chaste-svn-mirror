@@ -228,7 +228,7 @@ public:
 
         /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
-        unsigned num_cells = 1e5;
+        unsigned num_cells = (unsigned) 1e5;
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)

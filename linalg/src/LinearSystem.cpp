@@ -210,7 +210,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
          *  Assuming that mLhsMatrix was created with PetscTools::SetupMat, the value
          *  below should be equivalent to what was used as preallocation in that call.
          */
-        mRowPreallocation = matrix_info.nz_allocated / mSize;
+        mRowPreallocation = (unsigned) matrix_info.nz_allocated / mSize;
     }
     assert(!mRhsVector || !mLhsMatrix || vec_size == mat_size);
 
