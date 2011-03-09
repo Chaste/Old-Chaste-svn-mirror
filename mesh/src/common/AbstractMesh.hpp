@@ -243,6 +243,13 @@ public:
     std::string GetMeshFileBaseName() const;
 
     /**
+     * Get whether this mesh was read from file.
+     *
+     * @return whether this mesh was read from file
+     */
+    bool IsMeshOnDisk() const;
+
+    /**
      * Get method for #mNodesPermutation.
      *
      *  When empty (most meshes) there is no node permutation

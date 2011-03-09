@@ -112,36 +112,23 @@ private:
                                                                false);
         //Binary meshes have similar content to the original Triangle/Tetgen format, but take up less space on disk
         mesh_writer.SetWriteFilesAsBinary();
+
         /**
          * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
          *
          * \todo #1200 This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
          * Perhaps even copy the permutation file from an earlier checkpoint?
          */
-
         bool permutation_available = (this->rGetNodePermutation().size() != 0);
         archive & permutation_available;
-        
-        // \todo #1200 this is not necessarily the best way of archiving the permutation vector, it replicates the whole thing for each processor. Maybe a distributed file...         
+
         if( permutation_available )
         {
-            const std::vector<unsigned>& rPermutation = this->rGetNodePermutation();            
-            archive & rPermutation;            
+            const std::vector<unsigned>& rPermutation = this->rGetNodePermutation();
+            archive & rPermutation;
         }                 
         
-        /// \todo #1200 Refactor this try-catch block into a method bool IsMeshOnDisc()
-        bool is_mesh_on_disc;
-        try
-        {
-            this->GetMeshFileBaseName();
-            is_mesh_on_disc = true;
-        }
-        catch(Exception& e)
-        {
-            is_mesh_on_disc = false;
-        }              
-        
-        if (!is_mesh_on_disc)
+        if (!this->IsMeshOnDisk())
         {
             mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
         } 
@@ -168,7 +155,6 @@ private:
                 {
                     MPIABORTIFNON0(system, cp_command.str());
                 }
-
             }
             else
             {

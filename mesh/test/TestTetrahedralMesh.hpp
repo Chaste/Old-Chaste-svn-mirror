@@ -1571,6 +1571,8 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
         }
 
+        TS_ASSERT_EQUALS(mesh.IsMeshOnDisk(), true);
+
         std::string mesh_file_base_name = mesh.GetMeshFileBaseName();
         TrianglesMeshReader<3,3> mesh_reader(mesh_file_base_name);
 
@@ -1580,6 +1582,7 @@ public:
         cuboid_mesh.ConstructCuboid(7, 4, 5);
 
         TS_ASSERT_THROWS_THIS(cuboid_mesh.GetMeshFileBaseName(),"This mesh was not constructed from a file.");
+        TS_ASSERT_EQUALS(cuboid_mesh.IsMeshOnDisk(), false);
     }
 
     void TestCalculateBoundingBox() throw(Exception)

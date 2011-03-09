@@ -159,12 +159,18 @@ typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
 {
-    if (mMeshFileBaseName == "")
+    if (!IsMeshOnDisk())
     {
         EXCEPTION("This mesh was not constructed from a file.");
     }
 
     return mMeshFileBaseName;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::IsMeshOnDisk() const
+{
+    return (mMeshFileBaseName != "");
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

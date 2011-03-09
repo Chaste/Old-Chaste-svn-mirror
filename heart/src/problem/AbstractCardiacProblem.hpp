@@ -153,7 +153,7 @@ private:
 
             writer.DefineUnlimitedDimension("Time", "msec", 1);
 
-            // Make sure the file does not take more disc space than really needed (#1200)
+            // Make sure the file does not take more disc space than really needed (related to #1200)
             writer.SetFixedChunkSize(1);
 
             int vm_col = writer.DefineVariable("Vm","mV");
