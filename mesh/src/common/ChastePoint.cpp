@@ -121,3 +121,7 @@ template class ChastePoint<1>;
 template class ChastePoint<2>;
 template class ChastePoint<3>;
 
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChastePoint)
+

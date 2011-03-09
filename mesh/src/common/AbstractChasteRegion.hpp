@@ -32,11 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
-
+#include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/split_member.hpp>
 
 #include "ChastePoint.hpp"
 
@@ -100,7 +98,7 @@ template <unsigned SPACE_DIM>
 struct version<AbstractChasteRegion<SPACE_DIM> >
 {
     /** Version number */
-    BOOST_STATIC_CONSTANT(unsigned, value = 1);
+    CHASTE_VERSION_CONTENT(1);
 };
 } // namespace serialization
 } // namespace boost
