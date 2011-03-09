@@ -236,7 +236,11 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class VtkMeshWriter<2,2>;
-template class VtkMeshWriter<3,3>;
+template class VtkMeshWriter<1,1>;
+template class VtkMeshWriter<1,2>;
+template class VtkMeshWriter<1,3>;
+template class VtkMeshWriter<2,2>; //Actually used
+template class VtkMeshWriter<2,3>;
+template class VtkMeshWriter<3,3>; //Actually used
 
 #endif //CHASTE_VTK
