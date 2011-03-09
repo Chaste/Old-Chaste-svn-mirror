@@ -41,13 +41,8 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    /// \todo #1632 Am and Cm could be set as scaling factors for the mass matrix in its constructor.
-    
-    // get parameters
-    double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
-    double Cm = mpConfig->GetCapacitance();
-    
-    return (Am*Cm*PdeSimulationTime::GetPdeTimeStepInverse())*mMassMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement)
+    /// Am and Cm are set as scaling factors for the mass matrix in its constructor.    
+    return (PdeSimulationTime::GetPdeTimeStepInverse())*mMassMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement)
             + mStiffnessMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
 }
 
@@ -96,7 +91,8 @@ MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         unsigned numQuadPoints)
     : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
-      mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping()),
+      mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping(),
+                           HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio()*HeartConfig::Instance()->GetCapacitance()),
       mStiffnessMatrixAssembler(pMesh, pTissue)
 {
     assert(pTissue);
