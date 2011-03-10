@@ -43,20 +43,22 @@ AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCorr
          ++iter)
     {
         Element<ELEMENT_DIM, SPACE_DIM>& r_element = *iter;
-        assert(r_element.GetOwnership());
-        unsigned node_zero = r_element.GetNodeGlobalIndex(0);
-        AbstractCardiacCell* p_cell_zero = this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_zero);
-        const std::type_info& r_zero_info = typeid(*p_cell_zero);
-        // Check the other nodes match
-        for (unsigned local_index=1; local_index<r_element.GetNumNodes(); local_index++)
+        if (r_element.GetOwnership())
         {
-            unsigned global_index = r_element.GetNodeGlobalIndex(local_index);
-            AbstractCardiacCell* p_cell = this->mpCardiacTissue->GetCardiacCellOrHaloCell(global_index);
-            const std::type_info& r_info = typeid(*p_cell);
-            if (r_zero_info != r_info)
+            unsigned node_zero = r_element.GetNodeGlobalIndex(0);
+            AbstractCardiacCell* p_cell_zero = this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_zero);
+            const std::type_info& r_zero_info = typeid(*p_cell_zero);
+            // Check the other nodes match
+            for (unsigned local_index=1; local_index<r_element.GetNumNodes(); local_index++)
             {
-                mElementsHasIdenticalCellModels[r_element.GetIndex()] = false;
-                break;
+                unsigned global_index = r_element.GetNodeGlobalIndex(local_index);
+                AbstractCardiacCell* p_cell = this->mpCardiacTissue->GetCardiacCellOrHaloCell(global_index);
+                const std::type_info& r_info = typeid(*p_cell);
+                if (r_zero_info != r_info)
+                {
+                    mElementsHasIdenticalCellModels[r_element.GetIndex()] = false;
+                    break;
+                }
             }
         }
     }
