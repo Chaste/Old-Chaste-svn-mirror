@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "NodeBasedCellPopulation.hpp"
 #include "CellwiseData.hpp"
+#include "VtkMeshWriter.hpp"
 
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes,
@@ -389,9 +390,11 @@ template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
-    // Write time to file
+    
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
+    VtkMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results_"+time.str(), false);
+    ///\todo (#1598)  fix naming of files?
 
     unsigned num_nodes = GetNumNodes();
     std::vector<double> cell_types(num_nodes);
@@ -458,33 +461,28 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 
     if (this->mOutputCellProliferativeTypes)
     {
-//        mesh_writer.AddCellData("Cell types", cell_types);
-        ///\todo (#1598)
+        mesh_writer.AddPointData("Cell types", cell_types);
     }
     if (this->mOutputCellAncestors)
     {
-//        mesh_writer.AddCellData("Ancestors", cell_ancestors);
-        ///\todo (#1598)
+        mesh_writer.AddPointData("Ancestors", cell_ancestors);
     }
     if (this->mOutputCellMutationStates)
     {
-//        mesh_writer.AddCellData("Mutation states", cell_mutation_states);
-        ///\todo (#1598)
+        mesh_writer.AddPointData("Mutation states", cell_mutation_states);
     }
     if (this->mOutputCellAges)
     {
-//        mesh_writer.AddCellData("Ages", cell_ages);
-        ///\todo (#1598)
+        mesh_writer.AddPointData("Ages", cell_ages);
     }
     if (this->mOutputCellCyclePhases)
     {
-//        mesh_writer.AddCellData("Cycle phases", cell_cycle_phases);
-        ///\todo (#1598)
+        mesh_writer.AddPointData("Cycle phases", cell_cycle_phases);
     }
     if (this->mOutputCellVolumes)
     {
 //        mesh_writer.AddCellData("Cell volumes", cell_volumes);
-        ///\todo (#1598)
+        ///\todo (#1598) ??
     }
     if (CellwiseData<DIM>::Instance()->IsSetUp())
     {
@@ -493,13 +491,16 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
             std::stringstream data_name;
             data_name << "Cellwise data " << var;
             std::vector<double> cellwise_data_var = cellwise_data[var];
-//            mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
-            ///\todo (#1598)
+            mesh_writer.AddPointData(data_name.str(), cellwise_data_var);
         }
     }
-
-//    mesh_writer.WriteVtkUsingMesh(*mpVoronoiTessellation, time.str());
-    ///\todo (#1598)
+    
+    {
+        //Make a copy of the nodes in a disposable mesh for writing...
+        TetrahedralMesh<DIM,DIM> mesh;
+        mesh.ConstructNodesWithoutMesh(mNodes);
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
     *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
     *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
     *(this->mpVtkMetaFile) << "\" group=\"\" part=\"0\" file=\"results_";

@@ -233,7 +233,7 @@ public:
  #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
         std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         nodes.push_back(new Node<3>(3, false, 1.0, 1.0, 0.0));
@@ -259,6 +259,14 @@ public:
         }
         writer.AddPointData("Distance from origin", distance);
 
+        // Add boundary node "point" data
+        std::vector<double> boundary;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            boundary.push_back(mesh.GetNode(i)->IsBoundaryNode());
+        }
+        writer.AddPointData("Boundary", boundary);
+        
         // Add fibre type to "point" data
         std::vector< c_vector<double, 3> > location;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)

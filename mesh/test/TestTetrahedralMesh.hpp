@@ -1776,7 +1776,7 @@ public:
     void TestConstructNodesWithoutMesh()
     {
         std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         nodes.push_back(new Node<3>(3, false, 1.0, 1.0, 0.0));
