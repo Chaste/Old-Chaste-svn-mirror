@@ -181,6 +181,15 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
 
     /**
+     * Construct the mesh using only nodes.  No mesh is created, but the nodes are stored.
+     * The original vector of nodes is deep-copied: new node objects are made with are
+     * independent of the pointers in the input so that they can be safely deleted.
+     *
+     * @param rNodes the vector of nodes
+     */
+    void ConstructNodesWithoutMesh(const std::vector< Node<SPACE_DIM>*> & rNodes);
+
+    /**
      * Read in the number of nodes per processor from file.
      *
      * @param rNodesPerProcessorFile the name of the file

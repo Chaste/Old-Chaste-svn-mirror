@@ -1773,5 +1773,32 @@ public:
 //        }
     }
     
+    void TestConstructNodesWithoutMesh()
+    {
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(6, false, 0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
+
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 8u);
+        
+        //When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
+    
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

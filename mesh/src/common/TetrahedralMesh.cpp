@@ -172,6 +172,21 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructNodesWithoutMesh(
+    const std::vector<Node<SPACE_DIM>*> & rNodes)
+{
+    Clear();
+    for (unsigned i=0; i<rNodes.size(); i++)
+    {
+        assert(!rNodes[i]->IsDeleted());
+        assert(!rNodes[i]->IsBoundaryNode());
+        c_vector<double, SPACE_DIM> location=rNodes[i]->rGetLocation();
+        
+        Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, false);
+        this->mNodes.push_back( p_node_copy );
+    }
+}
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile)
 {
     std::vector<unsigned> nodes_per_processor_vec;
