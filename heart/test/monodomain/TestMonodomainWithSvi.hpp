@@ -408,10 +408,11 @@ public:
         monodomain_problem.Solve();
     }
     
-    /**
+    /*
      * This is the same as TestConductionVelocityConvergesFasterWithSvi1d with i=2, but solves in two parts.
      * If that test changes, check the hardcoded values here!
      */
+    /*
     void xTestArchiving() throw (Exception)
     {
         FileFinder archive_dir("monodomain_svi_archive", RelativeTo::ChasteTestOutput);
@@ -481,6 +482,7 @@ public:
             delete p_monodomain_problem;
         }
     }
+    */
 };
 
 #endif /*TESTMONODOMAINWITHSVI_HPP_*/
