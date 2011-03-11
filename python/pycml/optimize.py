@@ -281,6 +281,7 @@ class PartialEvaluator(object):
             self._process_ci_elts(expr, self._rename_var)
         for expr in solver_info.get_modifiable_mathematics():
             self._process_ci_elts(expr, self._rename_var)
+        solver_info.use_canonical_variable_names()
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
         for var in doc.model.get_all_variables():

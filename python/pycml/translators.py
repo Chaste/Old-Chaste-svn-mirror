@@ -600,8 +600,7 @@ class CellMLTranslator(object):
         if expr.localName == 'ci':
             self.output_variable(expr)
         elif expr.operator().localName == 'diff':
-            self.write(self.code_name(expr.operator().dependent_variable,
-                                      ode=True))
+            self.write(self.code_name(expr.operator().dependent_variable, ode=True))
 
     def output_variable(self, ci_elt, ode=False):
         """Output a ci element, i.e. a variable lookup."""
@@ -889,10 +888,11 @@ class CellMLTranslator(object):
         return units
 
     def _vars_in(self, expr):
-        """Return a list of variable objects used in the given expression.
+        """Return a set of variable objects used in the given expression.
 
-        Will include state variables.  Also if an expression is being
-        replaced by a lookup table, will only return the table key variable.
+        Will include state variables.  If the expression includes a derivative, the defining equation
+        for that derivative will be included in the set.  Also if an expression is being
+        replaced by a lookup table, this will only include the table key variable.
         """
         res = set()
         if self.use_lookup_tables and isinstance(expr, mathml) and self.is_lookup_table(expr):
@@ -904,8 +904,7 @@ class CellMLTranslator(object):
             varobj = self.varobj(varname.strip())
             if varobj:
                 res.add(varobj)
-        elif isinstance(expr, mathml_apply) and \
-                 expr.operator().localName == u'diff':
+        elif isinstance(expr, mathml_apply) and expr.operator().localName == u'diff':
             dep_varname = unicode(expr.ci)
             varobj = self.varobj(dep_varname.strip())
             res.add(varobj.get_ode_dependency(self.free_vars[0]))
@@ -1573,6 +1572,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         declaration to the header file if it changes.  The default is to use
         the same access specification as last time.
         """
+        DEBUG('translator', 'Generating code for method', method_name)
         if access:
             self.set_access(access)
         if ret_type:
@@ -2161,8 +2161,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
             if self.use_chaste_stimulus:
-                if isinstance(expr, cellml_variable) and \
-                        expr is self.doc._cml_config.i_stim_var:
+                if isinstance(expr, cellml_variable) and expr is self.doc._cml_config.i_stim_var:
                     clear_type = (self.kept_vars_as_members and expr.pe_keep)
                     if clear_type:
                         self.TYPE_CONST_DOUBLE = ''
@@ -2397,10 +2396,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             dt_name = 'mFixedDt'
         else:
             dt_name = 'mDt'
-        if self.conversion_factor:
-            scale = str(self.conversion_factor) + ' * '
-        else:
-            scale = ''
+        #model_dt = self.varobj(self.model.solver_info.dt)
         # Residual
         ##########
         argsize = '[' + str(self.nonlinear_system_size) + ']'
@@ -2426,9 +2422,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             except ValueError:
                 j = -1
             if j != -1:
-                self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
-                             '] - rY[', i, '] - ', dt_name, '*', scale,
-                             self.code_name(var, ode=True), self.STMT_END)
+                self.writeln('rResidual[', j, '] = rCurrentGuess[', j, '] - rY[', i, '] - ',
+                             dt_name, '*', self.code_name(var, ode=True), self.STMT_END)
         self.close_block()
         
         # Jacobian
@@ -2446,9 +2441,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
+        self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(self.config.dt_variable), self.EQ_ASSIGN,
+                     dt_name, self.STMT_END, '\n');
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=nodeset|set(map(lambda e: e.math, self.model.solver_info.jacobian.entry)))
-        self.writeln(self.TYPE_CONST_DOUBLE, 'var_dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END, '\n');
         self.output_equations(nodeset)
         self.writeln()
         # Jacobian entries
@@ -2490,13 +2486,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_equations(nodeset)
         # Update V
         self.writeln()
-        self.writeln('rY[', self.v_index, '] += ', dt_name, ' * ', scale,
-                     self.code_name(self.state_vars[self.v_index],
-                                    ode=True), self.STMT_END)
+        self.writeln('rY[', self.v_index, '] += ', dt_name, '*',
+                     self.code_name(self.state_vars[self.v_index], ode=True), self.STMT_END)
         self.close_block()
 
         # ComputeOneStepExceptVoltage
-        ######################
+        #############################
         self.output_method_start('ComputeOneStepExceptVoltage',
                                  [self.TYPE_DOUBLE + self.code_name(self.free_vars[0])],
                                  'void', access='public')
@@ -2522,13 +2517,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Output required equations for used variables
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
+        self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(self.config.dt_variable), self.EQ_ASSIGN,
+                     dt_name, self.STMT_END, '\n');
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
         # Update state variables:
-        #   rY[i] = (rY[i] + _g_j*mDt) / (1 - _h_j*mDt)
+        #   rY[i] = (rY[i] + _g_j*dt) / (1 - _h_j*dt)
         self.writeln()
-        self.writeln(self.TYPE_CONST_DOUBLE, 'var_dt', self.EQ_ASSIGN, scale, dt_name, self.STMT_END)
         linear_vars.sort(key=lambda v: v.fullname())
         for i, u in enumerate(linear_vars):
             j = self.state_vars.index(u)
@@ -2722,13 +2718,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if var:
                 self.write(self.code_name(var, ode=ode))
             else:
-                if varname == u'delta_t':
-                    # Special case for the timestep in ComputeJacobian
-                    prefix = ''
-                    varname = 'dt'
-                else:
-                    # Assume it's a suitable name
-                    pass
+                # Assume it's a suitable name
                 self.write(prefix + varname)
         return
     
@@ -2751,6 +2741,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     # Name in CellML for the variable representing Chaste's membrane capacitance
     MEMBRANE_CAPACITANCE_NAME = u'chaste_membrane_capacitance'
+    
+    # Name of the component added to interface the model to Chaste
+    INTERFACE_COMPONENT_NAME = u'chaste_interface'
 
     @staticmethod
     def add_special_conversions(converter, comp):
@@ -2774,8 +2767,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         model = converter.model
         # Variables needed by some conversions
         model_Cm = model.get_config('Cm_variable')
-#        if model_Cm:
-#            model_Cm.set_pe_keep(True) # Ensure it doesn't disappear
         uF_per_cm2 = cellml_units.create_new(model, 'uF_per_cm2',
                                              [{'units': 'farad', 'prefix': 'micro'},
                                               {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
@@ -2796,7 +2787,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                                          Chaste_Cm))
 
     @staticmethod
-    def generate_interface(doc):
+    def generate_interface(doc, solver_info):
         """Generate an interface component connecting the model to Chaste.
         
         On return from this method, Chaste code will only need to interact with variables in
@@ -2806,17 +2797,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
         It may also contain other variables depending on the model, for example the intracellular
         calcium concentration (if annotated), modifiable parameters, and derived quantities.
         
-        Performing units conversion on the model subsequent to calling this method will ensure
-        that all these variables are in the units expected by Chaste, and linked by suitable
-        conversions to the rest of the model.
+        If the --convert-interfaces option has been supplied, units conversion will then be
+        performed on this component, ensuring that all these variables are in the units expected
+        by Chaste and linked by suitable conversions to the rest of the model.
         
         Note that if partial evaluation is then performed, the model will be collapsed into a
         single component.  However, the interface will still be preserved in the correct units.
         """
-        return # Not working yet!
-        if doc.model.get_option('maple_output'):
-            # TODO: The Maple output doesn't use an interface component...
-            return
         model = doc.model
         config = doc._cml_config
         klass = CellMLToChasteTranslator
@@ -2827,13 +2814,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                      [{'units': 'volt', 'prefix': 'milli'}])
         current_units = klass.get_current_units_options(model)[0]
         # Generate the interface
-        generator = processors.InterfaceGenerator(model, name='chaste_interface')
+        generator = processors.InterfaceGenerator(model, name=klass.INTERFACE_COMPONENT_NAME)
         iface_comp = generator.get_interface_component()
         t = model.find_free_vars()[0]
         if not ms.dimensionally_equivalent(t.get_units()):
             # Oops!
             raise TranslationError('Time does not have dimensions of time')
         generator.add_input(t, ms)
+        if doc.model.get_option('maple_output'):
+            # Backward Euler code generation requires access to the time step
+            model_dt = solver_info.create_dt(generator, t.component, t.get_units())
+            config.dt_variable = generator.add_input(model_dt, ms)
         if config.options.use_chaste_stimulus and config.i_stim_var:
             # We need to make it a constant so add_input doesn't complain, then make it computed
             # again so that exposing metadata-annotated variables doesn't make it a parameter!
@@ -3933,6 +3924,7 @@ class SolverInfo(object):
             model.xml_append(solver_info)
         self._solver_info = solver_info
         self._component = None
+        self._dt = None
     
     def add_all_info(self):
         """Actually add the info."""
@@ -3940,6 +3932,17 @@ class SolverInfo(object):
         self.add_membrane_ionic_current()
         self.add_linearised_odes()
         self.add_jacobian_matrix()
+        self.add_dt_reference()
+    
+    def add_dt_reference(self):
+        """Add a reference to the variable representing dt."""
+        solver_info = self._solver_info
+        model = self._model
+        if not hasattr(solver_info, u'dt'):
+            dt = self.get_dt()
+            elt = model.xml_create_element(u'dt', NSS[u'solver'], content=dt.fullname(cellml=True))
+            solver_info.xml_append(elt)
+            self._model._add_sorted_assignment(dt)
     
     def add_transmembrane_potential_name(self):
         """The name of the transmembrane potential."""
@@ -4032,6 +4035,25 @@ class SolverInfo(object):
                 entry_doc = amara_parse_cellml(model._cml_jacobian[(v_i, v_j)].xml())
                 entry.xml_append(entry_doc.math)
         return
+    
+    def use_canonical_variable_names(self):
+        """
+        PE has just been performed, so we need to update variable names occurring outside
+        the modifiable mathematics sections.
+        """
+        jac_elt = getattr(self._solver_info, u'jacobian', None)
+        for entry in getattr(jac_elt, u'entry', []):
+            for vlabel in ['var_i', 'var_j']:
+                vname = getattr(entry, vlabel)
+                var = self._get_variable(vname)
+                new_name = var.get_source_variable(recurse=True).fullname()
+                setattr(entry, vlabel, new_name)
+        dt_elt = getattr(self._solver_info, u'dt', None)
+        if dt_elt:
+            var = self._get_variable(unicode(dt_elt))
+            new_name = var.get_source_variable(recurse=True).fullname()
+            dt_elt.xml_remove_child(unicode(dt_elt))
+            dt_elt.xml_append(unicode(new_name))
 
     def add_membrane_ionic_current(self):
         """Add ionic current information as XML for solvers to use."""
@@ -4055,7 +4077,7 @@ class SolverInfo(object):
         A linear ODE has the form du/dt = g+h.u where g & h are not functions of u.  The
         update expression then looks like u = (u + g.dt)/(1 - h.dt).
         
-        This repalces the linear_odes block with the structure:
+        This replaces the linear_odes block with the structure:
         <linear_odes>
             <math>
                 <ci>u</ci>
@@ -4068,14 +4090,15 @@ class SolverInfo(object):
         </linear_odes>
         """
         block = getattr(self._solver_info, u'linear_odes', None)
+        dt = self._model.get_config().dt_variable.fullname() # was dt = u'delta_t'
         # Add the new equations
         for u, t, gh in self.get_linearised_odes():
             g, h = gh
             g.safe_remove_child(g, g.xml_parent)
-            g_dt = mathml_apply.create_new(block, u'times', [g, u'delta_t'])
+            g_dt = mathml_apply.create_new(block, u'times', [g, dt])
             numer = mathml_apply.create_new(block, u'plus', [u.fullname(), g_dt])
             h.safe_remove_child(h, h.xml_parent)
-            h_dt = mathml_apply.create_new(block, u'times', [h, u'delta_t'])
+            h_dt = mathml_apply.create_new(block, u'times', [h, dt])
             denom = mathml_apply.create_new(block, u'minus', [(u'1', u'dimensionless'), h_dt])
             eqn = mathml_apply.create_new(block, u'divide', [numer, denom])
             math = block.xml_create_element(u'math', NSS[u'm'])
@@ -4200,9 +4223,17 @@ class SolverInfo(object):
             raise ValueError("Cannot find variable '%s' referenced in SolverInfo" % varname)
         return var
     
+    def create_dt(self, modifier, comp, units):
+        """Create the special 'dt' variable in the given component."""
+        self._dt = modifier.add_variable(comp, modifier._uniquify_var_name(u'dt', comp), units)
+        self._dt._set_type(VarTypes.Free)
+        return self._dt
+    
     def get_dt(self):
         """Get or create a special 'dt' variable."""
-        return self._get_special_variable(u'dt', VarTypes.Free)
+        if not self._dt:
+            self._dt = self._get_special_variable(u'dt', VarTypes.Free)
+        return self._dt
 
     def _get_special_variable(self, varname, ptype=VarTypes.Unknown):
         """Get or create a special variable object that doesn't really exist in the model."""
@@ -4260,6 +4291,8 @@ class ConfigurationStore(object):
         self.i_ionic_negated = False
         # Whether the stimulus magnitude is positive, rather than negative
         self.i_stim_negated = False
+        # Other variables that may be set by other code, for example an InterfaceGenerator
+        self.dt_variable = None
         return
 
     def read_configuration_file(self, config_file):
@@ -5120,9 +5153,11 @@ def run():
         config.find_current_vars()
     DEBUG('translate', "+++ Processed config")
 
+    solver_info = SolverInfo(doc.model)
+
     # Generate an interface component, if desired
     translator_klass = CellMLTranslator.translators[options.translate_type]
-    translator_klass.generate_interface(doc)
+    translator_klass.generate_interface(doc, solver_info)
     config.validate_metadata(options.assume_valid)
     DEBUG('translate', "+++ Generated interface")
     
@@ -5151,8 +5186,6 @@ def run():
             class_name += '_be'
         if options.use_modifiers:
             class_name += '_sens'
-
-    solver_info = SolverInfo(doc.model)
 
     output_filename = getattr(options, 'outfilename', None)
     if not options.translate and not output_filename:

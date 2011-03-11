@@ -171,7 +171,10 @@ class ModelModifier(object):
         Note that in the case that both variables already exist and are connected, the existing
         connection is allowed to flow in either direction.
         """
-        src_var = src_comp.get_variable_by_name(src_vname)
+        try:
+            src_var = src_comp.get_variable_by_name(src_vname)
+        except KeyError:
+            src_var = src_comp.get_variable_by_name(target_vname)
         target_var = self._find_or_create_variable(target_comp.name, target_vname, src_var)
         # Sanity check the target variable
         if target_var.get_type() == VarTypes.Mapped:
@@ -470,7 +473,7 @@ class InterfaceGenerator(ModelModifier):
         assert isinstance(var, cellml_variable)
         units = self._get_units_object(units)
         var = var.get_source_variable(recurse=True) # Ensure we work with source variables only
-        var_name = var.name # TODO: May provide this as an optional input instead
+        var_name = var.fullname(cellml=True)
         # Check that the variable has a suitable type to be an input
         t = var.get_type()
         if t == VarTypes.Computed:
@@ -521,7 +524,7 @@ class InterfaceGenerator(ModelModifier):
         assert isinstance(var, cellml_variable)
         units = self._get_units_object(units)
         var = var.get_source_variable(recurse=True)
-        var_name = var.name
+        var_name = var.fullname(cellml=True)
         comp = self.get_interface_component()
         newvar = self.add_variable(comp, var_name, units)
         self.connect_variables(var, newvar)
@@ -595,9 +598,9 @@ class InterfaceGenerator(ModelModifier):
         dep_var = expr.diff.dependent_variable.get_source_variable(recurse=True)
         indep_var = expr.diff.independent_variable.get_source_variable(recurse=True)
         ode = dep_var.get_ode_dependency(indep_var)
-        rhs_var = ode.get_dependencies()[0].get_source_variable(recurse=True)
+        rhs_var = ode.eq.rhs.variable.get_source_variable(recurse=True)
         # Ensure there's something mapped to it in this component
-        self.connect_variables(rhs_var, (expr.component.name, rhs_var.name))
+        rhs_var = self.connect_variables(rhs_var, (expr.component.name, rhs_var.name))
         # Update this expression
         parent = expr.xml_parent
         parent.xml_insert_after(expr, mathml_ci.create_new(parent, rhs_var.name))

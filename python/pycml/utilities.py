@@ -38,7 +38,7 @@ from enum import Enum
 __all__ = ['OnlyWarningsFilter', 'OnlyDebugFilter', 'OnlyTheseSourcesFilter', 'NotifyHandler',
            'DEBUG', 'LOG',
            'Colourable', 'DFS', 'Sentinel', 'unitary_iterator',
-           'amara_parse', 'element_path', 'element_path_cmp', 'element_xpath',
+           'amara_parse', 'element_path', 'element_path_cmp', 'element_xpath', 'brief_xml',
            'call_if', 'max_i', 'prid', 'add_dicts',
            'open_output_stream', 'close_output_stream']
 
@@ -218,6 +218,23 @@ def element_xpath(elt):
     indices = element_path(elt)
     xpath = u'/*[' + u']/*['.join(map(str, indices)) + u']'
     return xpath
+
+
+def brief_xml(elt):
+    """Print a more concise version of elt.xml() that omits all attributes."""
+    s = ''
+    if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
+        children = getattr(elt, 'xml_children', [])
+        if children:
+            s += '<' + elt.localName + '>'
+            for child in children:
+                s += brief_xml(child)
+            s += '</' + elt.localName + '>'
+        else:
+            s += '<' + elt.localName + '/>'
+    else:
+        s += str(elt)
+    return s
 
 
 ################################################################################
