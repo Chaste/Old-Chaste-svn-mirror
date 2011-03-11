@@ -1348,7 +1348,7 @@ public:
         new_solution = ls.Solve(guess);
         chebyshev_its = ls.GetNumIterations();
 
-#if (PETSC_VERSION_MAJOR == 3)
+#if ((PETSC_VERSION_MAJOR==3) || (PETSC_VERSION_MAJOR==2 && PETSC_VERSION_MINOR==3 && PETSC_VERSION_SUBMINOR==3))
         TS_ASSERT_EQUALS(chebyshev_its, 0u);
 #else
         TS_ASSERT_EQUALS(chebyshev_its, 1u);
@@ -1356,7 +1356,13 @@ public:
 
         PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
         VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+
+#if ((PETSC_VERSION_MAJOR==3) || (PETSC_VERSION_MAJOR==2 && PETSC_VERSION_MINOR==3 && PETSC_VERSION_SUBMINOR==3))
+        TS_ASSERT_DELTA(l_inf_norm, 60.47, 2.0);
+#else
         TS_ASSERT_DELTA(l_inf_norm, 22.43, 2.0);
+#endif
+
         VecDestroy(new_solution);
 
         /*
