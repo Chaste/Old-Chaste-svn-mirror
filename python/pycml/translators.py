@@ -879,13 +879,6 @@ class CellMLTranslator(object):
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             self.output_assignment(expr)
         return
-    
-    def get_var_units(self, varobj):
-        """Get the units for the given cellml_variable."""
-        assert isinstance(varobj, cellml_variable)
-        uname = varobj.units
-        units = varobj.component.get_units_by_name(uname)
-        return units
 
     def _vars_in(self, expr):
         """Return a set of variable objects used in the given expression.
@@ -1315,177 +1308,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.lt_class_name = self.class_name + '_LookupTables'
             self.lookup_method_prefix = self.lt_class_name + '::Instance()->'
         return super(CellMLToChasteTranslator, self).final_configuration_hook()
-    
-    def determine_units_conversion(self, varobj, to_chaste=True):
-        """Determine if we needs to units-convert the given quantity.
         
-        Will check if varobj has units dimensionally equivalent to those of time
-        or the stimulus current.  If it does, then a conversion may be required.
-        Returns an appropriate conversion expression (just the code_name of the
-        variable if no conversion is required) paired with a list of nodes used
-        in computing this conversion.
-        
-        By default converts from model units to Chaste units.  If to_chaste is
-        False, performs the reverse conversion.
-        """
-        var_units = self.get_var_units(varobj)
-        conversion = self.code_name(varobj)
-        nodes_used = []
-        # Units to check against
-        ms = cellml_units.create_new(
-            self.model, 'milliseconds',
-            [{'units': 'second', 'prefix': 'milli'}])
-        if self.doc._cml_config.i_stim_var:
-            current_units = self.get_var_units(self.doc._cml_config.i_stim_var)
-        else:
-            current_units = None
-        if var_units.dimensionally_equivalent(ms): # Check against time
-            if not var_units.equals(ms):
-                if not to_chaste:
-                    conversion_factor = (ms.get_multiplicative_factor() /
-                                         var_units.get_multiplicative_factor())
-                else:
-                    conversion_factor = (var_units.get_multiplicative_factor() /
-                                         ms.get_multiplicative_factor())
-                conversion += ' * ' + str(conversion_factor)
-        elif current_units and var_units.dimensionally_equivalent(current_units): # Check against current
-            conversion, nodes_used = self.ionic_current_units_conversion(conversion, var_units, to_chaste)
-#        if conversion != self.code_name(varobj):
-#            print "***Conv***", varobj, "from", var_units.name, "by", conversion
-        return conversion, nodes_used
-    
-    def ionic_current_units_conversion(self, varname, all_units, to_chaste=True):
-        """
-        Check whether the units of the transmembrane currents are as expected by
-        Chaste, and return an appropriate conversion expression if not, along with
-        a list of nodes used in computing this conversion.
-        
-        By default converts from model units to Chaste units.  If to_chaste is
-        False, performs the reverse conversion.
-        
-        There are three main cases:
-        
-        1. Current in amps/area, capacitance in farads/area.
-           In this case the dimensions are as expected by Chaste, so we just
-           compute the units conversion factor.
-        2. Current in amps/farads.
-           In this case we convert to uA/uF then multiply by Chaste's value
-           for the membrane capacitance (in uF/cm^2).
-        3. Current in amps, capacitance in farads.
-           We assume the cell model conceptually represents a cell, and hence
-           that its membrane capacitance is supposed to represent the same
-           thing as Chaste's.  Thus convert current to uA, capacitance to uF,
-           and return current/capacitance * Chaste's capacitance.
-        
-        If the model doesn't match one of these cases, print a warning message,
-        or die if running fully automatically.
-        """
-        # We just use the first units element; if the model passes units checking,
-        # this is OK.  If it doesn't, then it's pot luck as to whether this
-        # method does anything sensible at all...
-        model_units = all_units[0]
-        conversion = varname # Default to no conversion
-        nodes_used = []
-        chaste_units, microamps, A_per_F = self.get_current_units_options(self.model)
-        
-        if to_chaste:
-            times, divide = ' * ', ' / '
-        else:
-            times, divide = ' / ', ' * '
-        
-        def problem(msg):
-            if self.options.fully_automatic:
-                raise TranslationError(msg)
-            else:
-                print >>sys.stderr, msg
-        
-        if chaste_units.dimensionally_equivalent(model_units):
-            # Case 1
-            conv = (model_units.get_multiplicative_factor() /
-                    chaste_units.get_multiplicative_factor())
-            if conv != 1:
-                conversion += times + str(conv)
-        elif A_per_F.dimensionally_equivalent(model_units):
-            # Case 2
-            conv = (model_units.get_multiplicative_factor() /
-                    A_per_F.get_multiplicative_factor())
-            if conv != 1:
-                conversion += times + str(conv)
-            conversion += times + 'HeartConfig::Instance()->GetCapacitance()'
-        elif microamps.dimensionally_equivalent(model_units):
-            # Case 3, probably
-            conv = (model_units.get_multiplicative_factor() /
-                    microamps.get_multiplicative_factor())
-            if conv != 1:
-                conversion += times + str(conv)
-            model_Cm = self.doc._cml_config.Cm_variable
-            if not model_Cm:
-                problem("Cannot convert ionic current from amps to uA/cm^2 "
-                        "without knowing which variable in the cell model "
-                        "represents the membrane capacitance.")
-            else:
-                nodes_used.append(model_Cm)
-                Cm_units = self.get_var_units(model_Cm)
-                Cm_value = self.code_name(model_Cm)
-                microfarads = cellml_units.create_new(self.model, u'microfarads',
-                                                      [{'units':'farad', 'prefix':'micro'}])
-                conv = (Cm_units.get_multiplicative_factor() /
-                        microfarads.get_multiplicative_factor())
-                if conv != 1:
-                    conversion += divide + '(' + str(conv) + ' * ' + Cm_value + ')'
-                else:
-                    conversion += divide + Cm_value
-            conversion += times + 'HeartConfig::Instance()->GetCapacitance()'
-        else:
-            problem("Units of the ionic current are not in the "
-                    "dimensions expected by Chaste (uA/cm^2) and cannot "
-                    "be converted automatically.")
-#        if conversion != varname:
-#            print "***Conv***", varname, "from", model_units.name, "by", conversion
-        return conversion, nodes_used
-    
-    def check_time_units(self):
-        """Check if units conversions at the interfaces are required (#621).
-        
-        Sets self.conversion_factor to None if conversions are not required.
-        If they are, to go from model -> Chaste, divide by the conversion factor.
-        To go from Chaste -> model, multiply.
-        If dealing with a derivative, do the opposite.
-        
-        TODO: Change the way we approach this ticket: have a method, called here,
-        which adds conversion mathematics to the model itself, so we don't
-        have to check in each place code is generated?  Would have to add
-        new variables which Chaste reads/writes.  The function
-        mathml_units_mixin._add_units_conversion could then be used.
-        An alternative plan is to put the conversions in
-        Compute(ExceptVoltage), but these may not be virtual.
-        """
-        if self.convert_interfaces:
-            time_units = self.get_var_units(self.free_vars[0])
-            # Create a reference 'millisecond' units definition
-            ms = cellml_units.create_new(
-                self.model, 'milliseconds',
-                [{'units': 'second', 'prefix': 'milli'}])
-            # Compare
-            if not ms.dimensionally_equivalent(time_units):
-                # Oops!
-                raise TranslationError('Time does not have dimensions of time')
-            elif not ms.equals(time_units):
-                # We'll need conversions
-                DEBUG('chaste-translator', 'Will convert time units')
-                self.conversion_factor = (ms.get_multiplicative_factor()/
-                                          time_units.get_multiplicative_factor())
-            else:
-                self.conversion_factor = None
-            # Now to go from model -> Chaste, divide by the conversion factor.
-            # To go from Chaste -> model, multiply.
-            # If dealing with a derivative, do the opposite.
-        else:
-            self.conversion_factor = None
-#        if self.conversion_factor:
-#            print "***Conv*** time factor =", self.conversion_factor
-        return
-    
     def output_includes(self, base_class=None):
         """Output the start of each output file.
         
@@ -1611,10 +1434,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.open_block()
             self.output_comment('Inputs:')
             self.output_comment('Time units: ', self.free_vars[0].units)
-            #621: convert if free var is not in milliseconds
-            if self.conversion_factor:
-                self.writeln(self.code_name(self.free_vars[0]), ' *= ',
-                             self.conversion_factor, self.STMT_END)
             # Work out what equations are needed
             if self.use_chaste_stimulus:
                 i_stim = [self.doc._cml_config.i_stim_var]
@@ -1633,7 +1452,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Assign to results vector
             self.writeln(self.vector_create('dqs', len(dqs)))
             for i, var in enumerate(dqs):
-                # TODO: #621 conversions
                 self.writeln(self.vector_index('dqs', i), self.EQ_ASSIGN,
                              self.code_name(var), self.STMT_END)
             self.writeln('return dqs', self.STMT_END)
@@ -1716,11 +1534,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.open_block()
                 self.output_comment('Constant value given in CellML')
                 nodeset = self.calculate_extended_dependencies([var])
-                conversion, conv_nodes = self.determine_units_conversion(var)
-                if conv_nodes:
-                    nodeset.update(self.calculate_extended_dependencies(conv_nodes))
                 self.output_equations(nodeset)
-                self.writeln('return ', conversion, self.STMT_END)
+                self.writeln('return ', self.code_name(var), self.STMT_END)
                 self.close_block()
                 self.writeln()
                 if var in self.cell_parameters and var in self.modifier_vars:
@@ -1804,7 +1619,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         It also calls output_verify_state_variables.
         """
         self.include_serialization = not self.use_modifiers # TODO: Implement
-        self.check_time_units()
         # Check if we're generating a Backward Euler model
         if hasattr(self.model, u'solver_info') and hasattr(self.model.solver_info, u'jacobian'):
             self.use_backward_euler = True
@@ -2114,25 +1928,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
         return
     
     def get_stimulus_assignment(self):
-        """Return code for getting Chaste's stimulus current, with units conversions.
-        
-        Returns a tuple, the first item of which is the code, and the second is a
-        set of nodes required for computing the conversion.
-        """
+        """Return code for getting Chaste's stimulus current."""
         expr = self.doc._cml_config.i_stim_var
         output = self.code_name(expr) + self.EQ_ASSIGN
-        #621: convert if free var is not in milliseconds
-        if self.conversion_factor:
-            conv_time = '(1.0/%.12g)*' % self.conversion_factor
-        else:
-            conv_time = ''
-        get_stim = 'GetIntracellularAreaStimulus(' + conv_time + self.code_name(self.free_vars[0]) + ')'
+        get_stim = 'GetIntracellularAreaStimulus(' + self.code_name(self.free_vars[0]) + ')'
         if self.doc._cml_config.i_stim_negated:
             get_stim = '-' + get_stim
-        # Convert from Chaste stimulus units (uA/cm2) to model units
-        stim_units = self.get_var_units(expr)
-        conversion, conv_nodes = self.ionic_current_units_conversion(get_stim, stim_units, False)
-        return output + conversion + self.STMT_END, conv_nodes
+        return output + get_stim + self.STMT_END
 
     def output_equations(self, nodeset, zero_stimulus=False):
         """Output the mathematics described by nodeset.
@@ -2147,17 +1949,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 i_stim = self.doc._cml_config.i_stim_var
                 stim_assignment = self.code_name(i_stim) + self.EQ_ASSIGN + '0.0' + self.STMT_END
             else:
-                stim_assignment, conv_nodes = self.get_stimulus_assignment()
-                conv_nodes = self.calculate_extended_dependencies(conv_nodes)
-                conv_nodes_new = conv_nodes - nodeset
-                if conv_nodes_new:
-                    if conv_nodes != conv_nodes_new:
-                        # Some of nodeset is used to compute the conversion; ordering becomes tricky
-                        stim_index = self.model.get_assignments().index(self.doc._cml_config.i_stim_var)
-                        for node in conv_nodes - conv_nodes_new:
-                            if self.model.get_assignments().index(node) > stim_index:
-                                raise NotImplementedError
-                    nodeset = nodeset | conv_nodes_new
+                stim_assignment = self.get_stimulus_assignment()
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
             if self.use_chaste_stimulus:
@@ -2283,19 +2075,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
             nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[i_stim])
             #print map(lambda v: v.fullname(), nodes)
             #print filter(lambda p: p[2]>0, map(debugexpr, nodeset))
-            #621: check units of the ionic current
-            units_objs = map(self.get_var_units, nodes)
-            conversion, conv_nodes = self.ionic_current_units_conversion('i_ionic', units_objs)
-            conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset, prune_deps=[i_stim])
-            all_nodes = conv_nodes|nodeset
             # Output main part of maths
-            self.output_state_assignments(nodeset=all_nodes, pointer='pStateVariables')
+            self.output_state_assignments(nodeset=nodeset, pointer='pStateVariables')
             if self.use_lookup_tables:
-                self.output_table_index_generation(nodeset=all_nodes)
+                self.output_table_index_generation(nodeset=nodeset)
             self.output_equations(nodeset, zero_stimulus=True)
             self.writeln()
-            # Assign the total current to a temporary so we can check for NaN and
-            # do units conversion if needed.
+            # Assign the total current to a temporary so we can check for NaN
             self.writeln(self.TYPE_CONST_DOUBLE, 'i_ionic', self.EQ_ASSIGN, nl=False)
             if self.doc._cml_config.i_ionic_negated:
                 self.writeln('-(', nl=False, indent=False)
@@ -2308,8 +2094,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln(')', nl=False, indent=False)
             self.writeln(self.STMT_END, indent=False)
             self.writeln('EXCEPT_IF_NOT(!std::isnan(i_ionic));')
-            self.output_equations(conv_nodes)
-            self.writeln('return ', conversion, self.STMT_END)
+            self.writeln('return i_ionic', self.STMT_END)
         else:
             self.writeln('return 0.0;')
         self.close_block()
@@ -2330,10 +2115,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             return
         self.output_comment('Inputs:')
         self.output_comment('Time units: ', self.free_vars[0].units)
-        #621: convert if free var is not in milliseconds
-        if self.conversion_factor:
-            self.writeln(self.code_name(self.free_vars[0]), ' *= ',
-                         self.conversion_factor, self.STMT_END)
         # Work out what equations are needed to compute the derivatives
         derivs = set(map(lambda v: (v, self.free_vars[0]), self.state_vars))
         if self.v_variable in self.state_vars:
@@ -2375,14 +2156,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block()
         # Assign to derivatives vector
         for i, var in enumerate(self.state_vars):
-            deriv_assign = self.vector_index('rDY', i) + self.EQ_ASSIGN
-            if self.conversion_factor:
-                #621: convert if free var is not in milliseconds
-                self.writeln(deriv_assign, self.conversion_factor,
-                             '*', self.code_name(var, True), self.STMT_END)
-            else:
-                self.writeln(deriv_assign, self.code_name(var, True),
-                             self.STMT_END)
+            self.writeln(self.vector_index('rDY', i), self.EQ_ASSIGN, self.code_name(var, True), self.STMT_END)
         self.close_block()
         return
 
@@ -2473,10 +2247,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                  'void', access='public')
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units)
-        #621: convert if free var is not in milliseconds
-        if self.conversion_factor:
-            self.writeln(self.code_name(self.free_vars[0]), ' *= ',
-                         self.conversion_factor, self.STMT_END)
         # Output mathematics to compute dV/dt
         nodes = [(self.state_vars[self.v_index], self.free_vars[0])]
         nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
@@ -2498,10 +2268,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.open_block()
         self.writeln(self.COMMENT_START, 'Time units: ',
                      self.free_vars[0].units)
-        #621: convert if free var is not in milliseconds
-        if self.conversion_factor:
-            self.writeln(self.code_name(self.free_vars[0]), ' *= ',
-                         self.conversion_factor, self.STMT_END)
         # Output mathematics to update linear state variables, using solver_info.linear_odes.
         # Also need to use output_equations for variables used in the update equations.
         linear_vars, update_eqns = [], {}
@@ -2880,7 +2646,6 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         self.writeln_hpp("#ifdef CHASTE_CVODE")
         self.include_serialization = False
         self.use_backward_euler = False
-        self.check_time_units()
         self.output_includes(base_class='AbstractCvodeCell')
         # Separate class for lookup tables?
         if self.use_lookup_tables and self.separate_lut_class:
