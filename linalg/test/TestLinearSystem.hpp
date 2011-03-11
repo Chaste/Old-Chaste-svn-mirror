@@ -1387,6 +1387,75 @@ public:
         VecDestroy(guess);
     }
 
+    void TestFixedNumberOfIterationsRelativeToleranceCoverage() throw (Exception)
+    {
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);
+
+        Mat system_matrix;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
+
+        Vec system_rhs;
+        //Note that this test deadlocks if the file's not on the disk
+        PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
+
+        LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+
+        ls.SetMatrixIsSymmetric();
+        ls.SetKspType("cg");
+        ls.SetPcType("jacobi");
+        ls.SetRelativeTolerance(1e-6); // Covering the use of relative tolerance for solution
+
+        Vec guess;
+        VecDuplicate(parallel_layout, &guess);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2)
+        PetscScalar zero = 0.0;
+        VecSet(&zero, guess);
+#else
+        VecSet(guess, 0.0);
+#endif
+
+        /*
+         *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
+         */
+        TS_ASSERT_THROWS_NOTHING(ls.SetUseFixedNumberIterations(true, 2));
+
+        Vec solution = ls.Solve(guess);
+
+        unsigned chebyshev_its = ls.GetNumIterations();
+        TS_ASSERT_EQUALS(chebyshev_its, 40u);
+
+        Vec new_solution;
+        Vec difference;
+        VecDuplicate(parallel_layout, &difference);
+        PetscReal l_inf_norm;
+
+        /*
+         * Solve using previous solution as new guess. If we were checking convergence
+         * normally it would take 0 iterations to solve. Since we set fixed number of
+         * iterations based on first solve, it will take the same number as above.
+         */
+        new_solution = ls.Solve(solution);
+        chebyshev_its = ls.GetNumIterations();
+
+        TS_ASSERT_EQUALS(chebyshev_its, 40u);
+
+        PetscVecTools::WAXPY(difference, -1.0, new_solution, solution);
+        VecNorm(difference, NORM_INFINITY, &l_inf_norm);
+        TS_ASSERT_DELTA(l_inf_norm, 0.0, 1e-3);
+        VecDestroy(new_solution);
+
+        VecDestroy(solution);
+        VecDestroy(difference);
+
+        MatDestroy(system_matrix);
+        VecDestroy(system_rhs);
+        VecDestroy(parallel_layout);
+        VecDestroy(guess);
+    }
+
     // this test should be the last in the suite
     void TestSetFromOptions()
     {
