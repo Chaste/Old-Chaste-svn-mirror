@@ -163,8 +163,6 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     //////////////////////////////////////////
     // b = Mz
     //////////////////////////////////////////
-    this->mpLinearSystem->ZeroRhsVector();
-
     MatMult(mMassMatrix, mVecForConstructingRhs, this->mpLinearSystem->rGetRhsVector());
 
     // assembling RHS is not finished yet, as Neumann bcs are added below, but
