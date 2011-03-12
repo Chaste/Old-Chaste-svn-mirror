@@ -694,26 +694,44 @@ class InterfaceGenerator(ModelModifier):
 class UnitsConverter(ModelModifier):
     """Top-level interface to the units conversion code in PyCml.
     """
-    def __init__(self, model, warn_only=None):
+    def __init__(self, model, warn_only=None, show_xml_context_only=False):
         self.model = model
         if warn_only is None:
             warn_only = model.get_option('warn_on_units_errors')
-        if warn_only:
-            self.try_convert = self._call_func
-        else:
-            self.try_convert = self._ignore_errors
+        self.warn_only = warn_only
+        self.show_xml_context_only = show_xml_context_only
         self.special_conversions = {}
+        self._setup_logger()
     
-    def _call_func(self, func, *args, **kwargs):
-        """Call the given function."""
-        func(*args, **kwargs)
+    def __del__(self):
+        self._cleanup_logger()
+        
+    def _setup_logger(self):
+        logger = logging.getLogger('units-converter')
+        logger.setLevel(logging.WARNING)
+        formatter = logging.Formatter(fmt="%(name)s: %(message)s")
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        self._log_handler = handler
     
-    def _ignore_errors(self, func, *args, **kwargs):
-        """Call the given function, and swallow any units errors produced."""
+    def _cleanup_logger(self):
+        """Flush logger & remove handler."""
+        logger = logging.getLogger('units-converter')
+        self._log_handler.flush()
+        logger.removeHandler(self._log_handler)
+
+    def try_convert(self, func, *args, **kwargs):
+        """Call the given function, and log any units errors produced."""
         try:
             func(*args, **kwargs)
-        except UnitsError:
-            pass
+        except UnitsError, e:
+            if self.show_xml_context_only:
+                e.show_xml_context_only()
+            if self.warn_only:
+                e.warn = True
+                e.level = logging.WARNING
+            logging.getLogger('units-converter').log(e.level, unicode(e).encode('UTF-8'))
 
     def _check_special_conversion(self, expr):
         """Check whether a special conversion applies to the given assignment.

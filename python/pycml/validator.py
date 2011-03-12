@@ -28,8 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Validator for CellML 1.0
 # Author: Jonathan Cooper
 
-# TODO: Create a proper testsuite (or get UOA to do so)!
-
 # We want 1/2==0.5
 from __future__ import division
 

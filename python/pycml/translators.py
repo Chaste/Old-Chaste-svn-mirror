@@ -2578,7 +2578,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                      [{'units': 'second', 'prefix': 'milli'}])
         mV = cellml_units.create_new(model, 'millivolt',
                                      [{'units': 'volt', 'prefix': 'milli'}])
-        current_units = klass.get_current_units_options(model)[0]
+        current_units, microamps = klass.get_current_units_options(model)[0:2]
         # Generate the interface
         generator = processors.InterfaceGenerator(model, name=klass.INTERFACE_COMPONENT_NAME)
         iface_comp = generator.get_interface_component()
@@ -2609,10 +2609,21 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Apply units conversions just to the interface, if desired
         if config.options.convert_interfaces:
             warn_only = not config.options.fully_automatic and config.options.warn_on_units_errors
-            converter = processors.UnitsConverter(model, warn_only)
+            notifier = NotifyHandler(level=logging.WARNING)
+            logging.getLogger('units-converter').addHandler(notifier)
+            converter = processors.UnitsConverter(model, warn_only, show_xml_context_only=True)
             klass.add_special_conversions(converter, iface_comp)
             converter.add_conversions_for_component(iface_comp)
             converter.finalize(errh, check_units=False)
+            if notifier.messages:
+                msg = 'Problems occurred converting model variables to Chaste units.\n'
+                if ionic_vars[0].get_units().dimensionally_equivalent(microamps):
+                    msg += 'To convert the ionic currents for this model, '\
+                           'the model membrane capacitance needs to be identified.'
+                if config.options.fully_automatic:
+                    raise TranslationError(msg)
+                else:
+                    print >>sys.stderr, msg
 
 
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):

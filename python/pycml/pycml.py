@@ -3193,6 +3193,7 @@ class MathsError(Exception):
         self.warn = warn
         self.level = level or (logging.ERROR,logging.WARNING)[warn]
         self.show_xml_context = False
+        self._show_xml_context_only = False
 
         self.cname = context_obj.component.name
         self.ename = context_obj.localName
@@ -3222,6 +3223,11 @@ class MathsError(Exception):
             self.reaction_spec = ''
         return
 
+    def show_xml_context_only(self):
+        """Only show the XML where the error occurred."""
+        self.show_xml_context = True
+        self._show_xml_context_only = True
+
     def __str__(self):
         msg = unicode(self)
         return msg.encode('UTF-8')
@@ -3235,21 +3241,26 @@ class MathsError(Exception):
         else:             suf = 'th'
         return "%d%s" % (i, suf)
 
-    def __unicode__(self):
+    def _generate_message(self, where):
         if self.warn: type = 'Warning'
         else: type = 'Error'
-        msg = u''.join([type, ' checking mathematics: ', self.message, '\n  ',
-                         'Context: ', self.ordinal(self.expr_index),
+        msg = [type, ' ', where, ': ', self.message]
+        if not self._show_xml_context_only:
+            msg.extend(['\n  Context: ', self.ordinal(self.expr_index),
                          ' expression in the ', self.ordinal(self.math_index),
                          ' math element', self.reaction_spec,
                          ' in component ', self.cname, '\n  XPath: ',
                         element_xpath(self.context)])
+        msg = u''.join(msg)
         if self.show_xml_context:
             # Return the context XML tree as well.
             xml = self.context.xml(indent = u'yes',
                                    omitXmlDeclaration = u'yes')
             msg = msg + u'\n' + unicode(xml, encoding='UTF-8')
         return msg
+
+    def __unicode__(self):
+        return self._generate_message('checking mathematics')
 
     
 class UnitsError(MathsError):
@@ -3269,20 +3280,7 @@ class UnitsError(MathsError):
         return
 
     def __unicode__(self):
-        if self.warn: type = 'Warning'
-        else: type = 'Error'
-        msg = u''.join([type, ' checking units: ', self.message, '\n  ',
-                         'Context: ', self.ordinal(self.expr_index),
-                         ' expression in the ', self.ordinal(self.math_index),
-                         ' math element', self.reaction_spec,
-                         ' in component ', self.cname, '\n  XPath: ',
-                        element_xpath(self.context)])
-        if self.show_xml_context:
-            # Return the context XML tree as well.
-            xml = self.context.xml(indent = u'yes',
-                                   omitXmlDeclaration = u'yes')
-            msg = msg + u'\n' + unicode(xml, encoding='UTF-8')
-        return msg
+        return self._generate_message('checking units')
         
 
 def child_i(elt, i):
