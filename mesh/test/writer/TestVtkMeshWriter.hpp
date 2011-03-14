@@ -90,20 +90,22 @@ public:
 
         writer.SetParallelFiles();
         writer.WriteFilesUsingMesh(mesh);
-
-        //1.6K uncompressed, 1.3K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
+        if (PetscTools::IsSequential()) ///\todo #1494
+        {        
+            //1.6K uncompressed, 1.3K compressed
+            std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
+    
+            std::string target_file;
+            if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+            {
+                target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
+            }
+            else
+            {
+                target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
+            }
+            TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
         }
-        else
-        {
-            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
-        }
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 

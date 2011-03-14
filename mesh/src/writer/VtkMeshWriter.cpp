@@ -118,11 +118,11 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 
     std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
     
-    std::string node_file_name = this->mBaseName + ".vtu";
-    out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name, std::ios::out | std::ios::app);
+    std::string vtu_file_name = this->mBaseName + ".vtu";
+    out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(vtu_file_name, std::ios::out | std::ios::app);
 
-    *p_node_file << "\n" << comment << "\n";    
-    p_node_file->close();
+    *p_vtu_file << "\n" << comment << "\n";    
+    p_vtu_file->close();
     
 }
 
@@ -227,8 +227,84 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
     else
     {
-        /// \todo #1494 Do something different from below
-        AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFilesUsingMesh( rMesh,keepOriginalElementIndexing );
+        //Make the local mesh into a VtkMesh
+        assert(SPACE_DIM==3 || SPACE_DIM == 2);
+        assert(SPACE_DIM==ELEMENT_DIM);
+        vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
+        p_pts->GetData()->SetName("Vertex positions");
+        for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = rMesh.GetNodeIteratorBegin();
+             node_iter != rMesh.GetNodeIteratorEnd();
+             ++node_iter)
+        {
+            c_vector<double, SPACE_DIM> current_item = node_iter->rGetLocation();
+            
+            ///\todo #1494 - What about halo nodes?
+            p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
+        }
+        mpVtkUnstructedMesh->SetPoints(p_pts);
+        p_pts->Delete(); //Reference counted
+        
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator elem_iter = rMesh.GetElementIteratorBegin();
+             elem_iter != rMesh.GetElementIteratorEnd();
+             ++elem_iter)
+        {
+        
+            vtkCell* p_cell=NULL;
+            if (SPACE_DIM == 3)
+            {
+                p_cell = vtkTetra::New();
+            }
+            if (SPACE_DIM == 2)
+            {
+                p_cell = vtkTriangle::New();
+            }
+            vtkIdList* p_cell_id_list = p_cell->GetPointIds();
+            for (unsigned j = 0; j < ELEMENT_DIM+1; ++j)
+            {
+                ///\todo #1494 - These should use a local numbering scheme which includes halos
+                /// Is this going to slow things down?
+                p_cell_id_list->SetId(j, elem_iter->GetNodeGlobalIndex(j));
+            }
+            mpVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
+            p_cell->Delete(); //Reference counted
+        }
+        {
+            assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
+            vtkXMLPUnstructuredGridWriter* p_writer = vtkXMLPUnstructuredGridWriter::New();
+
+            p_writer->SetDataModeToBinary();
+ 
+            p_writer->SetNumberOfPieces(PetscTools::GetNumProcs());
+            p_writer->SetGhostLevel(1);
+            p_writer->SetStartPiece(PetscTools::GetMyRank());
+            p_writer->SetEndPiece(PetscTools::GetMyRank());
+
+
+            p_writer->SetInput(mpVtkUnstructedMesh);
+            //Uninitialised stuff arises (see #1079), but you can remove
+            //valgrind problems by removing compression:
+            // **** REMOVE WITH CAUTION *****
+            p_writer->SetCompressor(NULL);
+            // **** REMOVE WITH CAUTION *****
+            std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName + ".pvtu";
+            p_writer->SetFileName(vtk_file_name.c_str());
+            //p_writer->PrintSelf(std::cout, vtkIndent());
+            p_writer->Write();
+            p_writer->Delete(); //Reference counted
+ 
+ 
+ 
+        }    
+    
+//        std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
+//        
+//        std::string vtu_file_name = this->mBaseName + ".vtu";
+//        out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(vtu_file_name, std::ios::out | std::ios::app);
+//    
+//        *p_vtu_file << "\n" << comment << "\n";    
+//        p_vtu_file->close();
+//    
+
     }
 }
 
