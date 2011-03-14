@@ -204,6 +204,35 @@ private:
         // Apply a stimulus of -40 uA/cm^2 - should work for all models
         boost::shared_ptr<AbstractCardiacCellInterface> p_cell(CreateCellWithStandardStimulus(*p_loader, -40.0));
 
+        // #1669 Check that the default stimulus units are correct
+        if (p_cell->HasCellMLDefaultStimulus())
+        {
+            // Record the existing stimulus and re-apply it at the end
+            boost::shared_ptr<AbstractStimulusFunction> original_stim = p_cell->GetStimulusFunction();
+
+            // Tell the cell to use the default stimulus and retrieve it
+            p_cell->UseCellMLDefaultStimulus();
+            boost::shared_ptr<RegularStimulus> p_reg_stim =
+                     boost::static_pointer_cast<RegularStimulus>(p_cell->GetStimulusFunction());
+
+            if (rModelName!="aslanidi_model_2009") // Even before recent changes aslanidi model has stimulus of -400 !
+            {
+                // Stimulus magnitude should be approximately between -5 and -81 uA/cm^2
+                TS_ASSERT_LESS_THAN(p_reg_stim->GetMagnitude(),-5);
+                TS_ASSERT_LESS_THAN(-81,p_reg_stim->GetMagnitude());
+            }
+
+            // Stimulus duration should be approximately between 0.1 and 5 ms.
+            TS_ASSERT_LESS_THAN(p_reg_stim->GetDuration(),6.01);
+            TS_ASSERT_LESS_THAN(0.1,p_reg_stim->GetDuration());
+
+            // Stimulus period should be approximately between 70 (for bonadrenko? - seems fast!) and 2000ms.
+            TS_ASSERT_LESS_THAN(p_reg_stim->GetPeriod(),2000);
+            TS_ASSERT_LESS_THAN(70,p_reg_stim->GetPeriod());
+
+            p_cell->SetIntracellularStimulusFunction(original_stim);
+        }
+
         // Check lookup tables exist if they should
         if (testLookupTables && rModelName != "hodgkin_huxley_squid_axon_model_1952_modified")
         {
