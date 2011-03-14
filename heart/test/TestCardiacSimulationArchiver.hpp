@@ -33,7 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "CardiacSimulationArchiver.hpp" // Needs to be before other Chaste code
+#include "CheckpointArchiveTypes.hpp" // Needs to be before other Chaste code
+#include "CardiacSimulationArchiver.hpp"
 
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
@@ -162,7 +163,7 @@ public:
             TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
             TS_ASSERT_EQUALS(solution_replicated.GetSize(), mSolutionReplicated1d2ms.size()); //This in to make sure that the first test in the suite has been run!
-            
+
             for (unsigned index=0; index<solution_replicated.GetSize(); index++)
             {
                 //Shouldn't differ from the original run at all
@@ -194,7 +195,7 @@ public:
             //We detect a NULL pointer and turn it back into an exception.
             TS_ASSERT_THROWS_THIS(CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir),
                 "Failed to load from checkpoint because the dimensions of the archive do not match the object it's being read into.");
- 
+
         }
     }
 
@@ -635,49 +636,49 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
         HeartConfig::Instance()->SetSimulationDuration(0.2);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
-        
-        HeartConfig::Instance()->SetElectrodeParameters(false/*don't ground*/, 0/*x*/, 
-                                                        boundary_flux, 0.0, duration);        
-	        
+
+        HeartConfig::Instance()->SetElectrodeParameters(false/*don't ground*/, 0/*x*/,
+                                                        boundary_flux, 0.0, duration);
+
         {
 		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
 		    HeartConfig::Instance()->SetOutputDirectory(directory);
-        
+
 	        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
 	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-	        
+
 	        bidomain_problem.SetMesh(p_mesh);
 	        bidomain_problem.Initialise();
-	
+
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-	
+
 	        delete p_mesh;
         }
-        
+
         // And now with a distributed mesh, for coverage
         {
 		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
 		    HeartConfig::Instance()->SetOutputDirectory(directory);
-		    
+
 	        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
 	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
-	
+
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-	        
+
 	        bidomain_problem.SetMesh(p_mesh);
 	        bidomain_problem.Initialise();
-	
+
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-	
+
 	        delete p_mesh;
         }
     }
@@ -758,12 +759,12 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
         }
 
         DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 2);
-        
+
         // And now a shorter test with a distributed mesh, for coverage
         source_directory = FileFinder("heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/", RelativeTo::ChasteSourceRoot);
         new_archive_dir = "TestLoadAsSequentialWithBathAndDistributedMesh";
         ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
-        
+
         BidomainProblem<2>* p_problem2;
         // Do the migration to sequential
         p_problem2 = DoMigrateAndBasicTests<BidomainProblem<2>,2>(source_directory, ref_archive_dir, new_archive_dir, num_cells, true);
@@ -971,7 +972,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
-        HeartConfig::Instance()->SetElectrodeParameters(true/*do ground*/, 0/*x*/, 
+        HeartConfig::Instance()->SetElectrodeParameters(true/*do ground*/, 0/*x*/,
                                                         boundary_flux, 0.0, duration);
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
@@ -986,7 +987,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-        
+
         delete p_mesh;
     }
 

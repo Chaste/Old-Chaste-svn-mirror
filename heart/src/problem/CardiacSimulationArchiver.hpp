@@ -30,23 +30,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CARDIACSIMULATIONARCHIVER_HPP_
 
 #include <string>
-#include <fstream>
 
-// Must be included before any other serialization headers
-#include "CheckpointArchiveTypes.hpp"
-
-#include "Exception.hpp"
-#include "ArchiveOpener.hpp"
-#include "OutputFileHandler.hpp"
-#include "ArchiveLocationInfo.hpp"
-#include "DistributedVectorFactory.hpp"
-#include "PetscTools.hpp"
 #include "FileFinder.hpp"
 
-/**
- *  CardiacSimulationArchiver is a helper class for checkpointing of cardiac simulations.
+/*
+ * Archiving extravaganza:
  *
- *  The class is templated over the class defining the simulation (i.e. MonodomainProblem)
+ * Various objects are archived through a pointer to an abstract class.  All the potential concrete
+ * classes need to be included here, so they are registered with Boost.  If not, Boost (<1.37) won't be
+ * able to find the archiving methods of the concrete class and will throw the following
+ * exception:
+ *
+ *       terminate called after throwing an instance of 'boost::archive::archive_exception'
+ *       what():  unregistered class
+ *
+ * No member variable is defined to be of any of these clases, so removing them won't
+ * produce any compiler error.  The exception above will occur at runtime.
+ *
+ * This might not be even necessary in certain cases, if the file is included implicitly by another
+ * header file or by the test itself.  It's safer though.
+ */
+#include "MonodomainProblem.hpp"
+#include "BidomainProblem.hpp"
+#include "BidomainWithBathProblem.hpp"
+#include "HeartConfigRelatedCellFactory.hpp"
+
+/**
+ * CardiacSimulationArchiver is a helper class for checkpointing of cardiac simulations.
+ *
+ * The class is templated over the class defining the simulation (e.g. MonodomainProblem).
+ * It would be more natural to template over dimensions as for other classes, and just deal with pointers
+ * to AbstractCardiacProblem.  However, this breaks archive backwards compatibility...
  */
 template<class PROBLEM_CLASS>
 class CardiacSimulationArchiver
@@ -57,12 +71,12 @@ public:
      *
      * @note Must be called collectively, i.e. by all processes.
      *
-     * @param simulationToArchive object defining the simulation to archive
+     * @param rSimulationToArchive object defining the simulation to archive
      * @param rDirectory directory where the multiple files defining the checkpoint will be stored
      *     (relative to CHASTE_TEST_OUTPUT)
      * @param clearDirectory whether the directory needs to be cleared or not.
      */
-    static void Save(PROBLEM_CLASS& simulationToArchive, const std::string& rDirectory, bool clearDirectory=true);
+    static void Save(PROBLEM_CLASS& rSimulationToArchive, const std::string& rDirectory, bool clearDirectory=true);
 
 
     /**
@@ -108,154 +122,5 @@ public:
      */
     static PROBLEM_CLASS* Migrate(const FileFinder& rDirectory);
 };
-
-
-template<class PROBLEM_CLASS>
-void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToArchive,
-                                                    const std::string& rDirectory,
-                                                    bool clearDirectory)
-{
-    // Clear directory if requested (and make sure it exists)
-    OutputFileHandler handler(rDirectory, clearDirectory);
-
-    // Nest the archive writing, so the ArchiveOpener goes out of scope before
-    // the method ends.
-    {
-        // Open the archive files
-        FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
-        ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(dir, "archive.arch");
-        boost::archive::text_oarchive* p_main_archive = archive_opener.GetCommonArchive();
-
-        // And save
-        PROBLEM_CLASS* const p_simulation_to_archive = &simulationToArchive;
-        (*p_main_archive) & p_simulation_to_archive;
-    }
-
-    // Write the info file
-    if (PetscTools::AmMaster())
-    {
-        std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
-        std::ofstream info_file(info_path.c_str());
-        if (!info_file.is_open())
-        {
-            // Avoid deadlock...
-            PetscTools::ReplicateBool(true);
-            EXCEPTION("Unable to open archive information file: " + info_path);
-        }
-        PetscTools::ReplicateBool(false);
-        unsigned archive_version = 0; /// \todo #1026 get a real version number!
-        info_file << PetscTools::GetNumProcs() << " " << archive_version;
-    }
-    else
-    {
-        bool master_threw = PetscTools::ReplicateBool(false);
-        if (master_threw)
-        {
-            EXCEPTION("Unable to open archive information file");
-        }
-    }
-    // Make sure everything is written before any process continues.
-    PetscTools::Barrier("CardiacSimulationArchiver::Save");
-}
-
-template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string& rDirectory)
-{
-    FileFinder directory(rDirectory, RelativeTo::ChasteTestOutput);
-    return CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(directory);
-}
-
-template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const FileFinder& rDirectory)
-{
-    return CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(rDirectory);
-}
-
-
-template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const FileFinder& rDirectory)
-{
-    // Check the directory exists
-    std::string dir_path = rDirectory.GetAbsolutePath();
-    if (!rDirectory.IsDir() || !rDirectory.Exists())
-    {
-        EXCEPTION("Checkpoint directory does not exist: " + dir_path);
-    }
-    assert(*(dir_path.end()-1) == '/'); // Paranoia
-    // Load the info file
-    std::string info_path = dir_path + "archive.info";
-    std::ifstream info_file(info_path.c_str());
-    if (!info_file.is_open())
-    {
-        EXCEPTION("Unable to open archive information file: " + info_path);
-    }
-    unsigned num_procs, archive_version;
-    info_file >> num_procs >> archive_version;
-
-    PROBLEM_CLASS *p_unarchived_simulation;
-
-    // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading,
-    // and make it get the original DistributedVectorFactory from the archive so we can compare against
-    // num_procs.
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
-    // Put what follows in a try-catch to make sure we reset this
-    try
-    {
-        if (num_procs == PetscTools::GetNumProcs())
-        {
-            // We're not actually doing a migrate, and will re-use exactly the same mesh
-            // partitioning etc. from before, so don't need any of the LoadExtraArchive
-            // magic.  Indeed, we mustn't use it, or the mesh will get confused about
-            // which nodes it owns.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch");
-            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-            (*p_main_archive) >> p_unarchived_simulation;
-
-            // Paranoia checks
-            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-            assert(p_factory != NULL);
-            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-            if (original_num_procs != num_procs)
-            {
-                NEVER_REACHED;
-                //assert(original_num_procs == num_procs);
-            }
-        }
-        else
-        {
-            // We are migrating, and must re-distribute nodes, cells, etc.
-
-            // Load the master and process-0 archive files.
-            // This will also set up ArchiveLocationInfo for us.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", 0u);
-            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-            (*p_main_archive) >> p_unarchived_simulation;
-
-            // Work out how many more files to load
-            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-            assert(p_factory != NULL);
-            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-            assert(original_num_procs == num_procs); // Paranoia
-
-            // Merge in the extra data
-            for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
-            {
-                std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
-                std::ifstream ifs(archive_path.c_str());
-                boost::archive::text_iarchive archive(ifs);
-                p_unarchived_simulation->LoadExtraArchive(archive, archive_version);
-            }
-        }
-    }
-    catch (Exception &e)
-    {
-        DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-        throw e;
-    }
-
-    // Done.
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-    return p_unarchived_simulation;
-}
 
 #endif /*CARDIACSIMULATIONARCHIVER_HPP_*/

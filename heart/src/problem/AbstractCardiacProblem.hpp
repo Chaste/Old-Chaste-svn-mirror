@@ -59,20 +59,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Archiving extravaganza:
  *
- * We archive mesh and pde through a pointer to an abstract class. All the potential concrete
- * classes need to be included here, so they are registered with boost. If not, boost won't be
+ * We archive mesh and tissue through a pointer to an abstract class.  All the potential concrete
+ * classes need to be included here, so they are registered with boost.  If not, boost won't be
  * able to find the archiving methods of the concrete class and will throw the following
  * exception:
  *
  *       terminate called after throwing an instance of 'boost::archive::archive_exception'
  *       what():  unregistered class
  *
- * No member variable is defined to be of any of these clases, removing them won't
- * produce any compiler error. The exception above will occur at runtime.
+ * No member variable is defined to be of any of these clases, so removing them won't
+ * produce any compiler error.  The exception above will occur at runtime.
  *
- * This might not be even necessary in certain cases, if the file is included implicitely by another header file
- * or by the test itself. It's safer though.
- *
+ * This might not be even necessary in certain cases, if the file is included implicitly by another
+ * header file or by the test itself.  It's safer though.
  */
 #include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp" //May be needed for unarchiving a mesh
@@ -160,7 +159,7 @@ private:
 
             ///\todo #1369
             assert(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false );
-            
+
             if (PROBLEM_DIM==1)
             {
                 writer.EndDefineMode();
@@ -429,11 +428,11 @@ protected:
     /**
      *  Set an electrode object (which provides boundary conditions). Only
      *  valid if there is a bath.
-     * 
+     *
      */
-     
+
     virtual void SetElectrodes();
-    
+
 public:
     /**
      * Constructor
@@ -659,15 +658,15 @@ public:
 
 
 
-    ///\todo #1704 add default adaptivity controller and allow the user just to call with true 
+    ///\todo #1704 add default adaptivity controller and allow the user just to call with true
     // and no controller, in which case the default is used.
 
-    /** 
+    /**
      *  Set whether (or not) to use a time adaptivity controller
      *  @param useAdaptivity whether to use adaptivity
      *  @param pController The controller (only relevant if useAdaptivity==true)
      */
-    void SetUseTimeAdaptivityController(bool useAdaptivity, 
+    void SetUseTimeAdaptivityController(bool useAdaptivity,
                                         AbstractTimeAdaptivityController* pController = NULL);
 
     /**
@@ -697,7 +696,7 @@ public:
      * Return whether there's bath defined in this problem
      */
     virtual bool GetHasBath();
-  
+
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem)
