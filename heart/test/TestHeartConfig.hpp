@@ -1125,76 +1125,7 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetMeshPartitioning("magic"),
                               "Unknown mesh partitioning method provided");
 
-        // Tests for set functions of postprocessing
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
-        std::vector<std::pair<double,double> > apds, apd_maps;
-        apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
-        HeartConfig::Instance()->SetApdMaps(apds);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
-        HeartConfig::Instance()->GetApdMaps(apd_maps);
-        TS_ASSERT_EQUALS(apd_maps.size(),1u);
-        TS_ASSERT_EQUALS(apd_maps[0].first,90);
-        TS_ASSERT_EQUALS(apd_maps[0].second,-30);
 
-        apds[0].first = 80;//reploarisation percentage first, as per schema
-        apds[0].second = -45;
-        HeartConfig::Instance()->SetApdMaps(apds);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
-
-        HeartConfig::Instance()->GetApdMaps(apd_maps);
-        TS_ASSERT_EQUALS(apd_maps.size(),1u);
-        TS_ASSERT_EQUALS(apd_maps[0].first,80);
-        TS_ASSERT_EQUALS(apd_maps[0].second,-45);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), false);
-        std::vector<double> upstroke_time_map, upstroke_time_map_get;
-        upstroke_time_map.push_back(25.0);
-        upstroke_time_map.push_back(55.0);
-        HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), true);
-        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_map_get);
-        TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
-        TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
-        TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), false);
-        std::vector<double> upstroke_velocity_map, upstroke_velocity_map_get;
-        upstroke_velocity_map.push_back(25.0);
-        upstroke_velocity_map.push_back(55.0);
-        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), true);
-        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_map_get);
-        TS_ASSERT_EQUALS(upstroke_velocity_map_get.size(),2u);
-        TS_ASSERT_EQUALS(upstroke_velocity_map_get[0],25);
-        TS_ASSERT_EQUALS(upstroke_velocity_map_get[1],55);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
-        std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
-        conduction_velocity_map.push_back(25u);
-        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), true);
-        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
-        TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
-        TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
-        
-        TS_ASSERT(!HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
-        std::vector<ChastePoint<3> > pseudo_ecg_parameters, pseudo_ecg_parameters_get;
-        ChastePoint<3> electrode_point(0.0, 1.5, -2.5);
-        pseudo_ecg_parameters.push_back(electrode_point);
-        HeartConfig::Instance()->SetPseudoEcgElectrodePositions(pseudo_ecg_parameters);
-        TS_ASSERT(HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
-        HeartConfig::Instance()->GetPseudoEcgElectrodePositions(pseudo_ecg_parameters_get);
-        TS_ASSERT_EQUALS(pseudo_ecg_parameters_get.size(), 1u);
-        for (unsigned dim=0; dim<3u; dim++)
-        {
-            TS_ASSERT_EQUALS(pseudo_ecg_parameters_get[0][dim], electrode_point[dim]);
-        }
-        
-        
-        
         bool ground_second_electrode;
         unsigned axis_index;
         double magnitude, start_time, duration;
@@ -1204,12 +1135,12 @@ public:
                                "Attempted to get electrodes that have not been defined.");
         HeartConfig::Instance()->SetElectrodeParameters(false, 2, 1066, 0.5, 0.5);
         HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, axis_index, magnitude, start_time, duration);
-        TS_ASSERT_EQUALS(ground_second_electrode, false);    
-        TS_ASSERT_EQUALS(axis_index, 2u);    
-        TS_ASSERT_EQUALS(magnitude, 1066.0);    
-        TS_ASSERT_EQUALS(start_time, 0.5);    
+        TS_ASSERT_EQUALS(ground_second_electrode, false);
+        TS_ASSERT_EQUALS(axis_index, 2u);
+        TS_ASSERT_EQUALS(magnitude, 1066.0);
+        TS_ASSERT_EQUALS(start_time, 0.5);
         TS_ASSERT_EQUALS(duration, 0.5);
-        
+
         // This is a temporary internal boolean until we're happy that users can be let loose on the functionality!
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
         HeartConfig::Instance()->SetUseStateVariableInterpolation();
@@ -1239,9 +1170,97 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves(), UINT_MAX);
         HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver(true, 20);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves(), 20u);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves(), 20u);
     }
 
+    void TestPostProcessingFunctions() throw (Exception)
+    {
+        // Tests for set functions of postprocessing
+        HeartConfig::Reset();
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
+        std::vector<std::pair<double,double> > apds, apd_maps;
+        apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,90);
+        TS_ASSERT_EQUALS(apd_maps[0].second,-30);
+
+        apds[0].first = 80;//reploarisation percentage first, as per schema
+        apds[0].second = -45;
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
+
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,80);
+        TS_ASSERT_EQUALS(apd_maps[0].second,-45);
+
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), false);
+        std::vector<double> upstroke_time_map, upstroke_time_map_get;
+        upstroke_time_map.push_back(25.0);
+        upstroke_time_map.push_back(55.0);
+        HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), true);
+        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_map_get);
+        TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
+        TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
+        TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
+
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), false);
+        std::vector<double> upstroke_velocity_map, upstroke_velocity_map_get;
+        upstroke_velocity_map.push_back(25.0);
+        upstroke_velocity_map.push_back(55.0);
+        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), true);
+        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_map_get);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get.size(),2u);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get[0],25);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get[1],55);
+
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
+        std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
+        conduction_velocity_map.push_back(25u);
+        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), true);
+        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
+        TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
+        TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
+        
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPseudoEcgCalculationRequested(), false);
+        std::vector<ChastePoint<3> > pseudo_ecg_parameters, pseudo_ecg_parameters_get;
+        ChastePoint<3> electrode_point(0.0, 1.5, -2.5);
+        pseudo_ecg_parameters.push_back(electrode_point);
+        HeartConfig::Instance()->SetPseudoEcgElectrodePositions(pseudo_ecg_parameters);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPseudoEcgCalculationRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        HeartConfig::Instance()->GetPseudoEcgElectrodePositions(pseudo_ecg_parameters_get);
+        TS_ASSERT_EQUALS(pseudo_ecg_parameters_get.size(), 1u);
+        for (unsigned dim=0; dim<3u; dim++)
+        {
+            TS_ASSERT_EQUALS(pseudo_ecg_parameters_get[0][dim], electrode_point[dim]);
+        }
+    }
     void TestWrite() throw (Exception)
     {
         OutputFileHandler output_file_handler("Xml/output", true);

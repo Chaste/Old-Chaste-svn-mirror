@@ -1953,7 +1953,8 @@ bool HeartConfig::IsPostProcessingRequested() const
         return(IsApdMapsRequested() ||
                IsUpstrokeTimeMapsRequested() ||
                IsMaxUpstrokeVelocityMapRequested() ||
-               IsConductionVelocityMapsRequested());
+               IsConductionVelocityMapsRequested() ||
+               IsPseudoEcgCalculationRequested());
     }
 }
 bool HeartConfig::IsApdMapsRequested() const
