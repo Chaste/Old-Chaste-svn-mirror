@@ -143,14 +143,26 @@ Improved guinea-pig ventricular cell model incorporating a diadic space, IKr and
       <unit exponent="-1" units="micrometre3"/>
    </units>
    <component name="environment">
-      <variable cmeta:id="environment_time" name="time" public_interface="out" units="second"/>
+      <variable name="time" public_interface="out" units="second" cmeta:id="time">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#time">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#time"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
    </component>
    <component name="membrane">
       <variable cmeta:id="membrane_voltage" initial_value="-92.849333" name="V" public_interface="out" units="millivolt"/>
       <variable initial_value="8314.472" name="R" public_interface="out" units="joule_per_kilomole_kelvin"/>
       <variable initial_value="310" name="T" public_interface="out" units="kelvin"/>
       <variable initial_value="96485.3415" name="F" public_interface="out" units="coulomb_per_mole"/>
-      <variable initial_value="9.5e-5" name="Cm" units="microF"/>
+      <variable initial_value="9.5e-5" name="Cm" units="microF" cmeta:id="membrane_capacitance">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_capacitance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_capacitance"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable name="time" public_interface="in" units="second"/>
       <variable name="i_K1" public_interface="in" units="nanoA"/>
       <variable name="i_to" public_interface="in" units="nanoA"/>
@@ -169,12 +181,42 @@ Improved guinea-pig ventricular cell model incorporating a diadic space, IKr and
       <variable name="i_Ca_L_Ca_cyt" public_interface="in" units="nanoA"/>
       <variable name="i_Ca_L_Ca_ds" public_interface="in" units="nanoA"/>
       <variable name="i_b_Ca" public_interface="in" units="nanoA"/>
-      <variable name="i_Stim" units="nanoA"/>
-      <variable initial_value="0.1" name="stim_start" units="second"/>
+      <variable name="i_Stim" units="nanoA" cmeta:id="membrane_stimulus_current">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
+      <variable initial_value="0.1" name="stim_start" units="second" cmeta:id="membrane_stimulus_current_offset">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_offset">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_offset"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <variable initial_value="100000" name="stim_end" units="second"/>
-      <variable initial_value="1" name="stim_period" units="second"/>
-      <variable initial_value="0.003" name="stim_duration" units="second"/>
-      <variable initial_value="-3" name="stim_amplitude" units="nanoA"/>
+      <variable initial_value="1" name="stim_period" units="second" cmeta:id="membrane_stimulus_current_period">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_period">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_period"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
+      <variable initial_value="0.003" name="stim_duration" units="second" cmeta:id="membrane_stimulus_current_duration">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_duration">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_duration"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
+      <variable initial_value="-3" name="stim_amplitude" units="nanoA" cmeta:id="membrane_stimulus_current_amplitude">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#membrane_stimulus_current_amplitude">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_amplitude"/>
+            </rdf:Description>
+         </rdf:RDF>
+      </variable>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
          <apply>
             <eq/>
