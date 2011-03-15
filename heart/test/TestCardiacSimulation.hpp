@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+#include "AbstractCardiacProblem.hpp"
+#include "MonodomainProblem.hpp"
+
 #include "CardiacSimulation.hpp"
 
 #include "OutputFileHandler.hpp"
@@ -41,6 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "PetscTools.hpp"
 #include "HeartEventHandler.hpp"
+#include "AbstractCardiacCell.hpp"
+#include "DistributedVectorFactory.hpp"
+
 #include "PetscSetupAndFinalize.hpp"
 
 class TestCardiacSimulation : public CxxTest::TestSuite
@@ -341,72 +347,83 @@ public:
                                                  "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
     
-    void doTestResumeChangingSettings(const std::string& rParametersFileName) throw(Exception)
+    void runSimulation(const std::string& rParametersFileName)
+    {
+        CardiacSimulation simulation(rParametersFileName);
+    }
+
+    void checkParameter(AbstractCardiacCell* pCell, unsigned globalIndex)
+    {
+        // Check parameter has been set in the central region
+        TS_ASSERT_EQUALS(pCell->GetNumberOfParameters(), 1u);
+        double expected_value;
+        if (globalIndex <= 4 || globalIndex >= 16)
+        {
+            expected_value = 23.0;
+        }
+        else
+        {
+            expected_value = 0.0;
+        }
+        double actual_value = pCell->GetParameter(0);
+        TS_ASSERT_EQUALS(actual_value, expected_value);
+        // Check stimulus has been replaced.  It started as 0-1ms at x<=0.02, and should now be 600-601ms at x<=0.02
+        if (globalIndex < 3)
+        {
+            TS_ASSERT_EQUALS(pCell->GetStimulus(0.0), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(0.5), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(1.0), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(599.9), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(600.0), -200000.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(600.5), -200000.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(601.0), -200000.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(601.1), 0.0);
+        }
+        else
+        {
+            // Always zero...
+            TS_ASSERT_EQUALS(pCell->GetStimulus(0.0), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(0.5), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(600.5), 0.0);
+            TS_ASSERT_EQUALS(pCell->GetStimulus(10.0), 0.0);
+        }
+    }
+    
+    void doTestResumeChangingSettings(const std::string& rParametersFileName)
     {
         std::string foldername = "SaveMonodomainWithParameter";
-    	{ // Save
-	        CardiacSimulation simulation(rParametersFileName);
-	        // Just check that the checkpoint exists
-	        FileFinder archive(foldername + "_checkpoints/1ms/" + foldername + "_1ms/archive.arch.0", RelativeTo::ChasteTestOutput);
-	        TS_ASSERT(archive.Exists());
-    	}
-    	
-    	{ // Load
-    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", false, true);
-    		
-    		boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
-    		TS_ASSERT(p_problem);
-    		MonodomainProblem<1,1>* p_mono_problem = dynamic_cast<MonodomainProblem<1,1>*>(p_problem.get());
-    		TS_ASSERT(p_mono_problem != NULL);
-    		DistributedVectorFactory* p_vector_factory = p_mono_problem->rGetMesh().GetDistributedVectorFactory();
-	        for (unsigned node_global_index = p_vector_factory->GetLow();
-	             node_global_index < p_vector_factory->GetHigh();
-	             node_global_index++)
-	        {
-	        	AbstractCardiacCell* p_cell = p_mono_problem->GetTissue()->GetCardiacCell(node_global_index);
-	        	// Check parameter has been set in the central region
-	        	TS_ASSERT_EQUALS(p_cell->GetNumberOfParameters(), 1u);
-	        	double expected_value;
-	        	if (node_global_index <= 4 || node_global_index >= 16)
-	        	{
-	        		expected_value = 23.0;
-	        	}
-	        	else
-	        	{
-	        		expected_value = 0.0;
-	        	}
-	        	TS_ASSERT_EQUALS(p_cell->GetParameter(0), expected_value);
-	        	// Check stimulus has been replaced.  It started as 0-1ms at x<=0.02, and should now be 600-601ms at x<=0.02
-	        	if (node_global_index < 3)
-	        	{
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.0), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.5), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(1.0), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(599.9), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.0), -200000.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.5), -200000.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(601.0), -200000.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(601.1), 0.0);
-	        	}
-	        	else
-	        	{
-	        		// Always zero...
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.0), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.5), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.5), 0.0);
-	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(10.0), 0.0);
-	        	}
-	        }
-	        // compare the files, using the CompareFilesViaHdf5DataReader() method
-	        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
-	                                                 foldername, "SimulationResults", true));
-    	}
+
+        // Save
+        runSimulation(rParametersFileName);
+        // Just check that the checkpoint exists
+        FileFinder archive(foldername + "_checkpoints/1ms/" + foldername + "_1ms/archive.arch.0", RelativeTo::ChasteTestOutput);
+        TS_ASSERT(archive.Exists());
+
+        { // Load
+            CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", false, true);
+            
+            boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
+            TS_ASSERT(p_problem);
+            MonodomainProblem<1,1>* p_mono_problem = dynamic_cast<MonodomainProblem<1,1>*>(p_problem.get());
+            TS_ASSERT(p_mono_problem != NULL);
+            DistributedVectorFactory* p_vector_factory = p_mono_problem->rGetMesh().GetDistributedVectorFactory();
+            for (unsigned node_global_index = p_vector_factory->GetLow();
+                 node_global_index < p_vector_factory->GetHigh();
+                 node_global_index++)
+            {
+                AbstractCardiacCell* p_cell = p_mono_problem->GetTissue()->GetCardiacCell(node_global_index);
+                checkParameter(p_cell, node_global_index);
+            }
+            // compare the files, using the CompareFilesViaHdf5DataReader() method
+            TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
+                                                     foldername, "SimulationResults", true));
+        }
     }
     
     void TestResumeChangingSettings() throw(Exception)
     {
-    	doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter.xml");
-    	doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter_append.xml");
+        doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter.xml");
+        doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter_append.xml");
     }
 
     void TestCardiacSimulationPatchwork() throw(Exception)
@@ -474,7 +491,7 @@ public:
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_noelectrodes.xml"), 
-        		              "Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
+                              "Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
 
 #ifndef CHASTE_CAN_CHECKPOINT_DLLS
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_checkpoint.xml"),

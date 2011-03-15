@@ -35,9 +35,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasIncludes.hpp"
 
+#include "AbstractCardiacProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "BidomainWithBathProblem.hpp"
+#include "CardiacSimulationArchiver.hpp"
 #include "PetscTools.hpp"
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
@@ -58,7 +60,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PostProcessingWriter.hpp"
 
-#include "CardiacSimulationArchiver.hpp"
 #include "OutputDirectoryFifoQueue.hpp"
 #include "ExecutableSupport.hpp"
 

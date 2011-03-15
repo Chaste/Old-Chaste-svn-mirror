@@ -31,10 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "CardiacSimulation.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudy1991.hpp"
 #include "BidomainProblem.hpp"
+#include "CardiacSimulation.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "OutputFileHandler.hpp"
