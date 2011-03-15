@@ -61,7 +61,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
     friend class AbstractConductivityTensors<ELEMENT_DIM, SPACE_DIM>; //A class which needs a global to local element mapping
-    
+
 protected:
     /**
      * Most tet meshes are linear (set to true).  Set to false in quadratics.
@@ -126,13 +126,13 @@ private:
         {
             const std::vector<unsigned>& rPermutation = this->rGetNodePermutation();
             archive & rPermutation;
-        }                 
-        
+        }
+
         if (!this->IsMeshOnDisk())
         {
             mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
-        } 
-        else        
+        }
+        else
         {
             unsigned order_of_element = (mMeshIsLinear?1:2);
             unsigned& order_of_boundary_element = order_of_element;
@@ -141,10 +141,10 @@ private:
             // \todo #1200 consider creating symlinks instead...
             std::string original_file=this->GetMeshFileBaseName();
             GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file, order_of_element, order_of_boundary_element);
-            
+
             if (original_mesh_reader.IsFileFormatBinary())
             {
-                // Mesh is in binary format, we can just copy the files across ignoring the mesh reader                
+                // Mesh is in binary format, we can just copy the files across ignoring the mesh reader
                 std::stringstream cp_command;
                 cp_command << "for filename in `ls " << this->GetMeshFileBaseName() << ".*`; do " <<
                                  "extension=${filename##*.};" << // ##*. deletes basename and . from the filename (i.e. leaves only the extension (http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_03.html)
@@ -158,7 +158,7 @@ private:
             }
             else
             {
-                // Mesh in text format, use the mesh writer to "binarise" it                    
+                // Mesh in text format, use the mesh writer to "binarise" it
                 mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
             }
         }
@@ -179,18 +179,18 @@ private:
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
 
-        bool permutation_available=false;        
+        bool permutation_available=false;
         std::vector<unsigned> permutation;
 
         if(version>0)
-        {        
+        {
             archive & permutation_available;
-    
+
             if( permutation_available )
             {
                 archive & permutation;
             }
-        }                 
+        }
 
         // Store the DistributedVectorFactory loaded from the archive
         DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
@@ -201,16 +201,6 @@ private:
         {
             p_our_factory = p_factory->GetOriginalFactory();
         }
-
-        /// \todo: #1200 The following if statement is a temporal hack to make sure that there is a DistributedVectorFactory
-        /// \todo: (continue) set before calling ConstructFromMeshReader, otherwise it will go for PETSc's default node distribution
-        /// \todo: (continue) which doesn't necessarily match the archived distribution. The problem being that I don't
-        /// \todo: (continue) understand why p_our_factory is NULL here (in the context of TestDistributedTetrahedralMesh).
-        if (!p_our_factory && permutation_available)
-        {
-            p_our_factory = p_factory;
-        }
-
         if (p_our_factory && p_our_factory->GetNumProcs() == p_factory->GetNumProcs())
         {
             // Specify the node distribution
@@ -227,12 +217,12 @@ private:
         {
             //I am a linear mesh
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
-            
+
             if (permutation_available)
             {
                 mesh_reader.SetNodePermutation(permutation);
             }
-            
+
             this->ConstructFromMeshReader(mesh_reader);
         }
         else
@@ -327,7 +317,7 @@ public:
      * Get the number of elements that are actually in use.
      */
     virtual unsigned GetNumElements() const;
-    
+
     /**
      * Get the number of local elements that are in use on this process (only over-ridden when the mesh is distributed).
      */
@@ -382,8 +372,8 @@ public:
      * @param rOtherMesh the mesh to copy
      */
     void ConstructFromMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rOtherMesh);
-    
-    
+
+
     /**
      * Return a pointer to the first boundary element in the mesh.
      */
@@ -522,12 +512,12 @@ public:
      * If we have an element which node indices outside the local [mLo, mHi) region
      * then we know that those nodes will need to be recieved from a remote process, while
      * those inside the range [mLo, mHi) will need to be sent
-     * 
-     * @param rNodesToSendPerProcess (output) a vector which will be of size GetNumProcs() 
-     * where each internal vector except i=GetMyRank() contains an ordered list of indices of 
+     *
+     * @param rNodesToSendPerProcess (output) a vector which will be of size GetNumProcs()
+     * where each internal vector except i=GetMyRank() contains an ordered list of indices of
      * nodes to send to process i
-     *  
-     * @param rNodesToReceivePerProcess (output) a vector which will be of size GetNumProcs() 
+     *
+     * @param rNodesToReceivePerProcess (output) a vector which will be of size GetNumProcs()
      * for information to receive for process i
      */
      void CalculateNodeExchange( std::vector<std::vector<unsigned> >& rNodesToSendPerProcess,

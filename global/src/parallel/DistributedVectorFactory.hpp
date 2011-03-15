@@ -69,10 +69,10 @@ private:
      * current number of processes matches that used in creating the archive.
      */
     static bool msCheckNumberOfProcessesOnLoad;
+
     /**
-     * If #msCheckNumberOfProcessesOnLoad is set and this instance was loaded
-     * from an archive, this points to a factory with the settings from the
-     * archive, which may not be the same as this instance.
+     * If this instance was loaded from an archive, this points to a factory with
+     * the settings from the archive, which may not be the same as this instance.
      */
     DistributedVectorFactory* mpOriginalFactory;
 
@@ -243,6 +243,15 @@ public:
     }
 
     /**
+     * Set method for #mpOriginalFactory, used by archiving (load_construct_data).
+     * @param pOriginalFactory  see #mpOriginalFactory
+     */
+    void SetOriginalFactory(DistributedVectorFactory* pOriginalFactory)
+    {
+        mpOriginalFactory = pOriginalFactory;
+    }
+
+    /**
      * Set #mLo and #mHi from another vector factory.  Used by archiving.
      * @param pFactory  the factory to set from.
      */
@@ -250,7 +259,7 @@ public:
 
     /**
      * @returns the mLo value from each process in a vector.  This is calculated on the first call
-     * and cached for later use
+     * and cached for later use.
      */
     std::vector<unsigned> &rGetGlobalLows();
 
@@ -303,10 +312,10 @@ inline void load_construct_data(
     ar >> lo;
     ar >> size;
     ar >> num_procs;
+    DistributedVectorFactory* p_original_factory = new DistributedVectorFactory(lo, hi, size, num_procs);
 
     if (!DistributedVectorFactory::CheckNumberOfProcessesOnLoad())
     {
-        DistributedVectorFactory* p_original_factory = new DistributedVectorFactory(lo, hi, size, num_procs);
         ::new(t)DistributedVectorFactory(p_original_factory);
     }
     else
@@ -320,6 +329,7 @@ inline void load_construct_data(
             EXCEPTION("This archive was written for a different number of processors");
         }
         ::new(t)DistributedVectorFactory(size, hi-lo);
+        t->SetOriginalFactory(p_original_factory);
     }
 }
 
