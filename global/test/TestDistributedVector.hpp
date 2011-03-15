@@ -390,7 +390,12 @@ public:
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
             TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
             TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
-            TS_ASSERT(p_new_factory->GetOriginalFactory() == NULL);
+            TS_ASSERT(p_new_factory->GetOriginalFactory() != NULL);
+            TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetProblemSize(), TOTAL);
+            TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetHigh(), hi);
+            TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetLow(), lo);
+            TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetLocalOwnership(), num_local_items);
+            TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetNumProcs(), PetscTools::GetNumProcs());
 
             delete p_new_factory;
         }
@@ -411,7 +416,12 @@ public:
                 TS_ASSERT_EQUALS(p_new_factory->GetLow(), 0U);
                 TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
-                TS_ASSERT(p_new_factory->GetOriginalFactory() == NULL);
+                TS_ASSERT(p_new_factory->GetOriginalFactory() != NULL);
+                TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetProblemSize(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetHigh(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetLow(), 0U);
+                TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetLocalOwnership(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetOriginalFactory()->GetNumProcs(), PetscTools::GetNumProcs());
             }
             else
             {
