@@ -85,11 +85,17 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
-
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-
         writer.SetParallelFiles();
         writer.WriteFilesUsingMesh(mesh);
+
+        TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
+        DistributedTetrahedralMesh<2,2> mesh2;
+        mesh2.ConstructFromMeshReader(reader2);
+
+        VtkMeshWriter<2,2> writer2("TestVtkMeshWriter", "2D_0_to_1mm_200_elements_no_data", false);
+
+
         if (PetscTools::IsSequential()) ///\todo #1494
         {        
             //1.6K uncompressed, 1.3K compressed
