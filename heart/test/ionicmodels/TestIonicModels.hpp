@@ -135,9 +135,10 @@ public:
         TS_ASSERT_EQUALS(n98_ode_system.HasCellMLDefaultStimulus(),true);
         n98_ode_system.UseCellMLDefaultStimulus();
 
-        RegularStimulus* p_stim = static_cast<RegularStimulus*>(n98_ode_system.GetStimulusFunction().get());
-
         /// \todo #1669 These pass at r11921
+
+//        RegularStimulus* p_stim = static_cast<RegularStimulus*>(n98_ode_system.GetStimulusFunction().get());
+
 //        TS_ASSERT_DELTA(p_stim->GetMagnitude(),-31.5789,1e-4);
 //        TS_ASSERT_DELTA(p_stim->GetPeriod(),1000,1e-7);
 //        TS_ASSERT_DELTA(p_stim->GetStartTime(),100,1e-7);
