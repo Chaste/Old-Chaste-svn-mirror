@@ -381,8 +381,6 @@ public:
 
     void TestWithHeterogeneousCellModels() throw (Exception)
     {
-        EXIT_IF_PARALLEL; // It's broken...
-
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         HeartConfig::Instance()->SetUseStateVariableInterpolation(true);
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 1.0);

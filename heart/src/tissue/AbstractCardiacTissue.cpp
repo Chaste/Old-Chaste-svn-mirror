@@ -479,19 +479,25 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
             // Pack
             if ( number_of_cells_to_send > 0 )
             {
-                unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
-                unsigned send_size = number_of_cells_to_send*number_of_state_variables;
+                unsigned send_size = 0;
+                for (unsigned i=0; i<number_of_cells_to_send; i++)
+                {
+                    unsigned global_cell_index = mNodesToSendPerProcess[send_to][i];
+                    send_size += mCellsDistributed[global_cell_index - mpDistributedVectorFactory->GetLow()]->GetNumberOfStateVariables();
+                }
 
                 double send_data[send_size];
-//                send_data.resize(send_size);
 
-                for ( unsigned cell = 0; cell < number_of_cells_to_send; cell++ )
+                unsigned send_index = 0;
+                for (unsigned cell = 0; cell < number_of_cells_to_send; cell++)
                 {
                     unsigned global_cell_index = mNodesToSendPerProcess[send_to][cell];
-                    std::vector<double>& cell_data = mCellsDistributed[global_cell_index - mpDistributedVectorFactory->GetLow() ]->rGetStateVariables();
-                    for (unsigned state_variable = 0; state_variable < number_of_state_variables; state_variable++)
+                    AbstractCardiacCell* p_cell = mCellsDistributed[global_cell_index - mpDistributedVectorFactory->GetLow()];
+                    std::vector<double>& cell_data = p_cell->rGetStateVariables();
+                    const unsigned num_state_vars = p_cell->GetNumberOfStateVariables();
+                    for (unsigned state_variable = 0; state_variable < num_state_vars; state_variable++)
                     {
-                        send_data[ cell*number_of_state_variables + state_variable ] = cell_data[state_variable];
+                        send_data[send_index++] = cell_data[state_variable];
                     }
                 }
 
@@ -509,8 +515,12 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
             if ( number_of_cells_to_receive > 0 )
             {
                 // Receive
-                unsigned number_of_state_variables = mCellsDistributed[0]->GetNumberOfStateVariables();
-                unsigned receive_size = number_of_cells_to_receive*number_of_state_variables;
+                unsigned receive_size = 0;
+                for (unsigned i=0; i<number_of_cells_to_send; i++)
+                {
+                    unsigned halo_cell_index = mHaloGlobalToLocalIndexMap[mNodesToReceivePerProcess[receive_from][i]];
+                    receive_size += mHaloCellsDistributed[halo_cell_index]->GetNumberOfStateVariables();
+                }
 
                 double receive_data[receive_size];
                 MPI_Status status;
@@ -526,15 +536,18 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
                 assert ( ret == MPI_SUCCESS);
 
                 // Unpack
+                unsigned receive_index = 0;
                 for ( unsigned cell = 0; cell < number_of_cells_to_receive; cell++ )
                 {
+                    AbstractCardiacCell* p_cell = mHaloCellsDistributed[mHaloGlobalToLocalIndexMap[mNodesToReceivePerProcess[receive_from][cell]]];
                     std::vector<double> cell_data;
-                    cell_data.resize(number_of_state_variables);
+                    cell_data.resize(p_cell->GetNumberOfStateVariables());
+                    const unsigned number_of_state_variables = p_cell->GetNumberOfStateVariables();
                     for (unsigned state_variable = 0; state_variable < number_of_state_variables; state_variable++)
                     {
-                        cell_data[state_variable] = receive_data[ cell*number_of_state_variables + state_variable ];
+                        cell_data[state_variable] = receive_data[receive_index++];
                     }
-                    mHaloCellsDistributed[mHaloGlobalToLocalIndexMap[mNodesToReceivePerProcess[receive_from][cell]]]->SetStateVariables(cell_data);
+                    p_cell->SetStateVariables(cell_data);
                 }
             }
         }
