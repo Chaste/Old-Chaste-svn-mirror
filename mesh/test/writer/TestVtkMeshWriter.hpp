@@ -94,6 +94,8 @@ public:
         mesh2.ConstructFromMeshReader(reader2);
 
         VtkMeshWriter<2,2> writer2("TestVtkMeshWriter", "2D_0_to_1mm_200_elements_no_data", false);
+//        writer2.SetParallelFiles();
+        writer2.WriteFilesUsingMesh(mesh2);
 
 
         if (PetscTools::IsSequential()) ///\todo #1494

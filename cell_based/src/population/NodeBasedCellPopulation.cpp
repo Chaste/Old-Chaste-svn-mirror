@@ -394,7 +394,6 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
     VtkMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results_"+time.str(), false);
-    ///\todo (#1598)  fix naming of files?
 
     unsigned num_nodes = GetNumNodes();
     std::vector<double> cell_types(num_nodes);
