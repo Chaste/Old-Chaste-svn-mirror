@@ -82,21 +82,14 @@ public:
     {
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
-        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
-        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
-        mesh.ConstructFromMeshReader(reader);
-        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-        writer.SetParallelFiles();
-        writer.WriteFilesUsingMesh(mesh);
-
-        TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
-        DistributedTetrahedralMesh<2,2> mesh2;
-        mesh2.ConstructFromMeshReader(reader2);
-
-        VtkMeshWriter<2,2> writer2("TestVtkMeshWriter", "2D_0_to_1mm_200_elements_no_data", false);
-//        writer2.SetParallelFiles();
-        writer2.WriteFilesUsingMesh(mesh2);
-
+        {
+            TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+            mesh.ConstructFromMeshReader(reader);
+            VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
+            writer.SetParallelFiles();
+            writer.WriteFilesUsingMesh(mesh);
+        }
 
         if (PetscTools::IsSequential()) ///\todo #1494
         {        
@@ -113,6 +106,31 @@ public:
                 target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
             }
             TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
+        }
+        {
+            TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
+            DistributedTetrahedralMesh<2,2> mesh2;
+            mesh2.ConstructFromMeshReader(reader2);
+    
+            VtkMeshWriter<2,2> writer2("TestVtkMeshWriter", "2D_0_to_1mm_200_elements_parallel_data", false);
+            writer2.SetParallelFiles();
+            // Add distance from origin into the node "point" data
+            std::vector<double> rank;
+            //Real rank for the owned nodes
+            for (unsigned i=0; i<mesh2.GetNumLocalNodes(); i++)
+            {
+                rank.push_back(PetscTools::GetMyRank());
+            }
+            //Fake rank for the halos
+            for (unsigned i=0; i<mesh2.GetNumHaloNodes(); i++)
+            {
+//                rank.push_back(PetscTools::GetMyRank()+10.0);
+                rank.push_back(0.0);
+            }
+            writer2.AddPointData("Process rank", rank);
+    
+    
+            writer2.WriteFilesUsingMesh(mesh2);
         }
 #endif //CHASTE_VTK
     }

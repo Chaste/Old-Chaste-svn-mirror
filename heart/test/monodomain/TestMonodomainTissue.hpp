@@ -339,28 +339,28 @@ public:
 
         MonodomainTissue<1> monodomain_tissue( &cell_factory, true );
 
-        std::vector<unsigned> halo_nodes;
-        mesh.GetHaloNodeIndices( halo_nodes );
 
         if ( PetscTools::GetNumProcs() == 1 )
         {
-            TS_ASSERT_EQUALS( halo_nodes.size(), 0u );
+            TS_ASSERT_EQUALS( mesh.GetNumHaloNodes(), 0u );
         }
         else
         {
             if ( PetscTools::AmMaster() || PetscTools::AmTopMost() )
             {
-                TS_ASSERT_EQUALS( halo_nodes.size(), 1u );
+                TS_ASSERT_EQUALS( mesh.GetNumHaloNodes(), 1u );
             }
             else
             {
-                TS_ASSERT_EQUALS( halo_nodes.size(), 2u );
+                TS_ASSERT_EQUALS( mesh.GetNumHaloNodes(), 2u );
             }
         }
 
-        for (unsigned halo = 0; halo < halo_nodes.size(); halo++)
+        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=mesh.GetHaloNodeIteratorBegin(); 
+                it != mesh.GetHaloNodeIteratorEnd();
+                ++it)
         {
-            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell( halo_nodes[ halo] );
+            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCellOrHaloCell( (*it)->GetIndex() );
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
 

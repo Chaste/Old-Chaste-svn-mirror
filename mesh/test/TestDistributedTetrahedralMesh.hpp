@@ -1199,6 +1199,26 @@ public:
 
         std::vector<unsigned> halo_indices;
         small_mesh.GetHaloNodeIndices(halo_indices);
+        
+        //Check the size
+        TS_ASSERT_EQUALS(small_mesh.GetNumHaloNodes(), halo_indices.size());
+        
+        //Check no halos in a sequential simulation
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(small_mesh.GetNumHaloNodes(), 0u);
+        }
+        
+        //Check that iteration does the same thing
+        unsigned i=0;
+        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=small_mesh.GetHaloNodeIteratorBegin(); 
+                it != small_mesh.GetHaloNodeIteratorEnd();
+                ++it,i++)
+        {
+            TS_ASSERT_EQUALS(halo_indices[i], (*it)->GetIndex());
+        }
+        
+        
         /**
          * 1 Proc:
          * p0:  0 Ow 1 Ow 2 Ow

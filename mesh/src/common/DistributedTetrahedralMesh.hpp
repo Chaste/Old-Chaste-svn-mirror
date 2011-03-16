@@ -156,6 +156,11 @@ public:
      * (Does not include halo nodes).
      */
     unsigned GetNumLocalNodes() const;
+    
+    /**
+     * Get the number of nodes that are halo owned by the local process.
+     */
+    unsigned GetNumHaloNodes() const;
 
     /**
      * Get the number of Elements which are owned by this process (have at least one entirely
@@ -407,6 +412,26 @@ private:
      */
     void ReorderNodes();
     
+    //////////////////////////////////////////////////////////////////////
+    //                            Iterators                             //
+    //////////////////////////////////////////////////////////////////////
+
+public:
+    ///\todo #1494, this iterator needs to be dereferenced twice because it is an STL iterator to a pointer.
+    // The other iterators aren't (so only need to be dereferenced once). Consistency would be good...
+
+    /** Definition of halo node Iterator type. */
+    typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator HaloNodeIterator;
+    
+    /**
+     * Get an iterator to the first halo node in the mesh.
+     */
+    HaloNodeIterator GetHaloNodeIteratorBegin() const;
+
+    /**
+     * Get an iterator to one past the last halo node in the mesh.
+     */
+    HaloNodeIterator GetHaloNodeIteratorEnd() const;
 };
 
 #include "SerializationExportWrapper.hpp"

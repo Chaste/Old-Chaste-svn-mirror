@@ -241,6 +241,8 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         unsigned index = 0;
         //Map a global node index into a local index (into mNodes and mHaloNodes as if they were concatenated)
         std::map<unsigned, unsigned> global_to_local_index_map;
+        
+        // Owned nodes
         for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = rMesh.GetNodeIteratorBegin();
              node_iter != rMesh.GetNodeIteratorEnd();
              ++node_iter)
@@ -250,14 +252,15 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             global_to_local_index_map[node_iter->GetIndex()] = index;
             index++;
         }
-        std::vector<unsigned> halo_node_indices;
-        this->mpDistributedMesh->GetHaloNodeIndices(halo_node_indices);
-        ///\todo #1494 - this should use a halo node iterator.  It's inefficient to iterate first, get the indices and the do a reverse mapping...
-        for(unsigned i=0; i<halo_node_indices.size(); i++)
+        
+        // Halo nodes
+        for(typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator halo_iter=this->mpDistributedMesh->GetHaloNodeIteratorBegin(); 
+                halo_iter != this->mpDistributedMesh->GetHaloNodeIteratorEnd();
+                ++halo_iter)
         {
-            c_vector<double, SPACE_DIM> current_item = rMesh.GetNodeOrHaloNode(halo_node_indices[i])->rGetLocation();
+            c_vector<double, SPACE_DIM> current_item = (*halo_iter)->rGetLocation();
             p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
-            global_to_local_index_map[halo_node_indices[i]] = index;
+            global_to_local_index_map[(*halo_iter)->GetIndex()] = index;
             index++;
         }       
         
@@ -296,7 +299,7 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             p_writer->SetDataModeToBinary();
  
             p_writer->SetNumberOfPieces(PetscTools::GetNumProcs());
-            p_writer->SetGhostLevel(1);
+            //p_writer->SetGhostLevel(-1);
             p_writer->SetStartPiece(PetscTools::GetMyRank());
             p_writer->SetEndPiece(PetscTools::GetMyRank());
 

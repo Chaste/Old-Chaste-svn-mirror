@@ -452,6 +452,12 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes() 
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumHaloNodes() const
+{
+    return this->mHaloNodes.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements() const
 {
     return this->mElements.size();
@@ -1858,6 +1864,18 @@ ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Calc
     ChastePoint<SPACE_DIM> max(global_maximum_point);
 
     return ChasteCuboid<SPACE_DIM>(min, max);
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIteratorBegin() const
+{
+    return mHaloNodes.begin();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIteratorEnd() const
+{
+    return mHaloNodes.end();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
