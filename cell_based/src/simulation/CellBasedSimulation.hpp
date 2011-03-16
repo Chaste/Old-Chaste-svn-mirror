@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractForce.hpp"
 #include "AbstractCellKiller.hpp"
+#include "AbstractCellPopulationBoundaryCondition.hpp"
 #include "AbstractCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "Identifiable.hpp"
@@ -123,6 +124,9 @@ protected:
     /** The mechanics used to determine the new location of the cells, a list of the forces.*/
     std::vector<AbstractForce<DIM>*> mForceCollection;
 
+    /** List of boundary conditions  */
+    std::vector<AbstractCellPopulationBoundaryCondition<DIM>*> mBoundaryConditions;
+
     /** Whether to write the node velocities to a file. */
     bool mOutputNodeVelocities;
 
@@ -158,6 +162,7 @@ protected:
         archive & mCellKillers;
         archive & mSamplingTimestepMultiple;
         archive & mForceCollection;
+        archive & mBoundaryConditions;
         archive & mOutputNodeVelocities;
     }
 

@@ -99,8 +99,17 @@ CellBasedSimulation<DIM>::~CellBasedSimulation()
         {
             delete *it;
         }
+
+        for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator it=mBoundaryConditions.begin();
+             it != mBoundaryConditions.end();
+             ++it)
+        {
+            delete *it;
+        }
+
         delete &mrCellPopulation;
     }
+
 }
 
 
