@@ -692,7 +692,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
      */
     Mat connectivity_matrix;
     ///\todo change the number 54 below (row nonzero allocation) to be nonmagic
-    PetscTools::SetupMat(connectivity_matrix, num_nodes, num_nodes, 54);
+    PetscTools::SetupMat(connectivity_matrix, num_nodes, num_nodes, 54, PETSC_DECIDE, PETSC_DECIDE, false);
     
     if ( ! rMeshReader.IsFileFormatBinary() )
     {        
@@ -780,7 +780,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
 
         MatRestoreRow(connectivity_matrix, row_global_index, &row_num_nz,&column_indices, NULL);
     }
-    
+
     MatDestroy(connectivity_matrix);
 
     // Convert to an adjacency matrix
