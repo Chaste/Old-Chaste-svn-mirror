@@ -110,7 +110,7 @@ public:
         Timer::Print("Chebyshev");
 
         TS_ASSERT_LESS_THAN(cg_its, 15u); // Takes 14 iterations with 16 cores
-        TS_ASSERT_LESS_THAN(chebyshev_its, 21u); // Takes 20 iterations with 16 cores
+        TS_ASSERT_LESS_THAN(chebyshev_its, 17u); // Takes 16 iterations with 16 cores
 
         VecDestroy(parallel_layout);
     }
