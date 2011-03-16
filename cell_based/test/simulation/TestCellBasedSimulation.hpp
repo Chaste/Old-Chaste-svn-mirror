@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "ChemotacticForce.hpp"
 #include "RandomCellKiller.hpp"
+#include "PlaneBoundaryCondition.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NumericFileComparison.hpp"
@@ -251,6 +252,64 @@ public:
 		TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
 		TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
 	}
+
+    /**
+     * Test a cell-based simulation with multiple boundary conditions. y<2 and y>0
+     */
+    void TestCellBasedSimulationWithMultipleCellBoundaryConditions() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
+
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        // Set up cell-based simulation
+        CellBasedSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleCellBoundaryConditions");
+        simulator.SetEndTime(0.5);
+
+        // Create some force laws and pass them to the simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        simulator.AddForce(&linear_force);
+
+        // Create some boundary condtions and pass them to the simulation
+        c_vector<double,2> point = zero_vector<double>(2);
+        c_vector<double,2> normal = zero_vector<double>(2);
+        normal(1) = -1.0;
+        PlaneBoundaryCondition<2> boundary_condition1(&cell_population, point, normal);//y>0
+        simulator.AddCellPopulationBoundaryCondition(&boundary_condition1);
+        point(1) = 2.0;
+        normal(1) = 1.0;
+        PlaneBoundaryCondition<2> boundary_condition2(&cell_population, point, normal);//y<2
+        simulator.AddCellPopulationBoundaryCondition(&boundary_condition2);
+
+        simulator.Solve();
+
+        // Check that the number of nodes is equal to the number of cells
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), simulator.rGetCellPopulation().GetNumRealCells());
+
+
+        /**
+         * Test a cell-based simulation with contradicting boundary conditions. y<2, y>0 and y>3
+         */
+        point(1) = 3.0;
+        normal(1) = -1.0;
+        PlaneBoundaryCondition<2> boundary_condition3(&cell_population, point, normal); //y>3
+        simulator.AddCellPopulationBoundaryCondition(&boundary_condition3);
+
+        simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),"The cell population boundary conditions are incompatible.");
+        CellBasedEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
+    }
 
     void TestCellBasedSimulationWithStoppingEvent() throw (Exception)
     {

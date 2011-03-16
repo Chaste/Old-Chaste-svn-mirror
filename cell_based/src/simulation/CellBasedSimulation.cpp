@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
+#include "Debug.hpp"
 
 #include <typeinfo>
 
@@ -265,7 +266,27 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
     mrCellPopulation.UpdateNodeLocations(rNodeForces, mDt);
 
     // Apply any boundary conditions
+    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator bcs_iter = mBoundaryConditions.begin();
+         bcs_iter != mBoundaryConditions.end();
+         ++bcs_iter)
+    {
+        (*bcs_iter)->ImposeBoundaryConditions(old_node_locations);
+    }
+
+    //Verify Boundary conditions are applied
+    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator bcs_iter = mBoundaryConditions.begin();
+         bcs_iter != mBoundaryConditions.end();
+         ++bcs_iter)
+    {
+        if (!((*bcs_iter)->VerifyBoundaryConditions()))
+        {
+            EXCEPTION("The cell population boundary conditions are incompatible.");
+        }
+    }
+
+    // \todo #1589 this should be removed
     ApplyCellPopulationBoundaryConditions(old_node_locations);
+
 
     // Write node velocities to file if required
     if (mOutputNodeVelocities)
@@ -414,6 +435,12 @@ template<unsigned DIM>
 void CellBasedSimulation<DIM>::AddForce(AbstractForce<DIM>* pForce)
 {
     mForceCollection.push_back(pForce);
+}
+
+template<unsigned DIM>
+void CellBasedSimulation<DIM>::AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition)
+{
+    mBoundaryConditions.push_back(pBoundaryCondition);
 }
 
 

@@ -222,6 +222,7 @@ protected:
 
     /**
      * Apply any cell population boundary conditions. Can be overridden in subclasses.
+     * \todo #1589 this should be removed
      *
      * @param rOldLocations the node locations before any boundary conditions are applied
      */
@@ -373,6 +374,13 @@ public:
      * @param pForce pointer to a force law
      */
     void AddForce(AbstractForce<DIM>* pForce);
+
+    /**
+     * Add a cell population boundary condition to be used in this simulation.
+     *
+     * @param pBoundaryCondition pointer to a boundary condition
+     */
+    void AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition);
 
     /**
      * Main solve method.
