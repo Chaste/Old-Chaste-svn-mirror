@@ -23,6 +23,7 @@ simulation/TestCellBasedSimulationWithNodeBasedCellPopulation.hpp
 simulation/TestCellBasedSimulationWithPdes.hpp
 simulation/TestCellBasedSimulationWithPdesAssembler.hpp
 simulation/TestCellBasedSimulationWithVertexBasedCellPopulation.hpp
+population/TestCellPopulationBoundaryConditions.hpp
 population/TestCellKillers.hpp
 population/TestCellwiseData.hpp
 population/TestCellwiseDataGradient.hpp

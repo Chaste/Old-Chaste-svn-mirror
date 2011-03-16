@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * An abstract cell population boundary condition class.
  */
-template <unsigned SPACE_DIM>
+template <unsigned DIM>
 class AbstractCellPopulationBoundaryCondition : public Identifiable
 {
 private:
@@ -58,7 +58,7 @@ private:
 protected:
 
     /** The cell population. */
-    AbstractCellPopulation<SPACE_DIM>* mpCellPopulation;
+    AbstractCellPopulation<DIM>* mpCellPopulation;
 
 public:
 
@@ -67,7 +67,7 @@ public:
      *
      * @param pCellPopulation pointer to the cell population.
      */
-    AbstractCellPopulationBoundaryCondition(AbstractCellPopulation<SPACE_DIM>* pCellPopulation);
+    AbstractCellPopulationBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation);
 
     /**
      * Destructor.
@@ -76,22 +76,26 @@ public:
 
     /**
      *  Pure method which should impose the boundary conditions on any node.
+     *
+     *  @param rOldLocations the node locations before any boundary conditions are applied
      */
-    virtual void ImposeBoundaryConditions()=0;
+    virtual void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)=0;
 
     /**
      *  Pure method which should verify the boundary conditions have been applied.
      *  This is called after ImposeBoundaryConditions to ensure the condition is
      *  still satisfied.
+     *
+     * @return Whether the boundary conditions are satisfied.
      */
-    virtual void VerifyBoundaryConditions()=0;
+    virtual bool VerifyBoundaryConditions()=0;
 
     /**
      * Get a pointer to the cell population.
      *
      * @return A const pointer to the mpCellPopulation
      */
-    const AbstractCellPopulation<SPACE_DIM>* GetCellPopulation() const;
+    const AbstractCellPopulation<DIM>* GetCellPopulation() const;
 
     /**
      * Outputs cell population boundary condition used in the simulation to file and then calls

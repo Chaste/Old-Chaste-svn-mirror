@@ -742,7 +742,6 @@ public:
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation

@@ -28,19 +28,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellPopulationBoundaryCondition.hpp"
 
-template <unsigned SPACE_DIM>
-AbstractCellPopulationBoundaryCondition<SPACE_DIM>::AbstractCellPopulationBoundaryCondition(AbstractCellPopulation<SPACE_DIM>* pCellPopulation)
+template <unsigned DIM>
+AbstractCellPopulationBoundaryCondition<DIM>::AbstractCellPopulationBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation)
         : mpCellPopulation(pCellPopulation)
 {
 }
 
-template <unsigned SPACE_DIM>
-AbstractCellPopulationBoundaryCondition<SPACE_DIM>::~AbstractCellPopulationBoundaryCondition()
+template <unsigned DIM>
+AbstractCellPopulationBoundaryCondition<DIM>::~AbstractCellPopulationBoundaryCondition()
 {
 }
 
-template <unsigned SPACE_DIM>
-const AbstractCellPopulation<SPACE_DIM>* AbstractCellPopulationBoundaryCondition<SPACE_DIM>::GetCellPopulation() const
+template <unsigned DIM>
+const AbstractCellPopulation<DIM>* AbstractCellPopulationBoundaryCondition<DIM>::GetCellPopulation() const
 {
     return mpCellPopulation;
 }
