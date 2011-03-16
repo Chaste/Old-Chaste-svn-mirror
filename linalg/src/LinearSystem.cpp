@@ -808,18 +808,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
             // You can stimate preconditioned matrix spectrum with CG
             KSPSetType(mKspSolver,"cg");
-            KSPSetComputeSingularValues(mKspSolver, PETSC_TRUE);            
+	    KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
             
             // Eigenvalues have to be computed accurately
             KSPSetTolerances(mKspSolver, DBL_EPSILON, DBL_EPSILON, PETSC_DEFAULT, PETSC_DEFAULT);
             KSPSetUp(mKspSolver);
                             
-            /// \todo: #1701 Check relationship between eigenvalues and singular values depending on symmetry...
-            assert(IsMatrixSymmetric());            
-
-            // Compute eigenvalues
-            double eig_max, eig_min;
-
             VecDuplicate(mRhsVector, &chebyshev_lhs_vector);
             if (lhsGuess)
             {
@@ -827,40 +821,52 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             }
                         
             KSPSolve(mKspSolver, mRhsVector, chebyshev_lhs_vector);
-            KSPComputeExtremeSingularValues(mKspSolver, &eig_max, &eig_min);
+
+            PetscReal *r_eig = new PetscReal[mSize];
+            PetscReal *c_eig = new PetscReal[mSize];
+            PetscInt eigs_computed;
+            KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
 
 #ifdef TRACE_KSP
-            if (PetscTools::AmMaster()) std::cout << "SVD "<< eig_max << " " << eig_min <<std::endl;
+            if (PetscTools::AmMaster())
+            {
+                std::cout << "EIGS: ";
+                for (int index=0; index<eigs_computed; index++)
+                {
+                    std::cout << r_eig[index] << ", ";
+                }
+                std::cout << std::endl;
+            }
 #endif
+
+            double eig_max = r_eig[eigs_computed];
+	    double eig_min = r_eig[0];
 
             /*
              *  Under certain circumstances (see Golub&Overton 1988), underestimating
              * the spectrum of the preconditioned operator improves convergence rate.
              * See publication for a discussion and for definition of alpha and sigma_one.
              * 
-             *  We need to keep the center of the ellipsoid containing the eigenvalues (line 
-             * segment if matrix is symmetric positive definite) centered at the same place. 
-             * Distance between center and foci is shortened.
-             * 
-             *  Taking off a third of the original distance is a magic number tuned for TestFastChasteBenchmark.hpp
+	     *  We use the third largest/smallest eigenvalues. Tunned for UCSD and Oxford 
+	     * Rabbit meshes
              */
+#ifdef TRACE_KSP
+	    if (PetscTools::AmMaster()) std::cout << "EIGS "<< eig_max << " " << eig_min <<std::endl;
             double alpha = 2/(eig_max+eig_min);
             double sigma_one = 1 - alpha*eig_min;
-
-            if (sigma_one<0.75)
-            {
-                double max_min_eig_distance = eig_max - eig_min;
-                eig_max -= max_min_eig_distance/3;
-                eig_min += max_min_eig_distance/3;
-                assert(eig_min<eig_max);
-#ifdef TRACE_KSP
-                if (PetscTools::AmMaster()) std::cout << "SVD (after shift) "<< eig_max << " " << eig_min <<std::endl;
+	    if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
 #endif
-            }
-            else
-            {
-                WARNING("sigma_1 seems to be to close to 1.0 to make eigenvalue shift worthwhile.");
-            }
+
+	    eig_max = r_eig[eigs_computed-3];
+	    eig_min = r_eig[2];
+	    assert(eig_min<eig_max);
+
+#ifdef TRACE_KSP
+	    if (PetscTools::AmMaster()) std::cout << "EIGS (after shift) "<< eig_max << " " << eig_min <<std::endl;
+	    alpha = 2/(eig_max+eig_min);
+	    sigma_one = 1 - alpha*eig_min;
+	    if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
+#endif
 
             // Set Chebyshev solver and max/min eigenvalues
             assert(mKspType == "chebychev");
@@ -879,7 +885,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             }
 
 #ifdef TRACE_KSP
-            Timer::Print("Computing extremal eigenvalues");
+            if (PetscTools::AmMaster()) 
+	    {
+	        Timer::Print("Computing extremal eigenvalues");
+	    }
 #endif
         }
 
