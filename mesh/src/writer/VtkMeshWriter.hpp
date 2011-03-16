@@ -148,6 +148,13 @@ public:
                                      bool keepOriginalElementIndexing=true);     
 
     /**
+     * Add Chaste provenance data to a VTK file as an XML comment string
+     * @param fileName is the file name relative to mpOutputFileHandler  
+     * The file is assumed have been written to and to be closed - so that it can safely be appended to.
+     */
+    void AddProvenance(std::string fileName);
+    
+    /**
      * Destructor.
      */
     virtual ~VtkMeshWriter();

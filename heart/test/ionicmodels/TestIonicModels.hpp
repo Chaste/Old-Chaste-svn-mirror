@@ -382,10 +382,20 @@ public:
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
+        std::cout << "\n";
+        std::cout << "p_solver.use_count() = " << p_solver.use_count() << std::endl;
+        std::cout << "p_stimulus.use_count() = " << p_stimulus.use_count() << std::endl;
+        std::cout << "\n";
+
         double end_time = 1000.0; //One second in milliseconds
 
         CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 0u); // For coverage
+
+        std::cout << "\n";
+        std::cout << "p_solver.use_count() = " << p_solver.use_count() << std::endl;
+        std::cout << "p_stimulus.use_count() = " << p_stimulus.use_count() << std::endl;
+        std::cout << "\n";
 
         // Solve and write to file
         ck_start = clock();
@@ -395,6 +405,11 @@ public:
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
+
+        std::cout << "\n";
+        std::cout << "p_solver.use_count() = " << p_solver.use_count() << std::endl;
+        std::cout << "p_stimulus.use_count() = " << p_stimulus.use_count() << std::endl;
+        std::cout << "\n";
 
         CheckCellModelResults("Lr91DelayedStim");
 

@@ -96,6 +96,17 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddProvenance(std::string fileName)
+{
+    std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
+    
+    out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(fileName, std::ios::out | std::ios::app);
+
+    *p_vtu_file << "\n" << comment << "\n";    
+    p_vtu_file->close();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 {
     // Using separate scope here to make sure file is properly closed before re-opening it to add provenance info.
@@ -116,14 +127,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         p_writer->Delete(); //Reference counted
     }    
 
-    std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
-    
-    std::string vtu_file_name = this->mBaseName + ".vtu";
-    out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(vtu_file_name, std::ios::out | std::ios::app);
-
-    *p_vtu_file << "\n" << comment << "\n";    
-    p_vtu_file->close();
-    
+    AddProvenance(this->mBaseName + ".vtu");
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -232,15 +236,31 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         assert(SPACE_DIM==ELEMENT_DIM);
         vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
         p_pts->GetData()->SetName("Vertex positions");
+        
+        //Node index that we are writing to VTK (index into mNodes and mHaloNodes as if they were concatenated)
+        unsigned index = 0;
+        //Map a global node index into a local index (into mNodes and mHaloNodes as if they were concatenated)
+        std::map<unsigned, unsigned> global_to_local_index_map;
         for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = rMesh.GetNodeIteratorBegin();
              node_iter != rMesh.GetNodeIteratorEnd();
              ++node_iter)
         {
             c_vector<double, SPACE_DIM> current_item = node_iter->rGetLocation();
-            
-            ///\todo #1494 - What about halo nodes?
             p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
+            global_to_local_index_map[node_iter->GetIndex()] = index;
+            index++;
         }
+        std::vector<unsigned> halo_node_indices;
+        this->mpDistributedMesh->GetHaloNodeIndices(halo_node_indices);
+        ///\todo #1494 - this should use a halo node iterator.  It's inefficient to iterate first, get the indices and the do a reverse mapping...
+        for(unsigned i=0; i<halo_node_indices.size(); i++)
+        {
+            c_vector<double, SPACE_DIM> current_item = rMesh.GetNodeOrHaloNode(halo_node_indices[i])->rGetLocation();
+            p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
+            global_to_local_index_map[halo_node_indices[i]] = index;
+            index++;
+        }       
+        
         mpVtkUnstructedMesh->SetPoints(p_pts);
         p_pts->Delete(); //Reference counted
         
@@ -261,13 +281,14 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             vtkIdList* p_cell_id_list = p_cell->GetPointIds();
             for (unsigned j = 0; j < ELEMENT_DIM+1; ++j)
             {
-                ///\todo #1494 - These should use a local numbering scheme which includes halos
-                /// Is this going to slow things down?
-                p_cell_id_list->SetId(j, elem_iter->GetNodeGlobalIndex(j));
+                unsigned global_node_index = elem_iter->GetNodeGlobalIndex(j);
+                p_cell_id_list->SetId(j, global_to_local_index_map[global_node_index]);
             }
             mpVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
             p_cell->Delete(); //Reference counted
         }
+        //This block is to guard the mesh writers (vtkXMLPUnstructuredGridWriter) so that they
+        //go out of scope, flush buffers and close files 
         {
             assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
             vtkXMLPUnstructuredGridWriter* p_writer = vtkXMLPUnstructuredGridWriter::New();
@@ -286,25 +307,22 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             // **** REMOVE WITH CAUTION *****
             p_writer->SetCompressor(NULL);
             // **** REMOVE WITH CAUTION *****
-            std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName + ".pvtu";
-            p_writer->SetFileName(vtk_file_name.c_str());
+            std::string pvtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName+ ".pvtu";
+            p_writer->SetFileName(pvtk_file_name.c_str());
             //p_writer->PrintSelf(std::cout, vtkIndent());
             p_writer->Write();
             p_writer->Delete(); //Reference counted
- 
- 
- 
-        }    
-    
-//        std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
-//        
-//        std::string vtu_file_name = this->mBaseName + ".vtu";
-//        out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(vtu_file_name, std::ios::out | std::ios::app);
-//    
-//        *p_vtu_file << "\n" << comment << "\n";    
-//        p_vtu_file->close();
-//    
-
+        }
+        
+        //Add provenance to the individual files
+        std::stringstream filepath;
+        filepath << this->mBaseName << "_" << PetscTools::GetMyRank() << ".vtu";
+        AddProvenance(filepath.str());  
+        /// Add to the main file \todo #1494 Do we need a barrier?
+        if (PetscTools::AmMaster())
+        {
+            AddProvenance(this->mBaseName+ ".pvtu");
+        }
     }
 }
 
