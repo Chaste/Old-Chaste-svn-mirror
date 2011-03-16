@@ -318,7 +318,6 @@ HeartConfig::HeartConfig()
     mIndexEpi = UINT_MAX-3u;
     mIndexEndo = UINT_MAX-3u;
 
-    mUseStateVariableInterpolation = false;
     mUseReactionDiffusionOperatorSplitting = false;
     
     /// \todo #1703 This defaults should be set in HeartConfigDefaults.hpp
@@ -3072,12 +3071,29 @@ void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
 
 bool HeartConfig::GetUseStateVariableInterpolation() const
 {
-    return mUseStateVariableInterpolation;
+    try
+    {
+        return DecideLocation( & mpUserParameters->Numerical().UseStateVariableInterpolation(),
+                               & mpDefaultParameters->Numerical().UseStateVariableInterpolation(),
+                               "UseStateVariableInterpolation")->get() == cp::yesno_type::yes;
+    }
+    catch (const Exception& e)
+    {
+        // It's an older version parameters & defaults (we're loading a checkpoint)
+        return false;
+    }
 }
 
 void HeartConfig::SetUseStateVariableInterpolation(bool useStateVariableInterpolation)
 {
-    mUseStateVariableInterpolation = useStateVariableInterpolation;
+    if (useStateVariableInterpolation)
+    {
+        mpUserParameters->Numerical().UseStateVariableInterpolation().set(cp::yesno_type::yes);
+    }
+    else
+    {
+        mpUserParameters->Numerical().UseStateVariableInterpolation().set(cp::yesno_type::no);
+    }
 }
 
 void HeartConfig::SetUseMassLumping(bool useMassLumping)

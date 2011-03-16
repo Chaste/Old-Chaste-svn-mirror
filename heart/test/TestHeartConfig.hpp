@@ -192,6 +192,7 @@ public:
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
+        TS_ASSERT(HeartConfig::Instance()->GetUseStateVariableInterpolation());
 
         TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
 
@@ -1125,6 +1126,12 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetMeshPartitioning("magic"),
                               "Unknown mesh partitioning method provided");
 
+        // SVI
+        TS_ASSERT(!HeartConfig::Instance()->GetUseStateVariableInterpolation());
+        HeartConfig::Instance()->SetUseStateVariableInterpolation();
+        TS_ASSERT(HeartConfig::Instance()->GetUseStateVariableInterpolation());
+        HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
+        TS_ASSERT(!HeartConfig::Instance()->GetUseStateVariableInterpolation());
 
         bool ground_second_electrode;
         unsigned axis_index;
@@ -1142,12 +1149,6 @@ public:
         TS_ASSERT_EQUALS(duration, 0.5);
 
         // This is a temporary internal boolean until we're happy that users can be let loose on the functionality!
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
-        HeartConfig::Instance()->SetUseStateVariableInterpolation();
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), true);
-        HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseStateVariableInterpolation(), false);
-
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), false);
         HeartConfig::Instance()->SetUseMassLumping();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), true);

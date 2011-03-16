@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cp:ChasteParameters xmlns:cp="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
+<cp:ChasteParameters xmlns:cp="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ../../../src/io/ChasteParameters_2_2.xsd">
 
   <cp:Simulation>
     <cp:SpaceDimension>3</cp:SpaceDimension>
@@ -30,6 +30,7 @@
     <cp:KSPSolver>cg</cp:KSPSolver>
     <cp:KSPPreconditioner>bjacobi</cp:KSPPreconditioner>
     <cp:MeshPartitioning>metis</cp:MeshPartitioning>
+    <cp:UseStateVariableInterpolation>no</cp:UseStateVariableInterpolation>
   </cp:Numerical>
 
   <cp:PostProcessing>

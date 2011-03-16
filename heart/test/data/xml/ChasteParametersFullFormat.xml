@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ../../../src/io/ChasteParameters_2_2.xsd">
  
-    <!-- See also ChasteParametersResumeSimulation.xml -->       
+    <!-- See also ChasteParametersResumeSimulationFullFormat.xml -->       
     
 	<Simulation>
 		<!-- 
@@ -328,6 +328,9 @@
 		
 		<!-- How to partition the mesh when running in parallel -->
 		<MeshPartitioning>metis</MeshPartitioning>
+		
+		<!-- How to integrate the ionic current term (defaults to no) -->
+		<UseStateVariableInterpolation>yes</UseStateVariableInterpolation>
 		
 		<!-- Optional.  These parameters are for use with a particular adaptivity library -->
 		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />

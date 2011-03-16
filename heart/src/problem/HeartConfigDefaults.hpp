@@ -70,6 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         <KSPSolver>cg</KSPSolver>
         <KSPPreconditioner>bjacobi</KSPPreconditioner>
         <MeshPartitioning>metis</MeshPartitioning>
+        <UseStateVariableInterpolation>no</UseStateVariableInterpolation>
     </Numerical>
     
     <PostProcessing>
@@ -120,6 +121,7 @@ boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
     numerical_params.KSPSolver().set(ksp_solver);
     numerical_params.KSPPreconditioner().set(ksp_precond);
     numerical_params.MeshPartitioning().set(mesh_partitioning);
+    numerical_params.UseStateVariableInterpolation().set(cp::yesno_type::no);
     
     // Postprocessing
     cp::postprocessing_type postproc;

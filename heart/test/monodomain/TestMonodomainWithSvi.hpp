@@ -31,25 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 #include <vector>
-#include "ArchiveOpener.hpp"
+
+#include "CheckpointArchiveTypes.hpp"
+#include "CardiacSimulationArchiver.hpp"
 #include "MonodomainProblem.hpp"
-#include "ZeroStimulusCellFactory.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudy1991.hpp"
-#include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "PetscTools.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "MatrixBasedMonodomainSolver.hpp"
+#include "AbstractCardiacCellFactory.hpp"
+#include "ZeroStimulusCellFactory.hpp"
+#include "LuoRudy1991.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "Mahajan2008.hpp"
-
-#include "BidomainProblem.hpp" // Needed for archiving test
+#include "PetscSetupAndFinalize.hpp"
 
 // stimulate a block of cells (an interval in 1d, a block in a corner in 2d)
 template<unsigned DIM>
@@ -412,7 +408,7 @@ public:
      */
     void TestArchiving() throw (Exception)
     {
-        FileFinder archive_dir("monodomain_svi_archive", RelativeTo::ChasteTestOutput);
+        std::string archive_dir = "monodomain_svi_archive";
         std::string archive_file = "monodomain_svi.arch";
         std::string output_dir = "monodomain_svi_output";
         
@@ -431,44 +427,15 @@ public:
             monodomain_problem.SetMesh(&mesh);
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
-                
-            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
-            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
-            AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
-            (*p_arch) & p_monodomain_problem;
+            
+            CardiacSimulationArchiver<MonodomainProblem<1> >::Save(monodomain_problem, archive_dir);
         }
         
         HeartConfig::Instance()->Reset();
         
         { // Load
             HeartConfig::Instance()->SetUseStateVariableInterpolation(false); // Just in case...
-            AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
-            
-            {
-                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
-                boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
-                (*p_arch) >> p_monodomain_problem;
-            }
-            
-            // We need to do some migration stuff to load the halo cells
-            {
-                DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
-                unsigned num_procs = PetscTools::GetNumProcs();
-                for (unsigned archive_num=0; archive_num<num_procs; archive_num++)
-                {
-                    if (archive_num != PetscTools::GetMyRank())
-                    {
-                        std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(archive_file, archive_num);
-                        std::ifstream ifs(archive_path.c_str());
-                        boost::archive::text_iarchive archive(ifs);
-                        
-                        DistributedVectorFactory* p_mesh_factory;
-                        archive >> p_mesh_factory;
-                        p_monodomain_problem->GetTissue()->LoadCardiacCells(archive, 0);
-                    }
-                }
-                DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-            }
+            MonodomainProblem<1> *p_monodomain_problem = CardiacSimulationArchiver<MonodomainProblem<1> >::Load(archive_dir);
             
             HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
             p_monodomain_problem->Solve();

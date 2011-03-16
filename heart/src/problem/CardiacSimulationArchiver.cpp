@@ -132,44 +132,27 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const FileFinde
     // Put what follows in a try-catch to make sure we reset this
     try
     {
-        if (num_procs == PetscTools::GetNumProcs())
+        // Figure out which process-specific archive to load first.  If we're loading on the same number of
+        // processes, we must load our own one, or the mesh gets confused.  Otherwise, start with 0 to make
+        // sure it exists.
+        unsigned initial_archive = num_procs == PetscTools::GetNumProcs() ? PetscTools::GetMyRank() : 0u;
+
+        // Load the master and initial process-specific archive files.
+        // This will also set up ArchiveLocationInfo for us.
+        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", initial_archive);
+        boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
+        (*p_main_archive) >> p_unarchived_simulation;
+
+        // Work out how many more process-specific files to load
+        DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
+        assert(p_factory != NULL);
+        unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
+        assert(original_num_procs == num_procs); // Paranoia
+
+        // Merge in the extra data
+        for (unsigned archive_num=0; archive_num<original_num_procs; archive_num++)
         {
-            // We're not actually doing a migrate, and will re-use exactly the same mesh
-            // partitioning etc. from before, so don't need any of the LoadExtraArchive
-            // magic.  Indeed, we mustn't use it, or the mesh will get confused about
-            // which nodes it owns.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch");
-            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-            (*p_main_archive) >> p_unarchived_simulation;
-
-            // Paranoia checks
-            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-            assert(p_factory != NULL);
-            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-            if (original_num_procs != num_procs)
-            {
-                NEVER_REACHED;
-                //assert(original_num_procs == num_procs);
-            }
-        }
-        else
-        {
-            // We are migrating, and must re-distribute nodes, cells, etc.
-
-            // Load the master and process-0 archive files.
-            // This will also set up ArchiveLocationInfo for us.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", 0u);
-            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-            (*p_main_archive) >> p_unarchived_simulation;
-
-            // Work out how many more files to load
-            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-            assert(p_factory != NULL);
-            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-            assert(original_num_procs == num_procs); // Paranoia
-
-            // Merge in the extra data
-            for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
+            if (archive_num != initial_archive)
             {
                 std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
                 std::ifstream ifs(archive_path.c_str());

@@ -491,6 +491,7 @@ public:
     void LoadCardiacCells(Archive & archive, const unsigned int version)
     {
         DistributedVectorFactory* p_factory;
+        DistributedVectorFactory* p_mesh_factory = this->mpMesh->GetDistributedVectorFactory();
         archive & p_factory;
         unsigned num_cells;
         archive & num_cells;
@@ -505,15 +506,14 @@ public:
             }
 #endif
         }
-//        else
-//        {
-//            // Can't do this as it's false if we're not migrating
-//            assert(mCellsDistributed.size() == p_factory->GetLocalOwnership());
-//        }
+        else
+        {
+            assert(mCellsDistributed.size() == p_mesh_factory->GetLocalOwnership());
+        }
 
         // We don't store a cell index in the archive, so need to work out what global index this tissue starts at.
         // If we have an original factory we use the original low index; otherwise we use the current low index.
-        unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
+        unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_mesh_factory->GetLow();
 
         // Track fake bath cells to make sure we only delete non-local ones
         std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
@@ -534,8 +534,8 @@ public:
 //                new_global_index = r_permutation[original_global_index];
                 NEVER_REACHED;
             }
-            unsigned new_local_index = new_global_index - p_factory->GetLow();
-            bool local = p_factory->IsGlobalIndexLocal(new_global_index);
+            unsigned new_local_index = new_global_index - p_mesh_factory->GetLow();
+            bool local = p_mesh_factory->IsGlobalIndexLocal(new_global_index);
 
             // Check if this will be a halo cell
             std::map<unsigned, unsigned>::const_iterator halo_position;

@@ -102,10 +102,6 @@ private:
         {
             mpInstance->Write( true );
         }
-        if (version >= 1)
-        {
-            archive & mUseStateVariableInterpolation;
-        }
         PetscTools::Barrier("HeartConfig::save");
     }
 
@@ -150,10 +146,6 @@ private:
         if (p_new_parameters->ResumeSimulation().present())
         {
             UpdateParametersFromResumeSimulation(p_new_parameters);
-        }
-        if (version >= 1)
-        {
-            archive & mUseStateVariableInterpolation;
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -1270,11 +1262,6 @@ private:
      * Flag to check whether the user asked for cellular heterogeneities with cuboids
      */
     bool mUserAskedForCuboidsForCellularHeterogeneities;
-
-    /**
-     *  Whether to use State Variable Interpolation in the computation of ionic currents.
-     */
-    bool mUseStateVariableInterpolation;
 
     /**
      * Flag telling whether to use mass lumping or not.

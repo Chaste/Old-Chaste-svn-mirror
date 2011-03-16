@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
-    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"
+    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ../../../src/io/ChasteParameters_2_1.xsd">
+    xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ../../../src/io/ChasteParameters_2_2.xsd">
 
-    <!-- See also ChasteParametersFullFormat.xml -->       
+    <!-- See also ChasteParametersFullFormat.xml -->
+    
     <ResumeSimulation>
         <!-- Input directory for checkpoint archive-->
         <ArchiveDirectory relative_to='chaste_test_output'>ChasteResults_10ms</ArchiveDirectory>
@@ -48,6 +49,8 @@
         </KSPTolerances>
         <KSPSolver>cg</KSPSolver>
         <KSPPreconditioner>none</KSPPreconditioner>
+		<MeshPartitioning>parmetis</MeshPartitioning>
+		<UseStateVariableInterpolation>no</UseStateVariableInterpolation> <!-- UseStateVariableInterpolation is currently ignored on resume -->
         <AdaptivityParameters target_error="0" sigma="0" max_edge_length="0" min_edge_length="0" gradation="0" max_nodes="0" num_sweeps="0"/>
     </Numerical>
     
