@@ -1479,13 +1479,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                            ('pycml:modifiable-parameter', NSS['pycml']),
                                            'yes'))
         if self.kept_vars_as_members:
-            kept_vars = cellml_metadata.find_variables(self.model, ('pe:keep', NSS[u'pe']), 'yes')
+            kept_vars = filter(lambda v: v.pe_keep, self.model.get_all_variables())
             kept_vars = list(set(kept_vars) - set(self.cell_parameters))
         else:
             kept_vars = []
         # Reduce intra-run variation
-        kept_vars.sort(key=lambda v: v.fullname())
-        self.cell_parameters.sort(key=lambda v: v.fullname())
+        kept_vars.sort(key=self.var_display_name)
+        self.cell_parameters.sort(key=self.var_display_name)
         
         for i, var in enumerate(self.cell_parameters):
             # Remember the var's index
@@ -1498,20 +1498,22 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # We're interested in anything that isn't time or the stimulus
         self.metadata_vars = set([v for v in vars if v.get_type() != VarTypes.Free])
         self.metadata_vars.discard(self.doc._cml_config.i_stim_var)
+        self.metadata_vars = list(self.metadata_vars)
+        self.metadata_vars.sort(key=self.var_display_name)
         
         # #1464 Create a set of metadata variables that will have modifiers
         # We want to avoid writing out metadata for stimulus current as it is used once and then discarded.
         # \todo - use protocol information to put only the required modifiers into this list.
-        self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in cellml_metadata.STIMULUS_NAMES])
+        self.modifier_vars = [v for v in self.metadata_vars if v.oxmeta_name not in cellml_metadata.STIMULUS_NAMES]
+        self.modifier_vars.sort(key=self.var_display_name)
 
         # Generate member variable declarations
         self.set_access('private')
         if kept_vars or self.metadata_vars:
-            self.output_comment('\nSettable parameters and readable variables\n',
-                                subsidiary=True)
+            self.output_comment('\nSettable parameters and readable variables\n', subsidiary=True)
         for var in kept_vars:
             self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
-            
+        
         # Write out the modifier member variables. 
         if self.use_modifiers:
             for var in self.modifier_vars:
@@ -1550,7 +1552,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                                                  ('pycml:derived-quantity', NSS['pycml']),
                                                                  'yes')
         # Reduce intra-run variation
-        self.derived_quantities.sort(key=lambda v: v.fullname())
+        self.derived_quantities.sort(key=self.var_display_name)
                 
     def output_default_stimulus(self):
         """
@@ -2579,9 +2581,18 @@ class CellMLToChasteTranslator(CellMLTranslator):
         mV = cellml_units.create_new(model, 'millivolt',
                                      [{'units': 'volt', 'prefix': 'milli'}])
         current_units, microamps = klass.get_current_units_options(model)[0:2]
-        # Generate the interface
+        # The interface generator
         generator = processors.InterfaceGenerator(model, name=klass.INTERFACE_COMPONENT_NAME)
         iface_comp = generator.get_interface_component()
+        # In case we need to convert initial values, we create the units converter here
+        if config.options.convert_interfaces:
+            warn_only = not config.options.fully_automatic and config.options.warn_on_units_errors
+            notifier = NotifyHandler(level=logging.WARNING)
+            logging.getLogger('units-converter').addHandler(notifier)
+            converter = processors.UnitsConverter(model, warn_only, show_xml_context_only=True)
+            klass.add_special_conversions(converter, iface_comp)
+            generator.set_units_converter(converter)
+        # And now specify the interface
         t = model.find_free_vars()[0]
         if not ms.dimensionally_equivalent(t.get_units()):
             # Oops!
@@ -2596,8 +2607,20 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # again so that exposing metadata-annotated variables doesn't make it a parameter!
             generator.make_var_constant(config.i_stim_var, 0)
             config.i_stim_var = generator.add_input(config.i_stim_var, current_units,
-                                                    annotate=False)
+                                                    annotate=False, convert_initial_value=False)
             generator.make_var_computed_constant(config.i_stim_var, 0)
+            # Also convert variables that make up the default stimulus
+            # Note: we vary in/out-put primarily to test units conversion of initial values
+            def add_oxmeta_ioput(oxmeta_name, units, inout):
+                var = doc.model.get_variable_by_oxmeta_name(oxmeta_name, throw=False)
+                if var:
+                    meth = getattr(generator, 'add_%sput' % inout)
+                    newvar = meth(var, units, annotate=False)
+                    newvar.set_pe_keep(True)
+            for n in ['duration', 'period', 'offset']:
+                add_oxmeta_ioput('membrane_stimulus_current_'+n, ms, 'in')
+            add_oxmeta_ioput('membrane_stimulus_current_amplitude', current_units, 'out')
+
         config.V_variable = generator.add_input(config.V_variable, mV)
         ionic_vars = config.i_ionic_vars
         i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, current_units)
@@ -2608,11 +2631,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         generator.finalize(errh, check_units=False)
         # Apply units conversions just to the interface, if desired
         if config.options.convert_interfaces:
-            warn_only = not config.options.fully_automatic and config.options.warn_on_units_errors
-            notifier = NotifyHandler(level=logging.WARNING)
-            logging.getLogger('units-converter').addHandler(notifier)
-            converter = processors.UnitsConverter(model, warn_only, show_xml_context_only=True)
-            klass.add_special_conversions(converter, iface_comp)
             converter.add_conversions_for_component(iface_comp)
             converter.finalize(errh, check_units=False)
             if notifier.messages:

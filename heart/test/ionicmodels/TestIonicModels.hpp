@@ -132,19 +132,15 @@ public:
         TS_ASSERT_THROWS_THIS(n98_ode_system.GetSlowValues(slows), error_should_be);
         TS_ASSERT_THROWS_THIS(n98_ode_system.SetSlowValues(slows), error_should_be);
 
-        TS_ASSERT_EQUALS(n98_ode_system.HasCellMLDefaultStimulus(),true);
+        TS_ASSERT(n98_ode_system.HasCellMLDefaultStimulus());
         n98_ode_system.UseCellMLDefaultStimulus();
-
-        /// \todo #1669 These pass at r11921
-
-//        RegularStimulus* p_stim = static_cast<RegularStimulus*>(n98_ode_system.GetStimulusFunction().get());
-
-//        TS_ASSERT_DELTA(p_stim->GetMagnitude(),-31.5789,1e-4);
-//        TS_ASSERT_DELTA(p_stim->GetPeriod(),1000,1e-7);
-//        TS_ASSERT_DELTA(p_stim->GetStartTime(),100,1e-7);
-//        TS_ASSERT_DELTA(p_stim->GetDuration(),3,1e-7);
+        RegularStimulus* p_stim = static_cast<RegularStimulus*>(n98_ode_system.GetStimulusFunction().get());
+        TS_ASSERT_DELTA(p_stim->GetMagnitude(), -31.5789, 1e-4);
+        TS_ASSERT_DELTA(p_stim->GetPeriod(), 1000, 1e-7);
+        TS_ASSERT_DELTA(p_stim->GetStartTime(), 100, 1e-7);
+        TS_ASSERT_DELTA(p_stim->GetDuration(), 3, 1e-7);
     }
-     
+
     void TestSolveForNoble98WithSacWithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
@@ -165,7 +161,7 @@ public:
         CML_noble_varghese_kohl_noble_1998_basic_with_sac   n98_with_sac(p_solver, p_stimulus);
 
         // some models have this implemented so they can be used in mechanics simulations
-        TS_ASSERT_DELTA(n98_with_sac.GetIntracellularCalciumConcentration(), 1.4e-5, 2e-6); 
+        TS_ASSERT_DELTA(n98_with_sac.GetIntracellularCalciumConcentration(), 1.4e-5, 2e-6);
 
         // Solve and write to file
         ck_start = clock();
@@ -177,7 +173,7 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
 
         // the 'good' data the result is compared against here was just copied from the standard N98 run good data, as they should be identical
-        CheckCellModelResults("N98SacResult"); 
+        CheckCellModelResults("N98SacResult");
 
 
         // get a new ODE system (which still has its state variables set to the initial conditions),
@@ -185,7 +181,7 @@ public:
         CML_noble_varghese_kohl_noble_1998_basic_with_sac   another_n98_with_sac(p_solver, p_stimulus);
         CellNobleVargheseKohlNoble1998aFromCellML   n98_ode_system(p_solver, p_stimulus);
         TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), n98_ode_system.GetIIonic(), 1e-3);
-        
+
         another_n98_with_sac.SetStretch(0.9);
         TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), n98_ode_system.GetIIonic(), 1e-3);
 
@@ -421,7 +417,7 @@ public:
                                    60.0,
                                    "Lr91GetIIonic");
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
-        
+
         // For coverage
         lr91_ode_system.ResetToInitialConditions();
         std::vector<double> inits = lr91_ode_system.GetInitialConditions();
@@ -457,7 +453,7 @@ public:
                                    "Lr91RegularStim");
 
         CheckCellModelResults("Lr91RegularStim");
-        
+
         // Cover SolveAndUpdateState
         double v = lr91_ode_system.GetVoltage();
         lr91_ode_system.ResetToInitialConditions();
@@ -787,7 +783,7 @@ public:
         CellTenTusscher2006EpiFromCellML TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
     }
-    
+
     void TestBackwardEulerTenTusscher06(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
@@ -817,7 +813,7 @@ public:
         TS_ASSERT_DELTA( tt06_backward_euler.GetIIonic(), -0.0413, 1e-3);
 
         // Solve using forward euler
-        HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.        
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
 
         CellTenTusscher2006EpiFromCellML tt06_ode_system(p_solver, p_stimulus);
         ck_start = clock();
@@ -832,7 +828,7 @@ public:
 
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
           << backward << std::endl;
-    }    
+    }
 
     void TestDifrancescoNoble1985(void) throw (Exception)
     {
@@ -1082,13 +1078,13 @@ public:
 
             AbstractCardiacCell* p_luo_rudy_cell;
             input_arch >> p_luo_rudy_cell;
-            
+
             AbstractCardiacCell* p_n98_with_sac;
             input_arch >> p_n98_with_sac;
 
             TS_ASSERT_EQUALS( p_luo_rudy_cell->GetNumberOfStateVariables(), 8U );
             TS_ASSERT_EQUALS( p_n98_with_sac->GetNumberOfStateVariables(), 22U );
-            
+
             CML_noble_varghese_kohl_noble_1998_basic_with_sac*   p_n98_with_sac_conc
                = dynamic_cast<CML_noble_varghese_kohl_noble_1998_basic_with_sac*>(p_n98_with_sac);
             TS_ASSERT_DELTA( p_n98_with_sac_conc->GetStretch(), 1.1, 1e-5 );
@@ -1159,7 +1155,7 @@ public:
             delete p_maleckar_cell;
         }
     }
-    
+
     void TestBackwardCellsArchiving(void) throw(Exception)
     {
         //Archive
@@ -1168,7 +1164,7 @@ public:
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("backward_cells.arch");
 
         double time_step = 0.01;
-        
+
         // Save
         {
             // Set stimulus
@@ -1176,14 +1172,14 @@ public:
             double magnitude_stimulus_noble = magnitude_stimulus/0.095;  // uA/cm2
             double duration_stimulus = 3;  // ms
             double start_stimulus = 10.0;   // ms
-            
+
             boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
                                                                             duration_stimulus,
                                                                             start_stimulus));
-                                                                            
+
             boost::shared_ptr<SimpleStimulus> p_noble_stimulus(new SimpleStimulus(magnitude_stimulus_noble,
                                                                                   duration_stimulus,
-                                                                                  start_stimulus));                                          
+                                                                                  start_stimulus));
 
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
@@ -1250,11 +1246,11 @@ public:
             RunOdeSolverWithIonicModel(p_backward_cell2,
                                        50.0,
                                        "Backward2AfterArchive");
-            
+
             RunOdeSolverWithIonicModel(p_backward_cell3,
                                        50.0,
                                        "Backward3AfterArchive");
-            
+
             RunOdeSolverWithIonicModel(p_backward_cell4,
                                        50.0,
                                        "Backward4AfterArchive");
@@ -1303,7 +1299,7 @@ public:
             AbstractCardiacCell* const p_n98_cell = new CellNobleVargheseKohlNoble1998aFromCellML(p_solver, p_stimulus);
             // and SAC
             AbstractCardiacCell* const p_n98_sac = new CML_noble_varghese_kohl_noble_1998_basic_with_sac(p_solver, p_stimulus);
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -1341,27 +1337,27 @@ public:
             delete p_n98_cell_sac;
         }
      }
-    
+
     void TestBackwardEulerDifficultCase() throw (Exception)
     {
 
-        //These data come from a failing human heart mesh test, but have been rounded        
+        //These data come from a failing human heart mesh test, but have been rounded
         double dodgy_state_vars_array[19] = {-6.15475,0.00808679,0.284434,0.00633525,0.994096,0.0321343,0.402544,0.730188,0.856068,0.959682,0.998295,0.912007,0.02408,0.000115671,3.63196,0.00175538,0.937932,8.62141,136.891};
         std::vector<double> dodgy_state_vars(dodgy_state_vars_array,dodgy_state_vars_array+19);
-        
+
         double step=0.1; //Time step in full 3D test was 0.05
-        
-        
+
+
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(step, step, step);
-            
+
         boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus);
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         CellTenTusscher2006EpiFromCellMLBackwardEuler tt06_backward_euler(p_solver, p_stimulus);
-        
+
         tt06_backward_euler.rGetStateVariables() = dodgy_state_vars;
         tt06_backward_euler.ComputeExceptVoltage(0.0, 3*step);
     }
-     
+
 
 private:
     void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)

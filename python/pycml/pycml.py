@@ -1963,25 +1963,25 @@ class cellml_variable(Colourable, element_base):
         return bt
     
     def is_statically_const(self, ignore_annotations=False):
-        """Determine if this variable is considered constant.
+        """Determine loosely if this variable is considered constant.
         
-        Checks if we're Constant, or Computed with a static binding time.
+        Checks if we're Constant, or Computed with a static binding time (or
+        of unknown type).
         
         If ignore_annotations is True, will ignore cached binding time values and
         pe:keep annotations.  It instead finds all variables we depend on, directly or
-        indirectly, and gives a dynamic result iff any is a state or free variable (or
-        of unknown type).
+        indirectly, and gives a dynamic result iff any is a state or free variable.
         """
         result = False
         t = self.get_type()
-        if t == VarTypes.Constant:
+        if t in [VarTypes.Constant, VarTypes.Unknown]:
             result = True
         elif t == VarTypes.Computed:
             if ignore_annotations:
                 dependencies = self.model.calculate_extended_dependencies([self])
                 result = True
                 for node in dependencies:
-                    if isinstance(node, cellml_variable) and node.get_type() in [VarTypes.State, VarTypes.Free, VarTypes.Unknown]:
+                    if isinstance(node, cellml_variable) and node.get_type() in [VarTypes.State, VarTypes.Free]:
                         result = False
                         break
             else:
@@ -2155,8 +2155,8 @@ class cellml_variable(Colourable, element_base):
                 self._cml_source_var = src
                 # Fix up usage counts
                 if update_usage:
-                    self.get_source_variable()._decrement_usage_count()
                     src._used()
+                    self.get_source_variable()._decrement_usage_count()
             else: # src.get_type() != VarTypes.Mapped
                 # This variable is the only reference to the ultimate defining
                 # expression, so become computed.

@@ -178,9 +178,8 @@ class ModelModifier(object):
         target_var = self._find_or_create_variable(target_comp.name, target_vname, src_var)
         # Sanity check the target variable
         if target_var.get_type() == VarTypes.Mapped:
-            # It must already be mapped to src_var; we're done
-            assert (target_var.get_source_variable() is src_var
-                    or src_var.get_source_variable() is target_var)
+            # They must have the same ultimate source variable
+            assert target_var.get_source_variable(recurse=True) is src_var.get_source_variable(recurse=True)
 #            print "Connection exists between", src_var, "and target", target_var
             return target_var
         elif target_var.get_type() == VarTypes.Unknown:
@@ -451,12 +450,33 @@ class InterfaceGenerator(ModelModifier):
     within the CellML model containing these variables, and add units conversions where required.  The
     external code then only needs to interact with this new component.
     """
-    def __init__(self, model, name='interface'):
+    def __init__(self, model, name='interface', units_converter=None):
         super(InterfaceGenerator, self).__init__(model)
         self._interface_component = None
         self._interface_component_name = name
+        self._units_converter = units_converter
+    
+    def set_units_converter(self, converter):
+        """Set the object used to units-convert variable initial values."""
+        self._units_converter = converter
 
-    def add_input(self, var, units, annotate=True):
+    def _convert_initial_value(self, var, units, do_conversion=True):
+        """Convert any initial value of the given variable into the given units.
+        
+        If there is no initial value, returns None.
+        If there is no units converter, leaves the initial_value unchanged.
+        """
+        value = getattr(var, u'initial_value', None)
+        if value and self._units_converter and do_conversion:
+            if not var.get_units().equals(units):
+                try:
+                    value = self._units_converter.convert_constant(value, var.get_units(), units, var.component)
+                except EvaluationError, e:
+                    raise ModelModificationError("Cannot units-convert initial value as requires run-time information:\n"
+                                                 + str(e))
+        return value
+
+    def add_input(self, var, units, annotate=True, convert_initial_value=True):
         """Specify a variable as an input to the model.
         
         var should be a cellml_variable object already existing in the model.
@@ -467,6 +487,11 @@ class InterfaceGenerator(ModelModifier):
         
         Set annotate to False if you do not wish a Constant variable to be annotated as a modifiable
         parameter.
+        
+        If a units converter has been supplied, we will also try to units-convert initial values.
+        This may not be possible if special conversions are used, since they may involve variables
+        whose values are not known at this time.  If this is the case, set convert_initial_value to
+        False to avoid applying the conversion.  A proper solution requires CellML 1.1 features.
         
         The new variable added to the interface component is returned.
         """
@@ -484,7 +509,7 @@ class InterfaceGenerator(ModelModifier):
         # Add a new variable with desired units to the interface component
         comp = self.get_interface_component()
         newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id,
-                                   initial_value=getattr(var, u'initial_value', None),
+                                   initial_value=self._convert_initial_value(var, units, convert_initial_value),
                                    interfaces={u'public': u'out'})
         newvar._set_type(t)
         # Remove initial value and id from the original, if they exist
@@ -515,9 +540,9 @@ class InterfaceGenerator(ModelModifier):
         
         var should be a cellml_variable object already existing in the model.
         units should be a suitable input to self._get_units_object.
-        If annotate is set to True, the new variable will be annotated as a derived quantity.
-        
-        TODO: Figure out what to do with metadata annotations so users get the expected behaviour.
+        The new variable will take the cmeta:id of the original, and hence existing metadata
+        annotations will refer to the new variable.
+        If annotate is set to True, the new variable will also be annotated as a derived quantity.
         
         The new variable added to the interface component is returned.
         """
@@ -526,7 +551,8 @@ class InterfaceGenerator(ModelModifier):
         var = var.get_source_variable(recurse=True)
         var_name = var.fullname(cellml=True)
         comp = self.get_interface_component()
-        newvar = self.add_variable(comp, var_name, units)
+        newvar = self.add_variable(comp, var_name, units, id=var.cmeta_id)
+        self.del_attr(var, u'id', NSS['cmeta'])
         self.connect_variables(var, newvar)
         if annotate:
             newvar.set_is_derived_quantity(True)
@@ -822,6 +848,21 @@ class UnitsConverter(ModelModifier):
                 if self.special_conversions:
                     self.try_convert(self._check_special_conversion, expr)
                 self.try_convert(expr._set_in_units, boolean)
+    
+    def convert_constant(self, value, from_units, to_units, comp):
+        """Convert a constant value into desired units."""
+        from_units = self.add_units(from_units)
+        to_units = self.add_units(to_units)
+        expr = mathml_apply.create_new(self.model, u'eq', [(u'0', to_units.name),
+                                                           (unicode(value), from_units.name)])
+        self.add_expr_to_comp(comp, expr)
+        # Nasty hack to make expr.is_top_level return True
+        expr._cml_assigns_to = expr.operands().next()
+        if self.special_conversions:
+            self.try_convert(self._check_special_conversion, expr)
+        self.try_convert(expr.eq.rhs._set_in_units, to_units)
+        self.remove_expr(expr)
+        return expr.eq.rhs.evaluate()
 
     def convert_mapping(self, mapping, comp1, comp2, var1, var2):
         """Apply conversions to a mapping between two variables."""
