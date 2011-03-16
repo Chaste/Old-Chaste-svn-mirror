@@ -661,7 +661,7 @@ public:
      *
      * @param outputCellVolumes the new value of mOutputCellVolumes
      */
-    void SetOutputCellVolumes(bool outputCellVolumes);
+    virtual void SetOutputCellVolumes(bool outputCellVolumes);
 
     /**
      * Iterator class allows one to iterate over cells in the cell population.

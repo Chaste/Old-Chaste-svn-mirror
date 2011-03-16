@@ -286,6 +286,17 @@ public:
      * @return The maximum distance between any nodes in this dimension.
      */
     double GetWidth(const unsigned& rDimension);
+
+    /**
+     * Overridden SetOutputCellVolumes() method.
+     * 
+     * Currently there is no facility for computing the volume associated
+     * with each cell in a NodeBasedCellPopulation, so if this method is
+     * called with outputCellVolumes = true, an exception is thrown.
+     *
+     * @param outputCellVolumes the new value of mOutputCellVolumes
+     */
+    void SetOutputCellVolumes(bool outputCellVolumes);
 };
 
 #include "SerializationExportWrapper.hpp"

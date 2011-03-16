@@ -478,11 +478,6 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     {
         mesh_writer.AddPointData("Cycle phases", cell_cycle_phases);
     }
-    if (this->mOutputCellVolumes)
-    {
-//        mesh_writer.AddCellData("Cell volumes", cell_volumes);
-        ///\todo (#1598) ??
-    }
     if (CellwiseData<DIM>::Instance()->IsSetUp())
     {
         for (unsigned var=0; var<cellwise_data.size(); var++)
@@ -495,7 +490,7 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     }
     
     {
-        //Make a copy of the nodes in a disposable mesh for writing...
+        // Make a copy of the nodes in a disposable mesh for writing...
         TetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructNodesWithoutMesh(mNodes);
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -506,6 +501,15 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
     *(this->mpVtkMetaFile) << ".vtu\"/>\n";
 #endif //CHASTE_VTK
+}
+
+template<unsigned DIM>
+void NodeBasedCellPopulation<DIM>::SetOutputCellVolumes(bool outputCellVolumes)
+{
+    if (outputCellVolumes)
+    {
+        EXCEPTION("This method currently not implemented for a NodeBasedCellPopulation");
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

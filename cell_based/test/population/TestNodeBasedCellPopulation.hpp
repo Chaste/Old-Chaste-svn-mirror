@@ -601,6 +601,9 @@ public:
         node_based_cell_population.SetOutputCellAncestors(true);
         node_based_cell_population.SetOutputCellAges(true);
 
+        TS_ASSERT_THROWS_THIS(node_based_cell_population.SetOutputCellVolumes(true),
+                              "This method currently not implemented for a NodeBasedCellPopulation");
+       
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.CreateOutputFiles(output_directory, false));
 
         node_based_cell_population.WriteResultsToFiles();
