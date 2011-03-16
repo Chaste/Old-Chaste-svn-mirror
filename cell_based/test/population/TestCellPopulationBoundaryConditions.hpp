@@ -118,11 +118,8 @@ public:
 	    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_boundary_conditon.arch";
 
 	    {
-	        c_vector<double,2> normal = zero_vector<double>(2);
-	        normal(0) = -1.0;
-
 	    	// Create an output archive
-	        PlaneBoundaryCondition<2> boundary_condition(NULL, zero_vector<double>(2), normal);
+	        PlaneBoundaryCondition<2> boundary_condition(NULL, zero_vector<double>(2), unit_vector<double>(2,1));
 
 		    std::ofstream ofs(archive_filename.c_str());
 		    boost::archive::text_oarchive output_arch(ofs);
@@ -131,8 +128,10 @@ public:
 		    PlaneBoundaryCondition<2>* const p_boundary_condition = &boundary_condition;
 		    output_arch << p_boundary_condition;
 
-		    TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], -1.0);
-		    TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 1.0);
 	    }
 
 	    {
@@ -145,17 +144,19 @@ public:
 		    // Restore from the archive
 		    input_arch >> p_boundary_condition;
 
-		    // Test we have restored the Target Cell correctly
-		    TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], -1.0);
-		    TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 0.0);
+		    // Test we have restored the plane geometry correctly
+            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 1.0);
 
 		    delete p_boundary_condition;
 	   }
 	}
 
-    void TestCellKillersOutputParameters()
+    void TestCellBoundaryConditionsOutputParameters()
     {
-        std::string output_directory = "TestBoundaryConditionsOutputParameters";
+        std::string output_directory = "TestCellBoundaryConditionsOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
 
         // Test with PlaneBoundaryCondition
@@ -167,7 +168,7 @@ public:
         plane_boundary_condition_parameter_file->close();
 
         std::string plane_boundary_condition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + plane_boundary_condition_results_dir + "plane_results.parameters cell_based/test/data/TestBoundaryConditionsOutputParameters/plane_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + plane_boundary_condition_results_dir + "plane_results.parameters cell_based/test/data/TestCellBoundaryConditionsOutputParameters/plane_results.parameters").c_str()), 0);
     }
 };
 

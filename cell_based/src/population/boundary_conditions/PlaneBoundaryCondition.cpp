@@ -67,6 +67,8 @@ void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_
              cell_iter != this->mpCellPopulation->End();
              ++cell_iter)
         {
+
+            // \todo this is only for AbstractCentreBasedCellPopulations
             c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
@@ -121,11 +123,20 @@ bool PlaneBoundaryCondition<DIM>::VerifyBoundaryConditions()
 template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
 {
-    if (DIM==2)
+    *rParamsFile << "\t\t\t<PointOnPlane>";
+    for (unsigned index=0; index<DIM-1u; index++)
     {
-        *rParamsFile << "\t\t\t<PointOnPlane>" << mPointOnPlane[0] << "," << mPointOnPlane[1] << "</PointOnPlane> \n";
-        *rParamsFile << "\t\t\t<NormalToPlane>" << mNormalToPlane[0] << "," << mNormalToPlane[1] << "</NormalToPlane> \n";
+        *rParamsFile << mPointOnPlane[0] << ",";
     }
+    *rParamsFile << mPointOnPlane[DIM-1u] <<  "</PointOnPlane> \n";
+
+    *rParamsFile << "\t\t\t<NormalToPlane>";
+     for (unsigned index=0; index<DIM-1u; index++)
+     {
+         *rParamsFile << mNormalToPlane[0] << ",";
+     }
+     *rParamsFile << mNormalToPlane[DIM-1u] <<  "</NormalToPlane> \n";
+
     // Call direct parent class
     AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
 }

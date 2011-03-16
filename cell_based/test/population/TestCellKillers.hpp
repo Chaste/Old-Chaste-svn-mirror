@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TargetedCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
+#include "RegionBasedCellKiller.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -327,6 +328,151 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+    void TestRegionBasedCellKillerIn1d() throw(Exception)
+    {
+        // Create 1D mesh
+        unsigned num_cells = 14;
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(num_cells-1);
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create cell population
+        MeshBasedCellPopulation<1> cell_population(mesh, cells);
+
+        // Create cell killer and kill cells
+        c_vector<double, 1> point ;
+        point(0) = 10.0;
+        RegionBasedCellKiller<1> cell_killer(&cell_population, point, unit_vector<double>(1,0)); // x<10
+        cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+        // Check that cells were labelled for death correctly
+        for (AbstractCellPopulation<1>::Iterator cell_iter = cell_population.Begin();
+            cell_iter != cell_population.End();
+            ++cell_iter)
+        {
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            if (x > point(0))
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            }
+        }
+
+        // Check that dead cells were correctly removed
+        cell_population.RemoveDeadCells();
+
+        for (AbstractCellPopulation<1>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            TS_ASSERT_LESS_THAN_EQUALS(x, point(0));
+        }
+    }
+
+
+    void TestRegionBasedCellKillerIn2d() throw(Exception)
+    {
+        // Create mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.Translate(-0.25,-0.25);
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
+
+        // Create cell killer and kill cells
+        RegionBasedCellKiller<2> cell_killer(&cell_population, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0
+        cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+        // Check that cells were labelled for death correctly
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
+            if (y > 0.0)
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            }
+        }
+
+        cell_population.RemoveDeadCells();
+
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
+            TS_ASSERT_LESS_THAN_EQUALS(y, 0.0);
+        }
+    }
+
+    void TestRegionBasedCellKillerIn3d() throw(Exception)
+    {
+        // Create 3D mesh
+        MutableMesh<3,3> mesh;
+        mesh.ConstructCuboid(4, 5, 6);
+        mesh.Translate(-2.0,-2.0, -2.0);
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create cell population
+        MeshBasedCellPopulation<3> cell_population(mesh, cells);
+
+        // Create cell killer
+        RegionBasedCellKiller<3> cell_killer(&cell_population,  zero_vector<double>(3), unit_vector<double>(3,2)); // z<0
+        cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+        // Check that cells were labelled for death correctly
+        for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            double z = cell_population.GetLocationOfCellCentre(*cell_iter)[2];
+            if (z > 0.0)
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            }
+        }
+
+        cell_population.RemoveDeadCells();
+
+        for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            double z = cell_population.GetLocationOfCellCentre(*cell_iter)[2];
+            TS_ASSERT_LESS_THAN_EQUALS(z, 0.0);
+        }
+    }
+
+
+
     void TestArchivingOfTargetedCellKiller() throw (Exception)
 	{
 	    // Set up singleton classes
@@ -436,6 +582,51 @@ public:
         }
     }
 
+    void TestArchivingOfRegionBasedCellKiller() throw (Exception)
+    {
+        // Set up singleton classes
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "region_based_killer.arch";
+
+        {
+            // Create an output archive
+
+            RegionBasedCellKiller<2> cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1));
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Serialize via pointer
+            RegionBasedCellKiller<2>* const p_cell_killer = &cell_killer;
+            output_arch << p_cell_killer;
+
+            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[1], 1.0);
+        }
+
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            RegionBasedCellKiller<2>* p_cell_killer;
+
+            // Restore from the archive
+            input_arch >> p_cell_killer;
+
+            // Test we have restored the region properties correctly
+            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[1], 1.0);
+
+            delete p_cell_killer;
+        }
+    }
+
+
     void TestCellKillersOutputParameters()
     {
         std::string output_directory = "TestCellKillersOutputParameters";
@@ -473,6 +664,17 @@ public:
 
         std::string oxygen_cell_killer_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + oxygen_cell_killer_results_dir + "oxygen_results.parameters cell_based/test/data/TestCellKillers/oxygen_results.parameters").c_str()), 0);
+
+        // Test with RegionBasedCellKiller
+        RegionBasedCellKiller<2> region_cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0;
+        TS_ASSERT_EQUALS(region_cell_killer.GetIdentifier(), "RegionBasedCellKiller-2");
+
+        out_stream region_cell_killer_parameter_file = output_file_handler.OpenOutputFile("region_results.parameters");
+        region_cell_killer.OutputCellKillerParameters(region_cell_killer_parameter_file);
+        region_cell_killer_parameter_file->close();
+
+        std::string region_cell_killer_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + region_cell_killer_results_dir + "region_results.parameters cell_based/test/data/TestCellKillers/region_results.parameters").c_str()), 0);
     }
 
 };
