@@ -37,9 +37,8 @@ MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(std::vector<AbstractCardiacCell*> &rCellsDistributed,
-                                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh)
+MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(pMesh)
 {
 }
 

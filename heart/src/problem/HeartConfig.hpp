@@ -56,6 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "ChasteSerialization.hpp"
+#include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/split_member.hpp>
 
 namespace cp = chaste::parameters::v2_2;
@@ -101,6 +102,10 @@ private:
         {
             mpInstance->Write( true );
         }
+        if (version >= 1)
+        {
+            archive & mUseStateVariableInterpolation;
+        }
         PetscTools::Barrier("HeartConfig::save");
     }
 
@@ -145,6 +150,10 @@ private:
         if (p_new_parameters->ResumeSimulation().present())
         {
             UpdateParametersFromResumeSimulation(p_new_parameters);
+        }
+        if (version >= 1)
+        {
+            archive & mUseStateVariableInterpolation;
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -1343,11 +1352,10 @@ private:
      * @param callingMethod string describing the get method performing the check.
      */
     void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
-     
-
-
 };
 
+
+BOOST_CLASS_VERSION(HeartConfig, 1) 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(HeartConfig)

@@ -83,6 +83,14 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
+        if (version >= 2)
+        {
+            archive & mExchangeHalos;
+        }
+        // Don't use the std::vector serialization for cardiac cells, so that we can load them
+        // more cleverly when migrating checkpoints.
+        SaveCardiacCells(*ProcessSpecificArchive<Archive>::Get(), version);
+        
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
         if (HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
@@ -123,7 +131,6 @@ private:
 
                 default :
                     NEVER_REACHED;
-
             }
         }
 
@@ -151,14 +158,34 @@ private:
     {
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
-        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
+        
+        if (version >= 2)
+        {
+            archive & mExchangeHalos;
+            if (mExchangeHalos)
+            {
+                mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
+                CalculateHaloNodesFromNodeExchange();
+                unsigned num_halo_nodes = mHaloNodes.size();
+                mHaloCellsDistributed.resize( num_halo_nodes );
+                for (unsigned local_index = 0; local_index < num_halo_nodes; local_index++)
+                {
+                    unsigned global_index = mHaloNodes[local_index];
+                    mHaloGlobalToLocalIndexMap[global_index] = local_index;
+                }
+            }
+        }
+        
+        // mCellsDistributed & mHaloCellsDistributed:
+        LoadCardiacCells(*ProcessSpecificArchive<Archive>::Get(), version);
+        
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
 
         // we no longer have a bool mDoOneCacheReplication, but to maintain backwards compatibility
         // we archive something if version==0
-        if(version==0)
+        if (version==0)
         {
             bool do_one_cache_replication = true;
             archive & do_one_cache_replication;
@@ -253,8 +280,6 @@ protected:
      */
     bool mExchangeHalos;
 
-    ///\todo #1462 Add loads of data exchange stuff
-
     /** Vector of halo node indices for current process */
     std::vector<unsigned> mHaloNodes;
 
@@ -273,17 +298,24 @@ protected:
 
     /**
      * A vector which will be of size GetNumProcs() for information to receive for
-     * process i
+     * process i.
      */
     std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;
 
-
     /**
      * If the mesh is a tetrahedral mesh then all elements and nodes are known.
-     * The halo nodes to the ones which are actually used in as cardiac cells
+     * The halo nodes to the ones which are actually used as cardiac cells
      * must be calculated explicitly.
      */
     void CalculateHaloNodesFromNodeExchange();
+    
+    /**
+     * If #mExchangeHalos is true, this method calls CalculateHaloNodesFromNodeExchange
+     * and sets up the halo cell data structures #mHaloCellsDistributed and #mHaloGlobalToLocalIndexMap.
+     * 
+     * @param pCellFactory  cell factory to use to create halo cells
+     */
+    void SetUpHaloCells(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
     
 public:
     /**
@@ -298,28 +330,14 @@ public:
     AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
 
     /**
-     * This constructor is called by the archiver
+     * This constructor is called by the archiver only.
      *
-     * @param rCellsDistributed  pointers to the cardiac cells.
      * @param pMesh  a pointer to the AbstractTetrahedral mesh.
      */
-    AbstractCardiacTissue(std::vector<AbstractCardiacCell*>& rCellsDistributed,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+    AbstractCardiacTissue(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacTissue();
-
-    /**
-     * Add more cells to this class.
-     *
-     * This method is used by the checkpoint migration code to load a simulation checkpointed in parallel onto
-     * a single process.  It adds the cells previously contained on one of the non-master processes to this
-     * process' collection.
-     *
-     * @param rOtherCells  the cells to add.  This vector will have the same length as our collection, but
-     *   contain non-NULL pointers in (some of) the places we have NULLs.
-     */
-    void MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells);
 
     /**
      * Set whether or not to replicate the caches across all processors.
@@ -429,32 +447,31 @@ public:
      *  -# number of cells on this process
      *  -# each cell pointer in turn
      *
-     * @param archive  the master archive; cells will actually be written to the process-specific archive.
+     * @param archive  the process-specific archive to write cells to.
      * @param version
      */
     template<class Archive>
     void SaveCardiacCells(Archive & archive, const unsigned int version) const
     {
-        Archive& r_archive = *ProcessSpecificArchive<Archive>::Get();
         const std::vector<AbstractCardiacCell*> & r_cells_distributed = rGetCellsDistributed();
-        r_archive & mpDistributedVectorFactory; // Needed when loading
+        archive & mpDistributedVectorFactory; // Needed when loading
         const unsigned num_cells = r_cells_distributed.size();
-        r_archive & num_cells;
+        archive & num_cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(r_cells_distributed[i]);
             bool is_dynamic = (p_entity != NULL);
-            r_archive & is_dynamic;
+            archive & is_dynamic;
             if (is_dynamic)
             {
 #ifdef CHASTE_CAN_CHECKPOINT_DLLS
-                r_archive & p_entity->GetLoader()->GetLoadableModulePath();
+                archive & p_entity->GetLoader()->GetLoadableModulePath();
 #else
                 // We should have thrown an exception before this point
                 NEVER_REACHED;
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
             }
-            r_archive & r_cells_distributed[i];
+            archive & r_cells_distributed[i];
         }
     }
 
@@ -463,44 +480,49 @@ public:
      *
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
+     * 
+     * Also loads halo cells if we're doing halo exchange, by using the non-local cells from the
+     * archive.
      *
      * @param archive  the process-specific archive to load from
      * @param version  archive version
-     * @param rCells  vector to fill in with pointers to local cells
-     * @param pMesh  the mesh, so we can get at the node permutation, if any
      */
     template<class Archive>
-    static void LoadCardiacCells(Archive & archive, const unsigned int version,
-                                 std::vector<AbstractCardiacCell*>& rCells,
-                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    void LoadCardiacCells(Archive & archive, const unsigned int version)
     {
         DistributedVectorFactory* p_factory;
         archive & p_factory;
         unsigned num_cells;
         archive & num_cells;
-        rCells.resize(p_factory->GetLocalOwnership());
-#ifndef NDEBUG
-        // Paranoia
-        for (unsigned i=0; i<rCells.size(); i++)
+        if (mCellsDistributed.empty())
         {
-            assert(rCells[i] == NULL);
-        }
+            mCellsDistributed.resize(p_factory->GetLocalOwnership());
+#ifndef NDEBUG
+            // Paranoia
+            for (unsigned i=0; i<mCellsDistributed.size(); i++)
+            {
+                assert(mCellsDistributed[i] == NULL);
+            }
 #endif
+        }
+//        else
+//        {
+//            // Can't do this as it's false if we're not migrating
+//            assert(mCellsDistributed.size() == p_factory->GetLocalOwnership());
+//        }
 
-        // We don't store a cell index in the archive, so need to work out what global
-        // index this tissue starts up.  If we're migrating (so have an
-        // original factory) we use the original low index; otherwise we use the current
-        // low index.
+        // We don't store a cell index in the archive, so need to work out what global index this tissue starts at.
+        // If we have an original factory we use the original low index; otherwise we use the current low index.
         unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
 
         // Track fake bath cells to make sure we only delete non-local ones
         std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
 
+        const std::vector<unsigned>& r_permutation = this->mpMesh->rGetNodePermutation();
         for (unsigned local_index=0; local_index<num_cells; local_index++)
         {
             // If we're permuting, figure out where this cell goes
             unsigned original_global_index = index_low + local_index;
-            const std::vector<unsigned>& r_permutation = pMesh->rGetNodePermutation();
             unsigned new_global_index;
             if (r_permutation.empty())
             {
@@ -514,6 +536,11 @@ public:
             }
             unsigned new_local_index = new_global_index - p_factory->GetLow();
             bool local = p_factory->IsGlobalIndexLocal(new_global_index);
+
+            // Check if this will be a halo cell
+            std::map<unsigned, unsigned>::const_iterator halo_position;
+            bool halo = ((halo_position=mHaloGlobalToLocalIndexMap.find(new_global_index)) != mHaloGlobalToLocalIndexMap.end());
+            // halo_position->second is local halo index
 
             bool is_dynamic;
             archive & is_dynamic;
@@ -539,7 +566,16 @@ public:
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
             if (local)
             {
-                rCells[new_local_index] = p_cell; // Add to local cells
+                assert(mCellsDistributed[new_local_index] == NULL);
+                mCellsDistributed[new_local_index] = p_cell; // Add to local cells
+                if (p_fake)
+                {
+                    fake_bath_cells_local.insert(p_fake);
+                }
+            }
+            else if (halo)
+            {
+                mHaloCellsDistributed[halo_position->second] = p_cell;
                 if (p_fake)
                 {
                     fake_bath_cells_local.insert(p_fake);
@@ -589,7 +625,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM> >
 {
     ///Macro to set the version number of templated archive in known versions of Boost
-    CHASTE_VERSION_CONTENT(1);
+    CHASTE_VERSION_CONTENT(2);
 };
 } // namespace serialization
 } // namespace boost

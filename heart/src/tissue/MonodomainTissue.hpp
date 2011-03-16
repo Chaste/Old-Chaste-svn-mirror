@@ -77,14 +77,11 @@ public:
     /**
      * Another constructor (for archiving)
      *
-     * @param rCellsDistributed  local cell models (recovered from archive)
-     * @param pMesh the mesh (also recovered from archive)
+     * @param pMesh the mesh (recovered from archive)
      */
-    MonodomainTissue(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
-
-
+    MonodomainTissue(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 };
+
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp" // Must be last
@@ -106,10 +103,6 @@ inline void save_construct_data(
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
 
-    // Don't use the std::vector serialization for cardiac cells, so that we can load them
-    // more cleverly when migrating checkpoints.
-    t->SaveCardiacCells(ar, file_version);
-
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
@@ -125,21 +118,16 @@ template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void load_construct_data(
     Archive & ar, MonodomainTissue<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
-    std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
-
     ar & p_mesh;
-    // Load only the cells we actually own
-    AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(
-            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
-
+    
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // So make sure that it is archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)MonodomainTissue<ELEMENT_DIM, SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)MonodomainTissue<ELEMENT_DIM, SPACE_DIM>(p_mesh);
 }
 }
 } // namespace ...

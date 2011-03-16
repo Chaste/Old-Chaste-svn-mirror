@@ -52,31 +52,34 @@ std::string CardiacSimulation::BoolToString(bool yesNo)
 void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory, const std::string& rArchiveDirectory)
 {
     OutputFileHandler handler(rOutputDirectory, false);
-    out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
-    (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1' "
-              << "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
-              << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ChasteParameters_2_1.xsd'>" << std::endl;
-    (*p_file) << std::endl;
-    (*p_file) << "    <ResumeSimulation>" << std::endl;
-    (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
-    (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
-    (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration> <!-- Edit with new simulation duration. Please "
-              << "note that the simulation does not restart at t=0 but at the time where the checkpoint was created.-->" << std::endl;
-    (*p_file) << "        <Domain>" << HeartConfig::Instance()->GetDomain() << "</Domain>" << std::endl;
-    (*p_file) << "        <CheckpointSimulation timestep='" << HeartConfig::Instance()->GetCheckpointTimestep()
-              << "' unit='ms' max_checkpoints_on_disk='" << HeartConfig::Instance()->GetMaxCheckpointsOnDisk()
-              << "'/> <!-- This is optional; if not given, the loaded simulation will NOT itself be checkpointed -->" << std::endl;
-    (*p_file) << "        <OutputVisualizer meshalyzer='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
-              << "' vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithVtk())
-              << "' cmgui='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithCmgui()) << "'/>" << std::endl;
-    (*p_file) << "    </ResumeSimulation>" << std::endl;
-    (*p_file) << std::endl;
-    (*p_file) << "    <!-- These elements must exist, but their contents are ignored -->" << std::endl;
-    (*p_file) << "    <Physiological/>" << std::endl;
-    (*p_file) << "    <Numerical/>" << std::endl;
-    (*p_file) << "</ChasteParameters>" << std::endl;
-    p_file->close();
+    if (PetscTools::AmMaster())
+    {
+        out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
+        (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
+        (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1' "
+                  << "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
+                  << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ChasteParameters_2_1.xsd'>" << std::endl;
+        (*p_file) << std::endl;
+        (*p_file) << "    <ResumeSimulation>" << std::endl;
+        (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
+        (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
+        (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration> <!-- Edit with new simulation duration. Please "
+                  << "note that the simulation does not restart at t=0 but at the time where the checkpoint was created.-->" << std::endl;
+        (*p_file) << "        <Domain>" << HeartConfig::Instance()->GetDomain() << "</Domain>" << std::endl;
+        (*p_file) << "        <CheckpointSimulation timestep='" << HeartConfig::Instance()->GetCheckpointTimestep()
+                  << "' unit='ms' max_checkpoints_on_disk='" << HeartConfig::Instance()->GetMaxCheckpointsOnDisk()
+                  << "'/> <!-- This is optional; if not given, the loaded simulation will NOT itself be checkpointed -->" << std::endl;
+        (*p_file) << "        <OutputVisualizer meshalyzer='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
+                  << "' vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithVtk())
+                  << "' cmgui='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithCmgui()) << "'/>" << std::endl;
+        (*p_file) << "    </ResumeSimulation>" << std::endl;
+        (*p_file) << std::endl;
+        (*p_file) << "    <!-- These elements must exist, but their contents are ignored -->" << std::endl;
+        (*p_file) << "    <Physiological/>" << std::endl;
+        (*p_file) << "    <Numerical/>" << std::endl;
+        (*p_file) << "</ChasteParameters>" << std::endl;
+        p_file->close();
+    }
     HeartConfig::Instance()->CopySchema(handler.GetOutputDirectoryFullPath());
 }
 

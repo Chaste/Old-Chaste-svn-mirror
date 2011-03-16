@@ -87,11 +87,11 @@ public:
     BidomainTissue(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
 
     /**
-     *  Archiving constructor
-     * @param rCellsDistributed  local cell models (recovered from archive)
+     * Archiving constructor
+     *
      * @param pMesh  a pointer to the AbstractTetrahedral mesh (recovered from archive).
      */
-    BidomainTissue(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
+    BidomainTissue(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Destructor
@@ -121,10 +121,6 @@ inline void save_construct_data(
     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
 
-    // Don't use the std::vector serialization for cardiac cells, so that we can load them
-    // more cleverly when migrating checkpoints.
-    t->SaveCardiacCells(ar, file_version);
-
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
@@ -140,14 +136,9 @@ template<class Archive, unsigned SPACE_DIM>
 inline void load_construct_data(
     Archive & ar, BidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
 {
-    std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
-
     ar & p_mesh;
-    // Load only the cells we actually own
-    AbstractCardiacTissue<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
-            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
-
+    
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
@@ -155,7 +146,7 @@ inline void load_construct_data(
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)BidomainTissue<SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)BidomainTissue<SPACE_DIM>(p_mesh);
 }
 }
 } // namespace ...

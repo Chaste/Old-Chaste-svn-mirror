@@ -410,8 +410,7 @@ public:
      * This is the same as TestConductionVelocityConvergesFasterWithSvi1d with i=2, but solves in two parts.
      * If that test changes, check the hardcoded values here!
      */
-    /*
-    void xTestArchiving() throw (Exception)
+    void TestArchiving() throw (Exception)
     {
         FileFinder archive_dir("monodomain_svi_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_svi.arch";
@@ -453,6 +452,7 @@ public:
             
             // We need to do some migration stuff to load the halo cells
             {
+                DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
                 unsigned num_procs = PetscTools::GetNumProcs();
                 for (unsigned archive_num=0; archive_num<num_procs; archive_num++)
                 {
@@ -467,6 +467,7 @@ public:
                         p_monodomain_problem->GetTissue()->LoadCardiacCells(archive, 0);
                     }
                 }
+                DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
             }
             
             HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
@@ -480,7 +481,6 @@ public:
             delete p_monodomain_problem;
         }
     }
-    */
 };
 
 #endif /*TESTMONODOMAINWITHSVI_HPP_*/

@@ -117,7 +117,7 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        if (version == 1)
+        if (version >= 1)
         {
             const unsigned element_dim=ELEMENT_DIM;
             archive & element_dim;
@@ -197,7 +197,7 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
-        if (version == 1)
+        if (version >= 1)
         {
             unsigned element_dim;
             unsigned space_dim;
@@ -713,12 +713,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     DistributedVectorFactory* p_mesh_factory;
     archive >> p_mesh_factory;
 
-    // The cardiac cells
-    std::vector<AbstractCardiacCell*> cells;
-    // Load only the cells we actually own
-    AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells, this->mpMesh);
-    mpCardiacTissue->MergeCells(cells);
-
+    // The cardiac cells - load only the cells we actually own
+    mpCardiacTissue->LoadCardiacCells(archive, version);
+    
     {
         DistributedVectorFactory* p_pde_factory;
         archive >> p_pde_factory;

@@ -44,8 +44,8 @@ BidomainTissue<SPACE_DIM>::BidomainTissue(
 }
 
 template <unsigned SPACE_DIM>
-BidomainTissue<SPACE_DIM>::BidomainTissue(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacTissue<SPACE_DIM>(rCellsDistributed, pMesh)
+BidomainTissue<SPACE_DIM>::BidomainTissue(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacTissue<SPACE_DIM>(pMesh)
 {
     CreateExtracellularConductivityTensors();
 }

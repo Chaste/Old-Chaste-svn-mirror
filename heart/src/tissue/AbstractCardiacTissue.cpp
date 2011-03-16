@@ -57,10 +57,6 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
         //Remove the request for a halo exchange
         mExchangeHalos = false;
     }
-    if (mExchangeHalos)
-    {
-        mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
-    }
 
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
@@ -102,48 +98,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     PetscTools::ReplicateException(false);
 
     // Halo nodes (if required)
-    if (mExchangeHalos)
-    {
-        //Note that the following call will not work for a TetrahedralMesh which has no concept of halo nodes.
-        //mpMesh->GetHaloNodeIndices( mHaloNodes );
-        CalculateHaloNodesFromNodeExchange();
-        unsigned num_halo_nodes = mHaloNodes.size();
-        mHaloCellsDistributed.resize( num_halo_nodes );
-
-        try
-        {
-            for (unsigned local_index = 0; local_index < num_halo_nodes; local_index++)
-            {
-                unsigned global_index = mHaloNodes[local_index];
-                mHaloCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
-                mHaloCellsDistributed[local_index]->SetUsedInTissueSimulation();
-                mHaloGlobalToLocalIndexMap[global_index] = local_index;
-            }
-
-            // No need to call FinaliseCellCreation() as halo node cardiac cells will
-            // never be stimulated (their values are communicated from the process that
-            // owns them.
-        }
-        catch (const Exception& e)
-        {
-            // Errors thrown creating cells will often be process-specific
-            PetscTools::ReplicateException(true);
-
-            // Delete cells
-            // Should really do this for other processes too, but this is all we need
-            // to get memory testing to pass, and leaking when we're about to die isn't
-            // that bad!
-            for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mHaloCellsDistributed.begin();
-                 cell_iterator != mHaloCellsDistributed.end();
-                 ++cell_iterator)
-            {
-                delete (*cell_iterator);
-            }
-
-            throw e;
-        }
-        PetscTools::ReplicateException(false);
-    }
+    SetUpHaloCells(pCellFactory);
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
@@ -164,10 +119,8 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
 
 // Constructor used for archiving
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                                                                    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     : mpMesh(pMesh),
-      mCellsDistributed(rCellsDistributed),
       mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
       mMeshUnarchived(true),
@@ -205,20 +158,6 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacTissue()
     if (mMeshUnarchived)
     {
         delete mpMesh;
-    }
-}
-
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells)
-{
-    assert(rOtherCells.size() == mCellsDistributed.size());
-    for (unsigned i=0; i<rOtherCells.size(); i++)
-    {
-        if (rOtherCells[i] != NULL)
-        {
-            assert(mCellsDistributed[i] == NULL);
-            mCellsDistributed[i] = rOtherCells[i];
-        }
     }
 }
 
@@ -414,6 +353,55 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CalculateHaloNodesFromNodeExc
     }
     mHaloNodes = std::vector<unsigned>(halos_as_set.begin(), halos_as_set.end());
     //PRINT_VECTOR(mHaloNodes);
+}
+
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SetUpHaloCells(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
+{
+    if (mExchangeHalos)
+    {
+        mpMesh->CalculateNodeExchange(mNodesToSendPerProcess, mNodesToReceivePerProcess);
+        //Note that the following call will not work for a TetrahedralMesh which has no concept of halo nodes.
+        //mpMesh->GetHaloNodeIndices( mHaloNodes );
+        CalculateHaloNodesFromNodeExchange();
+        unsigned num_halo_nodes = mHaloNodes.size();
+        mHaloCellsDistributed.resize( num_halo_nodes );
+
+        try
+        {
+            for (unsigned local_index = 0; local_index < num_halo_nodes; local_index++)
+            {
+                unsigned global_index = mHaloNodes[local_index];
+                mHaloCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+                mHaloCellsDistributed[local_index]->SetUsedInTissueSimulation();
+                mHaloGlobalToLocalIndexMap[global_index] = local_index;
+            }
+
+            // No need to call FinaliseCellCreation() as halo node cardiac cells will
+            // never be stimulated (their values are communicated from the process that
+            // owns them.
+        }
+        catch (const Exception& e)
+        {
+            // Errors thrown creating cells will often be process-specific
+            PetscTools::ReplicateException(true);
+
+            // Delete cells
+            // Should really do this for other processes too, but this is all we need
+            // to get memory testing to pass, and leaking when we're about to die isn't
+            // that bad!
+            for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mHaloCellsDistributed.begin();
+                 cell_iterator != mHaloCellsDistributed.end();
+                 ++cell_iterator)
+            {
+                delete (*cell_iterator);
+            }
+
+            throw e;
+        }
+        PetscTools::ReplicateException(false);
+    }
 }
 
 
