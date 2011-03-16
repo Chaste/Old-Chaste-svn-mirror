@@ -516,7 +516,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
             {
                 // Receive
                 unsigned receive_size = 0;
-                for (unsigned i=0; i<number_of_cells_to_send; i++)
+                for (unsigned i=0; i<number_of_cells_to_receive; i++)
                 {
                     unsigned halo_cell_index = mHaloGlobalToLocalIndexMap[mNodesToReceivePerProcess[receive_from][i]];
                     receive_size += mHaloCellsDistributed[halo_cell_index]->GetNumberOfStateVariables();
