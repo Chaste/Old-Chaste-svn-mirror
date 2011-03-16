@@ -1986,6 +1986,8 @@ class cellml_variable(Colourable, element_base):
                         break
             else:
                 result = self._get_binding_time() == BINDING_TIMES.static
+        elif t == VarTypes.Mapped:
+            result = self.get_source_variable().is_statically_const(ignore_annotations)
         return result
 
     def set_value(self, value, ode=None, follow_maps=True):
