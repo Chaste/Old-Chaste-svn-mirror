@@ -344,7 +344,7 @@ public:
         MeshBasedCellPopulation<1> cell_population(mesh, cells);
 
         // Create cell killer and kill cells
-        c_vector<double, 1> point ;
+        c_vector<double, 1> point;
         point(0) = 10.0;
         RegionBasedCellKiller<1> cell_killer(&cell_population, point, unit_vector<double>(1,0)); // x<10
         cell_killer.TestAndLabelCellsForApoptosisOrDeath();
@@ -600,10 +600,10 @@ public:
             RegionBasedCellKiller<2>* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
-            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[1], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[1], 1.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetNormalToPlane()[1], 1.0);
         }
 
         {
@@ -617,15 +617,14 @@ public:
             input_arch >> p_cell_killer;
 
             // Test we have restored the region properties correctly
-            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetPointOnPlane()[1], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_cell_killer->GetNormalToPlane()[1], 1.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetPointOnPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetPointOnPlane()[1], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetNormalToPlane()[0], 0.0);
+            TS_ASSERT_EQUALS(p_cell_killer->rGetNormalToPlane()[1], 1.0);
 
             delete p_cell_killer;
         }
     }
-
 
     void TestCellKillersOutputParameters()
     {

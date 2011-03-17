@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * An abstract cell population boundary condition class.
+ * \todo provide fuller description (see #1589)
  */
 template <unsigned DIM>
 class AbstractCellPopulationBoundaryCondition : public Identifiable
@@ -75,16 +76,22 @@ public:
     virtual ~AbstractCellPopulationBoundaryCondition();
 
     /**
-     *  Pure method which should impose the boundary conditions on any node.
-     *
-     *  @param rOldLocations the node locations before any boundary conditions are applied
+     * Impose the boundary conditions on each node.
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     * 
+     * @param rOldLocations the node locations before any boundary conditions are applied
      */
     virtual void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)=0;
 
     /**
-     *  Pure method which should verify the boundary conditions have been applied.
-     *  This is called after ImposeBoundaryConditions to ensure the condition is
-     *  still satisfied.
+     * Pure method which should verify the boundary conditions have been applied.
+     * This is called after ImposeBoundaryConditions() to ensure the condition is
+     * still satisfied.
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
      *
      * @return Whether the boundary conditions are satisfied.
      */
@@ -98,15 +105,15 @@ public:
     const AbstractCellPopulation<DIM>* GetCellPopulation() const;
 
     /**
-     * Outputs cell population boundary condition used in the simulation to file and then calls
-     * OutputCellPopulationBoundaryConditionParameters to output all relevant parameters.
+     * Output cell population boundary condition used in the simulation to file and then call
+     * OutputCellPopulationBoundaryConditionParameters() to output all relevant parameters.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputCellPopulationBoundaryConditionInfo(out_stream& rParamsFile);
 
     /**
-     * Outputs cell population boundary condition parameters to file
+     * Output cell population boundary condition parameters to file.
 	 *
      * As this method is pure virtual, it must be overridden
      * in subclasses.

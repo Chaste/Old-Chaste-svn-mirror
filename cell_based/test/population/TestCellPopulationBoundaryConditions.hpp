@@ -89,7 +89,7 @@ public:
 
         boundary_condition.ImposeBoundaryConditions(old_locations);
 
-        // Test all nodes satisfy bcs
+        // Test that all nodes satisfy the boundary condition
         for (std::list<CellPtr>::iterator cell_iter = cell_population.rGetCells().begin();
              cell_iter != cell_population.rGetCells().end();
              ++cell_iter)
@@ -98,13 +98,13 @@ public:
             c_vector<double, 2> location = p_node->rGetLocation();
             if (old_locations[p_node->GetIndex()][1]<2.0)
             {
-                TS_ASSERT(location[0] >=2.0);
-                TS_ASSERT(location[1] == old_locations[p_node->GetIndex()][1]);
+                TS_ASSERT_LESS_THAN_EQUALS(2.0, location[0]);
+                TS_ASSERT_DELTA(location[1],old_locations[p_node->GetIndex()][1], 1e-6);
             }
             else
             {
-                TS_ASSERT(location[0] == old_locations[p_node->GetIndex()][0]);
-                TS_ASSERT(location[1] == old_locations[p_node->GetIndex()][1]);
+                TS_ASSERT_DELTA(location[0], old_locations[p_node->GetIndex()][0], 1e-6);
+                TS_ASSERT_DELTA(location[1], old_locations[p_node->GetIndex()][1], 1e-6);
             }
         }
 
@@ -128,10 +128,10 @@ public:
 		    PlaneBoundaryCondition<2>* const p_boundary_condition = &boundary_condition;
 		    output_arch << p_boundary_condition;
 
-            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[1], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 1.0);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[1], 1.0, 1e-6);
 	    }
 
 	    {
@@ -145,10 +145,10 @@ public:
 		    input_arch >> p_boundary_condition;
 
 		    // Test we have restored the plane geometry correctly
-            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetPointOnPlane()[1], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[0], 0.0);
-            TS_ASSERT_EQUALS(p_boundary_condition->GetNormalToPlane()[1], 1.0);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[1], 1.0, 1e-6);
 
 		    delete p_boundary_condition;
 	   }

@@ -71,6 +71,14 @@ protected:
      */
     AbstractCentreBasedCellPopulation();
 
+    /**
+     * Write the current results to mpVtkMetaFile.
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     */
+    virtual void WriteVtkResultsToFile()=0;
+
 public:
 
     /**

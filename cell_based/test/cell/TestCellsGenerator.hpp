@@ -118,7 +118,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            // Shold lie between -24 and 0
+            // Should lie between -24 and 0
             TS_ASSERT_LESS_THAN_EQUALS(cells[i]->GetBirthTime(), 0.0);
             TS_ASSERT_LESS_THAN_EQUALS(-24.0, cells[i]->GetBirthTime());
             TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);

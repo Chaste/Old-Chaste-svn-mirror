@@ -29,32 +29,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define PLANEBOUNDARYCONDITION_HPP_
 
 #include "AbstractCellPopulationBoundaryCondition.hpp"
-#include "AbstractCentreBasedCellPopulation.hpp"
-#include "VertexBasedCellPopulation.hpp"
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
- * An plane cell population boundary condition class which stops nodes moving through
- * a plane in the domain.
+ * A plane cell population boundary condition class, which stops nodes moving through
+ * a specified plane in the domain.
+ * 
+ * \todo The naming of this class indicates that it is specific to 3D (see #1589)
  */
-template <unsigned DIM>
+template<unsigned DIM>
 class PlaneBoundaryCondition : public AbstractCellPopulationBoundaryCondition<DIM>
 {
 private:
 
-
     /**
-     * A point on the plane which nodes can't cross.
+     * A point on the boundary plane.
      */
     c_vector<double, DIM> mPointOnPlane;
 
     /**
-     * The outward pointing unit normal to the boundary plane
+     * The outward-facing unit normal vector to the boundary plane.
      */
     c_vector<double, DIM> mNormalToPlane;
-
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -77,7 +76,9 @@ public:
     /**
      * Constructor.
      *
-     * @param pCellPopulation pointer to the cell population.
+     * @param pCellPopulation pointer to the cell population
+     * @param point a point on the boundary plane
+     * @param normal the outward-facing unit normal vector to the boundary plane
      */
     PlaneBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
                            c_vector<double, DIM> point,
@@ -86,42 +87,41 @@ public:
     /**
      * @return mPointOnPlane.
      */
-    c_vector<double, DIM> GetPointOnPlane() const;
+    const c_vector<double, DIM>& rGetPointOnPlane() const;
 
     /**
      * @return mNormalToPlane.
      */
-    c_vector<double, DIM> GetNormalToPlane() const;
+    const c_vector<double, DIM>& rGetNormalToPlane() const;
 
     /**
-     * Overridden method to apply the cell population boundary conditions.
+     * Overridden ImposeBoundaryConditions() method.
+     * 
+     * Apply the cell population boundary conditions.
      *
      * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    virtual void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations);
+    void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations);
 
     /**
-     *  Overridden method to verify the boundary conditions have been applied.
-     *  This is called after ImposeBoundaryConditions to ensure the condition is
-     *  still satisfied.
+     * Overridden VerifyBoundaryConditions() method.
+     * Verify the boundary conditions have been applied.
+     * This is called after ImposeBoundaryConditions() to ensure the condition is still satisfied.
      *
-     *  @return Whether the boundary conditions are satisfied.
+     * @return whether the boundary conditions are satisfied.
      */
-    virtual bool VerifyBoundaryConditions();
+    bool VerifyBoundaryConditions();
 
     /**
-     * Outputs cell population boundary condition parameters to file
+     * Overridden OutputCellPopulationBoundaryConditionParameters() method.
+     * Output cell population boundary condition parameters to file.
 	 *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
      * @param rParamsFile the file stream to which the parameters are output
      */
-    virtual void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile);
+    void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile);
 };
 
 #include "SerializationExportWrapper.hpp"
-
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(PlaneBoundaryCondition)
 
 namespace boost
@@ -129,7 +129,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct an PlaneBoundaryCondition.
+ * Serialize information required to construct a PlaneBoundaryCondition.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -138,14 +138,22 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
     ar << p_cell_population;
-    c_vector<double, DIM> point = t->GetPointOnPlane();
-    ar << point;
-    c_vector<double, DIM> normal = t->GetNormalToPlane();
-    ar << normal;
+
+    // Archive c_vectors one component at a time
+    c_vector<double, DIM> point = t->rGetPointOnPlane();
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar << point[i];
+    }
+    c_vector<double, DIM> normal = t->rGetNormalToPlane();
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar << normal[i];
+    }
 }
 
 /**
- * De-serialize constructor parameters and initialise an PlaneBoundaryCondition.
+ * De-serialize constructor parameters and initialize a PlaneBoundaryCondition.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
@@ -154,10 +162,18 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
+
+    // Archive c_vectors one component at a time
     c_vector<double, DIM> point;
-    ar >> point;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar >> point[i];
+    }
     c_vector<double, DIM> normal;
-    ar >> normal;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar >> normal[i];
+    }
 
     // Invoke inplace constructor to initialise instance
     ::new(t)PlaneBoundaryCondition<DIM>(p_cell_population, point, normal);

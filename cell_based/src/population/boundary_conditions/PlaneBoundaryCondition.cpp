@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlaneBoundaryCondition.hpp"
+#include "AbstractCentreBasedCellPopulation.hpp"
 
 template <unsigned DIM>
 PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
@@ -35,28 +36,23 @@ PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>*
         : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
           mPointOnPlane(point)
 {
-//    assert( (dynamic_cast<VertexBasedCellPopulation<DIM>*>(this->mpCellPopulation)) ||
-//            (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation)) );
+    assert( (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation)) || (this->mpCellPopulation == NULL));
 
-    assert( (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation)) ||
-            (this->mpCellPopulation == NULL));
-
-    assert(norm_2(normal)>0.0);
+    assert(norm_2(normal) > 0.0);
     mNormalToPlane = normal/norm_2(normal);
 }
 
 template <unsigned DIM>
-c_vector<double, DIM> PlaneBoundaryCondition<DIM>::GetPointOnPlane() const
+const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetPointOnPlane() const
 {
     return mPointOnPlane;
 }
 
 template <unsigned DIM>
-c_vector<double, DIM> PlaneBoundaryCondition<DIM>::GetNormalToPlane() const
+const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() const
 {
     return mNormalToPlane;
 }
-
 
 template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
@@ -67,14 +63,13 @@ void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_
              cell_iter != this->mpCellPopulation->End();
              ++cell_iter)
         {
-
-            // \todo this is only for AbstractCentreBasedCellPopulations
+            // \todo this is only for AbstractCentreBasedCellPopulations (see #1589)
             c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
             Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
 
-            if ( inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0 )
+            if (inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0)
             {
                 c_vector<double, 2> tangent;
                 tangent(0) = -mNormalToPlane(1);

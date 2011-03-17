@@ -32,21 +32,21 @@ template <unsigned DIM>
 RegionBasedCellKiller<DIM>::RegionBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
                                                   c_vector<double, DIM> point,
                                                   c_vector<double, DIM> normal)
-        : AbstractCellKiller<DIM>(pCellPopulation),
-          mPointOnPlane(point)
+    : AbstractCellKiller<DIM>(pCellPopulation),
+      mPointOnPlane(point)
 {
-    assert(norm_2(normal)>0.0);
+    assert(norm_2(normal) > 0.0);
     mNormalToPlane = normal/norm_2(normal);
 }
 
 template <unsigned DIM>
-c_vector<double, DIM> RegionBasedCellKiller<DIM>::GetPointOnPlane() const
+const c_vector<double, DIM>& RegionBasedCellKiller<DIM>::rGetPointOnPlane() const
 {
     return mPointOnPlane;
 }
 
 template <unsigned DIM>
-c_vector<double, DIM> RegionBasedCellKiller<DIM>::GetNormalToPlane() const
+const c_vector<double, DIM>& RegionBasedCellKiller<DIM>::rGetNormalToPlane() const
 {
     return mNormalToPlane;
 }
@@ -58,9 +58,9 @@ void RegionBasedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
          cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
     {
-        c_vector<double, DIM> cell_location= this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
+        c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
-        if (inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0 )
+        if (inner_prod(cell_location - mPointOnPlane, mNormalToPlane) > 0.0)
         {
             cell_iter->Kill();
         }
@@ -88,8 +88,6 @@ void RegionBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsF
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
@@ -97,7 +95,6 @@ void RegionBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsF
 template class RegionBasedCellKiller<1>;
 template class RegionBasedCellKiller<2>;
 template class RegionBasedCellKiller<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

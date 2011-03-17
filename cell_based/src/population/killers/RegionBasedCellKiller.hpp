@@ -32,11 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
- *  A cell killer that kills cells if they are outside the domain.
- *  defined by a point, mPointOnPlane, and an outward pointing normal, mNormalToPlane.
- *  Works for all CellPopulations.
+ * A cell killer that kills cells if they are outside the domain.
+ * defined by a point, mPointOnPlane, and an outward pointing normal, mNormalToPlane.
+ * Works for all CellPopulations.
  */
 template<unsigned DIM>
 class RegionBasedCellKiller : public AbstractCellKiller<DIM>
@@ -44,12 +45,12 @@ class RegionBasedCellKiller : public AbstractCellKiller<DIM>
 private:
 
     /**
-     * A point on the plane which nodes can't cross.
+     * A point on the plane which nodes cannot cross.
      */
     c_vector<double, DIM> mPointOnPlane;
 
     /**
-     * The outward pointing unit normal to the boundary plane
+     * The outward pointing unit normal to the boundary plane.
      */
     c_vector<double, DIM> mNormalToPlane;
 
@@ -70,8 +71,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
-        //archive & mPointOnPlane; // done in load_construct_data
-        //archive & mNormalToPlane; // done in load_construct_data
     }
 
 public:
@@ -91,12 +90,12 @@ public:
     /**
      * @return mPointOnPlane.
      */
-    c_vector<double, DIM> GetPointOnPlane() const;
+    const c_vector<double, DIM>& rGetPointOnPlane() const;
 
     /**
      * @return mNormalToPlane.
      */
-    c_vector<double, DIM> GetNormalToPlane() const;
+    const c_vector<double, DIM>& rGetNormalToPlane() const;
 
     /**
      *  Loops over cells and kills cells outside boundary.
@@ -131,10 +130,18 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
     ar << p_cell_population;
-    c_vector<double, DIM> point = t->GetPointOnPlane();
-    ar << point;
-    c_vector<double, DIM> normal = t->GetNormalToPlane();
-    ar << normal;
+
+    // Archive c_vectors one component at a time
+    c_vector<double, DIM> point = t->rGetPointOnPlane();
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar << point[i];
+    }
+    c_vector<double, DIM> normal = t->rGetNormalToPlane();
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar << normal[i];
+    }
 }
 
 /**
@@ -147,10 +154,18 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
+
+    // Archive c_vectors one component at a time
     c_vector<double, DIM> point;
-    ar >> point;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar >> point[i];
+    }
     c_vector<double, DIM> normal;
-    ar >> normal;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        ar >> normal[i];
+    }
 
     // Invoke inplace constructor to initialise instance
     ::new(t)RegionBasedCellKiller<DIM>(p_cell_population, point, normal);
