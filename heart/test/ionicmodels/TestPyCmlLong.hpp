@@ -198,13 +198,13 @@ private:
         }
 
         // Do the conversion
-        CellMLToSharedLibraryConverter converter;
+        CellMLToSharedLibraryConverter converter(true);
         FileFinder copied_file(rOutputDirName + "/" + rModelName + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
         // Apply a stimulus of -40 uA/cm^2 - should work for all models
         boost::shared_ptr<AbstractCardiacCellInterface> p_cell(CreateCellWithStandardStimulus(*p_loader, -40.0));
 
-        // #1669 Check that the default stimulus units are correct
+        // Check that the default stimulus units are correct
         if (p_cell->HasCellMLDefaultStimulus())
         {
             // Record the existing stimulus and re-apply it at the end
@@ -226,7 +226,7 @@ private:
             TS_ASSERT_LESS_THAN(p_reg_stim->GetDuration(),6.01);
             TS_ASSERT_LESS_THAN(0.1,p_reg_stim->GetDuration());
 
-            // Stimulus period should be approximately between 70 (for bonadrenko? - seems fast!) and 2000ms.
+            // Stimulus period should be approximately between 70 (for bondarenko - seems fast! - would expect 8-10 beats per second for mouse) and 2000ms.
             TS_ASSERT_LESS_THAN(p_reg_stim->GetPeriod(),2000);
             TS_ASSERT_LESS_THAN(70,p_reg_stim->GetPeriod());
 

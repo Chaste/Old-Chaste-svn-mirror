@@ -39,8 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DynamicModelLoaderRegistry.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
 
-CellMLToSharedLibraryConverter::CellMLToSharedLibraryConverter(std::string component)
-    : mComponentName(component)
+CellMLToSharedLibraryConverter::CellMLToSharedLibraryConverter(bool preserveGeneratedSources,
+                                                               std::string component)
+    : mPreserveGeneratedSources(preserveGeneratedSources),
+      mComponentName(component)
 {
 }
 
@@ -112,10 +114,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             tmp_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/" + folder_name.str();
             build_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/build/" + ChasteBuildDirName() + "/" + folder_name.str();
             int ret = mkdir(tmp_folder.c_str(), 0700);
-            if (ret != 0)
-            { // Some optimised builds see ret as unused if this line is just assert(ret==0);
-                NEVER_REACHED;
-            }
+            EXCEPT_IF_NOT(ret == 0);
             // Copy the .cellml file (and any relevant others) into the temporary folder
             size_t dot_pos = rCellmlFullPath.rfind('.');
             std::string cellml_base = rCellmlFullPath.substr(0, dot_pos);
@@ -135,6 +134,11 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             EXPECT0(chdir, old_cwd);
             // Copy the .so to the same folder as the original .cellml file
             EXPECT0(system, "cp " + tmp_folder + "/lib" + rModelLeafName + "so " + rCellmlFolder);
+            if (mPreserveGeneratedSources)
+            {
+                // Copy generated source code as well
+                EXPECT0(system, "cp " + build_folder + "/*.?pp " + rCellmlFolder);
+            }
             // Delete the temporary folders
             EXPECT0(system, "rm -r " + build_folder);
             EXPECT0(system, "rm -r " + tmp_folder);

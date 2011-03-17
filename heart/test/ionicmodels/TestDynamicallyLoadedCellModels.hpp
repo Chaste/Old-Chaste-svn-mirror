@@ -108,7 +108,7 @@ private:
 
         TS_ASSERT_DELTA(pCell->GetIIonic(), 1.9411, tolerance);
     }
-    
+
     AbstractCardiacCellInterface* CreateLr91CellFromLoader(DynamicCellModelLoader& rLoader,
                                                            unsigned vIndex=4u)
     {
@@ -116,7 +116,7 @@ private:
         TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), vIndex);
         return p_cell;
     }
-    
+
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
@@ -184,11 +184,16 @@ public:
         args.push_back("--opt");
         CreateOptionsFile(handler, model, args);
 
-        // Do the conversion
-        CellMLToSharedLibraryConverter converter;
+        // Do the conversion, preserving generated sources
+        CellMLToSharedLibraryConverter converter(true);
         FileFinder copied_file(dirname + "/plain/" + model + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
         RunLr91Test(*p_loader, 0u, true, 0.01); // Implementation of lookup tables has improved...
+        // Check the sources exist
+        FileFinder cpp_file(dirname + "/plain/" + model + ".cpp", RelativeTo::ChasteTestOutput);
+        TS_ASSERT(cpp_file.Exists());
+        FileFinder hpp_file(dirname + "/plain/" + model + ".hpp", RelativeTo::ChasteTestOutput);
+        TS_ASSERT(hpp_file.Exists());
 
         {
             // Backward Euler
@@ -306,7 +311,7 @@ public:
                                   "Conversion of CellML to Chaste shared object failed.");
         chmod(cellml_file.GetAbsolutePath().c_str(), 0644);
     }
-    
+
     void TestArchiving() throw(Exception)
     {
 #ifdef CHASTE_CAN_CHECKPOINT_DLLS
@@ -327,10 +332,10 @@ public:
         FileFinder so_file(dirname + "/libluo_rudy_1991_dyn.so", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!so_file.Exists());
         DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
-        
+
         // Load a cell model from the .so
         AbstractCardiacCellInterface* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
-        
+
         // Archive it
         handler.SetArchiveDirectory();
         std::string archive_filename1 = ArchiveLocationInfo::GetProcessUniqueFilePath("first-save.arch");
@@ -340,7 +345,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
             output_arch << p_const_cell;
         }
-        
+
         // Load from archive
         AbstractCardiacCellInterface* p_loaded_cell1;
         {
@@ -348,7 +353,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> p_loaded_cell1;
         }
-        
+
         // Archive the un-archived model
         std::string archive_filename2 = ArchiveLocationInfo::GetProcessUniqueFilePath("second-save.arch");
         {
@@ -357,7 +362,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
             output_arch << p_const_cell;
         }
-            
+
         // Load from the new archive
         AbstractCardiacCellInterface* p_loaded_cell2;
         {
@@ -365,7 +370,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> p_loaded_cell2;
         }
-        
+
         // Check simulations of both loaded cells
         SimulateLr91AndCompare(p_loaded_cell1);
         delete p_loaded_cell1;

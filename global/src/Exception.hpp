@@ -120,11 +120,11 @@ public:
 /**
  * Convenience macro for changing an assert into an exception - has the same
  * calling semantics, but throws.
- * 
+ *
  * @param test  the test that must always be true.
  */
 #define EXCEPT_IF_NOT(test) \
-    if (!(test)) EXCEPTION("Assertion tripped: " BOOST_PP_STRINGIZE(test)) 
+    if (!(test)) EXCEPTION("Assertion tripped: " BOOST_PP_STRINGIZE(test))
 
 /**
  * This is to cope with NDEBUG causing variables to not be used, when they are only
@@ -150,6 +150,19 @@ public:
         EXCEPTION("Error executing command: " #cmd "(" + _arg + ")"); \
     } }
 
+
+/**
+ * Handy for calling functions like system which return non-zero on error.
+ * MPI_Abort if the return code is non-zero, printing a message to stderr.
+ * @param retcode  command return code
+ * @param msg  error message to display
+ */
+#define MPI_ABORT_IF_NON0_WITH_MSG(retcode, msg) \
+    if (retcode != 0) { \
+        std::cerr << msg << std::endl << std::flush; \
+        MPI_Abort(PETSC_COMM_WORLD, -1); \
+    }
+
 /**
  * Handy for calling functions like system which return non-zero on error.
  * MPI_Abort if an error occurs.
@@ -159,10 +172,8 @@ public:
 #define MPIABORTIFNON0(cmd, arg) { \
     std::string _arg(arg); \
     int ret = cmd(_arg.c_str()); \
-    if (ret != 0) { \
-        std::cout << "Error executing command: " #cmd "(" + _arg + ")"; \
-        MPI_Abort(PETSC_COMM_WORLD, -1); \
-    } }
+    MPI_ABORT_IF_NON0_WITH_MSG(ret, "Error executing command: " #cmd "(" + _arg + ")") \
+    }
 
 /**
  * Handy for calling functions like system which return non-zero on error.

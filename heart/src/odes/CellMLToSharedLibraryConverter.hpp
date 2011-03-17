@@ -44,11 +44,14 @@ public:
     /**
      * Create a converter.
      *
+     * @param preserveGeneratedSources  whether to save copies of generated C++
+     *    source files in the directory containing the .cellml file.
      * @param component  the name of the Chaste component (or project) in which
      *    to build the loadable module (if required).  Allows projects to have
      *    specialised base classes for dynamically loaded cell models.
      */
-    CellMLToSharedLibraryConverter(std::string component="heart");
+    CellMLToSharedLibraryConverter(bool preserveGeneratedSources=false,
+                                   std::string component="heart");
 
     /**
      * Get a loadable module from the given file, and return a loader for it.
@@ -79,6 +82,9 @@ private:
     void ConvertCellmlToSo(const std::string& rCellmlFullPath,
                            const std::string& rCellmlFolder,
                            const std::string& rModelLeafName);
+
+    /** Whether to save copies of generated C++ source files. */
+    bool mPreserveGeneratedSources;
 
     /** Which component to build the loadable module in. */
     std::string mComponentName;
