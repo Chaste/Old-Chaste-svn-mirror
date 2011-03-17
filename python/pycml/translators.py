@@ -1566,21 +1566,25 @@ class CellMLToChasteTranslator(CellMLTranslator):
         
         Ensures that the amplitude of the generated RegularStimulus is negative.
         """
-        mandatory_args = set('membrane_stimulus_current_'+v for v in ['duration', 'amplitude', 'period'])
-        optional_arg = 'membrane_stimulus_current_offset'
-        var_names = set(v.oxmeta_name for v in self.metadata_vars)
-        if len(var_names & mandatory_args) != 3:
+        vars = dict()
+        for n in ['duration', 'amplitude', 'period', 'offset']:
+            vars[n] = self.model.get_variable_by_oxmeta_name('membrane_stimulus_current_'+n, throw=False)
+        if not (vars['duration'] and vars['amplitude'] and vars['period']):
+            self.has_default_stimulus = False
             return
+        self.has_default_stimulus = True
+        nodeset = self.calculate_extended_dependencies(filter(None, vars.values()))
 
         self.output_method_start('UseCellMLDefaultStimulus', [], self.TYPE_VOID, 'public')
         self.open_block()
         self.output_comment('Use the default stimulus specified by CellML metadata')
+        self.output_equations(nodeset)
         self.writeln('mpIntracellularStimulus.reset(new RegularStimulus(')
-        self.writeln('        -fabs(Get_membrane_stimulus_current_amplitude_constant()),')
-        self.writeln('        Get_membrane_stimulus_current_duration_constant(),')
-        self.writeln('        Get_membrane_stimulus_current_period_constant(),')
-        if optional_arg in var_names:
-            self.writeln('        Get_membrane_stimulus_current_offset_constant()));')
+        self.writeln('        -fabs(', self.code_name(vars['amplitude']), '),')
+        self.writeln('        ', self.code_name(vars['duration']), ',')
+        self.writeln('        ', self.code_name(vars['period']), ',')
+        if vars['offset']:
+            self.writeln('        ', self.code_name(vars['offset']), '));')
         else :
             self.writeln('        0.0));')
         self.close_block(blank_line=True)
@@ -1754,9 +1758,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('Init();\n')
         
         #1463 - default cellML stimulus
-        mandatory_stim_args = set('membrane_stimulus_current_'+v for v in ['duration', 'amplitude', 'period'])
-        stim_var_names = set(v.oxmeta_name for v in self.metadata_vars)
-        if len(stim_var_names & mandatory_stim_args) == 3:
+        if self.has_default_stimulus:
             self.output_comment('We have a default stimulus specified in the CellML file metadata')
             self.writeln('this->mHasDefaultStimulusFromCellML = true', self.STMT_END)
             
