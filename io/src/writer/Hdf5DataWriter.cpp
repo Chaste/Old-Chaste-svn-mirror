@@ -612,7 +612,7 @@ void Hdf5DataWriter::EndDefineMode()
      * Create the provenance attribute
      */
     // Create a longer type for 'string'
-    const unsigned MAX_PROVENANCE_STRING_SIZE = 365;
+    const unsigned MAX_PROVENANCE_STRING_SIZE = 1023;
     hid_t long_string_type = H5Tcopy(H5T_C_S1);
     H5Tset_size(long_string_type, MAX_PROVENANCE_STRING_SIZE );
     hsize_t prov_columns[1] = {1};
