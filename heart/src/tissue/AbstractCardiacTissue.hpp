@@ -90,7 +90,7 @@ private:
         // Don't use the std::vector serialization for cardiac cells, so that we can load them
         // more cleverly when migrating checkpoints.
         SaveCardiacCells(*ProcessSpecificArchive<Archive>::Get(), version);
-        
+
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
         if (HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
@@ -158,7 +158,7 @@ private:
     {
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
-        
+
         if (version >= 2)
         {
             archive & mExchangeHalos;
@@ -175,10 +175,10 @@ private:
                 }
             }
         }
-        
+
         // mCellsDistributed & mHaloCellsDistributed:
         LoadCardiacCells(*ProcessSpecificArchive<Archive>::Get(), version);
-        
+
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
@@ -308,15 +308,15 @@ protected:
      * must be calculated explicitly.
      */
     void CalculateHaloNodesFromNodeExchange();
-    
+
     /**
      * If #mExchangeHalos is true, this method calls CalculateHaloNodesFromNodeExchange
      * and sets up the halo cell data structures #mHaloCellsDistributed and #mHaloGlobalToLocalIndexMap.
-     * 
+     *
      * @param pCellFactory  cell factory to use to create halo cells
      */
     void SetUpHaloCells(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
-    
+
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
@@ -480,7 +480,7 @@ public:
      *
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
-     * 
+     *
      * Also loads halo cells if we're doing halo exchange, by using the non-local cells from the
      * archive.
      *
@@ -564,34 +564,32 @@ public:
             archive & p_cell;
             // Check if it's a fake cell
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
-            if (local)
+            if (p_fake)
             {
-                assert(mCellsDistributed[new_local_index] == NULL);
-                mCellsDistributed[new_local_index] = p_cell; // Add to local cells
-                if (p_fake)
+                if (halo || local)
                 {
                     fake_bath_cells_local.insert(p_fake);
-                }
-            }
-            else if (halo)
-            {
-                mHaloCellsDistributed[halo_position->second] = p_cell;
-                if (p_fake)
-                {
-                    fake_bath_cells_local.insert(p_fake);
-                }
-            }
-            else
-            {
-                if (p_fake)
-                {
-                    fake_bath_cells_non_local.insert(p_fake);
                 }
                 else
                 {
-                    // Non-local real cell, so free the memory.
-                    delete p_cell;
+                    fake_bath_cells_non_local.insert(p_fake);
                 }
+            }
+            // Add real cells to the local or halo vectors
+            if (local)
+            {
+                assert(mCellsDistributed[new_local_index] == NULL);
+                mCellsDistributed[new_local_index] = p_cell;
+            }
+            else if (halo)
+            {
+                assert(mHaloCellsDistributed[halo_position->second] == NULL);
+                mHaloCellsDistributed[halo_position->second] = p_cell;
+            }
+            else if (!p_fake)
+            {
+                // Non-local real cell, so free the memory.
+                delete p_cell;
             }
         }
 
