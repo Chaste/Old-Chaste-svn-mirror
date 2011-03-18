@@ -2327,16 +2327,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('rY[', i, '] = _guess[', j, '];')
         self.close_block()
         
-        # ComputeExceptVoltage
-        # Special case version for a little extra speed!
-        if self.config.options.fast_fixed_timestep:
-            self.output_method_start('ComputeExceptVoltage', ['double tStart', 'double tEnd'],
-                                     'void', access='public')
-            self.open_block()
-            self.writeln('assert(tEnd - tStart - mFixedDt > -1e-12);')
-            self.writeln('assert(tEnd - tStart - mFixedDt < 1e-12);')
-            self.writeln('ComputeOneStepExceptVoltage(tStart);')
-            self.close_block(True)
+#        # ComputeExceptVoltage
+#        # Special case version for a little extra speed!
+#        if self.config.options.fast_fixed_timestep:
+#            self.output_method_start('ComputeExceptVoltage', ['double tStart', 'double tEnd'],
+#                                     'void', access='public')
+#            self.open_block()
+#            self.writeln('assert(tEnd - tStart - mFixedDt > -1e-12);')
+#            self.writeln('assert(tEnd - tStart - mFixedDt < 1e-12);')
+#            self.writeln('ComputeOneStepExceptVoltage(tStart);')
+#            self.close_block(True)
     
     def output_model_attributes(self):
         """Output any named model attributes defined in metadata.

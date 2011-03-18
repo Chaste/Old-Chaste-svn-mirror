@@ -128,7 +128,7 @@ public:
      * @param tSamp  sampling interval for returned results (defaults to #mDt)
      * @return  the values of each state variable, at intervals of tSamp.
      */
-    virtual OdeSolution Compute(double tStart, double tEnd, double tSamp=0.0);
+    OdeSolution Compute(double tStart, double tEnd, double tSamp=0.0);
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
@@ -139,7 +139,7 @@ public:
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
      */
-    virtual void ComputeExceptVoltage(double tStart, double tEnd);
+    void ComputeExceptVoltage(double tStart, double tEnd);
 
 private:
 #define COVERAGE_IGNORE
@@ -206,7 +206,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
     //   - update V using a forward Euler step
     //   - call ComputeExceptVoltage(t) to update the remaining state variables
     //     using backward Euler
-    
+
     // Check length of time interval
     if (tSamp < mDt)
     {
@@ -235,7 +235,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
 
             // Compute next value of V
             UpdateTransmembranePotential(curr_time);
-    
+
             // Compute other state variables
             ComputeOneStepExceptVoltage(curr_time);
 
@@ -256,10 +256,10 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
 {
     // This method iterates over timesteps, calling ComputeExceptVoltage(t) at
     // each one, to update all state variables except for V, using backward Euler.
+
     // Check length of time interval
-    double _n_steps = (tEnd - tStart) / mDt;
-    unsigned n_steps = (unsigned) floor(_n_steps+0.5);
-    assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
+    unsigned n_steps = (unsigned)((tEnd - tStart) / mDt + 0.5);
+    assert(fabs(tStart + n_steps*mDt - tEnd) < 1e-12);
 
     // Loop over time
     double curr_time;
@@ -270,8 +270,10 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
         // Compute other state variables
         ComputeOneStepExceptVoltage(curr_time);
 
-        // check gating variables are still in range
+#ifndef NDEBUG
+        // Check gating variables are still in range
         VerifyStateVariables();
+#endif // NDEBUG
     }
 }
 
