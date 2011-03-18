@@ -119,18 +119,18 @@ template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<PointOnPlane>";
-    for (unsigned index=0; index<DIM-1u; index++)
+    for (unsigned index=0; index<DIM-1; index++)
     {
         *rParamsFile << mPointOnPlane[0] << ",";
     }
-    *rParamsFile << mPointOnPlane[DIM-1u] <<  "</PointOnPlane> \n";
+    *rParamsFile << mPointOnPlane[DIM-1] <<  "</PointOnPlane> \n";
 
     *rParamsFile << "\t\t\t<NormalToPlane>";
-     for (unsigned index=0; index<DIM-1u; index++)
+     for (unsigned index=0; index<DIM-1; index++)
      {
          *rParamsFile << mNormalToPlane[0] << ",";
      }
-     *rParamsFile << mNormalToPlane[DIM-1u] <<  "</NormalToPlane> \n";
+     *rParamsFile << mNormalToPlane[DIM-1] <<  "</NormalToPlane> \n";
 
     // Call direct parent class
     AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
