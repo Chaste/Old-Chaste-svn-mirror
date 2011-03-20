@@ -78,10 +78,9 @@ public:
     /**
      * Default constructor.
      *
-     * @param pCrypt pointer to a cell population
-     * @param sloughHeight the height at which to slough from the domain
-     * @param sloughSides whether to slough cells at the side of the domain
-     * @param sloughWidth the width of the domain (note slough on left and right)
+     * @param pCellPopulation pointer to a cell population
+     * @param point point on the plane which nodes cannot cross
+     * @param normal the outward pointing unit normal to the boundary plane
      */
     RegionBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
                           c_vector<double, DIM> point,
