@@ -775,7 +775,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     local_ia[0]=0;
     for (PetscInt row_global_index=connectivity_matrix_lo; row_global_index<connectivity_matrix_hi; row_global_index++) 
     {
-        MatGetRow(connectivity_matrix, row_global_index, &row_num_nz, &column_indices, NULL);
+        MatGetRow(connectivity_matrix, row_global_index, &row_num_nz, &column_indices, PETSC_NULL);
 
         unsigned row_local_index = row_global_index - connectivity_matrix_lo;       
         local_ia[row_local_index+1] = local_ia[row_local_index] + row_num_nz;        
@@ -784,14 +784,14 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
            local_ja[local_ia[row_local_index] + col_index] =  column_indices[col_index];
         }        
 
-        MatRestoreRow(connectivity_matrix, row_global_index, &row_num_nz,&column_indices, NULL);
+        MatRestoreRow(connectivity_matrix, row_global_index, &row_num_nz,&column_indices, PETSC_NULL);
     }
 
     MatDestroy(connectivity_matrix);
 
     // Convert to an adjacency matrix
     Mat adj_matrix;
-    MatCreateMPIAdj(PETSC_COMM_WORLD, num_local_nodes, num_nodes, local_ia, local_ja, NULL, &adj_matrix);
+    MatCreateMPIAdj(PETSC_COMM_WORLD, num_local_nodes, num_nodes, local_ia, local_ja, PETSC_NULL, &adj_matrix);
 
     PetscTools::Barrier();
     if(PetscTools::AmMaster())
