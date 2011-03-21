@@ -504,13 +504,10 @@ public:
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 2u);
     }
 
-
     void TestCellBasedSimulationParameterOutputMethods() throw (Exception)
     {
         // Create a simple mesh
-        int num_cells_depth = 5;
-        int num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
+        HoneycombMeshGenerator generator(5, 5, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
@@ -542,15 +539,15 @@ public:
         //TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff --ignore-matching-lines=\"CellPopulation\" " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
 
-		//Check that the files which we don't want to compare actually exist
+		// Check that the files which we don't want to compare actually exist
 		std::ifstream machine_file;
-		std::string command = results_dir+"/system_info_0.txt";
+		std::string command = results_dir + "/system_info_0.txt";
 		machine_file.open(command.c_str());
 		TS_ASSERT(machine_file.is_open());
 		machine_file.close();
 
 		std::ifstream info_file;
-		command = results_dir+"/build.info";
+		command = results_dir + "/build.info";
 		info_file.open(command.c_str());
 		TS_ASSERT(info_file.is_open());
 		info_file.close();

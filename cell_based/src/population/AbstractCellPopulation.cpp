@@ -651,10 +651,12 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
      */
     std::set<std::string> unique_cell_cycle_models;
     std::vector<CellPtr> first_cell_with_unique_CCM;
-        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
     {
         std::string identifier = cell_iter->GetCellCycleModel()->GetIdentifier();
-        if(unique_cell_cycle_models.count(identifier)==0u)
+        if (unique_cell_cycle_models.count(identifier) == 0)
         {
             unique_cell_cycle_models.insert(identifier);
             first_cell_with_unique_CCM.push_back((*cell_iter));
@@ -662,7 +664,7 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
     }
 
     // Loop over unique cell-cycle models
-    for(unsigned i=0; i<first_cell_with_unique_CCM.size(); i++)
+    for (unsigned i=0; i<first_cell_with_unique_CCM.size(); i++)
     {
         // Output cell-cycle model details
         first_cell_with_unique_CCM[i]->GetCellCycleModel()->OutputCellCycleModelInfo(rParamsFile);
@@ -674,16 +676,16 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
 template<unsigned DIM>
 void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t\t<DampingConstantNormal>"<< mDampingConstantNormal << "</DampingConstantNormal>\n";
-    *rParamsFile <<  "\t\t<DampingConstantMutant>"<< mDampingConstantMutant << "</DampingConstantMutant>\n";
-    *rParamsFile <<  "\t\t<OutputCellIdData>"<<  mOutputCellIdData << "</OutputCellIdData> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellMutationStates>"<<  mOutputCellMutationStates << "</OutputCellMutationStates> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellAncestors>"<<  mOutputCellAncestors << "</OutputCellAncestors> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellProliferativeTypes>"<<  mOutputCellProliferativeTypes << "</OutputCellProliferativeTypes> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellVariables>"<<  mOutputCellVariables << "</OutputCellVariables> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellCyclePhases>"<<  mOutputCellCyclePhases << "</OutputCellCyclePhases> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellAges>"<<  mOutputCellAges << "</OutputCellAges> \n" ;
-    *rParamsFile <<  "\t\t<OutputCellVolumes>"<<  mOutputCellVolumes << "</OutputCellVolumes> \n" ;
+    *rParamsFile << "\t\t<DampingConstantNormal>" << mDampingConstantNormal << "</DampingConstantNormal>\n";
+    *rParamsFile << "\t\t<DampingConstantMutant>" << mDampingConstantMutant << "</DampingConstantMutant>\n";
+    *rParamsFile << "\t\t<OutputCellIdData>" << mOutputCellIdData << "</OutputCellIdData> \n";
+    *rParamsFile << "\t\t<OutputCellMutationStates>" << mOutputCellMutationStates << "</OutputCellMutationStates> \n";
+    *rParamsFile << "\t\t<OutputCellAncestors>" << mOutputCellAncestors << "</OutputCellAncestors> \n";
+    *rParamsFile << "\t\t<OutputCellProliferativeTypes>" << mOutputCellProliferativeTypes << "</OutputCellProliferativeTypes> \n";
+    *rParamsFile << "\t\t<OutputCellVariables>" << mOutputCellVariables << "</OutputCellVariables> \n";
+    *rParamsFile << "\t\t<OutputCellCyclePhases>" << mOutputCellCyclePhases << "</OutputCellCyclePhases> \n";
+    *rParamsFile << "\t\t<OutputCellAges>" << mOutputCellAges << "</OutputCellAges> \n";
+    *rParamsFile << "\t\t<OutputCellVolumes>" << mOutputCellVolumes << "</OutputCellVolumes> \n";
 }
 
 ///////////////////////////////////////////////////////////////////////

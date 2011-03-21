@@ -76,11 +76,8 @@ protected:
     /** Facade encapsulating cells in the cell population being simulated. */
     AbstractCellPopulation<DIM>& mrCellPopulation;
 
-    /** Whether to delete the cell population in the destructor. */
-    bool mDeleteCellPopulation;
-
-    /** Whether delete the collection of force laws in the destructor. */
-    bool mAllocatedMemoryForForceCollection;
+    /** Whether to delete the cell population, force laws and boundary conditions in the destructor. */
+    bool mDeleteCellPopulationAndForcesAndBCsInDestructor;
 
     /** Whether to initialise the cells. */
     bool mInitialiseCells;

@@ -292,13 +292,13 @@ void NagaiHondaForce<DIM>::SetMatureCellTargetArea(double matureCellTargetArea)
 template<unsigned DIM>
 void NagaiHondaForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t\t<NagaiHondaDeformationEnergyParameter>"<<  mNagaiHondaDeformationEnergyParameter << "</NagaiHondaDeformationEnergyParameter> \n" ;
-	*rParamsFile <<  "\t\t\t<NagaiHondaMembraneSurfaceEnergyParameter>"<<  mNagaiHondaMembraneSurfaceEnergyParameter << "</NagaiHondaMembraneSurfaceEnergyParameter> \n" ;
-	*rParamsFile <<  "\t\t\t<NagaiHondaCellCellAdhesionEnergyParameter>"<<  mNagaiHondaCellCellAdhesionEnergyParameter << "</NagaiHondaCellCellAdhesionEnergyParameter> \n" ;
-	*rParamsFile <<  "\t\t\t<NagaiHondaCellBoundaryAdhesionEnergyParameter>"<<  mNagaiHondaCellBoundaryAdhesionEnergyParameter << "</NagaiHondaCellBoundaryAdhesionEnergyParameter> \n" ;
-	*rParamsFile <<  "\t\t\t<MatureCellTargetArea>"<<  mMatureCellTargetArea << "</MatureCellTargetArea> \n" ;
+	*rParamsFile << "\t\t\t<NagaiHondaDeformationEnergyParameter>" << mNagaiHondaDeformationEnergyParameter << "</NagaiHondaDeformationEnergyParameter> \n";
+	*rParamsFile << "\t\t\t<NagaiHondaMembraneSurfaceEnergyParameter>" << mNagaiHondaMembraneSurfaceEnergyParameter << "</NagaiHondaMembraneSurfaceEnergyParameter> \n";
+	*rParamsFile << "\t\t\t<NagaiHondaCellCellAdhesionEnergyParameter>" << mNagaiHondaCellCellAdhesionEnergyParameter << "</NagaiHondaCellCellAdhesionEnergyParameter> \n";
+	*rParamsFile << "\t\t\t<NagaiHondaCellBoundaryAdhesionEnergyParameter>" << mNagaiHondaCellBoundaryAdhesionEnergyParameter << "</NagaiHondaCellBoundaryAdhesionEnergyParameter> \n";
+	*rParamsFile << "\t\t\t<MatureCellTargetArea>" << mMatureCellTargetArea << "</MatureCellTargetArea> \n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 

@@ -43,12 +43,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                              bool deleteCellPopulationAndForceCollection,
+                                              bool deleteCellPopulationAndForcesAndBCsInDestructor,
                                               bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
       mrCellPopulation(rCellPopulation),
-      mDeleteCellPopulation(deleteCellPopulationAndForceCollection),
-      mAllocatedMemoryForForceCollection(deleteCellPopulationAndForceCollection),
+      mDeleteCellPopulationAndForcesAndBCsInDestructor(deleteCellPopulationAndForcesAndBCsInDestructor),
       mInitialiseCells(initialiseCells),
       mNoBirth(false),
       mUpdateCellPopulation(true),
@@ -82,7 +81,7 @@ CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCell
 template<unsigned DIM>
 CellBasedSimulation<DIM>::~CellBasedSimulation()
 {
-    if (mAllocatedMemoryForForceCollection)
+    if (mDeleteCellPopulationAndForcesAndBCsInDestructor)
     {
         for (typename std::vector<AbstractForce<DIM>*>::iterator force_iter = mForceCollection.begin();
              force_iter != mForceCollection.end();
@@ -90,10 +89,7 @@ CellBasedSimulation<DIM>::~CellBasedSimulation()
         {
             delete *force_iter;
         }
-    }
 
-    if (mDeleteCellPopulation)
-    {
         for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
              it != mCellKillers.end();
              ++it)
@@ -110,7 +106,6 @@ CellBasedSimulation<DIM>::~CellBasedSimulation()
 
         delete &mrCellPopulation;
     }
-
 }
 
 
@@ -687,7 +682,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
 
-	// Ouput Machine information
+	// Output machine information
     ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system_info");
 
     // Output Chaste provenance information
@@ -695,16 +690,16 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     ExecutableSupport::WriteLibraryInfo(build_info_file);
     build_info_file->close();
 
-    // Output Simulation parameter and setup details
+    // Output simulation parameter and setup details
     out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
-    // Output CellBasedSimulation details
+    // Output simulation details
     std::string simulation_type = GetIdentifier();
 
-    *parameter_file << "<Chaste>\n" ;
-    *parameter_file <<  "\n\t<" << simulation_type << ">" "\n";
+    *parameter_file << "<Chaste>\n";
+    *parameter_file <<  "\n\t<" << simulation_type << ">\n";
 	OutputSimulationParameters(parameter_file);
-    *parameter_file <<  "\t</" << simulation_type << ">" "\n";
+    *parameter_file << "\t</" << simulation_type << ">\n";
 
     *parameter_file << "\n";
 
@@ -712,30 +707,28 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     mrCellPopulation.OutputCellPopulationInfo(parameter_file);
 
     // Loop over forces
-    *parameter_file << "\n\t<Forces>\n" ;
+    *parameter_file << "\n\t<Forces>\n";
     for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
-                 iter != mForceCollection.end();
-                 ++iter)
+         iter != mForceCollection.end();
+         ++iter)
     {
     	// Output force details
     	(*iter)->OutputForceInfo(parameter_file);
     }
     *parameter_file << "\t</Forces>\n";
 
-    // Loop over Cell Killers
-	*parameter_file << "\n\t<CellKillers>\n" ;
-
+    // Loop over cell killers
+	*parameter_file << "\n\t<CellKillers>\n";
 	for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
-				iter != mCellKillers.end();
-				++iter)
+         iter != mCellKillers.end();
+         ++iter)
 	{
 		// Output cell killer details
 		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
-	*parameter_file << "\t</CellKillers>\n" ;
+	*parameter_file << "\t</CellKillers>\n";
 
-    *parameter_file << "\n</Chaste>\n" ;
-
+    *parameter_file << "\n</Chaste>\n";
     parameter_file->close();
 }
 

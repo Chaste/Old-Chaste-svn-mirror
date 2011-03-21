@@ -77,9 +77,9 @@ double VertexCryptBoundaryForce<DIM>::GetForceStrength() const
 template<unsigned DIM>
 void VertexCryptBoundaryForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t\t\t<ForceStrength>"<<  mForceStrength << "</ForceStrength> \n" ;
+    *rParamsFile << "\t\t\t<ForceStrength>" << mForceStrength << "</ForceStrength> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 

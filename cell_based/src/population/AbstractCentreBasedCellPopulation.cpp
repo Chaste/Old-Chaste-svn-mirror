@@ -242,11 +242,10 @@ void AbstractCentreBasedCellPopulation<DIM>::SetMeinekeDivisionSeparation(double
 template<unsigned DIM>
 void AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t<MeinekeDivisionSeparation>"<<  mMeinekeDivisionSeparation << "</MeinekeDivisionSeparation> \n" ;
+	*rParamsFile << "\t\t<MeinekeDivisionSeparation>" << mMeinekeDivisionSeparation << "</MeinekeDivisionSeparation> \n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
-
 }
 
 /////////////////////////////////////////////////////////////////////

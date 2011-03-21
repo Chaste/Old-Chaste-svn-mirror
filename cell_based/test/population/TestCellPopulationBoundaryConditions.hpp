@@ -56,7 +56,6 @@ public:
         // Create mesh
         HoneycombMeshGenerator generator(2, 2, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        TS_ASSERT(p_mesh->GetNumNodes()>0);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -67,7 +66,7 @@ public:
         NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);
         cell_population.SetMechanicsCutOffLength(1.5);
 
-        // Set up cell population BCS
+        // Set up cell population boundary condition
         c_vector<double,2> point = zero_vector<double>(2);
         point(0) = 2.0;
         c_vector<double,2> normal = zero_vector<double>(2);
@@ -76,7 +75,7 @@ public:
 
         TS_ASSERT_EQUALS(boundary_condition.GetIdentifier(), "PlaneBoundaryCondition-2");
 
-        // Impose BCS
+        // Impose boundary condition
         std::vector<c_vector<double,2> > old_locations;
         old_locations.reserve(cell_population.GetNumNodes());
         for (std::list<CellPtr>::iterator cell_iter = cell_population.rGetCells().begin();
@@ -96,10 +95,10 @@ public:
         {
             Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
-            if (old_locations[p_node->GetIndex()][1]<2.0)
+            if (old_locations[p_node->GetIndex()][1] < 2.0)
             {
                 TS_ASSERT_LESS_THAN_EQUALS(2.0, location[0]);
-                TS_ASSERT_DELTA(location[1],old_locations[p_node->GetIndex()][1], 1e-6);
+                TS_ASSERT_DELTA(location[1], old_locations[p_node->GetIndex()][1], 1e-6);
             }
             else
             {
@@ -108,13 +107,19 @@ public:
             }
         }
 
-        TS_ASSERT(boundary_condition.VerifyBoundaryConditions());
+        // Test VerifyBoundaryConditions() method
+        TS_ASSERT_EQUALS(boundary_condition.VerifyBoundaryConditions(), true);
+
+        // For coverage, test VerifyBoundaryConditions() method in the case DIM != 2
+        PlaneBoundaryCondition<3> plane_boundary_condition_3d(NULL, zero_vector<double>(3), unit_vector<double>(3,2));
+        TS_ASSERT_THROWS_THIS(plane_boundary_condition_3d.VerifyBoundaryConditions(),
+                              "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
     }
 
     void TestArchivingOfPlaneBoundaryCondition() throw (Exception)
 	{
 	    // Set up singleton classes
-	    OutputFileHandler handler("archive", false);    // don't erase contents of folder
+	    OutputFileHandler handler("archive", false); // don't erase contents of folder
 	    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_boundary_conditon.arch";
 
 	    {
@@ -169,6 +174,13 @@ public:
 
         std::string plane_boundary_condition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + plane_boundary_condition_results_dir + "plane_results.parameters cell_based/test/data/TestCellBoundaryConditionsOutputParameters/plane_results.parameters").c_str()), 0);
+
+        // Test OutputCellPopulationBoundaryConditionInfo() method
+        out_stream plane_boundary_condition_info_file = output_file_handler.OpenOutputFile("plane_results.info");
+        plane_boundary_condition.OutputCellPopulationBoundaryConditionInfo(plane_boundary_condition_info_file);
+        plane_boundary_condition_info_file->close();
+
+        TS_ASSERT_EQUALS(system(("diff " + plane_boundary_condition_results_dir + "plane_results.info cell_based/test/data/TestCellBoundaryConditionsOutputParameters/plane_results.info").c_str()), 0);
     }
 };
 
