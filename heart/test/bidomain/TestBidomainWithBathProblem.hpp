@@ -58,7 +58,7 @@ public:
         HeartConfig::Reset();
     }
 
-    void TestLabellingNodes() throw (Exception)
+    void xTestLabellingNodes() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
@@ -97,7 +97,7 @@ public:
     }
 
 
-    void TestFailsIfNoBathElements() throw (Exception)
+    void xTestFailsIfNoBathElements() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
@@ -113,7 +113,7 @@ public:
         HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
     }
 
-    void TestCheckForBathElementsNoDeadlock() throw (Exception)
+    void xTestCheckForBathElementsNoDeadlock() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
@@ -145,7 +145,7 @@ public:
     }
 
 
-    void TestBathIntracellularStimulation() throw (Exception)
+    void xTestBathIntracellularStimulation() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
@@ -206,7 +206,7 @@ public:
     // throughout the domain (with a Neumann boundary condition on x=1 and a dirichlet boundary
     // condition (ie grounding) on x=0), so the exact solution can be calculated and compared
     // against.
-    void Test1dProblemOnlyBathGroundedOneSide() throw (Exception)
+    void xTest1dProblemOnlyBathGroundedOneSide() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathOnlyBath");
@@ -271,7 +271,7 @@ public:
         }
     }
 
-    void Test2dBathIntracellularStimulation() throw (Exception)
+    void xTest2dBathIntracellularStimulation() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2d");
@@ -331,7 +331,7 @@ public:
         delete p_mesh;
     }
 
-    void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
+    void xTest2dBathInputFluxEqualsOutputFlux() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
@@ -398,7 +398,7 @@ public:
         delete p_mesh;
     }
 
-    void Test2dBathMultipleBathConductivities() throw (Exception)
+    void xTest2dBathMultipleBathConductivities() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dMultipleBathConductivities");
@@ -502,7 +502,7 @@ public:
     }
 
 
-    void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
+    void xTest2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
         // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
@@ -599,7 +599,7 @@ public:
     }
 
 
-    void TestMatrixBasedAssembledBath(void)
+    void xTestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
@@ -680,7 +680,7 @@ public:
         delete p_mesh;
     }
 
-    void TestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
+    void xTestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
     {
         std::string archive_dir = "BidomainWithElectrodesArchiving";
 
@@ -791,7 +791,84 @@ public:
         delete p_mesh;
     }
 
-    void TestArchivingMeshFileWithAttributes() throw (Exception)
+    void TestSettingElectrodesOnResumedSimulation(void) throw(Exception)
+    {
+        std::string archive_dir = "BidomainWithElectrodesArchiving";
+
+        // Create the mesh outside the save scope, so we can compare with the loaded version.
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+
+        { // save
+            HeartConfig::Instance()->SetSimulationDuration(3.0);  // ms
+            HeartConfig::Instance()->SetOutputDirectory(archive_dir + "Output");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
+            HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
+
+            // need to create a cell factory but don't want any intra stim.
+            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+
+            BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
+
+            bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.Initialise();
+
+            // Save using helper class
+            CardiacSimulationArchiver<BidomainWithBathProblem<2> >::Save(bidomain_problem, archive_dir, false);
+        }
+
+        { // load
+            AbstractCardiacProblem<2,2,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainWithBathProblem<2> >::Load(archive_dir);
+
+            // get the new mesh
+            AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), r_mesh.GetNumElements());
+
+            //boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
+            double boundary_flux = -11.0e3;
+            double duration = 1.9; // of the stimulus, in ms
+            double start_time = 0.5; // of the stimulus, in ms
+
+            HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
+            p_abstract_problem->SetElectrodes();
+
+            // This should only generate action potential if the electrodes were correctly saved and restored.
+            p_abstract_problem->Solve();
+
+            Vec sol = p_abstract_problem->GetSolution();
+            ReplicatableVector sol_repl(sol);
+
+            bool ap_triggered = false;
+            /*
+             * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+             * We ran longer simulation for 350 ms and a nice AP was observed.
+             */
+            for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+            {
+                // test V = 0 for all bath nodes and that an AP is triggered in the tissue
+                if (HeartRegionCode::IsRegionBath(r_mesh.GetNode(i)->GetRegion()))
+                {
+                    TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+                }
+                else if (sol_repl[2*i] > 0.0) //at the last time step
+                {
+                    ap_triggered = true;
+                }
+            }
+
+            // We can get away with the following line only because this is a friend class and test.
+            boost::shared_ptr<Electrodes<2> > p_electrodes = static_cast<BidomainWithBathProblem<2>* >(p_abstract_problem)->mpElectrodes;
+
+            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+            TS_ASSERT_EQUALS(ap_triggered, true);
+
+            delete p_abstract_problem;
+        }
+
+        delete p_mesh;
+    }
+
+    void xTestArchivingMeshFileWithAttributes() throw (Exception)
     {
         std::string archive_dir = "TestArchivingMeshFileWithAttributes";
 
@@ -857,7 +934,7 @@ public:
         }
     }
     
-    void TestSwitchesOffAtCorrectTime() throw(Exception)
+    void xTestSwitchesOffAtCorrectTime() throw(Exception)
     {        
         // zero stim cell factory
         c_vector<double,2> centre;

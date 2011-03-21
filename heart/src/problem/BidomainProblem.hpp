@@ -152,12 +152,6 @@ protected:
     /** Create a suitable bidomain solver */
     virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateSolver();
     
-    /**
-     *  Set an electrode object (which provides boundary conditions). Only
-     *  valid if there is a bath.
-     */
-    void SetElectrodes();
-
 public:
     /**
      * Constructor
@@ -282,6 +276,12 @@ public:
      * Return whether this is a bidomain problem with bath or not
      */
     bool GetHasBath();
+    
+    /**
+     *  Set an electrode object (which provides boundary conditions). Only
+     *  valid if there is a bath.
+     */
+    void SetElectrodes();    
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last

@@ -425,13 +425,6 @@ protected:
      * The object to use to write results to disk.
      */
     Hdf5DataWriter* mpWriter;
-    /**
-     *  Set an electrode object (which provides boundary conditions). Only
-     *  valid if there is a bath.
-     *
-     */
-
-    virtual void SetElectrodes();
 
 public:
     /**
@@ -696,7 +689,12 @@ public:
      * Return whether there's bath defined in this problem
      */
     virtual bool GetHasBath();
-
+    
+    /**
+     *  Set an electrode object (which provides boundary conditions). Only
+     *  valid if there is a bath.
+     */
+    virtual void SetElectrodes();
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem)
