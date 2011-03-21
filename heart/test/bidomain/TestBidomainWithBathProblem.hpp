@@ -58,7 +58,7 @@ public:
         HeartConfig::Reset();
     }
 
-    void xTestLabellingNodes() throw (Exception)
+    void TestLabellingNodes() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
@@ -97,7 +97,7 @@ public:
     }
 
 
-    void xTestFailsIfNoBathElements() throw (Exception)
+    void TestFailsIfNoBathElements() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
@@ -113,7 +113,7 @@ public:
         HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
     }
 
-    void xTestCheckForBathElementsNoDeadlock() throw (Exception)
+    void TestCheckForBathElementsNoDeadlock() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
@@ -145,7 +145,7 @@ public:
     }
 
 
-    void xTestBathIntracellularStimulation() throw (Exception)
+    void TestBathIntracellularStimulation() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(10.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath1d");
@@ -206,7 +206,7 @@ public:
     // throughout the domain (with a Neumann boundary condition on x=1 and a dirichlet boundary
     // condition (ie grounding) on x=0), so the exact solution can be calculated and compared
     // against.
-    void xTest1dProblemOnlyBathGroundedOneSide() throw (Exception)
+    void Test1dProblemOnlyBathGroundedOneSide() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathOnlyBath");
@@ -271,7 +271,7 @@ public:
         }
     }
 
-    void xTest2dBathIntracellularStimulation() throw (Exception)
+    void Test2dBathIntracellularStimulation() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2d");
@@ -331,7 +331,7 @@ public:
         delete p_mesh;
     }
 
-    void xTest2dBathInputFluxEqualsOutputFlux() throw (Exception)
+    void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
@@ -398,7 +398,7 @@ public:
         delete p_mesh;
     }
 
-    void xTest2dBathMultipleBathConductivities() throw (Exception)
+    void Test2dBathMultipleBathConductivities() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dMultipleBathConductivities");
@@ -502,7 +502,7 @@ public:
     }
 
 
-    void xTest2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
+    void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
         // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
@@ -599,7 +599,7 @@ public:
     }
 
 
-    void xTestMatrixBasedAssembledBath(void)
+    void TestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
@@ -680,7 +680,7 @@ public:
         delete p_mesh;
     }
 
-    void xTestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
+    void TestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
     {
         std::string archive_dir = "BidomainWithElectrodesArchiving";
 
@@ -868,7 +868,7 @@ public:
         delete p_mesh;
     }
 
-    void xTestArchivingMeshFileWithAttributes() throw (Exception)
+    void TestArchivingMeshFileWithAttributes() throw (Exception)
     {
         std::string archive_dir = "TestArchivingMeshFileWithAttributes";
 
@@ -934,7 +934,7 @@ public:
         }
     }
     
-    void xTestSwitchesOffAtCorrectTime() throw(Exception)
+    void TestSwitchesOffAtCorrectTime() throw(Exception)
     {        
         // zero stim cell factory
         c_vector<double,2> centre;
