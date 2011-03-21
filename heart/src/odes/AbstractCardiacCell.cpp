@@ -89,7 +89,9 @@ void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 
     SetVoltage(saved_voltage); // In case of naughty models
 
+#ifndef NDEBUG
     VerifyStateVariables();
+#endif // NDEBUG
 }
 
 void AbstractCardiacCell::SetVoltage(double voltage)

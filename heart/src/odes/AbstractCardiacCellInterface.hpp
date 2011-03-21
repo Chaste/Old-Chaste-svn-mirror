@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "OdeSolution.hpp"
+#include "AbstractLookupTableCollection.hpp"
 
 /**
  * This class defines a common interface to AbstractCardiacCell and AbstractCvodeCell,
@@ -227,11 +228,23 @@ public:
      *  Empty method which can be over-ridden in concrete cell class which should
      *  go through the current state vector and go range checking on the values
      *  (eg check that concentrations are positive and gating variables are between
-     *  zero and one). This method is called in the ComputeExceptVoltage method.
+     *  zero and one). This method is called in the ComputeExceptVoltage method,
+     *  unless NDEBUG has been defined.
      */
     virtual void VerifyStateVariables()
     {
         // See also #794.
+    }
+
+    /**
+     * If this cell uses lookup tables, returns the singleton object containing the
+     * tables for this cell's concrete class.  Otherwise, returns NULL.
+     *
+     * Must be implemented by subclasses iff they support lookup tables.
+     */
+    virtual AbstractLookupTableCollection* GetLookupTableCollection()
+    {
+        return NULL;
     }
 
     /**

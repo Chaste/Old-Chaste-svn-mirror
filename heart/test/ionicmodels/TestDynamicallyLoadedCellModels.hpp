@@ -178,32 +178,29 @@ public:
         std::string model = "LuoRudy1991";
         OutputFileHandler handler(dirname + "/plain");
         FileFinder cellml_file("heart/src/odes/cellml/" + model + ".cellml", RelativeTo::ChasteSourceRoot);
-        CopyFile(handler, cellml_file);
-        // Create options file
+        FileFinder copied_file = handler.CopyFileTo(cellml_file);
+
+        // Do the conversions preserving generated sources
+        CellMLToSharedLibraryConverter converter(true);
+
+        // Create options file & convert
         std::vector<std::string> args;
         args.push_back("--opt");
-        CreateOptionsFile(handler, model, args);
-
-        // Do the conversion, preserving generated sources
-        CellMLToSharedLibraryConverter converter(true);
-        FileFinder copied_file(dirname + "/plain/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+        converter.CreateOptionsFile(handler, model, args);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
         RunLr91Test(*p_loader, 0u, true, 0.01); // Implementation of lookup tables has improved...
         // Check the sources exist
-        FileFinder cpp_file(dirname + "/plain/" + model + ".cpp", RelativeTo::ChasteTestOutput);
-        TS_ASSERT(cpp_file.Exists());
-        FileFinder hpp_file(dirname + "/plain/" + model + ".hpp", RelativeTo::ChasteTestOutput);
-        TS_ASSERT(hpp_file.Exists());
+        TS_ASSERT(handler.FindFile(model + ".cpp").Exists());
+        TS_ASSERT(handler.FindFile(model + ".hpp").Exists());
 
         {
             // Backward Euler
             args[0] = "--backward-euler";
             OutputFileHandler handler2(dirname + "/BE");
-            CopyFile(handler2, cellml_file);
+            FileFinder copied_file2 = handler2.CopyFileTo(cellml_file);
             FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
-            CopyFile(handler2, maple_output_file);
-            CreateOptionsFile(handler2, model, args);
-            FileFinder copied_file2(dirname + "/BE/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            handler2.CopyFileTo(maple_output_file);
+            converter.CreateOptionsFile(handler2, model, args);
             p_loader = converter.Convert(copied_file2);
             RunLr91Test(*p_loader, 0u, true, 0.3);
         }
@@ -211,13 +208,12 @@ public:
             // With a for_model section
             args[0] = "--opt";
             OutputFileHandler handler3(dirname + "/O");
-            CopyFile(handler3, cellml_file);
+            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
             std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
                     + "<var type='config-name'>transmembrane_potential</var>"
                     + "<max>69.9999</max>"
                     + "</lookup_table></lookup_tables></for_model>\n";
-            CreateOptionsFile(handler3, model, args, for_model);
-            FileFinder copied_file3(dirname + "/O/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            converter.CreateOptionsFile(handler3, model, args, for_model);
             p_loader = converter.Convert(copied_file3);
             RunLr91Test(*p_loader, 0u, true, 1e-2, 70);
         }
@@ -227,13 +223,12 @@ public:
             args[0] = "--opt";
             args.push_back("--cvode");
             OutputFileHandler handler3(dirname + "/CO");
-            CopyFile(handler3, cellml_file);
+            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
             std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
                     + "<var type='config-name'>transmembrane_potential</var>"
                     + "<max>69.9999</max>"
                     + "</lookup_table></lookup_tables></for_model>\n";
-            CreateOptionsFile(handler3, model, args, for_model);
-            FileFinder copied_file3(dirname + "/CO/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            converter.CreateOptionsFile(handler3, model, args, for_model);
             p_loader = converter.Convert(copied_file3);
             RunLr91Test(*p_loader, 0u, true, 1, 70); // Large tolerance due to different ODE solver
         }
@@ -245,17 +240,12 @@ public:
         // Copy CellML file into output dir
         std::string dirname = "TestCellmlConverter";
         OutputFileHandler handler(dirname);
-        if (PetscTools::AmMaster())
-        {
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestCellmlConverter_cp");
+        FileFinder cellml_file_src("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
 
         CellMLToSharedLibraryConverter converter;
 
         // Convert a real CellML file
-        FileFinder cellml_file(dirname + "/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteTestOutput);
+        FileFinder cellml_file = handler.CopyFileTo(cellml_file_src);
         TS_ASSERT(cellml_file.Exists());
         FileFinder so_file(dirname + "/libluo_rudy_1991_dyn.so", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!so_file.Exists());

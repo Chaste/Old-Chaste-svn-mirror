@@ -82,10 +82,7 @@ void CreateOptionsFile(const OutputFileHandler& rHandler,
 void CopyFile(const OutputFileHandler& rDestDir,
               const FileFinder& rSourceFile)
 {
-    if (PetscTools::AmMaster())
-    {
-        EXPECT0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + rDestDir.GetOutputDirectoryFullPath());
-    }
+    rDestDir.CopyFileTo(rSourceFile);
 }
 
 /**

@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * particular quantities on the fly.  Rather than the model using the quantity directly
  * in computing its right-hand side, it calls calc() with the current value and uses
  * the result of that instead.
- * 
+ *
  * Clearly for this to work the cell model must be modified to include calls to instances
  * of these classes.  PyCml has some experimental support for this, generating subclasses
  * of AbstractCardiacCellWithModifiers.
@@ -54,12 +54,12 @@ class AbstractModifier
      */
     virtual ~AbstractModifier()
     {
-    };
+    }
 
     /**
      * Pure virtual function which must be overriden in subclasses to actually
      * perform the modification.
-     * 
+     *
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */

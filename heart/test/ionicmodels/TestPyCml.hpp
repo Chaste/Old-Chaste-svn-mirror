@@ -156,6 +156,7 @@ public:
         normal.SetTimestep(HeartConfig::Instance()->GetOdeTimeStep());
 
         // Optimised model
+        AbstractLookupTableCollection::EventHandler::Enable();
         CellLuoRudy1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         CheckCai(opt, true, 0.0002);
@@ -165,7 +166,41 @@ public:
         TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
         CheckCai(be, true, 0.0002);
 
-        // Check that the tables exist!
+        // Check tables using AbstractLookupTableCollection interface
+        TS_ASSERT(!normal.GetLookupTableCollection());
+        AbstractLookupTableCollection* p_tables = opt.GetLookupTableCollection();
+        TS_ASSERT(p_tables);
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames().size(), 2u);
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames()[0], "membrane_voltage");
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames()[1], "cytosolic_calcium_concentration");
+        TS_ASSERT_EQUALS(p_tables->GetNumberOfTables("membrane_voltage"), 19u);
+        TS_ASSERT_EQUALS(p_tables->GetNumberOfTables("cytosolic_calcium_concentration"), 1u);
+        TS_ASSERT_THROWS_THIS(p_tables->GetNumberOfTables("non-var"), "Lookup table keying variable 'non-var' does not exist.");
+        double min, max, step;
+        p_tables->GetTableProperties("membrane_voltage", min, step, max);
+        TS_ASSERT_DELTA(min, -150.0001, 1e-12);
+        TS_ASSERT_DELTA(step, 0.01, 1e-12);
+        TS_ASSERT_DELTA(max, 199.9999, 1e-12);
+        p_tables->GetTableProperties("cytosolic_calcium_concentration", min, step, max);
+        TS_ASSERT_DELTA(min, 0.00001, 1e-12);
+        TS_ASSERT_DELTA(step, 0.0001, 1e-12);
+        TS_ASSERT_DELTA(max, 30.00001, 1e-12);
+
+        // Check set methods for coverage
+        AbstractLookupTableCollection::EventHandler::Headings();
+        AbstractLookupTableCollection::EventHandler::Report();
+        p_tables->SetTimestep(0.1);
+        p_tables->SetTableProperties("membrane_voltage", -100.0001, 0.01, 60.9999);
+        p_tables->RegenerateTables();
+        AbstractLookupTableCollection::EventHandler::Report();
+        TS_ASSERT_THROWS_THIS(p_tables->SetTableProperties("membrane_voltage", -1, 0.03, 1),
+                              "Table step size does not divide range between table limits.");
+        p_tables->SetTimestep(HeartConfig::Instance()->GetOdeTimeStep());
+        p_tables->SetTableProperties("membrane_voltage", -150.0001, 0.01, 199.9999);
+        p_tables->RegenerateTables();
+        AbstractLookupTableCollection::EventHandler::Report();
+
+        // Check that the tables really exist!
         double v = opt.GetVoltage();
         opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "membrane_voltage outside lookup table range");
@@ -207,8 +242,27 @@ public:
         // Optimised CVODE version
         CellLuoRudy1991FromCellMLCvodeOpt cvode_opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_opt.GetVoltageIndex(), 0u);
-        // Check that the tables exist!
-        v = opt.GetVoltage();
+
+        // Check tables using AbstractLookupTableCollection interface
+        TS_ASSERT(!cvode_cell.GetLookupTableCollection());
+        p_tables = cvode_opt.GetLookupTableCollection();
+        TS_ASSERT(p_tables);
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames().size(), 2u);
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames()[0], "membrane_voltage");
+        TS_ASSERT_EQUALS(p_tables->GetKeyingVariableNames()[1], "cytosolic_calcium_concentration");
+        TS_ASSERT_EQUALS(p_tables->GetNumberOfTables("membrane_voltage"), 19u);
+        TS_ASSERT_EQUALS(p_tables->GetNumberOfTables("cytosolic_calcium_concentration"), 1u);
+        TS_ASSERT_THROWS_THIS(p_tables->GetNumberOfTables("non-var"), "Lookup table keying variable 'non-var' does not exist.");
+        p_tables->GetTableProperties("membrane_voltage", min, step, max);
+        TS_ASSERT_DELTA(min, -150.0001, 1e-12);
+        TS_ASSERT_DELTA(step, 0.01, 1e-12);
+        TS_ASSERT_DELTA(max, 199.9999, 1e-12);
+        p_tables->GetTableProperties("cytosolic_calcium_concentration", min, step, max);
+        TS_ASSERT_DELTA(min, 0.00001, 1e-12);
+        TS_ASSERT_DELTA(step, 0.0001, 1e-12);
+        TS_ASSERT_DELTA(max, 30.00001, 1e-12);
+
+        // Check that the tables really exist!
         cvode_opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "membrane_voltage outside lookup table range");
         cvode_opt.SetVoltage(v);

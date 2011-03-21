@@ -1019,25 +1019,26 @@ class CellMLTranslator(object):
             name += '[' + str(i) + '][' + str(table_name) + ']'
         return name
 
-    def output_lut_generation(self):
+    def output_lut_generation(self, only_index=None):
         """Output code to generate lookup tables.
 
-        There should be a list of suitable expressions available as
-        self.doc.lookup_tables, to save having to search the whole
-        model.
+        There should be a list of suitable expressions available as self.doc.lookup_tables,
+        to save having to search the whole model.
+        
+        If only_index is given, only generate tables using the given table index key.
         """
         # Don't use table lookups to generate the tables!
         self.use_lookup_tables = False
         # Generate each table in a separate loop
         for expr in self.doc.lookup_tables:
-            table_size = unicode(1+int((float(expr.max) - float(expr.min)) /
-                                       float(expr.step)))
-            j = expr.table_name
             var = expr.get_component().get_variable_by_name(expr.var)
+            idx = self.doc.lookup_table_indexes[(expr.min, expr.max, expr.step,
+                                                 var.get_source_variable(recurse=True))]
+            if only_index and only_index != idx:
+                continue
+            table_size = unicode(1+int((float(expr.max) - float(expr.min)) / float(expr.step)))
+            j = expr.table_name
             varname = self.code_name(var)
-            idx = self.doc.lookup_table_indexes[
-                (expr.min, expr.max, expr.step,
-                 var.get_source_variable(recurse=True))]
             self.writeln('for (int i=0 ; i<', table_size, '; i++)')
             self.open_block()
             self.writeln(self.TYPE_DOUBLE, varname, self.EQ_ASSIGN, expr.min,
@@ -1146,10 +1147,8 @@ class CellMLTranslator(object):
         self.output_comment('Row lookup methods memory')
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             min, max, step, var = key
-#            table_size = unicode(1+int((float(max) - float(min)) / float(step)))
             num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
-            self.writeln('double _lookup_table_', idx, '_row[', num_tables,
-                         '];')
+            self.writeln('double _lookup_table_', idx, '_row[', num_tables, '];')
         self.writeln()
         return
 
@@ -1669,8 +1668,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         self.output_cell_parameters()
-        if self.config.options.fast_fixed_timestep:
-            self.writeln_hpp(self.TYPE_CONST_DOUBLE, 'mFixedDt', self.STMT_END)
         # Constructor
         self.set_access('public')
         self.output_constructor([solver1, 'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
@@ -1681,6 +1678,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         # Lookup table declarations & methods
         if self.use_lookup_tables:
+            if self.separate_lut_class:
+                self.output_method_start('GetLookupTableCollection', [], 'AbstractLookupTableCollection*')
+                self.open_block()
+                self.writeln('return ', self.lt_class_name, '::Instance();')
+                self.close_block()
             self.send_main_output_to_subsidiary()
             if self.separate_lut_class:
                 if self.use_backward_euler:
@@ -1742,8 +1744,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if i == len(base_class_params)-1: comma = ')'
             else: comma = ','
             self.writeln(param, comma, indent_offset=3)
-        if self.config.options.fast_fixed_timestep:
-            self.writeln(', mFixedDt(HeartConfig::Instance()->GetOdeTimeStep())', indent_offset=1)
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
@@ -1751,10 +1751,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.v_index == -1:
             self.writeln('this->mVoltageIndex = GetAnyVariableIndex("',
                          self.var_display_name(self.v_variable), '");')
-        if self.config.options.fast_fixed_timestep:
-            dt = self.lt_class_name + '::dt'
-            self.writeln('assert(%s == 0.0 || %s == mFixedDt);' % (dt,dt))
-            self.writeln(dt, self.EQ_ASSIGN, 'mFixedDt', self.STMT_END)
+        if self.config.options.include_dt_in_tables:
+            self.writeln(self.lt_class_name, '::Instance()->SetTimestep(mDt);')
         self.writeln('Init();\n')
         
         #1463 - default cellML stimulus
@@ -1809,19 +1807,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
         
         This will live entirely in the .cpp file."""
         # Lookup tables class
-        self.writeln('class ', self.lt_class_name)
+        self.writeln('class ', self.lt_class_name, ' : public AbstractLookupTableCollection')
         self.writeln('{')
         self.writeln('public:')
         self.set_indent(1)
-        if self.config.options.fast_fixed_timestep:
-            self.writeln('static ', self.TYPE_DOUBLE, 'dt;')
         # Method to get the table instance object
         self.writeln('static ', self.lt_class_name, '* Instance()')
         self.open_block()
         self.writeln('if (mpInstance.get() == NULL)')
         self.writeln('{')
-        self.writeln('mpInstance.reset(new ', self.lt_class_name, ');',
-                     indent_offset=1)
+        self.writeln('mpInstance.reset(new ', self.lt_class_name, ');', indent_offset=1)
         self.writeln('}')
         self.writeln('return mpInstance.get();')
         self.close_block()
@@ -1829,17 +1824,43 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_lut_methods()
         # Make the class a singleton
         self.writeln('protected:', indent_level=0)
-        self.writeln(self.lt_class_name, '(const ', self.lt_class_name,
-                     '&);')
-        self.writeln(self.lt_class_name, '& operator= (const ',
-                     self.lt_class_name, '&);')
+        self.writeln(self.lt_class_name, '(const ', self.lt_class_name, '&);')
+        self.writeln(self.lt_class_name, '& operator= (const ', self.lt_class_name, '&);')
         # Constructor
         self.writeln(self.lt_class_name, '()')
         self.open_block()
         self.writeln('assert(mpInstance.get() == NULL);')
-        if self.config.options.fast_fixed_timestep:
-            self.writeln('assert(dt > 0.0);')
-        self.output_lut_generation()
+        if self.config.options.include_dt_in_tables:
+            self.writeln('mDt = HeartConfig::Instance()->GetOdeTimeStep();')
+            self.writeln('assert(mDt > 0.0);')
+        for key, idx in self.doc.lookup_table_indexes.iteritems():
+            min, max, step, var = key
+            num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
+            self.writeln('mKeyingVariableNames.push_back("', self.var_display_name(var), '");')
+            self.writeln('mNumberOfTables.push_back(', num_tables, ');')
+            self.writeln('mTableMins.push_back(', min, ');')
+            self.writeln('mTableSteps.push_back(', step, ');')
+            self.writeln('mTableMaxs.push_back(', max, ');')
+            self.writeln('mNeedsRegeneration.push_back(true);')
+        self.writeln(self.lt_class_name, '::RegenerateTables();')
+        self.close_block()
+        # Table (re-)generation
+        self.writeln('void RegenerateTables()')
+        self.open_block()
+        event_handler = 'AbstractLookupTableCollection::EventHandler::'
+        self.writeln(event_handler, 'BeginEvent(', event_handler, 'GENERATE_TABLES);')
+        if self.config.options.include_dt_in_tables:
+            self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(self.config.dt_variable), ' = mDt;')
+            # Hack: avoid unused variable warning
+            self.writeln('double _unused = ', self.code_name(self.config.dt_variable), ';')
+            self.writeln('_unused = _unused;\n')
+        for i, idx in enumerate(self.doc.lookup_table_indexes.itervalues()):
+            self.writeln('if (mNeedsRegeneration[', i, '])')
+            self.open_block()
+            self.output_lut_generation(only_index=idx)
+            self.writeln('mNeedsRegeneration[', i, '] = false;')
+            self.close_block(blank_line=True)
+        self.writeln(event_handler, 'EndEvent(', event_handler, 'GENERATE_TABLES);')
         self.close_block()
         # Private data
         self.writeln('private:', indent_level=0)
@@ -1851,11 +1872,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Close the class
         self.set_indent(0)
         self.writeln('};\n')
-        # Define the instance pointer & static data
-        self.writeln('std::auto_ptr<', self.lt_class_name, '> ',
-                     self.lt_class_name, '::mpInstance;')
-        if self.config.options.fast_fixed_timestep:
-            self.writeln(self.TYPE_DOUBLE, self.lt_class_name, '::dt = 0.0;')
+        # Define the instance pointer
+        self.writeln('std::auto_ptr<', self.lt_class_name, '> ', self.lt_class_name, '::mpInstance;')
         self.writeln()
         return
 
@@ -2170,10 +2188,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Outputs ComputeResidual, ComputeJacobian,
         UpdateTransmembranePotential and ComputeOneStepExceptVoltage.
         """
-        if self.config.options.fast_fixed_timestep:
-            dt_name = 'mFixedDt'
-        else:
-            dt_name = 'mDt'
+        dt_name = 'mDt'
         #model_dt = self.varobj(self.model.solver_info.dt)
         # Residual
         ##########
@@ -2287,8 +2302,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Output required equations for used variables
         nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
-        self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(self.config.dt_variable), self.EQ_ASSIGN,
-                     dt_name, self.STMT_END, '\n');
+        if self.config.dt_variable in nodeset:
+            self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(self.config.dt_variable), self.EQ_ASSIGN,
+                         dt_name, self.STMT_END, '\n');
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=nodeset)
         self.output_equations(nodeset)
@@ -2326,17 +2342,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for j, i in enumerate(idx_map):
             self.writeln('rY[', i, '] = _guess[', j, '];')
         self.close_block()
-        
-#        # ComputeExceptVoltage
-#        # Special case version for a little extra speed!
-#        if self.config.options.fast_fixed_timestep:
-#            self.output_method_start('ComputeExceptVoltage', ['double tStart', 'double tEnd'],
-#                                     'void', access='public')
-#            self.open_block()
-#            self.writeln('assert(tEnd - tStart - mFixedDt > -1e-12);')
-#            self.writeln('assert(tEnd - tStart - mFixedDt < 1e-12);')
-#            self.writeln('ComputeOneStepExceptVoltage(tStart);')
-#            self.close_block(True)
     
     def output_model_attributes(self):
         """Output any named model attributes defined in metadata.
@@ -2695,12 +2700,18 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         self.open_block()
         self.close_block()
         # Lookup table declarations & methods
-        if self.use_lookup_tables and not self.separate_lut_class:
-            self.send_main_output_to_subsidiary()
-            self.output_lut_declarations()
-            self.output_lut_row_lookup_memory()
-            self.output_lut_methods()
-            self.send_main_output_to_subsidiary(False)
+        if self.use_lookup_tables:
+            if self.separate_lut_class:
+                self.output_method_start('GetLookupTableCollection', [], 'AbstractLookupTableCollection*')
+                self.open_block()
+                self.writeln('return ', self.lt_class_name, '::Instance();')
+                self.close_block()
+            else:
+                self.send_main_output_to_subsidiary()
+                self.output_lut_declarations()
+                self.output_lut_row_lookup_memory()
+                self.output_lut_methods()
+                self.send_main_output_to_subsidiary(False)
         # Verify state variables method; empty at present
         self.output_method_start('VerifyStateVariables', [], 'void', access='public')
         self.writeln('{}\n')
@@ -4812,10 +4823,11 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="determine ionic currents from the regexp specified in the config file"
                       " rather than analysing the voltage derivative equation")
-    parser.add_option('--fast-fixed-timestep',
+    parser.add_option('--include-dt-in-tables',
                       action='store_true', default=False,
-                      help="[experimental] fix ODE timestep to be equal to the PDE timestep"
-                      " when the cell was created.  Only used by backward Euler cells.")
+                      help="[experimental] allow timestep to be included in lookup tables.  By default"
+                      " uses the timestep of the first cell created.  Requires support from external"
+                      " code if timestep changes.  Only really useful for backward Euler cells.")
     parser.add_option('-m', '--use-modifiers',
                       action='store_true', default=False,
                       help="[experimental] add modifier functions for certain"
@@ -5016,7 +5028,7 @@ def run():
         solver_info.add_linear_ode_update_equations()
         DEBUG('translate', "+++ Parsed and incorporated Maple output")
     else:
-        options.fast_fixed_timestep = False
+        options.include_dt_in_tables = False
 
     if options.lut:
         # Create the analyser so PE knows which variables are table keys

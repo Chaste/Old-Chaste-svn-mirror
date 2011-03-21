@@ -402,8 +402,10 @@ class LookupTableAnalyser(object):
         This method uses the config store in the document to check the
         variable object.
         """
-        allowed = (self.config.lut_config.has_key(var.get_source_variable(recurse=True)) or
-                   (self.config.options.fast_fixed_timestep and var is self.solver_info.get_dt()))
+        var = var.get_source_variable(recurse=True)
+        allowed = (self.config.lut_config.has_key(var) or
+                   (self.config.options.include_dt_in_tables and
+                    var is self.solver_info.get_dt().get_source_variable(recurse=True)))
         return allowed
 
     def is_keying_var(self, var):

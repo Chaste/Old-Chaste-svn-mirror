@@ -157,3 +157,28 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
     // shared library to be created.
     PetscTools::ReplicateException(false);
 }
+
+void CellMLToSharedLibraryConverter::CreateOptionsFile(const OutputFileHandler& rHandler,
+                                                       const std::string& rModelName,
+                                                       const std::vector<std::string>& rArgs,
+                                                       const std::string& rExtraXml)
+{
+    if (PetscTools::AmMaster())
+    {
+        out_stream p_optfile = rHandler.OpenOutputFile(rModelName + "-conf.xml");
+        (*p_optfile) << "<?xml version='1.0'?>" << std::endl
+                     << "<pycml_config>" << std::endl;
+        if (!rArgs.empty())
+        {
+            (*p_optfile) << "<command_line_args>" << std::endl;
+            for (unsigned i=0; i<rArgs.size(); i++)
+            {
+                (*p_optfile) << "<arg>" << rArgs[i] << "</arg>" << std::endl;
+            }
+            (*p_optfile) << "</command_line_args>" << std::endl;
+        }
+        (*p_optfile) << rExtraXml << "</pycml_config>" << std::endl;
+        p_optfile->close();
+    }
+    PetscTools::Barrier("CellMLToSharedLibraryConverter::CreateOptionsFile");
+}

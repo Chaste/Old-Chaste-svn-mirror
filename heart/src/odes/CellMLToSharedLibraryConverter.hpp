@@ -30,9 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLMLTOSHAREDLIBRARYCONVERTER_HPP_
 
 #include <string>
+#include <vector>
 
 #include "DynamicCellModelLoader.hpp"
 #include "FileFinder.hpp"
+#include "OutputFileHandler.hpp"
 
 /**
  * This class encapsulates all the complexity needed to generate a loadable module from
@@ -68,6 +70,19 @@ public:
      */
     DynamicCellModelLoader* Convert(const FileFinder& rFilePath,
                                     bool isCollective=true);
+
+    /**
+     * Create a PyCml options file for the given model.
+     *
+     * @param rHandler  where to create the file
+     * @param rModelName  base name of the model file (which will be "rModelName.cellml")
+     * @param rArgs  extra command-line arguments for the model conversion
+     * @param rExtraXml  any extra XML to go in the config file (e.g. LT settings)
+     */
+    void CreateOptionsFile(const OutputFileHandler& rHandler,
+                           const std::string& rModelName,
+                           const std::vector<std::string>& rArgs,
+                           const std::string& rExtraXml="");
 
 private:
     /**
