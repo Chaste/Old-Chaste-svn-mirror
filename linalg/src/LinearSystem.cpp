@@ -839,7 +839,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             }
 #endif
 
-            double eig_max = r_eig[eigs_computed];
+            double eig_max = r_eig[eigs_computed-1];
 	    double eig_min = r_eig[0];
 
             /*
@@ -883,6 +883,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             {
                 KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
             }
+
+	    delete[] r_eig;
+	    delete[] c_eig;
 
 #ifdef TRACE_KSP
             if (PetscTools::AmMaster()) 
