@@ -61,13 +61,13 @@ class FileFinder
 private:
     /** The absolute path to our file */
     std::string mAbsPath;
-    
+
     /** Whether to fake one of the fixed paths, e.g. ChasteSourceRoot */
     static bool msFaking;
-    
+
     /** Which path to fake */
     static RelativeTo::Value msFakeWhat;
-    
+
     /** The fake value of the faked path */
     static std::string msFakePath;
 
@@ -87,7 +87,7 @@ public:
      * @param relativeTo  how to interpret this path
      */
     FileFinder(const std::string& rPath, RelativeTo::Value relativeTo);
-    
+
     /**
      * Change this FileFinder to point at a new location.
      * @param rPath  the path to the file/dir to find
@@ -99,12 +99,12 @@ public:
      * Test whether we exist.
      */
     bool Exists() const;
-    
+
     /**
      * Are we pointing at a file?
      */
     bool IsFile() const;
-    
+
     /**
      * Are we pointing at a directory?
      */
@@ -112,7 +112,7 @@ public:
 
     /**
      * Get the absolute path to this file/dir.
-     * 
+     *
      * If this is a directory that exists, the absolute path is guaranteed to end in a '/'.
      * If the directory doesn't exist, it will depend on what was supplied to the constructor.
      */
@@ -124,20 +124,25 @@ public:
      * @param rOtherEntity  the entity to test against.
      */
     bool IsNewerThan(const FileFinder& rOtherEntity) const;
-    
+
+    /**
+     * Get the leaf name of this file or directory.
+     */
+    std::string GetLeafName() const;
+
     /**
      * Test whether a path is absolute. Currently just checks whether the first character is '/'.
      * @param rPath The path to test
      */
     static bool IsAbsolutePath(const std::string& rPath);
-    
+
     /**
      * For testing purposes, fake the value of one of the normally fixed paths, e.g. ChasteSourceRoot.
      * @param fakeWhat  which path to fake
      * @param rFakePath  its fake value
      */
     static void FakePath(RelativeTo::Value fakeWhat, const std::string& rFakePath);
-    
+
     /**
      * Stop faking one of the fixed paths.
      */

@@ -66,6 +66,9 @@ public:
             TS_ASSERT(!file_finder2.IsDir());
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+
+            // Check we can extract the leaf name
+            TS_ASSERT_EQUALS(file_finder.GetLeafName(), "FileFinder.hpp");
         }
 
         {
@@ -109,13 +112,13 @@ public:
         TS_ASSERT(new_file.IsNewerThan(file));
         TS_ASSERT(!file.IsNewerThan(new_file));
     }
-    
+
     void TestIsAbsolutePath()
     {
         TS_ASSERT(!FileFinder::IsAbsolutePath("global/src/FileFinder.hpp"));
         TS_ASSERT(FileFinder::IsAbsolutePath("/root"));
     }
-    
+
     void TestDirFinder()
     {
         FileFinder dir("global", RelativeTo::ChasteSourceRoot);
@@ -124,46 +127,46 @@ public:
         TS_ASSERT(!dir.IsFile());
         std::string abs_path = std::string(ChasteBuildRootDir()) + "global/";
         TS_ASSERT_EQUALS(dir.GetAbsolutePath(), abs_path);
-        
+
         FileFinder dir2("global", RelativeTo::CWD); // CWD should be the same as ChasteSourceRoot for tests
         TS_ASSERT(dir2.Exists());
         TS_ASSERT(dir2.IsDir());
         TS_ASSERT(!dir2.IsFile());
         TS_ASSERT_EQUALS(dir2.GetAbsolutePath(), dir.GetAbsolutePath());
-        
+
         dir2.SetPath(dir.GetAbsolutePath(), RelativeTo::Absolute);
         TS_ASSERT(dir2.Exists());
         TS_ASSERT(dir2.IsDir());
         TS_ASSERT(!dir2.IsFile());
         TS_ASSERT_EQUALS(dir2.GetAbsolutePath(), dir.GetAbsolutePath());
-        
+
         OutputFileHandler handler("TestFileFinder");
         FileFinder new_dir("TestFileFinder", RelativeTo::ChasteTestOutput);
         TS_ASSERT(new_dir.Exists());
         TS_ASSERT(new_dir.IsDir());
         TS_ASSERT(!new_dir.IsFile());
         TS_ASSERT_EQUALS(new_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath());
-        
+
         FileFinder missing_dir("TestFileFinder/SubDir", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!missing_dir.Exists());
         TS_ASSERT(!missing_dir.IsDir());
         TS_ASSERT(!missing_dir.IsFile());
         TS_ASSERT_EQUALS(missing_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath() + "SubDir");
     }
-    
+
     void TestFaking()
     {
         FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "test");
         FileFinder path("file", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_EQUALS(path.GetAbsolutePath(), "test/file");
-        
+
         FileFinder::FakePath(RelativeTo::CWD, "test1");
         FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "test2");
         path.SetPath("file", RelativeTo::CWD);
         TS_ASSERT_EQUALS(path.GetAbsolutePath(), GetCurrentWorkingDirectory() + "/file");
         path.SetPath("file", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_EQUALS(path.GetAbsolutePath(), "test2/file");
-        
+
         FileFinder::StopFaking();
         path.SetPath("file", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_EQUALS(path.GetAbsolutePath(), std::string(ChasteBuildRootDir()) + "file");

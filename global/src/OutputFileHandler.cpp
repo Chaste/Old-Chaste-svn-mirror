@@ -192,3 +192,22 @@ void OutputFileHandler::AddTrailingSlash(std::string& rDirectory)
         rDirectory = rDirectory + "/";
     }
 }
+
+FileFinder OutputFileHandler::CopyFileTo(const FileFinder& rSourceFile) const
+{
+    if (!rSourceFile.IsFile())
+    {
+        EXCEPTION("Can only copy single files.");
+    }
+    if (PetscTools::AmMaster())
+    {
+        MPIABORTIFNON0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + GetOutputDirectoryFullPath());
+    }
+    PetscTools::Barrier("OutputFileHandler::CopyFileTo");
+    return FindFile(rSourceFile.GetLeafName());
+}
+
+FileFinder OutputFileHandler::FindFile(std::string leafName) const
+{
+    return FileFinder(GetOutputDirectoryFullPath() + leafName, RelativeTo::Absolute);
+}

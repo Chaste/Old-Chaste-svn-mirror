@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petsc.h>
 #include <sys/stat.h> //For chmod()
 #include "OutputFileHandler.hpp"
+#include "FileFinder.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
@@ -77,6 +78,15 @@ public:
         TS_ASSERT_THROWS_CONTAINS(OutputFileHandler handler3("../../../../../../../../../../../../../../../",false),
                 "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
 
+        // Check the CopyFileTo method
+        FileFinder source_file("global/test/TestOutputFileHandler.hpp", RelativeTo::ChasteSourceRoot);
+        FileFinder dest_file = handler2.CopyFileTo(source_file);
+        TS_ASSERT(dest_file.Exists());
+        FileFinder missing_file("global/no_file", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_THROWS_THIS(handler2.CopyFileTo(missing_file), "Can only copy single files.");
+        FileFinder global_dir("global", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_THROWS_THIS(handler2.CopyFileTo(global_dir), "Can only copy single files.");
+
         // We don't want other people using CHASTE_TEST_OUTPUT whilst we are messing with it!
         PetscTools::Barrier();
 
@@ -95,7 +105,7 @@ public:
         OutputFileHandler handler4("whatever");
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf testoutput/whatever");
+            MPIABORTIFNON0(system, "rm -rf testoutput/whatever");
         }
 
         // Check this folder is not present
@@ -110,7 +120,7 @@ public:
         // erase it
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf somewhere_without_trailing_forward_slash");
+            MPIABORTIFNON0(system, "rm -rf somewhere_without_trailing_forward_slash");
         }
         // Reset the location of CHASTE_TEST_OUTPUT
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
@@ -183,15 +193,13 @@ public:
         TS_ASSERT_EQUALS(return_value, 0);
         PetscTools::Barrier();
 
-        OutputFileHandler handler5("what_about_me",true);
+        OutputFileHandler handler5("what_about_me", true);
 
         // Check we have wiped the sub-directories
         return_value = system(command.c_str());
         TS_ASSERT_DIFFERS(return_value, 0);
         PetscTools::Barrier();
     }
-
-
 };
 
 #endif /*TESTOUTPUTFILEHANDLER_HPP_*/

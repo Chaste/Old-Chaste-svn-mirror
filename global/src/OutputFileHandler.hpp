@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <memory>
 
+class FileFinder; // Avoid circular includes
 
 /** Type of our output streams; a managed pointer to an std::ofstream */
 typedef std::auto_ptr<std::ofstream> out_stream;
@@ -144,6 +145,20 @@ public:
                               const std::string& rFileFormat,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc) const;
 
+    /**
+     * Copy the given file to this output directory.
+     *
+     * @param rSourceFile  the file to copy
+     * @return the copied file
+     */
+    FileFinder CopyFileTo(const FileFinder& rSourceFile) const;
+
+    /**
+     * Get a FileFinder for a file in this output directory.
+     *
+     * @param leafName  the name of the file to find
+     */
+    FileFinder FindFile(std::string leafName) const;
 };
 
 #endif /*OUTPUTFILEHANDLER_HPP_*/

@@ -92,13 +92,13 @@ void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value rel
             NEVER_REACHED;
             break;
     }
-    
+
     if (msFaking && msFakeWhat == relativeTo)
     {
         // Fake the resulting path
         mAbsPath = msFakePath + "/" + rRelativePath;
     }
-    
+
     if (IsDir())
     {
         if (*(mAbsPath.end()-1) != '/')
@@ -162,6 +162,14 @@ bool FileFinder::IsNewerThan(const FileFinder& rOtherEntity) const
     stat(GetAbsolutePath().c_str(), &our_stats);
     stat(rOtherEntity.GetAbsolutePath().c_str(), &other_stats);
     return our_stats.st_mtime > other_stats.st_mtime;
+}
+
+std::string FileFinder::GetLeafName() const
+{
+    std::string full_name = GetAbsolutePath();
+    size_t slash = full_name.rfind('/');
+    assert(slash != std::string::npos);
+    return full_name.substr(slash+1);
 }
 
 bool FileFinder::IsAbsolutePath(const std::string& rPath)
