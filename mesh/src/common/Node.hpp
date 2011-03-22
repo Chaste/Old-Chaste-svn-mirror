@@ -74,6 +74,9 @@ private:
     /** Set of indices of boundary elements containing this node as a vertex. */
     std::set<unsigned> mBoundaryElementIndices;
 
+    /** Set of node attributes*/
+    std::vector<double> mNodeAttributes;
+
     /**
      * Extraction of commonality between the constructors.
      *
@@ -155,6 +158,13 @@ public:
     void SetIndex(unsigned index);
 
     /**
+     * Add an attribute to the list of node attributes.
+     *
+     * @param attribute: the value of the attribute to be added
+     */
+    void AddNodeAttribute(double attribute);
+
+    /**
      * Set whether this node is a boundary node.
      *
      * @param value whether the node is a boundary node
@@ -226,6 +236,11 @@ public:
      * Return a set of indices of elements containing this node as a vertex.
      */
     std::set<unsigned>& rGetContainingElementIndices();
+
+    /**
+     * Returs a vector containing the ndoe attributes.
+     */
+    std::vector<double>& rGetNodeAttributes();
 
     /**
      * Return a set of indices of boundary elements containing this node as a vertex.

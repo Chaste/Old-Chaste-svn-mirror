@@ -149,6 +149,17 @@ bool Node<SPACE_DIM>::IsBoundaryNode() const
 }
 
 
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::AddNodeAttribute(double attribute)
+{
+    mNodeAttributes.push_back(attribute);
+}
+
+template<unsigned SPACE_DIM>
+std::vector<double>& Node<SPACE_DIM>::rGetNodeAttributes()
+{
+    return mNodeAttributes;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Tracking (boundary) elements which contain this node as a vertex
