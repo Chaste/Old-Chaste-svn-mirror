@@ -43,6 +43,11 @@ class AbstractLookupTableCollection
 {
 public:
     /**
+     * Default constructor.
+     */
+    AbstractLookupTableCollection();
+
+    /**
      * Get the names of variables used to index lookup tables.
      */
     std::vector<std::string> GetKeyingVariableNames() const;

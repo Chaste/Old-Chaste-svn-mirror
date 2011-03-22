@@ -151,7 +151,7 @@ public:
         assert(event<NUM_EVENTS);
         CheckVectorSizes();
         //Check that we are recording the total
-        if (event<NUM_EVENTS-1)
+        if (event != NUM_EVENTS-1) // If use <, Intel complains when NUM_EVENTS==1
         {
             if (!mHasBegun[NUM_EVENTS-1])
             {

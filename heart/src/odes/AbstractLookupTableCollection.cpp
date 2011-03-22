@@ -30,6 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 
+AbstractLookupTableCollection::AbstractLookupTableCollection()
+    : mDt(0.0)
+{
+}
+
 std::vector<std::string> AbstractLookupTableCollection::GetKeyingVariableNames() const
 {
     return mKeyingVariableNames;

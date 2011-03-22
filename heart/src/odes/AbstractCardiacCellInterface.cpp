@@ -26,10 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "HeartConfig.hpp" // First for Boost 1.33/PETSc 2.2
+
 #include "AbstractCardiacCellInterface.hpp"
 
 #include "Exception.hpp"
-#include "HeartConfig.hpp"
 
 
 AbstractCardiacCellInterface::AbstractCardiacCellInterface(
