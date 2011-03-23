@@ -77,6 +77,21 @@ public:
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
+    
+    void TestSequentialMeshCannotWriteParallelFiles() throw(Exception)
+    {
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
+        
+        TS_ASSERT_THROWS_THIS( writer.SetParallelFiles(mesh), 
+                               "Cannot write parallel files using a sequential mesh");
+#endif //CHASTE_VTK        
+    }
 
     void TestParallelVtkMeshWriter() throw(Exception)
     {
@@ -86,8 +101,21 @@ public:
             TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
             DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
             mesh.ConstructFromMeshReader(reader);
+            
             VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-            writer.SetParallelFiles();
+            
+            writer.SetParallelFiles(mesh);
+
+            // Add distance from origin into the node "point" data
+            std::vector<double> distance;
+            for (DistributedTetrahedralMesh<3,3>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
+                   node_iter != mesh.GetNodeIteratorEnd();
+                   ++node_iter)
+            {
+                distance.push_back(norm_2(node_iter->rGetLocation()));
+            }
+            writer.AddPointData("Distance from origin", distance);
+            
             writer.WriteFilesUsingMesh(mesh);
         }
 
@@ -99,7 +127,7 @@ public:
             std::string target_file;
             if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
             {
-                target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
+                target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_with_distance.vtu";
             }
             else
             {
@@ -107,13 +135,14 @@ public:
             }
             TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
         }
+        
         {
             TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
             DistributedTetrahedralMesh<2,2> mesh2;
             mesh2.ConstructFromMeshReader(reader2);
     
             VtkMeshWriter<2,2> writer2("TestVtkMeshWriter", "2D_0_to_1mm_200_elements_parallel_data", false);
-            writer2.SetParallelFiles();
+            writer2.SetParallelFiles(mesh2);
             // Add distance from origin into the node "point" data
             std::vector<double> rank;
             //Real rank for the owned nodes

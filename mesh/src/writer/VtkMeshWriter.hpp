@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "Version.hpp"
 
+#include <map>
+
 /**
  *  VtkMeshWriter
  *
@@ -61,6 +63,8 @@ class VtkMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DI
 private:
     bool mWriteParallelFiles; /**< Whether to write parallel (.pvtu + .vtu for each process) files, defaults to false */
 
+    std::map<unsigned, unsigned> mGlobalToNodeIndexMap; /**< Map a global node index into a local index (into mNodes and mHaloNodes as if they were concatenated) */
+        
     /**
      * A VTK mesh data structure.
      * Created at construction, has data associated with it by AddCellData
@@ -129,8 +133,10 @@ public:
     /**
      * Should be called to enable files to be written in parallel (i.e. a .pvtu file and .vtu files for each
      * process's sub-mesh).
+     * 
+     * @param rMesh the mesh (must be a DistributedTetrahedralMesh)
      */
-     void SetParallelFiles();
+     void SetParallelFiles(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh);
      
     /**
      * Write files. Overrides the method implemented in AbstractTetrahedralMeshWriter, which concentrates mesh
