@@ -7,21 +7,23 @@
         <DataArray type="Float64" Name="Location" NumberOfComponents="3" format="appended" offset="136"                 />
       </PointData>
       <CellData>
+        <DataArray type="Float64" Name="Quality" format="appended" offset="528"                 />
+        <DataArray type="Float64" Name="Centroid" NumberOfComponents="3" format="appended" offset="664"                 />
       </CellData>
       <Points>
-        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" offset="528"                 />
+        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" offset="1056"                />
       </Points>
       <Cells>
-        <DataArray type="Int32" Name="connectivity" format="appended" offset="920"                 />
-        <DataArray type="Int32" Name="offsets" format="appended" offset="1184"                />
-        <DataArray type="UInt8" Name="types" format="appended" offset="1256"                />
+        <DataArray type="Int32" Name="connectivity" format="appended" offset="1448"                />
+        <DataArray type="Int32" Name="offsets" format="appended" offset="1712"                />
+        <DataArray type="UInt8" Name="types" format="appended" offset="1784"                />
       </Cells>
     </Piece>
   </UnstructuredGrid>
   <AppendedData encoding="base64">
-   _YAAAAAAAAAAAAAAAmpmZmZmZyT8LY/9RGBrSP5qZmZmZmck/mpmZmZmZyT8LY/9RGBrSPyMKrYaVK9Y/C2P/URga0j9rK/aX3ZO5P8a5RwPJncw/U218RM8y0z/VgbuCBZ/MPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==wAAAAAsAAAADAAAACAAAAAAAAAAKAAAACAAAAAUAAAALAAAACgAAAAUAAAAJAAAABgAAAAsAAAADAAAACgAAAAgAAAABAAAACAAAAAUAAAAJAAAAAwAAAAsAAAAKAAAABwAAAAQAAAAIAAAACwAAAAUAAAALAAAACAAAAAQAAAAAAAAACgAAAAkAAAACAAAABgAAAAMAAAAKAAAACQAAAAIAAAAKAAAACAAAAAMAAAAJAAAACAAAAAoAAAAFAAAACQAAAA==MAAAAAQAAAAIAAAADAAAABAAAAAUAAAAGAAAABwAAAAgAAAAJAAAACgAAAAsAAAAMAAAAA==DAAAAAoKCgoKCgoKCgoKCg==
+   _YAAAAAAAAAAAAAAAmpmZmZmZyT8LY/9RGBrSP5qZmZmZmck/mpmZmZmZyT8LY/9RGBrSPyMKrYaVK9Y/C2P/URga0j9rK/aX3ZO5P8a5RwPJncw/U218RM8y0z/VgbuCBZ/MPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==YAAAALq3kVzZBuE/fwta/nS65D9s5T7M6QrhPxI6zd5UueQ/xYvMznOg1j/ZuQeSy57WP0zCJeDdCOE/VFqVSdWd1j94JkpmYaXWPznw/3B2C+E/JZjIRCm95D+5aXQZSb7kPw==IAEAAGsr9pfdk5k/RjMFIQ8zsz+amZmZmZmpP1plprT+lrk/RjMFIQ8zsz80MzMzMzPDPw06IXTQZcY/e6cC7nn+vz80MzMzMzPDPxoxs89jlKk/EwDS7dv/vz+amZmZmZm5P6H4MeauZcY/gzekUYGTmT+amZmZmZmpP8o2cAfqlJk/cGZPXVRmxj80MzMzMzPDP6hXyjLEMbM/5JnhUAmZmT80MzMzMzPDP2sr9pfdk5k/5JnhUAmZmT+amZmZmZm5Pw06IXTQZcY/JLpnXaNlxj+amZmZmZm5P02ndRvU/r8/JLpnXaNlxj+amZmZmZmpP1plprT+lrk/e6cC7nn+vz+amZmZmZmpPxSZucDlMcM/rto1Ia0xsz+amZmZmZm5Pw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==wAAAAAsAAAADAAAACAAAAAAAAAAKAAAACAAAAAUAAAALAAAACgAAAAUAAAAJAAAABgAAAAsAAAADAAAACgAAAAgAAAABAAAACAAAAAUAAAAJAAAAAwAAAAsAAAAKAAAABwAAAAQAAAAIAAAACwAAAAUAAAALAAAACAAAAAQAAAAAAAAACgAAAAkAAAACAAAABgAAAAMAAAAKAAAACQAAAAIAAAAKAAAACAAAAAMAAAAJAAAACAAAAAoAAAAFAAAACQAAAA==MAAAAAQAAAAIAAAADAAAABAAAAAUAAAAGAAAABwAAAAgAAAAJAAAACgAAAAsAAAAMAAAAA==DAAAAAoKCgoKCgoKCgoKCg==
   </AppendedData>
 </VTKFile>
 
-<!-- Created by Chaste version 2.1.12072 on Wed, 23 Mar 2011 12:22:41 +0000.  Chaste was built on Wed, 23 Mar 2011 12:22:23 +0000 by machine (uname) 'Linux userpc44.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Fri Feb 11 17:39:36 UTC 2011 x86_64' using settings: default, no Chaste libraries.
+<!-- Created by Chaste version 2.1.12072 on Wed, 23 Mar 2011 16:15:23 +0000.  Chaste was built on Wed, 23 Mar 2011 16:15:09 +0000 by machine (uname) 'Linux userpc44.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Fri Feb 11 17:39:36 UTC 2011 x86_64' using settings: default, no Chaste libraries.
 -->

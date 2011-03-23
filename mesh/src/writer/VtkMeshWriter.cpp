@@ -169,6 +169,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std
     p_vectors->Delete(); //Reference counted
 }
 
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
@@ -185,9 +186,6 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
         assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
         
-        // get indices of the nodes to exchange
-        std::vector<std::vector<unsigned> > nodes_to_send_per_process, nodes_to_receive_per_process; 
-        this->mpDistributedMesh->CalculateNodeExchange( nodes_to_send_per_process, nodes_to_receive_per_process );
         
         // then do the communication
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
@@ -195,8 +193,8 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
             unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
             unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
 
-            unsigned number_of_nodes_to_send    = nodes_to_send_per_process[send_to].size();
-            unsigned number_of_nodes_to_receive = nodes_to_receive_per_process[receive_from].size();
+            unsigned number_of_nodes_to_send    = mNodesToSendPerProcess[send_to].size();
+            unsigned number_of_nodes_to_receive = mNodesToReceivePerProcess[receive_from].size();
 
             // Pack
             if ( number_of_nodes_to_send > 0 )
@@ -205,7 +203,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
 
                 for (unsigned node = 0; node < number_of_nodes_to_send; node++)
                 {
-                    unsigned global_node_index = nodes_to_send_per_process[send_to][node];
+                    unsigned global_node_index = mNodesToSendPerProcess[send_to][node];
                     unsigned local_node_index = global_node_index 
                                 - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
                     send_data[node] = dataPayload[local_node_index];
@@ -241,7 +239,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 // Unpack
                 for ( unsigned node = 0; node < number_of_nodes_to_receive; node++ )
                 {
-                    unsigned global_node_index = nodes_to_receive_per_process[receive_from][node];
+                    unsigned global_node_index = mNodesToReceivePerProcess[receive_from][node];
                     unsigned halo_index = mGlobalToNodeIndexMap[global_node_index];
                     assert( halo_index >= this->mpDistributedMesh->GetNumLocalNodes() );
                     dataPayload[halo_index] = receive_data[node];
@@ -278,18 +276,14 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
         assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
         
-        // get indices of the nodes to exchange
-        std::vector<std::vector<unsigned> > nodes_to_send_per_process, nodes_to_receive_per_process; 
-        this->mpDistributedMesh->CalculateNodeExchange( nodes_to_send_per_process, nodes_to_receive_per_process );
-        
         // then do the communication
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
             unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
             unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
 
-            unsigned number_of_nodes_to_send    = nodes_to_send_per_process[send_to].size();
-            unsigned number_of_nodes_to_receive = nodes_to_receive_per_process[receive_from].size();
+            unsigned number_of_nodes_to_send    = mNodesToSendPerProcess[send_to].size();
+            unsigned number_of_nodes_to_receive = mNodesToReceivePerProcess[receive_from].size();
 
             // Pack
             if ( number_of_nodes_to_send > 0 )
@@ -298,7 +292,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
 
                 for (unsigned node = 0; node < number_of_nodes_to_send; node++)
                 {
-                    unsigned global_node_index = nodes_to_send_per_process[send_to][node];
+                    unsigned global_node_index = mNodesToSendPerProcess[send_to][node];
                     unsigned local_node_index = global_node_index 
                                 - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
                     for (unsigned j=0; j<SPACE_DIM; j++)
@@ -337,7 +331,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 // Unpack
                 for ( unsigned node = 0; node < number_of_nodes_to_receive; node++ )
                 {
-                    unsigned global_node_index = nodes_to_receive_per_process[receive_from][node];
+                    unsigned global_node_index = mNodesToReceivePerProcess[receive_from][node];
                     unsigned halo_index = mGlobalToNodeIndexMap[global_node_index];
                     assert( halo_index >= this->mpDistributedMesh->GetNumLocalNodes() );
                     for (unsigned j=0; j<SPACE_DIM; j++)
@@ -407,7 +401,11 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetParallelFiles( AbstractTetrahedral
     {
         mGlobalToNodeIndexMap[(*halo_iter)->GetIndex()] = index;
         index++;
-    }       
+    }
+        
+    //Calculate the halo exchange so that node-wise payloads can be communicated
+    this->mpDistributedMesh->CalculateNodeExchange( mNodesToSendPerProcess, mNodesToReceivePerProcess );
+           
 }
 
 ///\todo #1322 Mesh should be const

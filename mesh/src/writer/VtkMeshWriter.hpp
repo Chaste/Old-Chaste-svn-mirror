@@ -64,6 +64,10 @@ private:
     bool mWriteParallelFiles; /**< Whether to write parallel (.pvtu + .vtu for each process) files, defaults to false */
 
     std::map<unsigned, unsigned> mGlobalToNodeIndexMap; /**< Map a global node index into a local index (into mNodes and mHaloNodes as if they were concatenated) */
+    
+    std::vector<std::vector<unsigned> > mNodesToSendPerProcess; /**< Used to communicate node-wise halo data */ 
+    std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;  /**< Used to communicate node-wise halo data */ 
+    
         
     /**
      * A VTK mesh data structure.

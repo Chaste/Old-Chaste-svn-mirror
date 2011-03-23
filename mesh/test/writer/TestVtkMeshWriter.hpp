@@ -126,6 +126,26 @@ public:
             }
             writer.AddPointData("Location", location);
             
+            // Add element quality into the element "cell" data
+            std::vector<double> quality;
+            for (DistributedTetrahedralMesh<3,3>::ElementIterator ele_iter = mesh.GetElementIteratorBegin();
+                   ele_iter != mesh.GetElementIteratorEnd();
+                   ++ele_iter)
+            {
+                quality.push_back(ele_iter->CalculateQuality());
+            }
+            writer.AddCellData("Quality", quality);
+        
+            // Add fibre type to "cell" data
+            std::vector< c_vector<double, 3> > centroid;
+            for (DistributedTetrahedralMesh<3,3>::ElementIterator ele_iter = mesh.GetElementIteratorBegin();
+                   ele_iter != mesh.GetElementIteratorEnd();
+                   ++ele_iter)
+            {
+                centroid.push_back(ele_iter->CalculateCentroid());
+            }
+            writer.AddCellData("Centroid", centroid);
+
             writer.WriteFilesUsingMesh(mesh);
         }
 
