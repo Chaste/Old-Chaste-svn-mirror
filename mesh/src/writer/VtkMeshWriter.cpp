@@ -182,6 +182,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
         // communicate with the equivalent vectors on other processes.
 
         // resize the payload data to include halos
+        assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
         
         // get indices of the nodes to exchange
@@ -242,6 +243,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 {
                     unsigned global_node_index = nodes_to_receive_per_process[receive_from][node];
                     unsigned halo_index = mGlobalToNodeIndexMap[global_node_index];
+                    assert( halo_index >= this->mpDistributedMesh->GetNumLocalNodes() );
                     dataPayload[halo_index] = receive_data[node];
                 }
             }
@@ -273,6 +275,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
         // communicate with the equivalent vectors on other processes.
 
         // resize the payload data to include halos
+        assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
         
         // get indices of the nodes to exchange
@@ -300,7 +303,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                                 - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
                     for (unsigned j=0; j<SPACE_DIM; j++)
                     {
-                        send_data[ node*(SPACE_DIM-1) + j ] = dataPayload[local_node_index][j];
+                        send_data[ node*SPACE_DIM + j ] = dataPayload[local_node_index][j];
                     }
                 }
 
@@ -336,9 +339,10 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 {
                     unsigned global_node_index = nodes_to_receive_per_process[receive_from][node];
                     unsigned halo_index = mGlobalToNodeIndexMap[global_node_index];
+                    assert( halo_index >= this->mpDistributedMesh->GetNumLocalNodes() );
                     for (unsigned j=0; j<SPACE_DIM; j++)
                     {
-                        dataPayload[halo_index][j] = receive_data[ node*(SPACE_DIM-1) + j ];
+                        dataPayload[halo_index][j] = receive_data[ node*SPACE_DIM + j ];
                     }
                 }
             }
@@ -373,6 +377,11 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetParallelFiles( AbstractTetrahedral
     if (this->mpDistributedMesh == NULL)
     {
         EXCEPTION("Cannot write parallel files using a sequential mesh");
+    }
+    
+    if ( PetscTools::IsSequential())
+    {
+        return;     // mWriteParallelFiles is not set sequentially (so we don't set up data exchange machinery)
     }
     
     mWriteParallelFiles = true;
@@ -410,7 +419,7 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     //Have we got a parallel mesh?
     this->mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
     
-    if ( PetscTools::IsSequential() || this->mpDistributedMesh == NULL )
+    if ( PetscTools::IsSequential() || !mWriteParallelFiles || this->mpDistributedMesh == NULL )
     {
         AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFilesUsingMesh( rMesh,keepOriginalElementIndexing );
     }

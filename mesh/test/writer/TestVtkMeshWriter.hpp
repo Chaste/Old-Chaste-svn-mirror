@@ -160,12 +160,6 @@ public:
             {
                 rank.push_back(PetscTools::GetMyRank());
             }
-            //Fake rank for the halos
-            for (unsigned i=0; i<mesh2.GetNumHaloNodes(); i++)
-            {
-//                rank.push_back(PetscTools::GetMyRank()+10.0);
-                rank.push_back(0.0);
-            }
             writer2.AddPointData("Process rank", rank);
     
     
