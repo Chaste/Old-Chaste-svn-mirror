@@ -113,12 +113,7 @@ private:
         //Binary meshes have similar content to the original Triangle/Tetgen format, but take up less space on disk
         mesh_writer.SetWriteFilesAsBinary();
 
-        /**
-         * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
-         *
-         * \todo #1200 This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
-         * Perhaps even copy the permutation file from an earlier checkpoint?
-         */
+        // Archive the mesh permutation, so we can just copy the original mesh files whenever possible.
         bool permutation_available = (this->rGetNodePermutation().size() != 0);
         archive & permutation_available;
 
@@ -138,7 +133,6 @@ private:
             unsigned& order_of_boundary_element = order_of_element;
 
             // Mesh in disc, copy it to the archiving folder
-            // \todo #1200 consider creating symlinks instead...
             std::string original_file=this->GetMeshFileBaseName();
             GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file, order_of_element, order_of_boundary_element);
 
