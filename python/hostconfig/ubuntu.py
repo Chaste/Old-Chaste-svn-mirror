@@ -81,12 +81,15 @@ use_vtk = False
 
 #Extra libraries for VTK output
 if use_vtk:
-    if ubuntu_ver >= [10,04]:
+    if ubuntu_ver >= [10,10]:
+        other_includepaths.append('/usr/include/vtk-5.4')
+        other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
+    elif ubuntu_ver >= [10,04]:
         other_includepaths.append('/usr/include/vtk-5.2')
-        other_libraries.extend(['vtkIO',  'vtkCommon', 'vtkGraphics', 'z'])
+        other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
     else: # The libraries.extend command below may need changing, as it hasn't been tested yet.
         other_includepaths.extend('/usr/include/vtk-5.0')
-        other_libraries.extend(['vtkIO','vtkGraphics','vtkCommon', 'z'])
+        other_libraries.extend(['vtkIO', 'vtkGraphics', 'vtkCommon', 'z'])
 
 
 # Figure out which lapack/blas packages are actually installed!
