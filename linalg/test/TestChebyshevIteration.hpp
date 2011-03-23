@@ -161,7 +161,9 @@ public:
         VecDestroy(solution);
         Timer::PrintAndReset("Chebyshev-Jacobi");
 
-        TS_ASSERT_EQUALS(chebyshev_its, 131u);
+        // The number of iterations is PETSc-version-dependent...
+        TS_ASSERT_LESS_THAN(130u, chebyshev_its);
+        TS_ASSERT_LESS_THAN(chebyshev_its, 150u);
 
         VecDestroy(parallel_layout);
         VecDestroy(zero_guess);
