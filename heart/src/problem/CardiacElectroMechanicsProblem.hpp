@@ -288,6 +288,16 @@ public :
 //// #1245
 //    void SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion);
 
+    /**
+     * Called in Solve() before the time loop
+     */
+    virtual void PrepareForSolve(){}
+
+    /**
+     * Called in Solve() at the end of every time step
+     * @param counter time step
+     */
+    virtual void OnEndOfTimeStep(unsigned counter){}
 
     /**
      *  Get the mechanics solver. Needs to be called after Initialise()

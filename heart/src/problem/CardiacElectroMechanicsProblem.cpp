@@ -507,6 +507,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         }
     }
 
+    PrepareForSolve();
+
     while (!stepper.IsTimeAtEnd())
     {
         LOG(2, "\nCurrent time = " << stepper.GetTime());
@@ -686,6 +688,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             {
                 WriteWatchedLocationData(stepper.GetTime(), voltage);
             }
+            OnEndOfTimeStep(counter);
         }
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::OUTPUT);
 
