@@ -469,7 +469,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenNclFile()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<double>& TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::rGetNodeAattributes()
+std::vector<double>& TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::rGetNodeAttributes()
 {
     return mNodeAttributes;
 }

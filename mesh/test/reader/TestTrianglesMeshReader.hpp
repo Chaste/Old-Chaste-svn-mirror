@@ -174,7 +174,7 @@ public:
     void Test3dDataRead() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/slab_138_elements");
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 0u);//no nodal attributes in this mesh
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 0u);//no nodal attributes in this mesh
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 138u);
     }
 
@@ -221,7 +221,7 @@ public:
         // This mesh has zero attributes and one marker in the node file (as the header specifies).
         // we have to ensure that in such situation the last number in each node line is not mistakenly
         // read and interpreted as a node attribute (it is a node marker instead).
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 0u);
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 0u);
 
         std::vector<double> next_node;
         next_node = mesh_reader.GetNextNode();
@@ -234,7 +234,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
 
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 0u);
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 0u);
 
         TS_ASSERT_THROWS_THIS(next_node = mesh_reader.GetNextNode(),
                               "File contains incomplete data: unexpected end of file.");
@@ -246,7 +246,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements_with_node_attributes");
 
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 0u);//check vector is empty at the beginning
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 0u);//check vector is empty at the beginning
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();//read a node
@@ -257,9 +257,9 @@ public:
         TS_ASSERT_DELTA(first_node[2], 0.0, 1e-6);
 
         //check attributes
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 2u);
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[0], 25.2, 1e-6);
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[1],   16.3, 1e-6);
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 2u);
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[0], 25.2, 1e-6);
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[1],   16.3, 1e-6);
 
         std::vector<double> second_node;
         second_node = mesh_reader.GetNextNode();//read another node
@@ -270,9 +270,9 @@ public:
         TS_ASSERT_DELTA(second_node[2], 0.0, 1e-6);
 
         //check attributes
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 2u);//check that we remembered to clear it ( otherwise size would be 4 by now)
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[0], 25.6, 1e-6);
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[1],   15.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 2u);//check that we remembered to clear it ( otherwise size would be 4 by now)
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[0], 25.6, 1e-6);
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[1],   15.0, 1e-6);
 
         //read a few other nodes in succession
         std::vector<double> another_node;
@@ -285,9 +285,9 @@ public:
         TS_ASSERT_DELTA(another_node[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(another_node[2], 0.2, 1e-6);
 
-        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAattributes().size(), 2u);
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[0], 2.3, 1e-6);
-        TS_ASSERT_DELTA(mesh_reader.rGetNodeAattributes()[1],   16.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh_reader.rGetNodeAttributes().size(), 2u);
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[0], 2.3, 1e-6);
+        TS_ASSERT_DELTA(mesh_reader.rGetNodeAttributes()[1],   16.0, 1e-6);
     }
 
     /**
