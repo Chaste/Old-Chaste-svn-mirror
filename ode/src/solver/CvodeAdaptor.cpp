@@ -71,7 +71,7 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
     {
         p_data->pSystem->EvaluateYDerivatives(t, *(p_data->pY), ydot_vec);
     }
-    catch (Exception &e)
+    catch (const Exception &e)
     {
         std::cerr << "CVODE RHS Exception: " << e.GetMessage() << std::endl << std::flush;
         return -1;
@@ -112,7 +112,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
     {
         *pGOut = p_data->pSystem->CalculateRootFunction(t, *p_data->pY);
     }
-    catch (Exception &e)
+    catch (const Exception &e)
     {
         std::cerr << "CVODE Root Exception: " << e.GetMessage() << std::endl << std::flush;
         return -1;
@@ -146,7 +146,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
 //     {
 //         pSystem->AnalyticJacobian(y_vec, ppJ, t, dt);
 //     }
-//     catch (Exception &e)
+//     catch (const Exception &e)
 //     {
 //         std::cerr << "CVODE J Exception: " << e.GetMessage() << std::endl << std::flush;
 //         return -1;
@@ -164,7 +164,8 @@ void CvodeErrorHandler(int errorCode, const char *module, const char *function,
     err << "CVODE Error " << errorCode << " in module " << module
         << " function " << function << ": " << message;
     std::cerr << "*" << err.str() << std::endl << std::flush;
-    EXCEPTION(err.str());
+    // Throwing the exception here causes termination on Maverick (g++ 4.4)
+    //EXCEPTION(err.str());
 }
 
 
@@ -221,7 +222,6 @@ void CvodeAdaptor::FreeCvodeMemory()
 }
 
 
-#define COVERAGE_IGNORE
 void CvodeAdaptor::CvodeError(int flag, const char * msg)
 {
     std::stringstream err;
@@ -229,7 +229,6 @@ void CvodeAdaptor::CvodeError(int flag, const char * msg)
     std::cerr << err.str() << std::endl << std::flush;
     EXCEPTION(err.str());
 }
-#undef COVERAGE_IGNORE
 
 
 OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,

@@ -305,7 +305,7 @@ public:
 #endif // CHASTE_CVODE
     }
 
-    void TestExceptions()
+    void TestExceptions() throw(Exception)
     {
 #ifdef CHASTE_CVODE
         ExceptionalOdeWithRootFunction ode_system;
@@ -315,24 +315,24 @@ public:
         // Exception in EvaluateYDerivatives
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
-                "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+                "CVODE failed to solve system: CV_RHSFUNC_FAIL");
 
         // Not enough steps
         ode_system.BeNice();
         solver.SetMaxSteps(1);
         state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
-                "CVODE Error -1 in module CVODE function CVode: At t = 7.25834e-09, mxstep steps taken before reaching tout.");
+                "CVODE failed to solve system: CV_TOO_MUCH_WORK");
 
         //Try again with time sampling
         TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.1),
-                "CVODE Error -1 in module CVODE function CVode: At t = 3.43413e-09, mxstep steps taken before reaching tout.");
+                "CVODE failed to solve system: CV_TOO_MUCH_WORK");
 
         // Exception in root function
         solver.CheckForStoppingEvents();
         state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
-                "CVODE Error -12 in module CVODE function CVRcheck1: At t = 0, the rootfinding routine failed in an unrecoverable manner.");
+                "CVODE failed to solve system: CV_RTFUNC_FAIL");
 #endif // CHASTE_CVODE
     }
 

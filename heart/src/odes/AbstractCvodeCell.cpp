@@ -60,7 +60,7 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
     {
         pCell->EvaluateRhs(t, y, ydot);
     }
-    catch (Exception &e)
+    catch (const Exception &e)
     {
         std::cerr << "CVODE RHS Exception: " << e.GetMessage()
                   << std::endl << std::flush;
@@ -368,8 +368,6 @@ void AbstractCvodeCell::FreeCvodeMemory()
 }
 
 
-// Errors get caught before they hit this, but we keep it just in case...
-#define COVERAGE_IGNORE
 void AbstractCvodeCell::CvodeError(int flag, const char * msg)
 {
     std::stringstream err;
@@ -377,7 +375,6 @@ void AbstractCvodeCell::CvodeError(int flag, const char * msg)
     std::cerr << err.str() << std::endl << std::flush;
     EXCEPTION(err.str());
 }
-#undef COVERAGE_IGNORE
 
 
 std::vector<double> AbstractCvodeCell::MakeStdVec(N_Vector v)

@@ -230,24 +230,24 @@ public:
         // Cover errors
         std::cout << "Testing Error Handling...\n";
         lr91_cvode_system.SetMaxSteps(2);
-        TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_cvode_fail = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time),
-                                  "mxstep steps taken before reaching tout");
+        TS_ASSERT_THROWS_THIS(OdeSolution solution_cvode_fail = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time),
+                              "CVODE failed to solve system: CV_TOO_MUCH_WORK");
         // Kill the cell
         boost::shared_ptr<SimpleStimulus> p_boom_stimulus(new SimpleStimulus(-50000, 2.0, 1.0));
         CellLuoRudy1991FromCellMLCvode lr91_boom(p_solver, p_boom_stimulus);
-        TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_boom = lr91_boom.Solve(start_time, end_time, max_timestep, sampling_time),
-                                  " failed repeatedly or with |h| = hmin.");
+        TS_ASSERT_THROWS_THIS(OdeSolution solution_boom = lr91_boom.Solve(start_time, end_time, max_timestep, sampling_time),
+                              "CVODE failed to solve system: CV_ERR_FAILURE");
         lr91_boom.ResetToInitialConditions();
         lr91_boom.SetMaxSteps(10000);
-        TS_ASSERT_THROWS_CONTAINS(lr91_boom.Solve(start_time, end_time, max_timestep),
-                                  " failed repeatedly or with |h| = hmin.");
+        TS_ASSERT_THROWS_THIS(lr91_boom.Solve(start_time, end_time, max_timestep),
+                              "CVODE failed to solve system: CV_ERR_FAILURE");
         // Nasty cell
         ExceptionalCell bad_cell(p_solver, p_boom_stimulus);
         TS_ASSERT_THROWS_THIS(OdeSolution solution_bad = bad_cell.Solve(start_time, end_time, max_timestep, sampling_time),
-                              "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+                              "CVODE failed to solve system: CV_RHSFUNC_FAIL");
         bad_cell.ResetToInitialConditions();
         TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
-                              "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+                              "CVODE failed to solve system: CV_RHSFUNC_FAIL");
 
         // This should work now that metadata has been added to the LuoRudy1991 cellML.
         TS_ASSERT_EQUALS(lr91_cvode_system.HasCellMLDefaultStimulus(), true);
