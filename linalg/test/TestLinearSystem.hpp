@@ -541,7 +541,7 @@ public:
 
         if (dist_vec.Begin() != dist_vec.End())
         {
-            MatSetValue(m, dist_vec.Begin().Global, 0, test_val, INSERT_VALUES);
+            PetscMatTools::SetElement(m, dist_vec.Begin().Global, 0, test_val);
         }
 
         LinearSystem lsm(NULL, m);
@@ -557,7 +557,7 @@ public:
         // Change the Mat and see if the linear system reflects the change
         if (dist_vec.Begin() != dist_vec.End())
         {
-            MatSetValue(m, dist_vec.Begin().Global, 0, test_val2, INSERT_VALUES);
+            PetscMatTools::SetElement(m, dist_vec.Begin().Global, 0, test_val2);
         }
         MatAssemblyBegin(m, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(m, MAT_FINAL_ASSEMBLY);
@@ -591,9 +591,9 @@ public:
 
         //Set the correct answer for the intial guess
         Vec good_guess=PetscTools::CreateVec(3);
-        VecSetValue(good_guess, 0, 1.0, INSERT_VALUES);
-        VecSetValue(good_guess, 1, 2.0, INSERT_VALUES);
-        VecSetValue(good_guess, 2, 3.0, INSERT_VALUES);
+        PetscVecTools::SetElement(good_guess, 0, 1.0);
+        PetscVecTools::SetElement(good_guess, 1, 2.0);
+        PetscVecTools::SetElement(good_guess, 2, 3.0);
 
 
         Vec solution_vector;

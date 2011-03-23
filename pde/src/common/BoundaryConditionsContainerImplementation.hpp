@@ -316,9 +316,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 Vec matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
 
                 // Zero the correct entry of the column
-                int indices[1] = {col};
-                double zero[1] = {0.0};
-                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
+                PetscVecTools::SetElement(matrix_col, col, 0.0);
 
                 // Set up the RHS Dirichlet boundary conditions vector
                 // Assuming one boundary at the zeroth node (x_0 = value), this is equal to

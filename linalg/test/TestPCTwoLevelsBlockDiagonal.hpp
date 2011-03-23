@@ -76,11 +76,10 @@ public:
 
         for (unsigned node_index=0; node_index<2*num_nodes; node_index+=2)
         {
-            VecSetValue(one_zeros, node_index, 1, INSERT_VALUES);
-            VecSetValue(one_zeros, node_index+1, 0, INSERT_VALUES);
+            PetscVecTools::SetElement(one_zeros, node_index, 1);
+            PetscVecTools::SetElement(one_zeros, node_index+1, 0);
         }       
-        VecAssemblyBegin(one_zeros);
-        VecAssemblyEnd(one_zeros);
+        PetscVecTools::Assemble(one_zeros);
                       
         MatMult(system_matrix, one_zeros, rhs);
         VecDestroy(one_zeros);

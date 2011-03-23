@@ -60,10 +60,9 @@ public:
 
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateVec(length);
-        VecSetValue(initial_guess, 0, -1e16, INSERT_VALUES);
-        VecSetValue(initial_guess, 1, -1e8, INSERT_VALUES);
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
+        PetscVecTools::SetElement(initial_guess, 0, -1e16);
+        PetscVecTools::SetElement(initial_guess, 1, -1e8);
+        PetscVecTools::Assemble(initial_guess);
         TS_ASSERT_THROWS_THIS(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, length, NULL),
                 "Iteration 27, unable to find damping factor such that residual decreases in update direction");
         VecDestroy(initial_guess);
@@ -80,10 +79,9 @@ public:
 
         // Set up initial Guess
         Vec initial_guess=PetscTools::CreateVec(length);
-        VecSetValue(initial_guess, 0, 1.0, INSERT_VALUES);
-        VecSetValue(initial_guess, 1, 1.0, INSERT_VALUES);
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
+        PetscVecTools::SetElement(initial_guess, 0, 1.0);
+        PetscVecTools::SetElement(initial_guess, 1, 1.0);
+        PetscVecTools::Assemble(initial_guess);
 
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
@@ -125,12 +123,10 @@ public:
 
         // Set up initial Guess
         Vec initial_guess=PetscTools::CreateVec(length);
-        VecSetValue(initial_guess, 0, 1, INSERT_VALUES);
-        VecSetValue(initial_guess, 1, 1, INSERT_VALUES);
-        VecSetValue(initial_guess, 2, 1, INSERT_VALUES);
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
-
+        PetscVecTools::SetElement(initial_guess, 0, 1);
+        PetscVecTools::SetElement(initial_guess, 1, 1);
+        PetscVecTools::SetElement(initial_guess, 2, 1);
+        PetscVecTools::Assemble(initial_guess);
 
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
@@ -141,8 +137,6 @@ public:
         solver_newton.SetWriteStats();                          // to cover this method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                                 initial_guess, length, NULL);
-
-
 
         // replicate the answers so we can access them without worrying about parallel stuff
         ReplicatableVector answer_petsc_repl(answer_petsc);
@@ -190,10 +184,9 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
     x = solution_guess_replicated[0];
     y = solution_guess_replicated[1];
 
-    VecSetValue(residual,0,x*x+y*y-1,INSERT_VALUES);
-    VecSetValue(residual,1,x-y,INSERT_VALUES);
-    VecAssemblyBegin(residual);
-    VecAssemblyEnd(residual);
+    PetscVecTools::SetElement(residual,0,x*x+y*y-1);
+    PetscVecTools::SetElement(residual,1,x-y);
+    PetscVecTools::Assemble(residual);
     return 0;
 }
 
@@ -206,10 +199,10 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat* pJacobian ,Mat* pPre
     x = input_replicated[0];
     y = input_replicated[1];
 
-    MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
-    MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 0 , 1.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 1 , -1.0, INSERT_VALUES);
+    PetscMatTools::SetElement(*pJacobian, 0 , 0 , 2.0*x );
+    PetscMatTools::SetElement(*pJacobian, 0 , 1 , 2.0*y);
+    PetscMatTools::SetElement(*pJacobian, 1 , 0 , 1.0);
+    PetscMatTools::SetElement(*pJacobian, 1 , 1 , -1.0);
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
 
@@ -227,11 +220,10 @@ PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,v
     y = solution_guess_replicated[1];
     z = solution_guess_replicated[2];
 
-    VecSetValue(residual,0,x*x+y*y+z*z-1,INSERT_VALUES);
-    VecSetValue(residual,1,x-y,INSERT_VALUES);
-    VecSetValue(residual,2,y-z,INSERT_VALUES);
-    VecAssemblyBegin(residual);
-    VecAssemblyEnd(residual);
+    PetscVecTools::SetElement(residual,0,x*x+y*y+z*z-1);
+    PetscVecTools::SetElement(residual,1,x-y);
+    PetscVecTools::SetElement(residual,2,y-z);
+    PetscVecTools::Assemble(residual);
     return 0;
 }
 
@@ -246,15 +238,15 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat* pJacobian ,Mat* pP
     y = input_replicated[1];
     z = input_replicated[2];
 
-    MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
-    MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);
-    MatSetValue(*pJacobian, 0 , 2 , 2.0*z, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 0 , 1.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 1 , -1.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 1 , 2 , 0.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 2 , 0 , 0.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 2 , 1 , 1.0, INSERT_VALUES);
-    MatSetValue(*pJacobian, 2 , 2 , -1.0, INSERT_VALUES);
+    PetscMatTools::SetElement(*pJacobian, 0 , 0 , 2.0*x );
+    PetscMatTools::SetElement(*pJacobian, 0 , 1 , 2.0*y);
+    PetscMatTools::SetElement(*pJacobian, 0 , 2 , 2.0*z);
+    PetscMatTools::SetElement(*pJacobian, 1 , 0 , 1.0);
+    PetscMatTools::SetElement(*pJacobian, 1 , 1 , -1.0);
+    PetscMatTools::SetElement(*pJacobian, 1 , 2 , 0.0);
+    PetscMatTools::SetElement(*pJacobian, 2 , 0 , 0.0);
+    PetscMatTools::SetElement(*pJacobian, 2 , 1 , 1.0);
+    PetscMatTools::SetElement(*pJacobian, 2 , 2 , -1.0);
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
 

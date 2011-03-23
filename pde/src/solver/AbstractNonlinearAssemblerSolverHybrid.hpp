@@ -361,10 +361,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     for (unsigned global_index_outer = 0; global_index_outer < num_unknowns; global_index_outer++)
     {
         //Only perturb if we own it
-        if (lo<=global_index_outer && global_index_outer<hi)
-        {
-            PETSCEXCEPT( VecSetValue(current_guess_copy, global_index_outer,h, ADD_VALUES) );
-        }
+        PetscVecTools::AddToElement(current_guess_copy, global_index_outer, h);
         ComputeResidual(current_guess_copy, perturbed_residual);
 
         // result = (perturbed_residual - residual) / h
@@ -376,15 +373,11 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         for (unsigned global_index=lo; global_index < hi; global_index++)
         {
             unsigned local_index = global_index - lo;
-            PETSCEXCEPT( MatSetValue(*pJacobian, global_index, global_index_outer,
-                                     p_result[local_index], INSERT_VALUES) );
+            PetscMatTools::SetElement(*pJacobian, global_index, global_index_outer, p_result[local_index]);
         }
         PETSCEXCEPT( VecRestoreArray(result, &p_result) );
 
-        if (lo<=global_index_outer && global_index_outer<hi)
-        {
-            PETSCEXCEPT( VecSetValue(current_guess_copy, global_index_outer, -h, ADD_VALUES) );
-        }
+        PetscVecTools::AddToElement(current_guess_copy, global_index_outer, -h);
     }
 
     VecDestroy(residual);

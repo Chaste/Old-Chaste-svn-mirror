@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractBidomainSolver.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscMatTools.hpp"
+#include "PetscVecTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
@@ -399,20 +400,18 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool compute
     {
         if (HeartRegionCode::IsRegionBath((*iter).GetRegion() ))
         {
-            PetscInt index[1];
-            index[0] = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved
+            PetscInt index = 2*iter->GetIndex(); // assumes Vm and Phie are interleaved
 
             if(computeMatrix)
             {
                 // put 1.0 on the diagonal
-                Mat& r_matrix = this->mpLinearSystem->rGetLhsMatrix();
-                MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
+                PetscMatTools::SetElement(this->mpLinearSystem->rGetLhsMatrix(), index, index, 1.0);
             }
 
             if(computeVector)
             {
                 // zero rhs vector entry
-                VecSetValue(this->mpLinearSystem->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
+                PetscVecTools::SetElement(this->mpLinearSystem->rGetRhsVector(), index, 0.0);
             }
         }
     }

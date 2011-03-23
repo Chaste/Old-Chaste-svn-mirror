@@ -268,7 +268,7 @@ public:
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes());
         for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
         {
-            VecSetValue(initial_guess, global_index, (1.5-0.15*global_index), INSERT_VALUES);
+            PetscVecTools::SetElement(initial_guess, global_index, 1.5-0.15*global_index);
         }
         PetscVecTools::Assemble(initial_guess);
 
@@ -363,7 +363,7 @@ public:
         for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
         {
             x1=0.1*(double)(global_index);
-            VecSetValue(initial_guess, global_index, 0.35*(1-x1*x1), INSERT_VALUES);
+            PetscVecTools::SetElement(initial_guess, global_index, 0.35*(1-x1*x1));
         }
         PetscVecTools::Assemble(initial_guess);
 
