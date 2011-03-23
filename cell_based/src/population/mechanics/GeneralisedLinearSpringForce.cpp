@@ -256,7 +256,7 @@ void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParam
 	*rParamsFile << "\t\t\t<MeinekeDivisionRestingSpringLength>" << mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n";
 	*rParamsFile << "\t\t\t<MeinekeSpringGrowthDuration>" << mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);
 }
 

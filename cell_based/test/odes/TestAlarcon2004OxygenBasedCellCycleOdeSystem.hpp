@@ -162,7 +162,7 @@ public:
         solutions = rk4_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
+        std::cout << "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
 
         // Reset maximum tolerance for Runge Kutta Fehlber solver
         h_value = 1e-1;
@@ -173,7 +173,7 @@ public:
         solutions = rkf_solver.Solve(&alarcon_system, initial_conditions, 0.0, 10.0, h_value, 1e-4);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
+        std::cout << "2. Runge-Kutta-Fehlberg Elapsed time = " << elapsed_time << "\n";
 
         // Test that solutions are accurate for a small time increase
         int end = solutions.rGetSolutions().size() - 1;

@@ -43,15 +43,15 @@ void AbstractForce<DIM>::OutputForceInfo(out_stream& rParamsFile)
 {
 	std::string force_type = GetIdentifier();
 
-    *rParamsFile <<  "\t\t<" << force_type << ">" "\n";
+    *rParamsFile << "\t\t<" << force_type << ">\n";
     OutputForceParameters(rParamsFile);
-    *rParamsFile <<  "\t\t</" << force_type << ">" "\n";
+    *rParamsFile << "\t\t</" << force_type << ">\n";
 }
 
 template<unsigned DIM>
 void AbstractForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-    // No parameters to ouput
+    // No parameters to output
 }
 
 /////////////////////////////////////////////////////////////////////////////

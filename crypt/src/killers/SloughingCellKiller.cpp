@@ -115,11 +115,9 @@ void SloughingCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFil
     *rParamsFile << "\t\t\t<SloughSides>" << mSloughSides << "</SloughSides> \n";
     *rParamsFile << "\t\t\t<SloughWidth>" << mSloughWidth << "</SloughWidth> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -128,7 +126,6 @@ void SloughingCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFil
 template class SloughingCellKiller<1>;
 template class SloughingCellKiller<2>;
 template class SloughingCellKiller<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

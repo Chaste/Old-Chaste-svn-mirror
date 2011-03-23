@@ -50,15 +50,15 @@ void AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryC
 {
 	std::string cell_killer_type = GetIdentifier();
 
-    *rParamsFile <<  "\t\t<" << cell_killer_type << ">" "\n";
+    *rParamsFile << "\t\t<" << cell_killer_type << ">\n";
     OutputCellPopulationBoundaryConditionParameters(rParamsFile);
-    *rParamsFile <<  "\t\t</" << cell_killer_type << ">" "\n";
+    *rParamsFile << "\t\t</" << cell_killer_type << ">\n";
 }
 
 template<unsigned DIM>
 void AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
 {
-    // No parameters to ouput
+    // No parameters to output
 }
 
 /////////////////////////////////////////////////////////////////////////////

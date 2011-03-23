@@ -50,15 +50,15 @@ void AbstractCellKiller<DIM>::OutputCellKillerInfo(out_stream& rParamsFile)
 {
 	std::string cell_killer_type = GetIdentifier();
 
-    *rParamsFile <<  "\t\t<" << cell_killer_type << ">" "\n";
+    *rParamsFile << "\t\t<" << cell_killer_type << ">\n";
     OutputCellKillerParameters(rParamsFile);
-    *rParamsFile <<  "\t\t</" << cell_killer_type << ">" "\n";
+    *rParamsFile << "\t\t</" << cell_killer_type << ">\n";
 }
 
 template<unsigned DIM>
 void AbstractCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 {
-    // No parameters to ouput
+    // No parameters to output
 }
 
 /////////////////////////////////////////////////////////////////////////////

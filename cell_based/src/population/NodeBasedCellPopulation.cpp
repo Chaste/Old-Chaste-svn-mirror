@@ -353,11 +353,11 @@ std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedCellPopulation<DIM>::rG
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<MechanicsCutOffLength>"<< mMechanicsCutOffLength << "</MechanicsCutOffLength>\n";
+    *rParamsFile << "\t\t<MechanicsCutOffLength>" << mMechanicsCutOffLength << "</MechanicsCutOffLength>\n";
 
     // Currently no specific parameters to output all come from parent classes
 
-	// Call direct parent class method
+	// Call method on direct parent class
 	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
@@ -390,7 +390,6 @@ template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
-    
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
     VtkMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results_"+time.str(), false);

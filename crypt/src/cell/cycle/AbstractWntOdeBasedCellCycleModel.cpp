@@ -120,9 +120,9 @@ bool AbstractWntOdeBasedCellCycleModel::CanCellTerminallyDifferentiate()
 
 void AbstractWntOdeBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    // No new parameters to output.
+    // No new parameters to output
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 

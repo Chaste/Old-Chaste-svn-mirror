@@ -282,12 +282,12 @@ void SimpleWntCellCycleModel::SetWntLabelledThreshold(double wntLabelledThreshol
 
 void SimpleWntCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t\t\t<UseCellProliferativeTypeDependentG1Duration>"<< mUseCellProliferativeTypeDependentG1Duration << "</UseCellProliferativeTypeDependentG1Duration>\n";
-    *rParamsFile <<  "\t\t\t<WntStemThreshold>"<< mWntStemThreshold << "</WntStemThreshold>\n";
-    *rParamsFile <<  "\t\t\t<WntTransitThreshold>"<< mWntTransitThreshold << "</WntTransitThreshold>\n";
-    *rParamsFile <<  "\t\t\t<WntLabelledThreshold>"<< mWntLabelledThreshold << "</WntLabelledThreshold>\n";
+    *rParamsFile << "\t\t\t<UseCellProliferativeTypeDependentG1Duration>" << mUseCellProliferativeTypeDependentG1Duration << "</UseCellProliferativeTypeDependentG1Duration>\n";
+    *rParamsFile << "\t\t\t<WntStemThreshold>" << mWntStemThreshold << "</WntStemThreshold>\n";
+    *rParamsFile << "\t\t\t<WntTransitThreshold>" << mWntTransitThreshold << "</WntTransitThreshold>\n";
+    *rParamsFile << "\t\t\t<WntLabelledThreshold>" << mWntLabelledThreshold << "</WntLabelledThreshold>\n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 

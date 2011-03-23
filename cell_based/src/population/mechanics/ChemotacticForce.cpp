@@ -85,7 +85,7 @@ void ChemotacticForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
     // No parameters to include
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 

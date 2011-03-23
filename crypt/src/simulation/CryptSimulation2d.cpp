@@ -287,8 +287,8 @@ void CryptSimulation2d::SetBottomCellAncestors()
 
 void CryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>"<< mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
-	*rParamsFile << "\t\t<UseJiggledBottomCells>"<< mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
+    *rParamsFile << "\t\t<CryptCircumference>" << mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
+	*rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
 	// Call method on direct parent class
 	CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);

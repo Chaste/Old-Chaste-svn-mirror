@@ -145,11 +145,9 @@ void CryptSimulation1d::OutputSimulationParameters(out_stream& rParamsFile)
 {
 	// No parameters to output
 
-	// Call direct parent class
+	// Call method on direct parent class
 	CellBasedSimulation<1>::OutputSimulationParameters(rParamsFile);
 }
-
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

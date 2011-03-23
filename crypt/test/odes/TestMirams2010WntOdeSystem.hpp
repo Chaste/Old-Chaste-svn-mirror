@@ -73,7 +73,7 @@ public:
         solutions = cvode_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
+        std::cout << "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
 
         // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
@@ -107,7 +107,7 @@ public:
         solutions = cvode_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
+        std::cout << "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
 
         // Test solutions are OK for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
@@ -142,7 +142,7 @@ public:
         solutions = cvode_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
+        std::cout << "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
 
         // Test solutions are OK for a small time increase
         int end = solutions.rGetSolutions().size() - 1;

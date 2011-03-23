@@ -75,16 +75,16 @@ void RegionBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsF
     {
         *rParamsFile << mPointOnPlane[0] << ",";
     }
-    *rParamsFile << mPointOnPlane[DIM-1] <<  "</PointOnPlane> \n";
+    *rParamsFile << mPointOnPlane[DIM-1] << "</PointOnPlane> \n";
 
     *rParamsFile << "\t\t\t<NormalToPlane>";
      for (unsigned index=0; index != DIM-1U; index++) //Note: inequality avoids testing index < 0U when DIM=1
      {
          *rParamsFile << mNormalToPlane[0] << ",";
      }
-     *rParamsFile << mNormalToPlane[DIM-1] <<  "</NormalToPlane> \n";
+     *rParamsFile << mNormalToPlane[DIM-1] << "</NormalToPlane> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
 

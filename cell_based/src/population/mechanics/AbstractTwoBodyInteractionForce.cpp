@@ -137,7 +137,7 @@ void AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(out_stream& rPa
 	*rParamsFile << "\t\t\t<UseCutOffLength>" << mUseCutOffLength << "</UseCutOffLength> \n";
 	*rParamsFile << "\t\t\t<CutOffLength>" << mMechanicsCutOffLength << "</CutOffLength> \n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 

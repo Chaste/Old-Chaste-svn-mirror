@@ -225,11 +225,11 @@ void SimpleOxygenBasedCellCycleModel::SetCurrentHypoxiaOnsetTime(double currentH
 
 void SimpleOxygenBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t\t\t<HypoxicConcentration>"<< mHypoxicConcentration << "</HypoxicConcentration>\n";
-    *rParamsFile <<  "\t\t\t<QuiescentConcentration>"<< mQuiescentConcentration << "</QuiescentConcentration>\n";
-    *rParamsFile <<  "\t\t\t<CriticalHypoxicDuration>"<< mCriticalHypoxicDuration << "</CriticalHypoxicDuration>\n";
+    *rParamsFile << "\t\t\t<HypoxicConcentration>" << mHypoxicConcentration << "</HypoxicConcentration>\n";
+    *rParamsFile << "\t\t\t<QuiescentConcentration>" << mQuiescentConcentration << "</QuiescentConcentration>\n";
+    *rParamsFile << "\t\t\t<CriticalHypoxicDuration>" << mCriticalHypoxicDuration << "</CriticalHypoxicDuration>\n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 

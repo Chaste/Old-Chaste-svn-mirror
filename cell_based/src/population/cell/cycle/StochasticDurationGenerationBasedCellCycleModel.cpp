@@ -69,9 +69,9 @@ void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
 
 void StochasticDurationGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    // No new parameters to output.
+    // No new parameters to output
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractSimpleGenerationBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 

@@ -103,7 +103,7 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
                 if (mpOdeSystem->rGetStateVariables()[i] < -DBL_EPSILON)
                 {
                     #define COVERAGE_IGNORE
-                    std::cout << "Protein["<< i <<"] = "<< mpOdeSystem->rGetStateVariables()[i] << "\n";
+                    std::cout << "Protein[" << i << "] = " << mpOdeSystem->rGetStateVariables()[i] << "\n";
                     EXCEPTION("A protein concentration has gone negative\nChaste predicts that the CellCycleModel numerical method is probably unstable.");
                     #undef COVERAGE_IGNORE
                 }
@@ -176,8 +176,8 @@ void AbstractOdeBasedCellCycleModel::SetG2PhaseStartTime(double g2PhaseStartTime
 
 void AbstractOdeBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    // No new parameters to output.
+    // No new parameters to output
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }

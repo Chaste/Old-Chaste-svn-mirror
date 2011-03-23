@@ -67,10 +67,9 @@ void RadialSloughingCellKiller::OutputCellKillerParameters(out_stream& rParamsFi
     *rParamsFile << "\t\t\t<yCentre>" << mCentre[1] << "</yCentre> \n";
     *rParamsFile << "\t\t\t<mRadius>" << mRadius << "</mRadius> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

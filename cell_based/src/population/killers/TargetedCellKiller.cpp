@@ -64,10 +64,9 @@ void TargetedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile
     *rParamsFile << "\t\t\t<TargetIndex>" << mTargetIndex << "</TargetIndex> \n";
     *rParamsFile << "\t\t\t<BloodLust>" << mBloodLust << "</BloodLust> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -76,7 +75,6 @@ void TargetedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile
 template class TargetedCellKiller<1>;
 template class TargetedCellKiller<2>;
 template class TargetedCellKiller<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

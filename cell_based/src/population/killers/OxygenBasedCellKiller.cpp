@@ -59,7 +59,7 @@ void OxygenBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsF
 {
     // No parameters to output
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
 

@@ -697,10 +697,9 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     std::string simulation_type = GetIdentifier();
 
     *parameter_file << "<Chaste>\n";
-    *parameter_file <<  "\n\t<" << simulation_type << ">\n";
+    *parameter_file << "\n\t<" << simulation_type << ">\n";
 	OutputSimulationParameters(parameter_file);
     *parameter_file << "\t</" << simulation_type << ">\n";
-
     *parameter_file << "\n";
 
     // Output cell population details (includes cell-cycle model details)

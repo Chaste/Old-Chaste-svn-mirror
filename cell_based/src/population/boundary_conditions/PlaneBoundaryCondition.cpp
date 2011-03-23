@@ -132,7 +132,7 @@ void PlaneBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameter
      }
      *rParamsFile << mNormalToPlane[DIM-1] << "</NormalToPlane> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
 }
 

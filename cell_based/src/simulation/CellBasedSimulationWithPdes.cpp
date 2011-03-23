@@ -693,23 +693,20 @@ void CellBasedSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t<WriteAverageRadialPdeSolution>"<< mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
-	*rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>"<< mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
+	*rParamsFile << "\t\t<WriteAverageRadialPdeSolution>" << mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
+	*rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>" << mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
 
-	// Call direct parent class
+	// Call method on direct parent class
 	CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-
 template class CellBasedSimulationWithPdes<1>;
 template class CellBasedSimulationWithPdes<2>;
 template class CellBasedSimulationWithPdes<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

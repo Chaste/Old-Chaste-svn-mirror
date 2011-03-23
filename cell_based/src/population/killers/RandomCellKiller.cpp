@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "RandomCellKiller.hpp"
 
-
 template<unsigned DIM>
 RandomCellKiller<DIM>::RandomCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, double probabilityOfDeathInAnHour)
         : AbstractCellKiller<DIM>(pCellPopulation),
@@ -74,10 +73,9 @@ void RandomCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<ProbabilityOfDeathInAnHour>" << mProbabilityOfDeathInAnHour << "</ProbabilityOfDeathInAnHour> \n";
 
-    // Call direct parent class
+    // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -86,7 +84,6 @@ void RandomCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 template class RandomCellKiller<1>;
 template class RandomCellKiller<2>;
 template class RandomCellKiller<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

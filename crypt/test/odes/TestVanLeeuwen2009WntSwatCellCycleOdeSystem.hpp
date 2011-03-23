@@ -417,7 +417,7 @@ public:
         solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         end_time = std::clock();
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
+        std::cout << "1. Runge-Kutta Elapsed time = " << elapsed_time << "\n";
 
         // Test solutions are correct for a small time increase
         int end = solutions.rGetSolutions().size() - 1;

@@ -233,17 +233,17 @@ void AbstractCellCycleModel::OutputCellCycleModelInfo(out_stream& rParamsFile)
 {
     std::string cell_cycle_model_type = GetIdentifier();
 
-    *rParamsFile <<  "\t\t<" << cell_cycle_model_type << ">" "\n";
+    *rParamsFile << "\t\t<" << cell_cycle_model_type << ">\n";
     OutputCellCycleModelParameters(rParamsFile);
-    *rParamsFile <<  "\t\t</" << cell_cycle_model_type << ">" "\n";
+    *rParamsFile << "\t\t</" << cell_cycle_model_type << ">\n";
 }
 
 void AbstractCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t\t\t<StemCellG1Duration>"<< mStemCellG1Duration << "</StemCellG1Duration>\n";
-    *rParamsFile <<  "\t\t\t<TransitCellG1Duration>"<< mTransitCellG1Duration << "</TransitCellG1Duration>\n";
-    *rParamsFile <<  "\t\t\t<SDuration>"<< mSDuration << "</SDuration>\n";
-    *rParamsFile <<  "\t\t\t<G2Duration>"<< mG2Duration << "</G2Duration>\n";
-    *rParamsFile <<  "\t\t\t<MDuration>"<< mMDuration << "</MDuration>\n";
+    *rParamsFile << "\t\t\t<StemCellG1Duration>" << mStemCellG1Duration << "</StemCellG1Duration>\n";
+    *rParamsFile << "\t\t\t<TransitCellG1Duration>" << mTransitCellG1Duration << "</TransitCellG1Duration>\n";
+    *rParamsFile << "\t\t\t<SDuration>" << mSDuration << "</SDuration>\n";
+    *rParamsFile << "\t\t\t<G2Duration>" << mG2Duration << "</G2Duration>\n";
+    *rParamsFile << "\t\t\t<MDuration>" << mMDuration << "</MDuration>\n";
 }
 

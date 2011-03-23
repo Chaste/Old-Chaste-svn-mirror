@@ -102,7 +102,7 @@ public:
         end_time = std::clock();
 
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
-        std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
+        std::cout << "1. Elapsed time = " << elapsed_time << "\n";
 
         // If you run it up to about 75min the ODE will stop, anything less and it will not and this test will fail
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccurred(), true);
@@ -119,7 +119,7 @@ public:
 //        out_stream file=handler.OpenOutputFile("tyson_novak.dat");
 //        for (unsigned i=0; i<=end; i++)
 //        {
-//            (*file) << solutions.rGetTimes()[i]<< "\t" << solutions.rGetSolutions()[i][0] << "\t" << solutions.rGetSolutions()[i][1] <<"\t"<< solutions.rGetSolutions()[i][2] << "\t" << solutions.rGetSolutions()[i][3] <<"\t"<< solutions.rGetSolutions()[i][4] << "\t" << solutions.rGetSolutions()[i][5] << "\n" << std::flush;
+//            (*file) << solutions.rGetTimes()[i]<< "\t" << solutions.rGetSolutions()[i][0] << "\t" << solutions.rGetSolutions()[i][1] << "\t" << solutions.rGetSolutions()[i][2] << "\t" << solutions.rGetSolutions()[i][3] << "\t" << solutions.rGetSolutions()[i][4] << "\t" << solutions.rGetSolutions()[i][5] << "\n" << std::flush;
 //        }
 //        file->close();
 

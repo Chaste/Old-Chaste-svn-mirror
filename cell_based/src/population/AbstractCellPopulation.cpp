@@ -637,12 +637,10 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
 {
     std::string cell_population_type = GetIdentifier();
 
-    *rParamsFile <<  "\t<" << cell_population_type << ">" "\n";
+    *rParamsFile << "\t<" << cell_population_type << ">\n";
     OutputCellPopulationParameters(rParamsFile);
-    *rParamsFile <<  "\t</" << cell_population_type << ">" "\n";
-
-    *rParamsFile <<  "\n";
-
+    *rParamsFile << "\t</" << cell_population_type << ">\n";
+    *rParamsFile << "\n";
     *rParamsFile << "\t<CellCycleModels>\n";
 
     /**
