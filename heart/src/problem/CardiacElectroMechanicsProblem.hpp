@@ -288,6 +288,16 @@ public :
 //// #1245
 //    void SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion);
 
+
+    /**
+     *  Get the mechanics solver. Needs to be called after Initialise()
+     */
+    AbstractCardiacMechanicsSolver<DIM>* GetCardiacMechanicsSolver()
+    {
+        assert(mpCardiacMechSolver);
+        return mpCardiacMechSolver;
+    }
+
 };
 
 

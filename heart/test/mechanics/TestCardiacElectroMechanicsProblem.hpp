@@ -83,6 +83,9 @@ public:
         //TS_ASSERT_THROWS_THIS(problem2.Initialise(), "");
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
+        
+        // coverage
+        TS_ASSERT( problem.GetCardiacMechanicsSolver()!=NULL );
     }
 
 
