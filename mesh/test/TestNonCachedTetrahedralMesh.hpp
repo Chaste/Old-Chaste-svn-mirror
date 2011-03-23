@@ -53,7 +53,7 @@ private:
             std::stringstream ps_command;
             // Option "-o vsize=" makes ps report process virtual size. "=" after "vsize" prints no column header.
             ps_command << "ps -o vsize= " << getpid() << " > " << file_name;
-            EXPECT0(system, ps_command.str().c_str());
+            MPIABORTIFNON0(system, ps_command.str().c_str());
         }
         PetscTools::Barrier("GetMemoryUsage-1");
 
@@ -67,7 +67,7 @@ private:
         if (PetscTools::AmMaster())
         {
             std::string rm_command = "rm -rf " + file_name;
-            EXPECT0(system, rm_command.c_str());
+            MPIABORTIFNON0(system, rm_command.c_str());
         }
 
         return vsize;

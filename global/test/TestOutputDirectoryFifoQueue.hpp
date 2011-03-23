@@ -45,7 +45,7 @@ public:
         // Remove directory in case it was there from previous executions.
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
+            MPIABORTIFNON0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
         }
         PetscTools::Barrier();
         EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
@@ -67,7 +67,7 @@ public:
         OutputFileHandler handler("");
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
+            MPIABORTIFNON0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
         }
         PetscTools::Barrier();
         EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");

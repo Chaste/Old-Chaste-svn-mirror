@@ -335,8 +335,8 @@ public:
         OutputFileHandler h2("SaveBidomainShort_0.2ms");
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "cp " + source_directory + "SaveBidomainShort/* " + h1.GetOutputDirectoryFullPath());
-            EXPECT0(system, "cp " + source_directory + "SaveBidomainShort_0.2ms/* " + h2.GetOutputDirectoryFullPath());
+            MPIABORTIFNON0(system, "cp " + source_directory + "SaveBidomainShort/* " + h1.GetOutputDirectoryFullPath());
+            MPIABORTIFNON0(system, "cp " + source_directory + "SaveBidomainShort_0.2ms/* " + h2.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationResumeMigration");
 
@@ -433,7 +433,7 @@ public:
         {
             // Copy CellML file into output dir
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+            MPIABORTIFNON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationPatchwork");
 
@@ -504,7 +504,7 @@ public:
         {
             // Copy CellML file into output dir
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler_cvode.GetOutputDirectoryFullPath());
+            MPIABORTIFNON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler_cvode.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestExceptions");
         std::vector<std::string> args;

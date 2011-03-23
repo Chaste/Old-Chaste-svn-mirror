@@ -226,7 +226,7 @@ public:
         if (PetscTools::AmMaster())
         {
             archive_path = handler.GetOutputDirectoryFullPath() + archive_base_name;
-            EXPECT0(system, "rm -f " + archive_path);
+            MPIABORTIFNON0(system, "rm -f " + archive_path);
         }
         PetscTools::Barrier("TestArchiveOpenerExceptions-2");
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),

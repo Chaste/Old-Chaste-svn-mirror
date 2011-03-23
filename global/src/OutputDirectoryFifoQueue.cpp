@@ -53,7 +53,7 @@ std::string OutputDirectoryFifoQueue::CreateNextDir(const std::string& rSubdirec
         std::string directory_to_remove =  OutputFileHandler::GetChasteTestOutputDirectory() + mBaseDirectory + "/" + mQueue.front();
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf "+directory_to_remove);
+            MPIABORTIFNON0(system, "rm -rf "+directory_to_remove);
         }
         PetscTools::Barrier("OutputDirectoryFifoQueue::CreateNextDir");
 

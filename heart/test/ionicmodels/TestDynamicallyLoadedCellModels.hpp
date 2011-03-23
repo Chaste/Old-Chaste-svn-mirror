@@ -282,7 +282,7 @@ public:
         if (PetscTools::AmMaster())
         {
             // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
-            EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+            MPIABORTIFNON0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
         }
         PetscTools::Barrier("TestCellmlConverter_rm");
         TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file, false),
@@ -294,7 +294,7 @@ public:
         chmod(cellml_file.GetAbsolutePath().c_str(), 0);
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+            MPIABORTIFNON0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
         }
         PetscTools::Barrier("TestCellmlConverter_rm2");
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
@@ -311,7 +311,7 @@ public:
         if (PetscTools::AmMaster())
         {
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+            MPIABORTIFNON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestArchiving_cp");
 
