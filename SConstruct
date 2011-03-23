@@ -97,7 +97,7 @@ Export('use_chaste_libs')
 test_summary = int(ARGUMENTS.get('test_summary', 1))
 
 # Used by the automated build system
-run_infrastructure_tests = int(ARGUMENTS.get('do_inf_tests', 1))
+run_infrastructure_tests = int(ARGUMENTS.get('do_inf_tests', getattr(hostconfig.conf, 'do_inf_tests', 0)))
 check_failing_tests = int(ARGUMENTS.get('check_failing_tests', 0))
 
 # Specifying extra run-time flags
