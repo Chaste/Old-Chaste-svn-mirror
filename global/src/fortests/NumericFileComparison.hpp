@@ -105,11 +105,11 @@ public:
 
         for (unsigned line_number=0; line_number<ignoreFirstFewLines; line_number++)
         {
-            char buffer[256];
-            mpFile1->getline(buffer, 256);
-            mpFile2->getline(buffer, 256);
+            char buffer[1024];
+            mpFile1->getline(buffer, 1024);
+            mpFile2->getline(buffer, 1024);
             TS_ASSERT(!mpFile1->fail()); //Here we are assuming that there a least "ignoreFirstFewLines" lines
-            TS_ASSERT(!mpFile2->fail()); // and that they are lines of no more than 256 characters
+            TS_ASSERT(!mpFile2->fail()); // and that they are lines of no more than 1024 characters
         }
 
         do
