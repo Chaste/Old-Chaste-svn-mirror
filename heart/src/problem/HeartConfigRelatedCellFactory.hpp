@@ -50,17 +50,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * included here for serialization to work - the archiving code needs to see
  * the CHASTE_CLASS_EXPORT incantations.
  */
-#include "FoxModel2002BackwardEuler.hpp"
-#include "LuoRudy1991.hpp"
-#include "LuoRudy1991BackwardEuler.hpp"
+#include "DiFrancescoNoble1985.hpp"
 #include "FaberRudy2000.hpp"
 #include "FaberRudy2000Opt.hpp"
-#include "DiFrancescoNoble1985.hpp"
-#include "Mahajan2008.hpp"
-#include "TenTusscher2006Epi.hpp"
+#include "FoxModel2002BackwardEuler.hpp"
 #include "HodgkinHuxley1952.hpp"
+#include "LuoRudy1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
+#include "Mahajan2008.hpp"
 #include "Maleckar2008.hpp"
+#include "TenTusscher2006Epi.hpp"
 
+/*
+ * The following cell models aren't used by this class, but do exist in Chaste.
+ * So users of the source code could see issues with archiving if they aren't included.
+ */
+#include "FoxModel2002.hpp"
+#include "FoxModel2002Opt.hpp"
+#include "LuoRudy1991Opt.hpp"
+#include "Mahajan2008Opt.hpp"
+#include "Mahajan2008BackwardEuler.hpp"
+#include "Maleckar2008Opt.hpp"
+#include "NobleVargheseKohlNoble1998a.hpp"
+#include "NobleVargheseKohlNoble1998aOpt.hpp"
+#include "NobleVargheseKohlNoble1998aBackwardEuler.hpp"
+#include "Shannon2004.hpp"
+#include "TenTusscher2006EpiOpt.hpp"
+#include "TenTusscher2006EpiBackwardEuler.hpp"
 
 /**
  * This is a cardiac cell factory which uses the settings from HeartConfig to set up the cells.

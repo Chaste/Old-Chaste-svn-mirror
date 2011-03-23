@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <vector>
 
-#include "CheckpointArchiveTypes.hpp"
 #include "CardiacSimulationArchiver.hpp"
 #include "MonodomainProblem.hpp"
 #include "TetrahedralMesh.hpp"

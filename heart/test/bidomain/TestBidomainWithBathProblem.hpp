@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainWithBathProblem.hpp"
 
 #include "LuoRudy1991.hpp"
+#include "TenTusscher2006EpiBackwardEuler.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
@@ -806,7 +807,7 @@ public:
             HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
 
             // need to create a cell factory but don't want any intra stim.
-            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+            ZeroStimulusCellFactory<CellTenTusscher2006EpiFromCellMLBackwardEuler, 2> cell_factory;
 
             BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
