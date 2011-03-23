@@ -44,6 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>
 {
+
+    friend class TestTrianglesMeshReader;//for testing
+
 private:
 
     bool mIndexFromZero;            /**< True if input data is numbered from zero, false otherwise */
@@ -75,6 +78,7 @@ private:
     std::vector<unsigned> mOneDimBoundary; /**<Indices of nodes which are at the boundary of a 1D mesh*/
 
     unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node. */
+    std::vector<double> mNodeAttributes; /**<Will contain the nodal attributes at each node. Cleared and re-filled at each node*/
     unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker. */
     unsigned mNumElementNodes;      /**< Is the number of nodes per element. */
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element. */
@@ -185,6 +189,11 @@ public:
     }
 
     /**
+     * @return the vector of node attributes
+     */
+    std::vector<double>& rGetNodeAattributes();
+
+    /**
      *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
      *
      * @param index  The global node index
@@ -280,11 +289,11 @@ private:
      * @param expectedItemNumber  To check file syntax, what item is expected to be on the next line.
      * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
      * @param rNumAttributes  The number of attributes per item that we expect to read. Either #mNumFaceAttributes or #mNumElementAttributes.
-     * @param rAttribute  Will be given the attribute value if rNumAttributes > 0, otherwise UNSET.
+     * @param rAttributes  Will be filled with the attribute values if rNumAttributes > 0, otherwise empty
      */
     template<class T>
     void GetNextItemFromStream(std::ifstream& rFileStream, unsigned expectedItemNumber,
-                               std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute);
+                               std::vector<T>& rDataPacket, const unsigned& rNumAttributes, std::vector<T>& rAttributes);
 
     /** Get method for mFilesBaseName. */
     std::string GetMeshFileBaseName();
