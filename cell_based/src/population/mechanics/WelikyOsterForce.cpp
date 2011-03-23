@@ -47,6 +47,12 @@ void WelikyOsterForce<DIM>::AddForceContribution(std::vector<c_vector<double, DI
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     assert(DIM == 2); // this method only works in 2D at present
 
+    // Throw an exception message if not using a VertexBasedCellPopulation
+    if (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation) == NULL)
+    {
+        EXCEPTION("WelikyOsterForce is to be used with a VertexBasedCellPopulation only");
+    }
+
     // Helper variable that is a static cast of the cell population
     VertexBasedCellPopulation<DIM>* p_cell_population = static_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation);
 

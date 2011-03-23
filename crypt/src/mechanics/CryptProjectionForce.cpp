@@ -107,7 +107,6 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(const c_vect
 
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractCellPopulation<2>& rCellPopulation)
 {
-    assert(rCellPopulation.IsMeshBasedCellPopulation());
     MeshBasedCellPopulation<2>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<2>*>(&rCellPopulation);
 
     // We should only ever calculate the force between two distinct nodes
@@ -247,7 +246,12 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
     // First work out the 3D location of each cell
     UpdateNode3dLocationMap(rCellPopulation);
 
-    assert(rCellPopulation.IsMeshBasedCellPopulation());
+    // Throw an exception message if not using a MeshBasedCellPopulation
+    if (dynamic_cast<MeshBasedCellPopulation<2>*>(&rCellPopulation) == NULL)
+    {
+        EXCEPTION("CryptProjectionForce is to be used with a subclass of MeshBasedCellPopulation only");
+    }
+
     MeshBasedCellPopulation<2>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<2>*>(&rCellPopulation);
 
     for (MeshBasedCellPopulation<2>::SpringIterator spring_iterator = p_static_cast_cell_population->SpringsBegin();

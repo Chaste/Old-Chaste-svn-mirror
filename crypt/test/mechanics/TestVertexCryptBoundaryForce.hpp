@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
+#include "CellsGenerator.hpp"
+#include "NodeBasedCellPopulation.hpp"
 #include "VertexCryptBoundaryForce.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
@@ -121,6 +123,37 @@ public:
 			}
 		}
 	}
+
+    void TestVertexCryptBoundaryForceForceWithNonVertexCellPopulation() throw (Exception)
+    {
+        // Create a NodeBasedCellPopulation
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 10;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double x = (double)(i);
+            double y = (double)(i);
+            nodes.push_back(new Node<2>(i, true, x, y));
+        }
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, num_nodes);
+
+        NodeBasedCellPopulation<2> non_vertex_cell_population(nodes, cells);
+
+        // Create a vector forces on nodes
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(num_nodes);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+
+        // Test that VertexCryptBoundaryForce throws the correct exception
+        VertexCryptBoundaryForce<2> force(100);
+        TS_ASSERT_THROWS_THIS(force.AddForceContribution(node_forces, non_vertex_cell_population),
+                "VertexCryptBoundaryForce is to be used with VertexBasedCellPopulations only");
+    }
 };
 
 #endif /*TESTVERTEXCRYPTBOUNDARYFORCE_HPP_*/

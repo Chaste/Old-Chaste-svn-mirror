@@ -50,6 +50,12 @@ void VertexCryptBoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<do
     // Helper variable that is a static cast of the cell population
     VertexBasedCellPopulation<DIM>* p_cell_population = static_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation);
 
+    // Throw an exception message if not using a VertexBasedCellPopulation
+    if (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation) == NULL)
+    {
+        EXCEPTION("VertexCryptBoundaryForce is to be used with VertexBasedCellPopulations only");
+    }
+
     // Iterate over nodes
     for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = p_cell_population->rGetMesh().GetNodeIteratorBegin();
          node_iter != p_cell_population->rGetMesh().GetNodeIteratorEnd();

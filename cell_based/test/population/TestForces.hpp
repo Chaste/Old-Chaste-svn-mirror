@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "NodeBasedCellPopulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "ChemotacticForce.hpp"
@@ -1123,6 +1124,85 @@ public:
             // Tidy up
             delete p_force;
         }
+    }
+
+    void TestCentreBasedForcesWithVertexCellPopulation() throw (Exception)
+    {
+        // Construct simple vertex mesh
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 20;
+        std::vector<double> angles = std::vector<double>(num_nodes);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            angles[i] = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
+            nodes.push_back(new Node<2>(i, true, cos(angles[i]), sin(angles[i])));
+        }
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        MutableVertexMesh<2,2> mesh(nodes, elements, 0.01, 2.0);
+
+        // Create cell
+        std::vector<CellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_model->SetCellProliferativeType(DIFFERENTIATED);
+        CellPtr p_cell(new Cell(p_state, p_model));
+        p_cell->SetBirthTime(-1.0);
+        cells.push_back(p_cell);
+
+        // Create VertexBasedCellPopulation
+        VertexBasedCellPopulation<2> cell_population(mesh, cells);
+        cell_population.InitialiseCells();
+
+        // Create a vector forces on nodes
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(num_nodes);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+
+        // Test that a subclass of AbstractTwoBodyInteractionForce throws the correct exception
+        GeneralisedLinearSpringForce<2> spring_force;
+        TS_ASSERT_THROWS_THIS(spring_force.AddForceContribution(node_forces, cell_population),
+                "Subclasses of AbstractTwoBodyInteractionForce are to be used with subclasses of AbstractCentreBasedCellPopulation only");
+    }
+
+    void TestIncorrectForcesWithNodeBasedCellPopulation() throw (Exception)
+    {
+        // Create a NodeBasedCellPopulation
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 10;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double x = (double)(i);
+            double y = (double)(i);
+            nodes.push_back(new Node<2>(i, true, x, y));
+        }
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, num_nodes);
+
+        NodeBasedCellPopulation<2> cell_population(nodes, cells);
+
+        // Create a vector forces on nodes
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(num_nodes);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+
+        // Test that NagaiHondaForce throws the correct exception
+        NagaiHondaForce<2> nagai_honda_force;
+        TS_ASSERT_THROWS_THIS(nagai_honda_force.AddForceContribution(node_forces, cell_population),
+                "NagaiHondaForce is to be used with a VertexBasedCellPopulation only");
+
+        // Test that WelikyOsterForce throws the correct exception
+        WelikyOsterForce<2> weliky_oster_force;
+        TS_ASSERT_THROWS_THIS(weliky_oster_force.AddForceContribution(node_forces, cell_population),
+                "WelikyOsterForce is to be used with a VertexBasedCellPopulation only");
     }
 };
 

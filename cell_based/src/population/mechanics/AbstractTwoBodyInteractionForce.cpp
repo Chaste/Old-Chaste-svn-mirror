@@ -48,7 +48,7 @@ void AbstractTwoBodyInteractionForce<DIM>::SetCutOffLength(double cutOffLength)
 {
     assert(cutOffLength > 0.0);
     mUseCutOffLength = true;
-    mMechanicsCutOffLength=cutOffLength;
+    mMechanicsCutOffLength = cutOffLength;
 }
 
 
@@ -63,14 +63,20 @@ template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                                 AbstractCellPopulation<DIM>& rCellPopulation)
 {
+    // Throw an exception message if not using a subclass of AbstractCentreBasedCellPopulation
+    if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation) == NULL)
+    {
+        EXCEPTION("Subclasses of AbstractTwoBodyInteractionForce are to be used with subclasses of AbstractCentreBasedCellPopulation only");
+    }
+
     if (rCellPopulation.IsMeshBasedCellPopulation())
     {
         MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
         // Iterate over all springs and add force contributions
         for (typename MeshBasedCellPopulation<DIM>::SpringIterator spring_iterator = p_static_cast_cell_population->SpringsBegin();
-            spring_iterator != p_static_cast_cell_population->SpringsEnd();
-            ++spring_iterator)
+             spring_iterator != p_static_cast_cell_population->SpringsEnd();
+             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();

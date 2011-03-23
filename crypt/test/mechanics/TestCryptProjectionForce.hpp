@@ -520,6 +520,36 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + projection_force_results_dir + "projection_results.parameters crypt/test/data/TestForcesForCrypt/projection_results.parameters").c_str()), 0);
     }
 
+    void TestCryptProjectionForceWithNodeBasedCellPopulation() throw (Exception)
+    {
+        // Create a NodeBasedCellPopulation
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 10;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double x = (double)(i);
+            double y = (double)(i);
+            nodes.push_back(new Node<2>(i, true, x, y));
+        }
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, num_nodes);
+
+        NodeBasedCellPopulation<2> cell_population(nodes, cells);
+
+        // Create a vector forces on nodes
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(num_nodes);
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+
+        // Test that CryptProjectionForce throws the correct exception
+        CryptProjectionForce proj_force;
+        TS_ASSERT_THROWS_THIS(proj_force.AddForceContribution(node_forces, cell_population),
+                "CryptProjectionForce is to be used with a subclass of MeshBasedCellPopulation only");
+    }
 };
 
 #endif /*TESTCRYPTPROJECTIONFORCE_HPP_*/
