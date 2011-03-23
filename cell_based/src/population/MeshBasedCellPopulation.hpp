@@ -82,6 +82,7 @@ private:
         archive & mAreaBasedDampingConstantParameter;
         archive & mOutputVoronoiData;
         archive & mOutputCellPopulationVolumes;
+        archive & mWriteVtkAsPoints;
 
         this->Validate();
     }
@@ -146,6 +147,9 @@ protected:
 
     /** Whether to write the cell population volumes (in 3D) or areas (in 2D)  to file. */
     bool mOutputCellPopulationVolumes;
+
+    /** Whether to write cells as points in VTK. */
+    bool mWriteVtkAsPoints;
 
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
@@ -547,6 +551,18 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputCellPopulationParameters(out_stream& rParamsFile);
+
+    /**
+     * Set mWriteVtkAsPoints.
+     * 
+     * @param writeVtkAsPoints whether to write cells as points in VTK
+     */
+    void SetWriteVtkAsPoints(bool writeVtkAsPoints);
+
+    /**
+     * @return mWriteVtkAsPoints.
+     */
+    bool GetWriteVtkAsPoints();
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 

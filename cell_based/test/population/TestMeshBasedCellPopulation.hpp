@@ -612,12 +612,15 @@ public:
         // Test set/get methods
         TS_ASSERT_EQUALS(cell_population.GetOutputVoronoiData(), false);
         TS_ASSERT_EQUALS(cell_population.GetOutputCellIdData(), false);
+        TS_ASSERT_EQUALS(cell_population.GetWriteVtkAsPoints(), false);
 
         cell_population.SetOutputVoronoiData(true);
         cell_population.SetOutputCellIdData(true);
+        cell_population.SetWriteVtkAsPoints(true);
 
         TS_ASSERT_EQUALS(cell_population.GetOutputVoronoiData(), true);
         TS_ASSERT_EQUALS(cell_population.GetOutputCellIdData(), true);
+        TS_ASSERT_EQUALS(cell_population.GetWriteVtkAsPoints(), true);
 
         // Coverage of writing CellwiseData to VTK
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
