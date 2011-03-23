@@ -245,8 +245,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                     dataPayload[halo_index] = receive_data[node];
                 }
             }
-        }
-        
+        }    
     }
 
     for (unsigned i=0; i<dataPayload.size(); i++)
@@ -266,6 +265,86 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
 {
     vtkDoubleArray* p_vectors = vtkDoubleArray::New();
     p_vectors->SetName(dataName.c_str());
+
+    if (mWriteParallelFiles)
+    {
+        // In parallel, the vector we pass will only contain the values from the privately owned nodes.
+        // To get the values from the halo nodes (which will be inserted at the end of the vector we need to 
+        // communicate with the equivalent vectors on other processes.
+
+        // resize the payload data to include halos
+        dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
+        
+        // get indices of the nodes to exchange
+        std::vector<std::vector<unsigned> > nodes_to_send_per_process, nodes_to_receive_per_process; 
+        this->mpDistributedMesh->CalculateNodeExchange( nodes_to_send_per_process, nodes_to_receive_per_process );
+        
+        // then do the communication
+        for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
+        {
+            unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
+            unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
+
+            unsigned number_of_nodes_to_send    = nodes_to_send_per_process[send_to].size();
+            unsigned number_of_nodes_to_receive = nodes_to_receive_per_process[receive_from].size();
+
+            // Pack
+            if ( number_of_nodes_to_send > 0 )
+            {
+                double send_data[number_of_nodes_to_send * SPACE_DIM];
+
+                for (unsigned node = 0; node < number_of_nodes_to_send; node++)
+                {
+                    unsigned global_node_index = nodes_to_send_per_process[send_to][node];
+                    unsigned local_node_index = global_node_index 
+                                - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
+                    for (unsigned j=0; j<SPACE_DIM; j++)
+                    {
+                        send_data[ node*(SPACE_DIM-1) + j ] = dataPayload[local_node_index][j];
+                    }
+                }
+
+                // Send
+                int ret;
+                ret = MPI_Send( send_data,
+                                number_of_nodes_to_send * SPACE_DIM,
+                                MPI_DOUBLE,
+                                send_to,
+                                0,
+                                PETSC_COMM_WORLD );
+                assert ( ret == MPI_SUCCESS );
+            }
+
+            if ( number_of_nodes_to_receive > 0 )
+            {
+                // Receive
+                double receive_data[number_of_nodes_to_receive * SPACE_DIM];
+                MPI_Status status;
+
+                int ret;
+                ret = MPI_Recv( receive_data,
+                                number_of_nodes_to_receive * SPACE_DIM,
+                                MPI_DOUBLE,
+                                receive_from,
+                                0,
+                                PETSC_COMM_WORLD,
+                                &status );
+                assert ( ret == MPI_SUCCESS);
+
+                // Unpack
+                for ( unsigned node = 0; node < number_of_nodes_to_receive; node++ )
+                {
+                    unsigned global_node_index = nodes_to_receive_per_process[receive_from][node];
+                    unsigned halo_index = mGlobalToNodeIndexMap[global_node_index];
+                    for (unsigned j=0; j<SPACE_DIM; j++)
+                    {
+                        dataPayload[halo_index][j] = receive_data[ node*(SPACE_DIM-1) + j ];
+                    }
+                }
+            }
+        }
+    }
+    
     p_vectors->SetNumberOfComponents(3);
     for (unsigned i=0; i<dataPayload.size(); i++)
     {

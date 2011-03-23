@@ -4,23 +4,24 @@
     <Piece NumberOfPoints="12"                   NumberOfCells="12"                  >
       <PointData>
         <DataArray type="Float64" Name="Distance from origin" format="appended" offset="0"                   />
+        <DataArray type="Float64" Name="Location" NumberOfComponents="3" format="appended" offset="136"                 />
       </PointData>
       <CellData>
       </CellData>
       <Points>
-        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" offset="136"                 />
+        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" offset="528"                 />
       </Points>
       <Cells>
-        <DataArray type="Int32" Name="connectivity" format="appended" offset="528"                 />
-        <DataArray type="Int32" Name="offsets" format="appended" offset="792"                 />
-        <DataArray type="UInt8" Name="types" format="appended" offset="864"                 />
+        <DataArray type="Int32" Name="connectivity" format="appended" offset="920"                 />
+        <DataArray type="Int32" Name="offsets" format="appended" offset="1184"                />
+        <DataArray type="UInt8" Name="types" format="appended" offset="1256"                />
       </Cells>
     </Piece>
   </UnstructuredGrid>
   <AppendedData encoding="base64">
-   _YAAAAAAAAAAAAAAAmpmZmZmZyT8LY/9RGBrSP5qZmZmZmck/mpmZmZmZyT8LY/9RGBrSPyMKrYaVK9Y/C2P/URga0j9rK/aX3ZO5P8a5RwPJncw/U218RM8y0z/VgbuCBZ/MPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==wAAAAAsAAAADAAAACAAAAAAAAAAKAAAACAAAAAUAAAALAAAACgAAAAUAAAAJAAAABgAAAAsAAAADAAAACgAAAAgAAAABAAAACAAAAAUAAAAJAAAAAwAAAAsAAAAKAAAABwAAAAQAAAAIAAAACwAAAAUAAAALAAAACAAAAAQAAAAAAAAACgAAAAkAAAACAAAABgAAAAMAAAAKAAAACQAAAAIAAAAKAAAACAAAAAMAAAAJAAAACAAAAAoAAAAFAAAACQAAAA==MAAAAAQAAAAIAAAADAAAABAAAAAUAAAAGAAAABwAAAAgAAAAJAAAACgAAAAsAAAAMAAAAA==DAAAAAoKCgoKCgoKCgoKCg==
+   _YAAAAAAAAAAAAAAAmpmZmZmZyT8LY/9RGBrSP5qZmZmZmck/mpmZmZmZyT8LY/9RGBrSPyMKrYaVK9Y/C2P/URga0j9rK/aX3ZO5P8a5RwPJncw/U218RM8y0z/VgbuCBZ/MPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==wAAAAAsAAAADAAAACAAAAAAAAAAKAAAACAAAAAUAAAALAAAACgAAAAUAAAAJAAAABgAAAAsAAAADAAAACgAAAAgAAAABAAAACAAAAAUAAAAJAAAAAwAAAAsAAAAKAAAABwAAAAQAAAAIAAAACwAAAAUAAAALAAAACAAAAAQAAAAAAAAACgAAAAkAAAACAAAABgAAAAMAAAAKAAAACQAAAAIAAAAKAAAACAAAAAMAAAAJAAAACAAAAAoAAAAFAAAACQAAAA==MAAAAAQAAAAIAAAADAAAABAAAAAUAAAAGAAAABwAAAAgAAAAJAAAACgAAAAsAAAAMAAAAA==DAAAAAoKCgoKCgoKCgoKCg==
   </AppendedData>
 </VTKFile>
 
-<!-- Created by Chaste version 2.1.12066 on Wed, 23 Mar 2011 10:35:13 +0000.  Chaste was built on Wed, 23 Mar 2011 10:33:46 +0000 by machine (uname) 'Linux userpc44.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Fri Feb 11 17:39:36 UTC 2011 x86_64' using settings: default, no Chaste libraries.
+<!-- Created by Chaste version 2.1.12072 on Wed, 23 Mar 2011 12:22:41 +0000.  Chaste was built on Wed, 23 Mar 2011 12:22:23 +0000 by machine (uname) 'Linux userpc44.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Fri Feb 11 17:39:36 UTC 2011 x86_64' using settings: default, no Chaste libraries.
 -->

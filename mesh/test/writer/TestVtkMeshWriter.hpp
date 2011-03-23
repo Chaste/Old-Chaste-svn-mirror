@@ -116,6 +116,16 @@ public:
             }
             writer.AddPointData("Distance from origin", distance);
             
+            // Add location (vector) to "point" data
+            std::vector< c_vector<double, 3> > location;
+            for (DistributedTetrahedralMesh<3,3>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
+                   node_iter != mesh.GetNodeIteratorEnd();
+                   ++node_iter)
+            {
+                location.push_back(node_iter->rGetLocation());
+            }
+            writer.AddPointData("Location", location);
+            
             writer.WriteFilesUsingMesh(mesh);
         }
 
