@@ -59,6 +59,7 @@ struct ElementData
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMeshReader
 {
+
 public:
 
     virtual ~AbstractMeshReader()
@@ -78,6 +79,15 @@ public:
 
     /** Returns the number of face attributes in the mesh */
     virtual unsigned GetNumFaceAttributes() const;
+
+    /**
+     * @returns the vector of node attributes
+     * Returns an empty vector here. Over-ride in child classes if needed.
+     * Ideally, this method would be in AbstractCachedMeshReader (where it would retrun the cached attribuites)
+     * but TrianglesMeshReaedr (the class this method was created for)
+     * does not inherit from AbstractCachedMeshReader, so it needs to be here.
+     */
+    virtual std::vector<double> GetNodeAttributes();
 
     /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     unsigned GetNumEdges() const;

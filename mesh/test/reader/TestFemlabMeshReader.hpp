@@ -158,6 +158,10 @@ public:
 
         TS_ASSERT_THROWS_THIS(next_node = mpFemlabMeshReader->GetNextNode(),"All nodes already got");
 
+        //coverage of a default implementation of GetNodeAttributes in abstract class that returns an empty vector.
+        std::vector<double> no_attributes = mpFemlabMeshReader->GetNodeAttributes();
+        TS_ASSERT_EQUALS(no_attributes.size(), 0u);
+
         delete mpFemlabMeshReader;
     }
 

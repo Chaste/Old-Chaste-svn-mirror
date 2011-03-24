@@ -191,7 +191,7 @@ public:
     /**
      * @return the vector of node attributes
      */
-    std::vector<double>& rGetNodeAttributes();
+    std::vector<double> GetNodeAttributes();
 
     /**
      *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.

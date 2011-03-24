@@ -78,12 +78,20 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     //typename std::map<std::pair<unsigned,unsigned>,unsigned>::const_iterator iterator;
     //std::map<std::pair<unsigned,unsigned>,unsigned> internal_nodes_map;
 
-    // Add corner nodes
+    // Add nodes
     std::vector<double> coords;
     for (unsigned i=0; i < num_nodes; i++)
     {
         coords = rMeshReader.GetNextNode();
-        this->mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
+        Node<SPACE_DIM>* p_node =  new Node<SPACE_DIM>(i, coords, false);
+
+        for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
+        {
+            double attribute = rMeshReader.GetNodeAttributes()[i];
+            p_node->AddNodeAttribute(attribute);
+        }
+
+        this->mNodes.push_back(p_node);
     }
 
     //unsigned new_node_index = mNumCornerNodes;

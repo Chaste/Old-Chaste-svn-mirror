@@ -239,7 +239,15 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
             unsigned global_node_index=*it;
             coords = rMeshReader.GetNode(global_node_index);
             RegisterNode(global_node_index);
-            this->mNodes.push_back(new Node<SPACE_DIM>(global_node_index, coords, false));
+            Node<SPACE_DIM>* p_node =  new Node<SPACE_DIM>(global_node_index, coords, false);
+
+            for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
+            {
+                double attribute = rMeshReader.GetNodeAttributes()[i];
+                p_node->AddNodeAttribute(attribute);
+            }
+
+            this->mNodes.push_back(p_node);
         }
         for (std::set<unsigned>::const_iterator it=halo_nodes_owned.begin(); it!=halo_nodes_owned.end(); it++)
         {
@@ -263,7 +271,15 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
             if (nodes_owned.find(node_index) != nodes_owned.end())
             {
                 RegisterNode(node_index);
-                this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
+                Node<SPACE_DIM>* p_node =  new Node<SPACE_DIM>(node_index, coords, false);
+
+                for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
+                {
+                    double attribute = rMeshReader.GetNodeAttributes()[i];
+                    p_node->AddNodeAttribute(attribute);
+                }
+
+                this->mNodes.push_back(p_node);
             }
 
             // The node is a halo node in this processor

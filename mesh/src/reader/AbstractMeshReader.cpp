@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include <cassert>
 #include "AbstractMeshReader.hpp"
 #include "Exception.hpp"
 
@@ -52,6 +53,15 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() cons
     // By default returns 0.  If a concrete class does read attributes
     // it needs to overload this method.
     return 0;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNodeAttributes()
+{
+    // By default returns an empty vector.  If a concrete class does read node attributes
+    // it needs to overload this method.
+    std::vector<double> empty;
+    return empty;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

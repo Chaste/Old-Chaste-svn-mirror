@@ -202,6 +202,36 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
     }
 
+    void TestConstructionFromMeshReaderWithNodeAttributes() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements_with_node_attributes");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 20u);
+
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 12u);
+
+        //check all nodes have 2 attributes
+        for (unsigned node_index = 0; node_index < mesh.GetNumNodes(); node_index++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetNode(node_index)->rGetNodeAttributes().size(), 2u);
+        }
+
+        //check some values
+        unsigned probe_node_1 = 0u;
+        unsigned probe_node_2 = 8u;
+
+        TS_ASSERT_DELTA(mesh.GetNode(probe_node_1)->rGetNodeAttributes()[0u], 25.2, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(probe_node_1)->rGetNodeAttributes()[1u], 16.3, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(probe_node_2)->rGetNodeAttributes()[0u], 3.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(probe_node_2)->rGetNodeAttributes()[1u], 24.5, 1e-6);
+    }
+
     void Test3dMeshConstructionFromMeshReader2() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
