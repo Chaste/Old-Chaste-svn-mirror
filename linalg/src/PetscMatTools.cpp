@@ -117,6 +117,48 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
     ISCreateGeneral(PETSC_COMM_WORLD, rRows.size(), rows, &is);
     MatZeroRows(matrix, is, &diagonalValue);
     ISDestroy(is);
+    /*
+     * 
+[2]PETSC ERROR: MatMissingDiagonal_SeqAIJ() line 1011 in src/mat/impls/aij/seq/aij.c
+[2]PETSC ERROR: Petsc has generated inconsistent data!
+[2]PETSC ERROR: Matrix is missing diagonal number 15!
+[2]PETSC ERROR: MatILUFactorSymbolic_SeqAIJ() line 906 in src/mat/impls/aij/seq/aijfact.c
+     * 
+     * 
+    //There appears to be a problem with MatZeroRows not setting diagonals correctly
+    //While we are supporting PETSc 2.2, we have to do this the slow way
+
+    AssembleFinal(matrix);
+    PetscInt lo, hi;
+    GetOwnershipRange(matrix, lo, hi);
+    PetscInt size=GetSize(matrix);
+    ///assert(rRows.size() == 1);
+    for(unsigned index=0; index<rRows.size(); index++)
+    {
+        PetscInt row = rRows[index];
+        if (row >= lo && row < hi)
+        {
+            std::vector<unsigned> non_zero_cols;
+            //This row is local, so zero it.
+            for (PetscInt column = 0; column < size; column++)
+            {
+                if (GetElement(matrix, row, column) != 0.0)
+                {
+                    non_zero_cols.push_back(column);
+                }
+            }
+            //Separate "gets" from "sets" so that we don't have to keep going into "assembled" mode
+            for (unsigned i=0; i<non_zero_cols.size();i++)
+            {
+                SetElement(matrix, row, non_zero_cols[i], 0.0);
+            }
+            //Set the diagonal
+            SetElement(matrix, row, row, diagonalValue);
+        }
+        //Everyone communicate after row is finished
+        AssembleFinal(matrix);
+    }
+    */     
 #else
     MatZeroRows(matrix, rRows.size(), rows, diagonalValue);
 #endif

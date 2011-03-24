@@ -220,8 +220,8 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
 
-        // Apply the constraint 'Average phi = 0' to nodes 0, 25, 50, 75, 100, ...
-        for (unsigned node=0; node<bidomain_problem.rGetMesh().GetNumNodes(); node+=25)
+        // Apply the constraint 'Average phi = 0' to nodes 0, 50, 100.
+        for (unsigned node=0; node<bidomain_problem.rGetMesh().GetNumNodes(); node+=50)
         {
             bidomain_problem.SetNodeForAverageOfPhiZeroed(node);
 
