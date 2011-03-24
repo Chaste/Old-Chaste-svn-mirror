@@ -241,11 +241,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
             RegisterNode(global_node_index);
             Node<SPACE_DIM>* p_node =  new Node<SPACE_DIM>(global_node_index, coords, false);
 
-            for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
-            {
-                double attribute = rMeshReader.GetNodeAttributes()[i];
-                p_node->AddNodeAttribute(attribute);
-            }
+//Node attributes in binary format are not yet supported, see #1730
+//            for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
+//            {
+//                double attribute = rMeshReader.GetNodeAttributes()[i];
+//                p_node->AddNodeAttribute(attribute);
+//            }
 
             this->mNodes.push_back(p_node);
         }

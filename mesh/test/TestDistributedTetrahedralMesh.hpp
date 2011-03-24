@@ -564,62 +564,6 @@ public:
         }
     }
 
-//    void TestConstructionFromMeshReaderWithNodeAttributesBinary() throw(Exception)
-//    {
-//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements_with_node_attributes");
-//        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 12u);
-//        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 12u);
-//        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 20u);
-//
-//        std::string output_dir = "cube_binary_with_att";
-//        std::string output_filename = "cube";
-//
-//        TetrahedralMesh<3,3> mesh;
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//
-//        TrianglesMeshWriter<3,3> mesh_writer(output_dir, output_filename);
-//        mesh_writer.SetWriteFilesAsBinary();
-//        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
-//
-//        std::string filename = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/" + output_filename;
-//        TrianglesMeshReader<3,3> binary_reader(filename);
-//
-//        DistributedTetrahedralMesh<3,3> mesh_binary;
-//        mesh_binary.ConstructFromMeshReader(binary_reader);
-//        // Check we have the right number of nodes & elements
-//        TS_ASSERT_EQUALS(mesh_binary.GetNumNodes(), 12u);
-//        TS_ASSERT_EQUALS(mesh_binary.GetNumElements(), 12u);
-//
-//        //check all nodes have 2 attributes
-//        for (unsigned node_index = 0; node_index < mesh_binary.GetNumNodes(); node_index++)
-//        {
-//            if (mesh_binary.GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index) )
-//            {
-//                TS_ASSERT_EQUALS(mesh_binary.GetNode(node_index)->rGetNodeAttributes().size(), 2u);
-//            }
-//        }
-//
-//        //now check attribute values at two probe nodes
-//        unsigned probe_node_1 = 0u;
-//        unsigned probe_node_2 = 8u;
-//
-//        if (mesh.rGetNodePermutation().size() >0)//need to figure out where they end up in permutation
-//        {
-//            probe_node_1 = mesh_binary.rGetNodePermutation()[probe_node_1];
-//            probe_node_2 = mesh_binary.rGetNodePermutation()[probe_node_2];
-//        }
-//        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(probe_node_1) )
-//        {
-//            TS_ASSERT_DELTA(mesh_binary.GetNode(probe_node_1)->rGetNodeAttributes()[0u], 25.2, 1e-6);
-//            TS_ASSERT_DELTA(mesh_binary.GetNode(probe_node_1)->rGetNodeAttributes()[1u], 16.3, 1e-6);
-//        }
-//        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(probe_node_2) )
-//        {
-//            TS_ASSERT_DELTA(mesh_binary.GetNode(probe_node_2)->rGetNodeAttributes()[0u], 3.0, 1e-6);
-//            TS_ASSERT_DELTA(mesh_binary.GetNode(probe_node_2)->rGetNodeAttributes()[1u], 24.5, 1e-6);
-//        }
-//    }
-
 
     void TestConstructFromMeshReaderWithBinaryFiles()
     {
