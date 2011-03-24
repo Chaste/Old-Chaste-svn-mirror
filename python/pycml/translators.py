@@ -113,7 +113,7 @@ class CellMLTranslator(object):
         return
     
     @staticmethod
-    def generate_interface(doc):
+    def generate_interface(doc, solver_info):
         """Generate an interface component connecting the model to whatever will use it.
         
         Stub method that subclasses can override to implement this functionality.
@@ -4897,8 +4897,14 @@ def get_options(args, default_options=None):
     options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:
         parser.error("exactly one input CellML file must be specified")
+
+    # Some options imply others
     if options.debug_source:
         options.debug = True
+    if options.do_jacobian_analysis:
+        options.translate_type = 'Maple'
+        options.maple_output = False # Just in case...!
+
     return options, args[0]
 
 
@@ -5006,8 +5012,6 @@ def run():
     if options.do_jacobian_analysis:
         lin = optimize.LinearityAnalyser()
         lin.analyse_for_jacobian(doc, V=config.V_variable)
-        options.translate_type = 'Maple'
-        options.maple_output = False # Just in case...!
         DEBUG('translate', "+++ Analysed model for Jacobian")
 
     if options.maple_output:
