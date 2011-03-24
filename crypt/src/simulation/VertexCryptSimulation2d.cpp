@@ -187,7 +187,7 @@ void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::v
         {
             /**
              * If WntConcentration is not set up then the stem cells must be pinned
-             * to y=0, so any node whose old hieght was close to zero is moved back
+             * to y=0, so any node whose old height was close to zero is moved back
              * to zero.
              */
             if (rOldLocations[node_index][1] < DBL_EPSILON)

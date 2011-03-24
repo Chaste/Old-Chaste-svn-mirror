@@ -281,7 +281,7 @@ public:
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
-        // Create some boundary condtions and pass them to the simulation
+        // Create some boundary conditions and pass them to the simulation
         c_vector<double,2> point = zero_vector<double>(2);
         c_vector<double,2> normal = zero_vector<double>(2);
         normal(1) = -1.0;
