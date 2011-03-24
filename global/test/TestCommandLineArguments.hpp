@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include <iostream>
+#include <cassert>
 #include "CommandLineArguments.hpp"
 
 class TestCommandLineArguments : public CxxTest::TestSuite
@@ -59,21 +60,25 @@ public:
         // 
         // To test the methods we overwrite the arg_c and arg_v contained in the 
         // singleton with the arguments that were needed.        
-        int new_argc = 6;
+        int new_argc = 8;
         char new_argv0[] = "..";
         char new_argv1[] = "-myoption";
         char new_argv2[] = "-myintval";
         char new_argv3[] = "24";
         char new_argv4[] = "-mydoubleval";
         char new_argv5[] = "3.14";
+        char new_argv6[] = "-myintval2";
+        char new_argv7[] = "-42";
         
-        char** new_argv = new char*[6];
+        char** new_argv = new char*[8];
         new_argv[0] = new_argv0;
         new_argv[1] = new_argv1;
         new_argv[2] = new_argv2;
         new_argv[3] = new_argv3;
         new_argv[4] = new_argv4;
         new_argv[5] = new_argv5;
+        new_argv[6] = new_argv6;
+        new_argv[7] = new_argv7;
 
         // (save the real args to be restored at the end)
         int* p_real_argc = CommandLineArguments::Instance()->p_argc;
@@ -92,8 +97,24 @@ public:
         unsigned i = atol(val);
         TS_ASSERT_EQUALS(i, 24u);
 
+        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-myintval2");
+        int j = atol(val);
+        TS_ASSERT_EQUALS(j, -42);
+
+        j = CommandLineArguments::Instance()->GetIntCorrespondingToOption("-myintval2");
+        TS_ASSERT_EQUALS(j, -42);
+
+        TS_ASSERT_THROWS_THIS(i = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("-myintval2"),
+                              "Option is a negative number and cannot be converted to unsigned.");
+
+        i = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("-myintval");
+        TS_ASSERT_EQUALS(i, 24u);
+
         val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-mydoubleval");
         double x = atof(val);
+        TS_ASSERT_EQUALS(x, 3.14);
+
+        x = CommandLineArguments::Instance()->GetDoubleCorrespondingToOption("-mydoubleval");
         TS_ASSERT_EQUALS(x, 3.14);
 
         // test exceptions in GetValueCorrespondingToOption()

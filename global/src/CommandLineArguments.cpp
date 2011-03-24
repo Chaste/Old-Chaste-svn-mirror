@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CommandLineArguments.hpp"
 
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 
 CommandLineArguments::CommandLineArguments()
     : p_argc(NULL),
@@ -46,7 +46,71 @@ CommandLineArguments* CommandLineArguments::Instance()
         mpInstance = new CommandLineArguments;
     }
     return mpInstance;
-
 }
 
 CommandLineArguments* CommandLineArguments::mpInstance = NULL;
+
+bool CommandLineArguments::OptionExists(std::string option)
+{
+    assert(option.substr(0,1)=="-");
+    int index = GetIndexForArgument(option);
+    assert(index!=0);
+    return (index>0);
+}
+
+char* CommandLineArguments::GetValueCorrespondingToOption(std::string option)
+{
+    assert(option.substr(0,1)=="-");
+    int index = GetIndexForArgument(option);
+    assert(index!=0);
+    if(index<0)
+    {
+        EXCEPTION("Command line option '" + option + "' does not exist");
+    }
+    if(index+1==*p_argc)
+    {
+        EXCEPTION("No value given after command line option '" + option + "'");
+    }
+    return (*p_argv)[index+1];
+}
+
+double CommandLineArguments::GetDoubleCorrespondingToOption(std::string option)
+{
+    char* val = GetValueCorrespondingToOption(option);
+    return atof(val);
+}
+
+int CommandLineArguments::GetIntCorrespondingToOption(std::string option)
+{
+    char* val = GetValueCorrespondingToOption(option);
+    return atoi(val);
+}
+
+unsigned CommandLineArguments::GetUnsignedCorrespondingToOption(std::string option)
+{
+    char* val = GetValueCorrespondingToOption(option);
+    int i = atoi(val);
+    if (i<0)
+    {
+        EXCEPTION("Option is a negative number and cannot be converted to unsigned.");
+    }
+    return (unsigned)(i);
+}
+
+int CommandLineArguments::GetIndexForArgument(std::string argument)
+{
+    assert(argument.substr(0,1)=="-");
+
+    for(int i=1; i<*p_argc; i++)
+    {
+        if(argument==std::string((*p_argv)[i]))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+
+
