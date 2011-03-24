@@ -273,7 +273,9 @@ public:
         simulator.AddForce(&linear_force);
 
         // Create some boundary conditions and pass them to the simulation
-        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), -1.0*unit_vector<double>(2,1));//y>0
+        c_vector<double,2> normal = zero_vector<double>(2);
+        normal(1) =-1.0;
+        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), normal);//y>0
         simulator.AddCellPopulationBoundaryCondition(&boundary_condition);
 
         // Solve
@@ -318,9 +320,11 @@ public:
         simulator.AddForce(&linear_force);
 
         // Create some boundary conditions and pass them to the simulation
-        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), -1.0*unit_vector<double>(2,1));//y>0
+        c_vector<double,2> normal = zero_vector<double>(2);
+        normal(1) =-1.0;
+        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), normal);//y>0
         simulator.AddCellPopulationBoundaryCondition(&boundary_condition);
-
+        
         // Solve
         simulator.Solve();
 
