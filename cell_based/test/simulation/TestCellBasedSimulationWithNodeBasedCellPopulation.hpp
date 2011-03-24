@@ -335,21 +335,25 @@ public:
         // run it from 0.1 to 1.0
         CellBasedSimulation<2>* p_simulator1;
         p_simulator1 = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
+
+        // Need to reset the Cut off length as not archived properly see #1496
+        (dynamic_cast<NodeBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->SetMechanicsCutOffLength(1.5);
+
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
 
-        // Need to reset the Cut off length as not archived properly see #1496
-        //p_simulator1->rGetCellPopulation().SetMechanicsCutOffLength(1.5);
 
         // Save, then reload and run from 1.0 to 2.5
         CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(p_simulator1);
         CellBasedSimulation<2>* p_simulator2
             = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
+
+        // Need to reset the Cut off length as not archived properly see #1496
+        (dynamic_cast<NodeBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->SetMechanicsCutOffLength(1.5);
+
         p_simulator2->SetEndTime(2.5);
         p_simulator2->Solve();
 
-        // Need to reset the Cut off length as not archived properly see #1496
-        //p_simulator2->rGetCellPopulation().SetMechanicsCutOffLength(1.5);
 
         // These results are from time 2.5 in TestStandardResultForArchivingTestBelow()
         std::vector<double> node_3_location = p_simulator2->GetNodeLocation(3);
