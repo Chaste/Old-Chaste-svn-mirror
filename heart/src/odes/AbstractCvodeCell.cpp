@@ -237,20 +237,14 @@ OdeSolution AbstractCvodeCell::Solve(realtype tStart,
     // Main time sampling loop
     while (!stepper.IsTimeAtEnd())
     {
-//        std::cout << "Solving to time " << stepper.GetNextTime() << std::endl << std::flush;
         double cvode_stopped_at;
-        int ierr;
-        try
-        {
-            ierr = CVode(mpCvodeMem, stepper.GetNextTime(), mStateVariables,
+        int ierr = CVode(mpCvodeMem, stepper.GetNextTime(), mStateVariables,
                          &cvode_stopped_at, CV_NORMAL);
-        }
-        catch (...)
+        if (ierr<0)
         {
             FreeCvodeMemory();
-            throw;
+            CvodeError(ierr, "CVODE failed to solve system");
         }
-        if (ierr<0) CvodeError(ierr, "CVODE failed to solve system");
         // Not root finding, so should have reached requested time
         assert(fabs(cvode_stopped_at - stepper.GetNextTime()) < DBL_EPSILON);
 
@@ -281,17 +275,12 @@ void AbstractCvodeCell::Solve(realtype tStart,
     SetupCvode(mStateVariables, tStart, maxDt);
 
     double cvode_stopped_at;
-    int ierr;
-    try
-    {
-        ierr = CVode(mpCvodeMem, tEnd, mStateVariables, &cvode_stopped_at, CV_NORMAL);
-    }
-    catch (...)
+    int ierr = CVode(mpCvodeMem, tEnd, mStateVariables, &cvode_stopped_at, CV_NORMAL);
+    if (ierr<0)
     {
         FreeCvodeMemory();
-        throw;
+        CvodeError(ierr, "CVODE failed to solve system");
     }
-    if (ierr<0) CvodeError(ierr, "CVODE failed to solve system");
     // Not root finding, so should have reached requested time
     assert(fabs(cvode_stopped_at - tEnd) < DBL_EPSILON);
 
@@ -370,8 +359,11 @@ void AbstractCvodeCell::FreeCvodeMemory()
 
 void AbstractCvodeCell::CvodeError(int flag, const char * msg)
 {
+
     std::stringstream err;
-    err << msg << ": " << CVodeGetReturnFlagName(flag);
+    char* p_flag_name = CVodeGetReturnFlagName(flag);
+    err << msg << ": " << p_flag_name;
+    free(p_flag_name);
     std::cerr << err.str() << std::endl << std::flush;
     EXCEPTION(err.str());
 }
