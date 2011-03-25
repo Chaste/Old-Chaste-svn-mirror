@@ -56,8 +56,8 @@ void AbstractLookupTableCollection::GetTableProperties(const std::string& rKeyin
 void AbstractLookupTableCollection::SetTableProperties(const std::string& rKeyingVariableName, double min, double step, double max)
 {
     // Check inputs
-    unsigned num_steps = (unsigned) ((max-min)/step);
-    if (fabs(max - min - num_steps*step) > 10*DBL_EPSILON)
+    unsigned num_steps = (unsigned) ((max-min)/step+0.5);
+    if (fabs(max - min - num_steps*step) > 1e-10)
     {
         EXCEPTION("Table step size does not divide range between table limits.");
     }
