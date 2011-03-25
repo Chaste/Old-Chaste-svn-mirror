@@ -76,10 +76,32 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
 
         unsigned local_element_index = 0;
+
+        int previous_global_index = -1;
+
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
         {
+            if (this->mUseFibreOrientation)
+            {
+                int current_fibre_global_index = (int) it->GetIndex();
+
+                if (current_fibre_global_index < previous_global_index)
+                {
+#define COVERAGE_IGNORE
+                    EXCEPTION("Assumption about ElementIterator returning elements in ascending order is wrong.");
+#undef  COVERAGE_IGNORE
+                }
+                
+                for (int fibre_index=previous_global_index; fibre_index<current_fibre_global_index-1; fibre_index++)
+                {
+                    this->mFileReader->GetNextFibreSheetAndNormalMatrix(orientation_matrix);            
+                }
+                
+                previous_global_index = current_fibre_global_index;
+            }
+
             /*
              *  For every element of the mesh we compute its tensor like (from
              * "Laminar Arrangement of VentricularMyocites Influences Electrical

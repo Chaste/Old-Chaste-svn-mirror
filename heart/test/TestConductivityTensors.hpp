@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include <boost/math/constants/constants.hpp>
 
 
 typedef AxisymmetricConductivityTensors<2,2> AXI_2D;
@@ -429,38 +430,49 @@ public:
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,0), 0.0);
             TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,1), 10*tensor_index);
         }
-    }
-
-    void TestHeterogeneousCondPlusFibreOrientationTensor3D()
+    }    
+    
+    void TestHeterogeneousCondPlusFibreOrientationTensor3DDistributedTetrahedralMesh()
     {
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(1,1,1);
-        
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(1,1,5); // This cube shape ensures that there exist elements not own by every processor (at least for p=2,3
         std::vector<c_vector<double, 3> > non_constant_conductivities;
-        non_constant_conductivities.push_back(Create_c_vector(0,0,0));
-        non_constant_conductivities.push_back(Create_c_vector(100,10,1));
-        non_constant_conductivities.push_back(Create_c_vector(200,20,2));
-        non_constant_conductivities.push_back(Create_c_vector(300,30,3));
-        non_constant_conductivities.push_back(Create_c_vector(400,40,4));
-        non_constant_conductivities.push_back(Create_c_vector(500,50,5));
+        
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
+        {
+            unsigned element_index = it->GetIndex();
+            non_constant_conductivities.push_back(element_index*Create_c_vector(100,10,1));            
+        }
 
         OrthotropicConductivityTensors<3,3> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+        FileFinder file("heart/test/data/fibre_tests/NonTrivialOrthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
         ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init(&mesh);
 
-        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
         {
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,0), 100*tensor_index);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,1), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](0,2), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,0), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,1), 10*tensor_index);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](1,2), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,0), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,1), 0.0);
-            TS_ASSERT_EQUALS(ortho_tensors[tensor_index](2,2), tensor_index);
+            unsigned element_index = it->GetIndex();
+            const double pi = boost::math::constants::pi<double>();
+            double a = element_index * 100;
+            double b = element_index * 10;
+            double c = element_index * 1;
+            double v = element_index*2.0/30.0*pi;
+            double tol = 1e-5;
+            
+            TS_ASSERT_DELTA(ortho_tensors[element_index](0,0), a*cos(v)*cos(v) + b*sin(v)*sin(v), tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](0,1), a*sin(v)*cos(v) - b*cos(v)*sin(v), tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](0,2), 0.0, tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](1,0), a*cos(v)*sin(v) - b*sin(v)*cos(v), tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](1,1), b*cos(v)*cos(v) + a*sin(v)*sin(v), tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](1,2), 0.0, tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](2,0), 0.0, tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](2,1), 0.0, tol);
+            TS_ASSERT_DELTA(ortho_tensors[element_index](2,2), c, tol);
         }
 
         AxisymmetricConductivityTensors<3,3> axi_tensors;
@@ -469,22 +481,32 @@ public:
         axi_tensors.SetFibreOrientationFile(file);
         TS_ASSERT_THROWS_CONTAINS(axi_tensors.Init(&mesh),"Too many entries in a line in");
 
-        FileFinder axi_file("heart/test/data/fibre_tests/SimpleAxisymmetric.axi", RelativeTo::ChasteSourceRoot);
+        FileFinder axi_file("heart/test/data/fibre_tests/NonTrivialAxisymmetric3D.axi", RelativeTo::ChasteSourceRoot);
         axi_tensors.SetFibreOrientationFile(axi_file);
         axi_tensors.Init(&mesh);
-
-        for (unsigned tensor_index=0; tensor_index<6; tensor_index++)
+        
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
         {
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,0), 100*tensor_index);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,1), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](0,2), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,0), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,1), 10*tensor_index);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](1,2), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,0), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,1), 0.0);
-            TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,2), 10*tensor_index);
+            unsigned element_index = it->GetIndex();
+            const double pi = boost::math::constants::pi<double>();
+            double a = element_index * 100;
+            double b = element_index * 10;
+            double v = element_index*2.0/30.0*pi;
+            double tol = 1e-5;
+            
+            TS_ASSERT_DELTA(axi_tensors[element_index](0,0), b + cos(v)*cos(v)*(a - b), tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](0,1), cos(v)*sin(v)*(a - b), tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](0,2), 0.0, tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](1,0), sin(v)*cos(v)*(a - b), tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](1,1), b + sin(v)*sin(v)*(a - b), tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](1,2), 0.0, tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](2,0), 0.0, tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](2,1), 0.0, tol);
+            TS_ASSERT_DELTA(axi_tensors[element_index](2,2), b, tol);
         }
+
     }
 };
 
