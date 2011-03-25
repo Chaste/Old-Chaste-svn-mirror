@@ -299,10 +299,11 @@ def GetVersionCpp(templateFilePath, env):
         chaste_revision = int(full_version[1+full_version.rfind('.'):])
         wc_modified = False
     else:
-        version_pipe = os.popen("svnversion")
+        version_pipe = os.popen("svnversion " + chaste_root)
         chaste_revision = version_pipe.read().strip()
         if version_pipe.close():
             chaste_revision = 'UINT_MAX'
+            wc_modified = False
         else:
             # Extract upper end of range, and store modified flag
             wc_modified = chaste_revision[-1] == 'M'
