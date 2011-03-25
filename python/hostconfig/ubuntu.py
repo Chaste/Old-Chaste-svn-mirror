@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import glob
 import os
 
 # Check which version of Ubuntu this is
@@ -77,20 +78,13 @@ other_libraries = libs_for_petsc + \
                    'hdf5', 'z',
                    'parmetis', 'metis']
 
-use_vtk = False
-
-#Extra libraries for VTK output
+# Extra libraries for VTK output
+vtk_include_path = filter(os.path.isdir, glob.glob('/usr/include/vtk-5*'))
+use_vtk = bool(vtk_include_path)
 if use_vtk:
-    if ubuntu_ver >= [10,10]:
-        other_includepaths.append('/usr/include/vtk-5.4')
-        other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
-    elif ubuntu_ver >= [10,04]:
-        other_includepaths.append('/usr/include/vtk-5.2')
-        other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
-    else: # The libraries.extend command below may need changing, as it hasn't been tested yet.
-        other_includepaths.extend('/usr/include/vtk-5.0')
-        other_libraries.extend(['vtkIO', 'vtkGraphics', 'vtkCommon', 'z'])
-
+    # Note: 10.10 uses VTK 5.4, 10.04 uses 5.2, and early use 5.0
+    other_includepaths.extend(vtk_include_path)
+    other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
 
 # Figure out which lapack/blas packages are actually installed!
 if os.path.exists('/usr/lib/liblapack-3.so'):
@@ -99,8 +93,8 @@ else:
     blas_lapack = ['lapack', 'blas']
 
 # Is CVODE installed?
-if os.path.exists('/usr/lib/libsundials_cvode.so'):
-    use_cvode = True
+use_cvode = os.path.exists('/usr/lib/libsundials_cvode.so')
+if use_cvode:
     other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
 tools = {'xsd': '/usr/bin/xsdcxx',
