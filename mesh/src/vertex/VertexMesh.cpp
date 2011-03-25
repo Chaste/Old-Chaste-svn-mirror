@@ -1273,6 +1273,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
 
         double squared_distance_normal_to_edge = SmallPow(norm_2(vector_a_to_point), 2) - SmallPow(distance_parallel_to_edge, 2);
 
+        //If the point lies almost bang on the supporting line of the edge, then snap to the line
+        //This allows us to do floating point tie-breaks when line is exactly at a node
+        if (squared_distance_normal_to_edge < DBL_EPSILON)
+        {
+            squared_distance_normal_to_edge = 0.0;
+        }
         // Make sure node is within the confines of the edge and is the nearest edge to the node \this breks for convex elements
         if (squared_distance_normal_to_edge < min_squared_normal_distance &&
             distance_parallel_to_edge >=0 &&
