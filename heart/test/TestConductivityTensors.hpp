@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include <boost/math/constants/constants.hpp>
-
 
 typedef AxisymmetricConductivityTensors<2,2> AXI_2D;
 
@@ -457,11 +455,10 @@ public:
              ++it)
         {
             unsigned element_index = it->GetIndex();
-            const double pi = boost::math::constants::pi<double>();
             double a = element_index * 100;
             double b = element_index * 10;
             double c = element_index * 1;
-            double v = element_index*2.0/30.0*pi;
+            double v = element_index*2.0/30.0*M_PI;
             double tol = 1e-5;
             
             TS_ASSERT_DELTA(ortho_tensors[element_index](0,0), a*cos(v)*cos(v) + b*sin(v)*sin(v), tol);
@@ -490,10 +487,9 @@ public:
              ++it)
         {
             unsigned element_index = it->GetIndex();
-            const double pi = boost::math::constants::pi<double>();
             double a = element_index * 100;
             double b = element_index * 10;
-            double v = element_index*2.0/30.0*pi;
+            double v = element_index*2.0/30.0*M_PI;
             double tol = 1e-5;
             
             TS_ASSERT_DELTA(axi_tensors[element_index](0,0), b + cos(v)*cos(v)*(a - b), tol);
