@@ -338,9 +338,16 @@ public:
 
         eigenvector = CalculateEigenvectorForSmallestNonzeroEigenvalue(A);
 
+        //It's important that eigenvector is non-zero.  If eigenvector has been
+        //zero-initialised and CalculateEigenvectorForSmallestNonzeroEigenvalue does
+        //*nothing* then Au=lambda.u for any lambda.
+        double norm_of_eigenvector = norm_2(eigenvector);
+        double delta = 1e-12;
+        TS_ASSERT_DELTA(norm_of_eigenvector, 1.0, delta);
+        
+        //Check Au=lambda.u
         c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);
 
-        double delta = 1e-12;
         TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);

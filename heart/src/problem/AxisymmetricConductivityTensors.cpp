@@ -116,7 +116,7 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
                 {
 #define COVERAGE_IGNORE
                     EXCEPTION("Assumption about ElementIterator returning elements in ascending order is wrong.");
-#undef  COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
                 }
                 
                 for (int fibre_index=previous_global_index; fibre_index<current_fibre_global_index-1; fibre_index++)

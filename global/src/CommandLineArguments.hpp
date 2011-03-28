@@ -100,7 +100,7 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to a double.
      *
-     * @param options The option as a string. This should start with "-",
+     * @param option The option as a string. This should start with "-",
      *    for example "-my_param", "-timestep" etc.
      */
     double GetDoubleCorrespondingToOption(std::string option);
@@ -111,7 +111,7 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to an int.
      *
-     * @param options The option as a string. This should start with "-",
+     * @param option The option as a string. This should start with "-",
      *    for example "-my_param", "-timestep" etc.
      */
     int GetIntCorrespondingToOption(std::string option);
@@ -122,7 +122,7 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to an unsigned. Throws an exception if the option converts to a negative integer.
      *
-     * @param options The option as a string. This should start with "-",
+     * @param option The option as a string. This should start with "-",
      *    for example "-my_param", "-timestep" etc.
      */
     unsigned GetUnsignedCorrespondingToOption(std::string option);

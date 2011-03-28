@@ -73,6 +73,9 @@ public:
     {
     }
 
+    /**
+     * Abstract destructor does nothing.
+     */
     virtual ~AbstractContractionModel()
     {
     }
