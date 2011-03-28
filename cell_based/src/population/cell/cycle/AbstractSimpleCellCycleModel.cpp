@@ -83,19 +83,19 @@ void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
     {
         mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
-    else if ( time_since_birth < GetMDuration() )
+    else if (time_since_birth < GetMDuration())
     {
         mCurrentCellCyclePhase = M_PHASE;
     }
-    else if ( time_since_birth < GetMDuration() + mG1Duration)
+    else if (time_since_birth < GetMDuration() + mG1Duration)
     {
         mCurrentCellCyclePhase = G_ONE_PHASE;
     }
-    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration())
+    else if (time_since_birth < GetMDuration() + mG1Duration + GetSDuration())
     {
         mCurrentCellCyclePhase = S_PHASE;
     }
-    else if ( time_since_birth < GetMDuration() + mG1Duration + GetSDuration() + GetG2Duration())
+    else if (time_since_birth < GetMDuration() + mG1Duration + GetSDuration() + GetG2Duration())
     {
         mCurrentCellCyclePhase = G_TWO_PHASE;
     }

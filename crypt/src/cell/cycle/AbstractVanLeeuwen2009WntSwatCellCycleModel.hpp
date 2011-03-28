@@ -77,6 +77,7 @@ private:
      * @param currentTime  the time up to which the system will be solved.
      */
     void AdjustOdeParameters(double currentTime);
+
 public:
 
     /**

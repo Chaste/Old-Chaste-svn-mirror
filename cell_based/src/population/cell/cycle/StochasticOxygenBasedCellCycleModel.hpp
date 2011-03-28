@@ -95,13 +95,6 @@ public:
     double GetG2Duration();
 
     /**
-     * Set mStochasticG2Duration.
-     *
-     * @param g2Duration the new value of mStochasticG2Duration
-     */
-    void SetStochasticG2Duration(double g2Duration);
-
-    /**
      * Overridden builder method to create new copies of
      * this cell-cycle model.
      */

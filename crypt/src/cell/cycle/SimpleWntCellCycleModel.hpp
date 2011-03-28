@@ -69,6 +69,8 @@ private:
         archive & mWntLabelledThreshold;
     }
 
+protected:
+
     /**
      * Whether to use different mean G1 durations for different cell types.
      * For use in SetG1Duration().
@@ -89,8 +91,6 @@ private:
      * Non-dimensionalized Wnt threshold, above which labelled cells progress through the cell cycle.
      */
     double mWntLabelledThreshold;
-
-protected:
 
     /**
      * Get the Wnt level experienced by the cell.

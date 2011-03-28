@@ -42,19 +42,31 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
     // Create a new cell-cycle model
     SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel();
 
-    // Set the values of the new cell-cycle model's member variables
+    /*
+     * Set each member variable of the new cell-cycle model that inherits
+     * its value from the parent.
+     * 
+     * Note 1: some of the new cell-cycle model's member variables (namely
+     * mBirthTime, mCurrentCellCyclePhase, mReadyToDivide) will already have been
+     * correctly initialized in its constructor.
+     * 
+     * Note 2: one or more of the new cell-cycle model's member variables
+     * may be set/overwritten as soon as InitialiseDaughterCell() is called on
+     * the new cell-cycle model.
+     */
+    p_model->SetBirthTime(mBirthTime);
     p_model->SetDimension(mDimension);
     p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetMinimumGapDuration(mMinimumGapDuration);
+    p_model->SetStemCellG1Duration(mStemCellG1Duration);
+    p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+    p_model->SetSDuration(mSDuration);
+    p_model->SetG2Duration(mG2Duration);
+    p_model->SetMDuration(mMDuration);
     p_model->SetUseCellProliferativeTypeDependentG1Duration(mUseCellProliferativeTypeDependentG1Duration);
     p_model->SetWntStemThreshold(mWntStemThreshold);
     p_model->SetWntTransitThreshold(mWntTransitThreshold);
-
-    // These should be moved to AbstractCellCycleModel #1689
-    p_model->SetStemCellG1Duration(GetStemCellG1Duration());
-    p_model->SetTransitCellG1Duration(GetTransitCellG1Duration());
-    p_model->SetSDuration(GetSDuration());
-    p_model->SetG2Duration(GetG2Duration());
-    p_model->SetMDuration(GetMDuration());
+    p_model->SetWntLabelledThreshold(mWntLabelledThreshold);
 
     return p_model;
 }

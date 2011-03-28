@@ -70,7 +70,6 @@ public:
             2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()),
             num_steps);
 
-
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
         TS_ASSERT_EQUALS(p_stem_model->GetMaxTransitGenerations(), 3u);

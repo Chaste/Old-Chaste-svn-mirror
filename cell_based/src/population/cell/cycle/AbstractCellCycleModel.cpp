@@ -32,7 +32,7 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mCurrentCellCyclePhase(M_PHASE),
       mG1Duration(DOUBLE_UNSET),
       mReadyToDivide(false),
-      mDimension(0),
+      mDimension(UNSIGNED_UNSET),
       mMinimumGapDuration(0.01), // an educated guess
       // Default parameter values all have units of hours.
 	  mStemCellG1Duration(14.0),

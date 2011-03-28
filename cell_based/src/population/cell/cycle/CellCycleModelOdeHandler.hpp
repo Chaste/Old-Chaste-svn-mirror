@@ -44,12 +44,6 @@ class CellCycleModelOdeHandler
 {
 private:
 
-    /**
-     * Timestep to use when solving the ODE system.
-     * For some adaptive solvers (e.g. CVODE) this is the maximum step to use.
-     */
-    double mDt;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -68,6 +62,12 @@ private:
     }
 
 protected:
+    
+    /**
+     * Timestep to use when solving the ODE system.
+     * For some adaptive solvers (e.g. CVODE) this is the maximum step to use.
+     */
+    double mDt;
 
     /** A system of ODEs. */
     AbstractOdeSystem* mpOdeSystem;
@@ -77,7 +77,7 @@ protected:
 
     /** The last time the ODE system was evaluated. */
     double mLastTime;
-    
+
     /**
      * Solves the ODE system to a given time.
      *

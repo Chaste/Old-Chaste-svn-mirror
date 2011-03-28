@@ -164,7 +164,6 @@ protected:
 	 */
 	double mMDuration;
 
-
 public:
 
     /**

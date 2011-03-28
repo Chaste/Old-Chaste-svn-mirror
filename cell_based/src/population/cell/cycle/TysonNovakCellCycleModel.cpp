@@ -96,18 +96,43 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
     // Create a new cell-cycle model
     TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel(mpOdeSolver);
 
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
-    assert(mpOdeSystem);
-    p_model->SetOdeSystem(new TysonNovak2001OdeSystem);
-    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
-
-    // Set the values of the new cell-cycle model's member variables
+    /*
+     * Set each member variable of the new cell-cycle model that inherits
+     * its value from the parent.
+     * 
+     * Note 1: some of the new cell-cycle model's member variables (namely
+     * mBirthTime, mCurrentCellCyclePhase, mReadyToDivide, mDt, mpOdeSolver)
+     * will already have been correctly initialized in its constructor.
+     * 
+     * Note 2: one or more of the new cell-cycle model's member variables
+     * may be set/overwritten as soon as InitialiseDaughterCell() is called on
+     * the new cell-cycle model.
+     * 
+     * Note 3: the member variable mDimension remains unset, since this cell-cycle
+     * model does not need to know the spatial dimension, so if we were to call
+     * SetDimension() on the new cell-cycle model an exception would be triggered;
+     * hence we do not set this member variable.
+     */ 
     p_model->SetBirthTime(mBirthTime);
-    p_model->SetLastTime(mLastTime);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetMinimumGapDuration(mMinimumGapDuration);
+    p_model->SetStemCellG1Duration(mStemCellG1Duration);
+    p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+    p_model->SetSDuration(mSDuration);
+    p_model->SetG2Duration(mG2Duration);
+    p_model->SetMDuration(mMDuration);
     p_model->SetDivideTime(mDivideTime);
     p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
     p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
-    p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetLastTime(mLastTime);
+
+    /*
+     * Create the new cell-cycle model's ODE system and use the current values
+     * of the state variables in mpOdeSystem as an initial condition.
+     */
+    assert(mpOdeSystem);
+    p_model->SetOdeSystem(new TysonNovak2001OdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
     return p_model;
 }

@@ -52,20 +52,42 @@ AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
     // Create a new cell-cycle model
     SingleOdeWntCellCycleModel* p_model = new SingleOdeWntCellCycleModel(this->mpOdeSolver);
 
-    // Create the new cell-cycle model's ODE system
-    double wnt_level = this->GetWntLevel();
-    p_model->SetOdeSystem(new Mirams2010WntOdeSystem(wnt_level, mpCell->GetMutationState()));
-
-    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell-cycle model's ODE system
-    assert(mpOdeSystem);
-    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
-
-    // Set the values of the new cell-cycle model's member variables
-    p_model->SetCellProliferativeType(mCellProliferativeType);
+    /*
+     * Set each member variable of the new cell-cycle model that inherits
+     * its value from the parent.
+     * 
+     * Note 1: some of the new cell-cycle model's member variables (namely
+     * mBirthTime, mCurrentCellCyclePhase, mReadyToDivide, mDt, mpOdeSolver)
+     * will already have been correctly initialized in its constructor.
+     * 
+     * Note 2: one or more of the new cell-cycle model's member variables
+     * may be set/overwritten as soon as InitialiseDaughterCell() is called on
+     * the new cell-cycle model.
+     */
     p_model->SetBirthTime(mBirthTime);
+    p_model->SetDimension(mDimension);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetMinimumGapDuration(mMinimumGapDuration);
+    p_model->SetStemCellG1Duration(mStemCellG1Duration);
+    p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+    p_model->SetSDuration(mSDuration);
+    p_model->SetG2Duration(mG2Duration);
+    p_model->SetMDuration(mMDuration);
+    p_model->SetUseCellProliferativeTypeDependentG1Duration(mUseCellProliferativeTypeDependentG1Duration);
+    p_model->SetWntStemThreshold(mWntStemThreshold);
+    p_model->SetWntTransitThreshold(mWntTransitThreshold);
+    p_model->SetWntLabelledThreshold(mWntLabelledThreshold);
     p_model->SetLastTime(mLastTime);
     p_model->SetBetaCateninDivisionThreshold(mBetaCateninDivisionThreshold);
-    p_model->SetDimension(mDimension);
+
+    /*
+     * Create the new cell-cycle model's ODE system and use the current values
+     * of the state variables in mpOdeSystem as an initial condition.
+     */
+    assert(mpOdeSystem);
+    double wnt_level = this->GetWntLevel();
+    p_model->SetOdeSystem(new Mirams2010WntOdeSystem(wnt_level, mpCell->GetMutationState()));
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
     return p_model;
 }
