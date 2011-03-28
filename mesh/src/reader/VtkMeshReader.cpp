@@ -239,7 +239,7 @@ ElementData VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNextFaceData()
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetCellData(std::string dataName)
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetCellData(std::string dataName, std::vector<double>& dataPayload)
 {
     vtkCellData *p_cell_data = mpVtkUnstructuredGrid->GetCellData();
 
@@ -249,18 +249,49 @@ std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetCellData(std::strin
     }
 
     vtkDataArray *p_scalars = p_cell_data->GetArray( dataName.c_str() );
-    std::vector<double> data_payload;
-
-    for (unsigned i = 0; i < mNumElements; i++)
+    if (p_scalars->GetNumberOfComponents() != 1)
     {
-        data_payload.push_back( p_scalars->GetTuple(i)[0] );
+        EXCEPTION("The cell data '" + dataName + "' is not scalar data.");
     }
 
-    return data_payload;
+    dataPayload.clear();
+    for (unsigned i = 0; i < mNumElements; i++)
+    {
+        dataPayload.push_back( p_scalars->GetTuple(i)[0] );
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetPointData(std::string dataName)
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetCellData(std::string dataName, std::vector<c_vector<double,SPACE_DIM> >& dataPayload)
+{
+    vtkCellData *p_cell_data = mpVtkUnstructuredGrid->GetCellData();
+
+    if ( !p_cell_data->HasArray(dataName.c_str()) )
+    {
+        EXCEPTION("No cell data '" + dataName + "'");
+    }
+
+    vtkDataArray *p_scalars = p_cell_data->GetArray( dataName.c_str() );
+    if (p_scalars->GetNumberOfComponents() != 3)
+    {
+        EXCEPTION("The cell data '" + dataName + "' is not 3-vector data.");
+    }
+
+    dataPayload.clear();
+    for (unsigned i = 0; i < mNumElements; i++)
+    {
+        c_vector <double, SPACE_DIM> data;
+        for (unsigned j = 0; j < SPACE_DIM; j++)
+        {
+            data[j]=  p_scalars->GetTuple(i)[j];
+        }
+        dataPayload.push_back(data);
+    }
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetPointData(std::string dataName, std::vector<double>& dataPayload)
 {
     vtkPointData *p_point_data = mpVtkUnstructuredGrid->GetPointData();
 
@@ -270,15 +301,47 @@ std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetPointData(std::stri
     }
 
     vtkDataArray *p_scalars = p_point_data->GetArray( dataName.c_str() );
-    std::vector<double> data_payload;
+    if (p_scalars->GetNumberOfComponents() != 1)
+    {
+        EXCEPTION("The point data '" + dataName + "' is not scalar data.");
+    }
+
+    dataPayload.clear();
 
     for (unsigned i = 0; i < mNumNodes; i++)
     {
-        data_payload.push_back( p_scalars->GetTuple(i)[0] );
+        dataPayload.push_back( p_scalars->GetTuple(i)[0] );
+    }
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetPointData(std::string dataName, std::vector<c_vector<double,SPACE_DIM> >& dataPayload)
+{
+   vtkPointData *p_point_data = mpVtkUnstructuredGrid->GetPointData();
+
+    if ( !p_point_data->HasArray(dataName.c_str()) )
+    {
+        EXCEPTION("No point data '" + dataName + "'");
     }
 
-    return data_payload;
+    vtkDataArray *p_scalars = p_point_data->GetArray( dataName.c_str() );
+
+    if (p_scalars->GetNumberOfComponents() != 3)
+    {
+        EXCEPTION("The point data '" + dataName + "' is not 3-vector data.");
+    }
+    dataPayload.clear();
+    for (unsigned i = 0; i < mNumNodes; i++)
+    {
+        c_vector<double, SPACE_DIM> data;
+        for (unsigned j = 0; j< SPACE_DIM; j++)
+        {
+            data[j] = p_scalars->GetTuple(i)[j];
+        }
+        dataPayload.push_back( data );
+    }
 }
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 vtkUnstructuredGrid* VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::OutputMeshAsVtkUnstructuredGrid()

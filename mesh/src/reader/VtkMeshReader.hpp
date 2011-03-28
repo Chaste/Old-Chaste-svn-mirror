@@ -57,13 +57,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vtkGenericGeometryFilter.h>
 #include <vtkDataCompressor.h>
 
+#include "UblasVectorInclude.hpp"
 #include "AbstractMeshReader.hpp"
 
 /**
  *  VtkMeshReader
  *
  *  Reads a mesh from VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
- *  \todo Provide <2,2> functionality
  */
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -181,17 +181,37 @@ public:
 
     /**
      * Returns an std::vector containing the vtkCellData with attribute name specified
-     *
+     * Throws if the attribute name does not exist
      * @param dataName Name of the cell data
+     * @param dataPayload in which to store the result
      */
-    std::vector<double> GetCellData(std::string dataName);
+     void GetCellData(std::string dataName, std::vector<double>& dataPayload);
 
     /**
      * Returns an std::vector containing the vtkPointData with attribute name specified
+     * Throws if the attribute name does not exist
      *
      * @param dataName Name of the point data
+     * @param dataPayload in which to store the result
      */
-    std::vector<double> GetPointData(std::string dataName);
+    void GetPointData(std::string dataName, std::vector<double>& dataPayload);
+
+    /**
+     * Returns an std::vector containing the vector-directed vtkCellData with attribute name specified
+     * Throws if the attribute name does not exist
+     * @param dataName Name of the cell data
+     * @param dataPayload in which to store the result
+     */
+     void GetCellData(std::string dataName, std::vector<c_vector<double,SPACE_DIM> >& dataPayload);
+
+    /**
+     * Returns an std::vector containing the vector-directed vtkPointData with attribute name specified
+     * Throws if the attribute name does not exist
+     *
+     * @param dataName Name of the point data
+     * @param dataPayload in which to store the result
+     */
+    void GetPointData(std::string dataName, std::vector<c_vector<double,SPACE_DIM> >& dataPayload);
 
     /**
      * Return a pointer to mpVtkUnstructuredGrid

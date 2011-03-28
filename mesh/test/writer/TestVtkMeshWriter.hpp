@@ -159,18 +159,39 @@ public:
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
             
             //Check that it has the correct data
-            std::vector<double> distance_read = vtk_reader.GetPointData("Distance from origin");
+            std::vector<double> distance_read;
+            vtk_reader.GetPointData("Distance from origin", distance_read);
             for (unsigned i=0; i<distance_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
             } 
-            std::vector<double> quality_read = vtk_reader.GetCellData("Quality");
+
+            std::vector<c_vector<double,3> > location_read;
+            vtk_reader.GetPointData("Location", location_read);
+            for (unsigned i=0; i<location_read.size(); i++)
+            {
+                for (unsigned j=0; j<3; j++)
+                {
+                    TS_ASSERT_EQUALS(location[i][j], location_read[i][j]);
+                }
+            }
+
+            std::vector<double> quality_read;
+            vtk_reader.GetCellData("Quality", quality_read);
             for (unsigned i=0; i<quality_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(quality[i], quality_read[i]);
             }
-            
-            ///\todo #1731 - need to read the tensors too. 
+
+            std::vector<c_vector<double,3> > centroid_read;
+            vtk_reader.GetCellData("Centroid", centroid_read);
+            for (unsigned i=0; i<centroid_read.size(); i++)
+            {
+                for (unsigned j=0; j<3; j++)
+                {
+                    TS_ASSERT_EQUALS(centroid[i][j], centroid_read[i][j]);
+                }
+            }
 
         }
 #endif //CHASTE_VTK
@@ -205,7 +226,8 @@ public:
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
             
             //Check that it has the correct data
-            std::vector<double> rank_read = vtk_reader.GetPointData("Process rank");
+            std::vector<double> rank_read;
+            vtk_reader.GetPointData("Process rank", rank_read);
             for (unsigned i=0; i<rank_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(rank[i], rank_read[i]);
@@ -268,18 +290,36 @@ public:
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
             
             //Check that it has the correct data
-           std::vector<double> distance_read = vtk_reader.GetPointData("Distance from origin");
+           std::vector<double> distance_read;
+           vtk_reader.GetPointData("Distance from origin", distance_read);
             for (unsigned i=0; i<distance_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
             } 
-            std::vector<double> quality_read = vtk_reader.GetCellData("Quality");
+            std::vector<c_vector<double,2> > location_read;
+            vtk_reader.GetPointData("Location", location_read);
+            for (unsigned i=0; i<location_read.size(); i++)
+            {
+                for (unsigned j=0; j<2; j++)
+                {
+                    TS_ASSERT_EQUALS(location[i][j], location_read[i][j]);
+                }
+            }
+            std::vector<double> quality_read;
+            vtk_reader.GetCellData("Quality", quality_read);
             for (unsigned i=0; i<quality_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(quality[i], quality_read[i]);
             }
-            
-            ///\todo #1731 - need to read the tensors too. 
+            std::vector<c_vector<double,2> > centroid_read;
+            vtk_reader.GetCellData("Centroid", centroid_read);
+            for (unsigned i=0; i<centroid_read.size(); i++)
+            {
+                for (unsigned j=0; j<2; j++)
+                {
+                    TS_ASSERT_EQUALS(centroid[i][j], centroid_read[i][j]);
+                }
+            }
         }
 #endif //CHASTE_VTK
     }
@@ -338,19 +378,22 @@ public:
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
             
             //Check that it has the correct data
-            std::vector<double> distance_read = vtk_reader.GetPointData("Distance from origin");
+            std::vector<double> distance_read;
+            vtk_reader.GetPointData("Distance from origin", distance_read);
             for (unsigned i=0; i<distance_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
             } 
-            std::vector<double> quality_read = vtk_reader.GetCellData("Quality");
+            std::vector<double> quality_read;
+            vtk_reader.GetCellData("Quality", quality_read);
             for (unsigned i=0; i<quality_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(quality[i], quality_read[i]);
             }
             
-            std::vector<double> centroid_read = vtk_reader.GetCellData("Centroid");
-            TS_ASSERT_EQUALS(centroid_read.size(),centroid.size()); //This should not be true
+            std::vector<c_vector<double,3> > centroid_read;
+            vtk_reader.GetCellData("Centroid", centroid_read);
+            TS_ASSERT_EQUALS(centroid_read.size(),centroid.size());
             ///\todo #1731 - need to read the tensors too. 
 
         }

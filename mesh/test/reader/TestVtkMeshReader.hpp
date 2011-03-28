@@ -57,6 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GenericMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "UblasVectorInclude.hpp"
 
 #ifdef CHASTE_VTK
 typedef VtkMeshReader<3,3> MESH_READER3;
@@ -262,7 +263,7 @@ public:
     void TestBuildTetrahedralMeshFromMeshReader(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader<3,3> mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/heart_decimation.vtu");
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -294,21 +295,57 @@ public:
          * Check that point and cell data attributes work properly.
          */
         // Check element quality cell attribute is read properly
+        std::vector<double> quality;
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetCellData( "Centroid", quality), "The cell data \'Centroid\' is not scalar data.");
+        mesh_reader.GetCellData( "Quality", quality);
         for (unsigned i = 0; i < 610; i+=60)
         {
-            TS_ASSERT_DELTA( mesh_reader.GetCellData( "Quality" )[i], mesh.GetElement(i)->CalculateQuality(), 1e-4 );
+            
+            TS_ASSERT_DELTA( quality[i], mesh.GetElement(i)->CalculateQuality(), 1e-4 );
 
         }
+        // Check centroid attribute is read properly
+        std::vector<c_vector<double, 3> > centroid;
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetCellData( "Quality", centroid), "The cell data \'Quality\' is not 3-vector data.");
+        mesh_reader.GetCellData("Centroid", centroid);
+        for (unsigned i = 0; i < 610; i+=60)
+        {
+            
+            for (unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA( centroid[i][j], mesh.GetElement(i)->CalculateCentroid()[j], 1e-4 );
+            }
+        }
+
 
         // Check distance from origin point attribute is read properly
+        std::vector<double> distance;
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetPointData( "Location", distance), "The point data \'Location\' is not scalar data.");
+        mesh_reader.GetPointData( "Distance from origin", distance);
         for (unsigned i = 0; i < 173; i+=17)
         {
-            TS_ASSERT_DELTA( mesh_reader.GetPointData( "Distance from origin" )[i], norm_2(mesh.GetNode(i)->rGetLocation()), 1e-4 );
+            TS_ASSERT_DELTA( distance[i], norm_2(mesh.GetNode(i)->rGetLocation()), 1e-4 );
+        }
+
+        // Check location attribute is read properly
+        std::vector<c_vector<double, 3> > location;
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetPointData( "Distance from origin", location), "The point data \'Distance from origin\' is not 3-vector data.");
+        mesh_reader.GetPointData("Location", location);
+        for (unsigned i = 0; i < 173; i+=17)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA( location[i][j], mesh.GetNode(i)->rGetLocation()[j], 1e-4 );
+            }
         }
 
         // Check that we can't ask for cell or point data that doesn't exist
-        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetCellData( "Non-existent data" ) );
-        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetPointData( "Non-existent data" ) );
+        std::vector<double> not_there;
+        std::vector<c_vector<double, 3> > vectors_not_there;
+        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetCellData( "Non-existent data", not_there) );
+        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetPointData( "Non-existent data", not_there) );
+        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetCellData( "Non-existent data", vectors_not_there) );
+        TS_ASSERT_THROWS_ANYTHING( mesh_reader.GetPointData( "Non-existent data", vectors_not_there) );
 #endif // CHASTE_VTK
     }
 
@@ -318,7 +355,7 @@ public:
    void TestBuildDistributedTetrahedralMeshFromVtkMeshReader(void) throw(Exception)
    {
 #ifdef CHASTE_VTK
-        VtkMeshReader<3,3> mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/heart_decimation.vtu");
 
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);

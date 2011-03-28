@@ -1250,9 +1250,11 @@ public:
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
         
         //Last time step V_m
-        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[0],    13.146, 1e-3 );
-        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[110],  13.146, 1e-3 );
-        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[220], -83.855, 1e-3 );
+        std::vector<double> v_at_last;
+        mesh_reader.GetPointData( "V_000050", v_at_last);
+        TS_ASSERT_DELTA( v_at_last[0],    13.146, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[110],  13.146, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[220], -83.855, 1e-3 );
 
 #endif // CHASTE_VTK    
 
