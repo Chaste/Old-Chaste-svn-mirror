@@ -475,22 +475,32 @@ public :
         //This barrier just slows things down a bit
         PetscTools::Barrier();
 
-        // compare the voltage file with a correct version that is known to visualize correctly in Vtk
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        
+        VtkMeshReader<3,3> vtk_mesh_reader(test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu");
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), 12U);
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(), 12U);
+        
+        std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
 
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "heart/test/data/VtkData/bidomain/cube_2mm_12_elements.vtu";
-        }
-        else
-        {
-            target_file = "heart/test/data/VtkData/bidomain/cube_2mm_12_elements_v52.vtu";
-        }
-
-        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu"
-                                     + " " + target_file;
-        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+        std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.2 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+        
+        //V_m and phi_e samples 
+        std::vector<double> v_at_last, phi_at_last;
+        vtk_mesh_reader.GetPointData( "V_000001", v_at_last);
+        TS_ASSERT_DELTA( v_at_last[0],  -46.3761, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[6],  -46.3761, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[11], -46.3760, 1e-3 );
+        vtk_mesh_reader.GetPointData( "Phi_e_000001", phi_at_last);
+        TS_ASSERT_DELTA( phi_at_last[0],  0.0, 1e-3 );
+        TS_ASSERT_DELTA( phi_at_last[6],  0.0, 1e-3 );
+        TS_ASSERT_DELTA( phi_at_last[11], 0.0, 1e-3 );
 #endif //CHASTE_VTK
     }
     void TestMonodomainVtkConversion2D() throw(Exception)
@@ -515,22 +525,29 @@ public :
         //This barrier just slows things down a bit
         PetscTools::Barrier();
 
-        std::string target_file;
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            target_file = "heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements.vtu";
-        }
-        else
-        {
-            target_file = "heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements_v52.vtu";
-        }
-
-        // compare the voltage file with a correct version that visualizes Vm correctly in VTK
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu"
-                                     + " " + target_file;
-        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
-#endif //CHASTE_VTK
+        
+        VtkMeshReader<2,2> vtk_mesh_reader(test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu");
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), 221U);
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(), 400U);
+        
+        std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+
+        std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.01, 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+        
+        //V_m samples 
+        std::vector<double> v_at_last;
+        vtk_mesh_reader.GetPointData( "V_000020", v_at_last);
+        TS_ASSERT_DELTA( v_at_last[0],   -83.8534, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[110], -83.8534, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[220], -83.8530, 1e-3 );
+  #endif //CHASTE_VTK
 
     }
 

@@ -894,22 +894,33 @@ public:
 
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
-        //VTK
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output/";
-        ///\todo Intel compiler has:
-        /// /tmp/jmpf/testoutput/MonodomainCreatesGeometry/vtk_output/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu differ: byte 49361, line 221
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-        	TS_ASSERT_EQUALS(system(("cmp -n 35145 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
+        
+        VtkMeshReader<3,3> mesh_reader(results_dir + "monodomain3d.vtu");
+        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 1331U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 6000U);
+        
+        std::vector<double> first_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
 
-        }
-        else
-        {
-            //Assume version 5.2
-        	TS_ASSERT_EQUALS(system(("cmp -n 35145 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d_v52.vtu").c_str()), 0);
-        }
-        //Info file
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
+        std::vector<double> next_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.01 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+        
+        //Last time step and midway time step for V_m 
+        std::vector<double> v_at_last, v_at_100;
+        mesh_reader.GetPointData( "V_000100", v_at_100);
+        TS_ASSERT_DELTA( v_at_100[0],    47.9573, 1e-3 );
+        TS_ASSERT_DELTA( v_at_100[665],  26.6333, 1e-3 );
+        TS_ASSERT_DELTA( v_at_100[1330], -55.0584, 1e-3 );
+        mesh_reader.GetPointData( "V_000200", v_at_last);
+        TS_ASSERT_DELTA( v_at_last[0],    31.8997, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[665],  32.6873, 1e-3 );
+        TS_ASSERT_DELTA( v_at_last[1330], 34.5176, 1e-3 );
+
         //HeartConfig XML
         filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param2(filename_param.c_str());

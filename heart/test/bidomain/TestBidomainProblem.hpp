@@ -693,24 +693,35 @@ public:
 
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
-        //VTK
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
+        
+        VtkMeshReader<3,3> mesh_reader(results_dir + "axi3d.vtu");
+        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 50U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 139U);
+        
+        std::vector<double> first_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
 
-
-        //Note that "grep -b AAAAAAAAAAAAAAAAAAA heart/test/data/VtkData/bidomain/axi3d.vtu" (or similar)
-        //indicates that the real data starts at byte 21435
-        //VTK base64 encoded data is quite fragile, so it's not wise to do byte-for-byte comparison
-        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
-        {
-            TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
-        }
-        else
-        {
-            TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d_v52.vtu").c_str()), 0);
-        }
-
-        //info file
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
+        std::vector<double> next_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 5.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+        
+        //V_m and phi_e samples 
+        std::vector<double> v_at_last, v_at_50, phi_at_50;
+        mesh_reader.GetPointData( "V_000050", v_at_50);
+        TS_ASSERT_DELTA( v_at_50[0],  -83.6564, 1e-3 );
+        TS_ASSERT_DELTA( v_at_50[25], -83.8549, 1e-3 );
+        TS_ASSERT_DELTA( v_at_50[49], -83.8539, 1e-3 );
+        mesh_reader.GetPointData( "Phi_e_000050", phi_at_50);
+        TS_ASSERT_DELTA( phi_at_50[0],  -0.0332, 1e-3 );
+        TS_ASSERT_DELTA( phi_at_50[25],  0.0064, 1e-3 );
+        TS_ASSERT_DELTA( phi_at_50[49],  0.0062, 1e-3 );
+        mesh_reader.GetPointData( "V_000100", v_at_last);
+        TS_ASSERT_DELTA( v_at_last[0],   -83.6881, 1e-3 );
+  
         //HeartConfig XML
         filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param2(filename_param.c_str());
