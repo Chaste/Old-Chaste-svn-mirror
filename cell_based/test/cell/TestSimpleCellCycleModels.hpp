@@ -506,6 +506,7 @@ public:
         StochasticOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <StochasticOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
         p_hepa_one_model2->SetCellProliferativeType(STEM);
         CellPtr p_hepa_one_cell2(new Cell(p_state, p_hepa_one_model2));
+        p_hepa_one_cell2->InitialiseCellCycleModel();
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
 
