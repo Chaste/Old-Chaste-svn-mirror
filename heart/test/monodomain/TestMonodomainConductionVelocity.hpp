@@ -108,6 +108,7 @@ public:
     // (Historical reasons...)
     void TestMonodomainDg01DWith20elements()
     {
+#ifndef NDEBUG //Note that this test relies on the debug VerifyStateVariables() method throwing
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_20_elements");
@@ -128,7 +129,7 @@ public:
 
         TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),
                 "State variable fast_sodium_current_m_gate__m has gone out of range. Check model parameters, for example spatial stepsize");
-
+#endif //NDEBUG //Note that this test relies on the debug VerifyStateVariables() method throwing
     }
 
 };

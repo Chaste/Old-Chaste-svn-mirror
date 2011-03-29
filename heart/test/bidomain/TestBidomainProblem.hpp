@@ -504,6 +504,7 @@ public:
 
     void TestBidomainFallsOverProducesOutput() throw(Exception)
     {
+#ifndef NDEBUG //Note that this test relies on the debug VerifyStateVariables() method throwing
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainFallsOver");
@@ -551,6 +552,7 @@ public:
             TS_ASSERT(file.is_open());
             file.close();
         }
+#endif //NDEBUG Note that this test relies on the debug VerifyStateVariables() method throwing
     }
 
 
