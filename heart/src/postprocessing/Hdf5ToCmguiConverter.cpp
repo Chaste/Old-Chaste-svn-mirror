@@ -167,13 +167,13 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
 {
-    out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
     assert(this->mpReader->GetVariableNames().size() > 0);//seg fault guard
     std::string variable_name = this->mpReader->GetVariableNames()[0];
 
     if(PetscTools::AmMaster())
     {
+        out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
     	//write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interpretes
 	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
 	    *p_script_file << comment;

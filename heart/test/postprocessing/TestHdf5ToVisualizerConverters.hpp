@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "HeartConfig.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #ifdef CHASTE_VTK
@@ -237,7 +238,6 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(output_dir);
         Hdf5ToCmguiConverter<1,1> converter(output_dir,  "many_variables", &mesh);
       
-        
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
      
         // compare the results files
@@ -469,7 +469,7 @@ public :
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
+        Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh, false);
 
         //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
         //This barrier just slows things down a bit
@@ -501,9 +501,15 @@ public :
         TS_ASSERT_DELTA( phi_at_last[0],  0.0, 1e-3 );
         TS_ASSERT_DELTA( phi_at_last[6],  0.0, 1e-3 );
         TS_ASSERT_DELTA( phi_at_last[11], 0.0, 1e-3 );
+
+        //Show that trying to write pvtu files from a TetrahedralMesh gives a warning (but writes anyway)
+        Hdf5ToVtkConverter<3,3> converter2(working_directory, "cube_2mm_12_elements", &mesh, true);
+        VtkMeshReader<3,3> vtk_mesh_reader2(test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu");
+        TS_ASSERT_EQUALS( vtk_mesh_reader2.GetNumNodes(), 12U);
+ 
 #endif //CHASTE_VTK
     }
-    void TestMonodomainVtkConversion2D() throw(Exception)
+    void TestMonodomainParallelVtkConversion2D() throw(Exception)
     {
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -514,39 +520,62 @@ public :
                                   working_directory);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        TetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
+        Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh, true);
 
         //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
         //This barrier just slows things down a bit
         PetscTools::Barrier();
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::stringstream filepath;
+        filepath << test_output_directory << working_directory << "/vtk_output/2D_0_to_1mm_400_elements";        
+        if (PetscTools::IsSequential())
+        {
+            filepath <<  ".vtu";
+        }
+        else
+        {
+            filepath << "_" << PetscTools::GetMyRank() << ".vtu";
+        }
+        VtkMeshReader<2,2> vtk_mesh_reader(filepath.str());
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes() ); //221 in total;
+        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(),  mesh.GetNumLocalElements() ); //400 in total
         
-        VtkMeshReader<2,2> vtk_mesh_reader(test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu");
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), 221U);
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(), 400U);
-        
-        std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
-        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
-        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
-        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
-
-        std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
-        TS_ASSERT_DELTA( next_node[0] , 0.01, 1e-6 );
-        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
-        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+        if (PetscTools::IsSequential())
+        {
+            std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
+            TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+            TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+            TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+    
+            std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
+            TS_ASSERT_DELTA( next_node[0] , 0.01, 1e-6 );
+            TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+            TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+        }
         
         //V_m samples 
         std::vector<double> v_at_last;
         vtk_mesh_reader.GetPointData( "V_000020", v_at_last);
-        TS_ASSERT_DELTA( v_at_last[0],   -83.8534, 1e-3 );
-        TS_ASSERT_DELTA( v_at_last[110], -83.8534, 1e-3 );
-        TS_ASSERT_DELTA( v_at_last[220], -83.8530, 1e-3 );
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_DELTA( v_at_last[0],   -83.8534, 1e-3 );
+            TS_ASSERT_DELTA( v_at_last[110], -83.8534, 1e-3 );
+            TS_ASSERT_DELTA( v_at_last[220], -83.8530, 1e-3 );
+        }        
+        //Show that trying to write pvtu files with original node ordering gives a warning (but writes anyway)
+        HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
+        Hdf5ToVtkConverter<2,2> converter2(working_directory, "2D_0_to_1mm_400_elements", &mesh, true);
+        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        //This barrier just slows things down a bit
+        PetscTools::Barrier();
+        VtkMeshReader<2,2> vtk_mesh_reader2(test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu");
+        TS_ASSERT_EQUALS( vtk_mesh_reader2.GetNumNodes(), 221U);
   #endif //CHASTE_VTK
 
     }

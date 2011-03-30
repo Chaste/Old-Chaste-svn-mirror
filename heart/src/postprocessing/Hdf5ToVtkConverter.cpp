@@ -36,12 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "VtkMeshWriter.hpp"
 #include "GenericMeshReader.hpp"
-
+#include "DistributedTetrahedralMesh.hpp"
+#include "Warnings.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
+                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
+                          bool parallelVtk) :
                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "vtk_output")
 {
 #ifdef CHASTE_VTK
@@ -49,11 +51,40 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
 
     VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
 
-    unsigned num_nodes = this->mpReader->GetNumberOfRows();
-    DistributedVectorFactory factory(num_nodes);
-    ///\todo Can we get this as a std::vector?
-    Vec data = factory.CreateVec();//for V
-
+    DistributedVectorFactory *p_factory = pMesh->GetDistributedVectorFactory();
+    
+    //Make sure that we are never trying to write from an incomplete data HDF5 file
+    assert(this->mpReader->GetNumberOfRows() == pMesh->GetNumNodes());
+    
+    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(pMesh);
+   
+    unsigned num_nodes = pMesh->GetNumNodes();
+    if (parallelVtk)
+    {
+        //If it's not a distributed mesh, then we might want to give a warning and back-off
+        if (p_distributed_mesh == NULL)
+        {
+            WARNING("Can only write parallel VTK from a DistributedTetrahedralMesh - writing sequential VTK instead");
+            parallelVtk = false;
+        }
+        
+        //If the node ordering flag is set, then we can't do this
+        if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering())
+        {
+            WARNING("Can't write parallel VTK (pvtu) files with original ordering - writing sequential VTK instead");
+            parallelVtk = false;
+        }
+        
+        //Are we now committed to writing pvtu?
+        if (parallelVtk)
+        {
+           vtk_writer.SetParallelFiles(*pMesh);
+           num_nodes = p_distributed_mesh->GetNumLocalNodes();
+        }
+    }
+    
+    Vec data = p_factory->CreateVec();//for V
+    
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
 
     // Loop over time steps
@@ -65,22 +96,34 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             std::string variable_name = this->mpReader->GetVariableNames()[variable];
 
             this->mpReader->GetVariableOverNodes(data, variable_name, time_step); // Gets variable at this time step from HDF5 archive
-            ReplicatableVector repl_data(data);
+            
             std::vector<double> data_for_vtk;
             data_for_vtk.resize(num_nodes);
-            for (unsigned index=0; index<num_nodes; index++)
-            {
-                data_for_vtk[index]  = repl_data[index];
-            }
-
             std::ostringstream variable_point_data_name;
             variable_point_data_name << variable_name << "_" << std::setw(6) << std::setfill('0') << time_step;
-
-            if (PetscTools::AmMaster())
+    
+            if (parallelVtk)
             {
-                // Add V into the node "point" data
-                vtk_writer.AddPointData(variable_point_data_name.str(), data_for_vtk);
+                //Parallel VTU files
+                double *p_data;
+                VecGetArray(data, &p_data);
+                for (unsigned index=0; index<num_nodes; index++)
+                {
+                    data_for_vtk[index]  = p_data[index];
+                }
+                VecRestoreArray(data, &p_data);
             }
+            else
+            {
+                //One VTU file
+                ReplicatableVector repl_data(data);
+                for (unsigned index=0; index<num_nodes; index++)
+                {
+                    data_for_vtk[index]  = repl_data[index];
+                }
+            }
+            // Add this variable into the node "point" data
+            vtk_writer.AddPointData(variable_point_data_name.str(), data_for_vtk);
         }
     }
     VecDestroy(data);

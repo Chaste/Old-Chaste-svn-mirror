@@ -47,10 +47,12 @@ public:
      * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      * @param fileBaseName The base name of the data file.
      * @param pMesh Pointer to the mesh.
+     * @param parallelVtk - when true, write with pvtu and fragment meshes (only works for DistributedTetrahedralMesh)
      */
     Hdf5ToVtkConverter(std::string inputDirectory,
                               std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
+                              bool parallelVtk);
 
 };
 

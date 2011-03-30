@@ -71,6 +71,7 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
                   << "'/> <!-- This is optional; if not given, the loaded simulation will NOT itself be checkpointed -->" << std::endl;
         (*p_file) << "        <OutputVisualizer meshalyzer='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
                   << "' vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithVtk())
+                  << "' parallel_vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithParallelVtk())
                   << "' cmgui='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithCmgui()) << "'/>" << std::endl;
         (*p_file) << "    </ResumeSimulation>" << std::endl;
         (*p_file) << std::endl;
