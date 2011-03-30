@@ -46,18 +46,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In this tutorial we show how Chaste can be used to simulate a cylindrical model of an
  * intestinal crypt. Full details of the computational model can be found in the paper by
- * van Leeuwen ''et al'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
+ * van Leeuwen ''et al.'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test. This header file should be included
+ * The first thing to do is include the following header file, which allows us
+ * to use certain methods in our test. This header file must be included
  * in any Chaste test.
  */
 #include <cxxtest/TestSuite.h>
 /*
  * Any test in which the {{{GetIdentifier()}}} method is used, even via the main
  * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
- * must include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
- * as the first Chaste header included.
+ * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
+ * as the first Chaste header file.
  */
 #include "CheckpointArchiveTypes.hpp" 
 
@@ -66,21 +66,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * The next two header files define two different types of cell-cycle model.
  * In a {{{FixedDurationGenerationBasedCellCycleModel}}}, the duration of each phase
- * of the cell cycle is fixed. In a {{{WntCellCycleModel}}}, the duration of G1 phase
- * is determined by a system of nonlinear ODEs describing a cell's response to Wnt,
+ * of the cell cycle is fixed. In a {{{WntCellCycleModel}}}, the duration of a cell's G1 phase
+ * is determined by a system of nonlinear ODEs describing a cell's response to the local 
+ * concentration of Wnt,
  * a secreted cell–cell signalling molecule that is known to play a key role in cell
- * proliferation in the crypt.
+ * proliferation in the crypt. In our crypt simulations, we impose a fixed gradient of
+ * Wnt up the axis of the crypt.
  */
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-/* The next header file defines a helper class for generating a suitable mesh
+/* The next header file defines a helper class for generating a suitable triangular mesh
  * for the crypt simulation, such that the cell corresponding to each node is initially
- * in mechanical equilibrium with its neighours. */
+ * in mechanical equilibrium with its neighours and periodic boundary conditions are applied
+ * at the left- and right-hand sides of the mesh (hence the "cylindrical"). */
 #include "CylindricalHoneycombMeshGenerator.hpp"
 /* The next header file defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
  * for the inclusion of 'ghost nodes'. These are nodes in the mesh that do not correspond
  * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
- * at each timestep (since the triangulation algorithm requires a convex hull). */
+ * at each timestep. This is because the triangulation algorithm requires a convex hull. */
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 /*
  * The next header file defines a force law, based on a linear spring, for describing
@@ -103,6 +106,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * into the lumen once they reach the top of the crypt.
  */
 #include "SloughingCellKiller.hpp"
+
 /*
  * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
@@ -126,7 +130,7 @@ public:
          */
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
+        /* Next, we generate a mesh. The basic Chaste mesh is a {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left- and right-hand sides of the mesh, we
          * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use a helper class called
@@ -171,7 +175,6 @@ public:
          * Next we use the {{{CellPopulation}}} object to construct a {{{CryptSimulation2d}}} object,
          * which will be used to simulate the crypt model. */
         CryptSimulation2d simulator(cell_population);
-
         /*
          * We must set the output directory on the simulator (relative to
          * "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
@@ -179,8 +182,8 @@ public:
         simulator.SetOutputDirectory("CryptTutorialFixedCellCycle");
         simulator.SetEndTime(1);
         /*
-         * For longer simulations, you may not want to output the results
-         * every time step. In this case you can use the following method,
+         * For longer simulations, we may not want to output the results
+         * every time step. In this case we can use the following method,
          * to print results every 10 time steps instead. As the time step
          * used by the simulator, is 30 seconds, this method will cause the
          * simulator to print results every 5 minutes.
@@ -219,10 +222,11 @@ public:
     /*
      * EMPTYLINE
      *
-     * Finally, to visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
-     * You may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable. For further details on visualization, see RunningCellBasedVisualization.
+     * Finally, to visualize the results, we open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then we do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
+     * It may be necessary to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable. Further details on visualization can be found on the Chaste wiki page
+     * For further details on visualization, see ChasteGuides/RunningCellBasedVisualization.
      *
      * EMPTYLINE
      *
@@ -236,26 +240,26 @@ public:
      */
     void TestCryptWithWntCellCycle() throw(Exception)
     {
-        /* First re-initialize time to zero and reseed the random number generator. */
+        /* We first re-initialize time to zero and reseed the random number generator. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
 
-        /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
+        /* We then create a cylindrical mesh, and get the cell location indices, exactly as before. */
         CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
+        /* We create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
         std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Create the cell population, as before. */
+        /* We create the cell population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /*
-         * Set the height of the crypt. As well as passing this variable into the {{{sloughingCellKiller}}},
+         * We set the height of the crypt. As well as passing this variable into the {{{sloughingCellKiller}}},
          * we will pass it to the {{{WntConcentration}}} object (see below).
          */
         double crypt_height = 8.0;

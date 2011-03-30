@@ -49,9 +49,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * multicellular tumour spheroid. Like the crypt simulations, tumour spheroid simulations
  * include cell-cycle models and force laws to determine how cells divide and
  * move. In tumour spheroid simulations, however, these are also coupled to a
- * system of partial differential equations that determine the concentration
+ * system of partial differential equations (PDEs) that determine the concentration
  * of specified nutrients (e.g. oxygen) throughout the cell population. Also, unlike
- * in a crypt simulation, the cell population grows substantially as the cell-based simulation
+ * in a crypt simulation, the cell population may grow substantially as the simulation
  * progresses.
  *
  * In summary, the main differences between this tutorial and the crypt simulation
@@ -115,7 +115,7 @@ public:
     void TestSpheroidTutorial() throw(Exception)
     {
         /*
-         * This first line can be ignored, it's a macro which just says
+         * This first line can be ignored: it is a macro which just says
          * don't run this test if in parallel.
          */
         EXIT_IF_PARALLEL;
@@ -151,7 +151,7 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
         /*
-         * Now loop over the nodes...
+         * Now we loop over the nodes...
          */
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -224,7 +224,7 @@ public:
          * the PDE ''u_xx'' + ''u_yy'' = ''k''(''x'',''y'') ''u'', where ''u''(''x'',''y'') denotes
          * the oxygen concentration at
          * position (''x'',''y'') and the function ''k''(''x'',''y'') specifies the rate of consumption by live cells
-         * there. Here ''k''(''x'',''y'')'' takes the value -0.03 (the coefficient below) if
+         * there. Here ''k''(''x'',''y'') takes the value -0.03 (the coefficient below) if
          * the cell located at (''x'',''y'') is a live cell, and zero if the cell has died due
          * to oxygen deprivation.
          */
@@ -241,7 +241,7 @@ public:
         bool is_neumann_bc = true;
 
         /*
-         * To pass the PDE to our simulator, it first needs to be encapsulated in a
+         * To pass the PDE to our simulator, it must first be encapsulated in a
          * {{{PdeAndBoundaryConditions}}} object, together with the boundary condition for
          * the PDE. The latter is specified by the second and third arguments of the
          * {{{PdeAndBoundaryConditions}}} constructor below: the second argument defines the value
@@ -292,12 +292,12 @@ public:
         simulator.AddForce(&linear_force);
 
         /*
-         * Call {{{Solve()}}} on the simulator to run the simulation.
+         * We call {{{Solve()}}} on the simulator to run the simulation.
          */
         simulator.Solve();
 
         /*
-         * Finally, call {{{Destroy()}}} on the singleton classes. The results
+         * Finally, we call {{{Destroy()}}} on the singleton classes. The results
          * can be visualized as in the crypt simulation tutorial.
          */
         SimulationTime::Destroy();
