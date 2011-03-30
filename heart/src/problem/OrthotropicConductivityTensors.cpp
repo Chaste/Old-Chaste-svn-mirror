@@ -87,12 +87,10 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
             {
                 int current_fibre_global_index = (int) it->GetIndex();
 
-                if (current_fibre_global_index < previous_global_index)
-                {
-#define COVERAGE_IGNORE
-                    EXCEPTION("Assumption about ElementIterator returning elements in ascending order is wrong.");
-#undef COVERAGE_IGNORE
-                }
+                // Assumption about ElementIterator returning elements in ascending order is wrong
+                // if this fails
+                assert(current_fibre_global_index > previous_global_index);
+
                 
                 for (int fibre_index=previous_global_index; fibre_index<current_fibre_global_index-1; fibre_index++)
                 {

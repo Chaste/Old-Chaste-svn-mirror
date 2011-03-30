@@ -199,10 +199,6 @@ Vec PetscTools::CreateVec(std::vector<double> data)
     }
     VecRestoreArray(ret, &p_ret);
 
-    /// \todo: #1682 needed?
-    VecAssemblyBegin(ret);
-    VecAssemblyEnd(ret);
-
     return ret;
 }
 
@@ -216,10 +212,6 @@ Vec PetscTools::CreateAndSetVec(int size, double value)
 #else
     VecSet(ret, value);
 #endif
-
-    /// \todo: #1682 needed?
-    VecAssemblyBegin(ret);
-    VecAssemblyEnd(ret);
 
     return ret;
 }
@@ -272,7 +264,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     {
         if (rowPreallocation == 0)
         {
-           ///\todo #1682 We aren't allowed to do non-zero allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
+           // We aren't allowed to do non-zero allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
            WARNING("Ignoring MAT_IGNORE_OFF_PROC_ENTRIES flag because we might set non-zeroes later");
         }
         else

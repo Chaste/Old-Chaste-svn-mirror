@@ -474,7 +474,14 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AllocateMatrix
     {
         assert(DIM==3);
 
-        // pass in 0 as the preallocation number, and the false says don't preallocate
+        // pass in 0 as the preallocation number
+
+        // Note: linear system always tries to use MAT_IGNORE_OFF_PROC_ENTRIES,
+        // which PetscTools::SetupMat() can do with num_dofs = 0, hence the warnings
+        // that get output. To fix this: replace linear systems with matrices, calling
+        // PetscTools::SetupMat(), and in the future, when parallelising, remember to
+        // think about MAT_IGNORE_OFF_PROC_ENTRIES
+
         mpLinearSystem = new LinearSystem(mNumDofs, 0);
         mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, 0);
 
@@ -516,8 +523,6 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AllocateMatrix
         // be of type MATSEQAIJ if num_procs=1 and MATMPIAIJ otherwise. In the former case
         // MatSeqAIJSetPreallocation MUST be called [MatMPIAIJSetPreallocation will have
         // no effect (silently)], and vice versa in the latter case
-
-        ///\todo #1682 We aren't allowed to do this row allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
 
         if(PetscTools::IsSequential())
         {
