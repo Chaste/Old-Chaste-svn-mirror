@@ -42,41 +42,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Introduction ==
  *
- * In this tutorial we show how to create a new cell-cycle model class and how this
+ * In the previous cell-based Chaste tutorials, we used existing cell-cycle models to define how cells
+ * proliferate. In this tutorial, we show how to create a new cell-cycle model class, and how this
  * can be used in a cell-based simulation.
  *
  * == Including header files ==
  *
- * We begin by including the necessary header files. */
+ * We begin by including the necessary header file. */
 #include <cxxtest/TestSuite.h>
 
 /* The next two headers are used in archiving, and only need to be included
- * if you want to be able to archive (save or load) the new cell-cycle model object
+ * if we want to be able to archive (save or load) the new cell-cycle model object
  * in a cell-based simulation (in this case, these headers must be included before
  * any other serialization headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 /* The next header defines a base class for simple generation-based cell-cycle models. 
- * A cell-cycle model is ''simple'' if the duration of each phase of the cell
+ * A cell-cycle model is defined as ''simple'' if the duration of each phase of the cell
  * cycle is determined when the cell-cycle model is created, rather than
  * evaluated on the fly (e.g. by solving a system of ordinary differential
  * equations for the concentrations of key cell cycle proteins), and may
- * depend on the cell type. A simple cell-cycle model is ''generation-based'' if it keeps track of the
+ * depend on the cell type. A simple cell-cycle model is defined as ''generation-based'' if it keeps track of the
  * generation of the corresponding cell, and sets the cell type according
- * to this.
- *
- * Our new cell-cycle model will inherit from this abstract class. */
+ * to this. Our new cell-cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
- * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
- * class for testing a cell-cycle model; {{{HoneycombMeshGenerator}}} defines
- * a helper class for generating a suitable mesh; {{{WildTypeCellMutationState}}}
- * defines a wild-type or 'healthy' cell mutation state; {{{GeneralisedLinearSpringForce}}}
- * defines a force law for describing the mechanical interactions between neighbouring
- * cells in the cell population; and {{{CellBasedSimulation}}} defines the class that
- * simulates the evolution of the cell population. */
+ * simulation test. We have encountered each of these header files in previous cell-based Chaste
+ * tutorials, except for {{{CheckReadyToDivideAndPhaseIsUpdated}}}, which defines a helper
+ * class for testing a cell-cycle model. */
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -89,10 +84,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * As an example, let us consider a cell-cycle model in which the durations
  * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential
  * random variable with rate parameter lambda. This rate parameter is a constant, dependent on cell type, whose value is
- * chosen such that the mean of the distribution, 1/lambda, equals the mean
- * G1 duration as defined in the {{{AbstractCellCycleModel}}} class.
- *
- * To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
+ * chosen such that the mean of the distribution, 1/&lambda, equals the mean
+ * G1 duration as defined in the {{{AbstractCellCycleModel}}} class. To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
  * 
