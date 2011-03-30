@@ -533,7 +533,7 @@ public :
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::stringstream filepath;
-        filepath << test_output_directory << working_directory << "/vtk_output/2D_0_to_1mm_400_elements";        
+        filepath << test_output_directory << working_directory << "/parallel_vtk_output/2D_0_to_1mm_400_elements";        
         if (PetscTools::IsSequential())
         {
             filepath <<  ".vtu";

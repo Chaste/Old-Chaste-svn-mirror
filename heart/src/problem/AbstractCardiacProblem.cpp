@@ -542,6 +542,12 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
             //Convert simulation data to VTK format
             Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, false);
         }
+
+        if (HeartConfig::Instance()->GetVisualizeWithParallelVtk())
+        {
+            //Convert simulation data to parallel VTK (pvtu) format
+            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, true);
+        }
     }
 
     if(HeartConfig::Instance()->IsPostProcessingRequested())

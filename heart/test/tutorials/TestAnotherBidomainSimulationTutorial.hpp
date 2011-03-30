@@ -137,7 +137,9 @@ public:
         /* The other option is to write in VTK format (which needs VTK installed), following
          * which the results can be loaded in the visualiser Paraview */
         //HeartConfig::Instance()->SetVisualizeWithVtk(true);
-
+        /* If the mesh is a DistributedTetrahedralMesh then we can use parallel VTK files (.pvtu)
+        //HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
+        
         /* Now we create a problem class, initialise and solve */
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
