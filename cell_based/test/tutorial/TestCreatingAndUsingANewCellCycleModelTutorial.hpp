@@ -84,7 +84,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * As an example, let us consider a cell-cycle model in which the durations
  * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential
  * random variable with rate parameter lambda. This rate parameter is a constant, dependent on cell type, whose value is
- * chosen such that the mean of the distribution, 1/&lambda, equals the mean
+ * chosen such that the mean of the distribution, 1/λ, equals the mean
  * G1 duration as defined in the {{{AbstractCellCycleModel}}} class. To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
