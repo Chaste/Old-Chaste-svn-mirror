@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 /* The next two headers are used in archiving, and only need to be included
- * if we want to be able to archive (save or load) the new cell-cycle model object
+ * if we wish to be able to archive (save or load) the new cell-cycle model object
  * in a cell-based simulation (in this case, these headers must be included before
  * any other serialization headers). */
 #include <boost/archive/text_oarchive.hpp>
@@ -83,9 +83,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * As an example, let us consider a cell-cycle model in which the durations
  * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential
- * random variable with rate parameter lambda. This rate parameter is a constant, dependent on cell type, whose value is
+ * random variable with rate parameter λ. This rate parameter is a constant, dependent on cell type, whose value is
  * chosen such that the mean of the distribution, 1/λ, equals the mean
- * G1 duration as defined in the {{{AbstractCellCycleModel}}} class. To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
+ * G1 duration as defined in the {{{AbstractCellCycleModel}}} class. We will also assume that
+ * cells divide a certain number of generations before becoming differentiated. To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
  * 
@@ -96,7 +97,7 @@ class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
-    /* You only need to include the next block of code if you want to be able
+    /* We only need to include the next block of code if we wish to be able
      * to archive (save or load) the cell-cycle model object in a cell-based simulation.
      * The code consists of a serialize method, in which we first archive the cell
      * cycle model using the serialization code defined in the base class
@@ -123,14 +124,10 @@ private:
          * cycle model, we should assert that this cell exists. */
         assert(mpCell != NULL);
 
-        /* We now set the G1 duration based on cell type.
-         *
-         * For stem and transit cells, we use the {{{RandomNumberGenerator}}}
+        /* We now set the G1 duration based on cell type. For stem and transit cells, we use the {{{RandomNumberGenerator}}}
          * singleton class to generate a random number U drawn from U![0,1], and
-         * transform this into a random number T drawn from Exp(lambda) using
-         * the transformation T = -log(U)/lambda.
-         *
-         * For differentiated cells, which do not progress through the
+         * transform this into a random number T drawn from Exp(λ) using
+         * the transformation T = -log(U)/λ. For differentiated cells, which do not progress through the
          * cell cycle, we set the G1 duration to {{{DBL_MAX}}}. */
         double uniform_random_number = RandomNumberGenerator::Instance()->ranf();
 
@@ -158,13 +155,39 @@ public:
     {}
 
     /* The second public method overrides {{{CreateCellCycleModel()}}}. This is a
-     * builder method to create new copies of the cell-cycle model. */
+     * builder method to create new copies of the cell-cycle model. We first create
+     * a new cell-cycle model, then set each member variable of the new cell-cycle
+     * model that inherits its value from the parent.
+     * 
+     * There are a number of things to mention regarding the {{{CreateCellCycleModel()}}}
+     * method: these are quite technical, but are worth stating here for the sake of
+     * completeness. If we look at which member variables
+     * {{{MyCellCycleModel}}} inherits from its base class, we will find that some of
+     * these member variables are not set here. This is for two main reasons. First, some
+     * of the new cell-cycle model's member variables (namely {{{mBirthTime}}},
+     * {{{mCurrentCellCyclePhase}}}, {{{mReadyToDivide}}}) will already have been
+     * correctly initialized in the new cell-cycle model's constructor. Second, the
+     * member variable {{{mDimension}}} remains unset, since this cell-cycle
+     * model does not need to know the spatial dimension, so if we were to call
+     * {{{SetDimension()}}} on the new cell-cycle model an exception would be triggered;
+     * hence we do not set this member variable. It is also worth noting that in a simulation,
+     * one or more of the new cell-cycle model's member variables 
+     * may be set/overwritten as soon as {{{InitialiseDaughterCell()}}} is called on
+     * the new cell-cycle model; this occurs when the associated cell has called its
+     * {{{Divide()}}} method.
+     */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
-        // Create a new cell-cycle model
         MyCellCycleModel* p_model = new MyCellCycleModel();
-        
-        // Set the values of the new cell-cycle model's member variables
+
+        p_model->SetBirthTime(mBirthTime);
+        p_model->SetCellProliferativeType(mCellProliferativeType);
+        p_model->SetMinimumGapDuration(mMinimumGapDuration);
+        p_model->SetStemCellG1Duration(mStemCellG1Duration);
+        p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+        p_model->SetSDuration(mSDuration);
+        p_model->SetG2Duration(mG2Duration);
+        p_model->SetMDuration(mMDuration);
         p_model->SetGeneration(mGeneration);
         p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
 
@@ -172,10 +195,10 @@ public:
     }
 };
 
-/* You need to include the next block of code if you want to be able to archive (save or load)
- * the cell-cycle model object in a cell-based simulation.  It is also required for writing out
+/* We need to include the next block of code if you want to be able to archive (save or load)
+ * the cell-cycle model object in a cell-based simulation. It is also required for writing out
  * the parameters file describing the settings for a simulation - it provides the unique
- * identifier for our new cell-cycle model.  Thus every cell-cycle model class must provide this,
+ * identifier for our new cell-cycle model. Thus every cell-cycle model class must provide this,
  * or you'll get errors when running simulations. */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellCycleModel)
@@ -219,7 +242,7 @@ public:
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
 
-        /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
+        /* Now we construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
         unsigned num_cells = (unsigned) 1e5;
         std::vector<CellPtr> cells;
@@ -376,9 +399,7 @@ public:
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (p_model->GetStemCellG1Duration()
-                                        + p_model->GetSG2MDuration());
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
@@ -418,7 +439,7 @@ public:
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        /* Finally, call {{{Destroy()}}} on the singleton classes. */
+        /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
