@@ -409,32 +409,16 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /*
-         * We pass in the cell population into a {{{CellBasedSimulation}}}.
-         */
+        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+         * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
-
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring, and so use
-         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
-         * into a vector. Note that we have called the method {{{SetCutOffLength}}} on the
-         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
-         * laws - this modifies the force law so that two neighbouring cells do not impose
-         * a force on each other if they are located more than 3 units (=3 cell widths)
-         * away from each other. This modification is necessary when no ghost nodes are used,
-         * for example to avoid artificially large forces between cells that lie close together
-         * on the cell population boundary.
-         */
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellCycleModel");
+        simulator.SetEndTime(10.0);
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);
-
-        /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellCycleModel");
-        simulator.SetEndTime(10.0);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

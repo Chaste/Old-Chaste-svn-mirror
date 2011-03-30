@@ -175,11 +175,10 @@ public:
         return condition_satisfied;
     }
 
-    /* The final public method overrides {{{OutputCellKillerParameters()}}}.
-     * This method outputs any parameters present in this class
-     * to a specified results file {{{rParamsFile}}}. In our case, there are no
-     * parameters, so we simply call the method on the base class. Nonetheless,
-     * we still need to override the method, since it is pure virtual in the base
+    /* Just as we encounted in the cell killer tutorial, here we must override
+     * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
+     * In our case, there are no parameters, so we simply call the method on the base class.
+     * Nonetheless, we still need to override the method, since it is pure virtual in the base
      * class.
      */
     void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
@@ -337,18 +336,15 @@ public:
         /* We use the cell population to construct a cell population boundary condition object. */
         MyBoundaryCondition my_bc(&cell_population);
 
-        /* We pass the cell population into a {{{CellBasedSimulation}}}. */
+        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+         * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
-
-        /* We set the output directory and end time. */
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMyBoundaryCondition");
         simulator.SetEndTime(10.0);
 
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. As in previous cell-based Chaste tutorials, here we use
-         * a {{{GeneralisedLinearSpringForce}}} object.
-         */
+        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);
 
         /* We now pass the cell population boundary condition into the cell-based simulation. */

@@ -42,21 +42,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Introduction ==
  *
- * In this tutorial we show how to create a new cell property class and how this
- * can be used in a cell-based simulation.
+ * In the cell mutation state tutorial we showed how to create a new cell mutation
+ * state class, and how this can be used in a cell-based simulation. As well as
+ * mutation states, cells may be given much more general properties, using the cell
+ * property class hierarchy. In this tutorial, we show how to create a new cell property
+ * class, and how this can be used in a cell-based simulation.
  *
  * == 1. Including header files ==
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test):
+ * As in previous cell-based Chaste tutorials, we begin by including the necessary
+ * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
 
-/* The next two headers are used in archiving, and only need to be included
- * if you intend to archive (save or load) a cell-based simulation in this test
- * suite. In this case, these headers must be included before any other
- * serialization headers. */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -64,14 +62,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cell property will inherit from this abstract class. */
 #include "AbstractCellProperty.hpp"
 /* The remaining header files define classes that will be used in the cell population
- * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
- * generating a suitable mesh; {{{WildTypeCellMutationState}}} defines a
- * wild-type or 'healthy' cell mutation state; {{{FixedDurationGenerationBasedCellCycleModel}}}
- * defines a simple cell-cycle model class, in which cells undergo a fixed number
- * of divisions before becoming senescent; {{{GeneralisedLinearSpringForce}}}
- * defines a force law for describing the mechanical interactions between neighbouring
- * cells in the cell population; and {{{CellBasedSimulation}}} defines the class that
- * simulates the evolution of the cell population. */
+ * simulation test. We have encountered each of these header files in previous cell-based
+ * Chaste tutorials. */
 #include "HoneycombMeshGenerator.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -86,7 +78,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * implementing some form of chemotaxis down an imposed chemoattractant gradient,
  * as occurs for example when macrophages migrate within a tumour towards high
  * concentrations of the vascular endothelial growth factor VEGF; for further
- * details, see for example Owen et al, J. Theor. Biol.
+ * details, see for example Owen ''et al.'', J. Theor. Biol.
  * 226: 377-391 (2004).
  * 
  * Note that usually this code would be separated out into a separate declaration
@@ -132,21 +124,13 @@ public:
     }
 };
 
-/* Together with the serialize() method defined within the class above, the next
- * block of code allows you to archive (save or load) the cell property object
- * in a cell-based simulation.  It is also required for writing out
- * the parameters file describing the settings for a simulation - it provides the unique
- * identifier for our new cell property.  Thus every cell property class must provide this,
- * or you'll get errors when running simulations. */
+/* As mentioned in previous cell-based Chaste tutorials, we need to include the next block
+ * of code to be able to archive the cell property object in a cell-based
+ * simulation, and to obtain a unique identifier for our new cell property for writing
+ * results to file.
+ */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MotileCellProperty)
-
-/* Since we're defining the new cell property within the test file, we need to include the
- * following stanza as well, to make the code work with newer versions of the Boost libraries.
- * Normally the above export declaration would occur in the cell property's .hpp file, and
- * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
- * more information.
- */
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(MotileCellProperty)
 
@@ -286,27 +270,11 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /*
-         * We pass in the cell population into a {{{CellBasedSimulation}}}.
-         */
+        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+         * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
-
-        /* We set the output directory and end time. */
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMotileCellProperty");
         simulator.SetEndTime(10.0);
-
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring, and so use
-         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
-         * into a vector. Note that we have called the method {{{SetCutOffLength}}} on the
-         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
-         * laws - this modifies the force law so that two neighbouring cells do not impose
-         * a force on each other if they are located more than 3 units (=3 cell widths)
-         * away from each other. This modification is necessary when no ghost nodes are used,
-         * for example to avoid artificially large forces between cells that lie close together
-         * on the cell population boundary.
-         */
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -316,7 +284,7 @@ public:
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        /* Finally, call {{{Destroy()}}} on the singleton classes. */
+        /* Finally, we call {{{Destroy()}}} on the singleton classes. */
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

@@ -42,21 +42,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Introduction ==
  *
- * In this tutorial we show how to create a new cell killer class and how this
- * can be used in a cell-based simulation.
+ * In the crypt tutorial, we used an existing cell killer class to define
+ * how cells were sloughed off the top of a crypt. In this tutorial we show
+ * how to create a new cell killer class, and how this can be used in a cell-based
+ * simulation.
  *
  * == 1. Including header files ==
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test):
+ * As in previous cell-based Chaste tutorials, we begin by including the necessary
+ * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
 
-/* The next two headers are used in archiving, and only need to be included
- * if you want to be able to archive (save or load) the new cell killer object
- * in a cell-based simulation (in this case, these headers must be included before
- * any other serialization headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -64,14 +61,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cell killer class will inherit. */
 #include "AbstractCellKiller.hpp"
 /* The remaining header files define classes that will be used in the cell population
- * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
- * generating a suitable mesh; {{{CellsGenerator}}}
- * defines a helper class for generating a vector of cells and
- * {{{FixedDurationGenerationBasedCellCycleModel}}} makes them have fixed cell
- * cycle models; {{{GeneralisedLinearSpringForce}}} defines a force law for
- * describing the mechanical interactions between neighbouring cells in the
- * cell population; and {{{CellBasedSimulation}}} defines the class that simulates the
- * evolution of a cell population. */
+ * simulation test. We have encountered each of these header files in previous cell-based
+ * Chaste tutorials. */
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -80,9 +71,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * == Defining the cell killer class ==
  *
- * As an example, let us consider a cell killer which labels any cells in a
+ * As an example, let us consider a cell killer that labels any cells in a
  * two-dimensional cell population which lie outside the elliptical domain given in
- * Cartesian coordinates by the equation (x/20)^2^ + (y/10)^2^ < 1. To
+ * Cartesian coordinates by the equation (''x''/20)^2^ + (''y''/10)^2^ < 1. To
  * implement this we define a new cell killer class, {{{MyCellKiller}}},
  * which inherits from {{{AbstractCellKiller}}} and overrides the
  * {{{TestAndLabelCellsForApoptosisOrDeath()}}} method.
@@ -94,11 +85,6 @@ class MyCellKiller : public AbstractCellKiller<2>
 {
 private:
 
-    /* You only need to include the next block of code if you want to be able
-     * to archive (save or load) the cell killer object in a cell-based simulation.
-     * The code consists of a serialize method, which in this case just archives
-     * the cell killer using the serialization code defined in the base class
-     * {{{AbstractCellKiller}}}. */
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -115,8 +101,8 @@ public:
     {}
 
     /* The second public method overrides {{{TestAndLabelCellsForApoptosisOrDeath()}}}.
-     * This method iterates over all cells in the cell population, and calls {{{Kill()}}} on
-     * any cell whose centre is located outside the ellipse (x/20)^2^ + (y/10)^2^ < 1. */
+     * This method iterates over all cells in the population, and calls {{{Kill()}}} on
+     * any cell whose centre is located outside the ellipse (''x''/20)^2^ + (''y''/10)^2^ < 1. */
     void TestAndLabelCellsForApoptosisOrDeath()
     {
         for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
@@ -132,41 +118,31 @@ public:
         }
     }
 
-    /* The final public method you need to include overrides {{{OutputCellKillerParameters()}}}.
-     * This method allow you to output parameters to the results.params file in the
-     * results directory.
+    /* The final public method overrides {{{OutputCellKillerParameters()}}}.
+     * This method outputs any member variables to a specified results file {{{rParamsFile}}}.
+     * In our case, there are no parameters, so we simply call the method on the base class.
+     * Nonetheless, we still need to override the method, since it is pure virtual in the base
+     * class.
      */
     void OutputCellKillerParameters(out_stream& rParamsFile)
     {
-        /* This outputs any parameters if any to the file*/
-        //*rParamsFile << "\t\t\t<radius>" << radius << "</radius> \n";
-
-        /* You now call the parent class to output any parameters stored there */
         AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);
     }
 
 };
 
-/* You need to include the next block of code if you want to be able to archive (save or load)
- * the cell killer object in a cell-based simulation.  It is also required for writing out
- * the parameters file describing the settings for a simulation - it provides the unique
- * identifier for our new cell killer.  Thus every cell killer class must provide this,
- * or you'll get errors when running simulations. */
-
+/* As mentioned in the cell-cycle model tutorial, we need to include the next block
+ * of code to be able to archive the cell killer object in a cell-based
+ * simulation, and to obtain a unique identifier for our new cell killer for writing
+ * results to file.
+ */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellKiller)
-
-/* Since we're defining the new cell killer within the test file, we need to include the
- * following stanza as well, to make the code work with newer versions of the Boost libraries.
- * Normally the above export declaration would occur in the cell killer's .hpp file, and
- * the following lines would appear in the .cpp file.  See ChasteGuides/BoostSerialization for
- * more information.
- */
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(MyCellKiller)
 
-/* You only need to include the next block of code if you want to be able to archive (save or load)
- * the cell killer object in a cell-based simulation. We define `save_construct_data` and
+/* We only need to include the next block of code if we wish to be able to archive (save or load)
+ * the cell killer object in a cell-based simulation. We must define `save_construct_data` and
  * `load_construct_data` methods, which archive the cell killer constructor input argument(s)
  * (in this case, a `CellPopulation`). */
 namespace boost
@@ -177,7 +153,6 @@ namespace boost
         inline void save_construct_data(
             Archive & ar, const MyCellKiller * t, const BOOST_PFTO unsigned int file_version)
         {
-            // Save data required to construct instance
             const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
             ar << p_cell_population;
         }
@@ -186,7 +161,6 @@ namespace boost
         inline void load_construct_data(
             Archive & ar, MyCellKiller * t, const unsigned int file_version)
         {
-            // Retrieve data from archive required to construct new instance
             AbstractCellPopulation<2>* p_cell_population;
             ar >> p_cell_population;
 
@@ -217,20 +191,16 @@ public:
      */
     void TestMyCellKiller() throw(Exception)
     {
-        /* The first thing to do is to set up the start time. */
+        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0);
-        /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-         * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
-         * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
-         * cell-cycle model and that it is in 2d. We create an empty vector of cells
-         * and pass this into the method along with the mesh. The {{{cells}}} vector is
-         * populated once the method {{{GenerateBasic}}} is called. */
+        /* We then construct and initialise some cells, each with a
+         * {{{FixedDurationGenerationBasedCellCycleModel}}}, using the helper class
+         * {{{CellsGenerator}}}. */
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
@@ -247,7 +217,7 @@ public:
         my_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         /* ... and check that any cell whose centre is located outside the ellipse
-         * (x/20)^2^ + (y/10)^2^ < 1 has indeed been labelled as dead. */
+         * (''x''/20)^2^ + (''y''/10)^2^ < 1 has indeed been labelled as dead. */
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
              cell_iter != cell_population.End();
              ++cell_iter)
@@ -255,7 +225,7 @@ public:
             double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
             double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
-            if ( pow(x/20, 2) + pow(y/10, 2) > 1.0 )
+            if (pow(x/20, 2) + pow(y/10, 2) > 1.0)
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
@@ -284,29 +254,25 @@ public:
          * a pointer, then create an input archive and load the cell killer. If
          * the cell killer had any member variables, then we would test that these
          * were correctly initialised when the cell killer is loaded. */
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_killer.arch";
 
         {
-            // Create an output archive
             MyCellKiller my_cell_killer(NULL);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Serialize via pointer
             MyCellKiller* const p_cell_killer = &my_cell_killer;
             output_arch << p_cell_killer;
         }
 
         {
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
             MyCellKiller* p_cell_killer;
 
-            // Restore from the archive
             input_arch >> p_cell_killer;
 
             delete p_cell_killer;
@@ -324,50 +290,25 @@ public:
      */
     void TestCellBasedSimulationWithMyCellKiller() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time. */
+        /* We proceed as before, creating a mesh-based cell population. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0);
-        /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-         * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
-         * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
-         * cell-cycle model and that it is in 2d. We create an empty vector of cells
-         * and pass this into the method along with the mesh. The {{{cells}}} vector is
-         * populated once the method {{{GenerateBasic}}} is called. */
-        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
-        /* Now that we have defined the mesh and cells, we can define the cell population. The
-         * constructor takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We now use the cell population to construct a cell killer object. */
         MyCellKiller my_cell_killer(&cell_population);
 
-        /* We pass in the cell population into a {{{CellBasedSimulation}}}. */
+        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+         * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
-
-        /* We set the output directory and end time. */
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellKiller");
         simulator.SetEndTime(10.0);
-
-        /* We must now create one or more force laws, which determine the mechanics of
-         * the cell population. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring, and so use
-         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
-         * into a vector. Note that we have called the method {{{SetCutOffLength}}} on the
-         * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
-         * laws - this modifies the force law so that two neighbouring cells do not impose
-         * a force on each other if they are located more than 3 units (=3 cell widths)
-         * away from each other. This modification is necessary when no ghost nodes are used,
-         * for example to avoid artificially large forces between cells that lie close together
-         * on the cell population boundary.
-         */
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -375,8 +316,7 @@ public:
         simulator.AddForce(&linear_force);
 
         /* We now pass the cell killer into the cell-based simulation. */
-        MyCellKiller killer = MyCellKiller(&cell_population);
-        simulator.AddCellKiller(&killer);
+        simulator.AddCellKiller(&my_cell_killer);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
