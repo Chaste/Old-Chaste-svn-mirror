@@ -296,6 +296,7 @@ public:
         HoneycombMeshGenerator generator(20, 20, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 

@@ -90,12 +90,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyBoundaryCondition : public AbstractCellPopulationBoundaryCondition<2>
 {
 private:
-    /* You only need to include the next block of code if you want to be able to 
-     * archive (save or load) the cell population boundary condition object in a
-     * cell-based simulation. The code consists of a serialize method, which in
-     * this case just archives the cell population boundary condition using the serialization code
-     * defined in the base class {{{AbstractCellPopulationBoundaryCondition}}}. 
-     */
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -175,7 +170,7 @@ public:
         return condition_satisfied;
     }
 
-    /* Just as we encounted in the cell killer tutorial, here we must override
+    /* Just as we encountered in the cell killer tutorial, here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, there are no parameters, so we simply call the method on the base class.
      * Nonetheless, we still need to override the method, since it is pure virtual in the base
@@ -290,7 +285,6 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_bc.arch";
         {
-            // Create an output archive
             MyBoundaryCondition my_bc(NULL);
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
