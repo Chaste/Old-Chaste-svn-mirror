@@ -291,7 +291,7 @@
 		</OutputVariables>
 		
 		<!-- Optionally specify post-processing to visualizer(s) -->
-		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no" parallel_vtk="no"/>
+		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no" parallel_vtk="yes"/>
 
 		<!-- Optionally specify a frequency for checkpointing -->
 		<CheckpointSimulation timestep="20.0" unit="ms" max_checkpoints_on_disk="3"/>

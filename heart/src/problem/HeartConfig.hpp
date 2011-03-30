@@ -716,6 +716,9 @@ public:
 
     /** Whether to convert the output from HDF5 to Vtk readable format */
     bool GetVisualizeWithVtk() const;
+     
+    /** Whether to convert the output from HDF5 to parallel Vtk readable format */
+    bool GetVisualizeWithParallelVtk() const;
     
     /**
      * @return true if there is an electrodes section
@@ -1143,6 +1146,12 @@ public:
      * @param useVtk
      */
     void SetVisualizeWithVtk(bool useVtk=true);
+    
+    /** Set whether to convert the output from HDF5 to parallel Vtk readable format
+     *
+     * @param useParallelVtk
+     */
+    void SetVisualizeWithParallelVtk(bool useParallelVtk=true);
     
     /**
      * Setup electrode parameters.

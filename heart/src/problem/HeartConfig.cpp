@@ -643,6 +643,7 @@ void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::cha
     }
 
     //Visualization parameters are compulsory
+    HeartConfig::Instance()->SetVisualizeWithParallelVtk(pResumeParameters->ResumeSimulation()->OutputVisualizer().parallel_vtk() == cp::yesno_type::yes);
     HeartConfig::Instance()->SetVisualizeWithVtk(pResumeParameters->ResumeSimulation()->OutputVisualizer().vtk() == cp::yesno_type::yes);
     HeartConfig::Instance()->SetVisualizeWithCmgui(pResumeParameters->ResumeSimulation()->OutputVisualizer().cmgui() == cp::yesno_type::yes);
     HeartConfig::Instance()->SetVisualizeWithMeshalyzer(pResumeParameters->ResumeSimulation()->OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
@@ -2157,6 +2158,20 @@ bool HeartConfig::GetVisualizeWithCmgui() const
     }
 }
 
+bool HeartConfig::GetVisualizeWithParallelVtk() const
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        return false;
+    }
+    else
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputVisualizer(),
+                               & mpDefaultParameters->Simulation().get().OutputVisualizer(),
+                               "OutputVisualizer")->get().parallel_vtk() == cp::yesno_type::yes;
+    }
+}
+
 bool HeartConfig::GetVisualizeWithVtk() const
 {
     if (!IsOutputVisualizerPresent())
@@ -2170,7 +2185,6 @@ bool HeartConfig::GetVisualizeWithVtk() const
                                "OutputVisualizer")->get().vtk() == cp::yesno_type::yes;
     }
 }
-
 
 bool HeartConfig::IsElectrodesPresent() const
 {
@@ -2415,14 +2429,15 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
         var_type_sequence.push_back(temp);
     }
 
-    if (rOutputVariables.size() > 0)
-    {
-        // Turn off Meshalyzer etc. output, to avoid errors
-        /// \todo #1596 is this no longer needed?
-        SetVisualizeWithMeshalyzer(false);
-        SetVisualizeWithCmgui(false);
-        SetVisualizeWithVtk(false);
-    }
+//    if (rOutputVariables.size() > 0)
+//    {
+//        // Turn off Meshalyzer etc. output, to avoid errors
+//        /// \todo #1502 is this no longer needed?
+//        SetVisualizeWithMeshalyzer(false);
+//        SetVisualizeWithCmgui(false);
+//        SetVisualizeWithVtk(false);
+//        SetVisualizeWithParallelVtk(false);
+//    }
 }
 
 void  HeartConfig::SetOutputUsingOriginalNodeOrdering(bool useOriginal)
@@ -2995,6 +3010,14 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 
     mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(
         useVtk ? cp::yesno_type::yes : cp::yesno_type::no);
+}
+
+void HeartConfig::SetVisualizeWithParallelVtk(bool useParallelVtk)
+{
+    EnsureOutputVisualizerExists();
+
+    mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(
+        useParallelVtk ? cp::yesno_type::yes : cp::yesno_type::no);
 }
 
 void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,

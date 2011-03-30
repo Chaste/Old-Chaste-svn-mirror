@@ -1709,6 +1709,7 @@ public:
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithVtk() );
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
 
         // Set methods
         HeartConfig::Instance()->SetVisualizeWithMeshalyzer(false);
@@ -1725,6 +1726,12 @@ public:
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
                          cp::yesno_type::yes);
+        
+        HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(),
+                         cp::yesno_type::yes);
+         
 
         // Setting one doesn't change the others...
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
@@ -1742,10 +1749,13 @@ public:
                          cp::yesno_type::no);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
                          cp::yesno_type::yes);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(),
+                         cp::yesno_type::yes);
 
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
     }
 
     void TestAdaptivityVariables() throw (Exception)
