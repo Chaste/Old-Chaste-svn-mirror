@@ -25,11 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "RegionBasedCellKiller.hpp"
+#include "PlaneBasedCellKiller.hpp"
 #include "PetscTools.hpp"
 
 template <unsigned DIM>
-RegionBasedCellKiller<DIM>::RegionBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
+PlaneBasedCellKiller<DIM>::PlaneBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
                                                   c_vector<double, DIM> point,
                                                   c_vector<double, DIM> normal)
     : AbstractCellKiller<DIM>(pCellPopulation),
@@ -40,19 +40,19 @@ RegionBasedCellKiller<DIM>::RegionBasedCellKiller(AbstractCellPopulation<DIM>* p
 }
 
 template <unsigned DIM>
-const c_vector<double, DIM>& RegionBasedCellKiller<DIM>::rGetPointOnPlane() const
+const c_vector<double, DIM>& PlaneBasedCellKiller<DIM>::rGetPointOnPlane() const
 {
     return mPointOnPlane;
 }
 
 template <unsigned DIM>
-const c_vector<double, DIM>& RegionBasedCellKiller<DIM>::rGetNormalToPlane() const
+const c_vector<double, DIM>& PlaneBasedCellKiller<DIM>::rGetNormalToPlane() const
 {
     return mNormalToPlane;
 }
 
 template <unsigned DIM>
-void RegionBasedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
+void PlaneBasedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
          cell_iter != this->mpCellPopulation->End();
@@ -68,7 +68,7 @@ void RegionBasedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 }
 
 template<unsigned DIM>
-void RegionBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
+void PlaneBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<PointOnPlane>";
     for (unsigned index=0; index != DIM-1U; index++) //Note: inequality avoids testing index < 0U when DIM=1
@@ -92,10 +92,10 @@ void RegionBasedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsF
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class RegionBasedCellKiller<1>;
-template class RegionBasedCellKiller<2>;
-template class RegionBasedCellKiller<3>;
+template class PlaneBasedCellKiller<1>;
+template class PlaneBasedCellKiller<2>;
+template class PlaneBasedCellKiller<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(RegionBasedCellKiller)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(PlaneBasedCellKiller)

@@ -115,7 +115,7 @@ public:
     {}
 
     /* The second public method overrides {{{TestAndLabelCellsForApoptosisOrDeath()}}}.
-     * This method iterates over all cells in the cell_population, and calls {{{Kill()}}} on
+     * This method iterates over all cells in the cell population, and calls {{{Kill()}}} on
      * any cell whose centre is located outside the ellipse (x/20)^2^ + (y/10)^2^ < 1. */
     void TestAndLabelCellsForApoptosisOrDeath()
     {

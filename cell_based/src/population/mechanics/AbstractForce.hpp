@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Identifiable.hpp"
 
 /**
- * An abstract force class.
+ * An abstract force class, for use in cell-based simulations.
  */
 template<unsigned DIM>
 class AbstractForce : public Identifiable

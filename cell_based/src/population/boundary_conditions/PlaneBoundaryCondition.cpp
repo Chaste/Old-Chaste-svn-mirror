@@ -55,7 +55,7 @@ const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() co
 }
 
 template<unsigned DIM>
-void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
+void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition()
 {
     if (DIM==2)
     {
@@ -63,7 +63,7 @@ void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_
              cell_iter != this->mpCellPopulation->End();
              ++cell_iter)
         {
-            // \todo this is only for AbstractCentreBasedCellPopulations (see #1589)
+            ///\todo this is only for AbstractCentreBasedCellPopulations (see #1589)
             c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
@@ -88,7 +88,7 @@ void PlaneBoundaryCondition<DIM>::ImposeBoundaryConditions(const std::vector< c_
 }
 
 template<unsigned DIM>
-bool PlaneBoundaryCondition<DIM>::VerifyBoundaryConditions()
+bool PlaneBoundaryCondition<DIM>::VerifyBoundaryCondition()
 {
     bool condition_satisfied = true;
 

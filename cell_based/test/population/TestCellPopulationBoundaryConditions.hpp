@@ -86,7 +86,7 @@ public:
             old_locations.push_back(p_node->rGetLocation());
         }
 
-        boundary_condition.ImposeBoundaryConditions(old_locations);
+        boundary_condition.ImposeBoundaryCondition();
 
         // Test that all nodes satisfy the boundary condition
         for (std::list<CellPtr>::iterator cell_iter = cell_population.rGetCells().begin();
@@ -107,12 +107,12 @@ public:
             }
         }
 
-        // Test VerifyBoundaryConditions() method
-        TS_ASSERT_EQUALS(boundary_condition.VerifyBoundaryConditions(), true);
+        // Test VerifyBoundaryCondition() method
+        TS_ASSERT_EQUALS(boundary_condition.VerifyBoundaryCondition(), true);
 
-        // For coverage, test VerifyBoundaryConditions() method in the case DIM != 2
+        // For coverage, test VerifyBoundaryCondition() method in the case DIM != 2
         PlaneBoundaryCondition<3> plane_boundary_condition_3d(NULL, zero_vector<double>(3), unit_vector<double>(3,2));
-        TS_ASSERT_THROWS_THIS(plane_boundary_condition_3d.VerifyBoundaryConditions(),
+        TS_ASSERT_THROWS_THIS(plane_boundary_condition_3d.VerifyBoundaryCondition(),
                               "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
     }
 

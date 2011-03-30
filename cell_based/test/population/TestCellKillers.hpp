@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TargetedCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
-#include "RegionBasedCellKiller.hpp"
+#include "PlaneBasedCellKiller.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -328,7 +328,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void TestRegionBasedCellKillerIn1d() throw(Exception)
+    void TestPlaneBasedCellKillerIn1d() throw(Exception)
     {
         // Create 1D mesh
         unsigned num_cells = 14;
@@ -346,7 +346,7 @@ public:
         // Create cell killer and kill cells
         c_vector<double, 1> point;
         point(0) = 10.0;
-        RegionBasedCellKiller<1> cell_killer(&cell_population, point, unit_vector<double>(1,0)); // x<10
+        PlaneBasedCellKiller<1> cell_killer(&cell_population, point, unit_vector<double>(1,0)); // x<10
         cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
@@ -378,7 +378,7 @@ public:
     }
 
 
-    void TestRegionBasedCellKillerIn2d() throw(Exception)
+    void TestPlaneBasedCellKillerIn2d() throw(Exception)
     {
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -395,7 +395,7 @@ public:
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Create cell killer and kill cells
-        RegionBasedCellKiller<2> cell_killer(&cell_population, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0
+        PlaneBasedCellKiller<2> cell_killer(&cell_population, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0
         cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
@@ -425,7 +425,7 @@ public:
         }
     }
 
-    void TestRegionBasedCellKillerIn3d() throw(Exception)
+    void TestPlaneBasedCellKillerIn3d() throw(Exception)
     {
         // Create 3D mesh
         MutableMesh<3,3> mesh;
@@ -441,7 +441,7 @@ public:
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         // Create cell killer
-        RegionBasedCellKiller<3> cell_killer(&cell_population,  zero_vector<double>(3), unit_vector<double>(3,2)); // z<0
+        PlaneBasedCellKiller<3> cell_killer(&cell_population,  zero_vector<double>(3), unit_vector<double>(3,2)); // z<0
         cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
@@ -582,7 +582,7 @@ public:
         }
     }
 
-    void TestArchivingOfRegionBasedCellKiller() throw (Exception)
+    void TestArchivingOfPlaneBasedCellKiller() throw (Exception)
     {
         // Set up singleton classes
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
@@ -591,13 +591,13 @@ public:
         {
             // Create an output archive
 
-            RegionBasedCellKiller<2> cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1));
+            PlaneBasedCellKiller<2> cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1));
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            RegionBasedCellKiller<2>* const p_cell_killer = &cell_killer;
+            PlaneBasedCellKiller<2>* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
             TS_ASSERT_EQUALS(p_cell_killer->rGetPointOnPlane()[0], 0.0);
@@ -611,7 +611,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            RegionBasedCellKiller<2>* p_cell_killer;
+            PlaneBasedCellKiller<2>* p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;
@@ -664,9 +664,9 @@ public:
         std::string oxygen_cell_killer_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + oxygen_cell_killer_results_dir + "oxygen_results.parameters cell_based/test/data/TestCellKillers/oxygen_results.parameters").c_str()), 0);
 
-        // Test with RegionBasedCellKiller
-        RegionBasedCellKiller<2> region_cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0;
-        TS_ASSERT_EQUALS(region_cell_killer.GetIdentifier(), "RegionBasedCellKiller-2");
+        // Test with PlaneBasedCellKiller
+        PlaneBasedCellKiller<2> region_cell_killer(NULL, zero_vector<double>(2), unit_vector<double>(2,1)); // y<0;
+        TS_ASSERT_EQUALS(region_cell_killer.GetIdentifier(), "PlaneBasedCellKiller-2");
 
         out_stream region_cell_killer_parameter_file = output_file_handler.OpenOutputFile("region_results.parameters");
         region_cell_killer.OutputCellKillerParameters(region_cell_killer_parameter_file);

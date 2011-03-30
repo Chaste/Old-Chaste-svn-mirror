@@ -35,8 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Identifiable.hpp"
 
 /**
- * An abstract cell population boundary condition class.
- * \todo provide fuller description (see #1589)
+ * An abstract cell population boundary condition class, for use in cell-based simulations.
  */
 template <unsigned DIM>
 class AbstractCellPopulationBoundaryCondition : public Identifiable
@@ -76,26 +75,24 @@ public:
     virtual ~AbstractCellPopulationBoundaryCondition();
 
     /**
-     * Impose the boundary conditions on each node.
+     * Impose the boundary condition on each node.
      * 
      * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
-     * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    virtual void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)=0;
+    virtual void ImposeBoundaryCondition()=0;
 
     /**
-     * Pure method which should verify the boundary conditions have been applied.
-     * This is called after ImposeBoundaryConditions() to ensure the condition is
+     * Pure method which should verify the boundary condition has been applied.
+     * This is called after ImposeBoundaryCondition() to ensure the condition is
      * still satisfied.
      * 
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
-     * @return Whether the boundary conditions are satisfied.
+     * @return whether the boundary condition is satisfied.
      */
-    virtual bool VerifyBoundaryConditions()=0;
+    virtual bool VerifyBoundaryCondition()=0;
 
     /**
      * Get a pointer to the cell population.

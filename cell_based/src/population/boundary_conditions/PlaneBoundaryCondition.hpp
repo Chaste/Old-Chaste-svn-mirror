@@ -67,8 +67,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<DIM> >(*this);
-        //archive & mPointOnPlane; // done in load_construct_data
-        //archive & mNormalToPlane; // done in load_construct_data
     }
 
 public:
@@ -95,22 +93,20 @@ public:
     const c_vector<double, DIM>& rGetNormalToPlane() const;
 
     /**
-     * Overridden ImposeBoundaryConditions() method.
+     * Overridden ImposeBoundaryCondition() method.
      * 
      * Apply the cell population boundary conditions.
-     *
-     * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    void ImposeBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations);
+    void ImposeBoundaryCondition();
 
     /**
-     * Overridden VerifyBoundaryConditions() method.
+     * Overridden VerifyBoundaryCondition() method.
      * Verify the boundary conditions have been applied.
-     * This is called after ImposeBoundaryConditions() to ensure the condition is still satisfied.
+     * This is called after ImposeBoundaryCondition() to ensure the condition is still satisfied.
      *
      * @return whether the boundary conditions are satisfied.
      */
-    bool VerifyBoundaryConditions();
+    bool VerifyBoundaryCondition();
 
     /**
      * Overridden OutputCellPopulationBoundaryConditionParameters() method.

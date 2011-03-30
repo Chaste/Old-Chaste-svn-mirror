@@ -684,7 +684,7 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
 
-        // Test that the cell_population parameters are output correctly
+        // Test that the cell population parameters are output correctly
 		out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
 		// Write cell population parameters to file

@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Identifiable.hpp"
 
 /**
- * An abstract cell killer class.
+ * An abstract cell killer class, for use in cell-based simulations.
  */
 template <unsigned SPACE_DIM>
 class AbstractCellKiller : public Identifiable

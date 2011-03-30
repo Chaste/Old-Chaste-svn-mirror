@@ -42,19 +42,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Identifiable.hpp"
 
 /**
- * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based
- * cell population.
+ * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre-
+ * or vertex-based cell population.
  *
- * In cell-centre-based cell populations, each cell is represented by a single node (corresponding
- * to its centre), and connectivity is defined either by a Delaunay triangulation or
- * a radius of influence. In vertex-based cell populations, each cell is represented by a polytope
+ * In cell-centre-based cell populations, each cell is represented by a
+ * single node (corresponding to its centre), and connectivity is defined
+ * either by a Delaunay triangulation or a radius of influence. In vertex-
+ * based cell populations, each cell is represented by a polytope
  * (corresponding to its membrane) with a variable number of vertices.
  *
- * The CellBasedSimulation is constructed with a CellPopulation, which updates the correspondence
- * between each Cell and its spatial representation and handles cell division (governed
- * by the CellCycleModel associated with each cell); and one or more Force laws, which define
- * the mechanical properties of the CellPopulation. It is also possible to add one or more CellKiller
- * objects to the CellBasedSimulation, which specify the conditions under which a Cell dies.
+ * The CellBasedSimulation is constructed with a CellPopulation, which
+ * updates the correspondence between each Cell and its spatial representation
+ * and handles cell division (governed by the CellCycleModel associated 
+ * with each cell). Once constructed, one or more Force laws may be passed
+ * to the CellBasedSimulation object, to define the mechanical properties
+ * of the CellPopulation. Similarly, one or more CellKillers may be passed
+ * to the CellBasedSimulation object to specify conditions in which Cells
+ * may die, and one or more CellPopulationBoundaryConditions to specify
+ * regions in space beyond which Cells may not move.
  */
 template<unsigned DIM>
 class CellBasedSimulation : public Identifiable
@@ -88,40 +93,40 @@ protected:
     /** Whether to update the topology of the cell population at each time step (defaults to true).*/
     bool mUpdateCellPopulation;
 
-    /** Output directory (a subfolder of tmp/[USERNAME]/testoutput) */
+    /** Output directory (a subfolder of tmp/[USERNAME]/testoutput). */
     std::string mOutputDirectory;
 
-    /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_[TIME] */
+    /** Simulation Output directory either the same as mOutputDirectory or includes mOutputDirectory/results_from_time_[TIME]. */
     std::string mSimulationOutputDirectory;
 
-    /** Visualiser setup file */
+    /** Visualiser setup file. */
     out_stream mpVizSetupFile;
 
-    /** Results file node velocities */
+    /** Results file node velocities. */
     out_stream mpNodeVelocitiesFile;
 
-    /** The singleton RandomNumberGenerator */
+    /** The singleton RandomNumberGenerator. */
     RandomNumberGenerator* mpRandomGenerator;
 
-    /** Counts the number of births during the simulation */
+    /** Counts the number of births during the simulation. */
     unsigned mNumBirths;
 
-    /** Counts the number of deaths during the simulation */
+    /** Counts the number of deaths during the simulation. */
     unsigned mNumDeaths;
 
     /**
      * The ratio of the number of actual timesteps to the number
-     * of timesteps at which results are written to file
-     * */
+     * of timesteps at which results are written to file.
+     */
     unsigned mSamplingTimestepMultiple;
 
-    /** List of cell killers */
+    /** List of cell killers. */
     std::vector<AbstractCellKiller<DIM>*> mCellKillers;
 
-    /** The mechanics used to determine the new location of the cells, a list of the forces.*/
+    /** The mechanics used to determine the new location of the cells, a list of the forces. */
     std::vector<AbstractForce<DIM>*> mForceCollection;
 
-    /** List of boundary conditions  */
+    /** List of boundary conditions. */
     std::vector<AbstractCellPopulationBoundaryCondition<DIM>*> mBoundaryConditions;
 
     /** Whether to write the node velocities to a file. */
@@ -228,31 +233,31 @@ protected:
     }
 
     /**
-     *  A method for subclasses to do something at the end of each timestep
+     * A method for subclasses to do something at the end of each timestep
      */
     virtual void PostSolve()
     {
     }
 
     /**
-     *  A method for subclasses to do something at before the start of the time loop
+     * A method for subclasses to do something at before the start of the time loop.
      */
     virtual void SetupSolve()
     {
     }
 
     /**
-     *  This method may be overridden in subclasses to do something
-     *  at the end of each time loop.
+     * This method may be overridden in subclasses to do something
+     * at the end of each time loop.
      */
     virtual void AfterSolve()
     {
     }
 
     /**
-     *  A child class can overload this if they want the simulation to stop
-     *  based on certain conditions before the specified end time (for example,
-     *  run until a crypt becomes monoclonal).
+     * A child class can overload this if they want the simulation to stop
+     * based on certain conditions before the specified end time (for example,
+     * run until a crypt becomes monoclonal).
      */
     virtual bool StoppingEventHasOccurred();
 
@@ -266,15 +271,14 @@ protected:
      */
     void OutputSimulationSetup();
 
-
 public:
 
     /**
-     *  Constructor.
+     * Constructor.
      *
-     *  @param rCellPopulation A cell population object
-     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
-     *  @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
+     * @param rCellPopulation A cell population object
+     * @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
+     * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                         bool deleteCellPopulationAndForceCollection=false,

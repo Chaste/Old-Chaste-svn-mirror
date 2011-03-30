@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef REGIONBASEDCELLKILLER_HPP_
-#define REGIONBASEDCELLKILLER_HPP_
+#ifndef PLANEBASEDCELLKILLER_HPP_
+#define PLANEBASEDCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
 
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Works for all CellPopulations.
  */
 template<unsigned DIM>
-class RegionBasedCellKiller : public AbstractCellKiller<DIM>
+class PlaneBasedCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
@@ -82,7 +82,7 @@ public:
      * @param point point on the plane which nodes cannot cross
      * @param normal the outward pointing unit normal to the boundary plane
      */
-    RegionBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
+    PlaneBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
                           c_vector<double, DIM> point,
                           c_vector<double, DIM> normal);
 
@@ -113,18 +113,18 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(RegionBasedCellKiller)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(PlaneBasedCellKiller)
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a RegionBasedCellKiller.
+ * Serialize information required to construct a PlaneBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const RegionBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const PlaneBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
@@ -144,11 +144,11 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a RegionBasedCellKiller.
+ * De-serialize constructor parameters and initialise a PlaneBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, RegionBasedCellKiller<DIM> * t, const unsigned int file_version)
+    Archive & ar, PlaneBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
@@ -167,9 +167,9 @@ inline void load_construct_data(
     }
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)RegionBasedCellKiller<DIM>(p_cell_population, point, normal);
+    ::new(t)PlaneBasedCellKiller<DIM>(p_cell_population, point, normal);
 }
 }
 } // namespace ...
 
-#endif /*REGIONBASEDCELLKILLER_HPP_*/
+#endif /*PLANEBASEDCELLKILLER_HPP_*/
