@@ -154,11 +154,6 @@ public:
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
-        // Create a force system
-        WelikyOsterForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellRelaxationWelikyOster");
@@ -601,11 +596,6 @@ public:
 
         // Create cell population
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
 
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population);

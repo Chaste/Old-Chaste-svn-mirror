@@ -46,28 +46,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how Chaste is used to create, run and visualize vertex-based simulations.
+ * In this tutorial we show how Chaste can be used to create, run and visualize vertex-based simulations.
  * Full details of the mechanical model proposed by T. Nagai and H. Honda ("A dynamic cell model for
  * the formation of epithelial tissues", Philosophical Magazine Part B 81:699-719).
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
- * in any Chaste test).
+ * EMPTYLINE
+ *
+ * == The test ==
+ *
+ * EMPTYLINE
+ * 
+ * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-/* Any test in which the {{{GetIdentifier()}}} method is used, 
- * even via the main cell_based code ({{{AbstractCellPopulation}}} output methods), must 
- * include {{{CheckpointArchiveTypes.hpp}}} 
- * or {{{CellBasedSimulationArchiver.hpp}}} as the first Chaste header included. 
- */
 #include "CheckpointArchiveTypes.hpp" 
 
-/* The next header file defines a helper class for generating
- * a vector of cells for a given mesh. */
+/* The remaining header files define classes that will be used in the cell population
+ * simulation test. We have encountered some of these header files in previous cell-based
+ * Chaste tutorials. */
 #include "CellsGenerator.hpp"
-/* The next header file defines a helper class for generating
- * cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
+#include "WntConcentration.hpp"
+#include "SloughingCellKiller.hpp"
+#include "CellBasedSimulation.hpp"
 /*
  * The next three header files define three different types of cell-cycle model,
  * one with fixed cell-cycle times, one with stochastic cell-cycle times and one
@@ -80,12 +81,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombVertexMeshGenerator.hpp"
 /* The next header file defines a helper class for generating a periodic vertex mesh. */
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
-/* The next header file defines a Wnt singleton class, which (if used) deals with the
- * imposed Wnt gradient in our crypt model.
- */
-#include "WntConcentration.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}} */
-#include "CellBasedSimulation.hpp"
 /* The next header file defines the class that simulates the evolution of a crypt {{{CellPopulation}}}
  * for a vertex mesh. */
 #include "VertexCryptSimulation2d.hpp"
@@ -95,10 +90,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * between neighbouring cells in the cell population, subject to each vertex.
  */
 #include "NagaiHondaForce.hpp"
-/* The final header file defines a cell killer class, which implements sloughing of cells
- * into the lumen once they reach the top of the crypt.
- */
-#include "SloughingCellKiller.hpp"
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
  */
@@ -116,8 +107,7 @@ public:
 	*/
 	void TestMonolayerFixedCellCycle() throw(Exception)
 	{
-    	/* As in '''all''' cell-based simulations, we must first set the start time.
-    	*/
+        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
     	SimulationTime::Instance()->SetStartTime(0.0);
     
     	/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
@@ -145,34 +135,20 @@ public:
     	* cell population called a {{{VertexBasedCellPopulation}}}.
     	*/
     	VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-    
-    	/* We must now create one or more force laws, which determine the mechanics of the vertices
-    	* of each cell in a cell population. For this test, we use one force law, based on the
-    	* Nagai-Honda mechanics. We put a pointer to this force into a vector.
-    	*/
-    	NagaiHondaForce<2> force;
-    	std::vector<AbstractForce<2>* > force_collection;
-    	force_collection.push_back(&force);
-    
-    	/* Now we define the cell-based simulation object, passing in the cell population and collection
-    	* of force laws:
-    	*/
+
+        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+         * and set the output directory and end time. */
     	CellBasedSimulation<2> simulator(cell_population);
-    
-    	/* Set the output directory on the simulator (relative to
-    	* "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
-    	*/
     	simulator.SetOutputDirectory("MonolayerFixedCellCycle");
     	simulator.SetEndTime(0.1);
-    
-    	/* For longer simulations, you may not want to output the results
-    	* every time step. In this case you can use the following method,
-    	* to print results every 10 time steps instead. As the time step
-    	* used by the simulator, is 30 s, this method will cause the
-    	* simulator to print results every 5 min.
-    	*/
-    	//simulator.SetSamplingTimestepMultiple(10);
-    
+
+        /* We must now create one or more force laws, which determine the mechanics of the vertices
+        * of each cell in a cell population. For this test, we use one force law, based on the
+        * Nagai-Honda mechanics, and pass it to the {{{CellBasedSimulation}}}
+        */
+        NagaiHondaForce<2> force;
+        simulator.AddForce(&force);
+
     	/* To run the simulation, we call {{{Solve()}}}. */
     	simulator.Solve();
     
@@ -188,12 +164,12 @@ public:
 	*
 	* To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
 	* then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/MonolayerFixedCellCycle/results_from_time_0}}}.
-	* You may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+	* We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
 	* java executable.
 	*
 	* EMPTYLINE
 	*
-	* When you visualize the results, you should see the cells whose centres lie at and above 4.0 dividing first. This is due
+	* When we visualize the results, we should see the cells whose centres lie at and above 4.0 dividing first. This is due
 	* to the implementation of the {{{CellsGenerator}}}, which assigned a birthtime of (0 - i), where i is the element index of the cell.
 	*
 	* EMPTYLINE
@@ -275,7 +251,7 @@ public:
 	*
 	* EMPTYLINE
 	*
-	* When you visualize the results, you should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
+	* When we visualize the results, we should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
 	* cells, and 5 rows of pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
 	*
 	* EMPTYLINE
@@ -360,7 +336,7 @@ public:
 	*
 	* EMPTYLINE
 	*
-	* When you visualize the results, you should see two colours of cells: yellow transit
+	* When we visualize the results, we should see two colours of cells: yellow transit
 	* cells and pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
 	*/
 
