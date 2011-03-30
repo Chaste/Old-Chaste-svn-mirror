@@ -54,7 +54,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *        However for simplicity of code this has not been implemented
  *   (b)  Therefore, the effective ODE timestep will be:  min(ode_dt, pde_dt/2), where ode_dt and pde_dt are those
  *        given via HeartConfig.
- *   (c)  This solver is mainly for comparing accuracy, not comparing performance.
+ *   (c)  This solver is FOR COMPARING ACCURACY, NOT PERFORMANCE. It has not been optimised and may or may not
+ *        perform well in parallel.
  *
  *  Unlike the other two solvers this currently does not inherit from AbstractMonodomainSolver.
  */

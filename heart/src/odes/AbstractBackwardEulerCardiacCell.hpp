@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCell.hpp"
 #include "Exception.hpp"
 #include "PetscTools.hpp"
+#include "TimeStepper.hpp"
 
 /**
  * This is the base class for cardiac cells solved using a (decoupled) backward
@@ -140,6 +141,15 @@ public:
      * @param tEnd  end of the time interval to simulate
      */
     void ComputeExceptVoltage(double tStart, double tEnd);
+
+    /**
+     * Simulate this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestemp #mDt, updating the internal state variable values.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    void SolveAndUpdateState(double tStart, double tEnd);
 
 private:
 #define COVERAGE_IGNORE
@@ -276,6 +286,29 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
 #endif // NDEBUG
     }
 }
+
+template<unsigned SIZE>
+void AbstractBackwardEulerCardiacCell<SIZE>::SolveAndUpdateState(double tStart, double tEnd)
+{
+    TimeStepper stepper(tStart, tEnd, mDt);
+
+    while(!stepper.IsTimeAtEnd())
+    {
+        double time = stepper.GetTime();
+
+        // Compute next value of V
+        UpdateTransmembranePotential(time);
+
+        // Compute other state variables
+        ComputeOneStepExceptVoltage(time);
+
+        // check gating variables are still in range
+        VerifyStateVariables();
+
+        stepper.AdvanceOneTimeStep();
+    }
+}
+
 
 TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractBackwardEulerCardiacCell)
 

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "ZeroStimulusCellFactory.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudy1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
@@ -68,11 +68,11 @@ public:
 
         if (fabs(x)<0.02+1e-6)
         {
-            return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
+            return new CellLuoRudy1991FromCellMLBackwardEuler(this->mpSolver, this->mpStimulus);
         }
         else
         {
-            return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpZeroStimulus);
+            return new CellLuoRudy1991FromCellMLBackwardEuler(this->mpSolver, this->mpZeroStimulus);
         }
     }
 };
@@ -131,7 +131,7 @@ public:
         }
 
         // hardcoded value to check nothing has changed
-        TS_ASSERT_DELTA(final_voltage_operator_splitting[30], 10.7939, 1e-3);
+        TS_ASSERT_DELTA(final_voltage_operator_splitting[30], 5.0577, 1e-3);
 
         bool some_node_depolarised = false;
         assert(final_voltage_normal.GetSize()==final_voltage_operator_splitting.GetSize());
@@ -139,7 +139,7 @@ public:
         {
             // this tolerance means the wavefronts are not on top of each other, but not too far
             // separated (as otherwise max difference between the voltages across space would be
-            // greater than 80.
+            // greater than 80).
             double tol=25;
 
             TS_ASSERT_DELTA(final_voltage_normal[j], final_voltage_operator_splitting[j], tol);

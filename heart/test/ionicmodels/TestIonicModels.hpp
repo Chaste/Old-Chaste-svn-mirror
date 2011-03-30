@@ -454,7 +454,7 @@ public:
 
         CheckCellModelResults("Lr91RegularStim");
 
-        // Cover SolveAndUpdateState
+        // Test SolveAndUpdateState
         double v = lr91_ode_system.GetVoltage();
         lr91_ode_system.ResetToInitialConditions();
         lr91_ode_system.SolveAndUpdateState(0.0, end_time);
@@ -502,6 +502,12 @@ public:
 
         // Compare results
         CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler", 0.01);
+        
+        // Test SolveAndUpdateState
+        double v = lr91_backward_euler.GetVoltage();
+        lr91_backward_euler.ResetToInitialConditions();
+        lr91_backward_euler.SolveAndUpdateState(0.0, end_time);
+        TS_ASSERT_DELTA(lr91_backward_euler.GetVoltage(), v, 1e-10);        
 
         // Try with larger timestep and coarser tolerance.
         // We can't use a larger time step than 0.01 for forward Euler - the gating
