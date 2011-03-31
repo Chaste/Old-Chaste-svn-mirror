@@ -235,25 +235,30 @@ public:
 
         /* The last block of code provides an archiving test for the force class,
          * in a similar way to previous cell-based Chaste tutorials:
+         *
+         * Note that it is important to test archiving by using an abstract
+         * pointer, so that you check that boost can identify and record which
+         * concrete class it should be dealing with.
+         * This tests the CHASTE_CLASS_EXPORT(MyForce) lines are implemented correctly.
          */
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_force.arch";
         {
-            MyForce my_force(2.6);
+            AbstractForce<2>* const p_force = new MyForce(2.6);
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            MyForce* const p_force = &my_force;
             output_arch << p_force;
+            delete p_force;
         }
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            MyForce* p_force;
+            AbstractForce<2>* p_force;
             input_arch >> p_force;
 
-            TS_ASSERT_DELTA(p_force->GetStrength(), 2.6, 1e-4);
+            TS_ASSERT_DELTA(dynamic_cast<MyForce*>(p_force)->GetStrength(), 2.6, 1e-4);
 
             delete p_force;
         }

@@ -285,18 +285,18 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_bc.arch";
         {
-            MyBoundaryCondition my_bc(NULL);
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            MyBoundaryCondition* const p_bc = &my_bc;
+            AbstractCellPopulationBoundaryCondition<2>* const p_bc = new MyBoundaryCondition(NULL);
             output_arch << p_bc;
+            delete p_bc;
         }
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            MyBoundaryCondition* p_bc;
+            AbstractCellPopulationBoundaryCondition<2>* p_bc;
             input_arch >> p_bc;
 
             delete p_bc;
