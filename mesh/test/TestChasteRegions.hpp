@@ -149,6 +149,8 @@ public:
         TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_contained), true);
         TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_non_contained), false);
 
+        TS_ASSERT_EQUALS(nodes_list.GetSize(), 3u);
+
     }
 
     void TestEllipsoidCreationAndContained() throw(Exception)
@@ -232,12 +234,22 @@ public:
 	
 	        AbstractChasteRegion<3>* const p_ellipsoid = new ChasteEllipsoid<3>(centre, radii);
 
+	        Node<3>* p_node_1 = new Node<3>(0u, point_a);
+	        Node<3>* p_node_2 = new Node<3>(1u, point_b);
+	        std::vector<Node<3>* > node_list;
+	        node_list.push_back(p_node_1);
+	        node_list.push_back(p_node_2);
+
+	        AbstractChasteRegion<3>* const p_node_list = new ChasteNodesList<3>(node_list);
+
             // Should always archive a pointer
             output_arch << p_cuboid;
             output_arch << p_ellipsoid;
+            output_arch << p_node_list;
 
             delete p_cuboid;
             delete p_ellipsoid;
+            delete p_node_list;
         }
 
         // Restore
@@ -248,9 +260,11 @@ public:
             // Create pointer to regions
             AbstractChasteRegion<3>* p_cuboid;
             AbstractChasteRegion<3>* p_ellipsoid;
+            AbstractChasteRegion<3>* p_node_list;
 
             input_arch >> p_cuboid;
             input_arch >> p_ellipsoid;
+            input_arch >> p_node_list;
 
             ChastePoint<3> point_inside_cuboid(0, 0, 0);
             ChastePoint<3> point_just_inside_cuboid(-2.99, -2.99, -2.99);
@@ -264,6 +278,10 @@ public:
             ChastePoint<3> point_outside_y_ellipsoid(0, 5, 0);
             ChastePoint<3> point_outside_z_ellipsoid(0, 0, 7);
 
+            ChastePoint<3> node_1_in_the_list(-3, -3, -3);
+            ChastePoint<3> node_2_in_the_list(3, 3, 3);
+            ChastePoint<3> node_not_in_the_list(-5, 4, 0);
+
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_outside_cuboid), false);
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_just_inside_cuboid), true);
@@ -276,6 +294,10 @@ public:
             TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_x_ellipsoid), false);
             TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_y_ellipsoid), false);
             TS_ASSERT_EQUALS(p_ellipsoid->DoesContain(point_outside_z_ellipsoid), false);
+
+            TS_ASSERT_EQUALS(p_node_list->DoesContain(node_1_in_the_list), true);
+            TS_ASSERT_EQUALS(p_node_list->DoesContain(node_2_in_the_list), true);
+            TS_ASSERT_EQUALS(p_node_list->DoesContain(node_not_in_the_list), false);
 
             delete p_cuboid;
             delete p_ellipsoid;
