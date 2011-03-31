@@ -58,7 +58,7 @@ const std::vector< Node<SPACE_DIM>*>& ChasteNodesList<SPACE_DIM>::rGetNodesList(
 }
 
 template <unsigned SPACE_DIM>
-const unsigned ChasteNodesList<SPACE_DIM>::GetSize() const
+unsigned ChasteNodesList<SPACE_DIM>::GetSize() const
 {
     return mSize;
 }

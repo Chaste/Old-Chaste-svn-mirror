@@ -90,7 +90,7 @@ public:
     /**
      * @returns the size of the nodes list
      */
-    const unsigned GetSize() const;
+    unsigned GetSize() const;
 
 };
 
