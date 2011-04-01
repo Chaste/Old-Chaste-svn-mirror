@@ -119,7 +119,7 @@ void Node<SPACE_DIM>::SetAsBoundaryNode(bool value)
 template<unsigned SPACE_DIM>
 ChastePoint<SPACE_DIM> Node<SPACE_DIM>::GetPoint() const
 {
-    return ChastePoint<SPACE_DIM>(mLocation);
+    return ChastePoint<SPACE_DIM>(mLocation);///\todo Why does this construct something which immediately goes out of scope? 
 }
 
 template<unsigned SPACE_DIM>

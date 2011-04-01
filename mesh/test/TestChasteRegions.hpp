@@ -225,7 +225,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
             
             ChastePoint<3> point_a(-3, -3, -3);
-	        ChastePoint<3> point_b(3, 3, 3);
+            ChastePoint<3> point_b(3, 3, 3);
 
             AbstractChasteRegion<3>* const p_cuboid = new ChasteCuboid<3>(point_a, point_b);
 	   
@@ -234,11 +234,13 @@ public:
 	
 	        AbstractChasteRegion<3>* const p_ellipsoid = new ChasteEllipsoid<3>(centre, radii);
 
-	        Node<3>* p_node_1 = new Node<3>(0u, point_a);
-	        Node<3>* p_node_2 = new Node<3>(1u, point_b);
+	        Node<3>* p_node_1 = new Node<3>(0u, false, 13, 13, 13);
+            Node<3>* p_node_2 = new Node<3>(1u, false, 4, 5, 6);
+            Node<3>* p_node_3 = new Node<3>(2u, false, -13, -13, -13);
 	        std::vector<Node<3>* > node_list;
 	        node_list.push_back(p_node_1);
-	        node_list.push_back(p_node_2);
+            node_list.push_back(p_node_2);
+            node_list.push_back(p_node_3);
 
 	        AbstractChasteRegion<3>* const p_node_list = new ChasteNodesList<3>(node_list);
 
@@ -252,6 +254,7 @@ public:
             delete p_node_list;
             delete p_node_1;
             delete p_node_2;
+            delete p_node_3;
         }
 
         // Restore
@@ -280,8 +283,8 @@ public:
             ChastePoint<3> point_outside_y_ellipsoid(0, 5, 0);
             ChastePoint<3> point_outside_z_ellipsoid(0, 0, 7);
 
-            ChastePoint<3> node_1_in_the_list(-3, -3, -3);
-            ChastePoint<3> node_2_in_the_list(3, 3, 3);
+            ChastePoint<3> node_1_in_the_list(-13, -13, -13);
+            ChastePoint<3> node_2_in_the_list(13, 13, 13);
             ChastePoint<3> node_not_in_the_list(-5, 4, 0);
 
             TS_ASSERT_EQUALS(p_cuboid->DoesContain(point_inside_cuboid), true);
