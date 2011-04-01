@@ -87,6 +87,16 @@ class BuildType(object):
         print "LD flags:", self.LinkFlags()
         print "Test packs:", self.TestPacks()
         print "Library preferences:", self.GetPreferedVersions()
+    
+    def _get_cpu_flags(self):
+        """Get the optional extensions supported by this system's CPUs."""
+        cpuinfo = open('/proc/cpuinfo')
+        flags = []
+        for line in cpuinfo:
+            if line.startswith('flags'):
+                flags = line[line.find(':')+1:].split()
+                break
+        return flags
 
     def CompilerType(self):
         """
@@ -848,13 +858,10 @@ class GccOptNative(GccOpt):
     def __init__(self, *args, **kwargs):
         GccOpt.__init__(self, *args, **kwargs)
         self._cc_flags.extend(['-march=native', '-mfpmath=sse'])
-        cpuinfo = open('/proc/cpuinfo').readlines()
-        for line in cpuinfo:
-            if line.startswith('flags'):
-                for flag in ['mmx', 'sse', 'sse2', 'sse3', 'sse4', 'sse4a', 'avx', '3dnow', 'abm', 'popcnt']:
-                    if ' ' + flag + ' ' in line:
-                        self._cc_flags.append('-m' + flag)
-                break
+        cpu_flags = self._get_cpu_flags()
+        for flag in ['mmx', 'sse', 'sse2', 'sse3', 'sse4', 'sse4a', 'avx', '3dnow', 'abm', 'popcnt']:
+            if flag in cpu_flags:
+                self._cc_flags.append('-m' + flag)
         self.build_dir = 'optimised_native'
 
 
@@ -1183,11 +1190,29 @@ class IntelP3(Intel):
         self.build_dir = 'intel_p3'
 
 class IntelP4(Intel):
-    """Intel compilers optimised for Pentium 4."""
+    """Intel compilers optimised for Pentium 4.
+    
+    Figures out from /proc/cpuinfo which of the following options to use.
+    
+    -x<codes>  generate specialized code to run exclusively on processors
+           indicated by <codes> as described below
+    W  Intel Pentium 4 and compatible Intel processors
+    P  Intel(R) Core(TM) Duo processors, Intel(R) Core(TM) Solo processors,
+       Intel Pentium 4 and compatible Intel(R) processors with Streaming
+       SIMD Extensions 3 (SSE3) instruction support
+    T  Intel(R) Core(TM)2 Duo processors, Intel(R) Core(TM)2 Quad
+       processors, and Intel(R) Xeon(R) processors with SSSE3
+    """
     def __init__(self, *args, **kwargs):
         Intel.__init__(self, *args, **kwargs)
-        # -xN = P4 + SSE2 while -xW = P4 (suitable for AMD CPUs)
-        self._cc_flags.extend(['-xW', '-O3', '-ip', '-ipo1'])
+        cpu_flags = self._get_cpu_flags()
+        if 'ssse3' in cpu_flags:
+            opt = '-xT'
+        elif 'sse3' in cpu_flags:
+            opt = '-xP'
+        else:
+            opt = '-xW'
+        self._cc_flags.extend([opt, '-O3', '-ip', '-ipo1'])
         self._link_flags.extend(['-ipo1'])
         self.build_dir = 'intel_p4'
 
@@ -1206,17 +1231,29 @@ class Vtune(IntelProduction):
         self.build_dir = 'intel_vtune'
         self._cc_flags.append('-g')
 
+class IntelProductionProfile(IntelProduction):
+    """Production build with profiling enabled."""
+    def __init__(self, *args, **kwargs):
+        super(IntelProductionProfile, self).__init__(*args, **kwargs)
+        self.build_dir = 'intel_production_profile'
+        self._cc_flags.remove('-ip')
+        self._cc_flags.remove('-ipo1')
+        self._link_flags.remove('-ipo1')
+        self._cc_flags.extend(['-g', '-p', '-shared-intel'])
+        self._link_flags.extend(['-g', '-p', '-shared-intel', '-static-libgcc'])
+        #self.is_profile = True
+
+    def GetTestRunnerCommand(self, exefile, exeflags=''):
+        """Run test then run profiler."""
+        return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' ' + exefile
+
 class IntelProductionParallel4(IntelProduction):
     """Intel production build, run tests in parallel on 4 nodes"""
     def __init__(self, *args, **kwargs):
         IntelProduction.__init__(self, *args, **kwargs)
         self._test_packs = ['Parallel']
         self._num_processes = 4
-    
-    def GetTestRunnerCommand(self, exefile, exeflags=''):
-        "Run test with a 4 processor environment"
-        return self.tools['mpirun'] + ' -np ' + str(self._num_processes) \
-            + ' ' + exefile + ' ' + exeflags
+
 
 class StyleCheck(GccDebug):
     """Check the code against Effective C++ style guidelines."""
