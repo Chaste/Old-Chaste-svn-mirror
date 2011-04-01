@@ -67,6 +67,14 @@ public:
     {}
 
     /**
+     * \todo Proper memory management
+     * Cleans any data which the concrete class may have created (archiving)
+     */
+    virtual void Destroy()
+    {
+    }
+
+    /**
      * Virtual functions, so virtual destructor.
      */
     virtual ~AbstractChasteRegion()

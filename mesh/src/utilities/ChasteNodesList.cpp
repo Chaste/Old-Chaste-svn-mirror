@@ -32,7 +32,6 @@ template <unsigned SPACE_DIM>
 ChasteNodesList<SPACE_DIM>::ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList) :
     mListOfNodes (rNodesList)
 {
-    mSize = rNodesList.size();
 }
 
 template <unsigned SPACE_DIM>
@@ -60,7 +59,17 @@ const std::vector< Node<SPACE_DIM>*>& ChasteNodesList<SPACE_DIM>::rGetNodesList(
 template <unsigned SPACE_DIM>
 unsigned ChasteNodesList<SPACE_DIM>::GetSize() const
 {
-    return mSize;
+    return mListOfNodes.size();
+}
+
+template <unsigned SPACE_DIM>
+void ChasteNodesList<SPACE_DIM>::Destroy()
+{
+    ///\todo In most cases the nodes ought to be shared with the mesh.  This is not the case in archiving
+    for (unsigned i=0; i<mListOfNodes.size(); i++)
+    {
+        delete mListOfNodes[i];
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

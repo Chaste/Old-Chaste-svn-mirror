@@ -65,8 +65,6 @@ private:
     /** A vector to store the list of nodes*/
     std::vector< Node<SPACE_DIM>*> mListOfNodes;
 
-    /**The size of the nodes list. Used for archiving*/
-    unsigned mSize;
 
 public:
 
@@ -91,6 +89,11 @@ public:
      * @returns the size of the nodes list
      */
     unsigned GetSize() const;
+    
+    /**
+     * Clean the memory used by the nodes in this node list
+     */
+    void Destroy();
 
 };
 
@@ -127,6 +130,7 @@ inline void save_construct_data(
         unsigned index = node_list[i]->GetIndex() ;
         ar & p_point;
         ar & index;
+        ///\todo delete p_point; 
     }
 }
 

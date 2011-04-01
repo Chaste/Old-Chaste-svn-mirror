@@ -250,6 +250,8 @@ public:
             delete p_cuboid;
             delete p_ellipsoid;
             delete p_node_list;
+            delete p_node_1;
+            delete p_node_2;
         }
 
         // Restore
@@ -301,6 +303,7 @@ public:
 
             delete p_cuboid;
             delete p_ellipsoid;
+            p_node_list->Destroy();
             delete p_node_list;
         }
     }
