@@ -1840,7 +1840,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             varname = self.code_name(key[-1])
             method_name = 'IndexTable' + str(idx)
             if self.row_lookup_method:
-                method = 'const double * const %s(double %s)' % (method_name, varname)
+                method = 'const double * %s(double %s)' % (method_name, varname)
             else:
                 factor = self.lut_factor(idx)
                 idx_var = '_table_index_' + str(idx)
