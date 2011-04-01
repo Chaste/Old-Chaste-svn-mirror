@@ -129,6 +129,9 @@ protected:
     /** Spacing of tables indexed by each variable */
     std::vector<double> mTableSteps;
 
+    /** Contains the reciprocals of #mTableSteps */
+    std::vector<double> mTableStepInverses;
+
     /** Lower bound of tables indexed by each variable */
     std::vector<double> mTableMins;
 

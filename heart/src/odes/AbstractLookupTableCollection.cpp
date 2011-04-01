@@ -69,6 +69,7 @@ void AbstractLookupTableCollection::SetTableProperties(const std::string& rKeyin
     }
     mTableMins[i] = min;
     mTableSteps[i] = step;
+    mTableStepInverses[i] = 1/step;
     mTableMaxs[i] = max;
 }
 

@@ -136,6 +136,7 @@ class CellMLTranslator(object):
     TYPE_DOUBLE = 'double '
     TYPE_VOID = 'void '
     TYPE_CONST_DOUBLE = 'const double '
+    TYPE_CONST_UNSIGNED = 'const unsigned '
 
     # Special constants
     TRUE = 'true'
@@ -192,8 +193,7 @@ class CellMLTranslator(object):
                   class_name=None, v_variable=None,
                   continuation=None,
                   lookup_method_prefix='', row_lookup_method=False,
-                  lt_index_uses_floor=True, bad_tables_for_cache=False,
-                  constrain_table_indices=False):
+                  lt_index_uses_floor=True, constrain_table_indices=False):
         """Generate code for the given model.
 
         doc should be an instance of cellml_model representing a
@@ -266,7 +266,6 @@ class CellMLTranslator(object):
         self.row_lookup_method = row_lookup_method
         self.lt_index_uses_floor = lt_index_uses_floor
         self.constrain_table_indices = constrain_table_indices
-        self.bad_tables_for_cache = bad_tables_for_cache
         self.scan_for_lookup_tables()
         if not doc.lookup_tables:
             # No tables found
@@ -1012,12 +1011,19 @@ class CellMLTranslator(object):
     def lut_access_code(self, table_index, table_name, i):
         """Get the code for accessing the i'th element of the given table.
         """
-        name = '_lookup_table_' + str(table_index)
-        if self.bad_tables_for_cache:
-            name += '[' + str(table_name) + '][' + str(i) + ']'
-        else:
-            name += '[' + str(i) + '][' + str(table_name) + ']'
-        return name
+        return '_lookup_table_%s[%s][%s]' % (table_index, i, table_name)
+    
+    def lut_parameters(self, key):
+        """Get the bounds and step size for a particular table.
+        
+        key should be a key into self.lookup_table_indices.
+        Returns (min, max, step, step_inverse) suitable for putting in generated code.
+        """
+        return key[0:3] + [unicode(1 / float(key[2]))]
+    
+    def lut_size_calculation(self, min, max, step):
+        """Return the equivalent of '1 + (unsigned)((max-min)/step+0.5)'."""
+        return '1 + (unsigned)((%s-%s)/%s+0.5)' % (max, min, step)
 
     def output_lut_generation(self, only_index=None):
         """Output code to generate lookup tables.
@@ -1029,48 +1035,47 @@ class CellMLTranslator(object):
         """
         # Don't use table lookups to generate the tables!
         self.use_lookup_tables = False
+        # Allocate memory for tables
+        for key, idx in self.doc.lookup_table_indexes.iteritems():
+            if only_index is None or only_index == idx:
+                min, max, step, _ = self.lut_parameters(key)
+                self.writeln(self.TYPE_CONST_UNSIGNED, '_table_size_', idx, self.EQ_ASSIGN,
+                             self.lut_size_calculation(min, max, step), self.STMT_END)
+                self.writeln('_lookup_table_', idx, self.EQ_ASSIGN, 'new double[_table_size_', idx,
+                             '][', self.doc.lookup_tables_num_per_index[idx], ']', self.STMT_END)
         # Generate each table in a separate loop
         for expr in self.doc.lookup_tables:
-            var = expr.get_component().get_variable_by_name(expr.var)
-            idx = self.doc.lookup_table_indexes[(expr.min, expr.max, expr.step,
-                                                 var.get_source_variable(recurse=True))]
-            if only_index and only_index != idx:
+            var = expr.component.get_variable_by_name(expr.var)
+            key = (expr.min, expr.max, expr.step, var.get_source_variable(recurse=True))
+            idx = self.doc.lookup_table_indexes[key]
+            if only_index is not None and only_index != idx:
                 continue
-            table_size = unicode(1+int((float(expr.max) - float(expr.min)) / float(expr.step)))
+            min, max, step, _ = self.lut_parameters(key)
             j = expr.table_name
-            varname = self.code_name(var)
-            self.writeln('for (int i=0 ; i<', table_size, '; i++)')
+            self.writeln('for (unsigned i=0 ; i<_table_size_', idx, '; i++)')
             self.open_block()
-            self.writeln(self.TYPE_DOUBLE, varname, self.EQ_ASSIGN, expr.min,
-                         ' + i*', expr.step, self.STMT_END)
-            self.writeln(self.lut_access_code(idx, j, 'i'), self.EQ_ASSIGN,
-                         nl=False)
+            self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var), self.EQ_ASSIGN, min,
+                         ' + i*', step, self.STMT_END)
+            self.writeln(self.lut_access_code(idx, j, 'i'), self.EQ_ASSIGN, nl=False)
             self.output_expr(expr, False)
             self.writeln(self.STMT_END, indent=False)
             self.close_block()
         self.use_lookup_tables = True
-        return
 
-    def output_lut_deletion(self):
-        """Output code to delete memory allocated for lookup tables.
+    def output_lut_deletion(self, only_index=None):
+        """Output code to delete memory allocated for lookup tables."""
+        for idx in self.doc.lookup_table_indexes.itervalues():
+            if only_index is None or only_index == idx:
+                self.writeln('if (_lookup_table_', idx, ')')
+                self.writeln('delete[] _lookup_table_', idx, self.STMT_END, indent_offset=1)
 
-        Does nothing, since memory is allocated statically.
-        """
-        return
-
-    def output_lut_declarations(self, indexes_as_member=False):
+    def output_lut_declarations(self):
         """Output declarations for the lookup tables."""
         self.output_comment('Lookup tables')
         # Allocate memory, per index variable for cache efficiency
-        for key, idx in self.doc.lookup_table_indexes.iteritems():
-            min, max, step, var = key
-            table_size = unicode(1+int((float(max) - float(min)) / float(step)))
+        for idx in self.doc.lookup_table_indexes.itervalues():
             num_tables = unicode(self.doc.lookup_tables_num_per_index[idx])
-            self.writeln(self.TYPE_DOUBLE,
-                         self.lut_access_code(idx, num_tables, table_size),
-                         self.STMT_END)
-            if indexes_as_member:
-                self.output_lut_index_declarations(idx)
+            self.writeln(self.TYPE_DOUBLE, '(*_lookup_table_', idx, ')[', num_tables, ']', self.STMT_END)
         self.writeln()
 
     def output_lut_index_declarations(self, idx):
@@ -1085,7 +1090,7 @@ class CellMLTranslator(object):
     def output_lut_indices(self):
         """Output declarations for the lookup table indices."""
         self.output_comment('Lookup table indices')
-        for key, idx in self.doc.lookup_table_indexes.iteritems():
+        for idx in self.doc.lookup_table_indexes.itervalues():
             self.output_lut_index_declarations(idx)
         self.writeln()
     
@@ -1196,71 +1201,76 @@ class CellMLTranslator(object):
                        '(_table_index_', i, self.lut_factor(i, include_comma=True), ')')
         return
 
-    def output_table_index_generation(self, indexes_as_member=False, nodeset=set()):
+    def output_table_index_generation(self, nodeset=set()):
         """Output code to calculate indexes into any lookup tables.
-        
-        If indexes_as_member is True then the index variables should be
-        considered to be member variables, rather than locally declared.
         
         If nodeset is given, then filter the table indices calculated so
         that only those needed to compute the nodes in nodeset are defined.
         """
-        self.output_comment('Lookup table indexing')
-        if indexes_as_member:
-            index_type = ''
-            factor_type = ''
-            row_type = ''
-        else:
-            index_type = 'const unsigned '
-            factor_type = 'const double '
-            row_type = 'const double* const '
         tables_to_index = set()
         for node in nodeset:
             tables_to_index.update(self.contained_table_indices(node))
-        for key, i in self.doc.lookup_table_indexes.iteritems():
-            if nodeset and i not in tables_to_index:
-                continue
-            min, max, step, var = key
-            step_inverse = unicode(1 / float(step))
-            offset = '_offset_' + i
-            offset_over_step = offset + '_over_table_step'
-            varname = self.code_name(var)
-            if self.config.options.check_lt_bounds:
-                self.writeln('if (', varname, '>', max,
-                             ' || ', varname, '<', min, ')')
-                self.open_block()
+        if tables_to_index or not nodeset:
+            self.output_comment('Lookup table indexing')
+        for key, idx in self.doc.lookup_table_indexes.iteritems():
+            if not nodeset or idx in tables_to_index:
+                self.output_table_index_checking(key, idx)
                 self.writeln('#define COVERAGE_IGNORE', indent=False)
-                if self.constrain_table_indices:
-                    self.writeln('if (', varname, '>', max, ') ', varname,
-                                 ' = ', max, ';')
-                    self.writeln('else ', varname, ' = ', max, ';')
-                else:
-                    self.writeln('EXCEPTION(DumpState("', self.var_display_name(var), ' outside lookup table range", rY));')
+                self.writeln('if (_oob_', idx, ')')
+                self.writeln('EXCEPTION(DumpState("', self.var_display_name(key[-1]),
+                             ' outside lookup table range", rY));', indent_offset=1)
                 self.writeln('#undef COVERAGE_IGNORE', indent=False)
-                self.close_block(blank_line=False)
-            self.writeln(self.TYPE_CONST_DOUBLE, offset, self.EQ_ASSIGN, varname, ' - ', min, self.STMT_END)
-            self.writeln(self.TYPE_CONST_DOUBLE, offset_over_step, self.EQ_ASSIGN,
-                         offset, ' * ', step_inverse, self.STMT_END)
-            idx_var = '_table_index_' + str(i)
-            if self.config.options.lookup_type == 'nearest-neighbour':
-                if self.lt_index_uses_floor:
-                    self.writeln(index_type, idx_var, ' = (unsigned) round(', offset_over_step, ');')
-                else:
-                    self.writeln(index_type, idx_var, ' = (unsigned) (', offset_over_step, '+0.5);')
-            else:
-                if self.lt_index_uses_floor:
-                    self.writeln(index_type, idx_var, ' = (unsigned) floor(', offset_over_step, ');')
-                else:
-                    self.writeln(index_type, idx_var, ' = (unsigned)(', offset_over_step, ');')
-                factor = self.lut_factor(i)
-                if factor:
-                    self.writeln(factor_type, factor, ' = ', offset_over_step, ' - ', idx_var, self.STMT_END)
-            if self.row_lookup_method:
-                self.writeln(row_type, '_lt_', i, '_row = ', self.lookup_method_prefix, '_lookup_', i,
-                             '_row(', idx_var, self.lut_factor(i, include_comma=True), ');')
+                self.output_table_index_generation_code(key, idx)
         self.writeln()
-        return
-
+        
+    def output_table_index_checking(self, key, idx):
+        """Check whether a table index is out of bounds."""
+        if self.config.options.check_lt_bounds:
+            var = key[-1]
+            min, max, _, _ = self.lut_parameters(key)
+            varname = self.code_name(var)
+            self.writeln('bool _oob_', idx, self.EQ_ASSIGN, 'false', self.STMT_END)
+            self.writeln('if (', varname, '>', max, ' || ', varname, '<', min, ')')
+            self.open_block()
+            self.writeln('#define COVERAGE_IGNORE', indent=False)
+            if self.constrain_table_indices:
+                self.writeln('if (', varname, '>', max, ') ', varname, self.EQ_ASSIGN, max, self.STMT_END)
+                self.writeln('else ', varname, self.EQ_ASSIGN, min, self.STMT_END)
+            else:
+                self.writeln('_oob_', idx, self.EQ_ASSIGN, 'true', self.STMT_END)
+            self.writeln('#undef COVERAGE_IGNORE', indent=False)
+            self.close_block(blank_line=False)
+    
+    def output_table_index_generation_code(self, key, idx):
+        """Method called by output_table_index_generation to output the code for a single table."""
+        index_type = 'const unsigned '
+        factor_type = 'const double '
+        row_type = 'const double* const '
+        var = key[-1]
+        min, max, _, step_inverse = self.lut_parameters(key)
+        offset = '_offset_' + idx
+        offset_over_step = offset + '_over_table_step'
+        varname = self.code_name(var)
+        self.writeln(self.TYPE_CONST_DOUBLE, offset, self.EQ_ASSIGN, varname, ' - ', min, self.STMT_END)
+        self.writeln(self.TYPE_CONST_DOUBLE, offset_over_step, self.EQ_ASSIGN,
+                     offset, ' * ', step_inverse, self.STMT_END)
+        idx_var = '_table_index_' + str(idx)
+        if self.config.options.lookup_type == 'nearest-neighbour':
+            if self.lt_index_uses_floor:
+                self.writeln(index_type, idx_var, ' = (unsigned) round(', offset_over_step, ');')
+            else:
+                self.writeln(index_type, idx_var, ' = (unsigned) (', offset_over_step, '+0.5);')
+        else:
+            if self.lt_index_uses_floor:
+                self.writeln(index_type, idx_var, ' = (unsigned) floor(', offset_over_step, ');')
+            else:
+                self.writeln(index_type, idx_var, ' = (unsigned)(', offset_over_step, ');')
+            factor = self.lut_factor(idx)
+            if factor:
+                self.writeln(factor_type, factor, ' = ', offset_over_step, ' - ', idx_var, self.STMT_END)
+        if self.row_lookup_method:
+            self.writeln(row_type, '_lt_', idx, '_row = ', self.lookup_method_prefix, '_lookup_', idx,
+                         '_row(', idx_var, self.lut_factor(idx, include_comma=True), ');')
 
 class CellMLToChasteTranslator(CellMLTranslator):
     """
@@ -1676,24 +1686,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_method_start('~'+self.class_name, [], '')
         self.open_block()
         self.close_block()
-        # Lookup table declarations & methods
-        if self.use_lookup_tables:
-            if self.separate_lut_class:
-                self.output_method_start('GetLookupTableCollection', [], 'AbstractLookupTableCollection*')
-                self.open_block()
-                self.writeln('return ', self.lt_class_name, '::Instance();')
-                self.close_block()
-            self.send_main_output_to_subsidiary()
-            if self.separate_lut_class:
-                if self.use_backward_euler:
-                    self.set_access('private')
-                    self.output_lut_indices()
-                    self.set_access('public')
-            else:
-                self.output_lut_declarations()
-                self.output_lut_row_lookup_memory()
-                self.output_lut_methods()
-            self.send_main_output_to_subsidiary(False)
+        # Other declarations & methods
+        self.output_chaste_lut_methods()
         self.output_verify_state_variables()
         return
     
@@ -1704,7 +1698,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         which specify allowable ranges for these variables.  The generated method will check that
         they are within the range.  Both limits are included, i.e. they specify a closed interval.
         """
-        # Verify state variables method; empty at present
         self.output_method_start('VerifyStateVariables', [], 'void')
         self.open_block()
         low_prop = ('pycml:range-low', NSS['pycml'])
@@ -1801,6 +1794,100 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_lut_generation()
         self.close_block()
         return
+    
+    def output_chaste_lut_methods(self):
+        """
+        Output lookup table declarations & methods, if not using a separate class,
+        or output the method to get a pointer to the lookup table collection.
+        """
+        if self.use_lookup_tables:
+            if self.separate_lut_class:
+                self.output_method_start('GetLookupTableCollection', [], 'AbstractLookupTableCollection*')
+                self.open_block()
+                self.writeln('return ', self.lt_class_name, '::Instance();')
+                self.close_block()
+            else:
+                self.send_main_output_to_subsidiary()
+                self.output_lut_declarations()
+                self.output_lut_row_lookup_memory()
+                self.output_lut_methods()
+                self.send_main_output_to_subsidiary(False)
+    
+    def lut_parameters(self, key):
+        """Get the bounds and step size for a particular table.
+        
+        key should be a key into self.lookup_table_indices.
+        Returns (min, max, step) suitable for putting in generated code.
+        """
+        if self.separate_lut_class:
+            idx = self.doc.lookup_table_indexes[key]
+            return map(lambda s: 'mTable%s[%s]' % (s, idx), ['Mins', 'Maxs', 'Steps', 'StepInverses'])
+        else:
+            return super(CellMLToChasteTranslator, self).lut_parameters(key)
+    
+    def output_lut_indexing_methods(self):
+        """Output methods in the LT class for indexing the tables, and checking index bounds.
+        
+        These will be methods like
+            const double * const IndexTable0(double index_var);
+        if self.row_lookup_method, or like
+            void IndexTable0(double index_var, unsigned& index, double& factor);
+        otherwise, with
+            bool CheckIndex0(double& index_var);
+        for checking the bounds.
+        """
+        for key, idx in self.doc.lookup_table_indexes.iteritems():
+            varname = self.code_name(key[-1])
+            method_name = 'IndexTable' + str(idx)
+            if self.row_lookup_method:
+                method = 'const double * const %s(double %s)' % (method_name, varname)
+            else:
+                factor = self.lut_factor(idx)
+                idx_var = '_table_index_' + str(idx)
+                if factor:
+                    factor = ', double& ' + factor
+                method = 'void %s(double %s, unsigned& %s%s)' % (method_name, varname, idx_var, factor)
+            self.writeln(method)
+            self.open_block()
+            self.output_table_index_generation_code(key, idx, call_method=False)
+            if self.row_lookup_method:
+                self.writeln('return _lt_', idx, '_row;')
+            self.close_block()
+            # And check the indexes
+            if self.config.options.check_lt_bounds:
+                self.writeln('#define COVERAGE_IGNORE', indent=False)
+                self.writeln('bool CheckIndex', idx, '(double& ', varname, ')')
+                self.open_block()
+                self.output_table_index_checking(key, idx, call_method=False)
+                self.writeln('return _oob_', idx, self.STMT_END)
+                self.close_block(blank_line=False)
+                self.writeln('#undef COVERAGE_IGNORE\n', indent=False)
+    
+    def output_table_index_checking(self, key, idx, call_method=True):
+        """Override base class method to call the methods on the lookup table class if needed."""
+        if self.separate_lut_class and call_method:
+            if self.config.options.check_lt_bounds:
+                var = key[-1]
+                varname = self.code_name(var)
+                self.writeln('const bool _oob_', idx, self.EQ_ASSIGN, self.lt_class_name,
+                             '::Instance()->CheckIndex', idx, '(', varname, ')', self.STMT_END)
+        else:
+            super(CellMLToChasteTranslator, self).output_table_index_checking(key, idx)
+    
+    def output_table_index_generation_code(self, key, idx, call_method=True):
+        """Override base class method to call the methods on the lookup table class if needed."""
+        if self.separate_lut_class and call_method:
+            var = key[-1]
+            varname = self.code_name(var)
+            method_name = self.lt_class_name + '::Instance()->IndexTable' + str(idx)
+            if self.row_lookup_method:
+                self.writeln('const double* const _lt_', idx, '_row = ', method_name, '(', varname, ');')
+            else:
+                factor = self.lut_factor(idx, include_comma=True)
+                idx_var = '_table_index_' + str(idx)
+                self.writeln(method_name, '(', varname, ', ', idx_var, factor, ');')
+        else:
+            super(CellMLToChasteTranslator, self).output_table_index_generation_code(key, idx)
 
     def output_lut_class(self):
         """Output a separate class for lookup tables.
@@ -1822,6 +1909,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         # Table lookup methods
         self.output_lut_methods()
+        self.output_lut_indexing_methods()
         # Make the class a singleton
         self.writeln('protected:', indent_level=0)
         self.writeln(self.lt_class_name, '(const ', self.lt_class_name, '&);')
@@ -1840,8 +1928,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('mNumberOfTables.push_back(', num_tables, ');')
             self.writeln('mTableMins.push_back(', min, ');')
             self.writeln('mTableSteps.push_back(', step, ');')
+            self.writeln('mTableStepInverses.push_back(', str(1/float(step)), ');')
             self.writeln('mTableMaxs.push_back(', max, ');')
             self.writeln('mNeedsRegeneration.push_back(true);')
+            self.writeln('_lookup_table_', idx, self.EQ_ASSIGN, 'NULL', self.STMT_END)
         self.writeln(self.lt_class_name, '::RegenerateTables();')
         self.close_block()
         # Table (re-)generation
@@ -1857,6 +1947,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for i, idx in enumerate(self.doc.lookup_table_indexes.itervalues()):
             self.writeln('if (mNeedsRegeneration[', i, '])')
             self.open_block()
+            self.output_lut_deletion(only_index=idx)
             self.output_lut_generation(only_index=idx)
             self.writeln('mNeedsRegeneration[', i, '] = false;')
             self.close_block(blank_line=True)
@@ -1909,7 +2000,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
                     value = self.vector_index('rY', i)
-                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var),
+                self.writeln(self.TYPE_DOUBLE, self.code_name(var),
                              self.EQ_ASSIGN, value, self.STMT_END)
                 self.writeln(self.COMMENT_START, 'Units: ', var.units,
                              '; Initial value: ',
@@ -1943,7 +2034,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """Output assignments for nonlinear state variables."""
         for i, var in enumerate(self.nonlinear_system_vars):
             if not nodeset or var in nodeset:
-                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var), self.EQ_ASSIGN,
+                self.writeln(self.TYPE_DOUBLE, self.code_name(var), self.EQ_ASSIGN,
                              self.vector_index('rCurrentGuess', i), self.STMT_END)
                 #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
@@ -2698,23 +2789,9 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         self.output_method_start('~'+self.class_name, [], '', access='public')
         self.open_block()
         self.close_block()
-        # Lookup table declarations & methods
-        if self.use_lookup_tables:
-            if self.separate_lut_class:
-                self.output_method_start('GetLookupTableCollection', [], 'AbstractLookupTableCollection*')
-                self.open_block()
-                self.writeln('return ', self.lt_class_name, '::Instance();')
-                self.close_block()
-            else:
-                self.send_main_output_to_subsidiary()
-                self.output_lut_declarations()
-                self.output_lut_row_lookup_memory()
-                self.output_lut_methods()
-                self.send_main_output_to_subsidiary(False)
-        # Verify state variables method; empty at present
-        self.output_method_start('VerifyStateVariables', [], 'void', access='public')
-        self.writeln('{}\n')
-        return
+        # Other declarations & methods
+        self.output_chaste_lut_methods()
+        self.output_verify_state_variables()
 
     def output_mathematics(self):
         """Output the mathematics in this model.
@@ -4872,10 +4949,6 @@ def get_options(args, default_options=None):
     parser.add_option('--no-check-lt-bounds', dest='check_lt_bounds',
                       action='store_false', default=True,
                       help="[unsafe] don't check for LT indexes going outside the table bounds")
-    parser.add_option('--bad-lt-layout-for-cache', dest='bad_tables_for_cache',
-                      action='store_true', default=False,
-                      help="[debug] use the old LT layout, with poorer cache"
-                      " performance")
     # Settings for partial evaluation
     parser.add_option('--member-vars', dest='kept_vars_as_members',
                       action='store_true', default=True,
@@ -5058,7 +5131,6 @@ def run():
         transargs['row_lookup_method'] = options.row_lookup_method
         transargs['lt_index_uses_floor'] = options.lt_index_uses_floor
         transargs['constrain_table_indices'] = options.constrain_table_indices
-        transargs['bad_tables_for_cache'] = options.bad_tables_for_cache
         if issubclass(translator_klass, CellMLToMapleTranslator):
             initargs['omit_constants'] = options.omit_constants
             initargs['compute_full_jacobian'] = options.compute_full_jacobian
