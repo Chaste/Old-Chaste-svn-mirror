@@ -301,6 +301,7 @@ public:
 
             delete p_cuboid;
             delete p_ellipsoid;
+            delete p_node_list;
         }
     }
 };
