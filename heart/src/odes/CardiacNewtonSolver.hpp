@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cell in order to test it.  So all tests occur when testing particular cardiac
  * cells, e.g. the LuoRudy1991BackwardEuler.
  */
-template<unsigned SIZE>
+template<unsigned SIZE, typename CELLTYPE>
 class CardiacNewtonSolver
 {
 public:
@@ -55,9 +55,9 @@ public:
      *
      * @return a single instance of the class
      */
-    static CardiacNewtonSolver<SIZE>* Instance()
+    static CardiacNewtonSolver<SIZE, CELLTYPE>* Instance()
     {
-        static CardiacNewtonSolver<SIZE> inst;
+        static CardiacNewtonSolver<SIZE, CELLTYPE> inst;
         return &inst;
     }
 
@@ -68,7 +68,7 @@ public:
      * @param time  the current time
      * @param rCurrentGuess  the current guess at a solution.  Will be updated on exit.
      */
-    void Solve(AbstractBackwardEulerCardiacCell<SIZE> &rCell,
+    void Solve(CELLTYPE &rCell,
                double time,
                double rCurrentGuess[SIZE])
     {
@@ -84,7 +84,7 @@ public:
         {
             // Calculate Jacobian for current guess
             rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
-            
+
             // Solve Newton linear system for mUpdate, given mJacobian and mResidual
             SolveLinearSystem();
 
@@ -92,11 +92,9 @@ public:
             norm_of_update = norm_inf(mUpdate);
 
             // Update current guess and recalculate residual
-            double norm_of_new_guess = 0.0;
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
-                norm_of_new_guess += rCurrentGuess[i];
             }
             double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
@@ -107,17 +105,17 @@ public:
                 //Note that if norm_of_update < eps (converged) then it's
                 //likely that both the residual and the previous residual were
                 //close to the root.
-                
+
                 //Work out where the biggest change in the guess has happened.
-                double relative_change_max=0.0;
-                unsigned relative_change_direction=0;
+                double relative_change_max = 0.0;
+                unsigned relative_change_direction = 0;
                 for (unsigned i=0; i<SIZE; i++)
                 {
-                    double relative_change=fabs(mUpdate[i])/fabs(rCurrentGuess[i]);
+                    double relative_change = fabs(mUpdate[i]/rCurrentGuess[i]);
                     if (relative_change > relative_change_max)
                     {
-                       relative_change_max = relative_change;
-                       relative_change_direction = i;
+                        relative_change_max = relative_change;
+                        relative_change_direction = i;
                     }
                 }
 
@@ -131,7 +129,7 @@ public:
                 }
             }
             counter++;
-            
+
             // avoid infinite loops
             if (counter > 15)
             {
@@ -141,7 +139,7 @@ public:
             }
         }
         while (norm_of_update > eps);
-        
+
 #define COVERAGE_IGNORE
 #ifndef NDEBUG
         if (norm_of_residual > 2e-10)
@@ -152,26 +150,22 @@ public:
 #undef COVERAGE_IGNORE
     }
 
-
-
-
-
 protected:
     /** Singleton pattern - protected default constructor. */
     CardiacNewtonSolver()
     {}
     /** Singleton pattern - protected copy constructor.  Not implemented. */
-    CardiacNewtonSolver(const CardiacNewtonSolver<SIZE>&);
+    CardiacNewtonSolver(const CardiacNewtonSolver<SIZE, CELLTYPE>&);
     /** Singleton pattern - protected assignment operator.  Not implemented. */
-    CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
+    CardiacNewtonSolver<SIZE, CELLTYPE>& operator= (const CardiacNewtonSolver<SIZE, CELLTYPE>&);
 
     /**
      * Solve a linear system to calculate the Newton update step
-     * 
-     * This is solving 
+     *
+     * This is solving
      *  Jacbian . update = residual
      * for update given values of the Jacobian matrix and residual
-     * 
+     *
      * The implementation does Gaussian elimination with no pivotting and no underflow checking
      */
     void SolveLinearSystem()

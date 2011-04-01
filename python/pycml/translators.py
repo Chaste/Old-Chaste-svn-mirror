@@ -2334,10 +2334,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.write('rY[', i, ']')
         self.writeln('};', indent=False)
         # Solve
-        self.writeln('CardiacNewtonSolver<', self.nonlinear_system_size,
-                     '> *_solver = CardiacNewtonSolver<',
-                     self.nonlinear_system_size, '>::Instance();')
-        self.writeln('_solver->Solve(*this, ', self.code_name(self.free_vars[0]), ', _guess);')
+        CNS = 'CardiacNewtonSolver<%d,%s>' % (self.nonlinear_system_size, self.class_name)
+        self.writeln(CNS, '* _p_solver = ', CNS, '::Instance();')
+        self.writeln('_p_solver->Solve(*this, ', self.code_name(self.free_vars[0]), ', _guess);')
         # Update state
         for j, i in enumerate(idx_map):
             self.writeln('rY[', i, '] = _guess[', j, '];')
