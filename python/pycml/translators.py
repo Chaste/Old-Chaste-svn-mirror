@@ -1910,6 +1910,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Table lookup methods
         self.output_lut_methods()
         self.output_lut_indexing_methods()
+        # Destructor
+        self.writeln('~', self.lt_class_name, '()')
+        self.open_block()
+        self.output_lut_deletion()
+        self.close_block()
         # Make the class a singleton
         self.writeln('protected:', indent_level=0)
         self.writeln(self.lt_class_name, '(const ', self.lt_class_name, '&);')
