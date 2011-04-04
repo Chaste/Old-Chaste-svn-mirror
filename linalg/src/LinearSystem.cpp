@@ -806,12 +806,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #ifdef TRACE_KSP
             Timer::Reset();
 #endif
-            // You can stimate preconditioned matrix spectrum with CG
+            // You can estimate preconditioned matrix spectrum with CG
             KSPSetType(mKspSolver,"cg");
-	    KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
-            
-            // Eigenvalues have to be computed accurately
-            KSPSetTolerances(mKspSolver, DBL_EPSILON, DBL_EPSILON, PETSC_DEFAULT, PETSC_DEFAULT);
+	        KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);            
             KSPSetUp(mKspSolver);
                             
             VecDuplicate(mRhsVector, &chebyshev_lhs_vector);
@@ -840,58 +837,35 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
 
             double eig_max = r_eig[eigs_computed-1];
-	    double eig_min = r_eig[0];
+            double eig_min = r_eig[0];
 
+#ifdef TRACE_KSP
             /*
              *  Under certain circumstances (see Golub&Overton 1988), underestimating
              * the spectrum of the preconditioned operator improves convergence rate.
              * See publication for a discussion and for definition of alpha and sigma_one.
-             * 
-	     *  We use the third largest/smallest eigenvalues. Tunned for UCSD and Oxford 
-	     * Rabbit meshes
              */
-#ifdef TRACE_KSP
-	    if (PetscTools::AmMaster()) std::cout << "EIGS "<< eig_max << " " << eig_min <<std::endl;
+
+            if (PetscTools::AmMaster()) std::cout << "EIGS "<< eig_max << " " << eig_min <<std::endl;
             double alpha = 2/(eig_max+eig_min);
             double sigma_one = 1 - alpha*eig_min;
-	    if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
-#endif
-
-	    eig_max = r_eig[eigs_computed-3];
-	    eig_min = r_eig[2];
-	    assert(eig_min<eig_max);
-
-#ifdef TRACE_KSP
-	    if (PetscTools::AmMaster()) std::cout << "EIGS (after shift) "<< eig_max << " " << eig_min <<std::endl;
-	    alpha = 2/(eig_max+eig_min);
-	    sigma_one = 1 - alpha*eig_min;
-	    if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
+            if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
 #endif
 
             // Set Chebyshev solver and max/min eigenvalues
             assert(mKspType == "chebychev");
             KSPSetType(mKspSolver, mKspType.c_str());            
             KSPChebychevSetEigenvalues(mKspSolver, eig_max, eig_min);
-            KSPSetComputeSingularValues(mKspSolver, PETSC_FALSE);
+            KSPSetComputeEigenvalues(mKspSolver, PETSC_FALSE);
 
-            // Go back to the original tolerances
-            if (mUseAbsoluteTolerance)
-            {
-                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
-            }
-            else
-            {
-                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-            }
-
-	    delete[] r_eig;
-	    delete[] c_eig;
+	        delete[] r_eig;
+	        delete[] c_eig;
 
 #ifdef TRACE_KSP
             if (PetscTools::AmMaster()) 
-	    {
-	        Timer::Print("Computing extremal eigenvalues");
-	    }
+            {
+                Timer::Print("Computing extremal eigenvalues");
+            }
 #endif
         }
 
@@ -902,7 +876,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetUp(mKspSolver);
 
         if (chebyshev_lhs_vector)
-        {
+        {            
             VecDestroy(chebyshev_lhs_vector);
         }
 
