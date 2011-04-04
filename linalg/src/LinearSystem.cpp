@@ -975,7 +975,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
 
 #if (PETSC_VERSION_MAJOR == 3)
-            KSPDefaultConvergedCreate(&mpConvergenceTestContext);            
+            if (!mpConvergenceTestContext)
+            {
+                KSPDefaultConvergedCreate(&mpConvergenceTestContext);
+            }            
             KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, &mpConvergenceTestContext, PETSC_NULL); 
 #else
             KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, PETSC_NULL);
@@ -990,7 +993,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
             }
 
-            /// \todo; #1695 Reset max number of iterations
+            /// \todo #1685 Store this number in a member variable.
             std::stringstream num_it_str;
             num_it_str << 1000;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
@@ -1108,6 +1111,16 @@ void LinearSystem::ResetKspSolver()
     }
 
     mKspIsSetup = false;
+    
+    /*
+     *  Reset max number of iterations. This option is stored in the configuration database and 
+     * explicitely read in with KSPSetFromOptions() everytime a KSP object is created. Therefore,
+     * destroying the KSP object will not ensure that it is set back to default.
+     */
+    /// \todo #1685 Store this number in a member variable.    
+    std::stringstream num_it_str;
+    num_it_str << 1000;
+    PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());    
 }
 
 // Serialization for Boost >= 1.36
