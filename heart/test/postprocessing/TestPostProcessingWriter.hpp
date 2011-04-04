@@ -42,6 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "NumericFileComparison.hpp"
+#include "TetrahedralMesh.hpp"
+#include "PlaneStimulusCellFactory.hpp"
+#include "MonodomainProblem.hpp"
+#include "LuoRudy1991.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
 {
@@ -153,6 +157,12 @@ public:
 
         writer.WriteAboveThresholdDepolarisationFile(-40.0);
 
+        //test the mtehod that extrapolates nodal traces
+        std::vector<unsigned> nodes_to_extrapolate;
+        nodes_to_extrapolate.push_back(1u);
+        nodes_to_extrapolate.push_back(99u);
+        writer.WriteVariableOverTimeAtNodes(nodes_to_extrapolate, "V");//1D test, does not cover node permutation case
+
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         
         std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat";
@@ -203,7 +213,53 @@ public:
         file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat";
         file2 = "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-40.dat";   
         NumericFileComparison comp10(file1, file2);
-        TS_ASSERT(comp10.CompareFiles(1e-12));        
+        TS_ASSERT(comp10.CompareFiles(1e-12));
+
+        file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/NodalTraces_V.dat";
+        file2 = "heart/test/data/PostProcessorWriter/NodalTrace_V_Valid.dat";
+        NumericFileComparison comp_nodes(file1, file2);
+        TS_ASSERT(comp_nodes.CompareFiles(1e-12));
+
+    }
+
+    void TestExtrapolateNodeTracesWithNodePermutation() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        DistributedTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), false);
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+        HeartConfig::Instance()->SetSimulationDuration(2); //ms
+
+        std::string output_dir = "TestingWriteNodesMethod";
+        HeartConfig::Instance()->SetOutputDirectory(output_dir);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("NodalTracesTest");
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+        monodomain_problem.SetMesh(&mesh);
+
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
+
+        PostProcessingWriter<2,2> writer(mesh, OutputFileHandler::GetChasteTestOutputDirectory() + output_dir, "NodalTracesTest", false);
+        std::vector<unsigned> nodes;
+        nodes.push_back(0u);
+        nodes.push_back(13u);
+        // these are the two nodes that I visually checked after running a no-permutation simulation (with Tetrahedral mesh)
+        // and comparing the hdf file (with hdfview) with the postprocessing output
+        // in order to consider the file "valid".
+        writer.WriteVariableOverTimeAtNodes(nodes, "V");
+
+        std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/output/NodalTraces_V.dat";
+        std::string file2 = "heart/test/data/PostProcessorWriter/NodalTrace_V_WithPermutationValid.dat";
+
+        NumericFileComparison comp_nodes(file1, file2);
+        TS_ASSERT(comp_nodes.CompareFiles(1e-3));
     }
 
     void TestWritingEads() throw (Exception)

@@ -101,6 +101,27 @@ public:
      */
     void WriteAboveThresholdDepolarisationFile(double threshold);
 
+    /**
+     * Method that extrapolates the value of a given variable over time at specified nodes and output all to file.
+     * The use of this method is intended as follows: the user supplies a list of node indices (rNodeIndices) and - possibly -
+     * a variable name. This method outputs the time series at each node in rNodeIndices (one time series per column).
+     *
+     * Regardless of the permutation that was used in the simulation, this method will have the same output.
+     * The file name will be NodalTraces_variableName.dat.
+     *
+     * The output file will look like:
+     *
+     * Line 1: <V at time 0, Node 0> <V at time 0, Node 1> <V at time 0, Node 2> etc...
+     * Line 2: <V at time 1, Node 0> <V at time 1, Node 1> <V at time 1, Node 2> etc...
+     * etc...
+     *
+     * where Node 0, Node 1, Node 2 are the nodes included in the rIndices vector and "V" is the name of the variable.
+     *
+     * @param rIndices the node indices (in the unpermuted mesh) that we want the output for.
+     * @param variableName the name of the variable we want the output for.
+     */
+    void WriteVariableOverTimeAtNodes(std::vector<unsigned>& rNodeIndices, std::string variableName = "V");
+
 private:
     /**
      * Method for opening an APD map file and writing one row per node
