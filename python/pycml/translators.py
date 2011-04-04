@@ -1215,11 +1215,12 @@ class CellMLTranslator(object):
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             if not nodeset or idx in tables_to_index:
                 self.output_table_index_checking(key, idx)
-                self.writeln('#define COVERAGE_IGNORE', indent=False)
-                self.writeln('if (_oob_', idx, ')')
-                self.writeln('EXCEPTION(DumpState("', self.var_display_name(key[-1]),
-                             ' outside lookup table range", rY));', indent_offset=1)
-                self.writeln('#undef COVERAGE_IGNORE', indent=False)
+                if self.config.options.check_lt_bounds:
+                    self.writeln('#define COVERAGE_IGNORE', indent=False)
+                    self.writeln('if (_oob_', idx, ')')
+                    self.writeln('EXCEPTION(DumpState("', self.var_display_name(key[-1]),
+                                 ' outside lookup table range", rY));', indent_offset=1)
+                    self.writeln('#undef COVERAGE_IGNORE', indent=False)
                 self.output_table_index_generation_code(key, idx)
         self.writeln()
         
