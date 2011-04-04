@@ -264,6 +264,8 @@ public:
 
     void TestWritingEads() throw (Exception)
     {
+        HeartConfig::Instance()->Reset();
+
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -271,7 +273,8 @@ public:
         PostProcessingWriter<1,1> writer(mesh, "heart/test/data", "Ead", false);
 
         writer.WriteAboveThresholdDepolarisationFile(-30.0);
-   
+
+        //assuming output was written in the default directory ChasteResults
         std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + "ChasteResults/output/AboveThresholdDepolarisations-30.dat";
         std::string file2 = "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-30.dat";
         NumericFileComparison comp(file1, file2);
