@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "MonodomainProblem.hpp"
+#include "BidomainProblem.hpp"
 #include "LuoRudy1991.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
@@ -161,7 +161,7 @@ public:
         std::vector<unsigned> nodes_to_extrapolate;
         nodes_to_extrapolate.push_back(1u);
         nodes_to_extrapolate.push_back(99u);
-        writer.WriteVariableOverTimeAtNodes(nodes_to_extrapolate, "V");//1D test, does not cover node permutation case
+        writer.WriteVariablesOverTimeAtNodes(nodes_to_extrapolate);//1D test, does not cover node permutation case
 
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         
@@ -240,26 +240,35 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("NodalTracesTest");
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
-        MonodomainProblem<2> monodomain_problem( &cell_factory );
-        monodomain_problem.SetMesh(&mesh);
+        BidomainProblem<2> problem( &cell_factory );
+        problem.SetMesh(&mesh);
 
-        monodomain_problem.Initialise();
-        monodomain_problem.Solve();
+        problem.Initialise();
+        problem.Solve();
 
         PostProcessingWriter<2,2> writer(mesh, OutputFileHandler::GetChasteTestOutputDirectory() + output_dir, "NodalTracesTest", false);
         std::vector<unsigned> nodes;
         nodes.push_back(0u);
         nodes.push_back(13u);
-        // these are the two nodes that I visually checked after running a no-permutation simulation (with Tetrahedral mesh)
+        writer.WriteVariablesOverTimeAtNodes(nodes);
+
+        // compare for two nodes that I visually checked after running a no-permutation simulation (with Tetrahedral mesh)
         // and comparing the hdf file (with hdfview) with the postprocessing output
         // in order to consider the file "valid".
-        writer.WriteVariableOverTimeAtNodes(nodes, "V");
 
+        //check the file with V (assuming default variable name was V)
         std::string file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/output/NodalTraces_V.dat";
         std::string file2 = "heart/test/data/PostProcessorWriter/NodalTrace_V_WithPermutationValid.dat";
 
-        NumericFileComparison comp_nodes(file1, file2);
-        TS_ASSERT(comp_nodes.CompareFiles(1e-3));
+        NumericFileComparison comp_V(file1, file2);
+        TS_ASSERT(comp_V.CompareFiles(1e-3));
+
+        //check file with Phi_e (assuming default variable name was Phi_e)
+        file1 = OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/output/NodalTraces_Phi_e.dat";
+        file2 = "heart/test/data/PostProcessorWriter/NodalTrace_Phi_e_WithPermutationValid.dat";
+
+        NumericFileComparison comp_phie(file1, file2);
+        TS_ASSERT(comp_phie.CompareFiles(1e-3));
     }
 
     void TestWritingEads() throw (Exception)

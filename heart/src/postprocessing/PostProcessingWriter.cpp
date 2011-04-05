@@ -288,43 +288,49 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteAboveThresholdDepolarisa
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteVariableOverTimeAtNodes(std::vector<unsigned>& rNodeIndices, std::string variableName)
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteVariablesOverTimeAtNodes(std::vector<unsigned>& rNodeIndices)
 {
-    std::vector<std::vector<double> > output_data;
-    if (PetscTools::AmMaster())//only master process fills the data structure
+    std::vector<std::string> variable_names = mpDataReader->GetVariableNames();
+
+    //we will write one file per variable in the hdf5 file
+    for (unsigned name_index=0; name_index < variable_names.size(); name_index++)
     {
-        //allocate memory: NXM matrix where N = numbe rof time stpes and M number of requested nodes
-        output_data.resize( mpDataReader->GetUnlimitedDimensionValues().size() );
-        for (unsigned j = 0; j < mpDataReader->GetUnlimitedDimensionValues().size(); j++)
+        std::vector<std::vector<double> > output_data;
+        if (PetscTools::AmMaster())//only master process fills the data structure
         {
-            output_data[j].resize(rNodeIndices.size());
-        }
-
-        for (unsigned requested_index = 0; requested_index < rNodeIndices.size(); requested_index++)
-        {
-            unsigned node_index = rNodeIndices[requested_index];
-
-            //handle permutation, if any
-            if ( (mrMesh.rGetNodePermutation().size() != 0) &&
-                  !HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() )
+            //allocate memory: NXM matrix where N = numbe rof time stpes and M number of requested nodes
+            output_data.resize( mpDataReader->GetUnlimitedDimensionValues().size() );
+            for (unsigned j = 0; j < mpDataReader->GetUnlimitedDimensionValues().size(); j++)
             {
-                node_index = mrMesh.rGetNodePermutation()[ rNodeIndices[requested_index] ];
+                output_data[j].resize(rNodeIndices.size());
             }
 
-            //grab the data from the hdf5 file.
-            std::vector<double> time_series =  mpDataReader->GetVariableOverTime(variableName, node_index);
-            assert ( time_series.size() == mpDataReader->GetUnlimitedDimensionValues().size());
-
-            //fill the output_data data structure
-            for (unsigned time_step = 0; time_step < time_series.size(); time_step++)
+            for (unsigned requested_index = 0; requested_index < rNodeIndices.size(); requested_index++)
             {
-                output_data[time_step][requested_index] = time_series[time_step];
+                unsigned node_index = rNodeIndices[requested_index];
+
+                //handle permutation, if any
+                if ( (mrMesh.rGetNodePermutation().size() != 0) &&
+                      !HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() )
+                {
+                    node_index = mrMesh.rGetNodePermutation()[ rNodeIndices[requested_index] ];
+                }
+
+                //grab the data from the hdf5 file.
+                std::vector<double> time_series =  mpDataReader->GetVariableOverTime(variable_names[name_index], node_index);
+                assert ( time_series.size() == mpDataReader->GetUnlimitedDimensionValues().size());
+
+                //fill the output_data data structure
+                for (unsigned time_step = 0; time_step < time_series.size(); time_step++)
+                {
+                    output_data[time_step][requested_index] = time_series[time_step];
+                }
             }
         }
+        std::stringstream filename_stream;
+        filename_stream << "NodalTraces_" << variable_names[name_index] << ".dat";
+        WriteGenericFile(output_data, filename_stream.str());
     }
-    std::stringstream filename_stream;
-    filename_stream << "NodalTraces_" << variableName << ".dat";
-    WriteGenericFile(output_data, filename_stream.str());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
