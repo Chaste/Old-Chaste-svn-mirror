@@ -684,6 +684,16 @@ public:
      *  - an index to treat as the source for wave propagation
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps) const;
+
+    /**
+     * @return true if any nodal time trace is requested
+     */
+    bool IsAnyNodalTimeTraceRequested() const;
+
+    /**
+     * @param rRequestedNodes vector of indices of requested nodes that will be filled in by this function
+     */
+    void GetNodalTimeTraceRequested(std::vector<unsigned>& rRequestedNodes) const;
     
     /**
      * @return true iff pseudo-ECG calculation has been requested
@@ -1114,6 +1124,15 @@ public:
      *  @param rConductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& rConductionVelocityMaps);
+
+
+    /**
+     * Sets the requested nodes for extrapolation of the time trace.
+     * The node numbering is referred to the original numbering (unpermuted).
+     *
+     * @param requestedNodes the node indices (in the unpermuted mesh) where we want the plot over time
+     */
+    void SetRequestedNodalTimeTraces (std::vector<unsigned>& requestedNodes);
 
     /** Set the parameters for pseudo-ECG calculation.
      * 

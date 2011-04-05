@@ -222,6 +222,13 @@ public:
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
         
+        TS_ASSERT(HeartConfig::Instance()->IsAnyNodalTimeTraceRequested());
+        std::vector<unsigned> nodes;
+        HeartConfig::Instance()->GetNodalTimeTraceRequested(nodes);
+        TS_ASSERT_EQUALS(nodes.size(), 2u);
+        TS_ASSERT_EQUALS(nodes[0], 1u);
+        TS_ASSERT_EQUALS(nodes[1], 17u);
+
         TS_ASSERT(HeartConfig::Instance()->IsPseudoEcgCalculationRequested());
         std::vector<ChastePoint<3> > pseudo_ecg_parameters;
         HeartConfig::Instance()->GetPseudoEcgElectrodePositions(pseudo_ecg_parameters);
@@ -1244,6 +1251,21 @@ public:
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
         TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
         TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
+
+        HeartConfig::Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsAnyNodalTimeTraceRequested(), false);
+        std::vector<unsigned> requested_nodes, requested_nodes_get;
+        requested_nodes.push_back(15u);
+        requested_nodes.push_back(2545u);
+        HeartConfig::Instance()->SetRequestedNodalTimeTraces(requested_nodes);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsAnyNodalTimeTraceRequested(), true);
+        HeartConfig::Instance()->GetNodalTimeTraceRequested(requested_nodes_get);
+        TS_ASSERT_EQUALS(requested_nodes_get.size(),2u);
+        TS_ASSERT_EQUALS(requested_nodes_get[0],15u);
+        TS_ASSERT_EQUALS(requested_nodes_get[1],2545u);
         
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty

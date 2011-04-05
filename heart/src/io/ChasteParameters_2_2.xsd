@@ -297,6 +297,12 @@
     </xs:annotation>
     <xs:attribute name="origin_node" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
+  <xs:complexType name="node_number_type">
+    <xs:annotation>
+      <xs:documentation>A type non-negative integers denoting node numbers.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="node_number" type="xs:nonNegativeInteger" use="required"/>
+  </xs:complexType>
   
   <xs:simpleType name="media_type">
     <xs:annotation>
@@ -1195,6 +1201,16 @@ situations.  See https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuid
           <xs:documentation>Optional list of requests for conduction velocities at each mesh node for a given source node.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      
+      <xs:element name="TimeTraceAtNode" type="node_number_type" minOccurs="0"
+        maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Optional list of node indices for which a time trace is requested. The node indices
+          refers to the original numbering in the mesh (e.g., in a mesh file). Note that the numbering that can be visualized with previous simulation
+          results may or may not correspond to the original numbering  </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
       <xs:element name="PseudoEcgElectrodePosition" type="point_type" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>Optional list of requests to calculate a pseudo-ECG using an electrode at the given position.</xs:documentation>

@@ -111,6 +111,13 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
         }
     }
     
+    if (HeartConfig::Instance()->IsAnyNodalTimeTraceRequested())
+    {
+        std::vector<unsigned> requested_nodes;
+        HeartConfig::Instance()->GetNodalTimeTraceRequested(requested_nodes);
+        WriteVariablesOverTimeAtNodes(requested_nodes);
+    }
+
     if (HeartConfig::Instance()->IsPseudoEcgCalculationRequested())
     {
         std::vector<ChastePoint<SPACE_DIM> > electrodes;

@@ -101,10 +101,13 @@ public:
      */
     void WriteAboveThresholdDepolarisationFile(double threshold);
 
+private:
+
     /**
      * Method that extrapolates the output variables over time at specified nodes and output all to file.
      * The use of this method is intended as follows: the user supplies a list of node indices (rNodeIndices).
      * This method outputs the time series at each node in rNodeIndices (one time series per column).
+     * The node numbering is referred to the original mesh.
      *
      * Regardless of the permutation that was used in the simulation, this method will have the same output.
      *
@@ -127,7 +130,6 @@ public:
      */
     void WriteVariablesOverTimeAtNodes(std::vector<unsigned>& rNodeIndices);
 
-private:
     /**
      * Method for opening an APD map file and writing one row per node
      * line 1: <first APD for node 0> <second APD for node 0> ...

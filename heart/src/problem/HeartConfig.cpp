@@ -1957,6 +1957,7 @@ bool HeartConfig::IsPostProcessingRequested() const
                IsUpstrokeTimeMapsRequested() ||
                IsMaxUpstrokeVelocityMapRequested() ||
                IsConductionVelocityMapsRequested() ||
+               IsAnyNodalTimeTraceRequested()||
                IsPseudoEcgCalculationRequested());
     }
 }
@@ -2075,6 +2076,35 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
          ++i)
     {
         conduction_velocity_maps.push_back(i->origin_node());
+    }
+}
+
+bool HeartConfig::IsAnyNodalTimeTraceRequested() const
+{
+    assert(IsPostProcessingSectionPresent());
+
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::TimeTraceAtNode)&
+        requested_nodes = DecideLocation( & mpUserParameters->PostProcessing(),
+                                        & mpDefaultParameters->PostProcessing(),
+                                        "TimeTraceAtNode")->get().TimeTraceAtNode();
+    return (requested_nodes.begin() != requested_nodes.end());
+}
+
+void HeartConfig::GetNodalTimeTraceRequested(std::vector<unsigned>& rRequestedNodes) const
+{
+    assert(IsAnyNodalTimeTraceRequested());
+    assert(rRequestedNodes.size() == 0);
+
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::TimeTraceAtNode)&
+        req_nodes = DecideLocation( & mpUserParameters->PostProcessing(),
+                                          & mpDefaultParameters->PostProcessing(),
+                                          "TimeTraceAtNode")->get().TimeTraceAtNode();
+
+    for (XSD_ITERATOR_TYPE(cp::postprocessing_type::TimeTraceAtNode) i = req_nodes.begin();
+         i != req_nodes.end();
+         ++i)
+    {
+        rRequestedNodes.push_back(i->node_number());
     }
 }
 
@@ -2958,6 +2988,21 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
     }
 }
 
+void HeartConfig::SetRequestedNodalTimeTraces (std::vector<unsigned>& requestedNodes)
+{
+    EnsurePostProcessingSectionPresent();
+    XSD_SEQUENCE_TYPE(cp::postprocessing_type::TimeTraceAtNode)& requested_nodes_sequence
+        = mpUserParameters->PostProcessing()->TimeTraceAtNode();
+
+    //Erase or create a sequence
+    requested_nodes_sequence.clear();
+
+    for (unsigned i=0; i<requestedNodes.size(); i++)
+    {
+        cp::node_number_type temp(requestedNodes[i]);
+        requested_nodes_sequence.push_back(temp);
+    }
+}
 
 template<unsigned SPACE_DIM>
 void HeartConfig::SetPseudoEcgElectrodePositions(const std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions)

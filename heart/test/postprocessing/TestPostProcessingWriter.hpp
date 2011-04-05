@@ -146,6 +146,12 @@ public:
         conduction_velocity_map.push_back(0u);
         HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
         
+        //test the mtehod that extrapolates nodal traces
+        std::vector<unsigned> nodes_to_extrapolate;//1D test, does not cover node permutation case
+        nodes_to_extrapolate.push_back(1u);
+        nodes_to_extrapolate.push_back(99u);
+        HeartConfig::Instance()->SetRequestedNodalTimeTraces(nodes_to_extrapolate);
+
         std::vector<ChastePoint<1> > pseudo_ecg_electrodes;
         pseudo_ecg_electrodes.push_back(ChastePoint<1>(11.0));
         pseudo_ecg_electrodes.push_back(ChastePoint<1>(-1.0));
@@ -156,12 +162,6 @@ public:
         writer.WritePostProcessingFiles();
 
         writer.WriteAboveThresholdDepolarisationFile(-40.0);
-
-        //test the mtehod that extrapolates nodal traces
-        std::vector<unsigned> nodes_to_extrapolate;
-        nodes_to_extrapolate.push_back(1u);
-        nodes_to_extrapolate.push_back(99u);
-        writer.WriteVariablesOverTimeAtNodes(nodes_to_extrapolate);//1D test, does not cover node permutation case
 
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         
@@ -229,6 +229,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         HeartConfig::Instance()->Reset();
+        //the point of this test is to check the method handles permutation properly...
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), false);
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -243,16 +244,15 @@ public:
         BidomainProblem<2> problem( &cell_factory );
         problem.SetMesh(&mesh);
 
-        problem.Initialise();
-        problem.Solve();
-
-        PostProcessingWriter<2,2> writer(mesh, OutputFileHandler::GetChasteTestOutputDirectory() + output_dir, "NodalTracesTest", false);
         std::vector<unsigned> nodes;
         nodes.push_back(0u);
         nodes.push_back(13u);
-        writer.WriteVariablesOverTimeAtNodes(nodes);
+        HeartConfig::Instance()->SetRequestedNodalTimeTraces(nodes);
 
-        // compare for two nodes that I visually checked after running a no-permutation simulation (with Tetrahedral mesh)
+        problem.Initialise();
+        problem.Solve();
+
+        // compare for two nodes (0 and 13) that I visually checked after running a no-permutation simulation (with Tetrahedral mesh)
         // and comparing the hdf file (with hdfview) with the postprocessing output
         // in order to consider the file "valid".
 

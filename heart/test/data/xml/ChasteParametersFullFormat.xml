@@ -354,6 +354,12 @@
 	        <!-- Calculate conduction velocity from node indexed 20 to all nodes in mesh --> 
 	        <ConductionVelocityMap origin_node="20"/>
 	        
+	        <!-- Extrapolate nodal time trace at node 1 --> 
+            <TimeTraceAtNode node_number="1"/>
+
+            <!-- Extrapolate nodal time trace at node 17 --> 
+            <TimeTraceAtNode node_number="17"/>
+            
 	        <!-- Calculate pseudo-ECG using an electrode at the given position -->
 	        <PseudoEcgElectrodePosition x="0.0" y="1.0" z="2.0"/>
 	        
