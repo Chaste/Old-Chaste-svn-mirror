@@ -63,6 +63,12 @@ libs_for_petsc = ['petsccontrib', 'X11',
                   'HYPRE', 'spooles', 'superlu',
                   'umfpack', 'amd' # Both for Umfpack
                   ]
+#Fixes (possibly temporary) for Natty
+if ubuntu_ver >= [11,04]:
+    libs_for_petsc.append(['HYPRE_utilities', 
+		'HYPRE_struct_mv', 'HYPRE_struct_ls',  
+		'HYPRE_sstruct_mv', 'HYPRE_sstruct_ls', 
+		'HYPRE_IJ_mv', 'HYPRE_parcsr_ls', 'dmumps'])
 if petsc_ver >= 3:
     libs_for_petsc.append('scotch')
 else:
