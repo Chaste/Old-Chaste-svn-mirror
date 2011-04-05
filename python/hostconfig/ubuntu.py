@@ -32,8 +32,9 @@ import os
 fp = open('/etc/issue')
 ubuntu_ver = fp.read().split()[1]
 fp.close()
-if ubuntu_ver == 'lucid':
-    ubuntu_ver = [10,04]
+#First deal with special cases for beta releases etc.
+if ubuntu_ver == 'natty':
+    ubuntu_ver = [11,04]
 else:
     ubuntu_ver = map(int, ubuntu_ver.split('.')[0:2]) 
 
