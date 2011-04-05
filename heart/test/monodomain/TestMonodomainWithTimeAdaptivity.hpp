@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudy1991.hpp"
+#include "Warnings.hpp"
 
 
 // Toy controller which just goes alters the timestep from 0.01ms to 1ms after a given
@@ -146,52 +147,69 @@ public:
         double max_non_adaptive;
         double min_adaptive;
         double max_adaptive;
+
+        try
+        {
+            //////////////////////////////////////////////////////////////////////////
+            // run original simulation - no adaptivity, dt=0.01 all the way through
+            //////////////////////////////////////////////////////////////////////////
+            {
+                HeartConfig::Instance()->SetOutputDirectory("MonoWithTimeAdaptivityOrigNoAdapt");
+                MonodomainProblem<3> problem(&cell_factory);
+                problem.Initialise();
+                problem.Solve();
+
+                HeartEventHandler::Headings();
+                HeartEventHandler::Report();
         
-        //////////////////////////////////////////////////////////////////////////
-        // run original simulation - no adaptivity, dt=0.01 all the way through
-        //////////////////////////////////////////////////////////////////////////
-        {
-            HeartConfig::Instance()->SetOutputDirectory("MonoWithTimeAdaptivityOrigNoAdapt");
-            MonodomainProblem<3> problem(&cell_factory);
-            problem.Initialise();
-            problem.Solve();
-            
-            HeartEventHandler::Headings();
-            HeartEventHandler::Report();
+                Vec solution = problem.GetSolution();
+                int index; //dummy
+                VecMin(solution, &index, &min_non_adaptive);
+                VecMax(solution, &index, &max_non_adaptive);
+                //std::cout << "Non adaptive: range at final time: " << min_non_adaptive << "mV to " << max_non_adaptive << "mV\n";
+
+                TS_ASSERT_DELTA(min_non_adaptive, 22.0383, 1e-3);
+                TS_ASSERT_DELTA(max_non_adaptive, 29.0697, 1e-3);
+            }
     
-            Vec solution = problem.GetSolution();
-            int index; //dummy
-            VecMin(solution, &index, &min_non_adaptive);
-            VecMax(solution, &index, &max_non_adaptive);
-            //std::cout << "Non adaptive: range at final time: " << min_non_adaptive << "mV to " << max_non_adaptive << "mV\n";
+    
+            //////////////////////////////////////////////////////////////////////////
+            // run adaptive simulation - dt=0.01 for first 2ms, then dt=1
+            //////////////////////////////////////////////////////////////////////////
+            {
+                HeartConfig::Instance()->SetOutputDirectory("MonoWithTimeAdaptivitySimpleAdapt");
+                MonodomainProblem<3> adaptive_problem(&cell_factory);
+                FixedTimeAdaptivityController controller(2.0);
+                adaptive_problem.SetUseTimeAdaptivityController(true, &controller);
+                adaptive_problem.Initialise();
+                adaptive_problem.Solve();
+
+                HeartEventHandler::Headings();
+                HeartEventHandler::Report();   // note: adaptive is slower in this short sim due to second matrix assemble
+
+                Vec adaptive_solution = adaptive_problem.GetSolution();
+                int index; //dummy
+                VecMin(adaptive_solution, &index, &min_adaptive);
+                VecMax(adaptive_solution, &index, &max_adaptive);
+                ///std::cout << "Adaptive:     range at final time: " << min_adaptive << "mV to " << max_adaptive << "mV\n";
+    
+                // compare
+                TS_ASSERT_DELTA(min_adaptive, 19.8749, 1e-3);
+                TS_ASSERT_DELTA(max_adaptive, 25.0398, 1e-3);
+            }
+        }
+        catch (Exception& e)
+        {
+            if (e.GetShortMessage() == "Chebyshev with fixed number of iterations is known to be broken in PETSc <= 2.3.2")
+            {
+                WARNING(e.GetShortMessage());
+            }
+            else
+            {
+                TS_FAIL(e.GetShortMessage());
+            }
         }
 
-        //////////////////////////////////////////////////////////////////////////
-        // run adaptive simulation - dt=0.01 for first 2ms, then dt=1
-        //////////////////////////////////////////////////////////////////////////
-        {
-            HeartConfig::Instance()->SetOutputDirectory("MonoWithTimeAdaptivitySimpleAdapt");
-            MonodomainProblem<3> adaptive_problem(&cell_factory);
-            FixedTimeAdaptivityController controller(2.0);
-            adaptive_problem.SetUseTimeAdaptivityController(true, &controller);
-            adaptive_problem.Initialise();
-            adaptive_problem.Solve();
-    
-            HeartEventHandler::Headings();
-            HeartEventHandler::Report();   // note: adaptive is slower in this short sim due to second matrix assemble
-    
-            Vec adaptive_solution = adaptive_problem.GetSolution();
-            int index; //dummy
-            VecMin(adaptive_solution, &index, &min_adaptive);
-            VecMax(adaptive_solution, &index, &max_adaptive);
-            ///std::cout << "Adaptive:     range at final time: " << min_adaptive << "mV to " << max_adaptive << "mV\n";
-        }
-
-        // compare
-        TS_ASSERT_DELTA(min_non_adaptive, 22.0383, 1e-3);
-        TS_ASSERT_DELTA(max_non_adaptive, 29.0697, 1e-3);        
-        TS_ASSERT_DELTA(min_adaptive, 19.8749, 1e-3);
-        TS_ASSERT_DELTA(max_adaptive, 25.0398, 1e-3);
     }
 };
 

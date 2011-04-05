@@ -993,7 +993,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
             }
 
-            /// \todo #1685 Store this number in a member variable.
+            /// \todo #1695 Store this number in a member variable.
             std::stringstream num_it_str;
             num_it_str << 1000;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
@@ -1037,7 +1037,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0 )        
         {
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
-            assert(mKspType != "chebychev"); /// \todo: #1695/#1701 It looks like Chebyshev doesn't work with fixed number of iterations in PETSc <= 2.3.2
+            if (mKspType == "chebychev")
+            {
+                // See #1695 for more details.
+                EXCEPTION("Chebyshev with fixed number of iterations is known to be broken in PETSc <= 2.3.2");
+            }
+
             KSPSetNormType(mKspSolver, KSP_NO_NORM);
 #else
             KSPSetNormType(mKspSolver, KSP_NORM_NO);
@@ -1117,7 +1122,7 @@ void LinearSystem::ResetKspSolver()
      * explicitely read in with KSPSetFromOptions() everytime a KSP object is created. Therefore,
      * destroying the KSP object will not ensure that it is set back to default.
      */
-    /// \todo #1685 Store this number in a member variable.    
+    /// \todo #1695 Store this number in a member variable.
     std::stringstream num_it_str;
     num_it_str << 1000;
     PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());    
