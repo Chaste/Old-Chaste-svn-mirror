@@ -150,27 +150,6 @@ public:
                                   "Failed to load cell creation function from .so file");
     }
 
-    void TestLoadingViaXml() throw(Exception)
-    {
-        // Fake content from an XML file.
-        std::string model_name = "heart/dynamic/libDynamicallyLoadableLr91.so";
-        cp::path_type so_path(model_name);
-        so_path.relative_to(cp::relative_to_type::chaste_source_root);
-        cp::dynamically_loaded_ionic_model_type dynamic_elt(so_path);
-        cp::ionic_model_selection_type ionic_model;
-        ionic_model.Dynamic(dynamic_elt);
-
-        // Now mock up what HeartConfigRelatedCellFactory does
-        TS_ASSERT(ionic_model.Dynamic().present());
-        if (ionic_model.Dynamic().present())
-        {
-            HeartFileFinder file_finder(ionic_model.Dynamic()->Path());
-            TS_ASSERT(file_finder.Exists());
-            DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(file_finder);
-            RunLr91Test(*p_loader);
-        }
-    }
-
     void TestCellmlConverterWithOptions() throw(Exception)
     {
         // Copy CellML file into output dir
@@ -204,19 +183,19 @@ public:
             p_loader = converter.Convert(copied_file2);
             RunLr91Test(*p_loader, 0u, true, 0.3);
         }
-        {
-            // With a for_model section
-            args[0] = "--opt";
-            OutputFileHandler handler3(dirname + "/O");
-            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
-            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
-                    + "<var type='config-name'>transmembrane_potential</var>"
-                    + "<max>69.9999</max>"
-                    + "</lookup_table></lookup_tables></for_model>\n";
-            converter.CreateOptionsFile(handler3, model, args, for_model);
-            p_loader = converter.Convert(copied_file3);
-            RunLr91Test(*p_loader, 0u, true, 1e-2, 70);
-        }
+//        {
+//            // With a for_model section
+//            args[0] = "--opt";
+//            OutputFileHandler handler3(dirname + "/O");
+//            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
+//            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
+//                    + "<var type='config-name'>transmembrane_potential</var>"
+//                    + "<max>69.9999</max>"
+//                    + "</lookup_table></lookup_tables></for_model>\n";
+//            converter.CreateOptionsFile(handler3, model, args, for_model);
+//            p_loader = converter.Convert(copied_file3);
+//            RunLr91Test(*p_loader, 0u, true, 1e-2, 70);
+//        }
 #ifdef CHASTE_CVODE
         {
             // With a for_model section and Cvode
