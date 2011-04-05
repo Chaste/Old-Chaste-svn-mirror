@@ -819,7 +819,7 @@ public:
         // others should be their PETSc defaults (unless we've done different)
         TS_ASSERT_EQUALS(atol, 1e-50);
         TS_ASSERT_EQUALS(dtol, 10000.0);
-        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem
+        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem. At the moment this value depends on whether any previous test called ResetKspSolver() (maxits=1000) or not (maxits=10000).
 
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const KSPType solver;
@@ -852,7 +852,7 @@ public:
         TS_ASSERT_EQUALS(rtol, 1e-4);
         TS_ASSERT_EQUALS(atol, 1e-50);
         TS_ASSERT_EQUALS(dtol, 10000.0);
-        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem
+        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem. At the moment this value depends on whether any previous test called ResetKspSolver() (maxits=1000) or not (maxits=10000).
 
         /////////////////////////////////
         // Set abs tolerance before first solve
@@ -867,7 +867,7 @@ public:
         TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
         TS_ASSERT_EQUALS(atol, 1e-3);
         TS_ASSERT_EQUALS(dtol, 10000.0);
-        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem
+        TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem. At the moment this value depends on whether any previous test called ResetKspSolver() (maxits=1000) or not (maxits=10000).
 
         ///////////////////////////////////
         // Set abs tolerance after first solve
