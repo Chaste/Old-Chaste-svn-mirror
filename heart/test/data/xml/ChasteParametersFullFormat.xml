@@ -120,7 +120,19 @@
 					</Cuboid>
 				</Location>
 			</Stimulus>	
-
+			
+			<Stimulus> <!-- #5 -->
+				<Strength unit="uA/cm^3">-25500.0</Strength>
+				<Duration unit="ms">0.25</Duration>
+				<Delay unit="ms">4.0</Delay>				
+				<Period unit="ms">1.0</Period>
+				<Location unit="cm">
+					<Ellipsoid>
+						<Centre x="1.0" y="0.0" z="0.0"/>
+						<Radii  x="0.5" y="0.1" z="0.3"/>
+					</Ellipsoid>
+				</Location>
+			</Stimulus>	
 			<!-- Stimuli in transmural regions are valid XML but are not implemented -->
 
 		</Stimuli>

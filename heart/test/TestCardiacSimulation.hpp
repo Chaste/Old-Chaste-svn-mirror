@@ -112,8 +112,8 @@ public:
         TS_ASSERT_THROWS_THIS(CardiacSimulation bad_param("heart/test/data/xml/bad_cell_parameter.xml"),
                               "No parameter named 'missing-parameter'.");
     }
-    // #1743
-    void xxxTestMonoStimUsingEllipsoids() throw(Exception)
+
+    void TestMonoStimUsingEllipsoids() throw(Exception)
     {
         // Fox2002BackwardEuler cell model
         CardiacSimulation simulation("heart/test/data/xml/monodomain1d_stim_using_ellipsoid.xml", true);

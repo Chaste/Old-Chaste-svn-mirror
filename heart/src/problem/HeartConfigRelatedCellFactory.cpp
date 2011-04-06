@@ -98,6 +98,10 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::~HeartConfigRelatedCellFactory()
     {
         delete mCellHeterogeneityAreas[i];
     }
+    for (unsigned i = 0; i<mStimulatedAreas.size();i++)
+    {
+        delete mStimulatedAreas[i];
+    }
 }
 
 template<unsigned SPACE_DIM>
@@ -278,7 +282,7 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellIntracellularStimulus(Abst
          stimulus_index < mStimuliApplied.size();
          ++stimulus_index)
     {
-        if ( mStimulatedAreas[stimulus_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+        if ( mStimulatedAreas[stimulus_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
             node_specific_stimulus->AddStimulus(mStimuliApplied[stimulus_index]);
         }
@@ -297,7 +301,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCardiacCell
          stimulus_index < mStimuliApplied.size();
          ++stimulus_index)
     {
-        if ( mStimulatedAreas[stimulus_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+        if ( mStimulatedAreas[stimulus_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
             node_specific_stimulus->AddStimulus(mStimuliApplied[stimulus_index]);
         }
