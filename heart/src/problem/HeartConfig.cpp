@@ -730,6 +730,7 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     {
         return ptr2;
     }
+
     EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
 }
 
@@ -853,14 +854,15 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
 
             ionicModels.push_back(ionic_model_region.IonicModel());
         }
+        else if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )
+        {
+            ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
+            EXCEPTION("Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
+        }
         else
         {
-            if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )
-            {
-                ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
-                EXCEPTION("Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
-            }
-        }
+            EXCEPTION("Invalid region type for ionic model definition");
+        }    
     }
 }
 
@@ -1043,10 +1045,21 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
                              std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const
 {
     CheckSimulationIsDefined("Stimuli");
-    XSD_SEQUENCE_TYPE(cp::stimuli_type::Stimulus)&
+    XSD_SEQUENCE_TYPE(cp::stimuli_type::Stimulus) stimuli;
+    
+    try
+    {
          stimuli = DecideLocation( & mpUserParameters->Simulation().get().Stimuli(),
 		                           & mpDefaultParameters->Simulation().get().Stimuli(),
 		                           "Stimuli")->get().Stimulus();
+    }
+    catch(Exception& e)
+    {
+        // Finding no stimuli defined is allowed (although HeartConfigRelatedFactory does
+        // throw an exception is no stimuli and no electrodes)
+        return;
+    }
+    
     for (XSD_ITERATOR_TYPE(cp::stimuli_type::Stimulus) i = stimuli.begin();
          i != stimuli.end();
          ++i)
@@ -1118,12 +1131,13 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
             }
             rStimuliApplied.push_back( stim );
         }
+        else if(stimulus.Location().EpiLayer().present() || stimulus.Location().MidLayer().present() || stimulus.Location().EndoLayer().present() )
+        {
+            EXCEPTION("Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
+        }
         else
         {
-            if(stimulus.Location().EpiLayer().present() || stimulus.Location().MidLayer().present() || stimulus.Location().EndoLayer().present() )
-            {
-                EXCEPTION("Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
-            }
+            EXCEPTION("Invalid region type for stimulus definition");
         }
     }
 }
@@ -1137,10 +1151,19 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                                          std::vector<std::map<std::string, double> >* pParameterSettings)
 {
     CheckSimulationIsDefined("CellHeterogeneities");
-    XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
+    XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) cell_heterogeneity;
+    
+    try
+    {
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
                                               & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                               "CellHeterogeneities")->get().CellHeterogeneity();
+    }
+    catch(Exception& e)
+    {
+        // finding no heterogeneities defined is allowed
+        return;
+    }
 
     bool user_supplied_negative_value = false;
     bool user_asking_for_transmural_layers = false;
@@ -1162,43 +1185,46 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
             ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
             rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
         }
+        else if (ht.Location().EpiLayer().present())
+        {
+            mEpiFraction  =  ht.Location().EpiLayer().get();
+
+            user_asking_for_transmural_layers = true;
+            if (mEpiFraction <0)
+            {
+                user_supplied_negative_value=true;
+            }
+            mIndexEpi = counter_of_heterogeneities;
+        }
+        else if (ht.Location().EndoLayer().present())
+        {
+            mEndoFraction  =  ht.Location().EndoLayer().get();
+
+            user_asking_for_transmural_layers = true;
+            if (mEndoFraction <0)
+            {
+                user_supplied_negative_value=true;
+            }
+            mIndexEndo = counter_of_heterogeneities;
+        } 
+        else if (ht.Location().MidLayer().present())
+        {
+            mMidFraction  =  ht.Location().MidLayer().get();
+
+            user_asking_for_transmural_layers = true;
+            if (mMidFraction <0)
+            {
+                user_supplied_negative_value=true;
+            }
+            mIndexMid =  counter_of_heterogeneities;
+        }
         else
         {
-
-            if (ht.Location().EpiLayer().present())
-            {
-                mEpiFraction  =  ht.Location().EpiLayer().get();
-
-                user_asking_for_transmural_layers = true;
-                if (mEpiFraction <0)
-                {
-                    user_supplied_negative_value=true;
-                }
-                mIndexEpi = counter_of_heterogeneities;
-            }
-            if (ht.Location().EndoLayer().present())
-            {
-                mEndoFraction  =  ht.Location().EndoLayer().get();
-
-                user_asking_for_transmural_layers = true;
-                if (mEndoFraction <0)
-                {
-                    user_supplied_negative_value=true;
-                }
-                mIndexEndo = counter_of_heterogeneities;
-            }
-            if (ht.Location().MidLayer().present())
-            {
-                mMidFraction  =  ht.Location().MidLayer().get();
-
-                user_asking_for_transmural_layers = true;
-                if (mMidFraction <0)
-                {
-                    user_supplied_negative_value=true;
-                }
-                mIndexMid =  counter_of_heterogeneities;
-            }
+            EXCEPTION("Invalid region type for cell heterogeneity definition");
         }
+
+
+
         // Old scale factors
         rScaleFactorGks.push_back(ht.ScaleFactorGks().present() ? (double)ht.ScaleFactorGks().get() : 1.0);
         rScaleFactorIto.push_back(ht.ScaleFactorIto().present() ? (double)ht.ScaleFactorIto().get() : 1.0);
@@ -1345,13 +1371,14 @@ void HeartConfig::GetConductivityHeterogeneities(
             ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
             conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
         }
+        else if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )
+        {
+            ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
+            EXCEPTION("Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
+        }
         else
         {
-            if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )
-            {
-                ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
-                EXCEPTION("Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
-            }
+            EXCEPTION("Invalid region type for conductivity definition");
         }
 
         if (ht.IntracellularConductivities().present())

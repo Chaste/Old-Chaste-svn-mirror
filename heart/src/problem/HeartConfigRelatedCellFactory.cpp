@@ -45,32 +45,20 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
                                                   mIonicModelsDefined);
 
     // Read and store Stimuli
-    try
+    HeartConfig::Instance()->GetStimuli(mStimuliApplied, mStimulatedAreas);
+    
+    // if no stimuli provided in XML, need electrodes instead
+    if (mStimuliApplied.size()==0  &&  (HeartConfig::Instance()->IsElectrodesPresent() == false) )
     {
-        HeartConfig::Instance()->GetStimuli(mStimuliApplied, mStimulatedAreas);
-    }
-    catch (Exception& e)
-    {
-        // No stimuli provided in XML - let's hope that there are some electrodes instead
-        if(HeartConfig::Instance()->IsElectrodesPresent() == false)
-        {
-        	EXCEPTION("Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
-        }
+     	EXCEPTION("Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
     }
 
     // Read and store Cell Heterogeneities
-    try
-    {
-        HeartConfig::Instance()->GetCellHeterogeneities(mCellHeterogeneityAreas,
-                                                        mScaleFactorGks,
-                                                        mScaleFactorIto,
-                                                        mScaleFactorGkr,
-                                                        &mParameterSettings);
-    }
-    catch (Exception& e)
-    {
-        // No cell heterogeneities provided
-    }
+    HeartConfig::Instance()->GetCellHeterogeneities(mCellHeterogeneityAreas,
+                                                    mScaleFactorGks,
+                                                    mScaleFactorIto,
+                                                    mScaleFactorGkr,
+                                                    &mParameterSettings);
 
     // Do we need to convert any CellML files?
     PreconvertCellmlFiles();
