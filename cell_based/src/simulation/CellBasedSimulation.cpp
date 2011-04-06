@@ -236,6 +236,7 @@ c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(Cell
     }
     else
     {
+    	// Do something for Vertex / Potts Models here
         return zero_vector<double>(DIM);
     }
 }
@@ -725,6 +726,17 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
 	*parameter_file << "\t</CellKillers>\n";
+
+    // Loop over cell population boundary conditions
+    *parameter_file << "\n\t<CellPopulationBoundaryConditions>\n";
+    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator iter = mBoundaryConditions.begin();
+         iter != mBoundaryConditions.end();
+         ++iter)
+    {
+        // Output cell killer details
+        (*iter)->OutputCellPopulationBoundaryConditionInfo(parameter_file);
+    }
+    *parameter_file << "\t</CellPopulationBoundaryConditions>\n";
 
     *parameter_file << "\n</Chaste>\n";
     parameter_file->close();

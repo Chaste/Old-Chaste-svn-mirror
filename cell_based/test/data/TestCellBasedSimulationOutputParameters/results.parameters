@@ -42,4 +42,7 @@
 	<CellKillers>
 	</CellKillers>
 
+	<CellPopulationBoundaryConditions>
+	</CellPopulationBoundaryConditions>
+
 </Chaste>
