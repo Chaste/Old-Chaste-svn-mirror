@@ -323,20 +323,19 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCellOrHaloCell( unsigned globalIndex )
 {
     std::map<unsigned, unsigned>::const_iterator node_position;
-    //First search the halo
+    // First search the halo
     if ((node_position=mHaloGlobalToLocalIndexMap.find(globalIndex)) != mHaloGlobalToLocalIndexMap.end())
     {
         //Found a halo node
         return mHaloCellsDistributed[node_position->second];
     }
-    //Then search the owned node
+    // Then search the owned node
     if ( mpDistributedVectorFactory->IsGlobalIndexLocal(globalIndex)  )
     {
         //Found an owned node
         return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
     }
-    //Not here
-    ///\todo #1462 assert(globalIndex == 0);
+    // Not here
     std::stringstream message;
     message << "Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank();
     EXCEPTION(message.str().c_str());

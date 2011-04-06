@@ -301,8 +301,7 @@ public:
    
         // SVI - state variable interpolation
         {
-            ///\todo #1462 - TetrahedralMesh<2,2> mesh messes with Halo nodes causing GetCardiac.. to fail;
-            DistributedTetrahedralMesh<2,2> mesh;
+            TetrahedralMesh<2,2> mesh;
             mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
 
             HeartConfig::Instance()->SetOutputDirectory("MonodomainSvi2d");

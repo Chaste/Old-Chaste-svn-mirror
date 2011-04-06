@@ -2879,19 +2879,17 @@ void HeartConfig::SetAdaptivityParameters(double targetError,
     {
         EXCEPTION("AdaptivityParameters: maxEdgeLength must be greater than minEdgeLength.");
     }
-    ///\todo I think you can just do the 'if' clause regardless.
-    if (!IsAdaptivityParametersPresent())
-    {
-        cp::adaptivity_parameters_type element(targetError,
-                                               sigma,
-                                               maxEdgeLength,
-                                               minEdgeLength,
-                                               gradation,
-                                               maxNodes,
-                                               numSweeps );
-        mpUserParameters->Numerical().AdaptivityParameters().set(element);
-    }
-    else
+
+    cp::adaptivity_parameters_type element(targetError,
+                                           sigma,
+                                           maxEdgeLength,
+                                           minEdgeLength,
+                                           gradation,
+                                           maxNodes,
+                                           numSweeps );
+    mpUserParameters->Numerical().AdaptivityParameters().set(element);
+
+    if (IsAdaptivityParametersPresent())
     {
         mpUserParameters->Numerical().AdaptivityParameters().get().target_error(targetError);
         mpUserParameters->Numerical().AdaptivityParameters().get().sigma(sigma);
