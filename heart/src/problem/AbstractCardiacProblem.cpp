@@ -435,8 +435,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpSolver->SetTimeAdaptivityController(mpTimeAdaptivityController);
     }
 
-    bool first_time = true;
-
     while ( !stepper.IsTimeAtEnd() )
     {
         // solve from now up to the next printing time
@@ -484,7 +482,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
         // Initial condition for next loop is current solution
         initial_condition = mSolution;
-        first_time = false;
 
         // update the current time
         stepper.AdvanceOneTimeStep();
