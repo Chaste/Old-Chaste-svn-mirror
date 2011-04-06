@@ -101,6 +101,9 @@ else:
 
 # Is CVODE installed?
 use_cvode = os.path.exists('/usr/lib/libsundials_cvode.so')
+if ubuntu_ver >= [11,04]:
+    # We don't support CVODE 2.6 yet
+    use_cvode = False
 if use_cvode:
     other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
 
