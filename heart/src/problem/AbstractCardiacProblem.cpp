@@ -396,6 +396,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             delete mpSolver;
             if (mSolution != initial_condition)
             {
+                // A PETSc Vec is a pointer, so we *don't* need to free the memory if it is free'd somewhere else (e.g.
+                // in the destructor). If this is a resumed solution we set initial_condition = mSolution earlier. 
+                // mSolution is going to be cleaned up in the constructor. So, only VecDestroy initial_condition when it 
+                // is not equal to mSolution (see #1695). 
                 VecDestroy(initial_condition);
             }
             throw e;
@@ -431,6 +435,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpSolver->SetTimeAdaptivityController(mpTimeAdaptivityController);
     }
 
+    bool first_time = true;
 
     while ( !stepper.IsTimeAtEnd() )
     {
@@ -449,7 +454,16 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             // Free memory.
             delete mpSolver;
             mpSolver=NULL;
-            //VecDestroy(initial_condition);
+            if (initial_condition != mSolution) 
+            {
+                // A PETSc Vec is a pointer, so we *don't* need to free the memory if it is free'd somewhere else (e.g.
+                // in the destructor). Later, in this while loop we will set initial_condition = mSolution (or, if this is
+                // a resumed solution it may also have been done when initial_condition was created). mSolution is going 
+                // to be cleaned up in the constructor. So, only VecDestroy initial_condition when it is not equal to 
+                // mSolution (see #1695). 
+                VecDestroy(initial_condition);
+            }
+            
 #ifndef NDEBUG
             PetscTools::ReplicateException(true);
 #endif
@@ -470,6 +484,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
         // Initial condition for next loop is current solution
         initial_condition = mSolution;
+        first_time = false;
 
         // update the current time
         stepper.AdvanceOneTimeStep();
