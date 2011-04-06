@@ -44,7 +44,11 @@ double ALPHA = 0.2;
 
 // Body force corresponding to the deformation
 // x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
-c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
+//
+//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE 
+//   CURRENT TIME TO BE SET TO 1.0
+//
+c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
 {
     assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
 
@@ -52,12 +56,20 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
     double lam = 1+ALPHA*X(0);
     body_force(0) = -2*MATERIAL_PARAM * ALPHA;
     body_force(1) = -2*MATERIAL_PARAM * 2*ALPHA*ALPHA*X(1)/(lam*lam*lam);
+
+    // Make sure the time has been passed through to here correctly.
+    // This function requires t=1 for the test to pass    
+    body_force(0) += (t-1)*5723485;
     return body_force;
 }
 
 // Surface traction on three sides of a cube, corresponding to
 // x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
-c_vector<double,2> MyTraction(c_vector<double,2>& location)
+//
+//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE 
+//   CURRENT TIME TO BE SET TO 1.0
+// 
+c_vector<double,2> MyTraction(c_vector<double,2>& location, double t)
 {
     c_vector<double,2> traction = zero_vector<double>(2);
 
@@ -81,6 +93,11 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
     {
         NEVER_REACHED;
     }
+    
+    // Make sure the time has been passed through to here correctly.
+    // This function requires t=1 for the test to pass
+    traction(0) += (t-1.0)*543548;
+    
     return traction;
 }
 
@@ -587,6 +604,10 @@ public:
 
         solver.SetFunctionalBodyForce(MyBodyForce);
         solver.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
+
+        // this test requires the time to be set to t=1 to pass (see comment
+        // in and MyBodyForce() and MyTraction()
+        solver.SetCurrentTime(1.0);
 
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up

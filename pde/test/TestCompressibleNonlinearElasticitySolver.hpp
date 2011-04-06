@@ -99,7 +99,7 @@ c_matrix<double,2,2> Compute1stPkStress(double X, double Y)
 }
 
 
-c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
+c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
 {
     assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
 
@@ -121,7 +121,7 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
     return body_force;
 }
 
-c_vector<double,2> MyTraction(c_vector<double,2>& X)
+c_vector<double,2> MyTraction(c_vector<double,2>& X, double t)
 {
     c_matrix<double,2,2> S = Compute1stPkStress(X(0), X(1));
 

@@ -648,6 +648,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         LOG(2, "  Solving mechanics ");
         mpCardiacMechSolver->SetWriteOutput(false);
 
+        // make sure the mechanics solver knows the current time (in case
+        // the traction say is time-dependent).
+        mpCardiacMechSolver->SetCurrentTime(stepper.GetTime());
+        
 //// #1245
 //        ApplyImpactTractions(stepper.GetTime());
 

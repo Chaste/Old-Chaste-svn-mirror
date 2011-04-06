@@ -332,7 +332,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
                 {
                     X += linear_phi(node_index)*this->mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
                 }
-                body_force = (*(this->mpBodyForceFunction))(X);
+                body_force = (*(this->mpBodyForceFunction))(X, this->mCurrentTime);
             }
             else
             {
@@ -628,7 +628,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             {
                 X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
             }
-            traction = (*(this->mpTractionBoundaryConditionFunction))(X);
+            traction = (*(this->mpTractionBoundaryConditionFunction))(X, this->mCurrentTime);
         }
         else
         {

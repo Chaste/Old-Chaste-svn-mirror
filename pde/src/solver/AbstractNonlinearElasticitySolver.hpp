@@ -189,19 +189,25 @@ protected:
     std::vector<c_vector<double,DIM> > mSurfaceTractions;
 
     /** An optionally provided (pointer to a) function, giving the body force as a function of undeformed position. */
-    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>&);
+    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>& X, double t);
 
     /**
      * An optionally provided (pointer to a) function, giving the surface traction as a function of
      * undeformed position.
      */
-    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>&);
+    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& X, double t);
 
     /** Whether the functional version of the body force is being used or not */
     bool mUsingBodyForceFunction;
 
     /** Whether the functional version of the surface traction is being used or not */
     bool mUsingTractionBoundaryConditionFunction;
+    
+    /** This solver is for static problems, however the body force or surface tractions
+     *  could be a function of time. The user should call SetCurrentTime() if this is
+     *  the case
+     */
+    double mCurrentTime;
 
     /**
      * Assemble the residual vector (using the current solution stored
@@ -351,9 +357,10 @@ public:
      * Set a function which gives body force as a function of X (undeformed position)
      * Whatever body force was provided in the constructor will now be ignored.
      *
-     * @param pFunction the function
+     * @param pFunction the function, which should be a function of space and time
+     *  Note that SetCurrentTime() should be called each timestep if the force changes with time
      */
-    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
+    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
 
     /**
      * Set whether to write any output.
@@ -399,15 +406,25 @@ public:
      * together with the surface elements which make up the Neumann part of the boundary.
      *
      * @param rBoundaryElements the boundary elements
-     * @param pFunction the functoin
+     * @param pFunction the function, which should be a function of space and time.
+     *  Note that SetCurrentTime() should be called each timestep if the traction changes with time
      */
     void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-                                                c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
+                                                c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
 
     /**
      *  Get the deformed position. Note returnvalue[i](j) = x_j for node i.
      */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
+
+    /** This solver is for static problems, however the body force or surface tractions
+     *  could be a function of time. This method is for setting the time.
+     *  @param time current time
+     */
+    void SetCurrentTime(double time)
+    {
+        mCurrentTime = time;
+    }
 
 };
 
@@ -969,7 +986,8 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearEl
       mFixedNodes(fixedNodes),
       mNumNewtonIterations(0),
       mUsingBodyForceFunction(false),
-      mUsingTractionBoundaryConditionFunction(false)
+      mUsingTractionBoundaryConditionFunction(false),
+      mCurrentTime(0.0)
 {
     assert(DIM==2 || DIM==3);
     assert(density > 0);
@@ -1117,7 +1135,7 @@ unsigned AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::GetNumNewt
 
 
 template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
+void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
 {
     mUsingBodyForceFunction = true;
     mpBodyForceFunction = pFunction;
@@ -1147,7 +1165,7 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetSurfaceTrac
 template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
 void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalTractionBoundaryCondition(
             std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-            c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
+            c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
 {
     mBoundaryElements = rBoundaryElements;
     mUsingTractionBoundaryConditionFunction = true;

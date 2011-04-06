@@ -47,7 +47,7 @@ public:
     static double b;
     static double c1;
 
-    static c_vector<double,3> GetBodyForce(c_vector<double,3>& X)
+    static c_vector<double,3> GetBodyForce(c_vector<double,3>& X, double t)
     {
         assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1 && X(2)>=0 && X(2)<=1);
 
@@ -64,7 +64,7 @@ public:
         return -2*c1*body_force;
     }
 
-    static c_vector<double,3> GetTraction(c_vector<double,3>& X)
+    static c_vector<double,3> GetTraction(c_vector<double,3>& X, double t)
     {
         c_vector<double,3> traction = zero_vector<double>(3);
 
