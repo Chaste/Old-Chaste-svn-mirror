@@ -96,8 +96,8 @@ private:
     /** List of ionic model (size matches that of mIonicModelRegions)*/
     std::vector<cp::ionic_model_selection_type> mIonicModelsDefined;
 
-    /** List of axis-aligned box regions which represent areas to stimulate*/
-    std::vector<AbstractChasteRegion<SPACE_DIM>* > mStimulatedAreas;
+    /** List of axis-aligned box or ellipsoid regions which represent areas to stimulate*/
+    std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > mStimulatedAreas;
     /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
     std::vector<boost::shared_ptr<AbstractStimulusFunction> > mStimuliApplied;
 

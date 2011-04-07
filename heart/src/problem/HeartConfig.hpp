@@ -368,7 +368,7 @@ public:
      */
      template<unsigned DIM>
     void GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuliApplied, 
-                    std::vector<AbstractChasteRegion<DIM>* >& rStimulatedAreas) const;
+                    std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rStimulatedAreas) const;
 
     /**
      * Reads from the XML file the cellular hetrogeneities. It fugures out whether the user specified a cuboid

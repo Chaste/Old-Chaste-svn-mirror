@@ -98,10 +98,6 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::~HeartConfigRelatedCellFactory()
     {
         delete mCellHeterogeneityAreas[i];
     }
-    for (unsigned i = 0; i<mStimulatedAreas.size();i++)
-    {
-        delete mStimulatedAreas[i];
-    }
 }
 
 template<unsigned SPACE_DIM>
