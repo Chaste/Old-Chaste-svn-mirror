@@ -59,4 +59,7 @@
 		</SloughingCellKiller-2>
 	</CellKillers>
 
+	<CellPopulationBoundaryConditions>
+	</CellPopulationBoundaryConditions>
+
 </Chaste>
