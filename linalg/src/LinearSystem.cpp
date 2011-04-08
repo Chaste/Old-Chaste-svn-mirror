@@ -1117,6 +1117,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
             KSPSetFromOptions(mKspSolver);
             KSPSetUp(mKspSolver);
+            
+            mForceSpectrumReevaluation=false;
         }
 
         mNumSolves++;
