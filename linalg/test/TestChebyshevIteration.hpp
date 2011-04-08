@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Timer.hpp"
 #include "DistributedVectorFactory.hpp"
 #include <cstring>
+#include "Warnings.hpp"
 
 
 /*
@@ -142,7 +143,8 @@ public:
         std::stringstream num_it_str;
         num_it_str << 1000;
         PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
-        unsigned chebyshev_adaptive_its;
+
+        try
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
     
@@ -155,17 +157,29 @@ public:
     
             // Solving with zero guess for coverage.
             Vec solution = ls.Solve(zero_guess);
-            chebyshev_adaptive_its = ls.GetNumIterations();
-                       
+            unsigned chebyshev_adaptive_its = ls.GetNumIterations();
+
+            TS_ASSERT_EQUALS(chebyshev_adaptive_its, 6u);
             TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
             TS_ASSERT_DELTA(ls.mEigMax, 1.0354, 1e-4);            
             
             VecDestroy(solution);
         }
+        catch (Exception& e)
+        {
+            if (e.GetShortMessage() == "Chebyshev with fixed number of iterations is known to be broken in PETSc <= 2.3.2")
+            {
+                WARNING(e.GetShortMessage());
+            }
+            else
+            {
+                TS_FAIL(e.GetShortMessage());
+            }
+        }
+
 
         // Make sure we are not inheriting a non-default number of iterations from previous test        
         PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());        
-        unsigned chebyshev_no_adaptive_its;
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
     
@@ -175,8 +189,9 @@ public:
             ls.SetKspType("chebychev");
             
             Vec solution = ls.Solve(zero_guess);
-            chebyshev_no_adaptive_its = ls.GetNumIterations();
+            unsigned chebyshev_no_adaptive_its = ls.GetNumIterations();
 
+            TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 6u);
             TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
             TS_ASSERT_DELTA(ls.mEigMax, 1.03557, 1e-5);                       
 
@@ -185,7 +200,6 @@ public:
 
         // Make sure we are not inheriting a non-default number of iterations from previous test
         PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
-        unsigned cg_its;
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
     
@@ -194,17 +208,14 @@ public:
             ls.SetPcType("bjacobi");
             ls.SetKspType("cg");
             Vec solution = ls.Solve(zero_guess);
-            cg_its = ls.GetNumIterations();
+            unsigned cg_its = ls.GetNumIterations();
 
+            TS_ASSERT_EQUALS(cg_its, 6u);
             TS_ASSERT_EQUALS(ls.mEigMin, DBL_MIN);
             TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);                       
 
             VecDestroy(solution);            
         }
-
-        TS_ASSERT_EQUALS(chebyshev_adaptive_its, 6u);
-        TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 6u);
-        TS_ASSERT_EQUALS(cg_its, 6u);
 
         MatDestroy(system_matrix);
         VecDestroy(system_rhs);
