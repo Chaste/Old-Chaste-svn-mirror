@@ -62,7 +62,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
     mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX)
+    mEigMax(DBL_MAX),
+    mForceSpectrumReevaluation(false)
 {
     assert(lhsVectorSize>0);
     if (mRowPreallocation == UINT_MAX)
@@ -115,7 +116,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
     mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX)
+    mEigMax(DBL_MAX),
+    mForceSpectrumReevaluation(false)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -150,7 +152,8 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
     mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX)
+    mEigMax(DBL_MAX),
+    mForceSpectrumReevaluation(false)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -190,7 +193,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
     mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX)
+    mEigMax(DBL_MAX),
+    mForceSpectrumReevaluation(false)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -991,7 +995,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
 
         // Current solve has to be done with tolerance-based stop criteria in order to record iterations taken
-        if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0)
+        if(mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
         {
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))
             KSPSetNormType(mKspSolver, KSP_PRECONDITIONED_NORM);
@@ -1067,7 +1071,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPEXCEPT(reason);
         }
 
-        if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0 )        
+        if(mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
         {
             // Adaptive Chebyshev: reevaluate spectrum with cg            
             if (mKspType == "chebychev")
@@ -1169,6 +1173,7 @@ void LinearSystem::ResetKspSolver()
     }
 
     mKspIsSetup = false;
+    mForceSpectrumReevaluation = true;
     
     /*
      *  Reset max number of iterations. This option is stored in the configuration database and 

@@ -139,7 +139,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
 
         HeartConfig::Instance()->SetKSPSolver("chebychev");
-        HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver(true, 20);
+        HeartConfig::Instance()->SetUseFixedNumberIterationsLinearSolver(true, 30);
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-600.0*1000);
 

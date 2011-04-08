@@ -136,6 +136,9 @@ private:
 
     /** Preconditioned operator largest eigenvalue */
     PetscReal mEigMax;
+    
+    /** Under certain circunstances you have to reevaluate the spectrum before the k*n-th, k=0,1,..., iteration*/
+    bool mForceSpectrumReevaluation;
 
 #ifdef TRACE_KSP
     unsigned mTotalNumIterations;
