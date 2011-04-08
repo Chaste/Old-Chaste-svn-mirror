@@ -98,6 +98,10 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::~HeartConfigRelatedCellFactory()
     {
         delete mCellHeterogeneityAreas[i];
     }
+    for (unsigned i = 0; i<mIonicModelRegions.size();i++)
+    {
+        delete mIonicModelRegions[i];
+    }
 }
 
 template<unsigned SPACE_DIM>
@@ -111,7 +115,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
          ionic_model_region_index < mIonicModelRegions.size();
          ++ionic_model_region_index)
     {
-        if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+        if ( mIonicModelRegions[ionic_model_region_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
             ionic_model = mIonicModelsDefined[ionic_model_region_index];
             break;

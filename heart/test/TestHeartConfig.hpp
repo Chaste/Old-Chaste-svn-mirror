@@ -278,15 +278,15 @@ public:
         ///////////////
         //ionic models
         //////////////
-        std::vector<ChasteCuboid<3> > ionic_model_regions;
+        std::vector<AbstractChasteRegion<3>* > ionic_model_regions;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models_defined);
 
-        TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
-        TS_ASSERT_EQUALS(ionic_models_defined.size(), 2u);
+        TS_ASSERT_EQUALS(ionic_model_regions.size(), 3u);
+        TS_ASSERT_EQUALS(ionic_models_defined.size(), 3u);
 
-        TS_ASSERT(ionic_model_regions[0].DoesContain(ChastePoint<3>(-1.95, 0, 0)));
+        TS_ASSERT(ionic_model_regions[0]->DoesContain(ChastePoint<3>(-1.95, 0, 0)));
         std::string model_zero("heart/dynamic/libDynamicallyLoadableLr91.so");
         TS_ASSERT(ionic_models_defined[0].Dynamic().present());
         TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
@@ -295,31 +295,37 @@ public:
         TS_ASSERT_EQUALS(ionic_models_defined[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
         
         //cover the 2D case
-        std::vector<ChasteCuboid<2> > ionic_model_regions_2D;
+        std::vector<AbstractChasteRegion<2>* > ionic_model_regions_2D;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined_2D;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_2D,
                                                       ionic_models_defined_2D);
 
-        TS_ASSERT_EQUALS(ionic_model_regions_2D.size(), 2u);
-        TS_ASSERT_EQUALS(ionic_models_defined_2D.size(), 2u);
+        TS_ASSERT_EQUALS(ionic_model_regions_2D.size(), 3u);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D.size(), 3u);
 
-        TS_ASSERT(ionic_model_regions_2D[0].DoesContain(ChastePoint<2>(-1.95, 0)));
+        TS_ASSERT(ionic_model_regions_2D[0]->DoesContain(ChastePoint<2>(-1.95, 0)));
         TS_ASSERT(ionic_models_defined_2D[0].Dynamic().present());
         TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
         TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path(), model_zero);
+        
+        TS_ASSERT(ionic_model_regions_2D[1]->DoesContain(ChastePoint<2>(-0.5, 0)));
         TS_ASSERT(ionic_models_defined_2D[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined_2D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
 
+        TS_ASSERT(ionic_model_regions_2D[2]->DoesContain(ChastePoint<2>(1, 0)));
+        TS_ASSERT(ionic_models_defined_2D[2].Hardcoded().present());
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[2].Hardcoded().get(), cp::ionic_models_available_type::tenTusscher2006);
+
         //cover the 1D case
-        std::vector<ChasteCuboid<1> > ionic_model_regions_1D;
+        std::vector<AbstractChasteRegion<1>* > ionic_model_regions_1D;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined_1D;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_1D,
                                                       ionic_models_defined_1D);
 
-        TS_ASSERT_EQUALS(ionic_model_regions_1D.size(), 2u);
-        TS_ASSERT_EQUALS(ionic_models_defined_1D.size(), 2u);
+        TS_ASSERT_EQUALS(ionic_model_regions_1D.size(), 3u);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D.size(), 3u);
 
-        TS_ASSERT(ionic_model_regions_1D[0].DoesContain(ChastePoint<1>(-1.95)));
+        TS_ASSERT(ionic_model_regions_1D[0]->DoesContain(ChastePoint<1>(-1.95)));
         TS_ASSERT(ionic_models_defined_1D[0].Dynamic().present());
         TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
         TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path(), model_zero);
@@ -344,7 +350,6 @@ public:
                                                         scale_factor_gkr_3D,
                                                         &parameter_settings);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), true);
         TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks_3D[0], 0.462);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[0], 0.0);
@@ -627,7 +632,7 @@ public:
                                   "Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
 
             //covering the case when the user specify transmural layers for ionic model heterogeneities (not yet supported)...
-            std::vector<ChasteCuboid<3> > ionic_model_regions;
+            std::vector<AbstractChasteRegion<3>* > ionic_model_regions;
             std::vector<cp::ionic_model_selection_type> ionic_models;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
                                   "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
@@ -745,15 +750,14 @@ public:
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
 
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), false);
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr,
                                                                                   NULL),
-                                  "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
+                                  "Specification of cellular heterogeneities by cuboids/ellipsoids and layers at the same time is not yet supported");
 
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), true);
+            
         }
     }
     
@@ -935,7 +939,7 @@ public:
             delete conductivities_heterogeneity_areas_ellipsoid[region_index];
         }
         
-        std::vector<ChasteCuboid<3> > ionic_model_regions;
+        std::vector<AbstractChasteRegion<3>* > ionic_model_regions;
         std::vector<cp::ionic_model_selection_type> ionic_models;
 
         //No ionic model regions
@@ -1682,7 +1686,7 @@ public:
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
 
-        std::vector<ChasteCuboid<3> > definedRegions;
+        std::vector<AbstractChasteRegion<3>* > definedRegions;
         std::vector<cp::ionic_model_selection_type> ionic_models;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models),
                               "IonicModelRegions information is not available in a resumed simulation.");

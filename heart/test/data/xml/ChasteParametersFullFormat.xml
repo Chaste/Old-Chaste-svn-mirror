@@ -61,6 +61,17 @@
 				</Location>				
 			</Region>
 			
+			<!-- Hardcoded in an ellipsoid region -->
+			<Region>
+				<IonicModel><Hardcoded>tenTusscher2006</Hardcoded></IonicModel>
+				<Location unit="cm">
+					<Ellipsoid>
+						<Centre x="1.0" y="0.0" z="0.0"/>
+						<Radii  x="0.5" y="0.1" z="0.3"/>
+					</Ellipsoid>
+				</Location>				
+			</Region>
+			
 			<!-- Cell models in transmural regions are valid XML but are not implemented -->
 			
 		</IonicModels>
@@ -177,13 +188,13 @@
 				<SetParameter name="ScaleFactorGkr" value="1.0"/>
 			</CellHeterogeneity>	
 		
-		    <!-- More heterogeneities in a cuboid region -->
+		    <!-- More heterogeneities in an ellipsoid region -->
 		  	<CellHeterogeneity> <!-- #2 -->
 				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="0.5" y="0.1" z="1.0"/>
-					</Cuboid>
+					<Ellipsoid>
+						<Centre x="1.0" y="0.0" z="0.0"/>
+						<Radii  x="0.5" y="0.1" z="0.3"/>
+					</Ellipsoid>
 				</Location>
 				<SetParameter name="ScaleFactorGkr" value="1.0"/>
 				<SetParameter name="ScaleFactorGks" value="1.154"/>

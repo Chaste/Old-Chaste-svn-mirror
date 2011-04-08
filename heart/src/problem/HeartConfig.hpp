@@ -315,7 +315,7 @@ public:
      * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
     template<unsigned DIM>
-    void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& rDefinedRegions,
+    void GetIonicModelRegions(std::vector<AbstractChasteRegion<DIM>* >& rDefinedRegions,
                                std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     /**
@@ -398,11 +398,6 @@ public:
      * @return the value of the flag that tells whether the user asked for cellular transmural heterogeneities
      */
     bool AreCellularTransmuralHeterogeneitiesRequested();
-
-    /**
-     * @return the value of the flag that tells whether the user asked for cellular heterogeneities with cuboids
-     */
-    bool AreCellularHeterogeneitiesSpecifiedByCuboids();
 
     /**
      * @return the fraction of epicardial layer
@@ -1286,11 +1281,6 @@ private:
      * Flag to check whether the user asked for cellular transmural heterogeneities
      */
     bool mUserAskedForCellularTransmuralHeterogeneities;
-
-   /**
-     * Flag to check whether the user asked for cellular heterogeneities with cuboids
-     */
-    bool mUserAskedForCuboidsForCellularHeterogeneities;
 
     /**
      * Flag telling whether to use mass lumping or not.
