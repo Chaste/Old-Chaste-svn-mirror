@@ -108,6 +108,11 @@
             Radii attributes.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="NotUsed" type="xs:boolean" fixed="true">
+        <xs:annotation>
+          <xs:documentation>Never to be used.  This location is for completeness testing.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="EpiLayer" type="dimensionless_type">
         <xs:annotation>
           <xs:documentation>Proportion of cardiac wall that is in the epicardium (outer wall). Value

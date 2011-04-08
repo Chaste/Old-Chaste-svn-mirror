@@ -632,6 +632,29 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
                                   "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
         }
+        {
+            //Some more exceptions - check that there are no regions which never get implemented...
+            HeartConfig::Reset();
+            //the _unsupported file has "never used" locations
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters_unsupported.xml");
+            //covering the case when the conductivities regions are not supported
+            std::vector<AbstractChasteRegion<3>* > conductivities_heterogeneity_areas;
+            std::vector< c_vector<double,3> > intra_h_conductivities;
+            std::vector< c_vector<double,3> > extra_h_conductivities;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                            intra_h_conductivities,
+                                                            extra_h_conductivities),
+                                                            "Invalid region type for conductivity definition");
+            std::vector<ChasteCuboid<3> > ionic_model_regions;
+            std::vector<cp::ionic_model_selection_type> ionic_models;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
+                                  "Invalid region type for ionic model definition");
+                                  
+            std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
+            std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > stimulated_area;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),
+                                  "Invalid region type for stimulus definition");
+        }
         //covers the case when the user supplies numbers that do not add up to 1
         {
             HeartConfig::Reset();

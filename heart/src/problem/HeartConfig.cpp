@@ -1260,6 +1260,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         }
         else
         {
+            assert(0);
             EXCEPTION("Invalid region type for cell heterogeneity definition");
         }
 
@@ -1867,7 +1868,7 @@ DistributedTetrahedralMeshPartitionType::type HeartConfig::GetMeshPartitioning()
             return DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION;
     }
 #define COVERAGE_IGNORE
-    EXCEPTION("Unknown mesh partitioning type");
+    EXCEPTION("Unknown meesh partitioning type");
 #undef COVERAGE_IGNORE
 }
 
