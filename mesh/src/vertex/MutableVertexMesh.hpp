@@ -351,6 +351,15 @@ public:
     void DeleteElementPriorToReMesh(unsigned index);
 
     /**
+     * Mark a node as deleted. Note that this method DOES NOT deal with the
+     * associated elements and therefore should only be called immediately prior
+     * to a ReMesh() being called.
+     *
+     * @param index The index of the node to delete
+     */
+    void DeleteNodePriorToReMesh(unsigned index);
+
+    /**
      * Divide an element along its short axis.
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)

@@ -591,8 +591,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsig
 
         if (p_node->rGetContainingElementIndices().size()==1)
         {
-            p_node->MarkAsDeleted();
-            mDeletedNodeIndices.push_back(p_node->GetIndex());
+            DeleteNodePriorToReMesh(p_node->GetIndex());
         }
 
         // Mark all the nodes contained in the removed element as boundary nodes
@@ -602,6 +601,13 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsig
     // Mark this element as deleted
     this->mElements[index]->MarkAsDeleted();
     mDeletedElementIndices.push_back(index);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
+{
+    this->mNodes[index]->MarkAsDeleted();
+    mDeletedNodeIndices.push_back(index);
 }
 
 
