@@ -62,6 +62,7 @@ class LinearSystem
     friend class TestPCBlockDiagonal;
     friend class TestPCTwoLevelsBlockDiagonal;
     friend class TestPCLDUFactorisation;
+    friend class TestChebyshevIteration;
 
 private:
 
@@ -129,6 +130,12 @@ private:
 
     /** Number of solves performed since the current object was created */
     unsigned mNumSolves;
+
+    /** Preconditioned operator smallest eigenvalue */
+    PetscReal mEigMin;
+
+    /** Preconditioned operator largest eigenvalue */
+    PetscReal mEigMax;
 
 #ifdef TRACE_KSP
     unsigned mTotalNumIterations;

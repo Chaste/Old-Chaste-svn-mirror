@@ -60,7 +60,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mRowPreallocation(rowPreallocation),
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
-    mpConvergenceTestContext(NULL)
+    mpConvergenceTestContext(NULL),
+    mEigMin(DBL_MIN),
+    mEigMax(DBL_MAX)
 {
     assert(lhsVectorSize>0);
     if (mRowPreallocation == UINT_MAX)
@@ -111,7 +113,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mPrecondMatrixIsNotLhs(false),
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
-    mpConvergenceTestContext(NULL)
+    mpConvergenceTestContext(NULL),
+    mEigMin(DBL_MIN),
+    mEigMax(DBL_MAX)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -144,7 +148,9 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mRowPreallocation(rowPreallocation),
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
-    mpConvergenceTestContext(NULL)
+    mpConvergenceTestContext(NULL),
+    mEigMin(DBL_MIN),
+    mEigMax(DBL_MAX)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -182,7 +188,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mRowPreallocation(UINT_MAX),
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
-    mpConvergenceTestContext(NULL)
+    mpConvergenceTestContext(NULL),
+    mEigMin(DBL_MIN),
+    mEigMax(DBL_MAX)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -797,18 +805,17 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetFromOptions(mKspSolver);
 
         /*
-         *  When using the Chebyshev iteration, an approximation of the extremal eigenvalues 
-         * needs to be computed in order to speed up convergence. This can be done with an 
-         * extra CG solve at the setup time. 
+         * Non-adaptive Chebyshev: the required spectrum approximation is computed just once 
+         * at the beginning of the simulation. This is done with two extra CG solves. 
          */
-        if(mKspType == "chebychev")        
+        if(mKspType == "chebychev" && !mUseFixedNumberIterations)        
         {            
 #ifdef TRACE_KSP
             Timer::Reset();
 #endif
-            // You can estimate preconditioned matrix spectrum with CG
+            // Preconditioned matrix spectrum is approximated with CG
             KSPSetType(mKspSolver,"cg");
-	        KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);            
+            KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
             KSPSetUp(mKspSolver);
                             
             VecDuplicate(mRhsVector, &chebyshev_lhs_vector);
@@ -816,7 +823,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             {
                 VecCopy(lhsGuess, chebyshev_lhs_vector);
             }
-                        
+
+            // Smallest eigenvalue is approximated to default tolerance
             KSPSolve(mKspSolver, mRhsVector, chebyshev_lhs_vector);
 
             PetscReal *r_eig = new PetscReal[mSize];
@@ -824,7 +832,27 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             PetscInt eigs_computed;
             KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
 
+            mEigMin = r_eig[0];
+	
+            // Largest eigenvalue is approximated to machine precision
+            KSPSetTolerances(mKspSolver, DBL_EPSILON, DBL_EPSILON, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetUp(mKspSolver);
+            if (lhsGuess)
+            {
+                VecCopy(lhsGuess, chebyshev_lhs_vector);
+            }
+
+            KSPSolve(mKspSolver, mRhsVector, chebyshev_lhs_vector);
+            KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
+
+            mEigMax = r_eig[eigs_computed-1];
+
 #ifdef TRACE_KSP
+            /*
+             *  Under certain circumstances (see Golub&Overton 1988), underestimating
+             * the spectrum of the preconditioned operator improves convergence rate.
+             * See publication for a discussion and for definition of alpha and sigma_one.
+             */
             if (PetscTools::AmMaster())
             {
                 std::cout << "EIGS: ";
@@ -834,29 +862,26 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 }
                 std::cout << std::endl;
             }
-#endif
 
-            double eig_max = r_eig[eigs_computed-1];
-            double eig_min = r_eig[0];
-
-#ifdef TRACE_KSP
-            /*
-             *  Under certain circumstances (see Golub&Overton 1988), underestimating
-             * the spectrum of the preconditioned operator improves convergence rate.
-             * See publication for a discussion and for definition of alpha and sigma_one.
-             */
-
-            if (PetscTools::AmMaster()) std::cout << "EIGS "<< eig_max << " " << eig_min <<std::endl;
-            double alpha = 2/(eig_max+eig_min);
-            double sigma_one = 1 - alpha*eig_min;
-            if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*eig_min = "<< sigma_one <<std::endl;
+            if (PetscTools::AmMaster()) std::cout << "EIGS "<< mEigMax << " " << mEigMin <<std::endl;
+            double alpha = 2/(mEigMax+mEigMin);
+            double sigma_one = 1 - alpha*mEigMin;
+            if (PetscTools::AmMaster()) std::cout << "sigma_1 = 1 - alpha*mEigMin = "<< sigma_one <<std::endl;
 #endif
 
             // Set Chebyshev solver and max/min eigenvalues
             assert(mKspType == "chebychev");
             KSPSetType(mKspSolver, mKspType.c_str());            
-            KSPChebychevSetEigenvalues(mKspSolver, eig_max, eig_min);
+            KSPChebychevSetEigenvalues(mKspSolver, mEigMax, mEigMin);
             KSPSetComputeEigenvalues(mKspSolver, PETSC_FALSE);
+            if (mUseAbsoluteTolerance)
+            {
+                KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
+            else
+            {
+                KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            }
 
 	        delete[] r_eig;
 	        delete[] c_eig;
@@ -997,6 +1022,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             std::stringstream num_it_str;
             num_it_str << 1000;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+
+            // Adaptive Chebyshev: reevaluate spectrum with cg
+            if (mKspType == "chebychev")
+            {
+                // You can estimate preconditioned matrix spectrum with CG
+                KSPSetType(mKspSolver,"cg");
+                KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
+            }
             
             KSPSetFromOptions(mKspSolver);            
             KSPSetUp(mKspSolver);
@@ -1036,6 +1069,26 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
         if(mUseFixedNumberIterations && mNumSolves%mEvaluateNumItsEveryNSolves==0 )        
         {
+            // Adaptive Chebyshev: reevaluate spectrum with cg            
+            if (mKspType == "chebychev")
+            {
+    	        PetscReal *r_eig = new PetscReal[mSize];
+                PetscReal *c_eig = new PetscReal[mSize];
+                PetscInt eigs_computed;
+                KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
+
+                mEigMin = r_eig[0];
+                mEigMax = r_eig[eigs_computed-1];
+
+                delete[] r_eig;
+                delete[] c_eig;
+
+                assert(mKspType == "chebychev");
+                KSPSetType(mKspSolver, mKspType.c_str());            
+                KSPChebychevSetEigenvalues(mKspSolver, mEigMax, mEigMin);
+                KSPSetComputeEigenvalues(mKspSolver, PETSC_FALSE);
+            }
+
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
             if (mKspType == "chebychev")
             {

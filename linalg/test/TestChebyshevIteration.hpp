@@ -115,12 +115,13 @@ public:
         VecDestroy(parallel_layout);
     }
 
-    void TestChebyshevNoSpectrumShift() throw (Exception)
+    void TestChebyshevAdaptiveVsNoAdaptive() throw (Exception)
     {
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
         Vec parallel_layout = factory.CreateVec(2);
 
+        // Solving with zero guess for coverage
         Vec zero_guess = factory.CreateVec(2);
         double zero = 0.0;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2)
@@ -128,9 +129,6 @@ public:
 #else
         VecSet(zero_guess, zero);
 #endif
-        unsigned chebyshev_its;
-
-        Timer::Reset();
 
         Mat system_matrix;
         //Note that this test deadlocks if the file's not on the disk
@@ -140,30 +138,76 @@ public:
         //Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
-        LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+        // Make sure we are not inheriting a non-default number of iterations from previous test
+        std::stringstream num_it_str;
+        num_it_str << 1000;
+        PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+        unsigned chebyshev_adaptive_its;
+        {
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+    
+            ls.SetMatrixIsSymmetric();
+            // Solve to relative convergence for coverage
+            ls.SetRelativeTolerance(1e-9);
+            ls.SetPcType("bjacobi");
+            ls.SetKspType("chebychev");
+            ls.SetUseFixedNumberIterations(true, 64);
+    
+            // Solving with zero guess for coverage.
+            Vec solution = ls.Solve(zero_guess);
+            chebyshev_adaptive_its = ls.GetNumIterations();
+                       
+            TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
+            TS_ASSERT_DELTA(ls.mEigMax, 1.0354, 1e-4);            
+            
+            VecDestroy(solution);
+        }
 
-        ls.SetMatrixIsSymmetric();
+        // Make sure we are not inheriting a non-default number of iterations from previous test        
+        PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());        
+        unsigned chebyshev_no_adaptive_its;
+        {
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+    
+            ls.SetMatrixIsSymmetric();
+            ls.SetRelativeTolerance(1e-9);
+            ls.SetPcType("bjacobi");
+            ls.SetKspType("chebychev");
+            
+            Vec solution = ls.Solve(zero_guess);
+            chebyshev_no_adaptive_its = ls.GetNumIterations();
 
-        // Solve to relative convergence for coverage
-        ls.SetRelativeTolerance(1e-9);
-        ls.SetKspType("chebychev");
+            TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
+            TS_ASSERT_DELTA(ls.mEigMax, 1.03557, 1e-5);                       
 
-        // Solve with Jacobi to cover not using spectrum shift
-        ls.SetPcType("jacobi");
+            VecDestroy(solution);            
+        }
 
-        // Solving with zero guess for coverage.
-        Vec solution = ls.Solve(zero_guess);
+        // Make sure we are not inheriting a non-default number of iterations from previous test
+        PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
+        unsigned cg_its;
+        {
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+    
+            ls.SetMatrixIsSymmetric();
+            ls.SetRelativeTolerance(1e-9);
+            ls.SetPcType("bjacobi");
+            ls.SetKspType("cg");
+            Vec solution = ls.Solve(zero_guess);
+            cg_its = ls.GetNumIterations();
 
-        chebyshev_its = ls.GetNumIterations();
+            TS_ASSERT_EQUALS(ls.mEigMin, DBL_MIN);
+            TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);                       
+
+            VecDestroy(solution);            
+        }
+
+        TS_ASSERT_EQUALS(chebyshev_adaptive_its, 6u);
+        TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 6u);
+        TS_ASSERT_EQUALS(cg_its, 6u);
 
         MatDestroy(system_matrix);
         VecDestroy(system_rhs);
-        VecDestroy(solution);
-        Timer::PrintAndReset("Chebyshev-Jacobi");
-
-        // The number of iterations is PETSc-version-dependent...
-        TS_ASSERT_LESS_THAN(130u, chebyshev_its);
-        TS_ASSERT_LESS_THAN(chebyshev_its, 150u);
 
         VecDestroy(parallel_layout);
         VecDestroy(zero_guess);
