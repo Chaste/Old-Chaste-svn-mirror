@@ -315,7 +315,7 @@ public:
      * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
     template<unsigned DIM>
-    void GetIonicModelRegions(std::vector<AbstractChasteRegion<DIM>* >& rDefinedRegions,
+    void GetIonicModelRegions(std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rDefinedRegions,
                                std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     /**
@@ -386,7 +386,7 @@ public:
      * \todo There is no set method
      */
     template<unsigned DIM>
-    void GetCellHeterogeneities( std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
+    void GetCellHeterogeneities( std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rCellHeterogeneityRegions,
                                  std::vector<double>& rScaleFactorGks,
                                  std::vector<double>& rScaleFactorIto,
                                  std::vector<double>& rScaleFactorGkr,
@@ -439,7 +439,7 @@ public:
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
     template<unsigned DIM>
-    void GetConductivityHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& conductivitiesHeterogeneityAreas,
+    void GetConductivityHeterogeneities(std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& conductivitiesHeterogeneityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const; /**< @return output directory path name*/

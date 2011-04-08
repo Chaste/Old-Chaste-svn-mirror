@@ -801,7 +801,7 @@ cp::ionic_model_selection_type HeartConfig::GetDefaultIonicModel() const
 }
 
 template<unsigned DIM>
-void HeartConfig::GetIonicModelRegions(std::vector<AbstractChasteRegion<DIM>* >& definedRegions,
+void HeartConfig::GetIonicModelRegions(std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& definedRegions,
                                        std::vector<cp::ionic_model_selection_type>& ionicModels) const
 {
     CheckSimulationIsDefined("IonicModelRegions");
@@ -832,21 +832,21 @@ void HeartConfig::GetIonicModelRegions(std::vector<AbstractChasteRegion<DIM>* >&
                     {
                         ChastePoint<DIM> chaste_point_a ( point_a.x() );
                         ChastePoint<DIM> chaste_point_b ( point_b.x() );
-                        definedRegions.push_back(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b ));
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b )));
                         break;
                     }
                     case 2:
                     {
                         ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y() );
                         ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y() );
-                        definedRegions.push_back(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b ));
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b )));
                         break;
                     }
                     case 3:
                     {
                         ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
                         ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-                        definedRegions.push_back(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b ));
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteCuboid<DIM>( chaste_point_a, chaste_point_b )) );
                         break;
                     }
                     default:
@@ -864,21 +864,21 @@ void HeartConfig::GetIonicModelRegions(std::vector<AbstractChasteRegion<DIM>* >&
                     {
                         ChastePoint<DIM> chaste_point_a ( centre.x() );
                         ChastePoint<DIM> chaste_point_b ( radii.x() );
-                        definedRegions.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b )) );
                         break;
                     }
                     case 2:
                     {
                         ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y() );
                         ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y() );
-                        definedRegions.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b )) );
                         break;
                     }
                     case 3:
                     {
                         ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
                         ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
-                        definedRegions.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+                        definedRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b )) );
                         break;
                     }
                     default:
@@ -1225,7 +1225,7 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
 
 
 template<unsigned DIM>
-void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
+void HeartConfig::GetCellHeterogeneities(std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rCellHeterogeneityRegions,
                                          std::vector<double>& rScaleFactorGks,
                                          std::vector<double>& rScaleFactorIto,
                                          std::vector<double>& rScaleFactorGkr,
@@ -1256,7 +1256,8 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
          ++i)
     {
         cp::cell_heterogeneity_type ht(*i);
-
+        
+        
         if (ht.Location().Cuboid().present())
         {
             user_asked_for_cuboids_or_ellipsoids = true;
@@ -1265,7 +1266,8 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
             
             ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
             ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-            rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
+            
+            rCellHeterogeneityRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b )) );
         }
         else if (ht.Location().Ellipsoid().present())
         {   
@@ -1275,7 +1277,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
 
             ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
             ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
-            rCellHeterogeneityRegions.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+            rCellHeterogeneityRegions.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >(new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b )) );
         }
         else if (ht.Location().EpiLayer().present())
         {
@@ -1312,7 +1314,6 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         }
         else
         {
-            assert(0);
             EXCEPTION("Invalid region type for cell heterogeneity definition");
         }
 
@@ -1347,11 +1348,6 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         // cuboids/ellipsoids and layers at the same time are not yet supported
         if (user_asked_for_cuboids_or_ellipsoids )
         {
-            // free the pointers before throwing the exception
-            for (unsigned index=0;index < rCellHeterogeneityRegions.size(); index++)
-            {
-                delete rCellHeterogeneityRegions[index];
-            }
             EXCEPTION ("Specification of cellular heterogeneities by cuboids/ellipsoids and layers at the same time is not yet supported");
         }
 
@@ -1426,7 +1422,7 @@ bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
 
 template<unsigned DIM>
 void HeartConfig::GetConductivityHeterogeneities(
-        std::vector<AbstractChasteRegion<DIM>* >& conductivitiesHeterogeneityAreas,
+        std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& conductivitiesHeterogeneityAreas,
         std::vector< c_vector<double,3> >& intraConductivities,
         std::vector< c_vector<double,3> >& extraConductivities) const
 {
@@ -1441,13 +1437,14 @@ void HeartConfig::GetConductivityHeterogeneities(
          ++i)
     {
         cp::conductivity_heterogeneity_type ht(*i);
+        
         if (ht.Location().Cuboid().present())
         {
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
             ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
             ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-            conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
+            conductivitiesHeterogeneityAreas.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >   (  new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b )) );
         }
         else if (ht.Location().Ellipsoid().present())
         {
@@ -1455,7 +1452,7 @@ void HeartConfig::GetConductivityHeterogeneities(
             cp::point_type radii  = ht.Location().Ellipsoid()->Radii();
             ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
             ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
-            conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+            conductivitiesHeterogeneityAreas.push_back(boost::shared_ptr<AbstractChasteRegion<DIM> >   (  new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b )) );
         }
         else if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )
         {
@@ -1913,7 +1910,7 @@ DistributedTetrahedralMeshPartitionType::type HeartConfig::GetMeshPartitioning()
             return DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION;
     }
 #define COVERAGE_IGNORE
-    EXCEPTION("Unknown meesh partitioning type");
+    EXCEPTION("Unknown mesh partitioning type");
 #undef COVERAGE_IGNORE
 }
 
@@ -3666,20 +3663,20 @@ void XmlTransforms::CheckForIluPreconditioner(xercesc::DOMDocument* pDocument,
  * \cond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
-template void HeartConfig::GetIonicModelRegions<3u>(std::vector<AbstractChasteRegion<3u>* >& , std::vector<cp::ionic_model_selection_type>&) const;
+template void HeartConfig::GetIonicModelRegions<3u>(std::vector<boost::shared_ptr<AbstractChasteRegion<3u> > >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<boost::shared_ptr<AbstractChasteRegion<3u> > >& ) const;
-template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
-template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<boost::shared_ptr<AbstractChasteRegion<3u> > >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
+template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<boost::shared_ptr<AbstractChasteRegion<3u> > >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
-template void HeartConfig::GetIonicModelRegions<2u>(std::vector<AbstractChasteRegion<2u>* >& , std::vector<cp::ionic_model_selection_type>&) const;
+template void HeartConfig::GetIonicModelRegions<2u>(std::vector<boost::shared_ptr<AbstractChasteRegion<2u> > >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<boost::shared_ptr<AbstractChasteRegion<2u> > >& ) const;
-template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
-template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<boost::shared_ptr<AbstractChasteRegion<2u> > >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
+template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<boost::shared_ptr<AbstractChasteRegion<2u> > >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
-template void HeartConfig::GetIonicModelRegions<1u>(std::vector<AbstractChasteRegion<1u>* >& , std::vector<cp::ionic_model_selection_type>&) const;
+template void HeartConfig::GetIonicModelRegions<1u>(std::vector<boost::shared_ptr<AbstractChasteRegion<1u> > >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<boost::shared_ptr<AbstractChasteRegion<1u> > >& ) const;
-template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*);
-template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<boost::shared_ptr<AbstractChasteRegion<1u> > >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*);
+template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<boost::shared_ptr<AbstractChasteRegion<1u> > >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<1u> >& rPseudoEcgElectrodePositions) const;
 template void HeartConfig::GetPseudoEcgElectrodePositions(std::vector<ChastePoint<2u> >& rPseudoEcgElectrodePositions) const;

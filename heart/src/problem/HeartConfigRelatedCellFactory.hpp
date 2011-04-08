@@ -92,7 +92,7 @@ private:
     /** Default cardiac cell model to be used in all tissue (except heterogeneous regions)*/
     cp::ionic_model_selection_type mDefaultIonicModel;
     /** List of axis-aligned box regions which contain heterogeneous cardiac ionic model types*/
-    std::vector<AbstractChasteRegion<SPACE_DIM>* > mIonicModelRegions;
+    std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > mIonicModelRegions;
     /** List of ionic model (size matches that of mIonicModelRegions)*/
     std::vector<cp::ionic_model_selection_type> mIonicModelsDefined;
 
@@ -112,7 +112,7 @@ private:
      *  that node is contained in the heterogeneity area or not.
      *
      */
-    std::vector<AbstractChasteRegion<SPACE_DIM>* > mCellHeterogeneityAreas;
+    std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGks;
     /** List of scale factors for Ito scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/

@@ -94,14 +94,6 @@ DynamicCellModelLoader* HeartConfigRelatedCellFactory<SPACE_DIM>::LoadDynamicMod
 template<unsigned SPACE_DIM>
 HeartConfigRelatedCellFactory<SPACE_DIM>::~HeartConfigRelatedCellFactory()
 {
-    for (unsigned i = 0; i<mCellHeterogeneityAreas.size();i++)
-    {
-        delete mCellHeterogeneityAreas[i];
-    }
-    for (unsigned i = 0; i<mIonicModelRegions.size();i++)
-    {
-        delete mIonicModelRegions[i];
-    }
 }
 
 template<unsigned SPACE_DIM>
@@ -418,15 +410,15 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         //create the node lists based on the calculations above
         if (counter==0)
         {
-            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(epi_nodes));
+            mCellHeterogeneityAreas.push_back(boost::shared_ptr<AbstractChasteRegion<3u> >(new ChasteNodesList<3u>(epi_nodes)) );
         }
         if (counter==1)
         {
-            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(mid_nodes));
+            mCellHeterogeneityAreas.push_back(boost::shared_ptr<AbstractChasteRegion<3u> >(new ChasteNodesList<3u>(mid_nodes)) );
         }
         if (counter==2)
         {
-            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(endo_nodes));
+            mCellHeterogeneityAreas.push_back(boost::shared_ptr<AbstractChasteRegion<3u> >(new ChasteNodesList<3u>(endo_nodes)) );
         }
         assert(counter<3);
     }

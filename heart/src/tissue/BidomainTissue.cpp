@@ -116,7 +116,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         }
         PetscTools::ReplicateException(false);
 
-        std::vector<AbstractChasteRegion<SPACE_DIM>* > conductivities_heterogeneity_areas;
+        std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -144,12 +144,6 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
                 }
             }
             local_element_index++;
-        }
-        
-        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
-        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
-        {
-            delete conductivities_heterogeneity_areas[region_index];
         }
         mpExtracellularConductivityTensors->SetNonConstantConductivities(&hetero_extra_conductivities);
     }
