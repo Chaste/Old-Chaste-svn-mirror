@@ -112,7 +112,16 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
             for (unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
             {
-                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*this->mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
+                // At the moment we assume the vertices are the first num_vertices nodes in the list of nodes
+                // in the mesh. Hence:
+                unsigned vertex_index = element.GetNodeGlobalIndex(i);
+                assert(vertex_index < this->mpQuadMesh->GetNumVertices());
+                
+                // In the future (or currently with AlexW's adaptive quadratic mesh class (project work)), we
+                // will want to use this instead:
+                //unsigned vertex_index = this->mpQuadMesh->GetVertexIndexOfNode(element.GetNodeGlobalIndex(i));
+
+                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*this->mpQuadMesh->GetNumNodes() + vertex_index;
             }
 
             if (assembleJacobian)
@@ -244,7 +253,17 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
     ///////////////////////////////////////////////
     for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
     {
-        element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
+
+        // At the moment we assume the vertices are the first num_vertices nodes in the list of nodes
+        // in the mesh. Hence:
+        unsigned vertex_index = rElement.GetNodeGlobalIndex(II);
+        assert(vertex_index < this->mpQuadMesh->GetNumVertices());
+
+        // In the future (or currently with AlexW's adaptive quadratic mesh class (project work)), we
+        // will want to use this instead:
+        //unsigned vertex_index = this->mpQuadMesh->GetVertexIndexOfNode( rElement.GetNodeGlobalIndex(II) );
+
+        element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + vertex_index];
     }
 
     // allocate memory for the basis functions values and derivative values
@@ -672,8 +691,16 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
         // loop over vertices and set pressure solution to be zero-strain-pressure
         for (unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
         {
-            unsigned index = this->mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
-            this->mCurrentSolution[ DIM*this->mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
+            // At the moment we assume the vertices are the first num_vertices nodes in the list of nodes
+            // in the mesh. Hence:
+            unsigned vertex_index = this->mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
+            assert(vertex_index < this->mpQuadMesh->GetNumVertices());
+
+            // In the future (or currently with AlexW's adaptive quadratic mesh class (project work)), we
+            // will want to use this instead:
+            //unsigned vertex_index = this->mpQuadMesh->GetVertexIndexOfNode(this->mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j));
+            
+            this->mCurrentSolution[ DIM*this->mpQuadMesh->GetNumNodes() + vertex_index ] = zero_strain_pressure;
         }
     }
 }
