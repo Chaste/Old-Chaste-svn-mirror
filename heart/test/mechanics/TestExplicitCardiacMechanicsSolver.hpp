@@ -116,8 +116,8 @@ public:
         ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Exp",fixed_nodes,&law);
         ImplicitCardiacMechanicsSolver<2> impl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Imp",fixed_nodes,&law);
 
-        expl_solver.WriteOutput(0);
-        impl_solver.WriteOutput(0);
+        expl_solver.WriteCurrentDeformation("solution",0);
+        impl_solver.WriteCurrentDeformation("solution",0);
 
         unsigned counter = 1;
 
@@ -132,12 +132,12 @@ public:
             expl_solver.SetWriteOutput(false);
             expl_solver.Solve(t,t+dt,dt);
             expl_solver.SetWriteOutput();
-            expl_solver.WriteOutput(counter);
+            expl_solver.WriteCurrentDeformation("solution",counter);
 
             impl_solver.SetWriteOutput(false);
             impl_solver.Solve(t,t+dt,dt);
             impl_solver.SetWriteOutput();
-            impl_solver.WriteOutput(counter);
+            impl_solver.WriteCurrentDeformation("solution",counter);
 
             // the solutions turn out to be very close to each other
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)

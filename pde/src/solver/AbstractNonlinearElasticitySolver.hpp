@@ -152,9 +152,6 @@ protected:
     /** Mass density of the undeformed body (equal to the density of deformed body in the incompressible case) */
     double mDensity;
 
-    /** Where to write output, relative to CHASTE_TESTOUTPUT */
-    std::string mOutputDirectory;
-
     /** All nodes (including non-vertices) which are fixed */
     std::vector<unsigned> mFixedNodes;
 
@@ -163,6 +160,18 @@ protected:
 
     /** Whether to write any output */
     bool mWriteOutput;
+
+    /** Where to write output, relative to CHASTE_TESTOUTPUT */
+    std::string mOutputDirectory;
+
+    /** Output file handler */
+    OutputFileHandler* mpOutputFileHandler;
+
+    /** By default only the initial and final solutions are written. However, we may want to
+     *  write the solutions after every Newton iteration, in which case
+     *  the following should be set to true */
+    bool mWriteOutputEachNewtonIteration;
+
 
     /**
      *  The current solution, in the form (assuming 2d):
@@ -338,16 +347,20 @@ public:
      * @param quitIfNoConvergence (defaults to true)
      */
     void Solve(double tol=-1.0,
-               unsigned offset=0,
                unsigned maxNumNewtonIterations=INT_MAX,
                bool quitIfNoConvergence=true);
 
     /**
-     * Write the current solution for the file outputdir/solution_[counter].nodes
+     * Write the current deformation of the nodes.
      *
-     * @param counter
+     * @param fileName (stem)
+     * @param counterToAppend append a counter to the file name
+     *
+     * For example:
+     * WriteCurrentDeformation("solution") --> file called "solution.nodes"
+     * WriteCurrentDeformation("solution",3) --> file called "solution_3.nodes"
      */
-    void WriteOutput(unsigned counter);
+    void WriteCurrentDeformation(std::string fileName, int counterToAppend=-1);
 
     /**
      * Get number of Newton iterations taken in last solve.
@@ -370,6 +383,16 @@ public:
      */
     void SetWriteOutput(bool writeOutput=true);
 
+    /**
+     *  By default only the original and converged solutions are written. Call this
+     *  by get node positions written after every Newton step (mostly for
+     *  debugging).
+     *  @param writeOutputEachNewtonIteration whether to write each iteration
+     */
+    void SetWriteOutputEachNewtonIteration(bool writeOutputEachNewtonIteration=true)
+    {
+        mWriteOutputEachNewtonIteration = writeOutputEachNewtonIteration;
+    }
 
     /** 
      *  Set the absolute tolerance to be used when solving the linear system.
@@ -427,7 +450,9 @@ public:
         mCurrentTime = time;
     }
 
-    /** Convert the output to Cmgui format (placed in a folder called cmgui in the output directory) */
+    /** Convert the output to Cmgui format (placed in a folder called cmgui in the output directory). Writes the original mesh
+     *  as solution_0.exnode and the (current) solution as solution_1.exnode
+     */
     void CreateCmguiOutput();
 };
 
@@ -985,8 +1010,10 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearEl
       mKspAbsoluteTol(-1),
       mBodyForce(bodyForce),
       mDensity(density),
-      mOutputDirectory(outputDirectory),
       mFixedNodes(fixedNodes),
+      mOutputDirectory(outputDirectory),
+      mpOutputFileHandler(NULL),
+      mWriteOutputEachNewtonIteration(false),
       mNumNewtonIterations(0),
       mUsingBodyForceFunction(false),
       mUsingTractionBoundaryConditionFunction(false),
@@ -1007,6 +1034,10 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearEl
     }
 
     mWriteOutput = (mOutputDirectory != "");
+    if(mWriteOutput)
+    {
+        mpOutputFileHandler = new OutputFileHandler(mOutputDirectory);
+    }
 }
 
 
@@ -1018,18 +1049,24 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::~AbstractNonlinearE
     delete mpPreconditionMatrixLinearSystem;
     delete mpQuadratureRule;
     delete mpBoundaryQuadratureRule;
+    if(mpOutputFileHandler)
+    {
+        delete mpOutputFileHandler;
+    }
 }
 
 
 template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
 void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double tol,
-                                                                        unsigned offset,
                                                                         unsigned maxNumNewtonIterations,
                                                                         bool quitIfNoConvergence)
 {
-    if (mWriteOutput)
+    WriteCurrentDeformation("initial");
+
+
+    if(mWriteOutputEachNewtonIteration)
     {
-        WriteOutput(0+offset);
+        WriteCurrentDeformation("newton_iteration", 0);
     }
 
     // compute residual
@@ -1039,7 +1076,7 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
     #endif
 
     mNumNewtonIterations = 0;
-    unsigned counter = 1;
+    unsigned iteration_number = 1;
 
     if (tol < 0) // ie if wasn't passed in as a parameter
     {
@@ -1061,7 +1098,7 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
     std::cout << "Solving with tolerance " << tol << "\n";
     #endif
 
-    while (norm_resid > tol && counter<=maxNumNewtonIterations)
+    while (norm_resid > tol && iteration_number<=maxNumNewtonIterations)
     {
         #ifdef MECH_VERBOSE
         std::cout <<  "\n-------------------\n"
@@ -1075,17 +1112,17 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
         #ifdef MECH_VERBOSE
         std::cout << "Norm of residual is " << norm_resid << "\n";
         #endif
-        if (mWriteOutput)
+        if (mWriteOutputEachNewtonIteration)
         {
-            WriteOutput(counter+offset);
+            WriteCurrentDeformation("newton_iteration", iteration_number);
         }
 
-        mNumNewtonIterations = counter;
+        mNumNewtonIterations = iteration_number;
 
-        PostNewtonStep(counter,norm_resid);
+        PostNewtonStep(iteration_number,norm_resid);
 
-        counter++;
-        if (counter==20)
+        iteration_number++;
+        if (iteration_number==20)
         {
             #define COVERAGE_IGNORE
             EXCEPTION("Not converged after 20 newton iterations, quitting");
@@ -1099,11 +1136,14 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
         EXCEPTION("Failed to converge");
         #undef COVERAGE_IGNORE
     }
+
+    // write the final solution
+    WriteCurrentDeformation("solution");
 }
 
 
 template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::WriteOutput(unsigned counter)
+void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::WriteCurrentDeformation(std::string fileName, int counterToAppend)
 {
     // only write output if the flag mWriteOutput has been set
     if (!mWriteOutput)
@@ -1111,11 +1151,15 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::WriteOutput(un
         return;
     }
 
-    OutputFileHandler output_file_handler(mOutputDirectory, (counter==0));
     std::stringstream file_name;
-    file_name << "/solution_" << counter << ".nodes";
+    file_name << fileName;
+    if(counterToAppend >= 0)
+    {
+        file_name << "_" << counterToAppend;
+    }
+    file_name << ".nodes";
 
-    out_stream p_file = output_file_handler.OpenOutputFile(file_name.str());
+    out_stream p_file = mpOutputFileHandler->OpenOutputFile(file_name.str());
 
     std::vector<c_vector<double,DIM> >& r_deformed_position = rGetDeformedPosition();
     for (unsigned i=0; i<r_deformed_position.size(); i++)
@@ -1205,12 +1249,9 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::CreateCmguiOut
                                              WRITE_QUADRATIC_MESH);
 
     std::vector<c_vector<double,DIM> >& r_deformed_positions = rGetDeformedPosition();
-    writer.WriteInitialMesh();
-    for(unsigned i=1; i<=GetNumNewtonIterations(); i++)
-    {
-        writer.WriteDeformationPositions(r_deformed_positions, i);
-    }
-    writer.WriteCmguiScript();
+    writer.WriteInitialMesh(); // this writes solution_0.exnode and .exelem
+    writer.WriteDeformationPositions(r_deformed_positions, 1); // this writes the final solution as solution_1.exnode
+    writer.WriteCmguiScript(); // writes LoadSolutions.com
 }
 
 //

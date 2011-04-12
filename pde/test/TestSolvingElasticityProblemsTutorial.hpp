@@ -42,8 +42,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * In this tutorial we show how Chaste can be used to solve solid mechanics problems.
  * We assume some the reader has some familiarity with solid mechanics problems
  * (note: the equations of nonlinear elasticity are given in Section 4.1 of the PDF on equations
- * and finite element implementations in ChasteGuides -> Miscellaneous information). In brief,
- * there several facets to such models:
+ * and finite element implementations in ChasteGuides -> Miscellaneous information). It is also best
+ * to have read the `SolvingLinearPdes` tutorial.
+ *
+ * EMPTYLINE
+ *
+ * In brief, there several facets to solid mechanics models:
  *  * Time-dependent problems versus static problems
  *  * Linear elasticity versus nonlinear elasticity
  *  * Compressible versus incompressible materials
@@ -214,10 +218,9 @@ public:
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u);
 
         /* '''Visualisation'''. Go to the folder `SimpleIncompressibleElasticityTutorial` in your test-output directory.
-         * There should be 5 files, named solution_[i].nodes, for i=0,1,2,3,4. These are the solutions after each Newton
-         * iteration. solution_0.nodes is therefore the initial condition, and solution_4 is the final solution. Each file
-         * has two columns, the x and y locations of each node. To visualise the solution in say Matlab or Octave, you could do:
-         * `x=load('solution_4.nodes'); plot(x(:,1),x(:,2),'k*')`. For cmgui output, see below.
+         * There should be 2 files, initial.nodes and solution.nodes. These are the original nodal positions and the deformed
+         * positions. Each file has two columns, the x and y locations of each node. To visualise the solution in say
+         * Matlab or Octave, you could do: `x=load('solution.nodes'); plot(x(:,1),x(:,2),'k*')`. For cmgui output, see below.
          *
          * EMPTYLINE
          *
@@ -236,8 +239,9 @@ public:
 
 
         /* The recommended visualisation method is cmgui. This method can be used to convert all the output files to cmgui format.
-         * They are placed in SimpleIncompressibleElasticityTutorial/cmgui. A script is created to easily load the data: in a
-         * terminal cd to this directory and call `cmgui LoadSolutions.com`.
+         * They are placed in `SimpleIncompressibleElasticityTutorial/cmgui`. A script is created to easily load the data: in a
+         * terminal cd to this directory and call `cmgui LoadSolutions.com`. (In this directory, the initial position is given by
+         * solution_0.exnode, the deformed by solution_1.exnode).
          */
         solver.CreateCmguiOutput();
     }
@@ -316,7 +320,7 @@ public:
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 3 rather than 4 this time
 
         /* Visualise as before by going to `IncompressibleElasticityWithTractionsTutorial` and doing
-         * `x=load('solution_3.nodes'); plot(x(:,1),x(:,2),'m*')`. The effect of the traction should be
+         * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')`. The effect of the traction should be
          * clear (especially when compared to the results of the first test).
          *
          * EMPTYLINE
@@ -414,7 +418,7 @@ public:
 
         /* Another quick check */
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 6u);
-        /* Visualise with `x=load('solution_6.nodes'); plot(x(:,1),x(:,2),'b*')`
+        /* Visualise with `x=load('solution.nodes'); plot(x(:,1),x(:,2),'b*')`
          *
          * EMPTYLINE
          *

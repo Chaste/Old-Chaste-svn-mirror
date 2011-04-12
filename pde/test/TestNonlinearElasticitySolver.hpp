@@ -611,6 +611,9 @@ public:
         // in and MyBodyForce() and MyTraction()
         solver.SetCurrentTime(1.0);
 
+        // cover the option of writing output for each iteration
+        solver.SetWriteOutputEachNewtonIteration();
+
         solver.Solve();
 
         // matrix might have (small) errors introduced if this fails
@@ -618,15 +621,6 @@ public:
 
         // check CreateCmguiOutput() - call and check output files were written.
         solver.CreateCmguiOutput();
-
-        std::string command
-                = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exelem > /dev/null";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exnode > /dev/null";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_3.exnode > /dev/null";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-
 
         std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
 
@@ -650,7 +644,26 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
 
-		solver.rGetCurrentSolution().clear();
+
+        // Check output files were created: the standard output files initial.nodes and solution.nodes, the extra newton iteration
+        // output files created as SetWriteOutputEachNewtonIteration() was called above, and the cmgui files created as
+        // CreateCmguiOutput() was called above.
+        std::string command
+                = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/initial.nodes > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/solution.nodes > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/newton_iteration_3.nodes > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exelem > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exnode > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_1.exnode > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+
+        solver.rGetCurrentSolution().clear();
 		solver.rGetCurrentSolution().resize(solver.mNumDofs, 0.0);
         solver.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(solver.Solve(), "KSP Absolute tolerance was too high");
