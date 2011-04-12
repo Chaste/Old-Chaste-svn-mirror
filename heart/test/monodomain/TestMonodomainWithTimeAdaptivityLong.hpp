@@ -138,7 +138,7 @@ public:
             //std::cout << l_inf_norm << "\n";
             if(timestep < 25)
             {
-                TS_ASSERT_DELTA(l_inf_norm, 0.0, 1e-12); // first 25 ms, there no be no difference
+                TS_ASSERT_DELTA(l_inf_norm, 0.0, 1e-12); // first 25 ms, there should be no difference
             }
             else
             {
