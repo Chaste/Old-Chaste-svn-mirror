@@ -367,7 +367,22 @@ class ModelModifier(object):
         var = cellml_variable.create_new(comp, vname, units.name, **kwargs)
         comp._add_variable(var)
         return var
-    
+        
+    def _get_units_object(self, units):
+        """Helper function to convert a units specification into a cellml_units object.
+        
+        The input can be a cellml_units object, in which case we just return it.
+        However, it can also be a serialised CellML units definition, in which case it
+        will be parsed to create the object.
+        """
+        if isinstance(units, cellml_units):
+            # We're done
+            pass
+        else:
+            units = amara_parse_cellml(unicode(units))
+        assert isinstance(units, cellml_units)
+        return units
+
     def add_units(self, units):
         """Add a units definition to the model, if it doesn't already exist.
         
@@ -700,21 +715,6 @@ class InterfaceGenerator(ModelModifier):
             self.model.interface_component_name = unicode(self._interface_component_name)
             assert not self._interface_component.ignore_component_name
         return self._interface_component
-    
-    def _get_units_object(self, units):
-        """Helper function to convert a units specification into a cellml_units object.
-        
-        The input can be a cellml_units object, in which case we just return it.
-        However, it can also be a serialised CellML units definition, in which case it
-        will be parsed to create the object.
-        """
-        if isinstance(units, cellml_units):
-            # We're done
-            pass
-        else:
-            units = amara_parse_cellml(unicode(units))
-        assert isinstance(units, cellml_units)
-        return units
 
 
 class UnitsConverter(ModelModifier):

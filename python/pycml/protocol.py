@@ -78,8 +78,8 @@ class Protocol(processors.ModelModifier):
         """
         self._protocol_component = None
         self.model = model
-        self.inputs = []
-        self.outputs = []
+        self.inputs = set()
+        self.outputs = set()
         if not multi_stage:
             raise NotImplementedError
 
@@ -108,7 +108,7 @@ class Protocol(processors.ModelModifier):
         # Add units before variables before maths so the order of inputs doesn't matter so much.
         for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
             #self._check_input(input)
-            self._add_units_to_model(input)
+            self.add_units(input)
         for input in filter(lambda i: isinstance(i, cellml_variable), self.inputs):
             self._check_input(input)
             self._add_variable_to_model(input)
@@ -118,14 +118,67 @@ class Protocol(processors.ModelModifier):
         self._fix_model_connections()
         self.finalize(self._error_handler, self._add_units_conversions)
         self._filter_assignments()
+    
+    def specify_as_output(self, var, units):
+        """Specify the given variable within the model as a protocol output.
+        
+        The output is wanted in the given units, which must be added to the model if they don't exist.
+        If they differ from its current units, a conversion will be needed, and hence a new version
+        of this variable will be added to the protocol component, with a suitable connection.
+        Otherwise, we can just record the existing variable as an output.
+        """
+        units = self._get_units_object(units)
+        if units.equals(var.get_units()):
+            output_var = var
+        else:
+            units = self.add_units(units)
+            output_var = cellml_variable.create_new(var, var.name, units.name, id=var.cmeta_id)
+            self.del_attr(var, u'id', NSS['cmeta'])
+            self._get_protocol_component()._add_variable(output_var)
+            self.connect_variables(var, output_var)
+            self.inputs.add(output_var)
+        self.outputs.add(output_var)
+    
+    def specify_as_input(self, var, units):
+        """Specify the given variable within the model as a protocol input.
+        
+        The input is wanted in the given units, which must be added to the model if they don't exist.
+        If they differ from its current units, a conversion will be needed, and hence a new version
+        of this variable will be added to the protocol component, with a suitable assignment.
+        TODO: does not units-convert the initial value.
+        
+        The variable that is the input must be set as a modifiable parameter, and any existing definition
+        removed.
+        """
+        if var.get_type() == VarTypes.Mapped:
+            raise ProtocolError("Cannot specify a mapped variable (%s) as an input." % var.fullname())
+        # Remove any existing definition
+        self.remove_definition(var, keep_initial_value=True)
+        # Set up the input
+        units = self._get_units_object(units)
+        if units.equals(var.get_units()):
+            input_var = var
+            if not hasattr(var, u'initial_value'):
+                var.initial_value = u'0'
+        else:
+            units = self.add_units(units)
+            input_var = cellml_variable.create_new(var, var.name, units.name, id=var.cmeta_id,
+                                                   initial_value=getattr(var, u'initial_value', u'0'))
+            self.del_attr(var, u'id', NSS['cmeta'])
+            input_defn = mathml_apply.create_new(var, u'eq', [u'protocol,' + var.name,
+                                                               var.component.name + u',' + var.name])
+            self.inputs.update([input_defn])
+        input_var._set_type(VarTypes.Constant)
+        input_var._cml_ok_as_input = True
+        self.inputs.add(input_var)
         
     def _check_input(self, input):
-        """Inputs must not already exist in the model!"""
+        """New inputs must not already exist in the model!"""
         if isinstance(input, cellml_units):
             exists = self.model.has_units(input)
         else:
             exists = self.model is getattr(input, 'xml_parent', None)
-        if exists:
+        if exists and not getattr(input, '_cml_ok_as_input', False):
             msg = "Inputs must not already exist in the model."
             msg += " (Input %s exists.)" % repr(input)
             raise ProtocolError(msg)
@@ -217,14 +270,6 @@ class Protocol(processors.ModelModifier):
         converter.add_conversions_for_component(proto_comp)
         converter.finalize(self._error_handler, check_units=False)
 
-    def _add_units_to_model(self, units):
-        """Add a units definition to the model.
-        
-        For now, we just add to the model element without checking (TODO).
-        """
-        self.model.xml_append(units)
-        self.model.add_units(units.name, units)
-        
     def _add_variable_to_model(self, var):
         """Add or replace a variable in our model.
         
@@ -239,6 +284,9 @@ class Protocol(processors.ModelModifier):
         definitions if replacing a variable, otherwise self._fix_model_connections
         could get confused.
         """
+        if hasattr(var, 'xml_parent'):
+            # It's already been added, e.g. by specify_as_input
+            return
         cname, vname = self._split_name(var.name)
         comp = self.model.get_component_by_name(cname)
         try:

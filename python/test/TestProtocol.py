@@ -67,7 +67,7 @@ class TestProtocol(unittest.TestCase):
         return self.NewApply(u'eq', [lhs, rhs])
     
     def NewUnits(self, name, bases):
-        return pycml.cellml_units.create_new(self._doc, name, bases)
+        return pycml.cellml_units.create_new(self._doc.model, name, bases)
     
     def NewOde(self, var, bvar, rhs):
         return pycml.mathml_diff.create_new(self._doc, bvar, var, rhs)
@@ -97,7 +97,7 @@ class TestProtocol(unittest.TestCase):
         new_V = self.NewVariable(u'membrane,V', u'millivolt',
                                  initial_value=v_init,
                                  interfaces={u'public': u'out'})
-        p.inputs.append(new_V)
+        p.inputs.add(new_V)
         # Check we are actually changing things
         V = doc.model.get_variable_by_name('membrane', 'V')
         self.failIfEqual(V.initial_value, v_init)
@@ -135,7 +135,7 @@ class TestProtocol(unittest.TestCase):
         T = m.get_variable_by_name(u'time_dependent_potassium_current', u'T')
         T_const = self.NewAssign(u'time_dependent_potassium_current,T',
                                  (unicode(T.get_value()), T.units))
-        p.inputs.append(T_const)
+        p.inputs.add(T_const)
         self.assertRaises(processors.ModelModificationError, p.modify_model)
         # Same should apply if we replace by an ODE
         T_ode = self.NewOde(u'time_dependent_potassium_current,T',
@@ -167,20 +167,20 @@ class TestProtocol(unittest.TestCase):
         ode = Cai.get_ode_dependency(time)
         Cai_const = self.NewAssign(u'intracellular_calcium_concentration,Cai',
                                    (u'0.0002', u'millimolar'))
-        p.inputs.append(Cai_const)
+        p.inputs.add(Cai_const)
         self.failUnlessEqual(Cai.get_type(), pycml.VarTypes.State)
         # Change computed defintion for g_K (computed->computed)
         g_K = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'g_K')
         g_K_const = self.NewAssign(u'time_dependent_potassium_current,g_K',
                                    (u'0.282', u'milliS_per_cm2'))
-        p.inputs.append(g_K_const)
+        p.inputs.add(g_K_const)
         old_g_K = g_K.get_dependencies()[0]
         self.failUnlessEqual(g_K.get_type(), pycml.VarTypes.Computed)
         # Change PR_NaK from constant->computed (with same value)
         PR_NaK = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'PR_NaK')
         PR_NaK_const = self.NewAssign(u'time_dependent_potassium_current,PR_NaK',
                                       (PR_NaK.initial_value, PR_NaK.units))
-        p.inputs.append(PR_NaK_const)
+        p.inputs.add(PR_NaK_const)
         self.failUnlessEqual(PR_NaK.get_type(), pycml.VarTypes.Constant)
         # Apply protocol to model
         p.modify_model()
@@ -215,16 +215,16 @@ class TestProtocol(unittest.TestCase):
         rhs = self.NewApply(u'divide', [currents, u'membrane,C'])
         V_new = self.NewOde(u'membrane,V', u'environment,time', rhs)
         V_new_str = str(V_new)
-        p.inputs.append(V_new)
+        p.inputs.add(V_new)
         # constant->state: membrane,T
         T = doc.model.get_variable_by_name(u'membrane', u'T')
         self.assertEqual(T.get_type(), pycml.VarTypes.Constant)
         self.assertEqual(T.get_dependencies(), [])
         T_new = self.NewOde(u'membrane,T', u'membrane,time', (u'1', u'K_per_ms'))
-        p.inputs.append(T_new)
-        p.inputs.append(self.NewUnits(u'K_per_ms',
-                                      [{'units':'kelvin'},
-                                       {'units':'millisecond', 'exponent':'-1'}]))
+        p.inputs.add(T_new)
+        p.inputs.add(self.NewUnits(u'K_per_ms',
+                                   [{'units':'kelvin'},
+                                    {'units':'millisecond', 'exponent':'-1'}]))
         # computed->state: membrane,FonRT
         FonRT = doc.model.get_variable_by_name(u'membrane', u'FonRT')
         self.assertEqual(FonRT.get_type(), pycml.VarTypes.Computed)
@@ -232,7 +232,7 @@ class TestProtocol(unittest.TestCase):
         FonRT_new = self.NewOde(u'membrane,FonRT', u'membrane,time',
                                 (u'0', u'per_millivolt_millisecond'))
         # TODO: FonRT now has no initial condition; this is a validation warning so OK...
-        p.inputs.append(FonRT_new)
+        p.inputs.add(FonRT_new)
         # Apply protocol to model
         p.modify_model()
         # Check the changes
@@ -258,16 +258,16 @@ class TestProtocol(unittest.TestCase):
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Add a new 'I_total' variable and computation
         I_total = self.NewVariable(u'membrane,I_total', u'microA_per_cm2')
-        p.inputs.append(I_total)
+        p.inputs.add(I_total)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'b'])
         currents.append(u'membrane,I_stim')
         currents.append(u'membrane,potassium_currents')
         rhs = self.NewApply(u'plus', currents)
         defn = self.NewAssign(u'membrane,I_total', rhs)
-        p.inputs.append(defn)
+        p.inputs.add(defn)
         # Add a variable to the protocol component
         one = self.NewVariable(u'one', u'dimensionless', initial_value=u'1')
-        p.inputs.append(one)
+        p.inputs.add(one)
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol')
         # Apply protocol to model
         p.modify_model()
@@ -289,8 +289,7 @@ class TestProtocol(unittest.TestCase):
         p2 = protocol.Protocol(doc.model, multi_stage=True)
         two = self.NewVariable(u'two', u'millisecond')
         two_defn = self.NewAssign(u'two', u'membrane,time')
-        p2.inputs.append(two)
-        p2.inputs.append(two_defn)
+        p2.inputs.update([two, two_defn])
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol_')
         p2.modify_model()
         self.assertEqual(two, doc.model.get_variable_by_name(u'protocol_', u'two'))
@@ -307,21 +306,21 @@ class TestProtocol(unittest.TestCase):
         p = self.CreateLr91Test()
         # Add a new variable in an encapsulated component
         src = self.NewVariable(u'time_dependent_potassium_current_Xi_gate,new_src', u'dimensionless')
-        p.inputs.append(src)
+        p.inputs.add(src)
         # Add mathematics using it in another encapsulated component
         targ1 = self.NewVariable(u'time_independent_potassium_current_K1_gate,target1', u'dimensionless')
         use1 = self.NewAssign(targ1.name, u'time_dependent_potassium_current_Xi_gate,new_src')
-        p.inputs.extend([targ1, use1])
+        p.inputs.update([targ1, use1])
         # Add mathematics using it in a top-level component
         targ2 = self.NewVariable(u'target2', u'dimensionless')
         use2 = self.NewAssign(targ2.name, u'time_dependent_potassium_current_Xi_gate,new_src')
-        p.inputs.extend([use2, targ2])
+        p.inputs.update([use2, targ2])
         # Add 2 new mapped variables with chained dependency
         stim1 = self.NewVariable(u'ionic_concentrations,stim1', u'microA_per_cm2')
         stim2 = self.NewVariable(u'intracellular_calcium_concentration,stim2', u'microA_per_cm2')
-        p.inputs.extend([stim1, stim2])
-        p.inputs.append(self.NewAssign(stim1.name, u'membrane,I_stim'))
-        p.inputs.append(self.NewAssign(stim2.name, stim1.name))
+        p.inputs.update([stim1, stim2])
+        p.inputs.add(self.NewAssign(stim1.name, u'membrane,I_stim'))
+        p.inputs.add(self.NewAssign(stim2.name, stim1.name))
         # Apply protocol and test
         p.modify_model()
         model = self._doc.model
@@ -398,7 +397,7 @@ class TestProtocol(unittest.TestCase):
         # Fix V so we don't include dV/dt in the dependencies
         V = self._doc.model.get_variable_by_oxmeta_name('membrane_voltage')
         V_const = self.NewAssign(u'membrane,V', (u'-84.0', u'millivolt'))
-        p.inputs.append(V_const)
+        p.inputs.add(V_const)
         # Outputs of interest
         c_icc = 'intracellular_calcium_concentration'
         c_tdpc = 'time_dependent_potassium_current'

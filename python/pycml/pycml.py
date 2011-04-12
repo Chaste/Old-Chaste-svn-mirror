@@ -474,7 +474,6 @@ class cellml_model(element_base):
 
     def _del_variable(self, varname, compname):
         """Remove a variable from the model."""
-        
         del self._cml_variables[(compname, varname)]
 
     def _add_component(self, comp, special=False):
@@ -1545,6 +1544,8 @@ class cellml_variable(Colourable, element_base):
         Hash is based on hashing the full name of the variable, as
         this must be unique within a model.  Unfortunately, when we do
         partial evaluation, the full name changes!
+        
+        TODO: do we need a hash function?
         """
         return hash(self.fullname(cellml=True))
 
@@ -1562,10 +1563,12 @@ class cellml_variable(Colourable, element_base):
         """
         if hasattr(self, 'xml_parent'):
             parent_name = self.xml_parent.name
+            ignore_component = self.component.ignore_component_name
         else:
             parent_name = '*orphan*'
+            ignore_component = True
         if cellml:
-            if self.component.ignore_component_name:
+            if ignore_component:
                 vn = self.name
             else:
                 vn = parent_name + u'__' + self.name
@@ -3716,6 +3719,20 @@ class mathml(element_base):
             for child in expr.xml_children:
                 res.update(self.vars_in(child))
         return res
+    
+    def same_tree(self, other, this=None):
+        """Check whether this element represents the same tree as a given element."""
+        if this is None: this = self
+        equal = (this.localName == other.localName
+                 and len(getattr(this, 'xml_children', [])) == len(getattr(other, 'xml_children', [])))
+        if equal and this.localName in [u'cn', u'ci']:
+            equal = unicode(this) == unicode(other)
+        if equal and hasattr(this, 'xml_children'):
+            for tc, oc in zip(self.xml_element_children(this), self.xml_element_children(other)):
+                if not self.same_tree(oc, tc):
+                    equal = False
+                    break
+        return equal
 
     def _xfer_complexity(self, new_elt):
         """Transfer our complexity to the new element.
