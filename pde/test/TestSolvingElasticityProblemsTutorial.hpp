@@ -330,27 +330,28 @@ public:
         mesh.ConstructRegularSlabMesh(0.1 /*stepsize*/, 1.0 /*width*/, 1.0 /*height*/);
 
         /* Use a different material law this time, an exponential material law.
-         * The material law needs to inherit from AbstractIncompressibleMaterialLaw,
-         * and there are a few implemented, see pde/src/problem */
+         * The material law needs to inherit from `AbstractIncompressibleMaterialLaw`,
+         * and there are a few implemented, see `pde/src/problem` */
         ExponentialMaterialLaw<2> law(1.0, 0.5); // First parameter is 'a', second 'b', in W=a*exp(b(I1-3))
         /* Note that it is possible to specify different material laws for each element in the mesh (for example
          * for using different stiffnesses in different regions. Just create a `std::vector<AbstractIncompressibleMaterial<DIM>*>`
          * and fill it in with the material law for each element, and pass as the first argument of the solver.
-         */
-
-        /* Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
+         *
+         * EMPTYLINE
+         *
+         * Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
         /* Loop over the mesh nodes */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
 
-            /* If the nodes is on the Y=0 surface (the LHS) */
+            /* If the node is on the Y=0 surface (the LHS) */
             if ( fabs(mesh.GetNode(i)->rGetLocation()[1])<1e-6)
             {
                 /* Add it to the list of fixed nodes */
                 fixed_nodes.push_back(i);
-                /* and define a new position x=(X,0.1*X^2) */
+                /* and define a new position x=(X,0.1*X^2^) */
                 c_vector<double,2> new_location;
                 double X = mesh.GetNode(i)->rGetLocation()[0];
                 new_location(0) = X;
@@ -385,23 +386,26 @@ public:
                                             fixed_nodes,
                                             &locations);
 
-        /* Now pass in the boundary elements, together with a ''function pointer'' (just the name of the function) to a
-         * function traction should be as a function of position (and time [see below]). This function is defined
+        /* Now call `SetFunctionalTractionBoundaryCondition`, passing in the boundary elements,
+         * together with a ''function pointer'' (just the name of the function) to a
+         * function returning traction in terms of position (and time [see below]). This function is defined
          * above, before the tests. It has take in a `c_vector` (position) and a double (time), and return a
          * `c_vector` (traction), and will only be called using the quadrature points in the boundary elements being
          * passed in. The function `MyTraction` above defines a horizontal traction (ie a shear stress, since it is
          * applied to the top surface) which increases in magnitude across the object.
          */
         solver.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
-        /* Note: You can also call `solver.SetFunctionalBodyForce(MyBodyForce);`, though is only
-         * really useful for constructing problems with exact solutions. */
-
-        /* Call `Solve()` */
+        /* Note: You can also call `solver.SetFunctionalBodyForce(MyBodyForce)`, though is only
+         * really useful for constructing problems with exact solutions.
+         *
+         * EMPTYLINE
+         *
+         * Call `Solve()` */
         solver.Solve();
 
         /* Another quick check */
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 6u);
-        /* Visualise with `x=load('solution_3.nodes'); plot(x(:,1),x(:,2),'b*')`
+        /* Visualise with `x=load('solution_6.nodes'); plot(x(:,1),x(:,2),'b*')`
          *
          * EMPTYLINE
          *
@@ -416,14 +420,42 @@ public:
          //    solver.Solve();
          //}
          /* In this the current time would be passed through to `MyTraction`.*/
-
     }
 
-
-    // node about compressible elasticity
-
-    // HYPRE exercise: 3d
-
+    /* == IMPORTANT: Using HYPRE ==
+     *
+     * When running problems in 3D, or with more elements, it is vital to change the linear solver to use HYPRE, an algebraic multigrid
+     * solver. Without HYRPE, the linear solve (i) may become very very slow; or (ii) may not converge, in which case the nonlinear
+     * solve will (probably) not converge. HYPRE is currently not a pre-requisite for installing Chaste, hence this is not (currently)
+     * the default linear solver for mechanics problems. You need to have Petsc installed with HYPRE. However, if you followed installation
+     * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
+     *
+     * EMPTYLINE
+     *
+     * To switch on HYPRE, open the file `pde/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
+     * #define MECH_USE_HYPRE
+     * near the top of the file (currently: line 53).
+     *
+     * EMPTYLINE
+     *
+     * Mechanics solves being nonlinear are ''expensive'', so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
+     * on larger problems.
+     *
+     * EMPTYLINE
+     *
+     * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
+     *
+     * EMPTYLINE
+     *
+     * == Compressible Problems ==
+     *
+     * EMPTYLINE
+     *
+     * To solve compressible elasticity problems, all that needs to be changed is to use `CompressibleNonlinearElasticitySolver` instead
+     * of `NonlinearElasticitySolver` (making sure we include it), and noting that there is no pressure computed. See
+     * `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being implemented properly, tutorials
+     * to be added later.
+     */
 };
 
 
