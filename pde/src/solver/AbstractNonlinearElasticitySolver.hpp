@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FourthOrderTensor.hpp"
 #include "QuadraticMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "CmguiDeformedSolutionsWriter.hpp"
 
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
@@ -426,6 +427,8 @@ public:
         mCurrentTime = time;
     }
 
+    /** Convert the output to Cmgui format (placed in a folder called cmgui in the output directory) */
+    void CreateCmguiOutput();
 };
 
 
@@ -1188,6 +1191,27 @@ std::vector<c_vector<double,DIM> >& AbstractNonlinearElasticitySolver<COMPRESSIB
 }
 
 
+template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
+void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::CreateCmguiOutput()
+{
+    if(mOutputDirectory=="")
+    {
+        EXCEPTION("No output directory was given so no output was written, cannot convert to cmgui format");
+    }
+
+    CmguiDeformedSolutionsWriter<DIM> writer(mOutputDirectory + "/cmgui",
+                                             "solution",
+                                             *mpQuadMesh,
+                                             WRITE_QUADRATIC_MESH);
+
+    std::vector<c_vector<double,DIM> >& r_deformed_positions = rGetDeformedPosition();
+    writer.WriteInitialMesh();
+    for(unsigned i=1; i<=GetNumNewtonIterations(); i++)
+    {
+        writer.WriteDeformationPositions(r_deformed_positions, i);
+    }
+    writer.WriteCmguiScript();
+}
 
 //
 // Constant setting definitions

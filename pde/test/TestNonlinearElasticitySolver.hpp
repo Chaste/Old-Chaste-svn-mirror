@@ -323,6 +323,8 @@ public:
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 0u);
 
+        TS_ASSERT_THROWS_CONTAINS(solver.CreateCmguiOutput(), "No output directory was given");
+
         // get deformed position
         std::vector<c_vector<double,2> >& r_deformed_position
             = solver.rGetDeformedPosition();
@@ -610,10 +612,21 @@ public:
         solver.SetCurrentTime(1.0);
 
         solver.Solve();
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
 
         // matrix might have (small) errors introduced if this fails
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u);
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
+
+        // check CreateCmguiOutput() - call and check output files were written.
+        solver.CreateCmguiOutput();
+
+        std::string command
+                = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exelem > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_0.exnode > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_3.exnode > /dev/null";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
 
         std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
 
@@ -641,6 +654,8 @@ public:
 		solver.rGetCurrentSolution().resize(solver.mNumDofs, 0.0);
         solver.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(solver.Solve(), "KSP Absolute tolerance was too high");
+
+
     }
 };
 

@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * Linear elasticity versus nonlinear elasticity
  *  * Compressible versus incompressible materials
  *  * The type of material behaviour (elastic, visco-elastic, etc..)
- *  * Specification of geometry, material law, body force, displacement boundary conditions, traction boundary conditions
+ *  * Specification of geometry, material law, body force, displacement boundary conditions, and traction boundary conditions
  *
  * EMPTYLINE
  *
@@ -64,7 +64,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * Choose the solver (compressible or incompressible)
  *  * Specify the geometry (ie the mesh)
  *  * Specify the material law (ie the strain-energy function)
- *  * Specify the BODY FORCE -- this is a force (per unit volume) acting throughout the body (ie, gravity)
+ *  * Specify the BODY FORCE -- this is a force density acting throughout the body (ie, acceleration due to gravity)
  *  * Specify some DISPLACEMENT BOUNDARY CONDITIONS -- some part of the boundary must have the displacement specified on it
  *  * Specify TRACTION BOUNDARY CONDITIONS (if non-zero) on the rest of the boundary -- tractions are pressures applied
  *  the rest of the surface of the deformable object.
@@ -96,6 +96,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* As before: !PetscSetupAndFinalize.hpp must be included in every test that uses PETSc. Note that it
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"
+
+
+
+
+
+
+
+///// TEMP
+#include "CmguiDeformedSolutionsWriter.hpp"
+
+
+
+
+
 
 
 /* Ignore this function until later in the tutorial */
@@ -150,7 +164,7 @@ public:
          */
         MooneyRivlinMaterialLaw<2> law(1.0);
 
-        /* Next, the body force (per unit volume). In realistic problems this will either be
+        /* Next, the body force density. In realistic problems this will either be
          * acceleration due to gravity (ie b=(0,-9.81)) or zero if the effect of gravity can be neglected.
          * In this problem we apply a gravity-like downward force.
          */
@@ -203,7 +217,7 @@ public:
          * There should be 5 files, named solution_[i].nodes, for i=0,1,2,3,4. These are the solutions after each Newton
          * iteration. solution_0.nodes is therefore the initial condition, and solution_4 is the final solution. Each file
          * has two columns, the x and y locations of each node. To visualise the solution in say Matlab or Octave, you could do:
-         * `x=load('solution_4.nodes'); plot(x(:,1),x(:,2),'k*')`.
+         * `x=load('solution_4.nodes'); plot(x(:,1),x(:,2),'k*')`. For cmgui output, see below.
          *
          * EMPTYLINE
          *
@@ -221,21 +235,11 @@ public:
         std::cout << "Pressure: " << r_pressures[node_index] << "\n";
 
 
-
-//
-////TODO - implement this inside solver and add call here
-//        CmguiDeformedSolutionsWriter<2> writer("SimpleIncompressibleElasticityTutorial/cmgui",
-//                                                "solution",
-//                                                mesh,
-//                                                WRITE_QUADRATIC_MESH);
-//
-//        // writes solution_0.exnode and solution_0.exelem using the mesh
-//        writer.WriteInitialMesh();
-//        writer.WriteDeformationPositions(r_deformed_positions, 1);
-//        writer.WriteDeformationPositions(r_deformed_positions, 2);
-//        writer.WriteDeformationPositions(r_deformed_positions, 3);
-//        writer.WriteDeformationPositions(r_deformed_positions, 4);
-//        writer.WriteCmguiScript();
+        /* The recommended visualisation method is cmgui. This method can be used to convert all the output files to cmgui format.
+         * They are placed in SimpleIncompressibleElasticityTutorial/cmgui. A script is created to easily load the data: in a
+         * terminal cd to this directory and call `cmgui LoadSolutions.com`.
+         */
+        solver.CreateCmguiOutput();
     }
 
     /*
@@ -314,7 +318,12 @@ public:
         /* Visualise as before by going to `IncompressibleElasticityWithTractionsTutorial` and doing
          * `x=load('solution_3.nodes'); plot(x(:,1),x(:,2),'m*')`. The effect of the traction should be
          * clear (especially when compared to the results of the first test).
+         *
+         * EMPTYLINE
+         *
+         * Create cmgui output
          */
+        solver.CreateCmguiOutput();
     }
 
     /* == Incompressible deformation: non-zero displacement boundary conditions, functional tractions ==
@@ -414,20 +423,31 @@ public:
          * sequence of static problems with time-dependent tractions (say), for which they should allow `MyTraction` to
          * depend on time, and put the solve inside a time-loop, for example:
          */
-         //for(double t=0; t<T; t+=dt)
-         //{
-         //    solver.SetCurrentTime(t);
-         //    solver.Solve();
-         //}
-         /* In this the current time would be passed through to `MyTraction`.*/
+        //for(double t=0; t<T; t+=dt)
+        //{
+        //    solver.SetCurrentTime(t);
+        //    solver.Solve();
+        //}
+        /* In this the current time would be passed through to `MyTraction`
+         *
+         * EMPTYLINE
+         *
+         * Create cmgui output
+         */
+        solver.CreateCmguiOutput();
     }
-
+};
     /* == IMPORTANT: Using HYPRE ==
      *
      * When running problems in 3D, or with more elements, it is vital to change the linear solver to use HYPRE, an algebraic multigrid
      * solver. Without HYRPE, the linear solve (i) may become very very slow; or (ii) may not converge, in which case the nonlinear
-     * solve will (probably) not converge. HYPRE is currently not a pre-requisite for installing Chaste, hence this is not (currently)
-     * the default linear solver for mechanics problems. You need to have Petsc installed with HYPRE. However, if you followed installation
+     * solve will (probably) not converge. HYPRE is (currently) not a pre-requisite for installing Chaste, hence this is not (currently)
+     * the default linear solver for mechanics problems, although this will change in the future. HYPRE should be considered
+     * a pre-requisite for large mechanics problems.
+     *
+     * EMPTYLINE
+     *
+     * To use HYRPE in mechanics solves, you need to have Petsc installed with HYPRE. However, if you followed installation
      * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
      *
      * EMPTYLINE
@@ -438,7 +458,7 @@ public:
      *
      * EMPTYLINE
      *
-     * Mechanics solves being nonlinear are ''expensive'', so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
+     * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
      * on larger problems.
      *
      * EMPTYLINE
@@ -452,11 +472,11 @@ public:
      * EMPTYLINE
      *
      * To solve compressible elasticity problems, all that needs to be changed is to use `CompressibleNonlinearElasticitySolver` instead
-     * of `NonlinearElasticitySolver` (making sure we include it), and noting that there is no pressure computed. See
+     * of `NonlinearElasticitySolver` (making sure we include it), changing the type of material law used, and noting that there is no pressure computed. See
      * `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being implemented properly, tutorials
      * to be added later.
      */
-};
+
 
 
 
