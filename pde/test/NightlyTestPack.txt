@@ -1,5 +1,6 @@
 TestNonlinearElasticitySolverLong.hpp
 TestSimpleLinearParabolicSolverLong.hpp
 TestSolvingCoupledNonlinearPdes.hpp
+TestSolvingElasticityProblemsTutorial.hpp
 TestSolvingLinearPdesTutorial.hpp
 TestSolvingNonlinearPdesTutorial.hpp
