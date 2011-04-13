@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //// These should be commented in a commit at the moment!
 //#define MECH_USE_MUMPS  // requires Petsc to be installed with MUMPS
-//#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
+#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
 
 
 
@@ -321,7 +321,7 @@ public:
      * Constructor.
      *
      * @param pQuadMesh  the quadratic mesh
-     * @param bodyForce  Body force
+     * @param bodyForce  Body force density (for example, acceleration due to gravity)
      * @param density    density
      * @param outputDirectory output directory
      * @param fixedNodes std::vector of nodes which have a dirichlet boundary condition imposed on them
@@ -341,8 +341,7 @@ public:
     /**
      * Solve the problem.
      *
-     * @param tol (defaults to -1.0)
-     * @param offset (defaults to 0)
+     * @param tol tolerance used in Newton solve (defaults to -1.0)
      * @param maxNumNewtonIterations (defaults to INT_MAX)
      * @param quitIfNoConvergence (defaults to true)
      */

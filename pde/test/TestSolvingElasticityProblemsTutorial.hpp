@@ -101,21 +101,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"
 
-
-
-
-
-
-
-///// TEMP
-#include "CmguiDeformedSolutionsWriter.hpp"
-
-
-
-
-
-
-
 /* Ignore this function until later in the tutorial */
 c_vector<double,2> MyTraction(c_vector<double,2>& X, double time)
 {
@@ -123,8 +108,6 @@ c_vector<double,2> MyTraction(c_vector<double,2>& X, double time)
     traction(0) = X(0);
     return traction;
 }
-
-
 
 /*
  *
