@@ -137,8 +137,8 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
             double previous_edge_adhesion_parameter;
             double next_edge_adhesion_parameter;
 
-			previous_edge_adhesion_parameter = GetAdhesionParameter(p_previous_node, p_current_node);
-			next_edge_adhesion_parameter = GetAdhesionParameter(p_current_node, p_next_node);
+			previous_edge_adhesion_parameter = GetAdhesionParameter(p_previous_node, p_current_node, *p_cell_population);
+			next_edge_adhesion_parameter = GetAdhesionParameter(p_current_node, p_next_node, *p_cell_population);
 
             // Compute the gradient of the edge of the cell ending in this node
             c_vector<double, DIM> previous_edge_gradient = p_cell_population->rGetMesh().GetPreviousEdgeGradientOfElementAtNode(p_element, local_index);
@@ -161,7 +161,7 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
 }
 
 template<unsigned DIM>
-double NagaiHondaForce<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB)
+double NagaiHondaForce<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB, VertexBasedCellPopulation<DIM>& rVertexCellPopulation)
 {
     // Find the indices of the elements owned by each node
     std::set<unsigned> elements_containing_nodeA = pNodeA->rGetContainingElementIndices();

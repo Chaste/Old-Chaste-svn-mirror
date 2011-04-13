@@ -120,10 +120,11 @@ public:
      *
      * @param pNodeA one node
      * @param pNodeB the other node
+     * @param rVertexCellPopulation reference to the cell population
      *
      * @return the adhesion parameter for this edge.
      */
-    double GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB);
+    virtual double GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* pNodeB, VertexBasedCellPopulation<DIM>& rVertexCellPopulation);
 
     /**
      * @return mNagaiHondaDeformationEnergyParameter
