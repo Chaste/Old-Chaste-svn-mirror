@@ -150,8 +150,8 @@ public:
     
             ls.SetMatrixIsSymmetric();
             // Solve to relative convergence for coverage
-            ls.SetRelativeTolerance(1e-9);
-            ls.SetPcType("bjacobi");
+            ls.SetRelativeTolerance(1e-6);
+            ls.SetPcType("jacobi");
             ls.SetKspType("chebychev");
             ls.SetUseFixedNumberIterations(true, 64);
     
@@ -159,9 +159,9 @@ public:
             Vec solution = ls.Solve(zero_guess);
             unsigned chebyshev_adaptive_its = ls.GetNumIterations();
 
-            TS_ASSERT_EQUALS(chebyshev_adaptive_its, 6u);
-            TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
-            TS_ASSERT_DELTA(ls.mEigMax, 1.0354, 1e-4);            
+            TS_ASSERT_EQUALS(chebyshev_adaptive_its, 40u);
+            TS_ASSERT_DELTA(ls.mEigMin, 0.0124, 1e-4);
+            TS_ASSERT_DELTA(ls.mEigMax, 1.8810, 1e-4);            
             
             VecDestroy(solution);
         }
@@ -184,16 +184,16 @@ public:
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
     
             ls.SetMatrixIsSymmetric();
-            ls.SetRelativeTolerance(1e-9);
-            ls.SetPcType("bjacobi");
+            ls.SetRelativeTolerance(1e-6);
+            ls.SetPcType("jacobi");
             ls.SetKspType("chebychev");
             
             Vec solution = ls.Solve(zero_guess);
             unsigned chebyshev_no_adaptive_its = ls.GetNumIterations();
 
-            TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 6u);
-            TS_ASSERT_DELTA(ls.mEigMin, 0.9621, 1e-4);
-            TS_ASSERT_DELTA(ls.mEigMax, 1.03557, 1e-5);                       
+            TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 88u);
+            TS_ASSERT_DELTA(ls.mEigMin, 0.0124, 1e-4);
+            TS_ASSERT_DELTA(ls.mEigMax, 1.8841, 1e-4);                       
 
             VecDestroy(solution);            
         }
@@ -204,13 +204,13 @@ public:
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
     
             ls.SetMatrixIsSymmetric();
-            ls.SetRelativeTolerance(1e-9);
-            ls.SetPcType("bjacobi");
+            ls.SetRelativeTolerance(1e-6);
+            ls.SetPcType("jacobi");
             ls.SetKspType("cg");
             Vec solution = ls.Solve(zero_guess);
             unsigned cg_its = ls.GetNumIterations();
 
-            TS_ASSERT_EQUALS(cg_its, 6u);
+            TS_ASSERT_EQUALS(cg_its, 40u);
             TS_ASSERT_EQUALS(ls.mEigMin, DBL_MIN);
             TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);                       
 
