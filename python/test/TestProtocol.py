@@ -481,4 +481,4 @@ class TestProtocol(unittest.TestCase):
         orig_assignments = set(self._doc.model.get_assignments())
         p.modify_model()
         curr_assignments = set(self._doc.model.get_assignments())
-        self.assertEqual(curr_assignments - orig_assignments, set([p.model._cml_Chaste_Cm]))
+        self.assertEqual(curr_assignments - orig_assignments, set())
