@@ -4982,6 +4982,10 @@ def get_options(args, default_options=None):
     if options.do_jacobian_analysis:
         options.translate_type = 'Maple'
         options.maple_output = False # Just in case...!
+    if options.protocol:
+        # Protocols don't always produce normal cardiac cell models
+        options.convert_interfaces = False
+        options.use_chaste_stimulus = False
 
     return options, args[0]
 

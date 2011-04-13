@@ -63,10 +63,11 @@ class Protocol(processors.ModelModifier):
        time, and the generated code wouldn't compile otherwise.
     
     A fully initialised protocol contains the following attributes:
-     * inputs - a list of protocol inputs.  These may be cellml_variable instances,
+     * inputs - an iterable of protocol inputs.  These may be cellml_variable instances,
        to (re)define a variable in the model, or mathml_apply instances, to add or
        modify an equation.  Once modify_model has been called, these objects will
        also exist in the model.
+     * outputs - an iterable of protocol output variables.
     """
     def __init__(self, model, multi_stage=False):
         """Create a new protocol.
@@ -77,6 +78,7 @@ class Protocol(processors.ModelModifier):
         Then call self.modify_model.
         """
         self._protocol_component = None
+        self._units_converter = None
         self.model = model
         self.inputs = set()
         self.outputs = set()
@@ -103,7 +105,6 @@ class Protocol(processors.ModelModifier):
         
         Finally, the protocol outputs will be used to prune the model's assignments
         list so only assignments of interest are used to generate code.
-        TODO: Check interaction of this with PE.
         """
         # Add units before variables before maths so the order of inputs doesn't matter so much.
         for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
@@ -262,13 +263,17 @@ class Protocol(processors.ModelModifier):
     
     def _add_units_conversions(self):
         """Add units conversions, in particular 'special' ones, to the protocol component."""
-        import translators
-        warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
-        converter = processors.UnitsConverter(self.model, warn_only)
+        converter = self.get_units_converter()
         proto_comp = self._get_protocol_component()
-        translators.CellMLToChasteTranslator.add_special_conversions(converter, proto_comp)
         converter.add_conversions_for_component(proto_comp)
         converter.finalize(self._error_handler, check_units=False)
+        
+    def get_units_converter(self):
+        """Get the protocol's units converter object, in order to add 'special' conversions."""
+        if not self._units_converter:
+            warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
+            self._units_converter = processors.UnitsConverter(self.model, warn_only)
+        return self._units_converter
 
     def _add_variable_to_model(self, var):
         """Add or replace a variable in our model.
