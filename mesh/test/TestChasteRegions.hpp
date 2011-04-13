@@ -306,7 +306,6 @@ public:
 
             delete p_cuboid;
             delete p_ellipsoid;
-            p_node_list->Destroy();
             delete p_node_list;
         }
     }

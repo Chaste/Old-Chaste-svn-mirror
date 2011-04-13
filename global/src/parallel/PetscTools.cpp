@@ -251,7 +251,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
         MatSetType(rMat, MATMPIAIJ);
         if(rowPreallocation>0)
         {
-            ///\todo #1216 Fix the 1, 0.7 hack
+            ///\todo #1216 Fix the 0.7 magic number
             MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.7), PETSC_NULL);
         }
     }

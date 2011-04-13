@@ -2408,23 +2408,24 @@ void HeartConfig::SetFibreLength(double x, double inter_node_space)
 
 void HeartConfig::SetMeshFileName(std::string meshPrefix, cp::media_type fibreDefinition)
 {
-    if ( ! mpUserParameters->Simulation().get().Mesh().present())
+    if ( ! mpUserParameters->Simulation()->Mesh().present())
     {
         XSD_CREATE_WITH_FIXED_ATTR(cp::mesh_type, mesh_to_load, "cm");
-        mpUserParameters->Simulation().get().Mesh().set(mesh_to_load);
+        mpUserParameters->Simulation()->Mesh().set(mesh_to_load);
     }
 
     XSD_NESTED_TYPE(cp::mesh_type::LoadMesh) mesh_prefix(meshPrefix, fibreDefinition);
-    mpUserParameters->Simulation().get().Mesh().get().LoadMesh().set(mesh_prefix);
+    mpUserParameters->Simulation()->Mesh()->LoadMesh().set(mesh_prefix);
 }
 
 void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid<3> >& rDefinedRegions,
                                        std::vector<cp::ionic_model_selection_type>& rIonicModels) const
 {
     assert(rDefinedRegions.size() == rIonicModels.size());
-    ///\todo will this break if the user parameters don't include an IonicModels element?
+    // You need to have defined a default model first...
+    assert(mpUserParameters->Simulation()->IonicModels().present());
     XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
-        regions = mpUserParameters->Simulation().get().IonicModels().get().Region();
+        regions = mpUserParameters->Simulation()->IonicModels()->Region();
     regions.clear();
     for (unsigned region_index=0; region_index<rDefinedRegions.size(); region_index++)
     {

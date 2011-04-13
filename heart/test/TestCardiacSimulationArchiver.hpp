@@ -229,7 +229,7 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_3d"); ///\todo it's not LR91
+        HeartConfig::Instance()->SetOutputFilenamePrefix("Bidomain_3d");
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<CellFoxModel2002FromCellMLBackwardEuler, 3> cell_factory(-80000.0, 1.0);
@@ -288,7 +288,7 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d"); ///\todo it's not LR91
+        HeartConfig::Instance()->SetOutputFilenamePrefix("Monodomain_2d");
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<CellFoxModel2002FromCellMLBackwardEuler, 2> cell_factory(-600000.0, 1.0);

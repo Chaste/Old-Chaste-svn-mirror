@@ -155,7 +155,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //MatNullSpace mMatNullSpace; ///\todo archive mMatNullSpace.
+        //MatNullSpace mMatNullSpace; // Gets re-created by calling code on load
 
         archive & mNonZerosUsed;
         archive & mMatrixIsConstant;
@@ -164,7 +164,7 @@ private:
         archive & mKspType;
         archive & mPcType;
 
-        //Vec mDirichletBoundaryConditionsVector; ///\todo archive mDirichletBoundaryConditionsVector.
+        //Vec mDirichletBoundaryConditionsVector; // Gets re-created by calling code on load
     }
 
 public:

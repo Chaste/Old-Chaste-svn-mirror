@@ -338,7 +338,7 @@ public:
     bool GetCreateSheet() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
     bool GetCreateFibre() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
     bool GetLoadMesh() const; /**< @return true if a mesh file name is given and we are expecting to load a mesh from file*/
-    ///\todo IsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go?
+
     /**
      * @param slabDimensions  return vector for the (cuboid) mesh dimensions (cm)
      */
@@ -1105,13 +1105,15 @@ public:
 
     /** Set the parameters of the upstroke time map requested
      *
-     *  @param rUpstrokeTimeMaps  is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke time maps are calculated.
+     * @param rUpstrokeTimeMaps  is the list of thresholds (mV) with respect to which the upstroke time maps are calculated.
+     *     The threshold is used for determining when an action potential occurs.
      */
     void SetUpstrokeTimeMaps (std::vector<double>& rUpstrokeTimeMaps);
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
-     *  @param rMaxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated.
+     *  @param rMaxUpstrokeVelocityMaps is the list of thresholds (mV) with respect to which the upstroke velocity maps are calculated.
+     *     The threshold is used for determining when an action potential occurs.
      */
     void SetMaxUpstrokeVelocityMaps (std::vector<double>& rMaxUpstrokeVelocityMaps);
 

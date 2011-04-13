@@ -160,7 +160,6 @@ class TestStaticPolymorphism : public CxxTest::TestSuite
 public:
     void TestDynamicPolymorphism()
     {
-        ///\todo use EventHandler here?
         SingleClass single_class;
         double start_time = MPI_Wtime();
         single_class.Run();

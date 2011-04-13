@@ -936,9 +936,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         #undef COVERAGE_IGNORE
     }
 
+    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     // Create solution vector
     ///\todo Should it be compulsory for the caller to supply this and manage the memory?
-    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     Vec lhs_vector;
     VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
     if (lhsGuess)

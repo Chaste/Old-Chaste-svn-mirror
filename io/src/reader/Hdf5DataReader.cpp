@@ -283,7 +283,6 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data,
         EXCEPTION(ss.str());
     }
 
-    ///\todo Use DistributedVector?
     int lo, hi, size;
     VecGetSize(data, &size);
     if ((unsigned)size != mVariablesDatasetSizes[1])

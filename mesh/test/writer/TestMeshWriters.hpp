@@ -250,10 +250,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
         
         //Test for connectivity
-        ///\todo #1621 use the mesh reader when it's written
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "/1dMeshIn2dSpace.ncl mesh/test/data/1dMeshIn2dSpace.ncl").c_str()), 0);
-        
-        
     }
 
     void TestTriangles1DMeshIn2DSpaceWithDeletedNode() throw (Exception)
@@ -855,7 +852,6 @@ public:
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
 
         //Test for connectivity
-        ///\todo #1621 use the mesh reader when it's written
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.ncl mesh/test/data/simple_cube_binary.ncl").c_str()), 0);
 
         /* Looking for beginning of provenance line: "#Created by Chaste"

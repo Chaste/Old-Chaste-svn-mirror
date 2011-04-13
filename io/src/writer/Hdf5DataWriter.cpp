@@ -836,8 +836,7 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
 				double local_data[mNumberOwned*NUM_STRIPES];
 				for (unsigned i=0; i<mNumberOwned; i++)
 				{
-					///\todo Use distributed vector functionality here?
-					unsigned local_node_number=mIncompleteNodeIndices[mOffset+i] - mLo;
+					unsigned local_node_number = mIncompleteNodeIndices[mOffset+i] - mLo;
 					local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
 					local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
 				}

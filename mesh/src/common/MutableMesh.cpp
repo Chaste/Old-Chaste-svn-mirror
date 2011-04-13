@@ -763,7 +763,6 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsVoronoi(Element<ELEMENT_DIM, SP
     {
         Node<SPACE_DIM>* p_node = pElement->GetNode(i);
         neighbouring_elements_indices = p_node->rGetContainingElementIndices();
-        ///\todo Should use a set union operation here
         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
              it != neighbouring_elements_indices.end();
              ++it)

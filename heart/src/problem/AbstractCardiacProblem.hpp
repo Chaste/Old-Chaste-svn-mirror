@@ -745,7 +745,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
                 // Load into the temporary container, which will get thrown away shortly
                 p_bcc->LoadFromArchive(archive, mpMesh);
                 /// \todo #1159 sanity check that the contents of p_bcc and mpBoundaryConditionsContainer match.
-                assert( p_bcc == mpBoundaryConditionsContainer );
             }
         }
     }

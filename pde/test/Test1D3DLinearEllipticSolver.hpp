@@ -130,7 +130,6 @@ public:
         TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
-        ///\todo 922 Fix this test
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 3u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 3u);
         // Instantiate PDE object

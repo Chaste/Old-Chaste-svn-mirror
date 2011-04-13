@@ -91,14 +91,9 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
     for (unsigned i=0; i<3; i++)
     {
         double eigen_magnitude = fabs(eigenvalues_real_part(i));
-        if (eigen_magnitude < DBL_EPSILON)
+        if (eigen_magnitude < min_eigenvalue && eigen_magnitude >= DBL_EPSILON)
         {
-            //A zero eigenvalue is ignored
-            ///\todo Only covered by TestPapillaryFibreCalculator, cover in TestUblasCustomFunctions.hpp
-            continue;
-        }
-        if (eigen_magnitude < min_eigenvalue)
-        {
+            // A zero eigenvalue is ignored
             min_eigenvalue = eigen_magnitude;
             index_of_smallest = i;
         }

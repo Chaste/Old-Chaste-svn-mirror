@@ -65,15 +65,24 @@ private:
     /** A vector to store the list of nodes*/
     std::vector< Node<SPACE_DIM>*> mListOfNodes;
 
+    /** Whether we own the Node objects and should free the memory on destruction */
+    bool mOwnNodes;
 
 public:
 
     /**
      * Constructor
      *
-     * @param rNodesList a standard vector of (pointer to) nodes
+     * @param rNodesList  a standard vector of (pointer to) nodes
+     * @param ownNodes  whether we own the Node objects and should free the memory on destruction
      */
-    ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList);
+    ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList,
+                    bool ownNodes=false);
+
+    /**
+     * Clean the memory used by the nodes in this node list
+     */
+    ~ChasteNodesList();
 
     /** @return the list of ndoes in this nodes list */
     const std::vector< Node<SPACE_DIM>*>& rGetNodesList() const;
@@ -90,11 +99,6 @@ public:
      */
     unsigned GetSize() const;
     
-    /**
-     * Clean the memory used by the nodes in this node list
-     */
-    void Destroy();
-
 };
 
 // Declare identifier for the serializer
@@ -162,7 +166,7 @@ inline void load_construct_data(
         delete p_point;//not needed any longer
     }
 
-    ::new(t)ChasteNodesList<SPACE_DIM>(node_list);
+    ::new(t)ChasteNodesList<SPACE_DIM>(node_list, true);
 
 }
 }

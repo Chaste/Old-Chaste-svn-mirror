@@ -29,9 +29,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteNodesList.hpp"
 
 template <unsigned SPACE_DIM>
-ChasteNodesList<SPACE_DIM>::ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList) :
-    mListOfNodes (rNodesList)
+ChasteNodesList<SPACE_DIM>::ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList, bool ownNodes)
+    : mListOfNodes(rNodesList),
+      mOwnNodes(ownNodes)
 {
+}
+
+template <unsigned SPACE_DIM>
+ChasteNodesList<SPACE_DIM>::~ChasteNodesList()
+{
+    if (mOwnNodes)
+    {
+        for (unsigned i=0; i<mListOfNodes.size(); i++)
+        {
+            delete mListOfNodes[i];
+        }
+    }
 }
 
 template <unsigned SPACE_DIM>
@@ -60,16 +73,6 @@ template <unsigned SPACE_DIM>
 unsigned ChasteNodesList<SPACE_DIM>::GetSize() const
 {
     return mListOfNodes.size();
-}
-
-template <unsigned SPACE_DIM>
-void ChasteNodesList<SPACE_DIM>::Destroy()
-{
-    ///\todo In most cases the nodes ought to be shared with the mesh.  This is not the case in archiving
-    for (unsigned i=0; i<mListOfNodes.size(); i++)
-    {
-        delete mListOfNodes[i];
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
