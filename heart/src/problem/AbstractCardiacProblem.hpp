@@ -144,7 +144,7 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo #1317 code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
+            /// \todo #1317 code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods for Mono and BidomainProblem
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 
             Hdf5DataWriter writer(*mpMesh->GetDistributedVectorFactory(), ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution", false);
@@ -745,6 +745,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
                 // Load into the temporary container, which will get thrown away shortly
                 p_bcc->LoadFromArchive(archive, mpMesh);
                 /// \todo #1159 sanity check that the contents of p_bcc and mpBoundaryConditionsContainer match.
+                assert( p_bcc == mpBoundaryConditionsContainer );
             }
         }
     }

@@ -53,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "StimulusBoundaryCondition.hpp"
 
+#include "Warnings.hpp"
 
 typedef enum StimulusType_
 {
@@ -63,7 +64,7 @@ typedef enum StimulusType_
 
 /**
  * RampedQuarterStimulusCellFactory stimulates a quarter of a mesh of width mMeshWidth
- * ie all the cells in 0 < x <= mMeshWidth
+ * ie all the cells in 0 < x <= mMeshWidth/4
  */
 template <class CELL, unsigned DIM>
 class RampedQuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
@@ -415,11 +416,8 @@ public:
             }
             catch (Exception e)
             {
-                #define COVERAGE_IGNORE
-                ///\todo Cover this
-                std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
+                WARNING("This run threw an exception.  Check convergence results\n");
                 std::cout<<e.GetMessage() << std::endl;
-                #undef COVERAGE_IGNORE
             }
 
             std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";

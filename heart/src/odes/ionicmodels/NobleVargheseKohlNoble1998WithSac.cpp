@@ -206,9 +206,7 @@ double CML_noble_varghese_kohl_noble_1998_basic_with_sac::GetIIonic(const std::v
     double f = (mStretch > 1.0) ? (mStretch-1.0)/0.15 : 0.0; // f = 0 if stretch < 1, scales linearly to f=1 at 15% stretch 
     double sac_ionic_current = g_sac * f * (var_membrane__V - E_sac); // if g is uS, this is nA
 
-    /** \todo we need to
-     *  + Ask JonC to amend PyCml if necessary
-     *
+    /*
      * The return value has to be scaled to match the units required by the mono/bidomain equations.
      * The cell model ionic current is in nano Amps, we require micro Amps/cm^2.
      * The estimate of the cell area is obtained by observing that Cm in the cell model and Cm in the bidomain equation are conceptually the same thing.

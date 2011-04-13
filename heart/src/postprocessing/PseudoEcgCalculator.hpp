@@ -98,7 +98,7 @@ public:
      * @param rProbeElectrode The location of the recording electrode
      * @param directory The directory where the simulation results are stored
      * @param hdf5File The file name  where the simulation results are stored
-     * @param variableName  The name of the voltage variable (hardcoded to V - see todo)
+     * @param variableName  The name of the voltage variable (is V by default)
      * @param makeAbsolute whether to make the path of directory absolute (using the OutputFileHandler)
      *
      */

@@ -72,6 +72,18 @@ public:
         TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025);
     }
 
+    void Test1DOdeTimeWarning() throw(Exception)
+    {
+        OdeConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<1>, 1, 1> tester;
+        tester.MeshNum=1;
+        tester.AbsoluteStimulus = -5e8; // The default of -1e7 causes V to go out of range for lookup tables
+        tester.Converge(__FUNCTION__);
+
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
+                           "This run threw an exception.  Check convergence results\n");
+    }
+
     void Test1DPdeTime() throw(Exception)
     {
         PdeConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<1>, 1, 1> tester;
