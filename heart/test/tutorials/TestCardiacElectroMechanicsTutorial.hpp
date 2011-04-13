@@ -51,10 +51,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * the electro-physiological tutorials before this tutorial, and it is helpful to have also had a look at
  * the tutorial on solving general solid mechanics problems.
  *
+ * The equations of cardiac electro-mechanics are written down in Section 4.2 of the PDF on equations and
+ * finite element implementations in ChasteGuides -> Miscellaneous information. '''Note:''' By default we do
+ * not these full equations: the mechanics information is not coupled back to electrics, ie by default
+ * the conductivities do not depend  on deformation, and cell models do not get affected by stretch.
+ * This has to be switched on if required - see comments on mechano-electric feedback below.
+ *
  * EMPTYLINE
  *
  * Before going to the code, we list the sub-models/parameters that need to be set, or can be varied,
- * in electro-mechanical problems.
+ * in electro-mechanical problems. The last four of the below are mechanics-specific.
  *  * The geometry (see note 1 below)
  *  * The region electrically stimulated
  *  * The cell model
@@ -68,18 +74,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * Mechanics timesteps: mechanics update timestep, contraction model ode timestep. (see note 4 below)
  *
  * Notes:
- *  1. Two meshes for the geometry are required, one for the electrics solve and one for the mechanics.
+ *  * ''Meshes:'' Two meshes for the geometry are required, one for the electrics solve and one for the mechanics.
  * The mechanics mesh would ideally be coarser but any two meshes are technically possible. The meshes should
  * ideally both cover exactly the same geometry (ie either mesh being contained in the other), but the meshes
- * not completely overlapping is allowed - some extrapolation of quantities will then occur. (2) The
- * electro-physiology printing timestep is not used in electro-mechanics problems; output is
+ * not completely overlapping is allowed - some extrapolation of quantities will then occur.
+ *  * ''The electro-physiology printing timestep:'' This is not used in electro-mechanics problems; output is
  * instead written after every mechanics solve, so effectively the mechanics update timestep is equal to
- * the printing timestep. (3) In electro-physiological simulations the fibre direction is in the X-direction
+ * the printing timestep.
+ *  * ''Fibres:'' In electro-physiological simulations the fibre direction is in the X-direction
  * by default, but if isotropic conductivities are used the fibre direction won't be used. In mechanics
  * solves, the fibres will always be used as it determines the direction of contraction. Sheet/normal directions
- * may be used in the material law. (4) The should-divide rules are: (a)
- * ode_timestep should-divide pde_timestep should-divide mechanics_update_timestep and (b)
- * contraction_model_ode_timestep should-divide mechanics_update_timestep.
+ * may be used in the material law.
+ *  * ''Timesteps:'' The should-divide rules are: (a) ode_timestep should-divide pde_timestep should-divide
+ *  mechanics_update_timestep and (b) contraction_model_ode_timestep should-divide mechanics_update_timestep.
  * 
  * EMPTYLINE
  * 
@@ -220,7 +227,7 @@ public:
      * `CardiacElectroMechanicsProblem`, which requires meshes and fixed nodes to be passed 
      * in, and also how to pass in fibre directions for the mechanics mesh.
      */
-    void TestTwistingCube() throw(Exception)
+    void dontTestTwistingCube() throw(Exception)
     {
         /* Cell factory as normal */
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-1000*1000);
@@ -307,6 +314,33 @@ public:
          * `NashHunterPoleZeroLaw`. This issue will be fixed in the near future. */
     }
 };
+
+    /* == Mechano-electric feedback ==
+     *
+     * As mentioned above, by default feedback of the mechanics to the electrics is not switched on, so ''by default''
+     * the conductivities will not be affected by the deformation, and the stretch is not passed back to the cell-models
+     * to allow for stretch-activated channels (SAC). To allow for these two features, call
+     */
+    //problem.UseMechanoElectricFeedback();
+    /* before calling `problem.Solve()`. Note that (i) the electrics solve will slow down, since the linear system matrix now
+     * varies with time (as conductivities depend on deformation), and has to be recomputed after every mechanics update; and
+     * (ii) if you want a cell model that includes SAC you have to implement one. There is a single example of this in
+     * the code base at the moment, see  `heart/src/odes/ionicmodels/NobleVargheseKohlNoble1998WithSac.hpp`.
+     *
+     * EMPTYLINE
+     *
+     * Further functionality and examples using M.E.F. will be added in the near future.
+     *
+     * EMPTYLINE
+     *
+     * == Other comments ==
+     *
+     * If you would like to apply a traction boundary condition, see the solid mechanics tutorial on how to apply tractions given
+     * a `NonlinearElasticitySolver`, and then note that you can access this solver in the tests above by doing, for example:
+     */
+    //problem.Initialise();
+    //problem.GetCardiacMechanicsSolver()->SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+    /* and then calling `problem.Solve()`. */
 
 #endif /*TESTCARDIACELECTROMECHANICSTUTORIAL_HPP_*/
 
