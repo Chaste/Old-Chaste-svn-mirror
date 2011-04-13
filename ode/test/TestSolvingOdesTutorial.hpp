@@ -44,6 +44,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The following header files need to be included.
  * First we include the header needed to define this class as a test suite. */
 #include <cxxtest/TestSuite.h>
+
+////////////////////////////////////////////////////
+//
+// Having to include this here (in the first tutorial 
+// that is read) is the nasty part
+// 
+///////////////////////////////////////////////////
+#include "CheckpointArchiveTypes.hpp"
 /*
  * We will use a simple forward euler solver to solve the ODE, so the following
  * needs to be included

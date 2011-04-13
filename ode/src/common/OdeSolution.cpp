@@ -269,6 +269,11 @@ void OdeSolution::WriteToFile(std::string directoryName,
         }
     }
 
+    if(mSolverName!="")
+    {
+        writer.SetCommentForInfoFile("ODE SOLVER: " + mSolverName);
+    }
+
     writer.EndDefineMode();
 
     for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)

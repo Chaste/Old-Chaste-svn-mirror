@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
+#include "Identifiable.hpp"
 
 #include "OdeSolution.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -41,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Abstract initial value problem ODE solver class. Sets up variables and functions
  * for a numerical solution technique for an initial value ODE problem.
  */
-class AbstractIvpOdeSolver
+class AbstractIvpOdeSolver : public Identifiable
 {
     /** Needed for serialization. */
     friend class boost::serialization::access;

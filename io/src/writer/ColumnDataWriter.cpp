@@ -62,7 +62,8 @@ ColumnDataWriter::ColumnDataWriter(const std::string& rDirectory,
       mFieldWidth(precision+7), // Allow for numbers like -1.111e-321 (where precision=3)
       mPrecision(precision),
       mHasPutVariable(false),
-      mNeedAdvanceAlongUnlimitedDimension(false)
+      mNeedAdvanceAlongUnlimitedDimension(false),
+      mCommentForInfoFile("")
 {
     if (mPrecision<2 || mPrecision>20)
     {
@@ -346,6 +347,10 @@ void ColumnDataWriter::CreateInfoFile(const std::string& rFileName)
     (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
     (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;
+    if(mCommentForInfoFile!="")
+    {
+        *p_info_file << mCommentForInfoFile << std::endl;
+    }
     *p_info_file << ChasteBuildInfo::GetProvenanceString();
     p_info_file->close();
 }

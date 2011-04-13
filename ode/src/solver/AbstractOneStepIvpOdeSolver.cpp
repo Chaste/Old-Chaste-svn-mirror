@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "CheckpointArchiveTypes.hpp"
+
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
@@ -58,6 +60,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     solutions.SetOdeSystemInformation(pOdeSystem->GetSystemInformation());
+    solutions.SetSolverName( GetIdentifier() );
 
     mWorkingMemory.resize(rYValues.size());
 

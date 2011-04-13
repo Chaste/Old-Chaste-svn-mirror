@@ -65,6 +65,9 @@ private:
 
     /** Parameters - these are currently assumed constant across all time */
     std::vector<double> mParameters;
+    
+    /** The ODE solver used to create these results */
+    std::string mSolverName;
 
     /**
      * Information about the concrete ODE system class.
@@ -145,6 +148,21 @@ public:
      * @return mSolutions.
      */
     const std::vector<std::vector<double> >& rGetSolutions() const;
+
+
+    /** Set the ODE solver used to create these results
+     *  @param solverName solver used 
+     */
+    void SetSolverName(std::string solverName)
+    {
+        mSolverName = solverName;
+    }
+
+    /** Set the ODE solver used to create these results */
+    std::string GetSolverName()
+    {
+        return mSolverName;
+    }
 
     /**
      * Calculate the derived quantities and store them and the current parameters for printing/accessing.

@@ -84,6 +84,12 @@ protected:
 
     bool mHasPutVariable; /**< Whether a variable value has been output to a file. */
     bool mNeedAdvanceAlongUnlimitedDimension; /**< Whether we need to advance along the unlimited dimension. */
+    
+    /** 
+     *  (Optional) comment that can be set and will be written to the info file
+     *  when CreateInfoFile() is called in EndDefineMode()
+     */
+    std::string mCommentForInfoFile; 
 
     /**
      * Create the output file and write out the header for it.
@@ -174,6 +180,17 @@ public:
      */
     int DefineVariable(const std::string& rVariableName,
                        const std::string& rVariableUnits);
+
+    
+    /**
+     * Set a comment to be written in the info file (optional). 
+     * This needs to be called before EndDefineMode().
+     */
+    void SetCommentForInfoFile(std::string comment)
+    {
+        mCommentForInfoFile = comment;
+    }
+        
 
     /**
      * End the define mode of the DataWriter.

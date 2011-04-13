@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include "CheckpointArchiveTypes.hpp"
+
 #include <iostream>
 
 #include "BackwardEulerIvpOdeSolver.hpp"
