@@ -190,6 +190,10 @@ public:
                                        "ode/test/data/Ode2_4.dat");
 
         TS_ASSERT(comparer.CompareFiles(1e-6));
+        //The info file should now contain the ode solver (EulerIvpOdeSolver) identifier 
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Ode2_4.info"
+                 + "  ode/test/data/Ode2_4.info").c_str()), 0);
+ 
     }
 
     void TestEulerSolver() throw (Exception)
@@ -230,6 +234,7 @@ public:
         Ode1 ode_system;
         rk2_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+        
     }
 
     void TestRungeKutta4Solver()
@@ -380,6 +385,21 @@ public:
         double global_error_rk4;
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*exp(2)*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4, exact_solution, global_error_rk4);
+
+        {
+            //The info files should now contain the ode solver identifiers 
+            solutions_rk2.WriteToFile("OdeSolution", "RungeKutta2", "time", 1, false, 4, true);
+            TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/RungeKutta2.info"
+                     + "  ode/test/data/RungeKutta2.info").c_str()), 0);
+            solutions_rk4.WriteToFile("OdeSolution", "RungeKutta4", "time", 1, false, 4, true);
+            TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/RungeKutta4.info"
+                     + "  ode/test/data/RungeKutta4.info").c_str()), 0);
+            solutions_euler.WriteToFile("OdeSolution", "Euler", "time", 1, false, 4, true);
+            TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Euler.info"
+                     + "  ode/test/data/Euler.info").c_str()), 0);
+            
+        }
+
     }
 
     void TestGlobalErrorSystemOf2Equations()

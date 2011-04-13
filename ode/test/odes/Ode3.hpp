@@ -55,11 +55,11 @@ public :
 template<>
 void OdeSystemInformation<Ode3>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
+    this->mVariableNames.push_back("Variable_1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(4.0);
 
-    this->mVariableNames.push_back("Variable 2");
+    this->mVariableNames.push_back("Variable_2");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(8.0);
 

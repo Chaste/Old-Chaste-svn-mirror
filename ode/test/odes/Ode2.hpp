@@ -58,7 +58,7 @@ void OdeSystemInformation<Ode2>::Initialise()
     // be left unspecified, provided they are not actually needed.  This also
     // ensures coverage of OdeSolution::WriteToFile, which contains a case for when
     // variable names are not given.
-//    this->mVariableNames.push_back("Variable 1");
+//    this->mVariableNames.push_back("Variable_1");
 //    this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(4.0);
 

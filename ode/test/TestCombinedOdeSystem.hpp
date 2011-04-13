@@ -61,12 +61,12 @@ public:
 template<>
 void OdeSystemInformation<SimpleOde1>::Initialise()
 {
-    this->mVariableNames.push_back("Variable y");
-    this->mVariableUnits.push_back("Units y");
+    this->mVariableNames.push_back("Variable_y");
+    this->mVariableUnits.push_back("Units_y");
     this->mInitialConditions.push_back(0.0);
 
-    this->mParameterNames.push_back("Variable x");
-    this->mParameterUnits.push_back("Units x");
+    this->mParameterNames.push_back("Variable_x");
+    this->mParameterUnits.push_back("Units_x");
 
     this->mInitialised = true;
 }
@@ -94,12 +94,12 @@ public:
 template<>
 void OdeSystemInformation<SimpleOde2>::Initialise()
 {
-    this->mVariableNames.push_back("Variable x");
-    this->mVariableUnits.push_back("Units x");
+    this->mVariableNames.push_back("Variable_x");
+    this->mVariableUnits.push_back("Units_x");
     this->mInitialConditions.push_back(1.0);
 
-    this->mParameterNames.push_back("Variable y");
-    this->mParameterUnits.push_back("Units y");
+    this->mParameterNames.push_back("Variable_y");
+    this->mParameterUnits.push_back("Units_y");
 
     this->mInitialised = true;
 }

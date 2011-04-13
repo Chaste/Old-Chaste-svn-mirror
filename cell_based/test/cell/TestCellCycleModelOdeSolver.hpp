@@ -67,8 +67,8 @@ public:
 template<>
 void OdeSystemInformation<SimpleOde>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
-    this->mVariableUnits.push_back("Units 1");
+    this->mVariableNames.push_back("Variable_1");
+    this->mVariableUnits.push_back("Units_1");
     this->mInitialConditions.push_back(0.0);
 
     this->mInitialised = true;
@@ -104,11 +104,11 @@ public :
 template<>
 void OdeSystemInformation<OdeSecondOrderWithEvents>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
+    this->mVariableNames.push_back("Variable_1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
 
-    this->mVariableNames.push_back("Variable 2");
+    this->mVariableNames.push_back("Variable_2");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
 

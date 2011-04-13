@@ -85,8 +85,8 @@ protected:
 template<>
 void OdeSystemInformation<MyNewOdeSystem>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
-    this->mVariableUnits.push_back("Units 1");
+    this->mVariableNames.push_back("Variable_1");
+    this->mVariableUnits.push_back("Units_1");
     this->mInitialConditions.push_back(0.0);
 
     this->mInitialised = true;

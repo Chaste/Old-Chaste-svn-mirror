@@ -53,7 +53,7 @@ public :
 template<>
 void OdeSystemInformation<OdeFirstOrder>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
+    this->mVariableNames.push_back("Variable_1");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
 

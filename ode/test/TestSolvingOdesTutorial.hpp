@@ -45,16 +45,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * First we include the header needed to define this class as a test suite. */
 #include <cxxtest/TestSuite.h>
 
-////////////////////////////////////////////////////
-//
-// Having to include this here (in the first tutorial 
-// that is read) is the nasty part
-// 
-///////////////////////////////////////////////////
+/*
+ * In some early versions of Boost this file has to be included first so that the ODE solvers used can be written to result files.
+ */
 #include "CheckpointArchiveTypes.hpp"
 /*
- * We will use a simple forward euler solver to solve the ODE, so the following
- * needs to be included
+ * We will use a simple forward Euler solver to solve the ODE, so the following
+ * needs to be included.
  */
 #include "EulerIvpOdeSolver.hpp"
 /* All the ODE solvers take in a concrete ODE system class, which is user-defined
@@ -246,7 +243,11 @@ public:
 
         /* Alternatively, we can print the solution directly to a file, using the {{{WriteToFile}}}
          * method on the {{{OdeSolution}}} class. */
-        solutions.WriteToFile("SolvingOdesTutorial", "ode1.txt", "sec");
+        solutions.WriteToFile("SolvingOdesTutorial", "my_ode_solution", "sec");
+        /* Two files are written
+         * * {{{my_ode_solution.dat}}} contains the results (a header line, then one column for time and one column per variable)
+         * * {{{my_ode_solution.info}}} contains information for reading the data back, a line about the ODE solver: {{{ODE SOLVER: EulerIvpOdeSolver}}} and provenance information.
+         */
 
         /* We can see from the printed out results that y goes above 2.5 somewhere just
          * before 0.6. To solve only up until y=2.5, we can solve the ODE that has the
