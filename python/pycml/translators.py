@@ -250,8 +250,7 @@ class CellMLTranslator(object):
             self.error(["Model has more than one free variable; exiting.",
                         "Free vars:" + str(self.free_vars)])
         # If only a single component, don't add it to variable names
-        self.single_component = (len(getattr(self.model, u'component', []))
-                                 == 1)
+        self.single_component = (len(getattr(self.model, u'component', [])) == 1)
         # Find the (index of the) transmembrane potential
         self.v_variable = v_variable
         self.v_variable_name = (v_variable.component.name, v_variable.name)
@@ -955,10 +954,8 @@ class CellMLTranslator(object):
         for expr in doc.lookup_tables:
             if hasattr(expr, u'table_name'):
                 idx = expr.table_index
-                table_numbers[idx] = max(table_numbers.get(idx, 0),
-                                         1 + int(expr.table_name))
-        # Now assign new names, and construct mapping from tables to
-        # index variables
+                table_numbers[idx] = max(table_numbers.get(idx, 0), 1 + int(expr.table_name))
+        # Now assign new names, and construct mapping from tables to index variables
         for expr in doc.lookup_tables:
             # Get a suitable table index variable
             comp = expr.get_component()
@@ -973,19 +970,19 @@ class CellMLTranslator(object):
                     tidx += 1
                     expr.xml_set_attribute((u'lut:table_index', NSS['lut']),
                                            doc.lookup_table_indexes[key])
-            # Get a table name, unique over all tables with
-            # this index variable
+            # Get a table name, unique over all tables with this index variable
             if not hasattr(expr, u'table_name'):
                 tnum = table_numbers.get(doc.lookup_table_indexes[key], 0)
-                expr.xml_set_attribute((u'lut:table_name', NSS['lut']),
-                                       unicode(tnum))
+                expr.xml_set_attribute((u'lut:table_name', NSS['lut']), unicode(tnum))
                 table_numbers[doc.lookup_table_indexes[key]] = tnum + 1
         # Re-number table indices so they are contiguous starting from 0.
         table_index_map = {}
+        table_name_map = {}
         tidx = 0
         for key in sorted(doc.lookup_table_indexes.keys()):
             idx = unicode(tidx)
             table_index_map[doc.lookup_table_indexes[key]] = idx
+            table_name_map[idx] = {}
             doc.lookup_table_indexes[key] = idx
             doc.lookup_tables_num_per_index[idx] = 0
             tidx += 1
@@ -1003,9 +1000,14 @@ class CellMLTranslator(object):
                 doc.lookup_tables.append(expr)
                 # Renumber
                 expr.table_index = table_index_map[expr.table_index]
-                expr.table_name = unicode(doc.lookup_tables_num_per_index[expr.table_index])
+                table_name_map[expr.table_index][expr.table_name] = unicode(doc.lookup_tables_num_per_index[expr.table_index])
+                expr.table_name = table_name_map[expr.table_index][expr.table_name]
                 # Increment count for this index variable
                 doc.lookup_tables_num_per_index[expr.table_index] += 1
+            else:
+                # Just renumber to match the new id for this expression
+                expr.table_index = table_index_map[expr.table_index]
+                expr.table_name = table_name_map[expr.table_index][expr.table_name]
         return
 
     def lut_access_code(self, table_index, table_name, i):

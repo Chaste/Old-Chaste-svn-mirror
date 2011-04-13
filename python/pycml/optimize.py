@@ -791,24 +791,23 @@ class LookupTableAnalyser(object):
             self._determine_unneeded_tables()
 
         # Assign names (numbers) to the lookup tables found.
-        # Also work out which ones can share index variables into the
-        # table.
+        # Also work out which ones can share index variables into the table.
         doc.lookup_tables = doc.lookup_tables.keys()
         doc.lookup_tables.sort(cmp=element_path_cmp)
         doc.lookup_table_indexes, n = {}, 0
         for i, expr in enumerate(doc.lookup_tables):
-            expr.xml_set_attribute((u'lut:table_name', NSS['lut']),
-                                   unicode(i))
+            expr.xml_set_attribute((u'lut:table_name', NSS['lut']), unicode(i))
             comp = expr.get_component()
-            var = comp.get_variable_by_name(expr.var).get_source_variable(
-                recurse=True)
+            var = comp.get_variable_by_name(expr.var).get_source_variable(recurse=True)
             key = (expr.min, expr.max, expr.step, var)
             if not doc.lookup_table_indexes.has_key(key):
                 doc.lookup_table_indexes[key] = unicode(n)
                 n += 1
-            expr.xml_set_attribute((u'lut:table_index', NSS['lut']),
-                                   doc.lookup_table_indexes[key])
+            expr.xml_set_attribute((u'lut:table_index', NSS['lut']), doc.lookup_table_indexes[key])
         
+        if solver_info.has_modifiable_mathematics():
+            self._determine_duplicate_tables()
+            
         # Re-do dependency analysis so that an expression using lookup
         # tables only depends on the keying variable.
         for expr in (e for e in doc.model.get_assignments()
@@ -850,6 +849,27 @@ class LookupTableAnalyser(object):
             expr.xml_set_attribute((u'lut:reason', NSS['lut']),
                                    u'Expression will not be used in generated code.')
             DEBUG('lookup-tables', 'Not annotating probably unused expression', expr)
+    
+    def _determine_duplicate_tables(self):
+        """Determine whether we have multiple tables for the same expression.
+        
+        Any expression that is identical to a previous table will be re-annotated to refer to the
+        previous table, instead of declaring a new one.
+        
+        This is a temporary measure until we have proper sub-expression elimination for the Jacobian
+        and residual calculations.
+        """
+        uniq_tables = []
+        for expr in self.doc.lookup_tables:
+            for table in uniq_tables:
+                if expr.same_tree(table):
+                    lt_name = table.getAttributeNS(NSS['lut'], u'table_name', u'')
+                    # Need to remove old name before we can set a new one (grr amara)
+                    del expr.table_name
+                    expr.xml_set_attribute((u'lut:table_name', NSS['lut']), lt_name)
+                    break
+            else:
+                uniq_tables.append(expr)
 
     def calculate_dependencies(self, expr):
         """Determine the dependencies of an expression that might use a lookup table.

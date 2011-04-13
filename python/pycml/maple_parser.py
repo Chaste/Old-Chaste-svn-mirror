@@ -24,11 +24,27 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-# Parser for Maple output.
-# See also maple_parsing.txt for notes.
+"""
+Parser for Maple output.
+
+We use PyParsing to parse the output from Maple, and get a Python
+datatype representing the elements of the Jacobian matrix.
+
+The output from Maple consists of a series of lines.  The initial
+lines are the input expressions, and so should be ignored.  The
+interesting part comes once we see a line of the form:
+"--<variable_i>/<variable_j>--"
+This line is then followed by the (i,j)-th entry of the Jacobian,
+possibly occuring on multiple lines.  There will be one such pair
+of 'lines' for each entry of the matrix.
+
+Identifying these pairs is done by iterating over the lines, and
+checking the first character to identify the interesting
+portions---only the marker lines will start with a double quote.
+PyParsing can then be used to process the Jacobian entries.
+"""
 
 import logging
-import sys
 from pyparsing import *
 
 
@@ -42,6 +58,7 @@ __all__ = ['MapleParser']
 class MExpression(object):
     """A mathematical expression."""
     _cache = {}
+    _cache_uses = {}
     _temporaries = {}
     def uniquify(self):
         """Ensure only one copy of this expression exists.
@@ -49,11 +66,9 @@ class MExpression(object):
         If an equal expression is in the cache, return that.
         Otherwise, return self and add us to the cache.
 
-        This must only be called after the expression has been
-        normalized.
+        This must only be called after the expression has been normalized.
 
-        Operates recursively to uniquify children before checking
-        the cache for this expression.
+        Operates recursively to uniquify children before checking the cache for this expression.
         """
         if hasattr(self, '_children'):
             # Uniquify children
@@ -62,20 +77,35 @@ class MExpression(object):
             for child in orig_children:
                 self._children.append(child.uniquify())
         if self in self._cache:
-            # This expression is used in multiple locations.  If it is
-            # complex, generated code should assign it to a temporary
-            # variable
-            if hasattr(self, '_children'):
+            # This expression is used in multiple locations.
+            self._cache_uses[self] += 1
+            # If it is complex, generated code should assign it to a temporary variable
+            if self.is_complex():
                 self._temporaries[self] = self._cache[self]
             return self._cache[self]
         else:
             self._cache[self] = self
+            self._cache_uses[self] = 1
             return self
+    
+    @classmethod
+    def filter_temporaries(cls, exprs, _temps={}, _threshold=1):
+        for expr in exprs:
+            if expr in cls._temporaries:
+                if not expr in _temps and cls._cache_uses[expr] >= _threshold:
+                    _temps[expr] = cls._cache_uses[expr]
+                new_threshold = cls._cache_uses[expr] + 1
+            else:
+                new_threshold = cls._cache_uses[expr]
+            if hasattr(expr, '_children'):
+                cls.filter_temporaries(expr._children, _temps, new_threshold)
+        return _temps
 
     @classmethod
     def clear_cache(cls):
         """Clear the expression caches."""
         cls._cache.clear()
+        cls._cache_uses.clear()
         cls._temporaries.clear()
     
     def __repr__(self):
@@ -87,6 +117,7 @@ class MExpression(object):
         is always the negation of equality.
         """
         return not self.__eq__(other)
+    
     def normalize(self):
         """Normalize the expression."""
         if hasattr(self, '_children'):
@@ -120,12 +151,14 @@ class MNumber(MExpression):
         return isinstance(other, MNumber) and (self._value == other._value)
     def __hash__(self):
         return hash((self.__class__.__name__, self._value))
+    
+    def is_complex(self):
+        return False
 
     def mathml(self):
         """Return a serialised MathML representation of this expression.
 
-        Units have to be fudged, unfortunately; they will be given as
-        dimensionless.
+        Units have to be fudged, unfortunately; they will be given as dimensionless.
         """
         return '<cn cellml:units="dimensionless">' + self._value + '</cn>'
 
@@ -140,6 +173,9 @@ class MVariable(MExpression):
         return isinstance(other, MVariable) and (self._name == other._name)
     def __hash__(self):
         return hash((self.__class__.__name__, self._name))
+
+    def is_complex(self):
+        return False
 
     def mathml(self):
         """Return a serialised MathML representation of this expression."""
@@ -163,6 +199,9 @@ class MFunction(MExpression):
         k = [self.__class__.__name__, self._name]
         k.extend(self._args)
         return hash(tuple(k))
+
+    def is_complex(self):
+        return True
 
     def mathml(self):
         """Return a serialised MathML representation of this expression."""
@@ -196,7 +235,7 @@ class MOperator(MExpression):
             self._operands = self._children = toklist
         else:
             self._operator = '#'
-            self._operands = []
+            self._operands = self._children = []
     def __str__(self):
         return self._operator + '<' + ','.join(map(str, self._operands)) + '>'
     def __eq__(self, other):
@@ -210,6 +249,21 @@ class MOperator(MExpression):
         k = [self.__class__.__name__, self._operator]
         k.extend(self._operands)
         return hash(tuple(k))
+
+    def is_complex(self):
+        complex = False
+        nested_children = False
+        for child in self._children:
+            if child.is_complex():
+                complex = True
+                break
+            if hasattr(child, '_children'):
+                nested_children = True
+        if not complex and (self._operator not in ['minus', 'plus', 'times', 'eq', 'neq', 'lt', 'leq', 'gt', 'geq']
+                            or len(self._children) > 2 or nested_children):
+            complex = True
+        return complex
+
     def normalize(self):
         """Make this expression properly tree-structured."""
         if self._operands:
@@ -227,7 +281,7 @@ class MOperator(MExpression):
             else:
                 # Unary minus
                 self._operator = 'minus'
-                self._operands = [self._toks[1].normalize()]
+                self._children = self._operands = [self._toks[1].normalize()]
                 return self
         elif self._op_type in ['prod', 'plus', 'rel']:
             # Convert to a left-factored binary tree
@@ -241,8 +295,7 @@ class MOperator(MExpression):
         else:
             # Just normalize operands and set operator name
             self._operator = op_name(self._toks[1])
-            self._operands = map(lambda op: op.normalize(),
-                                 self._toks[::2])
+            self._children = self._operands = map(lambda op: op.normalize(), self._toks[::2])
             return self
 
     def mathml(self):
@@ -268,6 +321,9 @@ class MDerivative(MExpression):
     def __hash__(self):
         return hash((self.__class__.__name__,
                      self._independent_var, self._dependent_var))
+
+    def is_complex(self):
+        return False
 
     def mathml(self):
         """Return a serialised MathML representation of this expression."""
@@ -464,6 +520,11 @@ class MapleParser(object):
                     curr_key = (var_i, var_j)
                     in_header = False
                     s = ""
+#        if 1:
+#            temps = MExpression.filter_temporaries(results.values())
+#            print "Filtered temporaries", len(temps)
+#            for t in temps:
+#                print t, MExpression._cache_uses[t]
         if debug:
             return results, debug_res
         else:
@@ -490,7 +551,7 @@ class MapleParser(object):
 
     def set_debug(self, debug=True):
         """Turn debugging on or off."""
-        for k, v in globals().items():
+        for v in globals().itervalues():
             if isinstance(v, ParserElement):
                 v.setDebug(debug)
         return
@@ -504,16 +565,13 @@ class MapleParser(object):
         """Turn a results dictionary into assignment expressions.
 
         For each entry k, v in results, change the value into an
-        assignment expression, assigning v to the appropriate
-        derivative.
+        assignment expression, assigning v to the appropriate derivative.
 
-        Returns a new dictionary, with the same keys but different
-        values.
+        Returns a new dictionary, with the same keys but different values.
         """
         res = {}
         for k, v in results.iteritems():
-            var_i, var_j = map(lambda varname: MVariable([varname]),
-                               k)
+            var_i, var_j = map(lambda varname: MVariable([varname]), k)
             deriv = MDerivative(var_i, var_j)
             ass_expr = MOperator([deriv, v], 'rel', 'eq')
             res[k] = ass_expr
@@ -541,20 +599,20 @@ if __name__ == '__main__':
 
 
 
-def mathml_to_mexpr(elt):
-    """Convert a MathML element tree to an MExpression."""
-    result = None
-    if isinstance(elt, mathml_ci):
-        var = elt.variable
-        result = MVariable([var.fullname(cellml=True)])
-    elif isinstance(elt, mathml_cn):
-        result = MNumber([unicode(elt)])
-    elif isinstance(elt, mathml_apply):
-        # Note: will have to treat diff seperately.  Others can be MFunction?
-        pass
-    elif isinstance(elt, mathml_piecewise):
-        # Make into MFunction('`if`') ?
-        pass
-    else:
-        # Hrm.
-        pass
+#def mathml_to_mexpr(elt):
+#    """Convert a MathML element tree to an MExpression."""
+#    result = None
+#    if isinstance(elt, mathml_ci):
+#        var = elt.variable
+#        result = MVariable([var.fullname(cellml=True)])
+#    elif isinstance(elt, mathml_cn):
+#        result = MNumber([unicode(elt)])
+#    elif isinstance(elt, mathml_apply):
+#        # Note: will have to treat diff seperately.  Others can be MFunction?
+#        pass
+#    elif isinstance(elt, mathml_piecewise):
+#        # Make into MFunction('`if`') ?
+#        pass
+#    else:
+#        # Hrm.
+#        pass
