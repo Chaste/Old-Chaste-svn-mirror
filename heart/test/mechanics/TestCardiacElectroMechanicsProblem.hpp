@@ -54,12 +54,12 @@ public:
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
                                                      1.0, /* width (cm) */
                                                      1,   /* mech elem each dir */
-                                                     96, /* elec elem each dir */
+                                                     96,  /* elec elem each dir */
                                                      &cell_factory,
-                                                     1.0, /* end time */
+                                                     1.0,  /* end time */
                                                      0.01, /* electrics timestep (ms) */
-                                                     100, /* 100*0.01ms mech dt */
-                                                     0.01,/* contraction model ode timestep */
+                                                     1.0,  /* mechanics solve timestep */
+                                                     0.01, /* contraction model ode timestep */
                                                      "");
 
         c_vector<double,2> pos;
@@ -100,7 +100,7 @@ public:
                                                      &cell_factory,
                                                      10.0, /* end time */
                                                      0.01, /* electrics timestep (ms) */
-                                                     100,  /* 100*0.01ms mech dt */
+                                                     1.0,  /* mechanics solve timestep */
                                                      0.01, /* contraction model ode timestep */
                                                      "TestCardiacElectroMechOneElement");
         c_vector<double,2> pos;
@@ -124,8 +124,11 @@ public:
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // coverage
-        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,100,0.01,"");
-        TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,1,0.01,"");
+        TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid contraction model");
+
+        TS_ASSERT_THROWS_CONTAINS(CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NHS,0.05,1,5,&cell_factory,1,0.01,0.025,0.01,""),"does not divide");
+
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
@@ -143,9 +146,9 @@ public:
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
                                                      20,    /* end time */     // dies at 7.28 with explicit (now using implicit)
-                                                     0.01, /* electrics timestep (ms) */
-                                                     100,   /* n times 0.01ms mech dt */
-                                                     0.01, /* Kerchoffs ode timestep */
+                                                     0.01,  /* electrics timestep (ms) */
+                                                     1.0,   /* mechanics solve timestep */
+                                                     0.01,  /* Kerchoffs ode timestep */
                                                      "TestCardiacEmWithKerchoffs");
 
         c_vector<double,2> pos;
@@ -175,6 +178,11 @@ public:
     {
         HeartEventHandler::Disable();
 
+#ifdef MECH_USE_HYPRE
+        TS_FAIL("This test is known to fail with HYPRE - see comments in test");
+        return;
+#endif
+
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NASH2004,
@@ -183,9 +191,9 @@ public:
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
                                                      20,    /* end time */
-                                                     0.01, /* electrics timestep (ms) */
-                                                     100,   /* n times 0.01ms mech dt */
-                                                     0.01, /*  ode timestep */
+                                                     0.01,  /* electrics timestep (ms) */
+                                                     1.0,   /* mechanics solve timestep */
+                                                     0.01,  /* nash ode timestep */
                                                      "TestExplicitWithNash");
 
         // coverage, this file is just X-direction fibres
@@ -230,9 +238,9 @@ public:
                                                   &mechanics_mesh,
                                                   fixed_nodes,
                                                   &cell_factory,
-                                                  1,   /* end time */
+                                                  1,    /* end time */
                                                   0.01, /* electrics timestep (ms) */
-                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* mechanics solve timestep */
                                                   1.0,  /* contraction model ode dt */
                                                   "TestNobleSacActivatedByStretchTissue");
 
@@ -327,9 +335,9 @@ public:
                                                   &mechanics_mesh,
                                                   fixed_nodes,
                                                   &cell_factory,
-                                                  1,   /* end time */
+                                                  1,    /* end time */
                                                   0.01, /* electrics timestep (ms) */
-                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* mechanics solve timestep */
                                                   1.0,  /* contraction model ode dt */
                                                   "");
 

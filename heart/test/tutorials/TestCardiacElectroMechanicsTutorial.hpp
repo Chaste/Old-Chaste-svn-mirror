@@ -90,6 +90,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * EMPTYLINE
  * 
+ * '''Another note:''' mechanics problems are not currently implemented to scale in parallel yet.
+ *
+ * EMPTYLINE
+ *
  * The basic includes are */
 #include <cxxtest/TestSuite.h>
 #include "PlaneStimulusCellFactory.hpp"
@@ -155,7 +159,7 @@ public:
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         /* The `CardiacElectroMechProbRegularGeom<2>` defines an electro-mechanics problem on a square. Two meshes are created
-         * internally. */
+         * internally. We use a PDE timestep of 0.01 for the electrics, solving the mechanics every 1ms. */
         CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,  // The contraction model (see below)
                                                      0.1,  // width of square (cm) 
                                                      5,    // Number mechanics elements in each direction 
@@ -163,7 +167,7 @@ public:
                                                      &cell_factory,
                                                      40.0, // end time
                                                      0.01, // electrics timestep (ms) 
-                                                     100,  // The number of electrics dt per mechanics update - so here mech_update=1ms 
+                                                     1.0,  // mechanics solve timestep
                                                      0.01, // contraction model ode timestep 
                                                      "TestCardiacElectroMechanicsExample" /* output directory */);
         /* The contraction model chosen above is KERCHOFFS2003 (Kerchoffs, Journal of Engineering Mathematics, 2003). Other possibilities
@@ -248,7 +252,7 @@ public:
             = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh, 2, 0.0);
 
         /* Create the problem object, which has the same interface as the the child class used
-         * in the first test, except it takes in meshes and fixed nodes (as std vectors) */
+         * in the first test, except it takes in meshes and fixed nodes (as std vectors). */
         CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
@@ -256,7 +260,7 @@ public:
                                                   &cell_factory,
                                                   50,   // end time 
                                                   0.01, // electrics timestep (ms) 
-                                                  100,  // The number of electrics dt per mechanics update - so here mech_update=1ms 
+                                                  1.0,  // mechanics solve timestep
                                                   1.0,  // contraction model ode timestep 
                                                   "TestCardiacElectroMech3dTwistingCube" /* output directory */);
 

@@ -79,6 +79,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
+ * '''Another note:''' mechanics problems are not currently implemented to scale in parallel yet.
+ *
  * As always we include this first class as a test suite */
 #include <cxxtest/TestSuite.h>
 /* On some systems there is a clash between Boost Ublas includes and PETSc.  This can be

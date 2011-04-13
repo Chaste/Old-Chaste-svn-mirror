@@ -56,7 +56,7 @@ public:
                                                      &cell_factory,
                                                      125,  /* end time */
                                                      0.01, /* electrics timestep (ms) */
-                                                     100,  /* 100*0.01ms mech dt */
+                                                     1.0,  /* mechanics solve timestep */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacEmNhs2dLong");
 
@@ -82,7 +82,7 @@ public:
                                                      &cell_factory,
                                                      125,  /* end time */
                                                      0.01, /* electrics timestep (ms) */
-                                                     100,  /* 100*0.01ms mech dt */
+                                                     1.0,  /* mechanics solve timestep */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacEmVaryingFibres");
 
@@ -136,7 +136,7 @@ public:
                                                   &cell_factory,
                                                   50,   /* end time */
                                                   0.01, /* electrics timestep (ms) */
-                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* mechanics solve timestep */
                                                   1.0,  /* contraction model ode dt */
                                                   "TestCardiacElectroMech3d");
 
@@ -172,7 +172,7 @@ public:
                                                   &cell_factory,
                                                   50,   /* end time */
                                                   0.01, /* electrics timestep (ms) */
-                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* mechanics solve timestep */
                                                   1.0,  /* contraction model ode dt */
                                                   "TestCardiacElectroMech3dTwistingCube");
 
@@ -255,7 +255,7 @@ public:
 //                                                  &cell_factory,
 //                                                  10,   /* end time */
 //                                                  0.01, /* electrics timestep (ms) */
-//                                                  100,  /* 100*0.01ms mech dt */
+//                                                  1.0,  /* mechanics solve timestep */
 //                                                  1.0,  /* contraction model ode dt */
 //                                                  "TestCardiacElectroMech3dImpact");
 //

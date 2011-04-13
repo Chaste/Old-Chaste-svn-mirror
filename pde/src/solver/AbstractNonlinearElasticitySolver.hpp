@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //// These should be commented in a commit at the moment!
 //#define MECH_USE_MUMPS  // requires Petsc to be installed with MUMPS
-#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
+//#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
 
 
 

@@ -230,7 +230,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory,
             double endTime,
             double electricsPdeTimeStep,
-            unsigned numElecTimeStepsPerMechTimestep,
+            double mechanicsSolveTimestep,
             double contractionModelOdeTimeStep,
             std::string outputDirectory = "") :
         mpMeshPair(NULL)
@@ -262,11 +262,18 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     assert(electricsPdeTimeStep>0);
     mElectricsTimeStep = electricsPdeTimeStep;
 
-    assert(numElecTimeStepsPerMechTimestep>0);
+    mNumElecTimestepsPerMechTimestep = (unsigned) floor((mechanicsSolveTimestep/electricsPdeTimeStep)+0.5);
+    if(fabs(mNumElecTimestepsPerMechTimestep*electricsPdeTimeStep - mechanicsSolveTimestep) > 1e-6)
+    {
+        EXCEPTION("Electrics PDE timestep does not divide mechanics solve timestep");
+    }
+    mMechanicsTimeStep = mechanicsSolveTimestep;
 
-    mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
+    // **NOTE** if this assertion trips you may be passing in numElecTimestepsPerMechTimestep as the 8th
+    // parameter of the constructor--this has now changed so you should pass in the mechanics timestep
+    assert(mechanicsSolveTimestep <= 10); // no reason why this should ever be this large
 
-    mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
+
     assert(contractionModelOdeTimeStep <= mMechanicsTimeStep+1e-14);
     mContractionModelOdeTimeStep = contractionModelOdeTimeStep;
 

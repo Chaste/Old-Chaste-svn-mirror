@@ -183,7 +183,7 @@ public :
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use
      * @param electricsPdeTimeStep timestep used in solving for the electrical activity
-     * @param numElecTimeStepsPerMechTimestep number of electrics timesteps to be used in each mechanics solve
+     * @param mechanicsSolveTimestep how often the mechanics is solved for (should be a multiple of electrics PDE timestep)
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
@@ -194,7 +194,7 @@ public :
                                    AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
                                    double electricsPdeTimeStep,
-                                   unsigned numElecTimeStepsPerMechTimestep,
+                                   double mechanicsSolveTimestep,
                                    double contractionModelOdeTimeStep,
                                    std::string outputDirectory);
 
