@@ -5,13 +5,13 @@ The following new files/directories were created:
 --------provenance_info_0.txt
 --------vtk_output
 ------------.chaste_deletable_folder
-------------BidomainLR91_3d.vtu
-------------BidomainLR91_3d_times.info
+------------Bidomain_3d.vtu
+------------Bidomain_3d_times.info
 ------------ChasteDefaults.xml
 ------------ChasteParameters.xml
 
 The following existing files/directories changed their contents:
 <Test Directory>
 ----SaveBidomain
---------BidomainLR91_3d.h5
+--------Bidomain_3d.h5
 --------progress_status.txt

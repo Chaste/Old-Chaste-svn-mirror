@@ -1,4 +1,4 @@
-HDF5 "/home/jonc/texttesttmp/chaste.13Sep135826/chaste/resume_monodomain/SaveMonodomain/MonodomainLR91_2d.h5" {
+HDF5 "/home/jonc/texttesttmp/chaste.13Sep135826/chaste/resume_monodomain/SaveMonodomain/Monodomain_2d.h5" {
 GROUP "/" {
    DATASET "Data" {
       DATATYPE  H5T_IEEE_F64LE

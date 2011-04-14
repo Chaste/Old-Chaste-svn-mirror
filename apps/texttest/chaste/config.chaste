@@ -67,8 +67,8 @@ UpstrokeTimeMap_minus_30_dat:ChasteResults/output/UpstrokeTimeMap_-30.dat
 AbstractCardiacProblem_mSolution_h5:ChasteResults_checkpoints/10ms/ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
 
 # Extra files to test against in resume_monodomain & resume_bidomain
-resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
-resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
+resumed_bi_h5:SaveBidomain/Bidomain_3d.h5
+resumed_mono_h5:SaveMonodomain/Monodomain_2d.h5
 
 [collate_script]
 #Some HDF5 files (S1S2) we only check for size - as number of blocks

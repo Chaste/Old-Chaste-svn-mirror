@@ -26,7 +26,7 @@
       </cp20:Stimulus>
     </cp20:Stimuli>
     <cp20:OutputDirectory>SaveBidomain</cp20:OutputDirectory>
-    <cp20:OutputFilenamePrefix>BidomainLR91_3d</cp20:OutputFilenamePrefix>
+    <cp20:OutputFilenamePrefix>Bidomain_3d</cp20:OutputFilenamePrefix>
     <cp20:CheckpointSimulation max_checkpoints_on_disk="3" timestep="2" unit="ms"/>
   </cp20:Simulation>
 
