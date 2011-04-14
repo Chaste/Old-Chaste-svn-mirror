@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <ctime>
 
+#include "CheckpointArchiveTypes.hpp" // Needed to avoid segfault on older Boosts...
+
 #include "RunAndCheckIonicModels.hpp"
 
 #include "SimpleStimulus.hpp"
