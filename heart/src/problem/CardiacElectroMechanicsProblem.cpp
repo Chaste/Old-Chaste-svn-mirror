@@ -194,13 +194,13 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
 //void CardiacElectroMechanicsProblem<DIM>::SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion)
 //{
 //    assert(mpImpactRegion == NULL);
-//    mpImpactRegion = &rImpactRegion; 
+//    mpImpactRegion = &rImpactRegion;
 //}
 //
 //// #1245
 //template<unsigned DIM>
 //void CardiacElectroMechanicsProblem<DIM>::ApplyImpactTractions(double time)
-//{    
+//{
 //    if(mpImpactRegion==NULL)
 //    {
 //        return;
@@ -210,7 +210,7 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
 //    double end_time = 20;
 //    double magnitude = 1.5;
 //    unsigned direction = 1;
-//    
+//
 //    c_vector<double,DIM> traction = zero_vector<double>(DIM);
 //    if( (time>=start_time) && (time<=end_time) )
 //    {
@@ -246,12 +246,6 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
 
     mContractionModel = contractionModel;
 
-    // create the monodomain problem. Note the we use this to set up the cells,
-    // get an initial condition (voltage) vector, and get an solver. We won't
-    // ever call solve on the MonodomainProblem
-    assert(pCellFactory != NULL);
-    mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
-
     // save time infomation
     assert(endTime > 0);
     mEndTime = endTime;
@@ -273,9 +267,14 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // parameter of the constructor--this has now changed so you should pass in the mechanics timestep
     assert(mechanicsSolveTimestep <= 10); // no reason why this should ever be this large
 
-
     assert(contractionModelOdeTimeStep <= mMechanicsTimeStep+1e-14);
     mContractionModelOdeTimeStep = contractionModelOdeTimeStep;
+
+    // create the monodomain problem. Note the we use this to set up the cells,
+    // get an initial condition (voltage) vector, and get an solver. We won't
+    // ever call solve on the MonodomainProblem
+    assert(pCellFactory != NULL);
+    mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
 
     // check whether output is required
     mWriteOutput = (outputDirectory!="");
@@ -416,10 +415,10 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     {
         mpMeshPair->SetUpBoxesOnCoarseMesh();
     }
-    
+
     if(mCellModelsAffectedByDeformationMef)
     {
-        // compute the coarse elements which contain each fine node -- for transferring stretch from 
+        // compute the coarse elements which contain each fine node -- for transferring stretch from
         // mechanics solve electrics cell models
         mpMeshPair->ComputeCoarseElementsForFineNodes(false);
 
@@ -430,17 +429,17 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     if(mConductivityAffectedByDeformationMef)
     {
         // compute the coarse elements which contain each fine element centroid -- for transferring F from
-        // mechanics solve to electrics mesh elements 
+        // mechanics solve to electrics mesh elements
         mpMeshPair->ComputeCoarseElementsForFineElementCentroids(false);
 
-        // initialise the store of the F in each mechanics element (one constant value of F) in each 
+        // initialise the store of the F in each mechanics element (one constant value of F) in each
         mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
 
         // tell the abstract tissue class that the conductivities need to be modified, passing in this class
         // (which is of type AbstractConductivityModifier)
         mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);
     }
-        
+
     if(mWriteOutput)
     {
         TrianglesMeshWriter<DIM,DIM> mesh_writer(mOutputDirectory,"electrics_mesh",false);
@@ -488,8 +487,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechSolver->SetWriteOutput();
         mpCardiacMechSolver->WriteCurrentDeformation("solution",mech_writer_counter);
 
-        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui", 
-                                                               "solution", 
+        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui",
+                                                               "solution",
                                                                *(this->mpMechanicsMesh),
                                                                WRITE_QUADRATIC_MESH);
         std::vector<std::string> fields;
@@ -502,7 +501,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         {
             // the writer inside monodomain problem uses the printing timestep
             // inside HeartConfig to estimate total number of timesteps, so make
-            // sure this is set to what we will use. 
+            // sure this is set to what we will use.
             HeartConfig::Instance()->SetPrintingTimeStep(mMechanicsTimeStep);
             mpMonodomainProblem->InitialiseWriter();
             mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
@@ -532,12 +531,12 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         //////////////////////////////////////////////////////////////////////////////////////
         if(mCellModelsAffectedByDeformationMef)
         {
-            //  Determine the stretch in each mechanics element (later: determine stretch, and 
+            //  Determine the stretch in each mechanics element (later: determine stretch, and
             //  deformation gradient)
             mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
 
             //  Set the stretches on each of the cell models
-            for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
+            for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow();
                          global_index < mpElectricsMesh->GetDistributedVectorFactory()->GetHigh();
                          global_index++)
             {
@@ -545,7 +544,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 double stretch = mStretchesForEachMechanicsElement[containing_elem];
                 mpMonodomainProblem->GetTissue()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
-            
+
             // the deformation gradient does not need to be passed to the tissue so that F is used to compute the conductivity, instead this is
             // done through the "mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);" line above, which means
             // rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
@@ -555,7 +554,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         /////////////////////////////////////////////////////////////////////////
         ////
-        ////  Solve for the electrical activity 
+        ////  Solve for the electrical activity
         ////
         /////////////////////////////////////////////////////////////////////////
         LOG(2, "  Solving electrics");
@@ -658,7 +657,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         // make sure the mechanics solver knows the current time (in case
         // the traction say is time-dependent).
         mpCardiacMechSolver->SetCurrentTime(stepper.GetTime());
-        
+
 //// #1245
 //        ApplyImpactTractions(stepper.GetTime());
 
@@ -716,14 +715,14 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         delete mpMonodomainProblem->mpWriter;
 
         std::string input_dir = mOutputDirectory+"/electrics";
-        
+
         // Convert simulation data to meshalyzer format - commented
         std::string config_directory = HeartConfig::Instance()->GetOutputDirectory();
         HeartConfig::Instance()->SetOutputDirectory(input_dir);
-        
+
         //Hdf5ToMeshalyzerConverter<DIM,DIM> meshalyzer_converter(input_dir, "voltage", mpElectricsMesh);
-        
-        // convert output to CMGUI format        
+
+        // convert output to CMGUI format
         Hdf5ToCmguiConverter<DIM,DIM> cmgui_converter(input_dir,"voltage",mpElectricsMesh);
 
         // Write mesh in a suitable form for meshalyzer
@@ -733,13 +732,13 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         //mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
         // Write the parameters out
         //HeartConfig::Instance()->Write();
-    
+
         // interpolate the electrical data onto the mechanics mesh nodes and write CMGUI...
         // Note: this calculates the data on ALL nodes of the mechanics mesh (incl internal,
-        // non-vertex ones), which won't be used if linear CMGUI visualisation 
+        // non-vertex ones), which won't be used if linear CMGUI visualisation
         // of the mechanics solution is used.
         VoltageInterpolaterOntoMechanicsMesh<DIM> cnverter(*mpElectricsMesh,*mpMechanicsMesh,input_dir,"voltage");
-        
+
         // reset to the default value
         HeartConfig::Instance()->SetOutputDirectory(config_directory);
     }
