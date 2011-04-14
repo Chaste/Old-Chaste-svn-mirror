@@ -78,7 +78,7 @@ void CellProperties::CalculateProperties()
     {
         v = mrVoltage[i];
         t = mrTime[i];
-        voltage_derivative = (v - prev_v) / (t - prev_t);
+        voltage_derivative = (t == prev_t) ? 0.0 : (v - prev_v) / (t - prev_t);
 
         // Look for the max upstroke velocity and when it happens (could be below or above threshold).
         if (voltage_derivative >= max_upstroke_velocity)
@@ -104,7 +104,7 @@ void CellProperties::CalculateProperties()
                 {
                     current_resting_value = prev_v;
                 }
-                
+
                 // If we cross the threshold, this counts as an AP
                 if ( v>mThreshold && prev_v <= mThreshold )
                 {
@@ -138,7 +138,7 @@ void CellProperties::CalculateProperties()
                 {
                    current_peak = v;
                 }
-                
+
                 // we check whether we have above threshold depolarisations
                 // and only if if we haven't just switched from below threshold at this time step.
                 // The latter is to avoid recording things depending on resting behaviour (in case of sudden upstroke from rest)
@@ -185,7 +185,7 @@ void CellProperties::CalculateProperties()
         prev_t = t;
         prev_voltage_derivative = voltage_derivative;
     }
-    
+
 
     // One last check. If the simulation ends halfway through an AP
     // i.e. if the vectors of onsets has more elements than the vectors
@@ -232,7 +232,7 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
             {
                 apd_is_calculated = false;
             }
-            
+
             // Start the timing where we first cross the target voltage
             if ( prev_v<v && prev_v<=target && v>=target && apd_starting_time_found==false)
             {
@@ -240,7 +240,7 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
                 apd_start_time=t+( (target-prev_v)/(v-prev_v) )*(t-mrTime[i-1]);
                 apd_starting_time_found = true;
             }
-            
+
             //if we hit the target while repolarising
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)

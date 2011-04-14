@@ -417,16 +417,16 @@ public:
             catch (Exception e)
             {
                 WARNING("This run threw an exception.  Check convergence results\n");
-                std::cout<<e.GetMessage() << std::endl;
+                std::cout << e.GetMessage() << std::endl;
             }
 
-            std::cout << "Time to solve = "<<MPI_Wtime()-time_before<<" seconds\n";
+            std::cout << "Time to solve = " << MPI_Wtime()-time_before << " seconds\n";
 
             OutputFileHandler results_handler("Convergence", false);
             Hdf5DataReader results_reader = cardiac_problem.GetDataReader();
 
             {
-                std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", third_quadrant_node);
+                std::vector<double> transmembrane_potential = results_reader.GetVariableOverTime("V", third_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
 
                 OutputFileHandler plot_file_handler("ConvergencePlots", false);
@@ -474,8 +474,8 @@ public:
                 catch (Exception e)
                 {
                     #define COVERAGE_IGNORE
-                    std::cout<<"Warning - this run threw an exception in calculating propagation.  Check convergence results\n";
-                    std::cout<<e.GetMessage() << std::endl;
+                    std::cout << "Warning - this run threw an exception in calculating propagation.  Check convergence results\n";
+                    std::cout << e.GetMessage() << std::endl;
                     #undef COVERAGE_IGNORE
                 }
                 double cond_velocity_error = 1e10;
@@ -574,7 +574,7 @@ public:
 #define COVERAGE_IGNORE
                     if (time_series.size() == 1u)
                     {
-                        std::cout<<"Failed after successful convergence - give up this convergence test\n";
+                        std::cout << "Failed after successful convergence - give up this convergence test\n";
                         break;
                     }
 #undef COVERAGE_IGNORE
