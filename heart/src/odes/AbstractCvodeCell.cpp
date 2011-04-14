@@ -145,13 +145,6 @@ N_Vector AbstractCvodeCell::GetInitialConditions()
     return v;
 }
 
-N_Vector AbstractCvodeCell::GetStateVariables()
-{
-    assert(mpSystemInfo);
-    assert(mStateVariables);
-    return CopyVector(mStateVariables);
-}
-
 void AbstractCvodeCell::SetStateVariables(N_Vector stateVars)
 {
     if (mStateVariables and stateVars != mStateVariables)

@@ -106,6 +106,12 @@ public:
     VECTOR& rGetStateVariables();
 
     /**
+     * Get a copy of the state variable vector.
+     * Caller takes responsibility for freeing the vector.
+     */
+    VECTOR GetStateVariables();
+
+    /**
      * Get the value of a given state variable.
      *
      * @param index the index of the state variable

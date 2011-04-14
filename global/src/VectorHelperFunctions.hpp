@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @file
- * 
+ *
  * A selection of helper functions to be able to access std::vector<double>
  * and CVODE's N_Vector types using the same interface.  These are used by
  * AbstractParameterisedSystem and some tests.
@@ -47,10 +47,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Helper function to get a vector component.
- * 
+ *
  * This isn't a member so that we can specialise it without having to
  * specialise the whole class.
- * 
+ *
  * @param rVec  the vector to access
  * @param index  the index of the component to get
  */
@@ -59,10 +59,10 @@ inline double GetVectorComponent(const VECTOR& rVec, unsigned index);
 
 /**
  * Helper function to set a vector component.
- * 
+ *
  * This isn't a member so that we can specialise it without having to
  * specialise the whole class.
- * 
+ *
  * @param rVec  the vector to modify
  * @param index  the index of the component to set
  * @param value  the new value
@@ -72,10 +72,10 @@ inline void SetVectorComponent(VECTOR& rVec, unsigned index, double value);
 
 /**
  * Helper function to determine a vector's size.
- * 
+ *
  * This isn't a member so that we can specialise it without having to
  * specialise the whole class.
- * 
+ *
  * @param rVec  the vector
  * @return  its size
  */
@@ -84,10 +84,10 @@ inline unsigned GetVectorSize(const VECTOR& rVec);
 
 /**
  * Helper function to initialise a vector to be empty/unset.
- * 
+ *
  * This isn't a member so that we can specialise it without having to
  * specialise the whole class.
- * 
+ *
  * @param rVec  the vector
  */
 template<typename VECTOR>
@@ -95,14 +95,25 @@ inline void InitialiseEmptyVector(VECTOR& rVec);
 
 /**
  * Helper function to delete a vector.
- * 
+ *
  * This isn't a member so that we can specialise it without having to
  * specialise the whole class.
- * 
+ *
  * @param rVec  the vector
  */
 template<typename VECTOR>
 inline void DeleteVector(VECTOR& rVec);
+
+/**
+ * Helper function to create a fresh copy of a vector.
+ *
+ * This isn't a member so that we can specialise it without having to
+ * specialise the whole class.
+ *
+ * @param rVec  the vector to copy
+ */
+template<typename VECTOR>
+inline VECTOR CopyVector(VECTOR& rVec);
 
 
 #ifdef CHASTE_CVODE
@@ -212,6 +223,16 @@ inline void DeleteVector(std::vector<double>& rVec)
 {
 }
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ */
+template<>
+inline std::vector<double> CopyVector(std::vector<double>& rVec)
+{
+    return rVec;
+}
+
 //
 // Specialisations for N_Vector
 //
@@ -276,6 +297,26 @@ inline void DeleteVector(N_Vector& rVec)
         rVec->ops->nvdestroy(rVec);
         rVec = NULL;
     }
+}
+
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ */
+template<>
+inline N_Vector CopyVector(N_Vector& rVec)
+{
+    N_Vector copy = NULL;
+    if (rVec)
+    {
+        copy = N_VClone(rVec);
+        unsigned size = NV_LENGTH_S(rVec);
+        for (unsigned i=0; i<size; i++)
+        {
+            NV_Ith_S(copy, i) = NV_Ith_S(rVec, i);
+        }
+    }
+    return copy;
 }
 #endif // CHASTE_CVODE
 

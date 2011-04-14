@@ -115,7 +115,7 @@ protected:
 public:
     /**
      * Create a new cardiac cell.
-     * 
+     *
      * @note subclasses @b must call Init() in their constructor after setting #mpSystemInfo.
      *
      * @param pSolver  not used for these cells (they're always solved with CVODE); may be empty
@@ -149,7 +149,7 @@ public:
      * Reset the model's state variables to the default initial conditions.
      */
     void ResetToInitialConditions();
-    
+
     /**
      * Get the initial conditions for the cell.
      *
@@ -178,14 +178,6 @@ public:
     void SetStateVariablesUsingACopyOfThisVector(N_Vector stateVars);
 
     /**
-     * Takes a copy of the state variable vector.
-     * Doesn't really return a vector (N_Vector is a pointer type)
-     * but named like this to match AbstractCardiacCell.
-     * Caller takes responsibility for freeing the vector.
-     */
-    N_Vector GetStateVariables();
-
-    /**
      * RHS evaluation function, to be provided by subclasses.
      *
      * @param t  the time at which to evaluate the RHS
@@ -210,7 +202,7 @@ public:
     /**
      * Simulate this cell's behaviour between the time interval [tStart, tEnd],
      * updating the internal state variable values.
-     * 
+     *
      * The maximum time step to use is given by #mMaxDt, which defaults to
      * HeartConfig::Instance()->GetPrintingTimeStep() if unset.
      *
@@ -218,11 +210,11 @@ public:
      * @param tEnd  end of the time interval to simulate
      */
     virtual void SolveAndUpdateState(double tStart, double tEnd);
-    
+
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * and return state variable values.
-     * 
+     *
      * The maximum time step to use will be taken as #mMaxDt.  If this is unset
      * it is the same as the sampling interval, which defaults to
      * HeartConfig::Instance()->GetPrintingTimeStep().
@@ -241,7 +233,7 @@ public:
      * @param tEnd  end of the time interval to simulate
      */
     void ComputeExceptVoltage(double tStart, double tEnd);
-    
+
     /**
      * Set whether to clamp the voltage by setting its derivative to zero.
      * @param clamp whether to clamp

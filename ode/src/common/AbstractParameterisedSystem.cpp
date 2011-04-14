@@ -83,6 +83,12 @@ VECTOR& AbstractParameterisedSystem<VECTOR>::rGetStateVariables()
 }
 
 template<typename VECTOR>
+VECTOR AbstractParameterisedSystem<VECTOR>::GetStateVariables()
+{
+    return CopyVector(mStateVariables);
+}
+
+template<typename VECTOR>
 double AbstractParameterisedSystem<VECTOR>::GetStateVariable(unsigned index) const
 {
     if (index >= mNumberOfStateVariables)
