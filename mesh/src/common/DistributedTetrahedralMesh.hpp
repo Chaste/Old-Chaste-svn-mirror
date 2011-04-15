@@ -239,6 +239,9 @@ public:
      * Diagonals can be staggered so that there is no preferred
      * diffusion propagation direction.
      *
+     * Distributed version splits the mesh in layers in the y-direction.
+     * That is, the zeroth process will own from y=0 to about y=height/num_procs etc.
+     *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
@@ -247,6 +250,9 @@ public:
 
     /**
      * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
+     *
+     * Distributed version splits the mesh in layers in the z-direction.
+     * That is, the zeroth process will own from z=0 to about z=depth/num_procs etc.
      *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
