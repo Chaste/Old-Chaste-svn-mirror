@@ -83,7 +83,7 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1d");
@@ -95,11 +95,9 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
-        // check some voltages
+        // Check some voltages
         ReplicatableVector solution_replicated(bidomain_problem.GetSolution());
-
         double atol=5e-3;
-
         TS_ASSERT_DELTA(solution_replicated[1], -16.4861, atol);
         TS_ASSERT_DELTA(solution_replicated[2], 22.8117, atol);
         TS_ASSERT_DELTA(solution_replicated[3], -16.4893, atol);
@@ -108,6 +106,7 @@ public:
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
         TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
+        // Save for checking in the next test
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
@@ -121,20 +120,15 @@ public:
         {
             HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
             HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
-            //HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+            HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
             HeartConfig::Instance()->SetOutputDirectory("BiProblemArchiveHelper");
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
 
             PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
-
-            /// \todo: Make this test pass if the mesh is set via HeartConfig
-            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1mm_10_elements");
-            DistributedTetrahedralMesh<1,1> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
-            bidomain_problem.SetMesh(&mesh);
 
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms

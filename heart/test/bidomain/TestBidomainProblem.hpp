@@ -696,11 +696,11 @@ public:
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
-        
+
         VtkMeshReader<3,3> mesh_reader(results_dir + "axi3d.vtu");
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 50U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 139U);
-        
+
         std::vector<double> first_node = mesh_reader.GetNextNode();
         TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
@@ -710,8 +710,8 @@ public:
         TS_ASSERT_DELTA( next_node[0] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[1] , 5.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
-        
-        //V_m and phi_e samples 
+
+        //V_m and phi_e samples
         std::vector<double> v_at_last, v_at_50, phi_at_50;
         mesh_reader.GetPointData( "V_000050", v_at_50);
         TS_ASSERT_DELTA( v_at_50[0],  -83.6564, 1e-3 );
@@ -723,7 +723,7 @@ public:
         TS_ASSERT_DELTA( phi_at_50[49],  0.0062, 1e-3 );
         mesh_reader.GetPointData( "V_000100", v_at_last);
         TS_ASSERT_DELTA( v_at_last[0],   -83.6881, 1e-3 );
-  
+
         //HeartConfig XML
         filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param2(filename_param.c_str());
@@ -810,7 +810,7 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1d");
@@ -822,7 +822,7 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
-        // check some voltages
+        // Check some voltages
         ReplicatableVector solution_replicated(bidomain_problem.GetSolution());
 
         double atol=5e-3;
@@ -835,6 +835,7 @@ public:
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
         TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
+        // Save solution for later comparison
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
@@ -914,15 +915,13 @@ public:
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1dInTwoHalves");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
-        // run testing PrintingTimeSteps
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
-
 
         bidomain_problem.Initialise();
 
@@ -934,8 +933,7 @@ public:
         bidomain_problem.Solve();
         TS_ASSERT_DELTA(bidomain_problem.GetCurrentTime(), 2.0, 1e-12);
 
-
-        // check some voltages
+        // Check some voltages
         ReplicatableVector solution_replicated(bidomain_problem.GetSolution());
 
         double atol=5e-3;
@@ -947,25 +945,27 @@ public:
         TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
         TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
+
+        // Compare against saved solution
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             TS_ASSERT_DELTA(solution_replicated[index], mSolutionReplicated1d2ms[index], 5e-11);
         }
 
-        // check output file contains results for the whole simulation and agree with normal test
+        // Check output file contains results for the whole simulation and agree with normal test
         TS_ASSERT(CompareFilesViaHdf5DataReader("BidomainSimple1dInTwoHalves", "BidomainLR91_1d", true,
                                                 "BidomainSimple1d", "BidomainLR91_1d", true));
 
         // Test that we can keep solving even if the results have been deleted (i.e. by creating a new
         // .h5 file when we realize that there isn't one to extend)
-        OutputFileHandler file_handler("BidomainSimple1dInTwoHalves", true);
-        FileFinder h5_file("BidomainSimple1dInTwoHalves/BidomainLR91_1d.h5", RelativeTo::ChasteTestOutput);
+        HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1dInTwoHalves_2");
+        OutputFileHandler file_handler("BidomainSimple1dInTwoHalves_2", true);
+        FileFinder h5_file = file_handler.FindFile("BidomainLR91_1d.h5");
         TS_ASSERT(!h5_file.Exists());
         HeartConfig::Instance()->SetSimulationDuration(3.0);
         TS_ASSERT_THROWS_NOTHING( bidomain_problem.Solve() );
         TS_ASSERT(h5_file.Exists());
     }
-
 
     /**
      * Not a very thorough test yet - just checks we can load a problem, simulate it, and
@@ -990,6 +990,7 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
 
             PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
