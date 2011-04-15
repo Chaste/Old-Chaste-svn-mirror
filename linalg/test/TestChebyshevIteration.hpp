@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
  * different compared to a real cardiac simulation. Do not take conclusions about preconditioner/solver performance
- * based on these tests only. 
+ * based on these tests only.
  */
 class TestChebyshevIteration : public CxxTest::TestSuite
 {
@@ -147,22 +147,22 @@ public:
         try
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-    
+
             ls.SetMatrixIsSymmetric();
             // Solve to relative convergence for coverage
             ls.SetRelativeTolerance(1e-6);
             ls.SetPcType("jacobi");
             ls.SetKspType("chebychev");
             ls.SetUseFixedNumberIterations(true, 64);
-    
+
             // Solving with zero guess for coverage.
             Vec solution = ls.Solve(zero_guess);
             unsigned chebyshev_adaptive_its = ls.GetNumIterations();
 
             TS_ASSERT_EQUALS(chebyshev_adaptive_its, 40u);
             TS_ASSERT_DELTA(ls.mEigMin, 0.0124, 1e-4);
-            TS_ASSERT_DELTA(ls.mEigMax, 1.8810, 1e-4);            
-            
+            TS_ASSERT_DELTA(ls.mEigMax, 1.8810, 1e-4);
+
             VecDestroy(solution);
         }
         catch (Exception& e)
@@ -178,31 +178,31 @@ public:
         }
 
 
-        // Make sure we are not inheriting a non-default number of iterations from previous test        
-        PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());        
+        // Make sure we are not inheriting a non-default number of iterations from previous test
+        PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-    
+
             ls.SetMatrixIsSymmetric();
             ls.SetRelativeTolerance(1e-6);
             ls.SetPcType("jacobi");
             ls.SetKspType("chebychev");
-            
+
             Vec solution = ls.Solve(zero_guess);
             unsigned chebyshev_no_adaptive_its = ls.GetNumIterations();
 
-            TS_ASSERT_EQUALS(chebyshev_no_adaptive_its, 88u);
+            TS_ASSERT_LESS_THAN(chebyshev_no_adaptive_its, 100u); // Normally 88, but 99 on maverick & natty
             TS_ASSERT_DELTA(ls.mEigMin, 0.0124, 1e-4);
-            TS_ASSERT_DELTA(ls.mEigMax, 1.8841, 1e-4);                       
+            TS_ASSERT_DELTA(ls.mEigMax, 1.8841, 1e-4);
 
-            VecDestroy(solution);            
+            VecDestroy(solution);
         }
 
         // Make sure we are not inheriting a non-default number of iterations from previous test
         PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
         {
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-    
+
             ls.SetMatrixIsSymmetric();
             ls.SetRelativeTolerance(1e-6);
             ls.SetPcType("jacobi");
@@ -212,9 +212,9 @@ public:
 
             TS_ASSERT_EQUALS(cg_its, 40u);
             TS_ASSERT_EQUALS(ls.mEigMin, DBL_MIN);
-            TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);                       
+            TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);
 
-            VecDestroy(solution);            
+            VecDestroy(solution);
         }
 
         MatDestroy(system_matrix);
