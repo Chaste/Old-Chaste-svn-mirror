@@ -30,15 +30,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <vector>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "UblasVectorInclude.hpp"
+
 #include "CryptCellsGenerator.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptProjectionForce.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "WntConcentration.hpp"
+#include "SimulationTime.hpp"
+#include "MutableMesh.hpp"
+#include "ChasteCuboid.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "MeshBasedCellPopulation.hpp"
+
 #include "AbstractCellBasedTestSuite.hpp"
 
 class TestCryptProjectionForce : public AbstractCellBasedTestSuite
@@ -388,43 +398,81 @@ public:
         }
     }
 
+private:
+    void SetUpCellsForTestForceCollection(std::vector<CellPtr>& rCells,
+                                          std::vector<unsigned>& rLocationIndices)
+    {
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        for (unsigned i=0; i<rLocationIndices.size(); i++)
+        {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+            CellPtr p_cell;
+            if (i==60)
+            {
+                p_cell.reset(new Cell(p_apc2, p_model));
+            }
+            else
+            {
+                p_cell.reset(new Cell(p_state, p_model));
+            }
+            p_cell->SetBirthTime(-10);
+            rCells.push_back(p_cell);
+        }
+    }
+    
+    void DoTestZeroForces(MeshBasedCellPopulationWithGhostNodes<2>& rCellPopulation,
+                          std::vector<AbstractForce<2>* >& rForces)
+    {
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(rCellPopulation.GetNumNodes());
+
+        for (unsigned i=0; i<rCellPopulation.GetNumNodes(); i++)
+        {
+             node_forces.push_back(zero_vector<double>(2));
+        }
+
+        // Add force contributions
+        for (std::vector<AbstractForce<2>* >::iterator iter = rForces.begin();
+             iter != rForces.end();
+             ++iter)
+        {
+             (*iter)->AddForceContribution(node_forces, rCellPopulation);
+        }
+
+        for (AbstractCellPopulation<2>::Iterator cell_iter = rCellPopulation.Begin();
+             cell_iter != rCellPopulation.End();
+             ++cell_iter)
+        {
+            unsigned node_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+
+            TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
+            TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);
+        }
+    }
+
+public:
+
     void TestForceCollection() throw (Exception)
     {
         unsigned cells_across = 7;
         unsigned cells_up = 5;
         unsigned thickness_of_ghost_layer = 3;
 
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
+        // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
-
-            if (i==60)
-            {
-                CellPtr p_cell(new Cell(p_apc2, p_model));
-                p_cell->SetBirthTime(-10);
-                cells.push_back(p_cell);
-            }
-            else
-            {
-                CellPtr p_cell(new Cell(p_state, p_model));
-                p_cell->SetBirthTime(-10);
-                cells.push_back(p_cell);
-            }
-        }
-
+        SetUpCellsForTestForceCollection(cells, location_indices);
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        // Create two different force laws and add to a std::list
+        // Create two different force laws and add to a std::vector
         GeneralisedLinearSpringForce<2> linear_force;
 
         WntConcentration<2>::Instance()->SetCryptProjectionParameterA(0.0001);
@@ -436,68 +484,45 @@ public:
         forces.push_back(&crypt_projection_force);
 
         // Test node force calculation
-
-        // Initialise a vector of node forces
-        std::vector<c_vector<double, 2> > node_forces;
-        node_forces.reserve(cell_population.GetNumNodes());
-
-        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
-        {
-             node_forces.push_back(zero_vector<double>(2));
-        }
-
-        // Add force contributions
-        for (std::vector<AbstractForce<2>* >::iterator iter = forces.begin();
-             iter != forces.end();
-             ++iter)
-        {
-             (*iter)->AddForceContribution(node_forces, cell_population);
-        }
-
-        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-             cell_iter != cell_population.End();
-             ++cell_iter)
-        {
-            unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
-
-            TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
-            TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);
-        }
+        DoTestZeroForces(cell_population, forces);
 
         // Move a node along the x-axis and calculate the force exerted on a neighbour
-        c_vector<double,2> old_point = p_mesh->GetNode(59)->rGetLocation();
-        ChastePoint<2> new_point;
-        new_point.rGetLocation()[0] = old_point[0]+0.5;
-        new_point.rGetLocation()[1] = old_point[1];
-
-        p_mesh->SetNode(59, new_point, false);
-
-        // Initialise a vector of new node forces
-        std::vector<c_vector<double, 2> > new_node_forces;
-        new_node_forces.reserve(cell_population.GetNumNodes());
-
-        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
-             new_node_forces.push_back(zero_vector<double>(2));
+            c_vector<double,2> old_point = p_mesh->GetNode(59)->rGetLocation();
+            ChastePoint<2> new_point;
+            new_point.rGetLocation()[0] = old_point[0]+0.5;
+            new_point.rGetLocation()[1] = old_point[1];
+            p_mesh->SetNode(59, new_point, false);
         }
 
-        // Add force contributions
-        for (std::vector<AbstractForce<2>* >::iterator iter = forces.begin();
-             iter != forces.end();
-             ++iter)
         {
-             (*iter)->AddForceContribution(new_node_forces, cell_population);
+            // Initialise a vector of new node forces
+            std::vector<c_vector<double, 2> > new_node_forces;
+            new_node_forces.reserve(cell_population.GetNumNodes());
+
+            for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+            {
+                 new_node_forces.push_back(zero_vector<double>(2));
+            }
+
+            // Add force contributions
+            for (std::vector<AbstractForce<2>* >::iterator iter = forces.begin();
+                 iter != forces.end();
+                 ++iter)
+            {
+                 (*iter)->AddForceContribution(new_node_forces, cell_population);
+            }
+
+            // Forces should be twice the forces found using Meineke alone (since a flat crypt is used)
+            TS_ASSERT_DELTA(new_node_forces[60][0], 2*0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
+            TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
+
+            TS_ASSERT_DELTA(new_node_forces[59][0], 2*(-3+4.0/sqrt(7))*linear_force.GetMeinekeSpringStiffness(), 1e-4);
+            TS_ASSERT_DELTA(new_node_forces[59][1], 0.0, 1e-4);
+
+            TS_ASSERT_DELTA(new_node_forces[58][0], 2*0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
+            TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
         }
-
-        // Forces should be twice the forces found using Meineke alone (since a flat crypt is used)
-        TS_ASSERT_DELTA(new_node_forces[60][0], 2*0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
-
-        TS_ASSERT_DELTA(new_node_forces[59][0], 2*(-3+4.0/sqrt(7))*linear_force.GetMeinekeSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(new_node_forces[59][1], 0.0, 1e-4);
-
-        TS_ASSERT_DELTA(new_node_forces[58][0], 2*0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
 
         WntConcentration<2>::Destroy();
     }
