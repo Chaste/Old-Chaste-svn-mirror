@@ -1101,7 +1101,7 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
     {
         #ifdef MECH_VERBOSE
         std::cout <<  "\n-------------------\n"
-                  <<   "Newton iteration " << counter
+                  <<   "Newton iteration " << iteration_number
                   << ":\n-------------------\n";
         #endif
 
