@@ -7,6 +7,125 @@
 
 <h1>Chaste Release Notes</h1>
 
+<h2>Release 2.2 (changes since Release 2.1)</h2>
+
+<h3>Headline features</h3>
+
+<h4>General</h4>
+
+<ul>
+  <li>Full default test pack should now pass on more configurations.</li>
+  <li>Smarter chunking in HDF5 should reduce the time spent on I/O significantly for simulations with many output time steps.</li>
+  <li>Mesh load is scalable in parallel only with our binary mesh format.  A conversion utility is provided.  Please refer to the <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/CardiacExecutable/MeshConvert">MeshConvert</a> tutorial.</li>
+  <li>Performance of checkpointing with large meshes has been improved. We now archive permuted meshes without writing from memory to disc; instead the original files are copied.</li>
+  <li>Further improvements to tutorials (including the addition of solid mechanics tutorials), and user documentation.  Executable tutorials (as well as tutorial tests) are now routinely tested automatically.</li>
+</ul>
+
+<h4>Cardiac</h4>
+
+<ul>
+  <li>Added support for the definition of multiple bath/tissue regions. Based on whichever convention you followed in the elements file, you can inform Chaste of your choice of region identifiers with <tt>HeartConfig::SetTissueIdentifiers(std::set&lt;unsigned&gt; )</tt> and <tt>HeartConfig::SetBathIdentifiers(std::set&lt;unsigned&gt; )</tt>. One can also assign different conductivities to different bath regions with <tt>HeartConfig::SetBathMultipleConductivities(std::map&lt;unsigned, double&gt; )</tt>.</li>
+  <li>State variable interpolation may now be used for cardiac simulations.  This can lead to improved conduction velocity accuracy on meshes with spatial resolutions typically used in simulation studies, and has been implemented in an efficient manner. See <a class="wiki" href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/StateVariableInterpolation">ChasteGuides/StateVariableInterpolation</a> for more details.</li>
+  <li>It is now possible to output visualisation in parallel VTK (.pvtu) format. To do this you need to set the <tt>parallel_vtk</tt> attribute to "yes" in the <tt>OutputVisualizer</tt> element in the parameters file.</li>
+  <li>Fixed bug in fibre direction heterogeneities: when running in parallel some fibre directions were permuted between elements.  (This bug did not exist prior to release 2.1.)</li>
+  <li>Fixed bug with conductivity heterogeneities in 1D and 2D causing a '<tt>boost::numeric::ublas::bad_size</tt>' error.</li>
+  <li>User may now specify a list of node indices where time traces of output variables are requested (see below for details).</li>
+  <li>A (Strang) operator splitting solver has been implemented for monodomain. This is mainly for comparison of numerical methods &mdash; it is neither the default solver nor optimised. It can be switched on using the <tt>HeartConfig</tt> class: <tt>HeartConfig::Instance()-&gt;SetUseDiffusionReactionOperatorSplitting()</tt>.</li>
+</ul>
+
+<h4>Cell-based</h4>
+
+<ul>
+  <li>A new class <tt>CylindricalHoneycombMeshGenerator</tt> has been created and the existing <tt>HoneycombMeshGenerator</tt> class simplified. This included changing the arguments in the <tt>HoneycombMeshGenerator</tt> constructor. Also the class <tt>HoneycombMutableVertexMeshGenerator</tt> has been merged into <tt>HoneycombVertexMeshGenerator</tt> and the associated method <tt>GetMutableMesh</tt> renamed to <tt>GetMesh</tt> for consistency with the cell-centre code. These changes will break user projects.</li>
+  <li>A new cell population boundary condition class hierarchy has been handled, to deal with boundary conditions for cell movement. Such objects are passed to and stored in a <tt>CellBasedSimulation</tt> object in a similar way to forces and cell killers.</li>
+  <li>We have extended VTK functionality to allow for point data output from node- and mesh-based cell simulations for visualization in Paraview.</li>
+  <li>We have updated user tutorials and added new tutorial on using cell population boundary condition objects.</li>
+  <li>It has been made clear what code is needed in concrete <tt>CreateCellCycleModel</tt> methods.</li>
+</ul>
+
+<h3>New functionality &amp; major code changes</h3>
+
+<h4">General</h4>
+
+<ul>
+  <li>We have a new algorithm for random samples from the normal distribution in the <tt>RandomNumberGenerator</tt>, for increased stability at very large numbers of calls. Any results dependent on this will change, even with the same seed.</li>
+  <li>"Infrastructure tests" such as checking copyright notices and for duplicate file names are now not run by default (i.e. <tt>do_inf_tests=0</tt> is now the default setting), unless you have <tt>do_inf_tests=1</tt> in your hostconfig file.</li>
+  <li>Some new helper methods have been added to <tt>OutputFileHandler</tt> and <tt>FileFinder</tt>:
+    <ul>
+      <li><tt>OutputFileHandler::FindFile</tt> - get a <tt>FileFinder</tt> for a file in the output directory</li>
+      <li><tt>OutputFileHandler::CopyFileTo</tt> - copy a file to the output directory</li>
+      <li><tt>FileFinder::GetLeafName</tt> - get the leaf name of a file</li>
+    </ul></li>
+  <li>Support has been added for Boost version 1.44. However, note that due to a bug in this Boost version, many tests will crash after they have finished running (with the message "pure virtual method called. terminate called without an active exception")!</li>
+  <li>A new header <tt>SmartPointers.hpp</tt> has been added containing a few helpful macros for working with <tt>boost::shared_ptr</tt>.</li>
+  <li>Created new helper classes <tt>PetscVecTools</tt> and <tt>PetscMatTools</tt> in <tt>linalg</tt> that encapsulate many of the PETSc functions we use related to vectors and matrices. This isolates much of the PETSc-version-specific code within these classes, enabling cleaner user code. If new PETSc-version-specific code is written, suitable methods should be added to these classes in preference to using PETSc directly.</li>
+  <li>Added named attribute functionality to <tt>AbstractParameterisedSystem</tt>, allowing arbitrary real-valued attributes to be attached to ODE classes. This is used by PyCml to support named attributes on CellML models.  Also added <tt>Has...</tt> methods to ODE system information, to avoid the need for <tt>try...catch</tt> statements in generic code.</li>
+  <li>Changed the event handler classes to use <tt>MPI_Wtime</tt> rather than <tt>std::clock</tt> as underlying timer. This will give a more accurate wall clock time.</li>
+  <li>Time adaptivity can now be implemented for PDE solvers by writing an <tt>AbstractTimeAdaptivityController</tt> subclass. <tt>TestMonodomainWithTimeAdaptivity</tt> does some very simple adaptivity to demonstrate this.</li>
+  <li>Reduced parallel overhead associated with assembling PETSc objects. Since Chaste (almost always) ensures that data is generated only on the local process (and the helper methods in <tt>PetscVecTools</tt> and <tt>PetscMatTools</tt> enforce this), no data migration is required. We therefore by default set the PETSc option not to check whether migration is needed (<tt>{VEC,MAT}_IGNORE_OFF_PROC_ENTRIES</tt>).</li>
+  <li>ODE solvers now inherit from <tt>Identifiable</tt> in order to provide reflection, so that the solver used can be written to results files by <tt>OdeSolution</tt>. Unfortunately, this means that on older Boost versions (&lt;1.37) you need to include <tt>CheckpointArchiveTypes.hpp</tt> in any test which solves an ODE system to obtain an <tt>OdeSolution</tt> object, or you'll experience a segfault!</li>
+</ul>
+
+<h4>Cardiac</h4>
+
+<ul>
+  <li>New options in the XML parameters file:
+    <ul>
+      <li>A user may now specify a list of node indices where time traces of output variables are requested.  See <tt>ChasteParametersFullFormat.xml</tt> for an example of usage and the documentation of <tt>PostProcessingWriter::WriteVariablesOverTimeAtNodes</tt> for further information. The output files (one file per output variable) will have the nodal time traces arranged in columns (gnuplot-friendly), one column per requested node. The node numbers that the user requests are referred to the original (unpermuted) node numbering (hence it may differ from what the user sees - for example - when visualizing the output of a previous parallel simulation). No matter what permutation is used in the simulation, the output of the requested nodes will be the same.</li>
+      <li>A new post-processing step to calculate pseudo-ECGs has been added to the Chaste parameters file: the <tt>PseudoEcgElectrodePosition</tt> element, which specifies where the virtual probe electrode should be placed. This element may occur multiple times to calculate ECGs from different probe locations. Note that probe electrodes must be located outside the heart tissue!</li>
+      <li>A <tt>MeshPartitioning</tt> element has been added in the <tt>Numerical</tt> parameters section, allowing you to specify how a mesh gets partitioned in parallel (dumb/metis/parmetis/petsc). This maps to the <tt>HeartConfig</tt> methods <tt>Set/GetMeshPartitioning</tt>.</li>
+      <li>Stimuli section can use ellipsoid regions.</li>
+    </ul></li>
+  <li>Explicit instantiation is now used for <tt>CardiacSimulationArchiver</tt>, allowing this class and <tt>CardiacSimulation</tt> to be split into <tt>.hpp</tt> and <tt>.cpp</tt> files. This improves compile times (especially for the Intel compiler) but may break some projects or tests which use checkpointing when run with older Boost versions (&lt;1.37).</li>
+  <li>Various improvements to cell model generation from CellML:
+    <ul>
+      <li>Lookup table settings (table bounds and step size) can now be modified at run-time, not just code generation time. There is a new <tt>AbstractLookupTableCollection</tt> base class for lookup tables that provides this functionality, with a get method on <tt>AbstractCardiacCellInterface</tt> that is overridden by subclasses providing tables.</li>
+      <li>There have been some improvements to the performance of various cell model optimisations. Some are not yet enabled by default (PyCml flags <tt>--include-dt-in-tables</tt>, <tt>--combine-commutative-tables</tt>, <tt>--no-member-vars</tt>, <tt>--pe-convert-power</tt>) and others are "unsafe in general" (PyCml flag <tt>--no-check-lt-bounds</tt>).</li>
+      <li>Conversion issues between cardiac cell models and Chaste are now handled in a more generic fashion within PyCml by creating an interface component. This ensures that all quantities read or written by the Chaste tissue model, including ionic currents, are in the correct units.</li>
+      <li>There is now a constructor options which allows the cell model converter (<tt>CellMLToSharedLibraryConverter</tt>) to save generated C++ source files for inspection.</li>
+      <li>A new option <tt>--expose-annotated-variables</tt> has been added to PyCml, which exposes all oxmeta-annotated variables to the <tt>GetAnyVariable</tt> functionality, i.e. it annotates non-state variables as parameters or derived quantities, as appropriate.  There is also an <tt>--expose-all-variables</tt> option, which annotates every variable in the model.</li>
+      <li>Allowed certain computed variables (those which can be determined not to vary at run-time) to be metadata annotated constants. In particular, this allows the default stimulus current amplitude to be calculated within the cell model, rather than given as a fixed constant number.</li>
+      <li>Used the new named attribute functionality on <tt>AbstractParameterisedSystem</tt> to support named attributes on CellML models.</li>
+    </ul></li>
+  <li>Dedicated S1-S2 and dynamic restitution stimuli classes (mainly for single cell work) have been brought into the main trunk from a user project.</li>
+  <li>Added <tt>Has...</tt> methods to cardiac modifiers, to avoid the need for <tt>try...catch</tt> statements in generic code.</li>
+  <li>Implemented <tt>SolveAndUpdateState</tt> for backward Euler cells.</li>
+  <li>The interface for <tt>CardiacElectroMechanicsProblem</tt> (and <tt>CardiacElectroMechProbRegularGeom</tt>) has changed slightly, instead of taking in the number of electrics solves per mechanics solve, it takes in the mechanics solve timestep (which should be a multiple of the electrics PDE solve).</li>
+</ul>
+
+<h4>Cell-based</h4>
+
+<ul>
+  <li>See above under "Headline features".</li>
+</ul>
+
+<h3>Code interface changes that may require changes to user code</h3>
+
+<h4>General</h4>
+
+<ul>
+  <li>The interface to the <tt>SimpleLinearParabolicSolver</tt> has changed: instead of calling <tt>SetTimes(t0,t1,dt)</tt>, you have to call two methods <tt>SetTimes(t0,t1)</tt> and <tt>SetTimeStep(dt)</tt>.</li>
+  <li><tt>DistributedVectorFactory</tt> now always sets <tt>mpOriginalFactory</tt> when loaded from an archive.</li>
+  <li>Moved the partitioning type into its own header file, rather than being nested in <tt>DistributedTetrahedralMesh</tt>. You just need to change (e.g.) <tt>DistributedTetrahedralMesh&lt;1,1&gt;::DUMB</tt> to <tt>DistributedTetrahedralMeshPartitionType::DUMB</tt>.</li>
+</ul>
+
+<h4>Cardiac</h4>
+
+<ul>
+  <li><tt>VerifyStateVariables</tt> is now not called in <tt>NDEBUG</tt> builds, which may lead to tests not 'failing' in optimised builds.</li>
+  <li>Added an optional parameter <tt>pStateVariables</tt> to <tt>GetIIonic</tt>, which gives the state at which to evaluate the current. This will require a change to any manually written cell model to match the new interface.</li>
+</ul>
+
+<h4>Cell-based</h4>
+
+<ul>
+  <li>Every cell cycle model now needs an <tt>OutputCellCycleModelParameters</tt> method.  See existing models for what it should include.</li>
+</ul>
+
+
+<hr />
+
+
 <h2>Release 2.1 (changes since Release 2.0)</h2>
 
 <h3>Headline changes</h3>

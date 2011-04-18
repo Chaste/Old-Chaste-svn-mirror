@@ -14,7 +14,6 @@ https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/CodeGeneration
 For a guest login, use the username "anonymous", and your email address as
 the password.
 
-Static versions of the guide accompanying Chaste releases are also
-available.  See
-https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html
-for release 2.1.
+Static versions of the guide accompanying Chaste releases are also available.  See
+https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.2/ChasteGuides/CodeGenerationFromCellML.html
+for release 2.2.
