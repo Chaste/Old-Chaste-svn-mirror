@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "Timer.hpp"
 #include "Warnings.hpp"
+#include <algorithm>
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -61,8 +62,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
-    mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX),
+    mEigMin(DBL_MAX),
+    mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
     assert(lhsVectorSize>0);
@@ -115,8 +116,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
-    mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX),
+    mEigMin(DBL_MAX),
+    mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
     assert(lhsVectorSize>0);
@@ -151,8 +152,8 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
-    mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX),
+    mEigMin(DBL_MAX),
+    mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
     VecDuplicate(templateVector, &mRhsVector);
@@ -192,8 +193,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mUseFixedNumberIterations(false),
     mEvaluateNumItsEveryNSolves(UINT_MAX),
     mpConvergenceTestContext(NULL),
-    mEigMin(DBL_MIN),
-    mEigMax(DBL_MAX),
+    mEigMin(DBL_MAX),
+    mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
     assert(residualVector || jacobianMatrix);
@@ -1082,7 +1083,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
 
                 mEigMin = r_eig[0];
-                mEigMax = r_eig[eigs_computed-1];
+                /*
+                 * Using max() covers a borderline case found in TestChasteBenchmarksForPreDiCT where there's a big
+                 * gap in the spectrum between ~1.2 and ~2.5. Some reevaluations pick up 2.5 and others don't. If it
+                 * is not picked up, Chebyshev will diverge after 10 solves or so. 
+                 */
+                mEigMax = std::max(mEigMax,r_eig[eigs_computed-1]);
 
                 delete[] r_eig;
                 delete[] c_eig;
