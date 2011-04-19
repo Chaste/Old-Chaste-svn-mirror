@@ -211,8 +211,8 @@ public:
             unsigned cg_its = ls.GetNumIterations();
 
             TS_ASSERT_EQUALS(cg_its, 40u);
-            TS_ASSERT_EQUALS(ls.mEigMin, DBL_MIN);
-            TS_ASSERT_EQUALS(ls.mEigMax, DBL_MAX);
+            TS_ASSERT_EQUALS(ls.mEigMin, DBL_MAX);
+            TS_ASSERT_EQUALS(ls.mEigMax, DBL_MIN);
 
             VecDestroy(solution);
         }
