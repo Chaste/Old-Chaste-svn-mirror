@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
+#include "AbstractMaterialLaw.hpp"
 
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
@@ -326,6 +327,39 @@ protected:
      * @param normResidual norm of the residual
      */
     virtual void PostNewtonStep(unsigned counter, double normResidual);
+
+
+    /**
+     *  Simple (one-line function which just calls ComputeStressAndStressDerivative() on the material law given, using C,
+     *  inv(C), and p as the input and with rT and rDTdE as the output. Overloaded by other assemblers (eg cardiac
+     *  mechanics) which need to add extra terms to the stress.
+     *
+     *  @param pMaterialLaw The material law for this element
+     *  @param rC The Lagrangian deformation tensor (F^T F)
+     *  @param rInvC The inverse of C. Should be computed by the user.
+     *  @param pressure The current pressure
+     *  @param elementIndex Index of the current element
+     *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner
+     *    loop over quadrature points), of the current quadrature point.
+     *  @param rT The stress will be returned in this parameter
+     *  @param rDTdE the stress derivative will be returned in this parameter, assuming
+     *    the final parameter is true
+     *  @param computeDTdE A boolean flag saying whether the stress derivative is
+     *    required or not.
+     */
+    virtual void ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
+                                                  c_matrix<double,DIM,DIM>& rC,
+                                                  c_matrix<double,DIM,DIM>& rInvC,
+                                                  double pressure,
+                                                  unsigned elementIndex,
+                                                  unsigned currentQuadPointGlobalIndex,
+                                                  c_matrix<double,DIM,DIM>& rT,
+                                                  FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                  bool computeDTdE)
+    {
+        // just call the method on the material law
+        pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,computeDTdE);
+    }
 
 public:
 
@@ -1024,6 +1058,7 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
       mpQuadratureRule(NULL),
       mpBoundaryQuadratureRule(NULL),
       mKspAbsoluteTol(-1),
+      mpLinearSystem(NULL),
       mBodyForce(bodyForce),
       mDensity(density),
       mFixedNodes(fixedNodes),
@@ -1062,10 +1097,16 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
 template<unsigned DIM>
 AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
 {
-    delete mpLinearSystem;
-    delete mpPreconditionMatrixLinearSystem;
-    delete mpQuadratureRule;
-    delete mpBoundaryQuadratureRule;
+    if(mpLinearSystem)
+    {
+        delete mpLinearSystem;
+        delete mpPreconditionMatrixLinearSystem;
+    }
+    if(mpQuadratureRule)
+    {
+        delete mpQuadratureRule;
+        delete mpBoundaryQuadratureRule;
+    }
     if(mpOutputFileHandler)
     {
         delete mpOutputFileHandler;

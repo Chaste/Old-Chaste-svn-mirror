@@ -312,10 +312,10 @@ public:
         //    //etc
         //}
 
-        /* The one thing we haven't shown how to change is the material law. Unfortunately this is currently
-         * hardcoded (ie there is no interface to change it) to the pole-zero material law. It can be manually changed
-         * by altering the file `heart/src/solver/mechanics/AbstractCardiacMechanicsSolver` - search for
-         * `NashHunterPoleZeroLaw`. This issue will be fixed in the near future. */
+        /* The one thing we haven't shown how to change is the material law. This can be done by defining a material law in this
+         * test (see solid mechanics tutorial, for example), and then calling the following ''before'' `Initialise()`
+         * or `Solve`. */
+        //problem.SetMaterialLaw(&law);
     }
 };
 

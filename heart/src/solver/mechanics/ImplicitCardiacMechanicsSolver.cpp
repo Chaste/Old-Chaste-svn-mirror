@@ -37,7 +37,7 @@ ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsS
                                   QuadraticMesh<DIM>* pQuadMesh,
                                   std::string outputDirectory,
                                   std::vector<unsigned>& rFixedNodes,
-                                  AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+                                  AbstractMaterialLaw<DIM>* pMaterialLaw)
     : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
                                                             outputDirectory,
                                                             rFixedNodes,

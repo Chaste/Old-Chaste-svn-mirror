@@ -107,6 +107,10 @@ public:
         pos(0) = 0.05;
         pos(1) = 0.0;
 
+        // cover SetMaterialLaw() - pass in the law that would be used anyway.
+        NashHunterPoleZeroLaw<2> law;
+        problem.SetMaterialLaw(&law);
+
         problem.SetWatchedPosition(pos);
         problem.Solve();
 

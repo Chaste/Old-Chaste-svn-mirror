@@ -229,7 +229,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
 
 
     // get the material law
-    AbstractMaterialLaw<DIM>* p_material_law;
+    AbstractCompressibleMaterialLaw<DIM>* p_material_law;
     if (this->mMaterialLaws.size()==1)
     {
         // homogeneous
@@ -346,8 +346,8 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         inv_C = Inverse(C);
         inv_F = Inverse(F);
 
-        ComputeStressAndStressDerivative(p_material_law, C, inv_C, 0.0, rElement.GetIndex(), current_quad_point_global_index,
-                                         T, dTdE, assembleJacobian);
+        this->ComputeStressAndStressDerivative(p_material_law, C, inv_C, 0.0, rElement.GetIndex(), current_quad_point_global_index,
+                                               T, dTdE, assembleJacobian);
 
 
         /////////////////////////////////////////
@@ -473,21 +473,6 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
 }
 
 
-template<size_t DIM>
-void CompressibleNonlinearElasticitySolver<DIM>::ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
-                                                                                  c_matrix<double,DIM,DIM>& rC,
-                                                                                  c_matrix<double,DIM,DIM>& rInvC,
-                                                                                  double pressure,
-                                                                                  unsigned elementIndex,
-                                                                                  unsigned currentQuadPointGlobalIndex,
-                                                                                  c_matrix<double,DIM,DIM>& rT,
-                                                                                  FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                                  bool computeDTdE)
-{
-    // just call the method on the material law
-    pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,computeDTdE);
-}
-
 
 template<size_t DIM>
 void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
@@ -570,7 +555,13 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
                                              COMPRESSIBLE)
 {
     assert(pMaterialLaw != NULL);
-    mMaterialLaws.push_back(pMaterialLaw);
+
+    AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(pMaterialLaw);
+    if(!p_law)
+    {
+        EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
+    }
+    mMaterialLaws.push_back(p_law);
 
     Initialise(pFixedNodeLocations);
 }
@@ -593,8 +584,13 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
+        AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
+        if(!p_law)
+        {
+            EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
+        }
         assert(rMaterialLaws[i] != NULL);
-        mMaterialLaws[i] = rMaterialLaws[i];
+        mMaterialLaws[i] = p_law;
     }
 
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());

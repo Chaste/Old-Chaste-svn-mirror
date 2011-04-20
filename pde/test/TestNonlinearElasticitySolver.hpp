@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
 #include "NonlinearElasticityTools.hpp"
+#include "CompressibleMooneyRivlinMaterialLaw.hpp"
 
 double MATERIAL_PARAM = 1.0;
 double ALPHA = 0.2;
@@ -342,6 +343,17 @@ public:
         {
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
+
+        // more coverage of exceptions
+        CompressibleMooneyRivlinMaterialLaw<2> compressible_law(1.0,1.0);
+        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,&compressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "NonlinearElasticitySolver must take in an incompressible material law");
+
+        std::vector<AbstractMaterialLaw<2>*> compressible_laws;
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            compressible_laws.push_back(&compressible_law);
+        }
+        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,compressible_laws,zero_vector<double>(2),1.0,"",fixed_nodes),  "NonlinearElasticitySolver must take in an incompressible material law");
     }
 
     void TestSettingUpHeterogeneousProblem() throw(Exception)
@@ -351,7 +363,7 @@ public:
 
         MooneyRivlinMaterialLaw<2> law_1(1.0);
         MooneyRivlinMaterialLaw<2> law_2(5.0);
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> laws;
+        std::vector<AbstractMaterialLaw<2>*> laws;
         laws.push_back(&law_1);
         laws.push_back(&law_2);
 
@@ -662,13 +674,10 @@ public:
         command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/cmgui/solution_1.exnode > /dev/null";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-
         solver.rGetCurrentSolution().clear();
 		solver.rGetCurrentSolution().resize(solver.mNumDofs, 0.0);
         solver.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(solver.Solve(), "KSP Absolute tolerance was too high");
-
-
     }
 };
 

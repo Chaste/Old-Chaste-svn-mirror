@@ -124,14 +124,15 @@ public:
         }
         PetscTools::Barrier("TestCompareJacobians");
 
-        // coverage - test default material law works ok
-        IncompressibleImplicitSolver2d another_solver(NHS, &mesh,"",fixed_nodes);
-        c_matrix<double,2,2> F = zero_matrix<double>(2,2);
-        F(0,0)=F(1,1)=1.1;
-        double pressure = 1;
-        c_matrix<double,2,2> S;
-        another_solver.mMaterialLaws[0]->Compute1stPiolaKirchoffStress(F,pressure,S);
-        TS_ASSERT_DELTA(S(0,0), 1.5805, 1e-3);
+//// default no longer allowed
+//        // coverage - test default material law works ok
+//        IncompressibleImplicitSolver2d another_solver(NHS, &mesh,"",fixed_nodes);
+//        c_matrix<double,2,2> F = zero_matrix<double>(2,2);
+//        F(0,0)=F(1,1)=1.1;
+//        double pressure = 1;
+//        c_matrix<double,2,2> S;
+//        another_solver.mMaterialLaws[0]->Compute1stPiolaKirchoffStress(F,pressure,S);
+//        TS_ASSERT_DELTA(S(0,0), 1.5805, 1e-3);
     }
 
     // A test where we specify the 'resting' intracellular calcium concentration

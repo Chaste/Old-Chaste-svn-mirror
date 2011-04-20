@@ -36,17 +36,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ToyCompressibleMaterialLaw.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
 #include "NonlinearElasticityTools.hpp"
-
-
-
-/// todos: #1699:
-///   stop using linear systems, two matrices in compressible case, matrix memory allocation, avoid function pointers, write tutorial
-///   possible material law refactor
+#include "MooneyRivlinMaterialLaw.hpp"
 
 
 
 
-// all these are for the MyBodyForce and MySurfaceTraction functions below. See TestAgainstExactNonlinearSolution
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+// all these are for the MyBodyForce and MySurfaceTraction functions below. See TestAgainstExactNonlinearSolution()
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const double C_PARAM = 1.0;
 static const double D_PARAM = 0.1;
 static const double A_PARAM = 0.1;
@@ -213,7 +215,19 @@ public:
             TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[0], r_deformed_position[i](0), 1e-8);
             TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[1], r_deformed_position[i](1), 1e-8);
         }
+
+        // coverage of exceptions
+        MooneyRivlinMaterialLaw<2> incompressible_law(1.0,1.0);
+        TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,&incompressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "ompressibleNonlinearElasticitySolver must take in a compressible material law");
+
+        std::vector<AbstractMaterialLaw<2>*> incompressible_laws;
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            incompressible_laws.push_back(&incompressible_law);
+        }
+        TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,incompressible_laws,zero_vector<double>(2),1.0,"",fixed_nodes),  "CompressibleNonlinearElasticitySolver must take in a compressible material law");
     }
+
 
     /**
      *  Suppose the deformation is given to be x = (alpha X, beta Y), and the material law is the toy

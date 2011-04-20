@@ -73,9 +73,6 @@ protected:
     /** Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
 
-    /** Whether the material law was passed in or the default used */
-    bool mAllocatedMaterialLawMemory;
-
     /** Current time */
     double mCurrentTime;
     /** Time to which the solver has been asked to solve to */
@@ -127,7 +124,7 @@ protected:
      *  @param computeDTdE A boolean flag saying whether the stress derivative is
      *    required or not.
      */ 
-    void ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+    void ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
                                           c_matrix<double,DIM,DIM>& rC, 
                                           c_matrix<double,DIM,DIM>& rInvC, 
                                           double pressure,
@@ -171,7 +168,7 @@ public:
     AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
                                    std::string outputDirectory,
                                    std::vector<unsigned>& rFixedNodes,
-                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw);
+                                   AbstractMaterialLaw<DIM>* pMaterialLaw);
 
 
     /**
@@ -270,9 +267,9 @@ template<class ELASTICITY_SOLVER,unsigned DIM>
 AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
                                                                                       std::string outputDirectory,
                                                                                       std::vector<unsigned>& rFixedNodes,
-                                                                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+                                                                                      AbstractMaterialLaw<DIM>* pMaterialLaw)
    : ELASTICITY_SOLVER(pQuadMesh,
-                       pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
+                       pMaterialLaw,
                        zero_vector<double>(DIM),
                        DOUBLE_UNSET,
                        outputDirectory,
@@ -283,10 +280,6 @@ AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsS
 {
     // compute total num quad points
     mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
-
-    // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
-    // NonlinElas constuctor (see above)
-    mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
 
     // initialise the store of fibre stretches
     mStretches.resize(mTotalQuadPoints, 1.0);
@@ -305,12 +298,6 @@ AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsS
 template<class ELASTICITY_SOLVER,unsigned DIM>
 AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::~AbstractCardiacMechanicsSolver()
 {
-    if(mAllocatedMaterialLawMemory)
-    {
-        assert(this->mMaterialLaws.size()==1); 
-        delete this->mMaterialLaws[0];
-    }
-
     if(mpVariableFibreSheetDirections)
     {
         delete mpVariableFibreSheetDirections;
@@ -339,7 +326,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetCalciumAndVoltage
 }
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
-void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
                                                                                              c_matrix<double,DIM,DIM>& rC,
                                                                                              c_matrix<double,DIM,DIM>& rInvC,
                                                                                              double pressure,

@@ -319,7 +319,8 @@ public:
      *
      * We now consider a more complicated example. We prescribe particular new locations for the nodes
      * on the Dirichlet boundary, and also show how to prescribe a traction that is given in functional form
-     * rather than prescribed for each boundary element.
+     * rather than prescribed for each boundary element. We also discuss how to set up a heterogeneous material
+     * law.
      */
     void TestIncompressibleProblemMoreComplicatedExample() throw(Exception)
     {
@@ -331,9 +332,14 @@ public:
          * The material law needs to inherit from `AbstractIncompressibleMaterialLaw`,
          * and there are a few implemented, see `pde/src/problem` */
         ExponentialMaterialLaw<2> law(1.0, 0.5); // First parameter is 'a', second 'b', in W=a*exp(b(I1-3))
-        /* Note that it is possible to specify different material laws for each element in the mesh (for example
-         * for using different stiffnesses in different regions. Just create a `std::vector<AbstractIncompressibleMaterial<DIM>*>`
+        /* It is possible to specify different material laws for each element in the mesh (for example
+         * for using different stiffnesses in different regions). To do this, create a `std::vector<AbstractMaterial<DIM>*>`
          * and fill it in with the material law for each element, and pass as the first argument of the solver.
+         * Note that this solver (the incompressible solver), takes in objects of type `AbstractMaterialLaw` and then
+         * checks at run-time that the they are actually of type `AbstractIncompressibleMaterialLaw`. Similarly, the
+         * compressible solver, `CompressibleNonlinearElasticitySolver`. checks at run-time that the passed in law
+         * is of type `AbstractCompressibleMaterialLaw`. (This has been implemented this way so that the incompressible
+         * and compressible solvers have exactly the same constructor).
          *
          * EMPTYLINE
          *

@@ -30,19 +30,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_
 #define ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_
 
-#include "AbstractMaterialLaw.hpp"
+#include "AbstractCompressibleMaterialLaw.hpp"
 
 /**
- *  AbstractIsotropicSimpleIncompressibleMaterialLaw
+ *  AbstractIsotropicCompressibleMaterialLaw
  *
  *  An isotropic COMPRESSIBLE hyper-elastic material law for finite elasticity, of the
  *  form W(E) = W(I1,I2,I3)
  *  where I1,I2,I3 are the principal invariants of C, the Lagrangian deformation tensor.
- *  (NOT the deviatoric versions of these scalars).
+ *  (NOT the deviatoric versions of these scalars), and the derivatives with respect
+ *  to these invariants need to be prescribed by the concrete class.
+ *
  *  (I1=trace(C), I2=0.5(trace(C)^2-trace(C^2)), I3=det(C)).
  */
 template<unsigned DIM>
-class AbstractIsotropicCompressibleMaterialLaw : public AbstractMaterialLaw<DIM>
+class AbstractIsotropicCompressibleMaterialLaw : public AbstractCompressibleMaterialLaw<DIM>
 {
 protected :
 

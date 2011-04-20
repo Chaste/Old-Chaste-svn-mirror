@@ -399,8 +399,8 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
 
         double detF = Determinant(F);
 
-        ComputeStressAndStressDerivative(p_material_law, C, inv_C, pressure, rElement.GetIndex(), current_quad_point_global_index,
-                                         T, dTdE, assembleJacobian);
+        this->ComputeStressAndStressDerivative(p_material_law, C, inv_C, pressure, rElement.GetIndex(), current_quad_point_global_index,
+                                               T, dTdE, assembleJacobian);
 
 
         /////////////////////////////////////////
@@ -589,20 +589,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
 }
 
 
-template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                      c_matrix<double,DIM,DIM>& rC, 
-                                                                      c_matrix<double,DIM,DIM>& rInvC, 
-                                                                      double pressure, 
-                                                                      unsigned elementIndex,
-                                                                      unsigned currentQuadPointGlobalIndex,
-                                                                      c_matrix<double,DIM,DIM>& rT,
-                                                                      FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                      bool computeDTdE)
-{
-    // just call the method on the material law
-    pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,computeDTdE);
-}
+
 
 
 template<size_t DIM>
@@ -709,7 +696,7 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
 template<size_t DIM>
 NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             QuadraticMesh<DIM>* pQuadMesh,
-            AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+            AbstractMaterialLaw<DIM>* pMaterialLaw,
             c_vector<double,DIM> bodyForce,
             double density,
             std::string outputDirectory,
@@ -721,7 +708,13 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
                                              INCOMPRESSIBLE)
 {
     assert(pMaterialLaw != NULL);
-    mMaterialLaws.push_back(pMaterialLaw);
+
+    AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
+    if(!p_law)
+    {
+        EXCEPTION("NonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
+    }
+    mMaterialLaws.push_back(p_law);
 
     Initialise(pFixedNodeLocations);
     FormInitialGuess();
@@ -731,7 +724,7 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
 template<size_t DIM>
 NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             QuadraticMesh<DIM>* pQuadMesh,
-            std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+            std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
             c_vector<double,DIM> bodyForce,
             double density,
             std::string outputDirectory,
@@ -746,7 +739,12 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
         assert(rMaterialLaws[i] != NULL);
-        mMaterialLaws[i] = rMaterialLaws[i];
+        AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
+        if(!p_law)
+        {
+            EXCEPTION("NonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
+        }
+        mMaterialLaws[i] = p_law;
     }
 
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());

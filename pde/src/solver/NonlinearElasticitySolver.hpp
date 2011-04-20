@@ -160,35 +160,6 @@ protected:
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 
-    
-    /**
-     *  Simple (one-line function which just calls ComputeStressAndStressDerivative() on the material law, using C,
-     *  inv(C), and p as the input and with rT and rDTdE as the output. Overloaded by other assemblers (eg cardiac 
-     *  mechanics) which need to add extra terms to the stress.
-     * 
-     *  @param pMaterialLaw The material law for this element
-     *  @param rC The Lagrangian deformation tensor (F^T F)
-     *  @param rInvC The inverse of C. Should be computed by the user.
-     *  @param pressure The current pressure
-     *  @param elementIndex Index of the current element 
-     *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner 
-     *    loop over quadrature points), of the current quadrature point.
-     *  @param rT The stress will be returned in this parameter
-     *  @param rDTdE the stress derivative will be returned in this parameter, assuming
-     *    the final parameter is true
-     *  @param computeDTdE A boolean flag saying whether the stress derivative is
-     *    required or not.
-     */ 
-    virtual void ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                  c_matrix<double,DIM,DIM>& rC, 
-                                                  c_matrix<double,DIM,DIM>& rInvC,
-                                                  double pressure,
-                                                  unsigned elementIndex,
-                                                  unsigned currentQuadPointGlobalIndex,
-                                                  c_matrix<double,DIM,DIM>& rT,
-                                                  FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                  bool computeDTdE);
-
 public:
 
     /**
@@ -203,7 +174,7 @@ public:
      * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                              AbstractMaterialLaw<DIM>* pMaterialLaw,
                               c_vector<double,DIM> bodyForce,
                               double density,
                               std::string outputDirectory,
@@ -222,7 +193,7 @@ public:
      * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+                              std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
                               c_vector<double,DIM> bodyForce,
                               double density,
                               std::string outputDirectory,

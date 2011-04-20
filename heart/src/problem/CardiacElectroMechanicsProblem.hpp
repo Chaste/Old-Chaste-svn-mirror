@@ -156,6 +156,12 @@ protected :
      */
     bool mCellModelsAffectedByDeformationMef;
 
+    /** The material law to be used. Defaults to NashHunterPoleZero if an incompressible problem is being solved */
+    AbstractMaterialLaw<DIM>* mpMaterialLaw;
+
+    /** Whether a material law was passed in or the default used */
+    bool mAllocatedMaterialLawMemory;
+
 
     /**
      *  Determine which node is closest to the watched location
@@ -267,7 +273,7 @@ public :
      *   (i)  The stretch will be passed back to the cell models for use stretch-activated channels etc
      *   (ii) The deformation to alter the conductivity
      * 
-//todo - check these
+//EMTODO - check these
      *  Two things to note:
      *   (i) this can't be called if fibre-sheet directions have been defined from file for each quadrature
      *  point (as opposed to each mechanics element) - this is because if the stretch is to be passed back to
@@ -315,6 +321,17 @@ public :
         return mpMechanicsSolver;
     }
 
+    /** Set the material law. If this isn't called the default material law will be used.
+     *  Only call before Initialise() and before Solve()
+     *  @param pMaterialLaw the material law
+     */
+    void SetMaterialLaw(AbstractMaterialLaw<DIM>* pMaterialLaw)
+    {
+        assert(pMaterialLaw);
+        assert(mpMaterialLaw == NULL); // only call SetMaterialLaw() before both Initialise() or Solve()
+        mpMaterialLaw = pMaterialLaw;
+        mAllocatedMaterialLawMemory = false;
+    }
 };
 
 

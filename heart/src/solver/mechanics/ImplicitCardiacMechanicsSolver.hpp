@@ -106,7 +106,7 @@ public:
                                    QuadraticMesh<DIM>* pQuadMesh,
                                    std::string outputDirectory,
                                    std::vector<unsigned>& rFixedNodes,
-                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
+                                   AbstractMaterialLaw<DIM>* pMaterialLaw);
 
     /**
      *  Destructor
