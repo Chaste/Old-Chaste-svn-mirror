@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define EXPLICITCARDIACMECHANICSSOLVER_HPP_
 
 #include "AbstractCardiacMechanicsSolver.hpp"
+#include "AbstractCardiacMechanicsSolverInterface.hpp"
 #include "AbstractContractionModel.hpp"
 
 
@@ -38,6 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  contraction model is not stretch-rate-dependent (for those the implicit solver is
  *  needed).
  *
+ *  The first template parameter should be either NonlinearElasticitySolver
+ *  or CompressibleNonlinearElasticityAssembler; this will be the class that this class
+ *  ultimately inherits from.
+ *
  *  The general explicit solution procedure is to do, each timestep:
  *  (0) [solve the electrics and interpolate Ca and voltage onto quad points
  *  (i) pass Ca and voltage to the contraction models
@@ -45,8 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  (iii) integrate the contraction models in order to get the active tension
  *  (iv) solve for the deformation using this active tension.
  */
-template<unsigned DIM>
-class ExplicitCardiacMechanicsSolver : public AbstractCardiacMechanicsSolver<DIM>
+template<class ELASTICITY_SOLVER,unsigned DIM>
+class ExplicitCardiacMechanicsSolver : public AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>
 {
 friend class TestExplicitCardiacMechanicsSolver;
 
@@ -56,9 +61,6 @@ private:
     {
         return false;
     }
-
-//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//    std::vector<double> mStretchesLastTimestep;
 
 
     /**

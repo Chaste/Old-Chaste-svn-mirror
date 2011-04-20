@@ -85,7 +85,7 @@ public:
         //// with an assert(0);
         
         // coverage
-        TS_ASSERT( problem.GetCardiacMechanicsSolver()!=NULL );
+        TS_ASSERT_EQUALS( problem.GetCardiacMechanicsSolver()->rGetDeformedPosition().size(), 9u );
     }
 
 
@@ -255,8 +255,8 @@ public:
         {
             double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
             double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
-            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*0.2;
-            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
+            problem.mpMechanicsSolver->rGetCurrentSolution()[2*i]   = X*0.2;
+            problem.mpMechanicsSolver->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
         }
 
         // we are going to get the modified conductivity tensor directly, without (initially) calling solve,
@@ -352,8 +352,8 @@ public:
         {
             double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
             double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
-            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*Y*0.1; // displacement is zero except for (1,1) node
-            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = X*Y*0.1; // displacement is zero except for (1,1) node
+            problem.mpMechanicsSolver->rGetCurrentSolution()[2*i]   = X*Y*0.1; // displacement is zero except for (1,1) node
+            problem.mpMechanicsSolver->rGetCurrentSolution()[2*i+1] = X*Y*0.1; // displacement is zero except for (1,1) node
         }
 
         // we are going to get the modified conductivity tensor directly, without (initially) calling solve,

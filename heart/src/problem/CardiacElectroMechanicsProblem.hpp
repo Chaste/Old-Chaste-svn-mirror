@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "AbstractOdeBasedContractionModel.hpp"
 #include "AbstractCardiacMechanicsSolver.hpp"
+#include "AbstractCardiacMechanicsSolverInterface.hpp"
 #include "FineCoarseMeshPair.hpp"
 #include "AbstractConductivityModifier.hpp"
 
@@ -81,8 +82,12 @@ protected :
     ContractionModel mContractionModel;
     /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
-    /** The mechanics solver */
-    AbstractCardiacMechanicsSolver<DIM>* mpCardiacMechSolver;
+
+///\todo #1756
+    /** The mechanics solver - a pointer to the part that sees the cardiac mechanics interface bit */
+    AbstractCardiacMechanicsSolverInterface<DIM>* mpCardiacMechSolver;
+    /** The mechanics solver - a pointer to the part that sees the solid mechanics solver */
+    AbstractNonlinearElasticitySolver<DIM>* mpMechanicsSolver;
 
     /** End time. The start time is assumed to be 0.0 */
     double mEndTime;
@@ -300,12 +305,14 @@ public :
     virtual void OnEndOfTimeStep(unsigned counter){}
 
     /**
-     *  Get the mechanics solver. Needs to be called after Initialise()
+     *  Get the mechanics solver. Needs to be called after Initialise().
+     *
+     *  ///\todo #1756
      */
-    AbstractCardiacMechanicsSolver<DIM>* GetCardiacMechanicsSolver()
+    AbstractNonlinearElasticitySolver<DIM>* GetCardiacMechanicsSolver()
     {
-        assert(mpCardiacMechSolver);
-        return mpCardiacMechSolver;
+        assert(mpMechanicsSolver);
+        return mpMechanicsSolver;
     }
 
 };

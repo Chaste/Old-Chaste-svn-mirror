@@ -31,10 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define IMPLICITCARDIACMECHANICSSOLVER_HPP_
 
 #include "AbstractCardiacMechanicsSolver.hpp"
-#include "QuadraticBasisFunction.hpp"
-#include "LinearBasisFunction.hpp"
-#include "NashHunterPoleZeroLaw.hpp"
-#include "AbstractContractionModel.hpp"
 #include "LogFile.hpp"
 #include <cfloat>
 
@@ -42,13 +38,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Implicit Cardiac Mechanics Solver
  *
+ *  The first template parameter should be either NonlinearElasticitySolver
+ *  or CompressibleNonlinearElasticityAssembler; this will be the class that this class
+ *  ultimately inherits from.
+ *
  *  Solves cardiac mechanics implicitly (together with the contraction
  *  models for determining the active tension), taking in the intracellular
  *  calcium concentration. See CardiacElectroMechanicsProblem documentation
  *  for more detail.
  */
-template<unsigned DIM>
-class ImplicitCardiacMechanicsSolver : public AbstractCardiacMechanicsSolver<DIM>
+template<class ELASTICITY_SOLVER, unsigned DIM>
+class ImplicitCardiacMechanicsSolver : public AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>
 {
 friend class TestImplicitCardiacMechanicsSolver;
 

@@ -31,17 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NhsModelWithBackwardSolver.hpp"
 #include "NonPhysiologicalContractionModel.hpp"
 
-template<unsigned DIM>
-ImplicitCardiacMechanicsSolver<DIM>::ImplicitCardiacMechanicsSolver(
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsSolver(
                                   ContractionModel contractionModel,
                                   QuadraticMesh<DIM>* pQuadMesh,
                                   std::string outputDirectory,
                                   std::vector<unsigned>& rFixedNodes,
                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-    : AbstractCardiacMechanicsSolver<DIM>(pQuadMesh,
-                                          outputDirectory,
-                                          rFixedNodes,
-                                          pMaterialLaw)
+    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
+                                                            outputDirectory,
+                                                            rFixedNodes,
+                                                            pMaterialLaw)
 {
     switch(contractionModel)
     {
@@ -84,8 +84,8 @@ ImplicitCardiacMechanicsSolver<DIM>::ImplicitCardiacMechanicsSolver(
     mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
 }
 
-template<unsigned DIM>
-ImplicitCardiacMechanicsSolver<DIM>::~ImplicitCardiacMechanicsSolver()
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::~ImplicitCardiacMechanicsSolver()
 {
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
@@ -94,15 +94,15 @@ ImplicitCardiacMechanicsSolver<DIM>::~ImplicitCardiacMechanicsSolver()
 }
 
 
-template<unsigned DIM>
-std::vector<double>& ImplicitCardiacMechanicsSolver<DIM>::rGetFibreStretches()
+template<class ELASTICITY_SOLVER,unsigned DIM>
+std::vector<double>& ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::rGetFibreStretches()
 {
     return this->mStretches;
 }
 
 
-template<unsigned DIM>
-void ImplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, double odeTimestep)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::Solve(double time, double nextTime, double odeTimestep)
 {
     // set the times, which are used in AssembleOnElement
     assert(time < nextTime);
@@ -111,7 +111,7 @@ void ImplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, do
     this->mOdeTimestep = odeTimestep;
 
     // solve
-    NonlinearElasticitySolver<DIM>::Solve();
+    ELASTICITY_SOLVER::Solve();
 
     // assemble residual again (to solve the cell models implicitly again
     // using the correct value of the deformation x (in case this wasn't the
@@ -132,13 +132,13 @@ void ImplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, do
 
 
 
-template<unsigned DIM>
-void ImplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
-                                                                           unsigned currentQuadPointGlobalIndex,
-                                                                           bool assembleJacobian,
-                                                                           double& rActiveTension,
-                                                                           double& rDerivActiveTensionWrtLambda,
-                                                                           double& rDerivActiveTensionWrtDLambdaDt)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
+                                                                                             unsigned currentQuadPointGlobalIndex,
+                                                                                             bool assembleJacobian,
+                                                                                             double& rActiveTension,
+                                                                                             double& rDerivActiveTensionWrtLambda,
+                                                                                             double& rDerivActiveTensionWrtDLambdaDt)
 {
     // save this fibre stretch
     this->mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
@@ -198,7 +198,7 @@ void ImplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(doubl
     // Re-set the stretch and stretch rate and recompute the active tension so that
     // if this guess turns out to the solution, we can just update the state variables
     //  -- not needed as AssembleSystem(true,false) [ie assemble residual] is
-    //     called in ImplicitCardiacMechanicsSolver<DIM>::Solve() above
+    //     called in ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::Solve() above
     //     after the solve and before the update.
     //  -- The SetActiveTensionInitialGuess() would make this very fast
     //     (compared to AssembleSystem(true,false) above), but the NHS class uses the last
@@ -211,7 +211,7 @@ void ImplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(doubl
 
 
 
-template class ImplicitCardiacMechanicsSolver<2>;
-template class ImplicitCardiacMechanicsSolver<3>;
+template class ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2>;
+template class ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<3>,3>;
 
 

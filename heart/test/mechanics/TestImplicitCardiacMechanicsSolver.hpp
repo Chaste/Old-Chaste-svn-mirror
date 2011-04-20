@@ -39,6 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "ReplicatableVector.hpp"
 
+
+// useful typedef
+typedef ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
+
+
+
 // helper function - the frobenius norm of a matrix (though any norm would have done).
 double MatrixNorm(c_matrix<double,2,2> mat)
 {
@@ -57,7 +63,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d solver(NHS, &mesh,"",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 0.0);
         std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
@@ -119,7 +125,7 @@ public:
         PetscTools::Barrier("TestCompareJacobians");
 
         // coverage - test default material law works ok
-        ImplicitCardiacMechanicsSolver<2> another_solver(NHS, &mesh,"",fixed_nodes);
+        IncompressibleImplicitSolver2d another_solver(NHS, &mesh,"",fixed_nodes);
         c_matrix<double,2,2> F = zero_matrix<double>(2,2);
         F(0,0)=F(1,1)=1.1;
         double pressure = 1;
@@ -139,7 +145,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d solver(NHS, &mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
 
         TS_ASSERT_EQUALS(solver.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
 
@@ -168,7 +174,7 @@ public:
         fixed_nodes[0] = 0;
         fixed_nodes[1] = 5;
 
-        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d solver(NHS, &mesh,"ImplicitCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
         QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
 
         std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());
@@ -260,7 +266,7 @@ public:
             fixed_nodes[0] = 0;
             fixed_nodes[1] = 1; // was 5 in the above test, {0,1}=small part of X=0 surface, {0,5}=small part of Y=0 surface
 
-            ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
+            IncompressibleImplicitSolver2d solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
 
             if(run==1)
             {
@@ -328,8 +334,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsSolver<2> impl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
-        ImplicitCardiacMechanicsSolver<2> impl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d impl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d impl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
         // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
     }
@@ -343,7 +349,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsSolver<2> solver(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d solver(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
         
         // compute the stretches, they should be 1
         std::vector<double> stretches(mesh.GetNumElements());
@@ -419,7 +425,7 @@ public:
         fixed_nodes[0] = 0;
         fixed_nodes[1] = 1; 
 
-        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
         
         TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
         solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.orthoquad", true);
@@ -488,7 +494,7 @@ public:
 ////        std::vector<unsigned> fixed_nodes
 ////          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 //
-//        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
+//        IncompressibleImplicitSolver2d solver(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
 //
 //        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
 //        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);

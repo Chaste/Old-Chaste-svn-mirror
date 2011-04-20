@@ -34,20 +34,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //// for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //#include "NhsModelWithBackSolver.hpp"
 
-template<unsigned DIM>
-ExplicitCardiacMechanicsSolver<DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
-                                                                    QuadraticMesh<DIM>* pQuadMesh,
-                                                                    std::string outputDirectory,
-                                                                    std::vector<unsigned>& rFixedNodes,
-                                                                    AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-    : AbstractCardiacMechanicsSolver<DIM>(pQuadMesh,
-                                          outputDirectory,
-                                          rFixedNodes,
-                                          pMaterialLaw)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+                                                                                      QuadraticMesh<DIM>* pQuadMesh,
+                                                                                      std::string outputDirectory,
+                                                                                      std::vector<unsigned>& rFixedNodes,
+                                                                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
+                                                            outputDirectory,
+                                                            rFixedNodes,
+                                                            pMaterialLaw)
 {
-//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//    mStretchesLastTimestep.resize(this->mTotalQuadPoints, 1.0);
-
     switch(contractionModel)
     {
         case NONPHYSIOL1:
@@ -77,15 +74,6 @@ ExplicitCardiacMechanicsSolver<DIM>::ExplicitCardiacMechanicsSolver(ContractionM
             }
             break;
         }
-//        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//        case NHS:
-//        {
-//            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
-//            {
-//                this->mContractionModelSystems.push_back(new NhsModelWithBackwardSolver);
-//            }
-//            break;
-//        }
         default:
         {
             EXCEPTION("Unknown or stretch-rate-dependent contraction model");
@@ -95,8 +83,8 @@ ExplicitCardiacMechanicsSolver<DIM>::ExplicitCardiacMechanicsSolver(ContractionM
     assert(!(this->mContractionModelSystems[0]->IsStretchRateDependent()));
 }
 
-template<unsigned DIM>
-ExplicitCardiacMechanicsSolver<DIM>::~ExplicitCardiacMechanicsSolver()
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::~ExplicitCardiacMechanicsSolver()
 {
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
@@ -104,13 +92,13 @@ ExplicitCardiacMechanicsSolver<DIM>::~ExplicitCardiacMechanicsSolver()
     }
 }
 
-template<unsigned DIM>
-void ExplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
-                                                                           unsigned currentQuadPointGlobalIndex,
-                                                                           bool assembleJacobian,
-                                                                           double& rActiveTension,
-                                                                           double& rDerivActiveTensionWrtLambda,
-                                                                           double& rDerivActiveTensionWrtDLambdaDt)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
+                                                                                             unsigned currentQuadPointGlobalIndex,
+                                                                                             bool assembleJacobian,
+                                                                                             double& rActiveTension,
+                                                                                             double& rDerivActiveTensionWrtLambda,
+                                                                                             double& rDerivActiveTensionWrtDLambdaDt)
 {
     // the active tensions have already been computed for each contraction model, so can
     // return it straightaway..
@@ -125,8 +113,8 @@ void ExplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(doubl
     this->mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
 }
 
-template<unsigned DIM>
-void ExplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, double odeTimestep)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::Solve(double time, double nextTime, double odeTimestep)
 {
     assert(time < nextTime);
     this->mCurrentTime = time;
@@ -140,21 +128,15 @@ void ExplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, do
     // integrate contraction models
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-//        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//        double dlam_dt = (this->mStretches[i] - mStretchesLastTimestep[i])/(nextTime-time);
-
         this->mContractionModelSystems[i]->SetStretchAndStretchRate(this->mStretches[i], 0.0 /*dlam_dt*/);
         this->mContractionModelSystems[i]->RunAndUpdate(time, nextTime, odeTimestep);
     }
 
     // solve
-    NonlinearElasticitySolver<DIM>::Solve();
-
-//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//    mStretchesLastTimestep = this->mStretches;
+    ELASTICITY_SOLVER::Solve();
 }
 
 
 
-template class ExplicitCardiacMechanicsSolver<2>;
-template class ExplicitCardiacMechanicsSolver<3>;
+template class ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2>;
+template class ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<3>,3>;

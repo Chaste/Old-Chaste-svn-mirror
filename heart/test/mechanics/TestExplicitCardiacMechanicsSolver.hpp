@@ -40,6 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "ReplicatableVector.hpp"
 
+
+// some useful typedefs
+typedef ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleExplicitSolver2d;
+typedef ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
+
 class TestExplicitCardiacMechanicsSolver : public CxxTest::TestSuite
 {
 public:
@@ -52,7 +57,7 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL1 => NonphysiologicalContractionModel 1
-        ExplicitCardiacMechanicsSolver<2> solver(NONPHYSIOL1,&mesh,"TestExplicitCardiacMech",fixed_nodes,&law);
+        IncompressibleExplicitSolver2d solver(NONPHYSIOL1,&mesh,"TestExplicitCardiacMech",fixed_nodes,&law);
 
         // coverage
         QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
@@ -83,8 +88,8 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL 1 - contraction model is of the form sin(t)
-        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,fixed_nodes,&law);
-        ImplicitCardiacMechanicsSolver<2> impl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,fixed_nodes,&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,fixed_nodes,&law);
+        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,fixed_nodes,&law);
 
         double dt = 0.25;
         for(double t=0; t<3; t+=dt)
@@ -113,8 +118,8 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL 2 - contraction model is of the form lam*sin(t)
-        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Exp",fixed_nodes,&law);
-        ImplicitCardiacMechanicsSolver<2> impl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Imp",fixed_nodes,&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Exp",fixed_nodes,&law);
+        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Imp",fixed_nodes,&law);
 
         expl_solver.WriteCurrentDeformation("solution",0);
         impl_solver.WriteCurrentDeformation("solution",0);
@@ -173,13 +178,13 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
-        ExplicitCardiacMechanicsSolver<2> expl_solver_with_nash(NASH2004,&mesh,"",fixed_nodes,&law);
-        ExplicitCardiacMechanicsSolver<2> expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        IncompressibleExplicitSolver2d expl_solver_with_nash(NASH2004,&mesh,"",fixed_nodes,&law);
+        IncompressibleExplicitSolver2d expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
 
         // bad contraction model
-        TS_ASSERT_THROWS_THIS(ExplicitCardiacMechanicsSolver<2> solver(NHS,&mesh,"",fixed_nodes,&law), "Unknown or stretch-rate-dependent contraction model");
+        TS_ASSERT_THROWS_THIS(IncompressibleExplicitSolver2d solver(NHS,&mesh,"",fixed_nodes,&law), "Unknown or stretch-rate-dependent contraction model");
     }
 };
 

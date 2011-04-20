@@ -36,22 +36,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractContractionModel.hpp"
 #include "FibreReader.hpp"
 
+#include "AbstractCardiacMechanicsSolverInterface.hpp"
 
 /**
  *  AbstractCardiacMechanicsSolver
  *
  *  Base class to implicit and explicit cardiac mechanics solvers. Inherits from NonlinearElasticitySolver
- *  Main method is the overloaded AssembleOnElement which does the extra work needed for cardiac problems. The
+ *  or CompressibleNonlinearElasticityAssembler (depending on what the template parameter ELASTICITY_SOLVER
+ *  is), and also from AbstractCardiacMechanicsSolverInterface which just declares this classes
+ *  main public methods.
+ *
+ *  Overloads ComputeStressAndStressDerivative() which adds on the active tension term to the stress. The
  *  child classes hold the contraction models and need to implement a method for getting the active tension from
  *  the model.
  */
-template<unsigned DIM>
-class AbstractCardiacMechanicsSolver : public NonlinearElasticitySolver<DIM>
+template<class ELASTICITY_SOLVER, unsigned DIM>
+class AbstractCardiacMechanicsSolver : public ELASTICITY_SOLVER, public AbstractCardiacMechanicsSolverInterface<DIM>
 {
 protected:
-    static const unsigned STENCIL_SIZE = NonlinearElasticitySolver<DIM>::STENCIL_SIZE;
-    static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticitySolver<DIM>::NUM_NODES_PER_ELEMENT;
-    static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticitySolver<DIM>::NUM_VERTICES_PER_ELEMENT;
+    static const unsigned NUM_VERTICES_PER_ELEMENT = ELASTICITY_SOLVER::NUM_VERTICES_PER_ELEMENT;
 
     /**
      *  Vector of contraction model (pointers). One for each quadrature point.
@@ -263,20 +266,20 @@ public:
 };
 
 
-template<unsigned DIM>
-AbstractCardiacMechanicsSolver<DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
-                                                                    std::string outputDirectory,
-                                                                    std::vector<unsigned>& rFixedNodes,
-                                                                    AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-   : NonlinearElasticitySolver<DIM>(pQuadMesh,
-                                    pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
-                                    zero_vector<double>(DIM),
-                                    DOUBLE_UNSET,
-                                    outputDirectory,
-                                    rFixedNodes),
-                                    mCurrentTime(DBL_MAX),
-                                    mNextTime(DBL_MAX),
-                                    mOdeTimestep(DBL_MAX)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                                                      std::string outputDirectory,
+                                                                                      std::vector<unsigned>& rFixedNodes,
+                                                                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+   : ELASTICITY_SOLVER(pQuadMesh,
+                       pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
+                       zero_vector<double>(DIM),
+                       DOUBLE_UNSET,
+                       outputDirectory,
+                       rFixedNodes),
+     mCurrentTime(DBL_MAX),
+     mNextTime(DBL_MAX),
+     mOdeTimestep(DBL_MAX)
 {
     // compute total num quad points
     mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
@@ -299,8 +302,8 @@ AbstractCardiacMechanicsSolver<DIM>::AbstractCardiacMechanicsSolver(QuadraticMes
 }
 
 
-template<unsigned DIM>
-AbstractCardiacMechanicsSolver<DIM>::~AbstractCardiacMechanicsSolver()
+template<class ELASTICITY_SOLVER,unsigned DIM>
+AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::~AbstractCardiacMechanicsSolver()
 {
     if(mAllocatedMaterialLawMemory)
     {
@@ -316,9 +319,9 @@ AbstractCardiacMechanicsSolver<DIM>::~AbstractCardiacMechanicsSolver()
 
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
-                                                               std::vector<double>& rVoltages)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
+                                                                                 std::vector<double>& rVoltages)
 
 {
     assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
@@ -335,16 +338,16 @@ void AbstractCardiacMechanicsSolver<DIM>::SetCalciumAndVoltage(std::vector<doubl
     }
 }
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                           c_matrix<double,DIM,DIM>& rC, 
-                                                                           c_matrix<double,DIM,DIM>& rInvC, 
-                                                                           double pressure, 
-                                                                           unsigned elementIndex,
-                                                                           unsigned currentQuadPointGlobalIndex,
-                                                                           c_matrix<double,DIM,DIM>& rT,
-                                                                           FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                           bool assembleJacobian)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                                             c_matrix<double,DIM,DIM>& rC,
+                                                                                             c_matrix<double,DIM,DIM>& rInvC,
+                                                                                             double pressure,
+                                                                                             unsigned elementIndex,
+                                                                                             unsigned currentQuadPointGlobalIndex,
+                                                                                             c_matrix<double,DIM,DIM>& rT,
+                                                                                             FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                                             bool assembleJacobian)
 {
     if(!mpVariableFibreSheetDirections) // constant fibre directions
     {
@@ -413,8 +416,8 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(Abstr
 
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::ComputeDeformationGradientAndStretchInEachElement(
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGradientAndStretchInEachElement(
     std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
     std::vector<double>& rStretches)
 {
@@ -483,8 +486,8 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeDeformationGradientAndStretchIn
 
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
 {
     mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
     
@@ -518,8 +521,8 @@ void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::s
 
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
 {
     mConstantFibreSheetDirections = rFibreSheetMatrix;
     // check orthogonality
