@@ -463,7 +463,8 @@ public:
      *  incompressible solver). q adds some compressibility
      *
      *  Then after a page of algebra, we can derive what the 1st PK stress is, which allows us to
-     *  determine the required traction and body force.
+     *  determine the required traction and body force. See scanned document attached to
+     *  the wiki page UsefulNotes -> Other -> scans.
      *
      */
     void TestAgainstExactNonlinearSolution() throw(Exception)
