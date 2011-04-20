@@ -69,10 +69,17 @@ typedef enum CompressibilityType_
 /**
  * Abstract nonlinear elasticity solver.
  */
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
+template<unsigned DIM>
 class AbstractNonlinearElasticitySolver
 {
 protected:
+    /** Number of vertices per element */
+    static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
+    /** Number of nodes per element */
+    static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2;      // assuming quadratic
+    /** Number of nodes per boundary element */
+    static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2; // assuming quadratic
+
 
     /** Maximum absolute tolerance for Newton solve. The Newton solver uses the absolute tolerance
      *  corresponding to the specified relative tolerance, but has a max and min allowable absolute
@@ -219,6 +226,11 @@ protected:
      */
     double mCurrentTime;
 
+    /* This is equal to either COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
+     * and is only used in computing mNumDofs and allocating matrix memory.
+     */
+    CompressibilityType mCompressibilityType;
+
     /**
      * Assemble the residual vector (using the current solution stored
      * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
@@ -325,12 +337,16 @@ public:
      * @param density    density
      * @param outputDirectory output directory
      * @param fixedNodes std::vector of nodes which have a dirichlet boundary condition imposed on them
+     * @param compressibilityType Should be equal to COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
+     *   (depending on which concrete class is inheriting from this) and is only used in computing mNumDofs and allocating
+     *   matrix memory.
      */
     AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
                                       c_vector<double,DIM> bodyForce,
                                       double density,
                                       std::string outputDirectory,
-                                      std::vector<unsigned>& fixedNodes);
+                                      std::vector<unsigned>& fixedNodes,
+                                      CompressibilityType compressibilityType);
 
 
     /**
@@ -461,8 +477,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
 {
     assert(mpQuadMesh);
 
@@ -503,8 +519,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Initialise(std
 
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AllocateMatrixMemory()
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
 {
     if(DIM==2)
     {
@@ -553,7 +569,7 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AllocateMatrix
             num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
 
-            if(COMPRESSIBILITY_TYPE==INCOMPRESSIBLE)
+            if(mCompressibilityType==INCOMPRESSIBLE)
             {
                 //Could do !mpQuadMesh->GetNode(i)->IsInternal()
                 if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
@@ -602,8 +618,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AllocateMatrix
 
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::ApplyBoundaryConditions(bool applyToMatrix)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyToMatrix)
 {
     assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
 
@@ -643,8 +659,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::ApplyBoundaryC
     }
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::ComputeResidualAndGetNorm(bool allowException)
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::ComputeResidualAndGetNorm(bool allowException)
 {
     if(!allowException)
     {
@@ -670,16 +686,16 @@ double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::ComputeResid
     return CalculateResidualNorm();
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::CalculateResidualNorm()
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::CalculateResidualNorm()
 {
     double norm;
     VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
     return norm/mNumDofs;
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::VectorSum(std::vector<double>& rX,
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::VectorSum(std::vector<double>& rX,
                                                        ReplicatableVector& rY,
                                                        double a,
                                                        std::vector<double>& rZ)
@@ -693,8 +709,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::VectorSum(std:
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::TakeNewtonStep()
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 {
     #ifdef MECH_VERBOSE
     Timer::Reset();
@@ -837,16 +853,16 @@ double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::TakeNewtonSt
     return new_norm_resid;
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::PrintLineSearchResult(double s, double residNorm)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::PrintLineSearchResult(double s, double residNorm)
 {
     #ifdef MECH_VERBOSE
     std::cout << "\tTesting s = " << s << ", |f| = " << residNorm << "\n" << std::flush;
     #endif
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::UpdateSolutionUsingLineSearch(Vec solution)
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::UpdateSolutionUsingLineSearch(Vec solution)
 {
     double initial_norm_resid = CalculateResidualNorm();
     #ifdef MECH_VERBOSE
@@ -991,18 +1007,19 @@ double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::UpdateSoluti
 
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::PostNewtonStep(unsigned counter, double normResidual)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::PostNewtonStep(unsigned counter, double normResidual)
 {
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                                                                                               c_vector<double,DIM> bodyForce,
-                                                                                               double density,
-                                                                                               std::string outputDirectory,
-                                                                                               std::vector<unsigned>& fixedNodes)
+template<unsigned DIM>
+AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                                          c_vector<double,DIM> bodyForce,
+                                                                          double density,
+                                                                          std::string outputDirectory,
+                                                                          std::vector<unsigned>& fixedNodes,
+                                                                          CompressibilityType compressibilityType)
     : mpQuadMesh(pQuadMesh),
       mpQuadratureRule(NULL),
       mpBoundaryQuadratureRule(NULL),
@@ -1016,14 +1033,15 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearEl
       mNumNewtonIterations(0),
       mUsingBodyForceFunction(false),
       mUsingTractionBoundaryConditionFunction(false),
-      mCurrentTime(0.0)
+      mCurrentTime(0.0),
+      mCompressibilityType(compressibilityType)
 {
     assert(DIM==2 || DIM==3);
     assert(density > 0);
     assert(fixedNodes.size() > 0);
     assert(pQuadMesh != NULL);
 
-    if(COMPRESSIBILITY_TYPE==COMPRESSIBLE)
+    if(mCompressibilityType==COMPRESSIBLE)
     {
         mNumDofs = DIM*mpQuadMesh->GetNumNodes();
     }
@@ -1041,8 +1059,8 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::AbstractNonlinearEl
 
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::~AbstractNonlinearElasticitySolver()
+template<unsigned DIM>
+AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
 {
     delete mpLinearSystem;
     delete mpPreconditionMatrixLinearSystem;
@@ -1055,10 +1073,10 @@ AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::~AbstractNonlinearE
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double tol,
-                                                                        unsigned maxNumNewtonIterations,
-                                                                        bool quitIfNoConvergence)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::Solve(double tol,
+                                                   unsigned maxNumNewtonIterations,
+                                                   bool quitIfNoConvergence)
 {
     WriteCurrentDeformation("initial");
 
@@ -1141,8 +1159,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::Solve(double t
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::WriteCurrentDeformation(std::string fileName, int counterToAppend)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::WriteCurrentDeformation(std::string fileName, int counterToAppend)
 {
     // only write output if the flag mWriteOutput has been set
     if (!mWriteOutput)
@@ -1173,23 +1191,23 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::WriteCurrentDe
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-unsigned AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::GetNumNewtonIterations()
+template<unsigned DIM>
+unsigned AbstractNonlinearElasticitySolver<DIM>::GetNumNewtonIterations()
 {
     return mNumNewtonIterations;
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
 {
     mUsingBodyForceFunction = true;
     mpBodyForceFunction = pFunction;
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetWriteOutput(bool writeOutput)
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
 {
     if (writeOutput && (mOutputDirectory==""))
     {
@@ -1198,8 +1216,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetWriteOutput
     mWriteOutput = writeOutput;
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetSurfaceTractionBoundaryConditions(
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::SetSurfaceTractionBoundaryConditions(
             std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
             std::vector<c_vector<double,DIM> >& rSurfaceTractions)
 {
@@ -1208,8 +1226,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetSurfaceTrac
     mSurfaceTractions = rSurfaceTractions;
 }
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalTractionBoundaryCondition(
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::SetFunctionalTractionBoundaryCondition(
             std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
             c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
 {
@@ -1219,8 +1237,8 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::SetFunctionalT
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-std::vector<c_vector<double,DIM> >& AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::rGetDeformedPosition()
+template<unsigned DIM>
+std::vector<c_vector<double,DIM> >& AbstractNonlinearElasticitySolver<DIM>::rGetDeformedPosition()
 {
     mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
     for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
@@ -1234,8 +1252,8 @@ std::vector<c_vector<double,DIM> >& AbstractNonlinearElasticitySolver<COMPRESSIB
 }
 
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::CreateCmguiOutput()
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::CreateCmguiOutput()
 {
     if(mOutputDirectory=="")
     {
@@ -1256,14 +1274,14 @@ void AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::CreateCmguiOut
 //
 // Constant setting definitions
 //
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
 
-template<CompressibilityType COMPRESSIBILITY_TYPE, unsigned DIM>
-double AbstractNonlinearElasticitySolver<COMPRESSIBILITY_TYPE,DIM>::NEWTON_REL_TOL = 1e-4;
+template<unsigned DIM>
+double AbstractNonlinearElasticitySolver<DIM>::NEWTON_REL_TOL = 1e-4;
 
 
 #endif /*ABSTRACTNONLINEARELASTICITYSOLVER_HPP_*/

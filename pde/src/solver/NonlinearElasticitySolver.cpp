@@ -715,9 +715,10 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<INCOMPRESSIBLE,DIM>(pQuadMesh,
-                                                            bodyForce, density,
-                                                            outputDirectory, fixedNodes)
+    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+                                             bodyForce, density,
+                                             outputDirectory, fixedNodes,
+                                             INCOMPRESSIBLE)
 {
     assert(pMaterialLaw != NULL);
     mMaterialLaws.push_back(pMaterialLaw);
@@ -736,9 +737,10 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<INCOMPRESSIBLE,DIM>(pQuadMesh,
-                                                            bodyForce, density,
-                                                            outputDirectory, fixedNodes)
+    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+                                             bodyForce, density,
+                                             outputDirectory, fixedNodes,
+                                             INCOMPRESSIBLE)
 {
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)

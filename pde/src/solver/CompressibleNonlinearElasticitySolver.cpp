@@ -564,9 +564,10 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<COMPRESSIBLE,DIM>(pQuadMesh,
-                                                          bodyForce, density,
-                                                          outputDirectory, fixedNodes)
+    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+                                             bodyForce, density,
+                                             outputDirectory, fixedNodes,
+                                             COMPRESSIBLE)
 {
     assert(pMaterialLaw != NULL);
     mMaterialLaws.push_back(pMaterialLaw);
@@ -584,9 +585,10 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticitySolver<COMPRESSIBLE,DIM>(pQuadMesh,
-                                                          bodyForce, density,
-                                                          outputDirectory, fixedNodes)
+    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+                                             bodyForce, density,
+                                             outputDirectory, fixedNodes,
+                                             COMPRESSIBLE)
 {
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)

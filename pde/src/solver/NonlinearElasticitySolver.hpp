@@ -50,23 +50,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  outside other assembler or solver hierarchy.
  */
 template<size_t DIM>
-class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<INCOMPRESSIBLE,DIM>
+class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
     friend class TestNonlinearElasticitySolver;
     friend class TestNonlinearElasticityAdjointSolver;
     friend class AdaptiveNonlinearElasticityProblem;
 
 protected:
-
-    /** Number of vertices per element */
-    static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
     /** Number of nodes per element */
-    static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
+    static const size_t NUM_NODES_PER_ELEMENT    = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_ELEMENT;
+    /** Number of vertices per element */
+    static const size_t NUM_VERTICES_PER_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_VERTICES_PER_ELEMENT;
+    /** Number of nodes per boundary element */
+    static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_BOUNDARY_ELEMENT;
+
     /** Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
      *  NUM_VERTICES_PER_ELEMENT pressure unknowns */
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
-    /** Number of nodes per boundary element */
-    static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
     /** Boundary stencil size */
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
