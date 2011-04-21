@@ -30,8 +30,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+// Must be included before other cell_based headers
+#include "CellBasedSimulationArchiver.hpp"
+
+#include "CellsGenerator.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "CellBasedSimulation.hpp"
+#include "TrianglesMeshWriter.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+#include "WildTypeCellMutationState.hpp"
+
 class TestFailingDivision3d : public AbstractCellBasedTestSuite
 {
+private:
+    
+    MutableMesh<3,3>* Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
+    {
+        MutableMesh<3,3>* p_mesh = new MutableMesh<3,3>;
+        p_mesh->ConstructCuboid(width, height, depth);
+        TrianglesMeshWriter<3,3> mesh_writer("", "3dSpringMesh");
+        mesh_writer.WriteFilesUsingMesh(*p_mesh);
+
+        return p_mesh;
+    }
+    
 public:
 
     /* This test will pass if you run it for 10 hours, but fails for longer times when a cell tries to divide
@@ -71,6 +96,8 @@ public:
 
             CellPtr p_epithelial_cell(new Cell(p_state, p_model));
             p_epithelial_cell->InitialiseCellCycleModel();
+            
+            p_epithelial_cell->SetBirthTime(-10.0);
 
 			cells.push_back(p_epithelial_cell);
         }
