@@ -812,6 +812,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat           cell_based/test/data/TestVertexBasedCellPopulationOutputWriters/cellages.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellcyclephases.dat    cell_based/test/data/TestVertexBasedCellPopulationOutputWriters/cellcyclephases.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "celltypes.dat          cell_based/test/data/TestVertexBasedCellPopulationOutputWriters/celltypes.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat          cell_based/test/data/TestVertexBasedCellPopulationOutputWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = cell_population.GetCellMutationStateCount();

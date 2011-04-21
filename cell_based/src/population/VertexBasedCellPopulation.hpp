@@ -71,6 +71,9 @@ private:
     /** Results file for locations of T3Swaps. */
     out_stream mpT3SwapLocationsFile;
 
+    /** Results file for cell volume (in 3D) or area (in 2D) data. */
+    out_stream mpCellVolumesFile;
+
     /**
      * Overridden WriteVtkResultsToFile() method.
      */
@@ -289,6 +292,12 @@ public:
      * Overridden WriteResultsToFiles() method.
      */
     void WriteResultsToFiles();
+
+    /**
+     * Write the current index and location (of the centre) of each element in mrMesh, as well as the ID and
+     * the area (in 2D) or volume (in 3D) of its corresponding cell, to mpCellVolumesFile.
+     */
+    void WriteCellVolumeResultsToFile();
 
     /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.

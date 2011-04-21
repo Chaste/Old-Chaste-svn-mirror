@@ -434,7 +434,64 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
 		}
     }
     *mpVizElementsFile << "\n";
+
+
+    if (this->mOutputCellVolumes)
+    {
+        WriteCellVolumeResultsToFile();
+    }
+
 }
+
+template<unsigned DIM>
+void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
+{
+    assert(DIM==2);
+
+     // Write time to file
+    *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
+
+    // Loop over cells and find associated elements so in the same order as the cells in output files
+    for (std::list<CellPtr>::iterator cell_iter = this->mCells.begin();
+         cell_iter != this->mCells.end();
+         ++cell_iter)
+    {
+        unsigned elem_index = this->GetLocationIndexUsingCell(*cell_iter);
+
+        // Hack that covers the case where the element is associated with a cell that has just been killed (#1129)
+        bool elem_corresponds_to_dead_cell = false;
+
+        if (this->mLocationCellMap[elem_index])
+        {
+            elem_corresponds_to_dead_cell = this->mLocationCellMap[elem_index]->IsDead();
+        }
+
+        // Write node data to file
+        if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
+        {
+            // Write element index to file
+            *mpCellVolumesFile << elem_index << " ";
+
+            // Write cell ID to file
+            unsigned cell_index = (*cell_iter)->GetCellId();
+            *mpCellVolumesFile << cell_index << " ";
+
+            // Write location of element centroid to file
+            c_vector<double, DIM> centre_location = GetLocationOfCellCentre(*cell_iter);
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpCellVolumesFile << centre_location[i] << " ";
+            }
+
+            // Write cell volume (in 3D) or area (in 2D) to file
+            double cell_volume = mrMesh.GetVolumeOfElement(elem_index);
+            *mpCellVolumesFile << cell_volume << " ";
+        }
+    }
+    *mpCellVolumesFile << "\n";
+}
+
+
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::WriteVtkResultsToFile()
@@ -573,6 +630,11 @@ void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirec
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
     mpT1SwapLocationsFile = output_file_handler.OpenOutputFile("T1SwapLocations.dat");
     mpT3SwapLocationsFile = output_file_handler.OpenOutputFile("T3SwapLocations.dat");
+
+    if (this->mOutputCellVolumes)
+    {
+        mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
+    }
 }
 
 template<unsigned DIM>
@@ -582,6 +644,11 @@ void VertexBasedCellPopulation<DIM>::CloseOutputFiles()
     mpVizElementsFile->close();
     mpT1SwapLocationsFile->close();
     mpT3SwapLocationsFile->close();
+
+    if (this->mOutputCellVolumes)
+    {
+        mpCellVolumesFile->close();
+    }
 }
 
 
