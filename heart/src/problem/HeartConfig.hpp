@@ -784,8 +784,9 @@ public:
      */
     void SetSpaceDimension(unsigned spaceDimension);
 
-    /** Set the configuration simulation duration
-     * @param simulationDuration duration of the simulation (ms)
+    /**
+     * Set the configuration simulation end time.
+     * @param simulationDuration end time for the next call to Solve() (in ms).
      */
     void SetSimulationDuration(double simulationDuration);
 
