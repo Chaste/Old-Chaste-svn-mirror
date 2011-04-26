@@ -68,6 +68,7 @@ public:
         unsigned height = 4;
         unsigned depth = 1;
 
+        //Make3dMesh makes a new pointer to a mesh
         MutableMesh<3,3>* p_mesh = Make3dMesh(width, height, depth);
 
         // Set up cells by iterating through the mesh nodes
@@ -116,6 +117,7 @@ public:
         simulator.AddForce(&linear_force);
 
         simulator.Solve();
+        delete p_mesh;
     }
 
 };
