@@ -855,14 +855,36 @@ class GccOptNative(GccOpt):
     """
     gcc compiler with optimisations for the machine doing the compilation.
     """
+    supported_flags = {(4,4): ['avx'],
+                       (4,3): ['sse4a', 'abm', 'popcnt', 'ssse3', 'sse4'],
+                       (4,2): ['sse3'],
+                       (3,1): ['mmx', 'sse', 'sse2', '3dnow']}
+    
+    def GetGccVersion(self):
+        version_str = os.popen(self.tools['mpicxx'] + ' -dumpversion').readline().strip()
+        version_tup = map(int, version_str.split('.')[0:2])
+        return version_tup
+    
     def __init__(self, *args, **kwargs):
-        GccOpt.__init__(self, *args, **kwargs)
-        self._cc_flags.extend(['-march=native', '-mfpmath=sse'])
-        cpu_flags = self._get_cpu_flags()
-        for flag in ['mmx', 'sse', 'sse2', 'sse3', 'sse4', 'sse4a', 'avx', '3dnow', 'abm', 'popcnt']:
-            if flag in cpu_flags:
-                self._cc_flags.append('-m' + flag)
+        super(GccOptNative, self).__init__(*args, **kwargs)
         self.build_dir = 'optimised_native'
+        self._checked_version = False
+    
+    def CcFlags(self):
+        if not self._checked_version:
+            cpu_flags = self._get_cpu_flags()
+            gcc_version = self.GetGccVersion()
+            if gcc_version >= (4,2):
+                self._cc_flags.append('-march=native')
+            if gcc_version >= (3,1):
+                self._cc_flags.append('-mfpmath=sse')
+            for minver in self.supported_flags.iterkeys():
+                if gcc_version >= minver:
+                    for flag in self.supported_flags[minver]:
+                        if flag in cpu_flags:
+                            self._cc_flags.append('-m' + flag)
+            self._checked_version = True
+        return super(GccOptNative, self).CcFlags()
 
 
 class Intel(BuildType):
