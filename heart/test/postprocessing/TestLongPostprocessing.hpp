@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) University of Oxford, 2005-2010
+Copyright (C) University of Oxford, 2005-2011
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -32,40 +32,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include <ctime>
-
-#include "CheckpointArchiveTypes.hpp" // Needs to be before other Chaste code
-#include "CardiacSimulationArchiver.hpp"
-#include "ArchiveOpener.hpp"
-#include "Exception.hpp"
-#include "DistributedVector.hpp"
-#include "DistributedVectorFactory.hpp"
-
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <iostream>
 #include <boost/shared_ptr.hpp>
 
-#include "AbstractCardiacCell.hpp"
-#include "AbstractCvodeCell.hpp"
-#include "AbstractCardiacCellWithModifiers.hpp"
-#include "AbstractCardiacCellFactory.hpp"
+#include "CardiacSimulationArchiver.hpp"
+
 #include "Exception.hpp"
-
-#include "CellProperties.hpp"
-
-#include "SimpleStimulus.hpp"
+#include "PetscTools.hpp"
+#include "AbstractCardiacCell.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 #include "RegularStimulus.hpp"
-#include "EulerIvpOdeSolver.hpp"
 #include "LuoRudy1991.hpp"
-
+#include "HeartConfig.hpp"
 #include "MonodomainProblem.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "TetrahedralMesh.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "PostProcessingWriter.hpp"
 
-#include "CommandLineArguments.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
-#include <sstream>
 
 template <unsigned DIM>
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
@@ -85,29 +71,11 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-        double x=0, y=0, z=0, z_target=0;
-        x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-        y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
 
-        ChasteCuboid<DIM> extremes = this->GetMesh()->CalculateBoundingBox();
-        // double x_middle = (extremes.rGetLowerCorner()[0]+extremes.rGetUpperCorner()[0])/2.0;
-        // double y_middle = (extremes.rGetLowerCorner()[1]+extremes.rGetUpperCorner()[1])/2.0;
-        //double endo_proportion = x/extremes.GetWidth(0);
-
-        // Get a threshold for each dimension by getting sqrt or cube root of the area/volume.
-        // double threshold = pow(mAreaOrVolume,1.0/(double)(DIM));
-
-        if (DIM==3)
-        {
-            z = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[2];
-            z_target = extremes.rGetUpperCorner()[2];
-        }
-        // std::cout << "x location "<< x << " y location "<< y;
-        // We want a stimulus in the middle of x and y and on the top surface of the the mesh.
         if (x < 0.03)
         {
         	return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
-        	// std::cout << "Cell with stimulus created\n" << std::flush;
         }
         else
         {
@@ -124,82 +92,18 @@ public:
 
     void Test2DSimulations() throw(Exception)
     {
-//        // Get command line arguments
-//        CommandLineArguments* p_args = CommandLineArguments::Instance();
-//        unsigned argc = *(p_args->p_argc); // has the number of arguments.
-//        std::cout << "# " << argc-1 << " arguments supplied.\n" << std::flush;
-
-        // Define conductivity scale
-
         double conductivity_scale = 1;
-//
-//        bool Conductivity_Scale_Option = CommandLineArguments::Instance()->OptionExists("--conductivity_scale");
-//        if (Conductivity_Scale_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--conductivity_scale");
-//            conductivity_scale = atof(val);
-//        }
-//
-//        std::cout << "conductivity_scale is "<< conductivity_scale << "\n";
-
         double h = 0.01; // cm
-
-//        bool Spatial_Discretization_Option = CommandLineArguments::Instance()->OptionExists("--spatial_discretization");
-//        if (Spatial_Discretization_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--spatial_discretization");
-//            h = atof(val);
-//        }
-//
-//        std::cout << "spatial_discretization is "<< h << "\n";
-
-//        // This option is not used at present.
-//        double simulation_duration = 5.0; //ms
-//
-//        bool Simulation_Duration_Option = CommandLineArguments::Instance()->OptionExists("--simulation_duration");
-//        if (Simulation_Duration_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--simulation_duration");
-//            simulation_duration = atof(val);
-//        }
-//
-//        std::cout << "simulation_duration is "<< simulation_duration << "\n";
-
         double ode_time_step = 0.005; //ms
-
-//        bool ODE_Time_Step_Option = CommandLineArguments::Instance()->OptionExists("--ode_time_step");
-//        if (ODE_Time_Step_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--ode_time_step");
-//            ode_time_step = atof(val);
-//        }
-//
-//        std::cout << "ode_time_step is "<< ode_time_step << "\n";
-
         double pde_time_step = 0.01; //ms
-
-//        bool PDE_Time_Step_Option = CommandLineArguments::Instance()->OptionExists("--pde_time_step");
-//        if (PDE_Time_Step_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--pde_time_step");
-//            pde_time_step = atof(val);
-//        }
-//
-//        std::cout << "pde_time_step is "<< pde_time_step << "\n";
-
         unsigned num_stims = 1;
 
-//        bool Num_Stim_Option = CommandLineArguments::Instance()->OptionExists("--num_stims");
-//        if (Num_Stim_Option == true) {
-//            char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("--num_stims");
-//            num_stims = atof(val);
-//        }
-        // Check at least one stimulus is applied
-        assert(num_stims >= 1);
-
-        std::cout << "num_stims is "<< num_stims << "\n";
-
         TetrahedralMesh<2,2> mesh;
-        unsigned num_elem_x = (unsigned)(1.0/h);  // num elements to make 1cm
-        unsigned num_elem_y = (unsigned)(1.0/h);  // num elements to make 1cm
+        unsigned num_elem_x = (unsigned)(0.5/h);  // num elements to make 5mm
+        unsigned num_elem_y = (unsigned)(0.5/h);  // num elements to make 5mm
         //unsigned num_elem_z = (unsigned)(0.15/h);// Num elements to make 0.3cm
-        double pacing_cycle_length = 250;
-        double stim_mag = -500;
+        double pacing_cycle_length = 350;
+        double stim_mag = -500000;
         double stim_dur = 3;
         double area = 0.005;
 
@@ -215,8 +119,8 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         
         // These lines make postprocessing fast or slow.
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step,pde_time_step,1);
-        //HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step,pde_time_step,0.01);
+        //HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step, pde_time_step, 1);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step, pde_time_step, 0.01);
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.4*conductivity_scale*1.171, 1.4*conductivity_scale*1.171));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400.0); // 1/cm
@@ -226,7 +130,7 @@ public:
         apds_requested.push_back(std::pair<double, double>(90,-30)); //repolarisation percentage and threshold
         HeartConfig::Instance()->SetApdMaps(apds_requested);
 //        std::vector<double> excitation_threshold;
-//        excitation_threshold.push_back(double (-30));
+//        excitation_threshold.push_back(-30.0);
 //        HeartConfig::Instance()->SetUpstrokeTimeMaps(excitation_threshold);
 //        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(excitation_threshold);
 
