@@ -73,6 +73,9 @@ public:
 
     /** Returns the number of faces in the mesh (also has synonym GetNumEdges()) */
     virtual unsigned GetNumFaces() const =0;
+    
+    /** Returns the number of cable elements in the mesh */
+    virtual unsigned GetNumCableElements() const;
 
     /** Returns the number of element attributes in the mesh */
     virtual unsigned GetNumElementAttributes() const;
@@ -80,11 +83,14 @@ public:
     /** Returns the number of face attributes in the mesh */
     virtual unsigned GetNumFaceAttributes() const;
 
+    /** Returns the number of cable element attributes in the mesh */
+    virtual unsigned GetNumCableElementAttributes() const;
+
     /**
      * @returns the vector of node attributes
      * Returns an empty vector here. Over-ride in child classes if needed.
-     * Ideally, this method would be in AbstractCachedMeshReader (where it would retrun the cached attribuites)
-     * but TrianglesMeshReaedr (the class this method was created for)
+     * Ideally, this method would be in AbstractCachedMeshReader (where it would return the cached attribuites)
+     * but TrianglesMeshReader (the class this method was created for)
      * does not inherit from AbstractCachedMeshReader, so it needs to be here.
      */
     virtual std::vector<double> GetNodeAttributes();
@@ -103,6 +109,9 @@ public:
 
     /** Returns a vector of the node indices of each face (and any attribute/containment infomation, if there is any) in turn */
     virtual ElementData GetNextFaceData()=0;
+
+    /** Returns a vector of the node indices of each cable element (and any attribute infomation, if there is any) in turn */
+    virtual ElementData GetNextCableElementData();
 
     /** Returns a vector of the node indices of each edge (and any attribute/containment infomation, if there is any) in turn (synonym of GetNextFaceData()) */
     ElementData GetNextEdgeData();

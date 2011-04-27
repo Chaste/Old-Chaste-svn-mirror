@@ -120,6 +120,27 @@ bool AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::HasNclFile()
 }
 
 
+// Cable elements aren't supported in most formats
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements() const
+{
+    return 0u;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumCableElementAttributes() const
+{
+    return 0u;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextCableElementData()
+{
+    EXCEPTION("Cable elements are not supported by this mesh format.");
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

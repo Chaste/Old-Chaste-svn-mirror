@@ -57,6 +57,7 @@ private:
     std::ifstream mElementsFile;    /**< The elements file for the mesh. */
     std::ifstream mFacesFile;       /**< The faces (edges) file for the mesh. */
     std::ifstream mNclFile;         /**< The node connectivity list file for the mesh. */
+    std::ifstream mCableElementsFile; /**< The elements file for the mesh. */
 
     std::streampos mNodeFileDataStart; /**< The start of the binary data*/
     std::streamoff mNodeItemWidth;  /**< The number of bytes in a line of the node file*/
@@ -70,9 +71,11 @@ private:
     unsigned mNumNodes;             /**< Number of nodes in the mesh. */
     unsigned mNumElements;          /**< Number of elements in the mesh. */
     unsigned mNumFaces;             /**< Number of faces in the mesh. */
+    unsigned mNumCableElements;     /**< Number of cable elements in the mesh. */
 
     unsigned mNodesRead;            /**< Number of nodes read in. */
     unsigned mElementsRead;         /**< Number of elements read in. */
+    unsigned mCableElementsRead;    /**< Number of cable elements read in. */
     unsigned mFacesRead;            /**< Number of faces read in. */
     unsigned mBoundaryFacesRead;    /**< Number of boundary faces read in. */
     std::vector<unsigned> mOneDimBoundary; /**<Indices of nodes which are at the boundary of a 1D mesh*/
@@ -83,6 +86,7 @@ private:
     unsigned mNumElementNodes;      /**< Is the number of nodes per element. */
     unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element. */
     unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face. */
+    unsigned mNumCableElementAttributes; /**< Is the number of attributes stored for each cable element. */
 
     unsigned mOrderOfElements;      /**< The order of each element (1 for linear, 2 for quadratic). */
     unsigned mOrderOfBoundaryElements; /**< The order of each element (1 for linear, 2 for quadratic). */
@@ -145,12 +149,18 @@ public:
 
     /** Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     unsigned GetNumFaces() const;
+    
+    /** Returns the number of cable elements in the mesh */
+    unsigned GetNumCableElements() const;
 
     /** Returns the number of attributes in the mesh */
     unsigned GetNumElementAttributes() const;
 
     /** Returns the number of attributes in the mesh */
     unsigned GetNumFaceAttributes() const;
+
+    /** Returns the number of cable element attributes in the mesh */
+    unsigned GetNumCableElementAttributes() const;
 
     /** Resets pointers to beginning*/
     void Reset();
@@ -163,6 +173,9 @@ public:
 
     /** Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
     ElementData GetNextFaceData();
+
+    /** Returns a vector of the node indices of each cable element (and any attribute infomation, if there is any) in turn */
+    ElementData GetNextCableElementData();
 
 
     /**
@@ -267,6 +280,9 @@ private:
 
     /** Open node connectivity list file. */
     void OpenNclFile();
+    
+    /** Open the cable elements definition file, if it exists. */
+    void OpenCableElementsFile();
 
     /** Read the header from each mesh file. */
     void ReadHeaders();

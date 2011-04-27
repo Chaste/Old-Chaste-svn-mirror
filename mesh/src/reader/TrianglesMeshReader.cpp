@@ -37,6 +37,7 @@ static const char* ELEMENTS_FILE_EXTENSION = ".ele";
 static const char* FACES_FILE_EXTENSION = ".face";
 static const char* EDGES_FILE_EXTENSION = ".edge";
 static const char* NCL_FILE_EXTENSION = ".ncl";
+static const char* CABLE_FILE_EXTENSION = ".cable";
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -134,6 +135,12 @@ unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
     return mNumFaces;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements() const
+{
+    return mNumCableElements;
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const
@@ -148,6 +155,13 @@ unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() con
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumCableElementAttributes() const
+{
+    return mNumCableElementAttributes;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
     CloseFiles();
@@ -156,6 +170,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
     mElementsRead = 0;
     mFacesRead = 0;
     mBoundaryFacesRead = 0;
+    mCableElementsRead = 0;
     mEofException = false;
 
     OpenFiles();
@@ -191,6 +206,38 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     EnsureIndexingFromZero(element_data.NodeIndices);
 
     mElementsRead++;
+    
+    if (mNodePermutationDefined)
+    {    
+        for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
+             node_it != element_data.NodeIndices.end();
+             ++ node_it)
+        {
+            assert(*node_it < mPermutationVector.size());            
+            *node_it =  mPermutationVector[*node_it];
+        }
+    }
+        
+    return element_data;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextCableElementData()
+{
+    ElementData element_data;
+    element_data.NodeIndices.resize(2u);
+    element_data.AttributeValue = 0; // If an attribute is not read this stays as zero, otherwise overwritten.
+
+    std::vector<unsigned> element_attributes;
+    GetNextItemFromStream(mCableElementsFile, mCableElementsRead, element_data.NodeIndices, mNumCableElementAttributes, element_attributes);
+    if (mNumCableElementAttributes > 0)
+    {
+        element_data.AttributeValue = (unsigned) element_attributes[0];///only one element attribute registered for the moment
+    }
+
+    EnsureIndexingFromZero(element_data.NodeIndices);
+
+    mCableElementsRead++;
     
     if (mNodePermutationDefined)
     {    
@@ -386,6 +433,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFiles()
     OpenElementsFile();
     OpenFacesFile();
     OpenNclFile();
+    OpenCableElementsFile();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -461,12 +509,25 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenNclFile()
 {
-    // Nodes definition
     std::string file_name = mFilesBaseName + NCL_FILE_EXTENSION;
     mNclFile.open(file_name.c_str());
 
     mNclFileAvailable = mNclFile.is_open();
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenCableElementsFile()
+{
+    std::string file_name = mFilesBaseName + CABLE_FILE_EXTENSION;
+    mCableElementsFile.open(file_name.c_str());
+    if (!mCableElementsFile.is_open())
+    {
+        mNumCableElements = 0u;
+        mNumCableElementAttributes = 0u;
+    }
+}
+
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNodeAttributes()
@@ -680,7 +741,17 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mNclFileDataStart = mNclFile.tellg(); // Record the position of the first byte after the header.
         mNclItemWidth = mMaxContainingElements * sizeof(unsigned);
     }
-
+    
+    /* Read cable file, if available */
+    if (mCableElementsFile.is_open())
+    {
+        GetNextLineFromStream(mCableElementsFile, buffer);
+        std::stringstream cable_header_line(buffer);
+        unsigned num_nodes_per_cable_element;
+        cable_header_line >> mNumCableElements >> num_nodes_per_cable_element >> mNumCableElementAttributes;
+        assert(num_nodes_per_cable_element == 2u);
+        mCableElementsRead = 0u;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -690,6 +761,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::CloseFiles()
     mElementsFile.close();
     mFacesFile.close();
     mNclFile.close();
+    mCableElementsFile.close();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -878,6 +950,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetNodePermutation(std::vector
         mInversePermutationVector[mPermutationVector[index]]=index;
     }
 }
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -2,6 +2,7 @@ TestChastePoint.hpp
 TestChasteRegions.hpp
 TestDistributedTetrahedralMesh.hpp
 TestElement.hpp
+TestMixedDimensionMesh.hpp
 TestMutableMesh.hpp
 TestMutableMeshRemesh.hpp
 TestNode.hpp
