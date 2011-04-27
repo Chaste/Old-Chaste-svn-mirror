@@ -50,9 +50,14 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
     
     /**
-     * Get the number of cable elements that are actually in use.
+     * Get the number of cable elements.
      */
     unsigned GetNumCableElements() const;
+
+    /**
+     * Get the number of cable elements on this process.
+     */
+    unsigned GetNumLocalCableElements() const;
     
     /**
      * Get the cable element with a given index in the mesh.
@@ -62,33 +67,11 @@ public:
      */
     Element<1u, SPACE_DIM>* GetCableElement(unsigned index) const;
 
-
-protected:
-
-    /**
-     * Overridden solve node mapping method.
-     *
-     * @param index the global index of the node
-     */
-    unsigned SolveNodeMapping(unsigned index) const;
-
-    /**
-     * Overridden solve element mapping method.
-     *
-     * @param index the global index of the element
-     */
-    unsigned SolveElementMapping(unsigned index) const;
-
-    /**
-     * Overridden solve boundary element mapping method.
-     *
-     * @param index the global index of the boundary element
-     */
-    unsigned SolveBoundaryElementMapping(unsigned index) const;
-
 private:
     /** The elements making up the 1D cables */
     std::vector<Element<1u, SPACE_DIM>*> mCableElements;
+    /** The global number of cables over all processes*/
+    unsigned mNumCableElements;
 };
 
 #endif /*MIXEDDIMENSIONMESH_HPP_*/

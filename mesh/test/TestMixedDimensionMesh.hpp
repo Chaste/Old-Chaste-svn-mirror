@@ -41,35 +41,42 @@ class TestMixedDimensionMesh : public CxxTest::TestSuite
 public:
     void TestReadingSquareMesh() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
-        
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh;
+        MixedDimensionMesh<2,2> mesh; ///\todo Make a dumb partition 
         mesh.ConstructFromMeshReader(reader);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
+        
         TS_ASSERT_EQUALS(mesh.GetNumCableElements(), 10u);
-        
-        for (unsigned i=0; i<10u; i++)
+        if (PetscTools::IsSequential())
         {
-            Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
-            TS_ASSERT_EQUALS(p_cable_elt->GetNumNodes(), 2u);
-            TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(0u), 55u + i);
-            TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 56u + i);
-            TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
-            TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
-            TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+            TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 10u);
+            
+            for (unsigned i=0; i<10u; i++)
+            {
+                Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
+                TS_ASSERT_EQUALS(p_cable_elt->GetNumNodes(), 2u);
+                TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(0u), 55u + i);
+                TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 56u + i);
+                TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
+                TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
+                TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+            }
+            
+            for (unsigned i=0; i<200u; i++)
+            {
+                Element<2,2>* p_elt = mesh.GetElement(i);
+                TS_ASSERT_EQUALS(p_elt->GetNumNodes(), 3u);
+                TS_ASSERT_EQUALS(p_elt->GetNode(0u), mesh.GetNode(p_elt->GetNodeGlobalIndex(0u)));
+                TS_ASSERT_EQUALS(p_elt->GetNode(1u), mesh.GetNode(p_elt->GetNodeGlobalIndex(1u)));
+                TS_ASSERT_EQUALS(p_elt->GetNode(2u), mesh.GetNode(p_elt->GetNodeGlobalIndex(2u)));
+            }
         }
-        
-        for (unsigned i=0; i<200u; i++)
+        else
         {
-            Element<2,2>* p_elt = mesh.GetElement(i);
-            TS_ASSERT_EQUALS(p_elt->GetNumNodes(), 3u);
-            TS_ASSERT_EQUALS(p_elt->GetNode(0u), mesh.GetNode(p_elt->GetNodeGlobalIndex(0u)));
-            TS_ASSERT_EQUALS(p_elt->GetNode(1u), mesh.GetNode(p_elt->GetNodeGlobalIndex(1u)));
-            TS_ASSERT_EQUALS(p_elt->GetNode(2u), mesh.GetNode(p_elt->GetNodeGlobalIndex(2u)));
+            TS_ASSERT_LESS_THAN(mesh.GetNumLocalCableElements(), 11u);
         }
     }
     

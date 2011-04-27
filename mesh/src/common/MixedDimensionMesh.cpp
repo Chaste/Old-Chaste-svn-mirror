@@ -31,33 +31,55 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader)
 {
-    //assert(0);
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ConstructFromMeshReader(rMeshReader);
     
     // Add cable elements
-    this->mCableElements.reserve(rMeshReader.GetNumCableElements());
+    mNumCableElements = rMeshReader.GetNumCableElements();
+    //this->mCableElements.reserve(mNumCableElements);
+    
     for (unsigned element_index=0; element_index < rMeshReader.GetNumCableElements(); element_index++)
     {
         ElementData element_data = rMeshReader.GetNextCableElementData();
-        std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.reserve(2u);
 
+        //Determine if we own any nodes on this cable element
+        bool node_owned = false;
         for (unsigned j=0; j<2; j++) // cables are always 1d
         {
-            ///\todo #1760 This needs a bit more thought and a Node-Mapping
-            
-            assert(element_data.NodeIndices[j] < this->mNodes.size());
-            nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
+            try
+            {
+                this->SolveNodeMapping(element_data.NodeIndices[j]);
+                node_owned = true;
+                break;
+            }
+            catch (Exception &e)
+            {
+                //We deal with non-owned nodes in the next part
+            }
         }
-
-        Element<1u,SPACE_DIM>* p_element = new Element<1u,SPACE_DIM>(element_index, nodes);
-        this->mCableElements.push_back(p_element);
-
-        if (rMeshReader.GetNumCableElementAttributes() > 0)
-        {
-            assert(rMeshReader.GetNumCableElementAttributes() == 1);
-            unsigned attribute_value = element_data.AttributeValue;
-            p_element->SetRegion(attribute_value);
+        
+        //If we don't locally own either node, then we don't construct the cable      
+        if (node_owned)
+        {           
+            std::vector<Node<SPACE_DIM>*> nodes;
+            nodes.reserve(2u);
+    
+            for (unsigned j=0; j<2; j++) // cables are always 1d
+            {
+                //Note (#1760) that if we own one node on a cable element then we are likely to own the other.
+                //If not, we are likely to have a halo.
+                //If not, (free-running Purkinje with monodomain mesh?), then this will throw.
+                nodes.push_back(this->GetNodeOrHaloNode(element_data.NodeIndices[j]) );
+            }
+    
+            Element<1u,SPACE_DIM>* p_element = new Element<1u,SPACE_DIM>(element_index, nodes);
+            this->mCableElements.push_back(p_element);
+    
+            if (rMeshReader.GetNumCableElementAttributes() > 0)
+            {
+                assert(rMeshReader.GetNumCableElementAttributes() == 1);
+                unsigned attribute_value = element_data.AttributeValue;
+                p_element->SetRegion(attribute_value);
+            }
         }
     }
 
@@ -66,6 +88,11 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
     
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements() const
+{
+   return mNumCableElements;
+}
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalCableElements() const
 {
    return mCableElements.size();
 }
@@ -77,26 +104,6 @@ Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElem
     return mCableElements[index];
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
-{
-    assert(index < this->mNodes.size() );
-    return index;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
-{
-    assert(index < this->mElements.size() );
-    return index;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
-{
-    assert(index < this->mBoundaryElements.size() );
-    return index;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

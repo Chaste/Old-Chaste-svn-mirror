@@ -289,6 +289,27 @@ public:
      */
     virtual ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
   
+protected:
+    /**
+     * Overridden solve node mapping method.
+     *
+     * @param index the global index of the node
+     */
+    unsigned SolveNodeMapping(unsigned index) const;
+
+    /**
+     * Overridden solve element mapping method.
+     *
+     * @param index the global index of the element
+     */
+    unsigned SolveElementMapping(unsigned index) const;
+
+    /**
+     * Overridden solve boundary element mapping method.
+     *
+     * @param index the global index of the boundary element
+     */
+    unsigned SolveBoundaryElementMapping(unsigned index) const;
 private:
 
     /**
@@ -319,26 +340,6 @@ private:
      */
     void RegisterBoundaryElement(unsigned index);
 
-    /**
-     * Overridden solve node mapping method.
-     *
-     * @param index the global index of the node
-     */
-    unsigned SolveNodeMapping(unsigned index) const;
-
-    /**
-     * Overridden solve element mapping method.
-     *
-     * @param index the global index of the element
-     */
-    unsigned SolveElementMapping(unsigned index) const;
-
-    /**
-     * Overridden solve boundary element mapping method.
-     *
-     * @param index the global index of the boundary element
-     */
-    unsigned SolveBoundaryElementMapping(unsigned index) const;
 
     /**
      * Compute a parallel partitioning of a given mesh
