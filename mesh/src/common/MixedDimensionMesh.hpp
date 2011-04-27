@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MIXEDDIMENSIONMESH_HPP_
 #define MIXEDDIMENSIONMESH_HPP_
 
-#include "AbstractTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "AbstractMeshReader.hpp"
 
 
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Could be used for Purkinje or blood vessels, etc.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MixedDimensionMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
+class MixedDimensionMesh : public DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 public:
     /**

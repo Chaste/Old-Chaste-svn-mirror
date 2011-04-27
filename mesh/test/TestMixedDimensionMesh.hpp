@@ -34,12 +34,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MixedDimensionMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "Exception.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestMixedDimensionMesh : public CxxTest::TestSuite
 {
 public:
     void TestReadingSquareMesh() throw (Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh;
