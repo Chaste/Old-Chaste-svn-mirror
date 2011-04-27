@@ -54,7 +54,7 @@ template<class ELASTICITY_SOLVER, unsigned DIM>
 class AbstractCardiacMechanicsSolver : public ELASTICITY_SOLVER, public AbstractCardiacMechanicsSolverInterface<DIM>
 {
 protected:
-    static const unsigned NUM_VERTICES_PER_ELEMENT = ELASTICITY_SOLVER::NUM_VERTICES_PER_ELEMENT;
+    static const unsigned NUM_VERTICES_PER_ELEMENT = ELASTICITY_SOLVER::NUM_VERTICES_PER_ELEMENT; /**< Useful const from base class */
 
     /**
      *  Vector of contraction model (pointers). One for each quadrature point.

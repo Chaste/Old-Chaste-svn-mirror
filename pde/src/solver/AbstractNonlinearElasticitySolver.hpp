@@ -227,7 +227,7 @@ protected:
      */
     double mCurrentTime;
 
-    /* This is equal to either COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
+    /** This is equal to either COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
      * and is only used in computing mNumDofs and allocating matrix memory.
      */
     CompressibilityType mCompressibilityType;
