@@ -239,16 +239,17 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextCableElementData
 
     mCableElementsRead++;
     
-    if (mNodePermutationDefined)
-    {    
-        for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
-             node_it != element_data.NodeIndices.end();
-             ++ node_it)
-        {
-            assert(*node_it < mPermutationVector.size());            
-            *node_it =  mPermutationVector[*node_it];
-        }
-    }
+    // Node permutation can only be done with binary data...
+//    if (mNodePermutationDefined)
+//    {    
+//        for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
+//             node_it != element_data.NodeIndices.end();
+//             ++ node_it)
+//        {
+//            assert(*node_it < mPermutationVector.size());            
+//            *node_it =  mPermutationVector[*node_it];
+//        }
+//    }
         
     return element_data;
 }

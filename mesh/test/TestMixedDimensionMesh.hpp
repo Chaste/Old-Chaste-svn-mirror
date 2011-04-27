@@ -57,6 +57,7 @@ public:
             TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 56u + i);
             TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
             TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
+            TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
         }
         
         for (unsigned i=0; i<200u; i++)
@@ -67,6 +68,29 @@ public:
             TS_ASSERT_EQUALS(p_elt->GetNode(1u), mesh.GetNode(p_elt->GetNodeGlobalIndex(1u)));
             TS_ASSERT_EQUALS(p_elt->GetNode(2u), mesh.GetNode(p_elt->GetNodeGlobalIndex(2u)));
         }
+    }
+    
+    void TestReadingMeshWithNoCables() throw (Exception)
+    {
+        std::string mesh_base("mesh/test/data/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
+        TS_ASSERT_EQUALS(mesh.GetNumCableElements(), 0u);
+    }
+    
+    void TestExceptions() throw (Exception)
+    {
+        // Only TrianglesMeshReader supports cables
+        MemfemMeshReader<3,3> memfem_reader("mesh/test/data/Memfem_slab");
+        TS_ASSERT_EQUALS(memfem_reader.GetNumCableElements(), 0u);
+        TS_ASSERT_EQUALS(memfem_reader.GetNumCableElementAttributes(), 0u);
+        TS_ASSERT_THROWS_THIS(memfem_reader.GetNextCableElementData(), "Cable elements are not supported by this mesh format.");
+        
+        
     }
 };
 
