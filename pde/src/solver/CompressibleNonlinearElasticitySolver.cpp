@@ -56,12 +56,12 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
     // Zero the matrix/vector if it is to be assembled
     if (assembleResidual)
     {
-        this->mpLinearSystem->ZeroRhsVector();
+        PetscVecTools::Zero(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->ZeroLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
+        PetscMatTools::Zero(this->mJacobianMatrix);
+        PetscMatTools::Zero(this->mPreconditionMatrix);
     }
 
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
@@ -113,13 +113,13 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
 
             if (assembleJacobian)
             {
-                this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem);
             }
 
             if (assembleResidual)
             {
-                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
+                PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mResidualVector, p_indices, b_elem);
             }
         }
     }
@@ -148,25 +148,25 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
 
             if (assembleJacobian)
             {
-                this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
+                PetscMatTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_boundary_elem);
+                PetscMatTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_boundary_elem);
             }
 
             if (assembleResidual)
             {
-                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+                PetscVecTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mResidualVector, p_indices, b_boundary_elem);
             }
         }
     }
 
     if (assembleResidual)
     {
-        this->mpLinearSystem->AssembleRhsVector();
+        PetscVecTools::Assemble(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix();
+        PetscMatTools::AssembleIntermediate(this->mJacobianMatrix);
+        PetscMatTools::AssembleIntermediate(this->mPreconditionMatrix);
     }
 
     // Apply Dirichlet boundary conditions
@@ -174,12 +174,12 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
 
     if (assembleResidual)
     {
-        this->mpLinearSystem->AssembleRhsVector();
+        PetscVecTools::Assemble(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix();
+        PetscMatTools::AssembleFinal(this->mJacobianMatrix);
+        PetscMatTools::AssembleFinal(this->mPreconditionMatrix);
     }
 }
 

@@ -55,12 +55,12 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
     // Zero the matrix/vector if it is to be assembled
     if (assembleResidual)
     {
-        this->mpLinearSystem->ZeroRhsVector();
+        PetscVecTools::Zero(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->ZeroLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
+        PetscMatTools::Zero(this->mJacobianMatrix);
+        PetscMatTools::Zero(this->mPreconditionMatrix);
     }
 
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
@@ -126,13 +126,13 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
             if (assembleJacobian)
             {
-                this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem);
             }
 
             if (assembleResidual)
             {
-                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
+                PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mResidualVector, p_indices, b_elem);
             }
         }
     }
@@ -166,13 +166,13 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
             if (assembleJacobian)
             {
-                this->mpLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
-                this->mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_boundary_elem);
+                PetscMatTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_boundary_elem);
+                PetscMatTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_boundary_elem);
             }
 
             if (assembleResidual)
             {
-                this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+                PetscVecTools::AddMultipleValues<BOUNDARY_STENCIL_SIZE>(this->mResidualVector, p_indices, b_boundary_elem);
             }
 
             // some extra checking
@@ -187,12 +187,12 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
     if (assembleResidual)
     {
-        this->mpLinearSystem->AssembleRhsVector();
+        PetscVecTools::Assemble(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix();
+        PetscMatTools::AssembleIntermediate(this->mJacobianMatrix);
+        PetscMatTools::AssembleIntermediate(this->mPreconditionMatrix);
     }
 
     // Apply Dirichlet boundary conditions
@@ -200,12 +200,12 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 
     if (assembleResidual)
     {
-        this->mpLinearSystem->AssembleRhsVector();
+        PetscVecTools::Assemble(this->mResidualVector);
     }
     if (assembleJacobian)
     {
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
-        this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix();
+        PetscMatTools::AssembleFinal(this->mJacobianMatrix);
+        PetscMatTools::AssembleFinal(this->mPreconditionMatrix);
     }
 }
 
@@ -756,38 +756,6 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
 template<size_t DIM>
 NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 {
-//    //Post-hoc debugging
-//    Mat matrix = this->mpLinearSystem->rGetLhsMatrix();
-//    for(unsigned i=0; i<this->mpQuadMesh->GetNumNodes(); i++)
-//    {
-//        unsigned elements = this->mpQuadMesh->GetNode(i)->GetNumContainingElements();
-//        if(i<this->mpQuadMesh->GetNumVertices()) // then this is a vertex
-//        {
-//            TRACE("VERT");
-//        }
-//        else
-//        {
-//            TRACE("INT");
-//        }
-//        PRINT_3_VARIABLES(DIM, i, elements);
-//        for (unsigned dim=0; dim<DIM; dim++)
-//        {
-//            int row=DIM*i+dim;
-//            int ncols;
-//            MatGetRow(matrix, row, &ncols, NULL, NULL);
-//            PRINT_3_VARIABLES(i,row,ncols);
-//        }
-// 
-//        if(i<this->mpQuadMesh->GetNumVertices()) // then this is a vertex
-//        {
-//            int row=DIM*this->mpQuadMesh->GetNumNodes() + i;
-//            int ncols;
-//            MatGetRow(matrix, row, &ncols, NULL, NULL);
-//            PRINT_3_VARIABLES(i,row,ncols);
-//        }
-//    }
-
-
 }
 
 

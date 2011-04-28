@@ -147,7 +147,7 @@ public:
         // test whether residual vector is currently zero (as
         // current solution should have been initialised to u=0, p=p0
         ///////////////////////////////////////////////////////////////////
-        ReplicatableVector rhs_vec(solver.mpLinearSystem->rGetRhsVector());
+        ReplicatableVector rhs_vec(solver.mResidualVector);
         TS_ASSERT_EQUALS( rhs_vec.GetSize(), 2U*25U+9U );
         for (unsigned i=0; i<rhs_vec.GetSize(); i++)
         {
@@ -162,7 +162,7 @@ public:
         double h = 1e-6;
 
         int lo, hi;
-        MatGetOwnershipRange(solver.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
+        MatGetOwnershipRange(solver.mJacobianMatrix, &lo, &hi);
 
         for (unsigned j=0; j<num_dofs; j++)
         {
@@ -172,13 +172,13 @@ public:
 
             solver.AssembleSystem(true, false);
 
-            ReplicatableVector perturbed_rhs( solver.mpLinearSystem->rGetRhsVector() );
+            ReplicatableVector perturbed_rhs( solver.mResidualVector );
 
             for (unsigned i=0; i<num_dofs; i++)
             {
                 if ((lo<=(int)i) && ((int)i<hi))
                 {
-                    double analytic_matrix_val = solver.mpLinearSystem->GetMatrixElement(i,j);
+                    double analytic_matrix_val = PetscMatTools::GetElement(solver.mJacobianMatrix,i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
                     if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
@@ -212,7 +212,7 @@ public:
         }
 
         solver.AssembleSystem(true, true);
-        ReplicatableVector rhs_vec2(solver.mpLinearSystem->rGetRhsVector());
+        ReplicatableVector rhs_vec2(solver.mResidualVector);
 
         h=1e-8; // needs to be smaller for this one
 
@@ -221,13 +221,13 @@ public:
             solver.rGetCurrentSolution()[j] += h;
             solver.AssembleSystem(true, false);
 
-            ReplicatableVector perturbed_rhs( solver.mpLinearSystem->rGetRhsVector() );
+            ReplicatableVector perturbed_rhs( solver.mResidualVector );
 
             for (unsigned i=0; i<num_dofs; i++)
             {
                 if ((lo<=(int)i) && ((int)i<hi))
                 {
-                    double analytic_matrix_val = solver.mpLinearSystem->GetMatrixElement(i,j);
+                    double analytic_matrix_val = PetscMatTools::GetElement(solver.mJacobianMatrix,i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
                     if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {

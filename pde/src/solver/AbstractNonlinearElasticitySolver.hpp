@@ -42,18 +42,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "AbstractMaterialLaw.hpp"
+#include "Warnings.hpp"
+
 
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
 
 
-//#define MECH_VERBOSE
-//#define MECH_VERY_VERBOSE
+//#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
+//#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
+//#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
 
-//// These should be commented in a commit at the moment!
-//#define MECH_USE_MUMPS  // requires Petsc to be installed with MUMPS
-//#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
 
+//#define MECH_USE_MUMPS    // uses the direct solver MUMPTS to solve linear systems, requires Petsc to be installed with MUMPS
+//#define MECH_KSP_MONITOR  // Print residual norm each iteration in linear solve (ie -ksp_monitor).
+
+
+
+//EMTODO: allow change of max_iter, no linear systems, better preconditioner
 
 
 #ifdef MECH_VERBOSE
@@ -124,18 +130,20 @@ protected:
      */
     unsigned mNumDofs;
 
+
     /**
-     *  The linear system where we store all residual vectors which are calculated
-     *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
-     *  methods explicitly (in order to easily set number of restarts etc).
+     *  Residual vector for the full nonlinear system, also the RHS vector in the linear
+     *  system used to solve the nonlinear problem using Newton's method.
      */
-    LinearSystem* mpLinearSystem;
-
+    Vec mResidualVector;
 
     /**
-     *  The linear system which stores the matrix used for preconditioning (given
-     *  the helper functions on LinearSystem it is best to use LinearSystem and
-     *  use these for assembling the preconditioner, rather than just use a Mat.
+     *  Jacobian matrix of the nonlinear system, LHS matrix for the linear system.
+     */
+    Mat mJacobianMatrix;
+
+    /**
+     *  Precondition matrix for the linear system
      *
      *  In the incompressible case:
      *  the preconditioner is the petsc LU factorisation of
@@ -152,7 +160,7 @@ protected:
      *  and M is the MASS MATRIX (ie integral phi_i phi_j dV, where phi_i are the
      *  pressure basis functions).
      */
-    LinearSystem* mpPreconditionMatrixLinearSystem;
+    Mat mPreconditionMatrix;
 
     /** Body force vector */
     c_vector<double,DIM> mBodyForce;
@@ -233,10 +241,9 @@ protected:
     CompressibilityType mCompressibilityType;
 
     /**
-     * Assemble the residual vector (using the current solution stored
-     * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
-     * or Jacobian matrix (using the current solution stored in
-     * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
+     * Assemble the residual vector and/or Jacobian matrix (using the current solution stored
+     * in mCurrentSolution, output going to mResidualVector and/or mJacobianMatrix).
+     *
      * Must be overridden in concrete derived classes.
      *
      * @param assembleResidual A bool stating whether to assemble the residual vector.
@@ -561,23 +568,16 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
         // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
         unsigned num_non_zeros = std::min(75u, mNumDofs);
 
-        mpLinearSystem = new LinearSystem(mNumDofs, num_non_zeros);
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, num_non_zeros);
+        mResidualVector = PetscTools::CreateVec(mNumDofs);
+        PetscTools::SetupMat(mJacobianMatrix, mNumDofs, mNumDofs, num_non_zeros, PETSC_DECIDE, PETSC_DECIDE);
+        PetscTools::SetupMat(mPreconditionMatrix, mNumDofs, mNumDofs, num_non_zeros, PETSC_DECIDE, PETSC_DECIDE);
+
     }
     else
     {
         assert(DIM==3);
 
-        // pass in 0 as the preallocation number
-
-        // Note: linear system always tries to use MAT_IGNORE_OFF_PROC_ENTRIES,
-        // which PetscTools::SetupMat() can do with num_dofs = 0, hence the warnings
-        // that get output. To fix this: replace linear systems with matrices, calling
-        // PetscTools::SetupMat(), and in the future, when parallelising, remember to
-        // think about MAT_IGNORE_OFF_PROC_ENTRIES
-
-        mpLinearSystem = new LinearSystem(mNumDofs, 0);
-        mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, 0);
+        mResidualVector = PetscTools::CreateVec(mNumDofs);
 
         // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
 
@@ -613,20 +613,41 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
             }
         }
 
-        // NOTE: PetscTools::SetupMat() creates a MATAIJ matrix, which means the matrix will
+        // NOTE: PetscTools::SetupMat() or the below creates a MATAIJ matrix, which means the matrix will
         // be of type MATSEQAIJ if num_procs=1 and MATMPIAIJ otherwise. In the former case
         // MatSeqAIJSetPreallocation MUST be called [MatMPIAIJSetPreallocation will have
         // no effect (silently)], and vice versa in the latter case
 
+        /// We want to allocate different numbers of non-zeros per row, which means
+        /// PetscTools::SetupMat isn't that useful. We could call
+        //PetscTools::SetupMat(mJacobianMatrix, mNumDofs, mNumDofs, 0, PETSC_DECIDE, PETSC_DECIDE);
+        //PetscTools::SetupMat(mPreconditionMatrix, mNumDofs, mNumDofs, 0, PETSC_DECIDE, PETSC_DECIDE);
+        /// but we would get warnings due to the lack allocation
+
+        // possible todo: create a PetscTools::SetupMatNoAllocation()
+
+        // In the future, when parallelising, remember to think about MAT_IGNORE_OFF_PROC_ENTRIES (see #1682)
+
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,mNumDofs,mNumDofs,&mJacobianMatrix);
+        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,mNumDofs,mNumDofs,&mPreconditionMatrix);
+#else //New API
+        MatCreate(PETSC_COMM_WORLD,&mJacobianMatrix);
+        MatCreate(PETSC_COMM_WORLD,&mPreconditionMatrix);
+        MatSetSizes(mJacobianMatrix,PETSC_DECIDE,PETSC_DECIDE,mNumDofs,mNumDofs);
+        MatSetSizes(mPreconditionMatrix,PETSC_DECIDE,PETSC_DECIDE,mNumDofs,mNumDofs);
+#endif
+
         if(PetscTools::IsSequential())
         {
-            MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
-            MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
+            MatSeqAIJSetPreallocation(mJacobianMatrix,     PETSC_NULL, num_non_zeros_each_row);
+            MatSeqAIJSetPreallocation(mPreconditionMatrix, PETSC_NULL, num_non_zeros_each_row);
         }
         else
         {
             PetscInt lo, hi;
-            mpLinearSystem->GetOwnershipRange(lo, hi);
+            VecGetOwnershipRange(mResidualVector, &lo, &hi);
+
             int* num_non_zeros_each_row_this_proc = new int[hi-lo];
             int* zero = new int[hi-lo];
             for(unsigned i=0; i<unsigned(hi-lo); i++)
@@ -635,9 +656,13 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
                 zero[i] = 0;
             }
 
-            MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
-            MatMPIAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+            MatMPIAIJSetPreallocation(mJacobianMatrix,     PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+            MatMPIAIJSetPreallocation(mPreconditionMatrix, PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
         }
+
+        MatSetFromOptions(mJacobianMatrix);
+        MatSetFromOptions(mPreconditionMatrix);
+
 
         //unsigned total_non_zeros = 0;
         //for(unsigned i=0; i<mNumDofs; i++)
@@ -682,14 +707,15 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
             }
 
             double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
-            mpLinearSystem->SetRhsVectorElement(dof_index, value);
+
+            PetscVecTools::SetElement(mResidualVector, dof_index, value);
         }
     }
 
     if(applyToMatrix)
     {
-        mpLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(rows, 1.0);
-        mpPreconditionMatrixLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(rows, 1.0);
+        PetscMatTools::ZeroRowsWithValueOnDiagonal(mJacobianMatrix, rows, 1.0);
+        PetscMatTools::ZeroRowsWithValueOnDiagonal(mPreconditionMatrix, rows, 1.0);
     }
 }
 
@@ -724,7 +750,7 @@ template<unsigned DIM>
 double AbstractNonlinearElasticitySolver<DIM>::CalculateResidualNorm()
 {
     double norm;
-    VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
+    VecNorm(mResidualVector, NORM_2, &norm);
     return norm/mNumDofs;
 }
 
@@ -773,9 +799,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
     Vec solution;
-    VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
-
-    Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
+    VecDuplicate(mResidualVector,&solution);
 
     KSP solver;
     KSPCreate(PETSC_COMM_WORLD,&solver);
@@ -784,7 +808,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     
     #ifdef MECH_USE_MUMPS
         // no need for the precondition matrix
-        KSPSetOperators(solver, r_jac, r_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
+        KSPSetOperators(solver, mJacobianMatrix, mJacobianMatrix, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
         KSPSetType(solver, KSPPREONLY);
         PCSetType(pc, PCLU);
@@ -795,8 +819,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         // "Do LU factorization in-place (saves memory)"
         PCASMSetUseInPlace(pc);
     #else
-        Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
-        KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
+        KSPSetOperators(solver, mJacobianMatrix, mPreconditionMatrix, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
         unsigned num_restarts = 100;
         KSPSetType(solver,KSPGMRES);
@@ -805,11 +828,11 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         if(mKspAbsoluteTol < 0)
         {
             double ksp_rel_tol = 1e-6;
-            KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+            KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT /* max iters */); // Note, max iters seems to be 1000 whatever we give here
         }
         else
         {
-            KSPSetTolerances(solver, 1e-16, mKspAbsoluteTol, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+            KSPSetTolerances(solver, 1e-16, mKspAbsoluteTol, PETSC_DEFAULT, PETSC_DEFAULT /* max iters */); // Note, max iters seems to be 1000 whatever we give here
         }
 
         #ifndef MECH_USE_HYPRE 
@@ -827,16 +850,15 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
             KSPSetPreconditionerSide(solver, PC_RIGHT);
             
             // other possible preconditioners..
-            //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
-            //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+            //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, mPreconditionMatrix, mBlock1Size, mBlock2Size);
+            //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, mPreconditionMatrix, mBlock1Size, mBlock2Size);
         	//remember to delete memory..
             //KSPSetPreconditionerSide(solver, PC_RIGHT);
         #endif
 
-        // uncomment to get convergence information
-        //#ifdef MECH_VERBOSE
-        //PetscOptionsSetValue("-ksp_monitor","");
-        //#endif
+        #ifdef MECH_KSP_MONITOR
+        PetscOptionsSetValue("-ksp_monitor","");
+        #endif
 
         KSPSetFromOptions(solver);
         KSPSetUp(solver);
@@ -846,7 +868,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     Timer::PrintAndReset("KSP Setup");
     #endif
     
-    KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
+    KSPSolve(solver,mResidualVector,solution);
     
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
@@ -855,15 +877,25 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         VecDestroy(solution);
         KSPDestroy(solver);
         EXCEPTION("KSP Absolute tolerance was too high, linear system wasn't solved - there will be no decrease in Newton residual. Decrease KspAbsoluteTolerance");
-    }    
+    }
+
+    // See comment on max_iters above
+    if(num_iters==1000)
+    {
+        #define COVERAGE_IGNORE
+        WARNING("Linear solver in mechanics solve may not have converged");
+        #undef COVERAGE_IGNORE
+    }
+
     
     #ifdef MECH_VERBOSE
     Timer::PrintAndReset("KSP Solve");
-
     std::cout << "[" << PetscTools::GetMyRank() << "]: Num iterations = " << num_iters << "\n" << std::flush;
     #endif
 
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
+
+
     ///////////////////////////////////////////////////////////////////////////
     // Update the solution
     //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
@@ -1058,7 +1090,9 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
       mpQuadratureRule(NULL),
       mpBoundaryQuadratureRule(NULL),
       mKspAbsoluteTol(-1),
-      mpLinearSystem(NULL),
+      mResidualVector(NULL),
+      mJacobianMatrix(NULL),
+      mPreconditionMatrix(NULL),
       mBodyForce(bodyForce),
       mDensity(density),
       mFixedNodes(fixedNodes),
@@ -1097,11 +1131,13 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
 template<unsigned DIM>
 AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
 {
-    if(mpLinearSystem)
+    if(mResidualVector)
     {
-        delete mpLinearSystem;
-        delete mpPreconditionMatrixLinearSystem;
+        VecDestroy(mResidualVector);
+        MatDestroy(mJacobianMatrix);
+        MatDestroy(mPreconditionMatrix);
     }
+
     if(mpQuadratureRule)
     {
         delete mpQuadratureRule;
