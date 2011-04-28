@@ -139,6 +139,7 @@ class Protocol(processors.ModelModifier):
             self.connect_variables(var, output_var)
             self.inputs.add(output_var)
         self.outputs.add(output_var)
+        return output_var
     
     def specify_as_input(self, var, units):
         """Specify the given variable within the model as a protocol input.
@@ -172,6 +173,7 @@ class Protocol(processors.ModelModifier):
         input_var._set_type(VarTypes.Constant)
         input_var._cml_ok_as_input = True
         self.inputs.add(input_var)
+        return input_var
         
     def _check_input(self, input):
         """New inputs must not already exist in the model!"""
