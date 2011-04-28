@@ -127,7 +127,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
             if (assembleJacobian)
             {
                 PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_elem);
-                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem_precond);
             }
 
             if (assembleResidual)

@@ -114,7 +114,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
             if (assembleJacobian)
             {
                 PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mJacobianMatrix, p_indices, a_elem);
-                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mPreconditionMatrix, p_indices, a_elem_precond);
             }
 
             if (assembleResidual)
@@ -465,9 +465,20 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         }
     }
 
-
+    rAElemPrecond.clear();
     if (assembleJacobian)
     {
+//        for(unsigned index1=0; index1<NUM_NODES_PER_ELEMENT; index1++)
+//        {
+//            for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT; index2++)
+//            {
+//                for(unsigned dim=0; dim<DIM; dim++)
+//                {
+//                    rAElemPrecond(NUM_NODES_PER_ELEMENT*dim + index1, NUM_NODES_PER_ELEMENT*dim + index2)
+//                        = rAElem(NUM_NODES_PER_ELEMENT*dim + index1, NUM_NODES_PER_ELEMENT*dim + index2);
+//                }
+//            }
+//        }
         rAElemPrecond = rAElem;
     }
 }
