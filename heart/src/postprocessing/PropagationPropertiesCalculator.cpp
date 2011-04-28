@@ -33,9 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 PropagationPropertiesCalculator::PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
-        const std::string voltageName)
-        : mpDataReader(pDataReader),
-        mVoltageName(voltageName)
+                                                                 const std::string voltageName)
+    : mpDataReader(pDataReader),
+      mVoltageName(voltageName),
+      mTimes(mpDataReader->GetUnlimitedDimensionValues()),
+      mCachedNodeGlobalIndex(UNSIGNED_UNSET)
 {}
 
 PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
@@ -45,76 +47,71 @@ PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
 
 double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes);
     return cell_props.GetLastMaxUpstrokeVelocity();
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex, double threshold)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times, threshold);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetMaxUpstrokeVelocities();
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateUpstrokeTimes(unsigned globalNodeIndex, double threshold)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times, threshold);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetTimesAtMaxUpstrokeVelocity();
 }
 
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
-        unsigned globalNodeIndex)
+                                                                         unsigned globalNodeIndex)
 {
     if (percentage < 1.0 || percentage >= 100.0)
     {
         EXCEPTION("First argument of CalculateActionPotentialDuration() is expected to be a percentage");
     }
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes);
     return cell_props.GetLastActionPotentialDuration(percentage);
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllActionPotentialDurations(const double percentage,
-        unsigned globalNodeIndex, double threshold)
+                                                                                          unsigned globalNodeIndex,
+                                                                                          double threshold)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times, threshold);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetAllActionPotentialDurations(percentage);
 }
 
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
     double max = -DBL_MAX;
-    for(unsigned i=0; i<voltages.size(); i++)
+    for (unsigned i=0; i<r_voltages.size(); i++)
     {
-        if(voltages[i]>max)
+        if (r_voltages[i]>max)
         {
-            max = voltages[i];
+            max = r_voltages[i];
         }
     }
     return max;
 }
 
 double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned globalNearNodeIndex,
-        unsigned globalFarNodeIndex,
-        const double euclideanDistance)
+                                                                    unsigned globalFarNodeIndex,
+                                                                    const double euclideanDistance)
 {
     double t_near = 0;
     double t_far = 0;
-    std::vector<double> near_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNearNodeIndex);
+    std::vector<double>& r_near_voltages = rCacheVoltages(globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalFarNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
 
-    CellProperties near_cell_props(near_voltages, times);
-    CellProperties far_cell_props(far_voltages, times);
+    CellProperties near_cell_props(r_near_voltages, mTimes);
+    CellProperties far_cell_props(far_voltages, mTimes);
 
     //The size of each vector is the number of APs that reached that node
     unsigned aps_near_node = near_cell_props.GetMaxUpstrokeVelocities().size();
@@ -160,8 +157,8 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
-                                                                unsigned globalFarNodeIndex,
-                                                                const double euclideanDistance)
+                                                                                      unsigned globalFarNodeIndex,
+                                                                                      const double euclideanDistance)
 {
     std::vector<double> conduction_velocities;
 
@@ -169,12 +166,11 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
     std::vector<double> t_far;
     unsigned number_of_aps = 0;
 
-    std::vector<double> near_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNearNodeIndex);
+    std::vector<double>& r_near_voltages = rCacheVoltages(globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalFarNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
 
-    CellProperties near_cell_props(near_voltages, times);
-    CellProperties far_cell_props(far_voltages, times);
+    CellProperties near_cell_props(r_near_voltages, mTimes);
+    CellProperties far_cell_props(far_voltages, mTimes);
 
     t_near = near_cell_props.GetTimesAtMaxUpstrokeVelocity();
     t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity();
@@ -188,11 +184,11 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
     //We will calculate only where AP reached both nodes
     if (t_near.size() > t_far.size())
     {
-        number_of_aps=t_far.size();
+        number_of_aps = t_far.size();
     }
     else
     {
-       number_of_aps=t_near.size();
+        number_of_aps = t_near.size();
     }
     //now fill the vector
 
@@ -223,19 +219,29 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
     return conduction_velocities;
 }
 
+
 std::vector<unsigned> PropagationPropertiesCalculator::CalculateAllAboveThresholdDepolarisations(unsigned globalNodeIndex, double threshold)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times, threshold);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetNumberOfAboveThresholdDepolarisationsForAllAps();
 }
 
 
 unsigned PropagationPropertiesCalculator::CalculateAboveThresholdDepolarisationsForLastAp(unsigned globalNodeIndex, double threshold)
 {
-    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times, threshold);
+    std::vector<double>& r_voltages = rCacheVoltages(globalNodeIndex);
+    CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetNumberOfAboveThresholdDepolarisationsForLastAp();
+}
+
+
+std::vector<double>& PropagationPropertiesCalculator::rCacheVoltages(unsigned globalNodeIndex)
+{
+    if (globalNodeIndex != mCachedNodeGlobalIndex)
+    {
+        mCachedVoltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
+        mCachedNodeGlobalIndex = globalNodeIndex;
+    }
+    return mCachedVoltages;
 }

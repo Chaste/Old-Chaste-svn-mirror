@@ -48,6 +48,23 @@ private:
     Hdf5DataReader *mpDataReader;
     /** Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
+    /** Time values */
+    std::vector<double> mTimes;
+    /** Which node voltages have been cached for, if any */
+    unsigned mCachedNodeGlobalIndex;
+    /** The cached voltages vector */
+    std::vector<double> mCachedVoltages;
+
+    /**
+     * Read the voltages vector for the given node and cache it, returning a reference
+     * to the cached vector.  If subsequently called with the same index, will return
+     * the cached vector without re-reading from file.
+     *
+     * Note: will only cache the last node index used.
+     *
+     * @param globalNodeIndex  the index of the node to cache voltages for
+     */
+    std::vector<double>& rCacheVoltages(unsigned globalNodeIndex);
 
 public:
     /**
@@ -164,7 +181,7 @@ public:
       *
       */
     unsigned CalculateAboveThresholdDepolarisationsForLastAp(unsigned globalNodeIndex,
-                                                                    double threshold);
+                                                             double threshold);
 
 };
 
