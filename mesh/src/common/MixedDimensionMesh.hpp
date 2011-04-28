@@ -43,6 +43,12 @@ class MixedDimensionMesh : public DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_
 {
 public:
     /**
+     * Destructor - cleans up the cables
+     *
+     */
+    ~MixedDimensionMesh();
+    
+    /**
      * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader

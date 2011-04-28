@@ -29,6 +29,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MixedDimensionMesh.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::~MixedDimensionMesh()
+{
+    for (unsigned i=0; i<mCableElements.size(); i++)
+    {
+        delete mCableElements[i];
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader)
 {
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ConstructFromMeshReader(rMeshReader);
