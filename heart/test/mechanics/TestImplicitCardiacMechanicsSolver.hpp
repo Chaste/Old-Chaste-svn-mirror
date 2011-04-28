@@ -87,11 +87,11 @@ public:
         // (about u=0, p=p0)
         ///////////////////////////////////////////////////////////////////
         solver.AssembleSystem(true, true);
-        ReplicatableVector rhs_vec(solver.mpLinearSystem->rGetRhsVector());
+        ReplicatableVector rhs_vec(solver.mResidualVector);
         unsigned num_dofs = rhs_vec.GetSize();
         double h = 1e-6;
         int lo, hi;
-        MatGetOwnershipRange(solver.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
+        MatGetOwnershipRange(solver.mJacobianMatrix, &lo, &hi);
 
         for(unsigned j=0; j<num_dofs; j++)
         {
@@ -101,13 +101,13 @@ public:
 
             solver.AssembleSystem(true, false);
 
-            ReplicatableVector perturbed_rhs( solver.mpLinearSystem->rGetRhsVector() );
+            ReplicatableVector perturbed_rhs( solver.mResidualVector );
 
             for(unsigned i=0; i<num_dofs; i++)
             {
                 if((lo<=(int)i) && ((int)i<hi))
                 {
-                    double analytic_matrix_val = solver.mpLinearSystem->GetMatrixElement(i,j);
+                    double analytic_matrix_val = PetscMatTools::GetElement(solver.mJacobianMatrix,i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
                     if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
