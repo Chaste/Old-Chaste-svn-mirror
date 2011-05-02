@@ -5,8 +5,8 @@
   <lookup_tables>
     <lookup_table>
       <var type='config-name'>transmembrane_potential</var>
-      <min>-100.0001</min>
-      <max>199.9999</max>
+      <min>-120.0001</min>
+      <max>299.9999</max>
     </lookup_table>
   </lookup_tables>
 </for_model>
