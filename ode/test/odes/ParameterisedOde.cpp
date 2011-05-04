@@ -29,11 +29,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParameterisedOde.hpp"
 #include "OdeSystemInformation.hpp"
 
+bool ParameterisedOde::fakeSecondParameter = false;
+
 ParameterisedOde::ParameterisedOde() : AbstractOdeSystem(1) // 1 here is the number of variables
 {
     mpSystemInfo = OdeSystemInformation<ParameterisedOde>::Instance();
     SetStateVariables(GetInitialConditions());
     mParameters.push_back(0);
+    if (fakeSecondParameter)
+    {
+        mParameters.push_back(-1.0);
+    }
 }
 
 void ParameterisedOde::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

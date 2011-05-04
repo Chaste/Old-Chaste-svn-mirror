@@ -49,7 +49,7 @@
 	                    <UpperCoordinates x="0.15" y="0" z="0"/>
 	                </Cuboid>
 	            </Location>
-	            <SetParameter name="fast_sodium_current_conductance" value="23.0"/>
+	            <SetParameter name="membrane_fast_sodium_current_conductance" value="23.0"/>
 	        </CellHeterogeneity>
 	    </CellHeterogeneities>
 		

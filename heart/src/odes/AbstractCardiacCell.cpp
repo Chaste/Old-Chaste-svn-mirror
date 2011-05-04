@@ -131,8 +131,9 @@ void AbstractCardiacCell::CheckForArchiveFix()
         }
         // It also didn't use to have parameters...
         this->mParameters.resize(this->rGetParameterNames().size());
-        assert(this->mParameters.size() == 1u);
+        assert(this->mParameters.size() == 2u);
         this->mParameters[0] = 23.0;
+        this->mParameters[1] = 0.282;
     }
 }
 

@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <istream>
 #include <fstream>
 #include <cassert>
+#include <map>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/QName.hpp>
@@ -316,7 +317,7 @@ HeartConfig::HeartConfig()
     mIndexMid = UINT_MAX-3u;
     mIndexEpi = UINT_MAX-3u;
     mIndexEndo = UINT_MAX-3u;
-
+    
     mUseReactionDiffusionOperatorSplitting = false;
     
     /// \todo #1703 This defaults should be set in HeartConfigDefaults.hpp
@@ -377,10 +378,12 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     map["cp20"].schema = "ChasteParameters_2_0.xsd";
     map["cp21"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1";
     map["cp21"].schema = "ChasteParameters_2_1.xsd";
+    map["cp22"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2";
+    map["cp22"].schema = "ChasteParameters_2_2.xsd";
     // We use 'cp' as prefix for the latest version to avoid having to change saved
     // versions for comparison at every release.
-    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2";
-    map["cp"].schema = "ChasteParameters_2_2.xsd";
+    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_3";
+    map["cp"].schema = "ChasteParameters_2_3.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -396,7 +399,7 @@ void HeartConfig::CopySchema(const std::string& rToDirectory)
 {
     if (PetscTools::AmMaster())
     {
-        std::string schema_name("ChasteParameters_2_2.xsd");
+        std::string schema_name("ChasteParameters_2_3.xsd");
         FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
         if (!schema_location.Exists())
         {
@@ -429,6 +432,7 @@ void HeartConfig::SetDefaultSchemaLocations()
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"] = root_dir + "ChasteParameters_2_0.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"] = root_dir + "ChasteParameters_2_1.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"] = root_dir + "ChasteParameters_2_2.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"] = root_dir + "ChasteParameters_2_3.xsd";
 }
 
 unsigned HeartConfig::GetVersionFromNamespace(const std::string& rNamespaceUri)
@@ -537,7 +541,8 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
                 XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
                 XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
             case 2001: // Release 2.1
-                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2");
+            case 2002: // Release 2.2
+                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_3");
             default: // Current release - nothing to do
                 break;
         }
@@ -1029,7 +1034,6 @@ void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
 
     fibreLength[0] = fibre_length->x();
 }
-
 
 double HeartConfig::GetInterNodeSpace() const
 {
@@ -2610,6 +2614,7 @@ void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpoint
 }
 
 // Physiological
+
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities)
 {
     XSD_CREATE_WITH_FIXED_ATTR3(cp::conductivities_type, intra,
@@ -3272,6 +3277,100 @@ void HeartConfig::SetUseStateVariableInterpolation(bool useStateVariableInterpol
         mpUserParameters->Numerical().UseStateVariableInterpolation().set(cp::yesno_type::no);
     }
 }
+
+
+
+bool HeartConfig::HasDrugDose() const
+{
+    try
+    {
+        DecideLocation( & mpUserParameters->Physiological().ApplyDrug(),
+                        & mpDefaultParameters->Physiological().ApplyDrug(),
+                        "ApplyDrug")->present();
+        // If there's an element
+        return true;
+    }
+    catch (Exception &e)
+    {
+        // No element
+        return false;
+    }
+}
+
+double HeartConfig::GetDrugDose() const
+{
+    return DecideLocation( & mpUserParameters->Physiological().ApplyDrug(),
+                           & mpDefaultParameters->Physiological().ApplyDrug(),
+                           "ApplyDrug")->get().concentration();
+}
+
+void HeartConfig::SetDrugDose(double drugDose)
+{
+    if (!mpUserParameters->Physiological().ApplyDrug().present())
+    {
+        cp::apply_drug_type drug(drugDose);
+        mpUserParameters->Physiological().ApplyDrug().set(drug);
+    }
+    else
+    {
+        mpUserParameters->Physiological().ApplyDrug()->concentration(drugDose);
+    }
+}
+
+std::map<std::string, std::pair<double, double> > HeartConfig::GetIc50Values()
+{
+    std::map<std::string, std::pair<double, double> > ic50s;
+    
+    XSD_SEQUENCE_TYPE(cp::apply_drug_type::IC50)&
+        ic50_seq = DecideLocation( & mpUserParameters->Physiological().ApplyDrug(),
+                                   & mpDefaultParameters->Physiological().ApplyDrug(),
+                                   "ApplyDrug")->get().IC50();
+
+    for (XSD_ITERATOR_TYPE(cp::apply_drug_type::IC50) i = ic50_seq.begin();
+         i != ic50_seq.end();
+         ++i)
+    {
+        std::pair<double, double> ic50_hill(*i, i->hill());
+        std::string current = i->current();
+        ic50s[current] = ic50_hill;
+    }
+    
+    return ic50s;
+}
+
+void HeartConfig::SetIc50Value(const std::string& rCurrentName, double ic50, double hill)
+{
+    if (!mpUserParameters->Physiological().ApplyDrug().present())
+    {
+        SetDrugDose(0.0);
+    }
+    XSD_SEQUENCE_TYPE(cp::apply_drug_type::IC50)& ic50_seq = mpUserParameters->Physiological().ApplyDrug()->IC50();
+    if (ic50_seq.empty())
+    {
+        // Erase or create a sequence
+        ic50_seq.clear();
+    }
+    bool entry_exists = false;
+    cp::ic50_type ic50_elt(ic50, rCurrentName);
+    ic50_elt.hill(hill);
+    for (XSD_ITERATOR_TYPE(cp::apply_drug_type::IC50) i = ic50_seq.begin();
+         i != ic50_seq.end();
+         ++i)
+    {
+        if (i->current() == rCurrentName)
+        {
+            entry_exists = true;
+            *i = ic50_elt;
+            break;
+        }
+    }
+    if (!entry_exists)
+    {
+        ic50_seq.push_back(ic50_elt);
+    }
+}
+
+
 
 void HeartConfig::SetUseMassLumping(bool useMassLumping)
 {

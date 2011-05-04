@@ -33,7 +33,6 @@ postprocessing/TestPseudoEcgCalculator.hpp
 postprocessing/TestVoltageInterpolaterOntoMechanicsMesh.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp
-TestChasteParametersReader.hpp
 TestCheckpointing.hpp
 TestConductivityTensors.hpp
 TestElectrodes.hpp

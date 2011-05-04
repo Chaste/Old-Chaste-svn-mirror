@@ -91,8 +91,8 @@ class TestPyCml : public CxxTest::TestSuite
     template<typename VECTOR_TYPE>
     void CheckParameter(AbstractParameterisedSystem<VECTOR_TYPE>& rCell)
     {
-        TS_ASSERT_EQUALS(rCell.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(rCell.GetParameterIndex("fast_sodium_current_conductance"), 0u);
+        TS_ASSERT_EQUALS(rCell.GetNumberOfParameters(), 2u);
+        TS_ASSERT_EQUALS(rCell.GetParameterIndex("membrane_fast_sodium_current_conductance"), 0u);
         TS_ASSERT_EQUALS(rCell.GetParameterUnits(0u), "milliS_per_cm2");
         TS_ASSERT_EQUALS(rCell.GetParameter(0u), 23.0);
         rCell.SetParameter(0u, 0.1);

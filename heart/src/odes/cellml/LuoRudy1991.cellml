@@ -1087,6 +1087,7 @@ The breakdown of the model into components and the definition of encapsulation a
    <component name="time_dependent_potassium_current">
       <variable units="microA_per_cm2" public_interface="out" cmeta:id="time_dependent_potassium_current_i_K" name="i_K"/>
       <variable units="milliS_per_cm2" name="g_K"/>
+      <variable units="milliS_per_cm2" name="g_Kmax" public_interface="out" initial_value="0.282" cmeta:id="membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
       <variable units="millivolt" name="E_K"/>
       <variable units="dimensionless" name="PR_NaK" initial_value="0.01833"/>
       <variable units="millisecond" public_interface="in" private_interface="out" name="time"/>
@@ -1106,7 +1107,7 @@ The breakdown of the model into components and the definition of encapsulation a
             <ci>g_K</ci>
             <apply>
                <times/>
-               <cn cellml:units="milliS_per_cm2">0.282</cn>
+               <ci>g_Kmax</ci>
                <apply>
                   <root/>
                   <apply>
@@ -2036,6 +2037,7 @@ The breakdown of the model into components and the definition of encapsulation a
   </rdf:Description>
   <rdf:Description rdf:about="#fast_sodium_current_conductance">
     <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
+    <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_conductance"/>
   </rdf:Description>
   <rdf:Description rdf:about="#potassium_currents">
     <derived-quantity xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</derived-quantity>
@@ -2051,6 +2053,10 @@ The breakdown of the model into components and the definition of encapsulation a
   </rdf:Description>
   <rdf:Description rdf:about="#Cai">
     <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
+  </rdf:Description>  
+  <rdf:Description rdf:about="#membrane_rapid_delayed_rectifier_potassium_current_conductance">
+    <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
+    <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
   </rdf:Description>
   <rdf:Description rdf:about="#membrane_voltage">
     <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_voltage"/>

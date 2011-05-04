@@ -260,7 +260,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
-            TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "ODE system parameter names do not match");
+            TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Archive specifies a parameter 'a' which does not appear in this class.");
             // Mend the ode system info for the following tests.
             p_mod_info->mParameterNames[0] = param_name;
         }
@@ -276,6 +276,22 @@ public:
             AbstractOdeSystem* p_ode;
             TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Number of ODE parameters in archive does not match number in class.");
             // Mend the ode system info for the following tests.
+            p_mod_info->mParameterNames.resize(1u);
+        }
+        { // Load with a parameter added, and the constructor providing a default
+            ParameterisedOde ode;
+            boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+            AbstractOdeSystemInformation* p_mod_info = const_cast<AbstractOdeSystemInformation*>(p_info.get());
+
+            p_mod_info->mParameterNames.push_back("new_name");
+
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            AbstractOdeSystem* p_ode;
+            ParameterisedOde::fakeSecondParameter = true;
+            input_arch >> p_ode;
+            // Mend the ode system info for the following tests.
+            ParameterisedOde::fakeSecondParameter = false;
             p_mod_info->mParameterNames.resize(1u);
         }
     }

@@ -256,6 +256,16 @@ public:
         TS_ASSERT_EQUALS(magnitude, -11000.0);    
         TS_ASSERT_EQUALS(start_time, 1.0);    
         TS_ASSERT_EQUALS(duration, 2.0);
+        
+        
+        TS_ASSERT(HeartConfig::Instance()->HasDrugDose());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDrugDose(), 10.0);
+        std::map<std::string, std::pair<double, double> > ic50s = HeartConfig::Instance()->GetIc50Values();
+        TS_ASSERT_EQUALS(ic50s.size(), 2u);
+        TS_ASSERT_EQUALS(ic50s["membrane_fast_sodium_current"].first, 16000);
+        TS_ASSERT_EQUALS(ic50s["membrane_fast_sodium_current"].second, 1.0);
+        TS_ASSERT_EQUALS(ic50s["membrane_rapid_delayed_rectifier_potassium_current"].first, 5);
+        TS_ASSERT_EQUALS(ic50s["membrane_rapid_delayed_rectifier_potassium_current"].second, 1.0);
        
         
         /// \todo: refactor from here until the end of the test into a different test
@@ -1134,6 +1144,23 @@ public:
         TS_ASSERT_EQUALS(magnitude, 1066.0);
         TS_ASSERT_EQUALS(start_time, 0.5);
         TS_ASSERT_EQUALS(duration, 0.5);
+        
+        // Drug dose model
+        TS_ASSERT(!HeartConfig::Instance()->HasDrugDose());
+        HeartConfig::Instance()->SetIc50Value("current", 5.0);
+        TS_ASSERT(HeartConfig::Instance()->HasDrugDose());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDrugDose(), 0.0);
+        std::map<std::string, std::pair<double, double> > ic50s = HeartConfig::Instance()->GetIc50Values();
+        TS_ASSERT_EQUALS(ic50s.size(), 1u);
+        TS_ASSERT_EQUALS(ic50s["current"].first, 5.0);
+        TS_ASSERT_EQUALS(ic50s["current"].second, 1.0);
+        HeartConfig::Instance()->SetDrugDose(10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDrugDose(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIc50Values().size(), 1u);
+        HeartConfig::Instance()->SetIc50Value("current2", 25.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIc50Values().size(), 2u);
+        HeartConfig::Instance()->SetIc50Value("current", 55.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIc50Values().size(), 2u);
 
         // This is a temporary internal boolean until we're happy that users can be let loose on the functionality!
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseMassLumping(), false);
@@ -1298,7 +1325,7 @@ public:
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
-                         "Unable to locate schema file ChasteParameters_2_2.xsd. You will need to ensure it is available when resuming from the checkpoint.");
+                         "Unable to locate schema file ChasteParameters_2_3.xsd. You will need to ensure it is available when resuming from the checkpoint.");
     }
 
     void TestArchiving() throw (Exception)

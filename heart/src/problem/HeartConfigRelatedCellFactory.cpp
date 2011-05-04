@@ -27,11 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HeartConfigRelatedCellFactory.hpp"
+
+#include <sstream>
 #include "HeartGeometryInformation.hpp"
 #include "ChasteNodesList.hpp"
 #include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 #include "AbstractCardiacCellInterface.hpp"
+#include "Warnings.hpp"
 // This is needed to prevent the chaste_libs=0 build failing on tests that use a dynamically loaded CVODE model
 #include "AbstractCvodeCell.hpp"
 
@@ -245,6 +248,34 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
             }
         }
     }
+    
+    /// #1166 applying Hill function for drug action
+    if (HeartConfig::Instance()->HasDrugDose())
+    {
+        double drug_dose = HeartConfig::Instance()->GetDrugDose();
+        std::map<std::string, std::pair<double, double> > ic50_values = HeartConfig::Instance()->GetIc50Values();
+        for (std::map<std::string, std::pair<double, double> >::iterator it = ic50_values.begin(); 
+             it != ic50_values.end(); 
+             ++it)
+        {
+            const std::string param_name = it->first + "_conductance";
+            if (pCell->HasParameter(param_name))
+            {
+                const double original_conductance = pCell->GetParameter(param_name);
+                const double ic50 = it->second.first;
+                const double hill = it->second.second;
+                const double new_conductance = original_conductance/(1.0 + pow(drug_dose/ic50, hill));
+                pCell->SetParameter(param_name, new_conductance);
+            }
+            else
+            {
+                std::stringstream msg;
+                msg << "Cannot apply drug to cell at node " << nodeIndex << " as it has no parameter named '" << param_name << "'.";
+                WARNING(msg.str());
+            }
+        }
+    }
+        
     // SetParameter elements go next so they override the old ScaleFactor* elements.
     for (unsigned ht_index = 0;
          ht_index < mCellHeterogeneityAreas.size();

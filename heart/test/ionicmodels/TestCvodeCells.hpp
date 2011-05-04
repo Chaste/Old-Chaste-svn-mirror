@@ -192,10 +192,10 @@ public:
         TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
 
         // Test parameter
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterNames()[0], "fast_sodium_current_conductance");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetNumberOfParameters(), 2u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterNames()[0], "membrane_fast_sodium_current_conductance");
         TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterUnits()[0], "milliS_per_cm2");
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterIndex("fast_sodium_current_conductance"), 0u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterIndex("membrane_fast_sodium_current_conductance"), 0u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterUnits(0u), "milliS_per_cm2");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetParameter(0u), 23.0);
         lr91_cvode_system.SetParameter(0u, 10.0);
@@ -203,10 +203,10 @@ public:
         lr91_cvode_system.SetParameter(0u, 23.0);
 
         // Parameter exceptions
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetParameter(1u, -1), "The index passed in must be less than the number of parameters.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetParameter(2u, -1), "The index passed in must be less than the number of parameters.");
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameterIndex("b"), "No parameter named 'b'.");
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameter(1u), "The index passed in must be less than the number of parameters.");
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameterUnits(1u), "The index passed in must be less than the number of parameters.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameter(2u), "The index passed in must be less than the number of parameters.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameterUnits(2u), "The index passed in must be less than the number of parameters.");
 
 
         // Coverage

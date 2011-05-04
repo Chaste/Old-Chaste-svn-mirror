@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 
 #include "ChasteSerialization.hpp"
@@ -123,26 +124,45 @@ private:
         archive & mNumberOfStateVariables;
         archive & mUseAnalyticJacobian;
         archive & mStateVariables;
-        archive & mParameters;
+        std::vector<double> parameters;
+        archive & parameters;
         
         if (version > 0)
         {
             std::vector<std::string> param_names;
             archive & param_names;
             
-            if (param_names.size() != rGetParameterNames().size())
+            if (mParameters.size() != rGetParameterNames().size())
             {
-                EXCEPTION("Number of ODE parameters in archive does not match number in class.");
+                // Subclass constructor didn't give default values, so we need the archive to provide them all
+                if (param_names.size() != rGetParameterNames().size())
+                {
+                    EXCEPTION("Number of ODE parameters in archive does not match number in class.");
+                }
+                mParameters.resize(rGetParameterNames().size());
             }
+            
+            // Check whether the archive specifies parameters that don't appear in this class,
+            // and create a map from archive index to local index
+            std::vector<unsigned> index_map(param_names.size());
             for (unsigned i=0; i<param_names.size(); ++i)
             {
-                if (param_names[i] != rGetParameterNames()[i])
+                index_map[i] = find(rGetParameterNames().begin(), rGetParameterNames().end(), param_names[i])
+                               - rGetParameterNames().begin();
+                if (index_map[i] == rGetParameterNames().size())
                 {
-                    std::string message = "ODE system parameter names do not match: '"
-                        + param_names[i] + "' in archive but '" + rGetParameterNames()[i] + "' in class."; 
-                    EXCEPTION(message);
+                    EXCEPTION("Archive specifies a parameter '" + param_names[i] + "' which does not appear in this class.");
                 }
             }
+            
+            for (unsigned i=0; i<param_names.size(); ++i)
+            {
+                mParameters[index_map[i]] = parameters[i];
+            }
+        }
+        else
+        {
+            mParameters = parameters;
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()

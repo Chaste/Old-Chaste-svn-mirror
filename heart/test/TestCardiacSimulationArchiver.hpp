@@ -408,9 +408,10 @@ private:
 scons test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestLoadAsSequential/archive.arch.0 ./heart/test/data/checkpoint_migration/reference_0_archive
 cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBath/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath/reference_0_archive
-cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/reference_0_archive
 cp /tmp/$USER/testoutput/TestBcsOnNonMasterOnly/archive.arch.0 ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/reference_0_archive
 cp /tmp/$USER/testoutput/TestMigrateAfterSolve/archive.arch.0 ./heart/test/data/checkpoint_migration_after_solve/reference_0_archive
+scons test_suite=heart/test/TestCardiacSimulationArchiver.hpp
+cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/reference_0_archive
              */
             EXPECT0(system, "cmp " + rArchiveDirectory.GetAbsolutePath() + "reference_0_archive " + my_archive + ".0");
         }

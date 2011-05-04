@@ -13,3 +13,5 @@ s/21 Maleckar2009OdeSystem/26 CellMaleckar2008FromCellML/
 s/44 HodgkinHuxleySquidAxon1952OriginalOdeSystem/31 CellHodgkinHuxley1952FromCellML/
 s/21 FaberRudy2000Version3/27 CellFaberRudy2000FromCellML/
 s/30 FaberRudy2000Version3Optimised/30 CellFaberRudy2000FromCellMLOpt/
+# Changed a parameter name in the LuoRudy1991 cell model
+s/31 fast_sodium_current_conductance/40 membrane_fast_sodium_current_conductance/

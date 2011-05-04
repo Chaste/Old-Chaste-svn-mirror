@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_3">
 
 	<Simulation>       
 		<!-- 
@@ -9,7 +9,7 @@
 	    <Domain>Mono</Domain>
 	    <SpaceDimension>2</SpaceDimension>
 	    <IonicModels>
-	    	<Default><Hardcoded>Fox2002BackwardEuler</Hardcoded></Default>
+	    	<Default><Hardcoded>LuoRudyIBackwardEuler</Hardcoded></Default>
     	</IonicModels>
 	    
 		<!-- 
@@ -40,9 +40,18 @@
 		<CheckpointSimulation timestep="0.1" unit="ms" max_checkpoints_on_disk="3"/>
 	</Simulation>
 	
-
     <Physiological>
+	    <!-- Parameters for drug action model -->
+	    <ApplyDrug concentration="10">
+	        <!-- Current names should match those in the Oxford metadata -->
+	        <IC50 current="membrane_fast_sodium_current" hill="1.0">16000</IC50>
+	        <!-- Hill coefficient defaults to 1.0 -->
+	        <IC50 current="membrane_rapid_delayed_rectifier_potassium_current">5</IC50>
+	        <!-- Missing parameter causes a warning -->
+	        <IC50 current="not_a_current">404</IC50>
+	    </ApplyDrug>
     </Physiological>
+    
 	<Numerical>
 		<TimeSteps ode="0.1" pde="0.1" printing="0.1" unit="ms"/>
 	</Numerical>		

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 
 #include "ArchiveLocationInfo.hpp"
-#include "ChasteParameters_2_2.hpp"
+#include "ChasteParameters_2_3.hpp"
 
 #include "AbstractStimulusFunction.hpp"
 // These are needed here for Boost < 1.37
@@ -59,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/split_member.hpp>
 
-namespace cp = chaste::parameters::v2_2;
+namespace cp = chaste::parameters::v2_3;
 
 // Forward declaration to avoid circular includes
 class HeartFileFinder;
@@ -642,6 +642,7 @@ public:
      * @return true if APD maps have been requested
      */
     bool IsApdMapsRequested() const;
+    
     /**
      * @param rApdMaps  each entry is a request for a map with
      *  - a percentage in the range [1, 100)
@@ -1224,7 +1225,37 @@ public:
      */
     void SetUseFixedNumberIterationsLinearSolver(bool useFixedNumberIterations = true, unsigned evaluateNumItsEveryNSolves=UINT_MAX);
 
-
+    /**
+     * @return whether HeartConfig has a drug concentration and any IC50s set up
+     */
+    bool HasDrugDose() const;
+    
+    /**
+     * @return the dose of the drug (in the same units as the IC50s)
+     */
+    double GetDrugDose() const;
+    
+    /**
+     * @param drugDose  The dose of the drug to use (should be in units consistent with the IC50s).
+     */
+    void SetDrugDose(double drugDose);
+    
+    /**
+     * Add a new conductance block model for a particular channel.
+     * 
+     * @param rCurrentName  The Oxford metadata name of the current (e.g. membrane_fast_sodium_current)
+     * @param ic50  The IC50 value for this channel (should be in consistent units with drug dose)
+     * @param hill  The hill coefficient to use (usually default to 1)
+     */
+    void SetIc50Value(const std::string& rCurrentName, double ic50, double hill=1.0);
+    
+    /**
+     * Get the parameters for the model of "conductance-block" drug action on a set of ion channels.  
+     * 
+     * @return  A map between the current/channel name, and a pair giving IC50 value and hill coefficient.
+     */
+    std::map<std::string, std::pair<double, double> > GetIc50Values();
+    
 private:
     // Only to be accessed by the tests
     friend class TestHeartConfig;
@@ -1236,6 +1267,7 @@ private:
      * (override those given by #mpDefaultParameters).
      */
     boost::shared_ptr<cp::chaste_parameters_type> mpUserParameters;
+    
     /** Pointer to parameters read from the default input XML file (to be read before
      * #mpUserParameters, but may be subsequently overridden).
      */
@@ -1327,7 +1359,7 @@ private:
      * is perfoming a single evaluation at the beginning of the simulation.
      */
     unsigned mEvaluateNumItsEveryNSolves;
-        
+    
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)

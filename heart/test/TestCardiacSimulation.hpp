@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "AbstractCardiacProblem.hpp"
 #include "MonodomainProblem.hpp"
@@ -46,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "Warnings.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -91,8 +93,33 @@ public:
 
     void TestMono2dSmall() throw(Exception)
     {
-        CardiacSimulation simulation("heart/test/data/xml/monodomain2d_small.xml");
+        {
+            TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
+            CardiacSimulation simulation("heart/test/data/xml/monodomain2d_small.xml", false, true);
+            boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
+            TS_ASSERT(p_problem);
+            MonodomainProblem<2,2>* p_mono_problem = dynamic_cast<MonodomainProblem<2,2>*>(p_problem.get());
+            TS_ASSERT(p_mono_problem != NULL);
+            DistributedVectorFactory* p_vector_factory = p_mono_problem->rGetMesh().GetDistributedVectorFactory();
+            for (unsigned node_global_index = p_vector_factory->GetLow();
+                 node_global_index < p_vector_factory->GetHigh();
+                 node_global_index++)
+            {
+                AbstractCardiacCell* p_cell = p_mono_problem->GetTissue()->GetCardiacCell(node_global_index);
+                TS_ASSERT_DELTA(p_cell->GetParameter("membrane_fast_sodium_current_conductance"), 23 * 0.99937539038101175, 1e-6);
+                TS_ASSERT_DELTA(p_cell->GetParameter("membrane_rapid_delayed_rectifier_potassium_current_conductance"), 0.282/3.0, 1e-6);
+            }
+            TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), p_vector_factory->GetLocalOwnership());
+            if (p_vector_factory->GetLocalOwnership() > 0)
+            {
+                std::stringstream msg;
+                msg << "Cannot apply drug to cell at node " << p_vector_factory->GetLow() << " as it has no parameter named 'not_a_current_conductance'.";
+                TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), msg.str());
+            }
+        }
+        
         CardiacSimulation simulation2("heart/test/data/xml/monodomain2d_resume.xml");
+        Warnings::QuietDestroy();
     }
 
     void TestMono3dSmall() throw(Exception)
@@ -363,7 +390,7 @@ public:
     void checkParameter(AbstractCardiacCell* pCell, unsigned globalIndex)
     {
         // Check parameter has been set in the central region
-        TS_ASSERT_EQUALS(pCell->GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(pCell->GetNumberOfParameters(), 2u);
         double expected_value;
         if (globalIndex <= 4 || globalIndex >= 16)
         {

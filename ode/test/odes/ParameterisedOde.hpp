@@ -53,6 +53,8 @@ public:
     
     std::vector<double> ComputeDerivedQuantities(double time,
                                                  const std::vector<double>& rState);
+
+    static bool fakeSecondParameter;
 };
 
 #include "SerializationExportWrapper.hpp"
