@@ -264,8 +264,8 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     {
         if (rowPreallocation == 0)
         {
-           // We aren't allowed to do non-zero allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
-           WARNING("Ignoring MAT_IGNORE_OFF_PROC_ENTRIES flag because we might set non-zeroes later");
+            // We aren't allowed to do non-zero allocation after setting MAT_IGNORE_OFF_PROC_ENTRIES
+            WARNING("Ignoring MAT_IGNORE_OFF_PROC_ENTRIES flag because we might set non-zeroes later");
         }
         else
         {

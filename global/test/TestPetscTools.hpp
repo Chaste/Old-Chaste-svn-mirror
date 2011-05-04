@@ -166,6 +166,10 @@ public:
         PetscTools::SetupMat(mat_over_allocate, 12, 12, 13);
         MatDestroy(mat_over_allocate);
         
+        // coverage
+        Mat mat3;
+        PetscTools::SetupMat(mat3, 1, 1, 0);
+        MatDestroy(mat3);
     }
 
     void TestBarrier()
