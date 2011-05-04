@@ -42,6 +42,14 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MixedDimensionMesh : public DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 public:
+
+    /**
+     * Constructor.
+     *
+     * @param partitioningMethod  defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
+     */
+    MixedDimensionMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod=DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
+     
     /**
      * Destructor - cleans up the cables
      *

@@ -29,6 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MixedDimensionMesh.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::MixedDimensionMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod)
+    : DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(partitioningMethod)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::~MixedDimensionMesh()
 {
     for (unsigned i=0; i<mCableElements.size(); i++)
@@ -46,7 +52,7 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
     mNumCableElements = rMeshReader.GetNumCableElements();
     //this->mCableElements.reserve(mNumCableElements);
     
-    for (unsigned element_index=0; element_index < rMeshReader.GetNumCableElements(); element_index++)
+    for (unsigned element_index=0; element_index < mNumCableElements; element_index++)
     {
         ElementData element_data = rMeshReader.GetNextCableElementData();
 

@@ -43,7 +43,7 @@ public:
     {
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh; ///\todo Make a dumb partition 
+        MixedDimensionMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
@@ -72,6 +72,59 @@ public:
                 TS_ASSERT_EQUALS(p_elt->GetNode(0u), mesh.GetNode(p_elt->GetNodeGlobalIndex(0u)));
                 TS_ASSERT_EQUALS(p_elt->GetNode(1u), mesh.GetNode(p_elt->GetNodeGlobalIndex(1u)));
                 TS_ASSERT_EQUALS(p_elt->GetNode(2u), mesh.GetNode(p_elt->GetNodeGlobalIndex(2u)));
+            }
+        }
+        else if (PetscTools::GetNumProcs() == 2)
+        {
+            if (PetscTools::GetMyRank() == 0)
+            {
+                // For a dumb partition, process 0 owns nodes 0 to 59
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 5u);
+
+                for (unsigned i=0; i<5u; i++)
+                {
+                    Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNumNodes(), 2u);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(0u), 55u + i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 56u + i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNodeOrHaloNode(56u + i));
+                    TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+                }
+            }
+            else
+            {
+                // For a dumb partition, process 1 owns nodes 60 to 120
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 6u);
+
+                for (unsigned i=0; i<6u; i++)
+                {
+                    Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNumNodes(), 2u);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(0u), 59u + i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 60u + i);
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNodeOrHaloNode(59u + i));
+                    TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(60u + i));
+                    TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+5);
+                }
+            }
+        }
+        else if (PetscTools::GetNumProcs() == 3)
+        {
+            if (PetscTools::GetMyRank() == 0)
+            {
+                // For a dumb partition, process 0 owns nodes 0 to 39
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 0u);
+            }
+            if (PetscTools::GetMyRank() == 1)
+            {
+                // For a dumb partition, process 1 owns nodes 40 to 79
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 10u);
+            }
+            if (PetscTools::GetMyRank() == 2)
+            {
+                // For a dumb partition, process 0 owns nodes 80 to 120
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 0u);
             }
         }
         else
