@@ -38,6 +38,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class DistributedTetrahedralMesh;
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class MixedDimensionMesh;
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct MeshWriterIterators;
 
 #include <fstream>
@@ -93,12 +96,14 @@ protected:
     unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
 
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpDistributedMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
+    MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* mpMixedMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
     MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
     unsigned mNodeCounterForParallelMesh; /**< Used by master process for polling processes for the next node */
     unsigned mElementCounterForParallelMesh;/**< Used by master process for polling processes for the next element */
+    unsigned mCableElementCounterForParallelMesh;/**< Used by master process for polling processes for the next cable element */
     bool mFilesAreBinary;  /**< Whether all data is to be written as binary - used in derived class TrianglesMeshWriter*/
 
 public:
@@ -143,6 +148,10 @@ public:
      */
     ElementData GetNextElement();
 
+    /**
+     * @return the data (indices/attributes) of the next cable element to be written to file
+     */
+    ElementData GetNextCableElement();
 };
 
 #endif //_ABSTRACTTETRAHEDRALMESHWRITER_HPP_

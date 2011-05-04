@@ -185,6 +185,45 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
     *p_face_file << comment << "\n";
     p_face_file->close();
+
+    if( this->mpMixedMesh )
+    {
+        // Write cable element file
+        std::string cable_element_file_name = this->mBaseName + ".cable";
+        out_stream p_cable_element_file = this->mpOutputFileHandler->OpenOutputFile(cable_element_file_name);
+    
+        // Write the cable element header
+        unsigned num_cable_elements = this->GetNumCableElements();
+        num_attr = 1u; // We have a single region code
+    
+        ElementData cable_element_data = this->GetNextCableElement();
+    
+        *p_cable_element_file << num_cable_elements << "\t";
+        *p_cable_element_file << 2 << "\t";
+        *p_cable_element_file << num_attr;
+        if (this->mFilesAreBinary)
+        {
+            *p_cable_element_file << "\tBIN\n";
+        }
+        else
+        {
+            *p_cable_element_file << "\n";
+        }
+    
+        // Write each element's data
+        for (unsigned item_num=0; item_num<num_cable_elements; item_num++)
+        {
+            // if item_num==0 we will already got the element above (in order to
+            // get the number of nodes per element
+            if (item_num>0)
+            {
+                cable_element_data = this->GetNextCableElement();
+            }
+    
+            WriteItem(p_cable_element_file, item_num, cable_element_data.NodeIndices, cable_element_data.AttributeValue);
+        }
+        p_cable_element_file->close();
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

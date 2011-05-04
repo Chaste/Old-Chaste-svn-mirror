@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
+#include "MixedDimensionMesh.hpp"
 #include "Version.hpp"
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
@@ -64,9 +65,11 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
       mpNodeMap(NULL),
       mNodesPerElement(ELEMENT_DIM+1),
       mpDistributedMesh(NULL),
+      mpMixedMesh(NULL),
       mpIters(new MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>),
       mNodeCounterForParallelMesh(0),
       mElementCounterForParallelMesh(0),
+      mCableElementCounterForParallelMesh(0),
       mFilesAreBinary(false)
 {
     mpIters->pNodeIter = NULL;
@@ -217,6 +220,62 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
     }
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableElement()
+{
+    assert(PetscTools::AmMaster());
+    
+    // if we are writing from a mesh..
+    if (mpMesh)
+    {
+        // Need to be using a MixedDimensionMesh or there will be no cable data
+        assert(mpMixedMesh);
+    
+        ElementData elem_data;
+        elem_data.NodeIndices.resize(2);
+
+        //Use the mCableElementCounterForParallelMesh variable to identify next element
+        if ( mpMixedMesh->CalculateDesignatedOwnershipOfCableElement( mCableElementCounterForParallelMesh ) == true )
+        {
+            //Master owns this element
+            Element<1, SPACE_DIM>* p_element = mpMixedMesh->GetCableElement(mCableElementCounterForParallelMesh);
+            assert(elem_data.NodeIndices.size() == 2);
+            assert( ! p_element->IsDeleted() );
+            //Master can use the local data to recover node indices & attribute
+            for (unsigned j=0; j<2; j++)
+            {
+                elem_data.NodeIndices[j] = p_element->GetNodeGlobalIndex(j);
+            }
+            elem_data.AttributeValue = p_element->GetRegion();
+        }
+        else
+        {
+            //Master doesn't own this element.
+            // +2 to allow for attribute value too
+            unsigned raw_indices[ELEMENT_DIM+2];
+            MPI_Status status;
+            //Get it from elsewhere
+            MPI_Recv(raw_indices, ELEMENT_DIM+2, MPI_UNSIGNED, MPI_ANY_SOURCE,
+                     this->mNumNodes + mElementCounterForParallelMesh,
+                     PETSC_COMM_WORLD, &status);
+            // Convert to std::vector
+            for (unsigned j=0; j< elem_data.NodeIndices.size(); j++)
+            {
+                elem_data.NodeIndices[j] = raw_indices[j];
+            }
+            // Attribute value
+            elem_data.AttributeValue = raw_indices[ELEMENT_DIM+1];
+        }
+        // increment element counter
+        mCableElementCounterForParallelMesh++;
+
+        return elem_data; // non-master processors will return garbage here - but they should never write to file
+    }
+    else // not writing from a mesh
+    {
+        return AbstractMeshWriter<ELEMENT_DIM,SPACE_DIM>::GetNextCableElement();
+    }
+}
 
 ///\todo #1322 Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -230,6 +289,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     this->mNumNodes = mpMesh->GetNumNodes();
     this->mNumElements = mpMesh->GetNumElements();
     this->mNumBoundaryElements = mpMesh->GetNumBoundaryElements();
+    this->mNumCableElements = mpMesh->GetNumCableElements();
 
     typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
     mpIters->pNodeIter = new NodeIterType(mpMesh->GetNodeIteratorBegin());
@@ -318,6 +378,11 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     //Have we got a parallel mesh?
     ///\todo #1322 This should be const too
     mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    
+    //Have we got a MixedDimensionMesh?
+    ///\todo #1322, #1760 This should be const too
+    mpMixedMesh = dynamic_cast<MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* >(this->mpMesh);
+    
 
     if (mpDistributedMesh != NULL)
     {

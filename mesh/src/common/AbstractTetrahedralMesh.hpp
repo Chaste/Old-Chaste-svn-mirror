@@ -333,6 +333,13 @@ public:
     unsigned GetNumAllBoundaryElements() const;
 
     /**
+     * Get the number of cable elements that are actually in use.
+     * 
+     * This will always return zero until overridden in the MixedDimensionMesh class
+     */
+    virtual unsigned GetNumCableElements() const;
+
+    /**
      * Get the element with a given index in the mesh.
      *
      * @param index the global index of the element

@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MixedDimensionMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
+#include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
@@ -206,7 +208,24 @@ public:
         TS_ASSERT_EQUALS(memfem_reader.GetNumCableElements(), 0u);
         TS_ASSERT_EQUALS(memfem_reader.GetNumCableElementAttributes(), 0u);
         TS_ASSERT_THROWS_THIS(memfem_reader.GetNextCableElementData(), "Cable elements are not supported by this mesh format.");
+    }
+    
         
+    void TestWritingCableFiles() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
+        
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        mesh.ConstructFromMeshReader(reader);
+        
+        TrianglesMeshWriter<2,2> mesh_writer("", "CableMesh");
+
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMesh.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
         
     }
 };

@@ -156,5 +156,9 @@ typename MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CableElementIterator MixedD
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
+template class MixedDimensionMesh<1,1>;
+template class MixedDimensionMesh<1,2>;
+template class MixedDimensionMesh<1,3>;
 template class MixedDimensionMesh<2,2>;
+template class MixedDimensionMesh<2,3>;
 template class MixedDimensionMesh<3,3>;

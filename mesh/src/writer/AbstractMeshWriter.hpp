@@ -54,6 +54,7 @@ protected: // Give access of these members to subclasses
     unsigned mNumNodes; /**< Total number of nodes in mesh/mesh-reader*/
     unsigned mNumElements; /**< Total number of elements in mesh/mesh-reader*/
     unsigned mNumBoundaryElements; /**< Total number of boundary elements in mesh/mesh-reader*/
+    unsigned mNumCableElements; /**< Total number of cable elements in mesh/mesh-reader*/
 
 public:
 
@@ -99,6 +100,11 @@ public:
     unsigned GetNumBoundaryEdges();
 
     /**
+     * Get the number of cable elements in the mesh.
+     */
+    unsigned GetNumCableElements();
+
+    /**
      * @return the coordinates of the next node to be written to file
      */
     virtual std::vector<double> GetNextNode();
@@ -109,6 +115,10 @@ public:
      */
     virtual ElementData GetNextElement();
 
+    /**
+     * @return the data (indices/attributes) of the next cable element to be written to file
+     */
+    virtual ElementData GetNextCableElement();
 
     /**
      * Add an entry to mBoundaryFaceData.
