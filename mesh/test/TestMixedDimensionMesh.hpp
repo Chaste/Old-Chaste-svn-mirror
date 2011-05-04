@@ -63,6 +63,7 @@ public:
                 TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
                 TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
                 TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+                TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) );
             }
             
             for (unsigned i=0; i<200u; i++)
@@ -90,6 +91,7 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNodeOrHaloNode(56u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+                    TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) ); // Designated owner of all these five, since we own node 0 (lowest index)
                 }
             }
             else
@@ -106,6 +108,17 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNodeOrHaloNode(59u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(60u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+5);
+                    
+                    // Not designated owner of the first of these as node 0 is owned by process 0
+                    if (i==0)
+                    {
+                        TS_ASSERT( ! mesh.CalculateDesignatedOwnershipOfCableElement(i) );
+                    }
+                    else
+                    {
+                        TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) );
+                    }
+                        
                 }
             }
         }

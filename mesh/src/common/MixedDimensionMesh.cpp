@@ -120,6 +120,25 @@ Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElem
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfCableElement( unsigned elementIndex )
+{
+    //This may throw in the distributed parallel case
+    unsigned tie_break_index = this->GetCableElement(elementIndex)->GetNodeGlobalIndex(0);
+
+    //if it is in my range
+    if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CableElementIterator MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElementIteratorBegin() const
 {
     return mCableElements.begin();

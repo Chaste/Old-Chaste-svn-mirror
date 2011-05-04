@@ -80,6 +80,15 @@ public:
      * @return a pointer to the cable element.
      */
     Element<1u, SPACE_DIM>* GetCableElement(unsigned index) const;
+    
+    /**
+     * Determine whether or not the current process owns node 0 of this cable element (tie breaker to determine which process writes
+     * to file for when two or more share ownership of a face).
+     *
+     * @param elementIndex is the global index of the face
+     */
+     bool CalculateDesignatedOwnershipOfCableElement( unsigned elementIndex );
+    
 
 private:
     /** The elements making up the 1D cables */
