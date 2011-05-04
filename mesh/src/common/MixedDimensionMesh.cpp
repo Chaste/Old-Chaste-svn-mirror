@@ -119,6 +119,19 @@ Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElem
     return mCableElements[index];
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CableElementIterator MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElementIteratorBegin() const
+{
+    return mCableElements.begin();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CableElementIterator MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElementIteratorEnd() const
+{
+    return mCableElements.end();
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

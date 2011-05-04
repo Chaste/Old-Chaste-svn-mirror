@@ -133,6 +133,47 @@ public:
         }
     }
     
+    void TestCableElementIterator() throw (Exception)
+    {
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        unsigned count = 0;
+        for (MixedDimensionMesh<2,2>::CableElementIterator iter = mesh.GetCableElementIteratorBegin();
+             iter != mesh.GetCableElementIteratorEnd();
+             ++iter)
+        {
+            unsigned index = (*iter)->GetIndex();
+
+            TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 2u);
+            TS_ASSERT_EQUALS((*iter)->GetNodeGlobalIndex(0u), 55u + index);
+            TS_ASSERT_EQUALS((*iter)->GetNodeGlobalIndex(1u), 56u + index);
+            TS_ASSERT_EQUALS((*iter)->GetNode(0u), mesh.GetNodeOrHaloNode(55u + index));
+            TS_ASSERT_EQUALS((*iter)->GetNode(1u), mesh.GetNodeOrHaloNode(56u + index));
+            TS_ASSERT_EQUALS((*iter)->GetRegion(), index+1);
+            
+            count++;
+        }
+
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(count, 10u);                
+        }
+        if (PetscTools::GetNumProcs() == 2)
+        {            
+            if (PetscTools::GetMyRank() == 0)
+            {
+                TS_ASSERT_EQUALS(count, 5u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(count, 6u);
+            }
+        }
+    }
+    
     void TestReadingMeshWithNoCables() throw (Exception)
     {
         std::string mesh_base("mesh/test/data/2D_0_to_1mm_200_elements");

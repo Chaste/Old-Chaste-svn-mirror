@@ -86,6 +86,28 @@ private:
     std::vector<Element<1u, SPACE_DIM>*> mCableElements;
     /** The global number of cables over all processes*/
     unsigned mNumCableElements;
+    
+public:
+
+    //////////////////////////////////////////////////////////////////////
+    //                            Iterators                             //
+    //////////////////////////////////////////////////////////////////////
+
+    /** Definition of cable element Iterator type. */
+    typedef typename std::vector<Element<1, SPACE_DIM> *>::const_iterator CableElementIterator;
+    
+        /**
+     * Return a pointer to the first boundary element in the mesh.
+     */
+    CableElementIterator GetCableElementIteratorBegin() const;
+
+    /**
+     * Return a pointer to *one past* the last boundary element in the mesh
+     * (for consistency with STL iterators).
+     */
+    CableElementIterator GetCableElementIteratorEnd() const;
+    
+
 };
 
 #endif /*MIXEDDIMENSIONMESH_HPP_*/
