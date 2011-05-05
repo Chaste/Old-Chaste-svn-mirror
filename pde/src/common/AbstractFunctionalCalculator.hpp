@@ -66,13 +66,6 @@ private:
                                 c_vector<double,PROBLEM_DIM>& rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU)=0;
 
-    /**
-     * Compute the contribution to the integral from one element.
-     *
-     * @param rElement The element
-     */
-    double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement);
-
 public:
 
     /**
@@ -94,6 +87,12 @@ public:
      */
     double Calculate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution);
 
+    /**
+     * Compute the contribution to the integral from one element.
+     *
+     * @param rElement The element
+     */
+    double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement);
 };
 
 
