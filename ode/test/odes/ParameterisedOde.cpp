@@ -30,15 +30,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 
 bool ParameterisedOde::fakeSecondParameter = false;
+bool ParameterisedOde::noParameterDefaults = false;
 
 ParameterisedOde::ParameterisedOde() : AbstractOdeSystem(1) // 1 here is the number of variables
 {
     mpSystemInfo = OdeSystemInformation<ParameterisedOde>::Instance();
     SetStateVariables(GetInitialConditions());
-    mParameters.push_back(0);
-    if (fakeSecondParameter)
+    if (!noParameterDefaults)
     {
-        mParameters.push_back(-1.0);
+        mParameters.push_back(0);
+        if (fakeSecondParameter)
+        {
+            mParameters.push_back(-1.0);
+        }
     }
 }
 
@@ -64,14 +68,14 @@ template<>
 void OdeSystemInformation<ParameterisedOde>::Initialise()
 {
     this->mSystemName = "ParameterisedOde";
-    
+
     this->mVariableNames.push_back("y");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
 
     this->mParameterNames.push_back("a");
     this->mParameterUnits.push_back("dimensionless");
-    
+
     this->mDerivedQuantityNames.push_back("2a_plus_y");
     this->mDerivedQuantityUnits.push_back("dimensionless");
 

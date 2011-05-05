@@ -295,6 +295,16 @@ public:
             ParameterisedOde::fakeSecondParameter = false;
             p_mod_info->mParameterNames.resize(1u);
         }
+        { // Load with no defaults provided by the constructor
+            ParameterisedOde::noParameterDefaults = true;
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            AbstractOdeSystem* p_ode;
+            input_arch >> p_ode;
+            delete p_ode;
+            // Mend the ode system info for the following tests.
+            ParameterisedOde::noParameterDefaults = false;
+        }
     }
 
     void TestDerivedQuantities() throw (Exception)

@@ -45,16 +45,17 @@ class ParameterisedOde : public AbstractOdeSystem
     {
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
     }
-    
+
 public:
     ParameterisedOde();
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
-    
+
     std::vector<double> ComputeDerivedQuantities(double time,
                                                  const std::vector<double>& rState);
 
     static bool fakeSecondParameter;
+    static bool noParameterDefaults;
 };
 
 #include "SerializationExportWrapper.hpp"
