@@ -404,6 +404,7 @@ class TestProtocol(unittest.TestCase):
         Cai = Var(c_icc, 'Cai') # State
         Cm = Var('membrane', 'C') # Constant
         gK = Var(c_tdpc, 'g_K') # Computed
+        gKmax = Var(c_tdpc, 'g_Kmax') # Constant
         V_tdpc = Var(c_tdpc, 'V') # Mapped
         p.outputs = [Cai, Cm, gK, V_tdpc]
         # Apply protocol
@@ -418,7 +419,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(Var(c_sicf, 'f').get_type(), pycml.VarTypes.State)
         def VarDefn(cname, vname):
             return Var(cname, vname).get_dependencies()[0]
-        expected = set([V, VarDefn('membrane', 'V'), Cm, time, Cai, gK,
+        expected = set([V, VarDefn('membrane', 'V'), Cm, time, Cai, gK, gKmax,
                         Var('ionic_concentrations', 'Ko'), Var(c_tdpc, 'Ko'),
                         VarDefn(c_tdpc, 'g_K'), V_tdpc,
                         Var(c_icc, 'time'), Var(c_icc, 'i_si'),
@@ -436,7 +437,7 @@ class TestProtocol(unittest.TestCase):
                         VarDefn(c_sicf, 'alpha_f'), VarDefn(c_sicf, 'beta_f'),
                         Var(c_sicf, 'f').get_ode_dependency(time)
                         ])
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual ^ expected, set())
         # Check output variables are properly annotated
         self.assert_(Cm.is_output_variable)
         self.assert_(Cm.is_modifiable_parameter)
@@ -481,4 +482,4 @@ class TestProtocol(unittest.TestCase):
         orig_assignments = set(self._doc.model.get_assignments())
         p.modify_model()
         curr_assignments = set(self._doc.model.get_assignments())
-        self.assertEqual(curr_assignments - orig_assignments, set())
+        self.assertEqual(curr_assignments ^ orig_assignments, set())
