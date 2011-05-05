@@ -69,8 +69,8 @@ c_matrix<double, 1*(DIM+1), 1*(DIM+1)> CellBasedSimulationWithPdesAssembler<DIM>
 {
     c_matrix<double, DIM, DIM> pde_diffusion_term = this->mpEllipticPde->ComputeDiffusionTerm(rX);
 
-    // if statement just saves computing phi*phi^T if it is to be multiplied by zero
-    if (mLinearInUCoeffInSourceTerm!=0)
+    // This if statement just saves computing phi*phi^T if it is to be multiplied by zero
+    if (mLinearInUCoeffInSourceTerm != 0)
     {
         return   prod( trans(rGradPhi), c_matrix<double, DIM, DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
                - mLinearInUCoeffInSourceTerm * outer_prod(rPhi,rPhi);

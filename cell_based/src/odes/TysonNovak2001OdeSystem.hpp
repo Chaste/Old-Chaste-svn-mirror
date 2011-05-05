@@ -148,7 +148,7 @@ public:
     TysonNovak2001OdeSystem(std::vector<double> stateVariables=std::vector<double>());
 
     /**
-     *  Destructor.
+     * Destructor.
      */
     ~TysonNovak2001OdeSystem();
 

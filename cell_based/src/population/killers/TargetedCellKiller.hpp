@@ -47,13 +47,11 @@ private:
      */
 	unsigned mTargetIndex;
 
-
 	/**
 	 * Variable to reack when the cell has been killed.
 	 * Once the cell has been called mBloodLust will stop the killer killing more cells.
 	 */
     bool mBloodLust;
-
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -88,27 +86,23 @@ public:
     TargetedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, unsigned targetedIndex, bool bloodLust = true);
 
     /**
-	* @return mTargetIndex.
-	*/
-   unsigned GetTargetIndex() const;
-
-   /**
-	* @return mBloodLust.
-	*/
-  unsigned GetBloodLust() const;
-
+	 * @return mTargetIndex.
+	 */
+    unsigned GetTargetIndex() const;
 
     /**
-     *  Loop over cells and start apoptosis randomly, based on the user-set
-     *  probability
+	 * @return mBloodLust.
+	 */
+    unsigned GetBloodLust() const;
+
+    /**
+     * Loop over cells and start apoptosis randomly, based on the user-set
+     * probability.
      */
     void TestAndLabelCellsForApoptosisOrDeath();
 
     /**
-     * Outputs cell killer parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Overridden OutputCellKillerParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

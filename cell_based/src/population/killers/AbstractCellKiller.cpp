@@ -28,18 +28,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellKiller.hpp"
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation)
         : mpCellPopulation(pCellPopulation)
 {
 }
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 AbstractCellKiller<SPACE_DIM>::~AbstractCellKiller()
 {
 }
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 const AbstractCellPopulation<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetCellPopulation() const
 {
     return mpCellPopulation;

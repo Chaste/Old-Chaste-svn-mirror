@@ -118,7 +118,7 @@ protected:
     bool mReadyToDivide;
 
     /**
-     *  Spatial dimension being used in simulation (defaults to 0, set with SetDimension).
+     * Spatial dimension being used in simulation (defaults to 0, set with SetDimension).
      */
     unsigned mDimension;
 
@@ -240,7 +240,7 @@ public:
     void SetDimension(unsigned dimension);
 
     /**
-     *  Get the dimension this cell-cycle model thinks the simulation is in.
+     * Get the dimension this cell-cycle model thinks the simulation is in.
      */
     unsigned GetDimension();
 

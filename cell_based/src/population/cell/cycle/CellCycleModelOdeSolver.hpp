@@ -141,7 +141,6 @@ bool CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::IsAdaptive()
 /**
  * Specialization for BackwardEulerIvpOdeSolver, whose constructor requires
  * an argument.
- * \todo there must be an easier way to deal with this peculiarity (#1427)
  */
 template<class CELL_CYCLE_MODEL>
 class CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> : public AbstractCellCycleModelOdeSolver, private boost::noncopyable

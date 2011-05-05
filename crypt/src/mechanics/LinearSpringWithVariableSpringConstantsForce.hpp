@@ -45,7 +45,7 @@ class LinearSpringWithVariableSpringConstantsForce : public GeneralisedLinearSpr
 {
     friend class TestLinearSpringWithVariableSpringConstantsForce;
 
-private :
+private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -72,7 +72,7 @@ private :
         archive & mApoptoticSpringCompressionStiffness;
     }
 
-protected :
+protected:
 
     /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false). */
     bool mUseEdgeBasedSpringConstant;
@@ -101,7 +101,7 @@ protected :
     /** Non-dimensionalized 'stiffness' of a apoptotic cell under compression. */
     double mApoptoticSpringCompressionStiffness;
 
-public :
+public:
 
     /**
      * Constructor.

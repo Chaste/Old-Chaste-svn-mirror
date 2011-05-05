@@ -72,8 +72,10 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCentreBasedCellPopulation<DIM> >(*this);
 
-        // The Voronoi stuff can't be archived yet
-        //archive & mpVoronoiTessellation
+        /*
+         * In its current form the code does not allow the direct serialization
+         * of the VertexMesh class, so instead we delete mpVoronoiTessellation.
+         */
         delete mpVoronoiTessellation;
         mpVoronoiTessellation = NULL;
 
@@ -106,8 +108,6 @@ protected:
      * mpVoronoiTessellation; a map between these indices may be accessed by calling the methods
      * GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex()
      * and GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex() on mpVoronoiTessellation.
-     *
-     * \todo Make this static/const? (#1075)
      */
     VertexMesh<DIM, DIM>* mpVoronoiTessellation;
 

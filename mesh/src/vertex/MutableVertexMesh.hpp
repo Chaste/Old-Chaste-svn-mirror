@@ -278,11 +278,11 @@ public:
     void SetCellRearrangementRatio(double cellRearrangementRatio);
 
     /**
-     *  Move the node with a particular index to a new point in space.
+     * Move the node with a particular index to a new point in space.
      *
-      * @param nodeIndex the index of the node to be moved
-      * @param point the new target location of the node
-      */
+     * @param nodeIndex the index of the node to be moved
+     * @param point the new target location of the node
+     */
     virtual void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
 
     /**

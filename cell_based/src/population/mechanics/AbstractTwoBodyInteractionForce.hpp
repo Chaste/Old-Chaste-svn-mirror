@@ -37,8 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractTwoBodyInteractionForce : public AbstractForce<DIM>
 {
-
-private :
+private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -59,15 +58,14 @@ private :
     }
 
 protected:
-    /** Whether to have zero force if the cells are far enough apart */
+
+    /** Whether to have zero force if the cells are far enough apart. */
     bool mUseCutOffLength;
 
-    /**
-     * Mechanics cut off length.
-     */
+    /** Mechanics cut off length. */
     double mMechanicsCutOffLength;
 
-public :
+public:
 
     /**
      * Constructor.
@@ -75,7 +73,7 @@ public :
     AbstractTwoBodyInteractionForce();
 
     /**
-     * Whether the force is using a cut of length
+     * Whether the force is using a cut of length.
      *
      * @return mUseCutOffLength
      */
@@ -83,7 +81,7 @@ public :
 
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater
-     * than the cutoff distance apart
+     * than the cutoff distance apart.
      *
      * @param cutOffLength the cutoff to use
      */
@@ -108,7 +106,6 @@ public :
      * @return The force exerted on Node A by Node B.
      */
     virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractCellPopulation<DIM>& rCellPopulation)=0;
-
 
     /**
      * Overridden AddForceContribution() method.

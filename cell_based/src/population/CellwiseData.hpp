@@ -106,8 +106,8 @@ public:
     virtual ~CellwiseData();
 
     /**
-     *  Destroy the current instance. Should be called at the end of a
-     *  simulation.
+     * Destroy the current instance. Should be called at the end of a
+     * simulation.
      */
     static void Destroy();
 

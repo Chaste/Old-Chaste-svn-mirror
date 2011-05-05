@@ -105,16 +105,13 @@ public:
     void TestAndLabelSingleCellForApoptosis(CellPtr pCell);
 
     /**
-     *  Loop over cells and start apoptosis randomly, based on the user-set
-     *  probability
+     * Loop over cells and start apoptosis randomly, based on the user-set
+     * probability.
      */
     void TestAndLabelCellsForApoptosisOrDeath();
 
     /**
-     * Outputs cell killer parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Overridden OutputCellKillerParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

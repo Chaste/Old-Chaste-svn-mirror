@@ -58,7 +58,7 @@ class GeneralisedLinearSpringForce : public AbstractTwoBodyInteractionForce<DIM>
 {
     friend class TestForces;
 
-private :
+private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -107,7 +107,7 @@ protected:
      */
     double mMeinekeSpringGrowthDuration;
 
-public :
+public:
 
     /**
      * Constructor.
@@ -190,10 +190,7 @@ public :
 	void SetMeinekeSpringGrowthDuration(double springGrowthDuration);
 
     /**
-     * Outputs force parameters to file
-	 *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Overridden OutputForceParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

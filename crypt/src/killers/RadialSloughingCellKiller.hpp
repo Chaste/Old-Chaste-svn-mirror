@@ -80,7 +80,7 @@ public:
     double GetRadius() const;
 
     /**
-     *  Loop over cells and kills cells outside boundary.
+     * Loop over cells and kills cells outside boundary.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 

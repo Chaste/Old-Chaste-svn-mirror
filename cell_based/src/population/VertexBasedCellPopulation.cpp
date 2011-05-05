@@ -52,7 +52,7 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
             contains_boundary_nodes = true;
         }
     }
-    //if (mrMesh.GetNumBoundaryNodes()==0)
+    //if (mrMesh.GetNumBoundaryNodes() == 0)
     ///\todo we should be able to do this, but mBoundaryNodes is not used in vertex meshes (#1558)
     if (!contains_boundary_nodes)
     {
@@ -257,9 +257,9 @@ void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_ve
          * rearrangement threshold and warn the user that a smaller timestep should be used. This
          * restriction ensures that vertex elements remain well defined (see #1376).
          */
-        if (norm_2(displacement)>0.5*mrMesh.GetCellRearrangementThreshold())
+        if (norm_2(displacement) > 0.5*mrMesh.GetCellRearrangementThreshold())
         {
-        	WARN_ONCE_ONLY("Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        	WARN_ONCE_ONLY("Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
         	displacement *= 0.5*mrMesh.GetCellRearrangementThreshold()/norm_2(displacement);
         }
 
@@ -306,7 +306,8 @@ void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 
             if (element_map.IsDeleted(old_elem_index))
             {
-            	/*\todo this is a kludge to remove the cell once a T2Swap occurs this is not included in the dead cells counter.
+            	/**
+            	 * \todo this is a kludge to remove the cell once a T2Swap occurs this is not included in the dead cells counter.
             	 * This should be included in the RemoveDeadCells method so the death is counted
             	 */
             	WARNING("Cell removed due to T2Swap this is not counted in the dead cells counter");

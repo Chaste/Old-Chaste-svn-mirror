@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * An abstract cell population boundary condition class, for use in cell-based simulations.
  */
-template <unsigned DIM>
+template<unsigned DIM>
 class AbstractCellPopulationBoundaryCondition : public Identifiable
 {
 private:

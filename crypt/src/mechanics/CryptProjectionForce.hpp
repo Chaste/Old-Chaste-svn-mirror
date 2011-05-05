@@ -40,7 +40,7 @@ class CryptProjectionForce : public GeneralisedLinearSpringForce<2>
 {
     friend class TestCryptProjectionForce;
 
-private :
+private:
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -78,7 +78,7 @@ private :
     double mWntChemotaxisStrength;
 
     /**
-     *  Map node indices to 3D locations on the crypt surface.
+     * Map node indices to 3D locations on the crypt surface.
      */
     std::map<unsigned, c_vector<double, 3> > mNode3dLocationMap;
 
@@ -102,7 +102,7 @@ private :
      */
     c_vector<double,2> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractCellPopulation<2>& rCellPopulation);
 
-public :
+public:
 
     /**
      * Constructor.
@@ -144,24 +144,23 @@ public :
     void SetWntChemotaxis(bool includeWntChemotaxis);
 
     /**
-     *  Calculates the height of the crypt surface given by
-     *      z = f(r) = a*r^b
-     *  at a point whose 2D position is a distance r from the centre of the cell population.
-     *  This assumes that the cell population is centred at the origin.
+     * Calculates the height of the crypt surface given by
+     *     z = f(r) = a*r^b
+     * at a point whose 2D position is a distance r from the centre of the cell population.
+     * This assumes that the cell population is centred at the origin.
      *
-     *  @param rNodeLocation
-     *
-     *  @return the z component corresponding to rNodeLocation
+     * @param rNodeLocation
+     * @return the z component corresponding to rNodeLocation
      */
     double CalculateCryptSurfaceHeightAtPoint(const c_vector<double,2>& rNodeLocation);
 
     /**
-     *  Calculates the derivative df/dr of the crypt surface function z=f(r) at a point
-     *  whose 2D position is a distance r from the centre of the cell_population, which we assume
-     *  to be at (0,0).
+     * Calculates the derivative df/dr of the crypt surface function z=f(r) at a point
+     * whose 2D position is a distance r from the centre of the cell_population, which we assume
+     * to be at (0,0).
      *
-     *  @param rNodeLocation the 2D location of a node
-     *  @return the gradient
+     * @param rNodeLocation the 2D location of a node
+     * @return the gradient
      */
     double CalculateCryptSurfaceDerivativeAtPoint(const c_vector<double,2>& rNodeLocation);
 

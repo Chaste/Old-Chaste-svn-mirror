@@ -62,41 +62,41 @@ private:
     static WntConcentration* mpInstance;
 
     /**
-     *  The length of the crypt.
+     * The length of the crypt.
      */
     double mCryptLength;
 
     /**
-     *  Whether this WntConcentration object has had its crypt length set.
+     * Whether this WntConcentration object has had its crypt length set.
      */
     bool mLengthSet;
 
     /**
      * The type of WntConcentration current options are
-     *  NONE - returns zero everywhere
-     *  LINEAR - decreases from 1 to zero at height specified by mWntConcentrationParameter
-     *  RADIAL - decreases from 1 to zero at height specified by mWntConcentrationParameter
+     * NONE - returns zero everywhere
+     * LINEAR - decreases from 1 to zero at height specified by mWntConcentrationParameter
+     * RADIAL - decreases from 1 to zero at height specified by mWntConcentrationParameter
      */
     WntConcentrationType mWntType;
 
     /**
-     *  The cell population in which the WntConcentration occurs.
+     * The cell population in which the WntConcentration occurs.
      */
     AbstractCellPopulation<DIM>* mpCellPopulation;
 
     /**
-     *  Whether this WntConcentration object has had its type set.
+     * Whether this WntConcentration object has had its type set.
      */
     bool mTypeSet;
 
     /**
-     *  A value to return for testing purposes.
+     * A value to return for testing purposes.
      */
     double mConstantWntValueForTesting;
 
     /**
-     *  Whether to return the testing value
-     *  (when false WntConcentration works with CellPopulation).
+     * Whether to return the testing value
+     * (when false WntConcentration works with CellPopulation).
      */
     bool mUseConstantWntValueForTesting;
 
@@ -151,7 +151,7 @@ private:
 protected:
 
     /**
-     *  Protected constuctor. Not to be called, use Instance() instead.
+     * Protected constuctor. Not to be called, use Instance() instead.
      */
     WntConcentration();
 
@@ -166,51 +166,51 @@ public:
     static WntConcentration* Instance();
 
     /**
-     *  Destructor - frees up the singleton instance.
+     * Destructor - frees up the singleton instance.
      */
     virtual ~WntConcentration();
 
     /**
-     *  Destroy the current WntConcentration instance.
+     * Destroy the current WntConcentration instance.
      *  Should be called at the end of a simulation.
      */
     static void Destroy();
 
     /**
-     *  Get the Wnt level at a given height in the crypt.
+     * Get the Wnt level at a given height in the crypt.
      *
-     *  @param height the height of the cell at which we want the Wnt concentration
-     *  @return the Wnt concentration at this height in the crypt (dimensionless)
+     * @param height the height of the cell at which we want the Wnt concentration
+     * @return the Wnt concentration at this height in the crypt (dimensionless)
      */
     double GetWntLevel(double height);
 
     /**
-     *  Get the Wnt level at a given cell in the crypt. The crypt
-     *  must be set for this.
+     * Get the Wnt level at a given cell in the crypt. The crypt
+     * must be set for this.
      *
-     *  @param pCell the cell at which we want the Wnt concentration
-     *  @return the Wnt concentration at this cell
+     * @param pCell the cell at which we want the Wnt concentration
+     * @return the Wnt concentration at this cell
      */
     double GetWntLevel(CellPtr pCell);
 
     /**
-     *  Get the Wnt gradient at a given location in the crypt.
+     * Get the Wnt gradient at a given location in the crypt.
      *
-     *  @param rLocation  the location at which we want the Wnt gradient
+     * @param rLocation  the location at which we want the Wnt gradient
      */
     c_vector<double, DIM> GetWntGradient(c_vector<double, DIM>& rLocation);
 
     /**
-     *  Get the Wnt gradient at a given cell in the crypt.
+     * Get the Wnt gradient at a given cell in the crypt.
      *
-     *  @param pCell the cell at which we want the Wnt gradient
+     * @param pCell the cell at which we want the Wnt gradient
      */
     c_vector<double, DIM> GetWntGradient(CellPtr pCell);
 
     /**
-     *  Set the crypt. Must be called before GetWntLevel().
+     * Set the crypt. Must be called before GetWntLevel().
      *
-     *  @param rCellPopulation reference to the cell population
+     * @param rCellPopulation reference to the cell population
      */
     void SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation);
 
@@ -227,34 +227,34 @@ public:
     void SetCryptLength(double cryptLength);
 
     /**
-     *  Get the type of Wnt concentration.
+     * Get the type of Wnt concentration.
      */
     WntConcentrationType GetType();
 
     /**
-     *  Set the type of Wnt concentration. Must be called before GetWntLevel().
+     * Set the type of Wnt concentration. Must be called before GetWntLevel().
      *
-     *  @param type the type of Wnt concentration
+     * @param type the type of Wnt concentration
      */
     void SetType(WntConcentrationType type);
 
     /**
-     *  Force the Wnt concentration to return a given value for all cells.
-     *  Only for testing.
+     * Force the Wnt concentration to return a given value for all cells.
+     * Only for testing.
      *
-     *  @param value the constant value to set the Wnt concentration to be
+     * @param value the constant value to set the Wnt concentration to be
      */
     void SetConstantWntValueForTesting(double value);
 
     /**
-     *  Whether a Wnt concentration has been set up.
+     * Whether a Wnt concentration has been set up.
      *
-     *  For archiving, and to let a CellBasedSimulation
-     *  find out whether whether a WntConcentration has
-     *  been set up or not, i.e. whether stem cells should
-     *  be motile.
+     * For archiving, and to let a CellBasedSimulation
+     * find out whether whether a WntConcentration has
+     * been set up or not, i.e. whether stem cells should
+     * be motile.
      *
-     *  @return whether the Wnt concentration is set up
+     * @return whether the Wnt concentration is set up
      */
     bool IsWntSetUp();
 

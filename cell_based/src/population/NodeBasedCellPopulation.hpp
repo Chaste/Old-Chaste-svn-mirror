@@ -73,7 +73,7 @@ private:
     std::set< std::pair<Node<DIM>*, Node<DIM>* > > mNodePairs;
 
     /**
-     *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
+     * Whether to delete the nodes (taken in one of the constructors, defaults to true).
      */
     bool mDeleteNodes;
 

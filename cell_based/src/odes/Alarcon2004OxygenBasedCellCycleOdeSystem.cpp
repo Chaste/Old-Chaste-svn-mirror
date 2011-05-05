@@ -54,7 +54,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     {
         ma1 = 0.04;
         mc1 = 0.007;
-        mxThreshold = 0.04; ///\todo should this be 0.004??
+        mxThreshold = 0.004;
         myThreshold = 0.05;
     }
     else // normal cells

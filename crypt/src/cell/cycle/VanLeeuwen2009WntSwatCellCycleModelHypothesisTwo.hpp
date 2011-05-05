@@ -56,10 +56,10 @@ public:
     VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     *  Overloaded method which allocates the ODE system using HYPOTHESIS TWO.
+     * Overloaded method which allocates the ODE system using HYPOTHESIS TWO.
      *
-     *  @param wntConcentration Wnt concentration
-     *  @param pMutationState Mutation state
+     * @param wntConcentration Wnt concentration
+     * @param pMutationState Mutation state
      */
     void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState);
 

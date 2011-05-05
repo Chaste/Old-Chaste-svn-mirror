@@ -139,12 +139,12 @@ public:
     }
 
     /**
-     *  Test a cell-based simulation with a non-Meineke spring system.
+     * Test a cell-based simulation with a non-Meineke spring system.
      *
-     *  This test consists of a standard crypt projection model simulation with a
-     *  radial sloughing cell killer, a crypt projection cell-cycle model that
-     *  depends on a radial Wnt gradient, and the crypt projection model spring
-     *  system, and store the results for use in later archiving tests.
+     * This test consists of a standard crypt projection model simulation with a
+     * radial sloughing cell killer, a crypt projection cell-cycle model that
+     * depends on a radial Wnt gradient, and the crypt projection model spring
+     * system, and store the results for use in later archiving tests.
      */
     void TestCellBasedSimulationWithCryptProjectionSpringSystem() throw (Exception)
     {

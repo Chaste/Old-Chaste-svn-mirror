@@ -28,13 +28,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OxygenBasedCellKiller.hpp"
 #include "ApoptoticCellProperty.hpp"
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation)
     : AbstractCellKiller<SPACE_DIM>(pCellPopulation)
 {
 }
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(CellPtr pCell)
 {
     if (pCell->HasCellProperty<ApoptoticCellProperty>() && !(pCell->HasApoptosisBegun()))
@@ -43,7 +43,7 @@ void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(CellPt
     }
 }
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
     for (typename AbstractCellPopulation<SPACE_DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();

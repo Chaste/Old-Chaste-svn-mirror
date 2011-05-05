@@ -45,8 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-#include "Debug.hpp"
-
 class TestCellBasedSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:

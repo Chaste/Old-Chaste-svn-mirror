@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneBasedCellKiller.hpp"
 #include "PetscTools.hpp"
 
-template <unsigned DIM>
+template<unsigned DIM>
 PlaneBasedCellKiller<DIM>::PlaneBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,
                                                   c_vector<double, DIM> point,
                                                   c_vector<double, DIM> normal)
@@ -39,19 +39,19 @@ PlaneBasedCellKiller<DIM>::PlaneBasedCellKiller(AbstractCellPopulation<DIM>* pCe
     mNormalToPlane = normal/norm_2(normal);
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 const c_vector<double, DIM>& PlaneBasedCellKiller<DIM>::rGetPointOnPlane() const
 {
     return mPointOnPlane;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 const c_vector<double, DIM>& PlaneBasedCellKiller<DIM>::rGetNormalToPlane() const
 {
     return mNormalToPlane;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 void PlaneBasedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();

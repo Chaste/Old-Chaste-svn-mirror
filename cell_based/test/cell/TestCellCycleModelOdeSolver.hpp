@@ -83,7 +83,7 @@ void OdeSystemInformation<SimpleOde>::Initialise()
  */
 class OdeSecondOrderWithEvents : public AbstractOdeSystem
 {
-public :
+public:
     OdeSecondOrderWithEvents() : AbstractOdeSystem(2)
     {
         mpSystemInfo = OdeSystemInformation<OdeSecondOrderWithEvents>::Instance();

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * An abstract cell killer class, for use in cell-based simulations.
  */
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 class AbstractCellKiller : public Identifiable
 {
 private:
@@ -75,9 +75,9 @@ public:
     virtual ~AbstractCellKiller();
 
     /**
-     *  Pure method which should call StartApoptosis() on any cell
-     *  which should be about to undergo programmed death, or Kill()
-     *  on any cell which should die immediately.
+     * Pure method which should call StartApoptosis() on any cell
+     * which should be about to undergo programmed death, or Kill()
+     * on any cell which should die immediately.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
 

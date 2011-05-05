@@ -165,7 +165,12 @@ boost::shared_ptr<AbstractCellMutationState> Cell::GetMutationState() const
 {
     CellPropertyCollection mutation_state_collection = mCellPropertyCollection.GetPropertiesType<AbstractCellMutationState>();
 
-    ///\todo allow a cell to have less/more than one mutation state? (#1285)
+    /*
+     * Note: In its current form the code requires each cell to have exactly
+     * one mutation state. This is reflected in the assertion below. If a user
+     * wishes to include cells with multiple mutation states, each possible
+     * combination must be created as a separate mutation state class.
+     */
     assert(mutation_state_collection.GetSize() == 1);
 
     return boost::static_pointer_cast<AbstractCellMutationState>(mutation_state_collection.GetProperty());
@@ -183,7 +188,7 @@ const CellPropertyCollection& Cell::rGetCellPropertyCollection() const
 
 void Cell::AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rProperty)
 {
-    ///\todo Be stricter and throw an exception if rProperty is already in mCellPropertyCollection? (#1285)
+    // Note: if the cell already has the specified property, no action is taken
     if (!mCellPropertyCollection.HasProperty(rProperty))
     {
     	mCellPropertyCollection.AddProperty(rProperty);

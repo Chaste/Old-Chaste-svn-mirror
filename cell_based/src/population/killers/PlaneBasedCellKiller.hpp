@@ -97,15 +97,12 @@ public:
     const c_vector<double, DIM>& rGetNormalToPlane() const;
 
     /**
-     *  Loops over cells and kills cells outside boundary.
+     * Loops over cells and kills cells outside boundary.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 
     /**
-     * Outputs cell killer parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Overridden OutputCellKillerParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

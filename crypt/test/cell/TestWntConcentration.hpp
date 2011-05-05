@@ -431,7 +431,7 @@ public:
         	WntCellCycleModel* p_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
-            if (crypt.GetLocationOfCellCentre(*cell_iter)[1]==0.0)
+            if (crypt.GetLocationOfCellCentre(*cell_iter)[1] == 0.0)
             {
                 TS_ASSERT_DELTA(proteins[5], 4.975124378109454e-03, 1e-3);
                 TS_ASSERT_DELTA(proteins[6]+proteins[7], 6.002649406788524e-01, 1e-3);

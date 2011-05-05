@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * CellBasedSimulationWithPdesAssembler
  *
  * This is a purpose made elliptic assembler that interpolates the source terms
- * from node onto gauss points, as for a cell-based simulation with PDEs the source
- * will only be known at the cells (nodes), not the gauss points.
+ * from node onto Gauss points, as for a cell-based simulation with PDEs the source
+ * will only be known at the cells (nodes), not the Gauss points.
  */
 template<unsigned DIM>
 class CellBasedSimulationWithPdesAssembler
@@ -64,8 +64,8 @@ private:
 protected:
 
     /**
-     *  The SimpleLinearEllipticSolver version of this method is
-     *  overloaded using the interpolated source term.
+     * The SimpleLinearEllipticSolver version of this method is
+     * overloaded using the interpolated source term.
      *
      * @param rPhi
      * @param rGradPhi
@@ -138,11 +138,9 @@ public:
 	                                  unsigned numQuadPoints=2);
 
     /**
-     *  Destructor.
+     * Destructor.
      */
     ~CellBasedSimulationWithPdesAssembler();
-
 };
-
 
 #endif /*_CELLBASEDSIMULATIONWITHPDESASSEMBLER_HPP_*/

@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
-#include "Debug.hpp"
 
 #include <typeinfo>
 
@@ -286,7 +285,7 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
     // Write node velocities to file if required
     if (mOutputNodeVelocities)
     {
-        if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
+        if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple == 0)
         {
             *mpNodeVelocitiesFile << SimulationTime::Instance()->GetTime() << "\t";
             for (unsigned node_index=0; node_index<num_nodes; node_index++)
@@ -596,7 +595,7 @@ void CellBasedSimulation<DIM>::Solve()
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::OUTPUT);
 
         // Write results to file
-        if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
+        if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple == 0)
         {
             mrCellPopulation.WriteResultsToFiles();
         }
@@ -770,8 +769,7 @@ EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
 
 ////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
-/////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////
 
 template class CellBasedSimulation<1>;
 template class CellBasedSimulation<2>;

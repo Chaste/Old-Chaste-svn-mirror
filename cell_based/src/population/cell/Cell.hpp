@@ -258,7 +258,6 @@ public:
     		}
     	}
 
-        ///\todo Be stricter and throw an exception if cell does not have this property? (#1285)
     	if (cell_has_property)
     	{
     	    mCellPropertyCollection.RemoveProperty<CLASS>();

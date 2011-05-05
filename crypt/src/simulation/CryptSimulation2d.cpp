@@ -179,7 +179,7 @@ void CryptSimulation2d::PostSolve()
 {
     SimulationTime* p_time = SimulationTime::Instance();
 
-    if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
+    if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple == 0)
     {
         /*
          * If there are any cells in the simulation, and mWriteBetaCatenin has been set

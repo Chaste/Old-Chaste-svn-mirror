@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneBoundaryCondition.hpp"
 #include "AbstractCentreBasedCellPopulation.hpp"
 
-template <unsigned DIM>
+template<unsigned DIM>
 PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
                                                     c_vector<double, DIM> point,
                                                     c_vector<double, DIM> normal)
@@ -42,13 +42,13 @@ PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>*
     mNormalToPlane = normal/norm_2(normal);
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetPointOnPlane() const
 {
     return mPointOnPlane;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() const
 {
     return mNormalToPlane;

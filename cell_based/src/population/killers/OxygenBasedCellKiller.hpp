@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  hypoxic is optionally passed into the constructor.
  */
 
-template <unsigned SPACE_DIM>
+template<unsigned SPACE_DIM>
 class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
@@ -62,12 +62,12 @@ public:
     OxygenBasedCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation);
 
     /**
-     *  Starts apoptosis if the cell has has been hypoxic for longer than
-     *  some critical period, and  it is currently hypoxic, and a random number
-     *  is less than some probability of death (which scales linearly with the
-     *  local oxygen concentration).
+     * Starts apoptosis if the cell has has been hypoxic for longer than
+     * some critical period, and  it is currently hypoxic, and a random number
+     * is less than some probability of death (which scales linearly with the
+     * local oxygen concentration).
      *
-     *  @param pCell  the cell to test for apoptosis.
+     * @param pCell  the cell to test for apoptosis.
      */
     void TestAndLabelSingleCellForApoptosis(CellPtr pCell);
 
@@ -78,10 +78,7 @@ public:
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 
     /**
-     * Outputs cell killer parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
+     * Overridden OutputCellKillerParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

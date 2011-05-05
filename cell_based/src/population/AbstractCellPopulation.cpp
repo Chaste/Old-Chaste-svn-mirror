@@ -74,10 +74,15 @@ AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells
         (*it)->rGetCellPropertyCollection().SetCellPropertyRegistry(mpCellPropertyRegistry.get());
     }
 
-    // Initialise cell counts to zero
-    /**
-     * \todo remove explicit use of NUM_CELL_PROLIFERATIVE_TYPES
-     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1285)
+    /*
+     * Initialise cell counts to zero.
+     * 
+     * Note: In its current form the code requires each cell-cycle model
+     * to comprise four phases (G1, S, G2, M) and requires a cell to have
+     * one of three possible proliferative types (STEM, TRANSIT and
+     * DIFFERENTIATED). This is reflected in the explicit use of the
+     * variables NUM_CELL_PROLIFERATIVE_TYPES and NUM_CELL_CYCLE_PHASES
+     * below.
      */
     mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
     for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
@@ -643,8 +648,10 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
     *rParamsFile << "\n";
     *rParamsFile << "\t<CellCycleModels>\n";
 
-    /**
-     * Loop over cells to access cell-cycle models to find unique ones
+    /*
+     * Loop over cells and generate a set of cell-cycle model classes
+     * that are present in the population.
+     * 
      * \todo this currently ignores different parameter regimes (#1453)
      */
     std::set<std::string> unique_cell_cycle_models;

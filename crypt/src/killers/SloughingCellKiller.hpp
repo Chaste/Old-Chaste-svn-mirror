@@ -109,7 +109,7 @@ public:
     double GetSloughWidth() const;
 
     /**
-     *  Loops over cells and kills cells outside boundary.
+     * Loops over cells and kills cells outside boundary.
      */
     virtual void TestAndLabelCellsForApoptosisOrDeath();
 

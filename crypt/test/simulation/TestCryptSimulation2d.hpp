@@ -333,7 +333,7 @@ public:
             unsigned index = simulator.rGetCellPopulation().GetLocationIndexUsingCell(*cell_iter);
             c_vector<double, 2> cell_location = simulator.rGetCellPopulation().GetLocationOfCellCentre(*cell_iter);
 
-            if (old_posns[index][1]==0) // stem
+            if (old_posns[index][1] == 0) // stem
             {
                 // No Wnt so shouldn't have been moved
                 TS_ASSERT_DELTA(cell_location[0], old_posns[index][0], 1e-9);

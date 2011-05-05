@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "PetscTools.hpp"
 
-template <unsigned DIM>
+template<unsigned DIM>
 SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, double sloughHeight, bool sloughSides, double sloughWidth)
     : AbstractCellKiller<DIM>(pCrypt),
       mSloughSides(sloughSides)
@@ -41,26 +41,26 @@ SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCryp
     mSloughWidth = sloughWidth;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 bool SloughingCellKiller<DIM>::GetSloughSides() const
 {
     return mSloughSides;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 double SloughingCellKiller<DIM>::GetSloughHeight() const
 {
     return mSloughHeight;
 }
 
-template <unsigned DIM>
+template<unsigned DIM>
 double SloughingCellKiller<DIM>::GetSloughWidth() const
 {
     return mSloughWidth;
 }
 
 
-template <unsigned DIM>
+template<unsigned DIM>
 void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
     switch (DIM)
