@@ -290,6 +290,7 @@ public:
             AbstractOdeSystem* p_ode;
             ParameterisedOde::fakeSecondParameter = true;
             input_arch >> p_ode;
+            delete p_ode;
             // Mend the ode system info for the following tests.
             ParameterisedOde::fakeSecondParameter = false;
             p_mod_info->mParameterNames.resize(1u);
