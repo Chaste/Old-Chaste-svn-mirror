@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "SimulationTime.hpp"
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
@@ -524,11 +523,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
     std::set_intersection(node_indices_1.begin(), node_indices_1.end(),
                           node_indices_2.begin(), node_indices_2.end(),
                           std::inserter(shared_nodes, shared_nodes.begin()));
-
-    if(shared_nodes.size() != 2)
-    {
-        std::cout << "At time " << SimulationTime::Instance()->GetTime() << ": elementIndex1 = " << elementIndex1 << ", elementIndex2 = " << elementIndex2 << std::endl;
-    }
 
     assert(shared_nodes.size() == 2);
 
