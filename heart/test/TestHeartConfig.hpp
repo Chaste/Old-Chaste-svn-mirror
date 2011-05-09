@@ -54,7 +54,7 @@ private:
     {
         HeartConfig::Reset();
     }
-    
+
 public:
     void TestHeartConfigBasic() throw (Exception)
     {
@@ -133,7 +133,7 @@ public:
 
         std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
         std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > stimulated_areas;
-     
+
         HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
 
         TS_ASSERT_EQUALS(stimuli_applied.size(), 5u);
@@ -145,7 +145,7 @@ public:
         TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(0.0), 0.0);
         TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(2.0), -25500.0);
         TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(3.6), 0.0);
-        
+
         TS_ASSERT_EQUALS(stimuli_applied[4]->GetStimulus(0),   0.0);
         TS_ASSERT_EQUALS(stimuli_applied[4]->GetStimulus(3.9), 0.0);
         TS_ASSERT_EQUALS(stimuli_applied[4]->GetStimulus(4.1), -25500.0);
@@ -226,7 +226,7 @@ public:
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
-        
+
         TS_ASSERT(HeartConfig::Instance()->IsAnyNodalTimeTraceRequested());
         std::vector<unsigned> nodes;
         HeartConfig::Instance()->GetNodalTimeTraceRequested(nodes);
@@ -246,18 +246,18 @@ public:
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), true);
 
-        
+
         bool ground_second_electrode;
         unsigned axis_index;
         double magnitude, start_time, duration;
         HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, axis_index, magnitude, start_time, duration);
-        TS_ASSERT_EQUALS(ground_second_electrode, true);    
-        TS_ASSERT_EQUALS(axis_index, 2u);    
-        TS_ASSERT_EQUALS(magnitude, -11000.0);    
-        TS_ASSERT_EQUALS(start_time, 1.0);    
+        TS_ASSERT_EQUALS(ground_second_electrode, true);
+        TS_ASSERT_EQUALS(axis_index, 2u);
+        TS_ASSERT_EQUALS(magnitude, -11000.0);
+        TS_ASSERT_EQUALS(start_time, 1.0);
         TS_ASSERT_EQUALS(duration, 2.0);
-        
-        
+
+
         TS_ASSERT(HeartConfig::Instance()->HasDrugDose());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDrugDose(), 10.0);
         std::map<std::string, std::pair<double, double> > ic50s = HeartConfig::Instance()->GetIc50Values();
@@ -266,8 +266,8 @@ public:
         TS_ASSERT_EQUALS(ic50s["membrane_fast_sodium_current"].second, 1.0);
         TS_ASSERT_EQUALS(ic50s["membrane_rapid_delayed_rectifier_potassium_current"].first, 5);
         TS_ASSERT_EQUALS(ic50s["membrane_rapid_delayed_rectifier_potassium_current"].second, 1.0);
-       
-        
+
+
         /// \todo: refactor from here until the end of the test into a different test
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
 
@@ -303,7 +303,7 @@ public:
         TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path(), model_zero);
         TS_ASSERT(ionic_models_defined[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
-        
+
         //cover the 2D case
         std::vector<boost::shared_ptr<AbstractChasteRegion<2> > > ionic_model_regions_2D;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined_2D;
@@ -317,7 +317,7 @@ public:
         TS_ASSERT(ionic_models_defined_2D[0].Dynamic().present());
         TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
         TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path(), model_zero);
-        
+
         TS_ASSERT(ionic_model_regions_2D[1]->DoesContain(ChastePoint<2>(-0.5, 0)));
         TS_ASSERT(ionic_models_defined_2D[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined_2D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
@@ -368,7 +368,7 @@ public:
         TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.0);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 1.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_3D[1], 1.0);
-        
+
         TS_ASSERT_EQUALS(parameter_settings[0].size(), 5u);
         TS_ASSERT_EQUALS(parameter_settings[1].size(), 3u);
         // Parameters get returned by name order since they're in a map
@@ -443,7 +443,7 @@ public:
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-        
+
         //cover the 2D case
         std::vector<boost::shared_ptr<AbstractChasteRegion<2> > > conductivities_heterogeneity_areas_2D;
         std::vector< c_vector<double,3> > intra_h_conductivities_2D;
@@ -451,7 +451,7 @@ public:
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_2D,
                                                                 intra_h_conductivities_2D,
                                                                 extra_h_conductivities_2D);
-        
+
         TS_ASSERT(conductivities_heterogeneity_areas_2D[0]->DoesContain(ChastePoint<2>(1.95, 0)));
         TS_ASSERT_EQUALS(intra_h_conductivities_2D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_2D[0][0], 8.0);
@@ -464,7 +464,7 @@ public:
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_1D,
                                                                 intra_h_conductivities_1D,
                                                                 extra_h_conductivities_1D);
-        
+
         TS_ASSERT(conductivities_heterogeneity_areas_1D[0]->DoesContain(ChastePoint<1>(1.95)));
         TS_ASSERT_EQUALS(intra_h_conductivities_1D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_1D[0][0], 8.0);
@@ -613,7 +613,7 @@ public:
             std::vector<cp::ionic_model_selection_type> ionic_models;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
                                   "Invalid region type for ionic model definition");
-                                  
+
             std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
             std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > stimulated_area;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),
@@ -628,7 +628,7 @@ public:
                                                                                   scale_factor_gkr,
                                                                                   NULL),
                                   "Invalid region type for cell heterogeneity definition");
-                                  
+
         }
         //covers the case when the user supplies numbers that do not add up to 1
         {
@@ -727,10 +727,10 @@ public:
                                                                                   NULL),
                                   "Specification of cellular heterogeneities by cuboids/ellipsoids and layers at the same time is not yet supported");
 
-            
+
         }
     }
-    
+
     void Test2dProblems() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters2D.xml");
@@ -789,7 +789,7 @@ public:
     {
         // Start with a file that doesn't have much in it
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
-        
+
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
 
@@ -856,7 +856,7 @@ public:
 
         TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1]->DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
-        
+
         // Test ellipsoid
         std::vector< c_vector<double,3> > intra_conductivities_ellipsoid;
         std::vector< c_vector<double,3> > extra_conductivities_ellipsoid;
@@ -896,7 +896,7 @@ public:
 
         TS_ASSERT_EQUALS(conductivities_heterogeneity_areas_ellipsoid[1]->DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities_ellipsoid[1][0], 1.0);
-        
+
         std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > ionic_model_regions;
         std::vector<cp::ionic_model_selection_type> ionic_models;
 
@@ -940,7 +940,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), true);
         HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), false);
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
 
         c_vector<double, 3> intra;
@@ -976,16 +976,16 @@ public:
 
         std::set<unsigned> tissue_ids;
         tissue_ids.insert(0); //Has to be non-empty
-        
+
         std::set<unsigned> bath_ids;
         bath_ids.insert(2);
         bath_ids.insert(4);
         bath_ids.insert(5);
         bath_ids.insert(10);
-        
+
         HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
 
-        std::map<unsigned, double> multiple_bath_conductivities;        
+        std::map<unsigned, double> multiple_bath_conductivities;
         multiple_bath_conductivities[2] = 3.0;
         multiple_bath_conductivities[4] = 4.0;
         multiple_bath_conductivities[5] = 5.0;
@@ -995,7 +995,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(2), 3.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(4), 4.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(5), 5.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(10), 150);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(10), 150);
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2000);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 2000);
@@ -1144,7 +1144,7 @@ public:
         TS_ASSERT_EQUALS(magnitude, 1066.0);
         TS_ASSERT_EQUALS(start_time, 0.5);
         TS_ASSERT_EQUALS(duration, 0.5);
-        
+
         // Drug dose model
         TS_ASSERT(!HeartConfig::Instance()->HasDrugDose());
         HeartConfig::Instance()->SetIc50Value("current", 5.0);
@@ -1273,7 +1273,7 @@ public:
         TS_ASSERT_EQUALS(requested_nodes_get.size(),2u);
         TS_ASSERT_EQUALS(requested_nodes_get[0],15u);
         TS_ASSERT_EQUALS(requested_nodes_get[1],2545u);
-        
+
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true); // It's in the defaults, but empty
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
@@ -1306,7 +1306,7 @@ public:
         //Reload the other XML
         HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath()+"ChasteParameters.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
-        
+
         // If we Write when the schema fixed location doesn't exist, and the schema isn't in
         // the current directory, we should get a warning.  This could occur if an executable
         // user doesn't have the corresponding source tree.
@@ -1426,7 +1426,7 @@ public:
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersWrongSimpleStimulusDefinition.xml");
 
         std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
-        std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > stimulated_areas;        
+        std::vector<boost::shared_ptr<AbstractChasteRegion<3> > > stimulated_areas;
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas),
                 "Stop time can not be defined for SimpleStimulus. Use Duration instead.");
@@ -1471,12 +1471,14 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace(""), 1001u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"), 2000u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"), 2001u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"), 2002u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"), 2003u);
         // and exceptions
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/1__1"),
                               "https://chaste.comlab.ox.ac.uk/nss/parameters/1__1 is not a recognised Chaste parameters namespace.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("bob"),
                               "bob is not a recognised Chaste parameters namespace.");
-        
+
         // Broken schema should throw
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"),
@@ -1535,7 +1537,7 @@ public:
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_0.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-        
+
         // We removed ilu in version 2.1; throw an exception if an older parameters file uses it
         HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ilu_preconditioner.xml"),
@@ -1552,6 +1554,18 @@ public:
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshPartitioning(), DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
+
+        // Check that release 2.2 xml can be loaded with release 2.2 schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_2.xml");
+        TS_ASSERT(!HeartConfig::Instance()->HasDrugDose());
+
+        // Check that release 2.2 xml can be loaded with latest schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_2.xml");
+        TS_ASSERT(!HeartConfig::Instance()->HasDrugDose());
     }
 
     /**
@@ -1750,12 +1764,12 @@ public:
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
                          cp::yesno_type::yes);
-        
+
         HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(),
                          cp::yesno_type::yes);
-         
+
 
         // Setting one doesn't change the others...
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
