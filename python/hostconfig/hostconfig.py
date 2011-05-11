@@ -69,6 +69,7 @@ Any non-absolute paths will be considered relative to the root of the Chaste ins
 import glob
 import imp
 import os
+import re
 import sys
 import types
 
@@ -203,6 +204,24 @@ def AddXsd(basePath):
     conf.other_includepaths.append(os.path.join(basePath, 'libxsd'))
     conf.tools['xsd'] = os.path.join(basePath, 'bin', 'xsd')
     return
+
+def DetermineCvodeVersion(includePath):
+    """Figure out which version of CVODE is installed by grepping its version header."""
+    config_h = os.path.join(includePath, 'sundials', 'sundials_config.h')
+    if os.path.exists(config_h):
+        version_re = re.compile(r'#define SUNDIALS_PACKAGE_VERSION "(\d+).(\d+).(\d+)"')
+        for line in open(config_h):
+            m = version_re.match(line)
+            if m:
+                major = int(m.group(1))
+                minor = int(m.group(2))
+                patch = int(m.group(3))
+                conf.cvode_version = str(major*10000 + minor*100 + patch)
+                break
+        else:
+            ConfigError('Unable to find version string within sundials_config.h')
+    else:
+        ConfigError('Unable to find sundials_config.h to read CVODE version')
 
 def TryRemove(pathGlob):
     """Try to remove files matching the given glob pattern, ignoring errors."""
@@ -371,6 +390,9 @@ def OptionalLibraryDefines():
     """
     possible_flags = {'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK', 'adaptivity': 'CHASTE_ADAPTIVITY'}
     actual_flags = []
+    if getattr(conf, 'use_cvode', False):
+        # Need to set a define for CVODE version.  Assume 2.3.0 if not specified.
+        actual_flags.append('CHASTE_SUNDIALS_VERSION=' + getattr(conf, 'cvode_version', '203000'))
     for libname, symbol in possible_flags.iteritems():
         if getattr(conf, 'use_' + libname, False):
             actual_flags.append(symbol)

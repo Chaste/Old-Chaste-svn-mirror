@@ -239,8 +239,8 @@ public:
                                   "CVODE failed to solve system: CV_"); // Can be ERR_FAILURE or CONV_FAILURE...
         lr91_boom.ResetToInitialConditions();
         lr91_boom.SetMaxSteps(10000);
-        TS_ASSERT_THROWS_THIS(lr91_boom.Solve(start_time, end_time, max_timestep),
-                              "CVODE failed to solve system: CV_ERR_FAILURE");
+        TS_ASSERT_THROWS_CONTAINS(lr91_boom.Solve(start_time, end_time, max_timestep),
+                                  "CVODE failed to solve system: CV_"); // Can be ERR_FAILURE or CONV_FAILURE...
         // Nasty cell
         ExceptionalCell bad_cell(p_solver, p_boom_stimulus);
         TS_ASSERT_THROWS_THIS(OdeSolution solution_bad = bad_cell.Solve(start_time, end_time, max_timestep, sampling_time),
@@ -335,7 +335,7 @@ public:
             TS_ASSERT_DELTA(voltages_cvode[i],voltages_chaste[i],10*tolerance);
             TS_ASSERT_DELTA(param_cvode[i], param_chaste[i],1e-9); // These should be very very similar!
             TS_ASSERT_DELTA(param_cvode[i], 16.0,1e-9);
-            TS_ASSERT_DELTA(derived_quantity_chaste[i],derived_quantity_cvode[i],50*tolerance);
+            TS_ASSERT_DELTA(derived_quantity_chaste[i], derived_quantity_cvode[i], 60*tolerance);
         }
 
         bool clean_dir = false;

@@ -328,11 +328,16 @@ void AbstractCvodeCell::SetupCvode(N_Vector initialConditions,
     if (mpCvodeMem == NULL) EXCEPTION("Failed to SetupCvode CVODE");
     // Set error handler
     CVodeSetErrHandlerFn(mpCvodeMem, CvodeErrorHandler, NULL);
-    // Set the user data
+    // Set the user data & setup CVODE
+#if CHASTE_SUNDIALS_VERSION >= 20400
+    CVodeSetUserData(mpCvodeMem, (void*)(this));
+    CVodeInit(mpCvodeMem, AbstractCvodeCellRhsAdaptor, tStart, initialConditions); 
+    CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol); 
+#else
     CVodeSetFdata(mpCvodeMem, (void*)(this));
-    // Setup CVODE
     CVodeMalloc(mpCvodeMem, AbstractCvodeCellRhsAdaptor, tStart, initialConditions,
                 CV_SS, mRelTol, &mAbsTol);
+#endif
     CVodeSetMaxStep(mpCvodeMem, maxDt);
     // Change max steps if wanted
     if (mMaxSteps > 0)

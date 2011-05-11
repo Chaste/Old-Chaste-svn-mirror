@@ -94,19 +94,29 @@ tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
          'xsd': xsd_path+'bin/xsd'}
 
 
-# use_vtk set to false initially. Change to True if VTK development libraries are 
-# available.
-use_vtk = False
-
-#Extra libraries for VTK output
-if use_vtk:
-    other_includepaths.append(chaste_libs_path+'Vtk5/include/vtk-5.2')
-    other_libpaths.append(chaste_libs_path+'Vtk5/lib/vtk-5.2')
-    other_libraries.extend(['vtkFiltering', 'vtkIO', 'vtkCommon', 'vtksys', 'vtkzlib', 'vtkexpat', 'vtkGraphics'])
-
-# Chaste may also optionally link against CVODE.
-use_cvode = False
-if use_cvode:
-    other_includepaths.append(chaste_libs_path+'cvode/include')
-    other_libpaths.append(chaste_libs_path+'cvode/lib')
-    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
+def Configure(prefs, build):
+    """Set up the build configuring.
+    
+    prefs can specify which version of various libraries we should use, and which optional libraries.
+    
+    build is an instance of BuildTypes.BuildType.
+    """
+    global use_cvode
+    global use_vtk
+    
+    # use_vtk defaults to false. Change to True if VTK development libraries are available.
+    use_vtk = int(prefs.get('use-vtk', False))
+    
+    #Extra libraries for VTK output
+    if use_vtk:
+        other_includepaths.append(chaste_libs_path+'Vtk5/include/vtk-5.2')
+        other_libpaths.append(chaste_libs_path+'Vtk5/lib/vtk-5.2')
+        other_libraries.extend(['vtkFiltering', 'vtkIO', 'vtkCommon', 'vtksys', 'vtkzlib', 'vtkexpat', 'vtkGraphics'])
+    
+    # Chaste may also optionally link against CVODE.
+    use_cvode = int(prefs.get('use-cvode', False))
+    if use_cvode:
+        other_includepaths.append(chaste_libs_path+'cvode/include')
+        DetermineCvodeVersion(other_includepaths[-1])
+        other_libpaths.append(chaste_libs_path+'cvode/lib')
+        other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])

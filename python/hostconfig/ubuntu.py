@@ -85,28 +85,42 @@ other_libraries = libs_for_petsc + \
                    'hdf5', 'z',
                    'parmetis', 'metis']
 
-# Extra libraries for VTK output
-vtk_include_path = filter(os.path.isdir, glob.glob('/usr/include/vtk-5*'))
-use_vtk = bool(vtk_include_path)
-if use_vtk:
-    # Note: 10.10 uses VTK 5.4, 10.04 uses 5.2, and early use 5.0
-    other_includepaths.extend(vtk_include_path)
-    other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
-
 # Figure out which lapack/blas packages are actually installed!
 if os.path.exists('/usr/lib/liblapack-3.so'):
     blas_lapack = ['lapack-3', 'blas-3']
 else:
     blas_lapack = ['lapack', 'blas']
 
-# Is CVODE installed?
-use_cvode = os.path.exists('/usr/lib/libsundials_cvode.so')
-if ubuntu_ver >= [11,04] or ubuntu_ver <= [9,04]:
-    # We don't support CVODE 2.6 yet, nor CVODE 2.4
-    use_cvode = False
-if use_cvode:
-    other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])
-
 tools = {'xsd': '/usr/bin/xsdcxx',
          'mpirun': '/usr/bin/mpirun.openmpi',
          'mpicxx': '/usr/bin/mpic++.openmpi'}
+
+def Configure(prefs, build):
+    """Set up the build configuring.
+    
+    prefs can specify which version of various libraries we should use, and which optional libraries.
+    VTK and CVODE support default on if they are installed.
+    
+    build is an instance of BuildTypes.BuildType.
+    """
+    global use_cvode
+    global use_vtk
+    
+    # Extra libraries for VTK output
+    vtk_include_path = filter(os.path.isdir, glob.glob('/usr/include/vtk-5*'))
+    use_vtk = int(prefs.get('use-vtk', True))
+    use_vtk = use_vtk and bool(vtk_include_path)
+    if use_vtk:
+        # Note: 10.10 uses VTK 5.4, 10.04 uses 5.2, and early use 5.0
+        other_includepaths.extend(vtk_include_path)
+        other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
+
+    # Is CVODE installed?
+    use_cvode = int(prefs.get('use-cvode', True))
+    use_cvode = use_cvode and os.path.exists('/usr/lib/libsundials_cvode.so')
+    if ubuntu_ver <= [9,04]:
+        # We don't support CVODE 2.4
+        use_cvode = False
+    if use_cvode:
+        DetermineCvodeVersion('/usr/include')
+        other_libraries.extend(['sundials_cvode', 'sundials_nvecserial'])

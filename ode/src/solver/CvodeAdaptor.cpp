@@ -191,15 +191,28 @@ void CvodeAdaptor::SetupCvode(AbstractOdeSystem* pOdeSystem,
     // Set the user data
     mData.pSystem = pOdeSystem;
     mData.pY = &rInitialY;
+#if CHASTE_SUNDIALS_VERSION >= 20400
+    CVodeSetUserData(mpCvodeMem, (void*)(&mData));
+#else
     CVodeSetFdata(mpCvodeMem, (void*)(&mData));
+#endif
     // Setup CVODE
+#if CHASTE_SUNDIALS_VERSION >= 20400
+    CVodeInit(mpCvodeMem, CvodeRhsAdaptor, startTime, mInitialValues); 
+    CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
+#else
     CVodeMalloc(mpCvodeMem, CvodeRhsAdaptor, startTime, mInitialValues,
                 CV_SS, mRelTol, &mAbsTol);
+#endif
     CVodeSetMaxStep(mpCvodeMem, maxStep);
     // Set the rootfinder function if wanted
     if (mCheckForRoots)
     {
+#if CHASTE_SUNDIALS_VERSION >= 20400
+        CVodeRootInit(mpCvodeMem, 1, CvodeRootAdaptor);
+#else
         CVodeRootInit(mpCvodeMem, 1, CvodeRootAdaptor, (void*)(&mData));
+#endif
     }
     // Change max steps if wanted
     if (mMaxSteps > 0)
