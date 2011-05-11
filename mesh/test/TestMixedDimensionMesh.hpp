@@ -220,11 +220,11 @@ public:
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
         
-        TrianglesMeshWriter<2,2> mesh_writer("", "CableMesh");
+        TrianglesMeshWriter<2,2> mesh_writer("TestMixedDimensionMesh", "CableMesh");
 
         mesh_writer.WriteFilesUsingMesh(mesh);
         
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMesh.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
         
     }
@@ -237,13 +237,64 @@ public:
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         
-        TrianglesMeshWriter<2,2> mesh_writer("", "CableMeshFromReader");
+        TrianglesMeshWriter<2,2> mesh_writer("TestMixedDimensionMesh", "CableMeshFromReader");
         mesh_writer.WriteFilesUsingMeshReader(reader);
         
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMeshFromReader.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
         
+    }
+    
+    void TestWritingBinaryFormat()
+    {
+        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
+        
+        //Read as ascii
+        TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+
+        //Write as binary
+        TrianglesMeshWriter<2,2> writer_from_reader("TestMixedDimensionMesh", "CableMeshBinary", false);
+        writer_from_reader.SetWriteFilesAsBinary();
+        writer_from_reader.WriteFilesUsingMeshReader(reader);
+
+        //Read created binary file into a mesh
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
+        TrianglesMeshReader<2,2> binary_reader(results_dir + "CableMeshBinary");
+        MixedDimensionMesh<2,2> binary_mesh;
+        binary_mesh.ConstructFromMeshReader(binary_reader);
+        
+        //Read original file into a mesh
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> original_reader(mesh_base);
+        MixedDimensionMesh<2,2> original_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        original_mesh.ConstructFromMeshReader(original_reader);
+        
+        //Compare to original
+        TS_ASSERT_EQUALS(binary_mesh.GetNumNodes(), original_mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(binary_mesh.GetNumElements(), original_mesh.GetNumElements());
+        
+        TS_ASSERT_EQUALS(binary_mesh.GetNumCableElements(), original_mesh.GetNumCableElements());
+        
+        MixedDimensionMesh<2,2>::CableElementIterator original_iter = original_mesh.GetCableElementIteratorBegin();
+        for (MixedDimensionMesh<2,2>::CableElementIterator binary_iter = binary_mesh.GetCableElementIteratorBegin();
+             binary_iter != binary_mesh.GetCableElementIteratorEnd();
+             ++binary_iter)
+        {
+            TS_ASSERT_EQUALS((*binary_iter)->GetNumNodes(), (*original_iter)->GetNumNodes());
+            TS_ASSERT_EQUALS((*binary_iter)->GetNodeGlobalIndex(0u), (*original_iter)->GetNodeGlobalIndex(0u));
+            TS_ASSERT_EQUALS((*binary_iter)->GetNodeGlobalIndex(1u), (*original_iter)->GetNodeGlobalIndex(1u));
+            TS_ASSERT_EQUALS((*binary_iter)->GetRegion(), (*original_iter)->GetRegion());
+
+            ++original_iter;
+        }
+        
+        //Write a binary from the original mesh
+        TrianglesMeshWriter<2,2> writer_from_mesh("TestMixedDimensionMesh", "CableMeshBinaryFromMesh", false);
+        writer_from_mesh.SetWriteFilesAsBinary();
+        writer_from_mesh.WriteFilesUsingMesh(original_mesh);
+
+        //Compare the binary written from the reader to the binary written from the mesh
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/CableMeshBinary.cable " + results_dir + "/CableMeshBinaryFromMesh.cable").c_str()), 0);
     }
 };
 
