@@ -39,7 +39,7 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		<OutputFilenamePrefix>3dResults</OutputFilenamePrefix>
 	</Simulation>
 	
 	<Physiological>

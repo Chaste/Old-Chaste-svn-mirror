@@ -61,7 +61,7 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.02" pde="0.1" printing="0.5" unit="ms"/>
+		<TimeSteps ode="0.02" pde="0.1" printing="1" unit="ms"/>
 	</Numerical>
 
 </ChasteParameters>

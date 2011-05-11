@@ -40,7 +40,7 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		<OutputFilenamePrefix>3dResults</OutputFilenamePrefix>
         <OutputVisualizer meshalyzer="yes" vtk="yes" cmgui="yes"/>
 	</Simulation>
 	

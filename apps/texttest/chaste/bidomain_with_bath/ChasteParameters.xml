@@ -32,6 +32,8 @@
 		</Electrodes>
 		
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		<OutputFilenamePrefix>BathResults</OutputFilenamePrefix>
+		
 		<!--
 			Save Simulation
 		-->
