@@ -228,6 +228,23 @@ public:
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMesh.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
         
     }
+    
+    
+    void TestWritingCableFilesUsingMeshReader() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
+        
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        
+        TrianglesMeshWriter<2,2> mesh_writer("", "CableMeshFromReader");
+        mesh_writer.WriteFilesUsingMeshReader(reader);
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        
+        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMeshFromReader.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
+        
+    }
 };
 
 #endif /*TESTMIXEDDIMENSIONMESH_HPP_*/

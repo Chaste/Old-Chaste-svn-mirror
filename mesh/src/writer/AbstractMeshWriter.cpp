@@ -124,7 +124,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     mNumBoundaryElements = mpMeshReader->GetNumFaces();
     
     /// \todo: #1760 currently only triangles mesh readers know about cable elements
-    mNumCableElements = 0;
+    mNumCableElements = mpMeshReader->GetNumCableElements();
 
     if (!PetscTools::AmMaster())
     {

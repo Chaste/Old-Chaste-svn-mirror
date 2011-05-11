@@ -59,7 +59,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 {
     std::string comment = "#\n# " + ChasteBuildInfo::GetProvenanceString();
-
+    
     // Write node file
     std::string node_file_name = this->mBaseName + ".node";
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
@@ -186,7 +186,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_face_file << comment << "\n";
     p_face_file->close();
 
-    if( this->mpMixedMesh )
+    if( this->GetNumCableElements() > 0)
     {
         // Write cable element file
         std::string cable_element_file_name = this->mBaseName + ".cable";
@@ -222,6 +222,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     
             WriteItem(p_cable_element_file, item_num, cable_element_data.NodeIndices, cable_element_data.AttributeValue);
         }
+        *p_cable_element_file << comment;
         p_cable_element_file->close();
     }
 }
