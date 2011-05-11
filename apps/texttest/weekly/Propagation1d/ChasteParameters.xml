@@ -44,7 +44,7 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		<OutputFilenamePrefix>1dResults</OutputFilenamePrefix>
 	</Simulation>
 	
 	<Physiological>
@@ -58,7 +58,7 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
+		<TimeSteps ode="0.005" pde="0.01" printing="1.0" unit="ms"/>
 	</Numerical>
 
 </ChasteParameters>

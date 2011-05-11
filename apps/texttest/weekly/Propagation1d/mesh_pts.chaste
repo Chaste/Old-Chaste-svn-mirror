@@ -400,4 +400,4 @@
 3.98	0	0	
 3.99	0	0	
 4	0	0	
-# Created by Chaste version 2.0.10670 on Thu, 06 Jan 2011 12:39:26 +0000.  Chaste was built on Thu, 21 Oct 2010 12:16:44 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64' using settings: default, shared libraries.
+# Created by Chaste version 2.2.12639 on Wed, 11 May 2011 11:01:42 +0000.  Chaste was built on Wed, 11 May 2011 09:57:24 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64' using settings: GccOpt, shared libraries.
