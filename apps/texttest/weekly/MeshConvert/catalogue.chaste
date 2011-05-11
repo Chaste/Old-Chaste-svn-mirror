@@ -1,6 +1,6 @@
 The following new files/directories were created:
 <Test Directory>
-----heart_ucsd_bin.ele
-----heart_ucsd_bin.face
-----heart_ucsd_bin.ncl
-----heart_ucsd_bin.node
+----simple_cube_bin.ele
+----simple_cube_bin.face
+----simple_cube_bin.ncl
+----simple_cube_bin.node

@@ -14,10 +14,10 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
 This version of Chaste was compiled on:
-Fri, 11 Feb 2011 16:15:54 +0000 by Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64 (uname)
-from revision number 11548 with build type default, shared libraries.
+Wed, 11 May 2011 13:36:15 +0000 by Linux userpc58.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Thu Sep 16 14:18:43 UTC 2010 x86_64 (uname)
+from revision number 12644 with build type GccOpt, shared libraries.
 
 Note: for VTK reading, give the full file path (including '.vtu' extension)
-Opening heart_ucsd mesh file(s).
-Writing  heart_ucsd_bin.node etc. mesh file in /home/jmpf/texttesttmp/chaste.04Mar132707/chaste/MeshConvert/./
+Opening simple_cube mesh file(s).
+Writing  simple_cube_bin.node etc. mesh file in /home/chaste/.texttest/tmp/chaste.11May155337.8222/chaste/MeshConvert/./
 Done.

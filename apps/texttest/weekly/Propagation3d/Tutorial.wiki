@@ -40,7 +40,7 @@ cd testoutput/ChasteResults
 
 In this folder you will find the following files and folders:
  * `progress_status.txt`  -- this file can be viewed whilst the simulation is running to gauge how long it will take
- * `SimulationResults.h5` -- the output of the simulation, in HDF5 format
+ * `3dResults.h5` -- the output of the simulation, in HDF5 format
  * `output` (folder) -- contains the output converted into meshalyzer format
 
 === Visualising with Meshalyzer ===
@@ -51,9 +51,9 @@ cd output
 }}}
 Launch Meshalyzer with
 {{{
-<path_to_meshalyzer>/meshalyzer SimulationResults_mesh
+<path_to_meshalyzer>/meshalyzer 3dResults_mesh
 }}}
-and visualise the results by loading the `SimulationResults_V.dat` file.
+and visualise the results by loading the `3dResults_V.dat` file.
 
 === Visualising with CMGUI ===
 For Meshalyzer visualization, now move into the CMGUI-compatible output folder 

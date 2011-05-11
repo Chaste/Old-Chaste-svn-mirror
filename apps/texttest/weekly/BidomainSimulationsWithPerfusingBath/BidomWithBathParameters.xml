@@ -33,7 +33,8 @@
 		<Duration unit="ms">2.0</Duration>
 	    </Electrodes>
 		
-            <OutputDirectory>ChasteResults</OutputDirectory>			
+            <OutputDirectory>ChasteResults</OutputDirectory>	
+		<OutputFilenamePrefix>BathResults</OutputFilenamePrefix>		
         </Simulation>
 		
 	
