@@ -553,7 +553,7 @@ class PyScanner(SCons.Scanner.Classic):
 
 def CreateTexttestBuilder(build, env, otherVars):
     """Create a builder that will run texttest and parse the results."""
-    texttest_result_line = re.compile(r'<H2>.*: 1 tests: 1 (FAILED|succeeded) </H2>')
+    texttest_result_line = re.compile(r'<H2>.*: \d+ tests:( (?P<s>\d+) succeeded)?( (?P<f>\d+) FAILED)?</H2>')
     def TexttestParser(target, source, env):
         """Parse results from texttest to figure out if acceptance tests passed.
         target is a dummy file, since we don't know what we'll output until we're done.
@@ -564,11 +564,9 @@ def CreateTexttestBuilder(build, env, otherVars):
         for line in fp:
             m = texttest_result_line.match(line)
             if m:
-                result = m.group(1)
-                if result == 'FAILED':
-                    fails += 1
-                else:
-                    succs += 1
+                fails = int(m.group('f') or 0)
+                succs = int(m.group('s') or 0)
+                break
         fp.close()
         if fails == 0 and succs == 0:
             status = 'unknown'
@@ -604,13 +602,13 @@ def RunAcceptanceTests(build, env, appsPath, testsPath, exes, otherVars):
     texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT'] + '/texttest_reports/chaste'
     time_eight_hours_ago = time.time() - 8*60*60
     canonical_test_date = time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
-    todays_file = os.path.join(texttest_output_dir, 'test__' + canonical_test_date + '.html')
+    todays_file = os.path.join(texttest_output_dir, 'test_default_' + canonical_test_date + '.html')
     # The next 2 lines make sure the acceptance tests will get run, and the right results stored
     env.Execute(Delete(todays_file))
     env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
     env.Command(todays_file, exes,
-                [texttest + ' -b -c ' + checkout_dir,
-                 texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default'])
+                ['-' + texttest + ' -b default -c ' + checkout_dir,
+                 texttest + ' -b default -c ' + checkout_dir + ' -coll web'])
     dummy = os.path.join(appsPath, 'dummy.texttest')
     env.ParseTexttest(dummy, todays_file)
     env.Depends(appsPath, [todays_file, dummy])

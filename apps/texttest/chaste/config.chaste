@@ -1,8 +1,12 @@
 binary:$TEXTTEST_CHECKOUT/apps/texttest/chaste/wrapper
+default_checkout:Chaste
 create_catalogues:true
+
+# Files needed by running tests
 link_test_path:ChasteParameters.xml
 link_test_path:ChasteParameters_2_0.xsd
 link_test_path:ChasteParameters_2_1.xsd
+link_test_path:ChasteParameters_2_2.xsd
 link_test_path:cube_1626_elements.ele
 link_test_path:cube_1626_elements.face
 link_test_path:cube_1626_elements.node
@@ -36,14 +40,13 @@ link_test_path:heart_chaste2_renum_i_triangles.node
 link_test_path:heart_chaste2_renum_i_triangles.face
 link_test_path:heart_chaste2_renum_i_triangles.ele
 link_test_path:heart_chaste2_renum_i_triangles.axi
-#mesh files to be converted
+#Mesh files to be converted
 link_test_path:simple_cube.node
 link_test_path:simple_cube.face
 link_test_path:simple_cube.ele
 
 
 
-default_checkout:Chaste
 
 [collate_file]
 #[collate_file] Simulation results files
