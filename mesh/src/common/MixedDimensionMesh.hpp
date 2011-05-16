@@ -63,6 +63,13 @@ public:
      */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
     
+   /**
+     * Add the most recently constructed cable element to the global->local cable element mapping
+     *
+     * @param index is the global index of cable element to be registered
+     */
+    void RegisterCableElement(unsigned index);
+    
     /**
      * Get the number of cable elements.
      */
@@ -76,18 +83,18 @@ public:
     /**
      * Get the cable element with a given index in the mesh.
      *
-     * @param index the global index of the cable element
+     * @param globalElementIndex the global index of the cable element
      * @return a pointer to the cable element.
      */
-    Element<1u, SPACE_DIM>* GetCableElement(unsigned index) const;
+    Element<1u, SPACE_DIM>* GetCableElement(unsigned globalElementIndex) const;
     
     /**
      * Determine whether or not the current process owns node 0 of this cable element (tie breaker to determine which process writes
-     * to file for when two or more share ownership of a face).
+     * to file for when two or more share ownership of a cable element).
      *
-     * @param elementIndex is the global index of the face
+     * @param globalElementIndex is the global index of the cable element
      */
-     bool CalculateDesignatedOwnershipOfCableElement( unsigned elementIndex );
+     bool CalculateDesignatedOwnershipOfCableElement( unsigned globalElementIndex );
     
 
 private:
@@ -95,6 +102,8 @@ private:
     std::vector<Element<1u, SPACE_DIM>*> mCableElements;
     /** The global number of cables over all processes*/
     unsigned mNumCableElements;
+    /** A map from global cable index to local index used by this process. */
+    std::map<unsigned, unsigned> mCableElementsMapping;
     
 public:
 

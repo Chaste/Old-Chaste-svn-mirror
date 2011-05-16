@@ -82,11 +82,19 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
             {
                 //Note (#1760) that if we own one node on a cable element then we are likely to own the other.
                 //If not, we are likely to have a halo.
-                //If not, (free-running Purkinje with monodomain mesh?), then this will throw.
-                nodes.push_back(this->GetNodeOrHaloNode(element_data.NodeIndices[j]) );
+                //If not, (free-running Purkinje with monodomain mesh?), then this will terminate.
+                try
+                {
+                    nodes.push_back(this->GetNodeOrHaloNode(element_data.NodeIndices[j]) );
+                }
+                catch (Exception& e)
+                {
+                    NEVER_REACHED;
+                }
             }
     
-            Element<1u,SPACE_DIM>* p_element = new Element<1u,SPACE_DIM>(element_index, nodes);
+            Element<1u, SPACE_DIM>* p_element = new Element<1u,SPACE_DIM>(element_index, nodes);
+            RegisterCableElement(element_index);
             this->mCableElements.push_back(p_element);
     
             if (rMeshReader.GetNumCableElementAttributes() > 0)
@@ -100,7 +108,12 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
 
     rMeshReader.Reset();
 }
-    
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::RegisterCableElement(unsigned index)
+{
+    mCableElementsMapping[index] = this->mCableElements.size();
+}
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements() const
 {
@@ -113,25 +126,43 @@ unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalCableElements() 
 }
     
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElement(unsigned index) const
+Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElement(unsigned globalElementIndex) const
 {
-    assert(index < mCableElements.size());
+    std::map<unsigned, unsigned>::const_iterator element_position = mCableElementsMapping.find(globalElementIndex);
+
+    if (element_position == mCableElementsMapping.end())
+    {
+        std::stringstream message;
+        message << "Requested cable element " << globalElementIndex << " does not belong to processor " << PetscTools::GetMyRank();
+        EXCEPTION(message.str().c_str());
+    }
+
+    unsigned index = element_position->second;
+
     return mCableElements[index];
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfCableElement( unsigned elementIndex )
 {
-    //This may throw in the distributed parallel case
-    unsigned tie_break_index = this->GetCableElement(elementIndex)->GetNodeGlobalIndex(0);
+    //This should not throw in the distributed parallel case
+    try
+    {
+        unsigned tie_break_index = this->GetCableElement(elementIndex)->GetNodeGlobalIndex(0);
 
-    //if it is in my range
-    if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
-    {
-        return true;
+        //if it is in my range
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
+    catch (Exception &e)
     {
+        //We don't own this cable element
         return false;
     }
 }
