@@ -262,8 +262,6 @@ public:
     
     void TestWritingCableFilesUsingMeshReader() throw(Exception)
     {
-        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
-        
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         

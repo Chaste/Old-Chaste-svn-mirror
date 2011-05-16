@@ -196,8 +196,6 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         unsigned num_cable_elements = this->GetNumCableElements();
         num_attr = 1u; // We have a single region code
     
-        ElementData cable_element_data = this->GetNextCableElement();
-    
         *p_cable_element_file << num_cable_elements << "\t";
         *p_cable_element_file << 2 << "\t";
         *p_cable_element_file << num_attr;
@@ -213,13 +211,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         // Write each element's data
         for (unsigned item_num=0; item_num<num_cable_elements; item_num++)
         {
-            // if item_num==0 we will already got the element above (in order to
-            // get the number of nodes per element
-            if (item_num>0)
-            {
-                cable_element_data = this->GetNextCableElement();
-            }
-    
+            ElementData cable_element_data = this->GetNextCableElement();
             WriteItem(p_cable_element_file, item_num, cable_element_data.NodeIndices, cable_element_data.AttributeValue);
         }
         *p_cable_element_file << comment;
