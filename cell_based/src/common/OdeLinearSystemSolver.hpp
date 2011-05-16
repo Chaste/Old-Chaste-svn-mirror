@@ -30,7 +30,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LinearSystem.hpp"
 
-// todo doxygen
+/**
+ *  Solve large systems of ODEs of the form 
+ * 
+ *  M dr/dt = f(t,r)
+ * 
+ *  where M is a matrix, typically large and sparse, and r and f are vectors.
+ * 
+ *  This differs from the OdeSolver classes in the ode component, which are for
+ *  systems of the form dr/dt = f(t,r) and for small numbers of unknowns.
+ * 
+ *  The solver uses forward euler to dicretise as M r^{n+1} = M r^{n} + dt f
+ *  and solves this linear system.
+ * 
+ *  The calling code is responsible with setting up M and f each timestep.  
+ */
 class OdeLinearSystemSolver
 {
 private:
@@ -38,14 +52,16 @@ private:
     /** Timestep for solver */
     double mTimeStep;
     
-    /** The LHS matrix and the force vector. Will call solve on this. */
+    /** The LHS matrix and the force vector. Solve() is called on this. */
     LinearSystem mLinearSystem;
     
     /** Initial conditions vector */
     Vec mInitialConditionsVector;
     
-    /** Force vector (F in Mdr/dt = F) */
+    /** Force vector (f in M dr/dt = f) */
     Vec mForceVector; 
+
+// add Vec mCurrentSolution and use 
     
 public:
 
