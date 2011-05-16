@@ -32,16 +32,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 
 
-#include "TetrahedralMesh.hpp"
+#include "MutableMesh.hpp"
 
 /**
- * Mesh class for storing lists of nodes (no elements).
+ * Mesh class for storing lists of nodes (no elements). This inherits from mutable
+ * mesh because we want to be able to add and delete nodes.
  */
 template<unsigned SPACE_DIM>
-class NodesOnlyMesh: public TetrahedralMesh<SPACE_DIM, SPACE_DIM> 
+class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM> 
 {
+    
+template<class Archive>
+void serialize(Archive & archive, const unsigned int version)
+{
+    archive & mCellRadii;    
+    archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
+   
+}
+    
 private:
 ///\todo #1762 Add details of the nodes' radii here. 
+
+    /**
+     * List of cell radii
+     */
+    std::vector<double> mCellRadii;
+    
 public:
     /**
      * Construct the mesh using only nodes.  No mesh is created, but the nodes are stored.
@@ -54,8 +70,23 @@ public:
      * @param rNodes the vector of nodes
      */
     void ConstructNodesWithoutMesh(const std::vector< Node<SPACE_DIM>*> & rNodes);
-
-
+    
+    /*
+     * Get radius of cell associated with a node
+     */
+    double GetCellRadius(unsigned index);
+     
+    /*
+    * Deletes nodes
+    */
+     
+    void Del(unsigned index); 
+     
+     /*
+      * Set radius of a cell associated with a node
+      */
+    void SetCellRadius(unsigned index, double radius);
+    
 };
 
 #endif /*NODESONLYMESH_HPP_*/

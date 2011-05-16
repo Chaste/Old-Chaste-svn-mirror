@@ -128,6 +128,29 @@ public:
         }
 #endif //CHASTE_VTK
     }
+    
+    void TestGetSetMethods()
+    {
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+
+        NodesOnlyMesh<3> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+        
+        mesh.SetCellRadius(0,1.0);
+        mesh.SetCellRadius(1, 2.0);
+        
+        TS_ASSERT_EQUALS(mesh.GetCellRadius(0u),1.0);
+        TS_ASSERT_EQUALS(mesh.GetCellRadius(1u),2.0);
+
+        
+        //When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
 
 
 };

@@ -45,7 +45,20 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(
         
         Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, boundary);
         this->mNodes.push_back( p_node_copy );
+        mCellRadii.push_back(1.0);
     }
+}
+
+template<unsigned SPACE_DIM>
+double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
+{
+    return mCellRadii[index];    
+}
+    
+template<unsigned SPACE_DIM>     
+void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
+{
+    mCellRadii[index]=radius;
 }
 
 
