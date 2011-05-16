@@ -75,12 +75,11 @@ Vec OdeLinearSystemSolver::SolveOneTimeStep()
     // ...then add the resulting vector to the product of the LHS matrix and the current solution vector
     MatMultAdd(mLinearSystem.rGetLhsMatrix(), mCurrentSolution, mForceVector, mLinearSystem.rGetRhsVector());
 
-    // Having constructed the RHS vector, solve the resulting linear system...
-    Vec solution_vector;
-    solution_vector = mLinearSystem.Solve();
+    // avoid memory leaks
+    VecDestroy(mCurrentSolution);
 
-    // ...and update and return the current solution vector
-    VecCopy(solution_vector, mCurrentSolution);
+    // Having constructed the RHS vector, solve the resulting linear system...
+    mCurrentSolution = mLinearSystem.Solve();
     
     return mCurrentSolution;
 }

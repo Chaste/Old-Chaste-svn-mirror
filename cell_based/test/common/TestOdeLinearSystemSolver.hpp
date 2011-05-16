@@ -45,7 +45,9 @@ class TestOdeLinearSystemSolver : public CxxTest::TestSuite
 {
 public:
 
-    void TestWithSimpleProblem()
+    // Solve a trivial ODE linear system M dr/dt = f
+    // where M = [1 0 ; 0 2] and f = [1 3];
+    void TestWithTrivialProblem()
     {
         // Declare solver and give the size of the system and timestep
         unsigned system_size = 2;
@@ -80,7 +82,45 @@ public:
         TS_ASSERT_DELTA(soln_next_timestep_repl[0], 10.0 + dt, 1e-6);
         TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 + 1.5*dt, 1e-6);
     }
-    
+
+
+    // Solve a simple ODE linear system M dr/dt = f
+    // where M = [0 1; 1 0] and f = [1 2];
+    void TestWithSimpleProblem()
+    {
+        // Declare solver and give the size of the system and timestep
+        unsigned system_size = 2;
+        double dt = 0.01;
+        OdeLinearSystemSolver solver(system_size, dt);
+        
+        // Set up the matrix
+        Mat& r_matrix = solver.rGetLhsMatrix();
+        PetscMatTools::SetElement(r_matrix, 0, 0, 0.0);
+        PetscMatTools::SetElement(r_matrix, 1, 0, 1.0);
+        PetscMatTools::SetElement(r_matrix, 0, 1, 1.0);
+        PetscMatTools::SetElement(r_matrix, 1, 1, 0.0);
+        PetscMatTools::AssembleFinal(r_matrix);
+        
+        // Initial condition
+        Vec initial_condition = PetscTools::CreateAndSetVec(2, 0.0);
+        PetscVecTools::SetElement(initial_condition, 0, 10.0);         
+        PetscVecTools::SetElement(initial_condition, 1, 11.0);
+                
+        solver.SetInitialConditionVector(initial_condition);
+        
+        // Then an rGetVector for RHS
+        Vec& r_vector = solver.rGetForceVector();
+        PetscVecTools::SetElement(r_vector, 0, 1.0);         
+        PetscVecTools::SetElement(r_vector, 1, 2.0);
+
+        // Solve to get solution at next timestep
+        Vec soln_next_timestep = solver.SolveOneTimeStep();
+        
+        ReplicatableVector soln_next_timestep_repl(soln_next_timestep);
+        
+        TS_ASSERT_DELTA(soln_next_timestep_repl[0], 10.0 + 2*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 +  dt, 1e-6);    
+    }
 };
 
 
