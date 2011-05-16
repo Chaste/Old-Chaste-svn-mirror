@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "ApoptoticCellProperty.hpp"
 #include "Cylindrical2dMesh.hpp"
+#include "NodesOnlyMesh.hpp"
+
 
 template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh,
@@ -588,7 +590,8 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
                 Node<DIM>* p_node = mrMesh.GetNode(index);
                 nodes.push_back(p_node);
             }
-            TetrahedralMesh<DIM,DIM> mesh;
+            
+            NodesOnlyMesh<DIM> mesh;
             mesh.ConstructNodesWithoutMesh(nodes);
             mesh_writer.WriteFilesUsingMesh(mesh);
         }

@@ -14,6 +14,7 @@ mesh/TestCylindricalHoneycombMeshGenerator.hpp
 mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 mesh/TestHoneycombVertexMeshGenerator.hpp
+mesh/TestNodesOnlyMesh.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestPdesForCellBasedSimulations.hpp

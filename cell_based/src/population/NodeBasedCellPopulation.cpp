@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeBasedCellPopulation.hpp"
 #include "CellwiseData.hpp"
 #include "VtkMeshWriter.hpp"
+#include "NodesOnlyMesh.hpp"
 
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes,
@@ -489,8 +490,9 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     }
     
     {
+        ///\todo #1762 When mesh is a delegated member, then we won't need this copy
         // Make a copy of the nodes in a disposable mesh for writing...
-        TetrahedralMesh<DIM,DIM> mesh;
+        NodesOnlyMesh<DIM> mesh;
         mesh.ConstructNodesWithoutMesh(mNodes);
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
