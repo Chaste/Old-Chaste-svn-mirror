@@ -183,19 +183,18 @@ public:
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "property.arch";
 
         {
-            MotileCellProperty* p_property = new MotileCellProperty(7);
-            p_property->IncrementCellCount();
+            AbstractCellProperty* const p_const_property = new MotileCellProperty(7);
+            p_const_property->IncrementCellCount();
 
-            TS_ASSERT_EQUALS(p_property->GetCellCount(), 1u);
-            TS_ASSERT_EQUALS(p_property->GetColour(), 7u);
+            TS_ASSERT_EQUALS(p_const_property->GetCellCount(), 1u);
+            TS_ASSERT_EQUALS(dynamic_cast<MotileCellProperty*>(p_const_property)->GetColour(), 7u);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            const AbstractCellProperty* const p_const_property = p_property;
             output_arch << p_const_property;
 
-            delete p_property;
+            delete p_const_property;
         }
 
         {

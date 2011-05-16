@@ -194,19 +194,18 @@ public:
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
 
         {
-            P53GainOfFunctionCellMutationState* p_state = new P53GainOfFunctionCellMutationState();
-            p_state->IncrementCellCount();
+            AbstractCellProperty* const p_const_state = new P53GainOfFunctionCellMutationState();
+            p_const_state->IncrementCellCount();
 
-            TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-            TS_ASSERT_EQUALS(p_state->GetColour(), 5u);
+            TS_ASSERT_EQUALS(p_const_state->GetCellCount(), 1u);
+            TS_ASSERT_EQUALS(dynamic_cast<AbstractCellMutationState*>(p_const_state)->GetColour(), 5u);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            const AbstractCellProperty* const p_const_state = p_state;
             output_arch << p_const_state;
 
-            delete p_state;
+            delete p_const_state;
         }
 
         {

@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
-#ifndef TESTCREATINGANDUSINGANEFORCETUTORIAL_HPP_
-#define TESTCREATINGANDUSINGANEFORCETUTORIAL_HPP_
+#ifndef TESTCREATINGANDUSINGANEWFORCETUTORIAL_HPP_
+#define TESTCREATINGANDUSINGANEWFORCETUTORIAL_HPP_
 
 /*
  * = An example showing how to create and use a new force =
@@ -306,4 +306,4 @@ public:
     }
 };
 
-#endif /*TESTCREATINGANDUSINGANEFORCETUTORIAL_HPP_*/
+#endif /*TESTCREATINGANDUSINGANEWFORCETUTORIAL_HPP_*/

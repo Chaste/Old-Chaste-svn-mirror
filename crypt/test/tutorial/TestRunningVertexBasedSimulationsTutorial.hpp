@@ -268,63 +268,62 @@ public:
 	*/
 	void TestVertexBasedCryptWithSimpleWntCellCycleModel() throw(Exception)
 	{
-	/* First re-initialize time to zero. */
-	SimulationTime::Instance()->SetStartTime(0.0);
-
-	/* Create a cylindrical mesh, and get the cell location indices, as before.
-	*/
-	CylindricalHoneycombVertexMeshGenerator generator(6, 9);
-	Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
-
-	/* Create a {{{std::vector}}} of {{{CellPtr}}}s.
-	* Generate cells, which are assigned a {{{SimpleWntCellCycleModel}}} using
-	* the {{{CryptCellsGenerator}}}. The final boolean argument 'true' indicates
-	* to assign randomly chosen birth times.
-	*/
-	std::vector<CellPtr> cells;
-	CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
-	cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
-
-	/* Create cell population, as before. */
-	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
-
-    /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
-    double crypt_length = 6.0;
-
-	/* The other change needed: Cells with a Wnt-based cell cycle need to know
-	* the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
-	* class. This is another singleton class (ie accessible from anywhere), so all
-	* cells and cell-cycle models can access it. We need to say what the profile of the
-	* Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
-	* from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
-	* of the cell population.*/
-	WntConcentration<2>::Instance()->SetType(LINEAR);
-	WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-	WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
-
-	/* Create a simulator as before (except setting a different output directory). */
-	VertexCryptSimulation2d simulator(crypt);
-	simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
-	simulator.SetEndTime(0.1);
-
-    /* Before running the simulation, we add a one or more force laws, as before. */
-    NagaiHondaForce<2> nagai_honda_force;
-    simulator.AddForce(&nagai_honda_force);
-
-
-	/* Before running the simulation, we add a cell killer, as before.*/
-	SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-	simulator.AddCellKiller(&sloughing_cell_killer);
-
-	/* Here we impose a boundary condition at the base: that cells
-	* at the bottom of the crypt are repelled if they move past 0.*/
-	simulator.UseJiggledBottomCells();
-
-	/* Run the simulation, by calling {{{Solve()}}}. */
-	simulator.Solve();
-
-	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.*/
-	 SimulationTime::Destroy();
+    	/* First re-initialize time to zero. */
+    	SimulationTime::Instance()->SetStartTime(0.0);
+    
+    	/* Create a cylindrical mesh, and get the cell location indices, as before.
+    	*/
+    	CylindricalHoneycombVertexMeshGenerator generator(6, 9);
+    	Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
+    
+    	/* Create a {{{std::vector}}} of {{{CellPtr}}}s.
+    	* Generate cells, which are assigned a {{{SimpleWntCellCycleModel}}} using
+    	* the {{{CryptCellsGenerator}}}. The final boolean argument 'true' indicates
+    	* to assign randomly chosen birth times.
+    	*/
+    	std::vector<CellPtr> cells;
+    	CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
+    	cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
+    
+    	/* Create cell population, as before. */
+    	VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
+    
+        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
+        double crypt_length = 6.0;
+    
+    	/* The other change needed: Cells with a Wnt-based cell cycle need to know
+    	* the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
+    	* class. This is another singleton class (ie accessible from anywhere), so all
+    	* cells and cell-cycle models can access it. We need to say what the profile of the
+    	* Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
+    	* from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
+    	* of the cell population.*/
+    	WntConcentration<2>::Instance()->SetType(LINEAR);
+    	WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+    	WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+    
+    	/* Create a simulator as before (except setting a different output directory). */
+    	VertexCryptSimulation2d simulator(crypt);
+    	simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
+    	simulator.SetEndTime(0.1);
+    
+        /* Before running the simulation, we add a one or more force laws, as before. */
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
+    
+    	/* Before running the simulation, we add a cell killer, as before.*/
+    	SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
+    	simulator.AddCellKiller(&sloughing_cell_killer);
+    
+    	/* Here we impose a boundary condition at the base: that cells
+    	* at the bottom of the crypt are repelled if they move past 0.*/
+    	simulator.UseJiggledBottomCells();
+    
+    	/* Run the simulation, by calling {{{Solve()}}}. */
+    	simulator.Solve();
+    
+    	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.*/
+    	SimulationTime::Destroy();
 	}
 	/*
 	* EMPTYLINE
@@ -339,7 +338,6 @@ public:
 	* When we visualize the results, we should see two colours of cells: yellow transit
 	* cells and pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
 	*/
-
 };
 
 #endif /* TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_ */

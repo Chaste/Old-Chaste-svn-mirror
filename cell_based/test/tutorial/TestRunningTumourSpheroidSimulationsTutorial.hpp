@@ -167,7 +167,7 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
-	     * We also alter the default cell-cycle times.
+	         * We also alter the default cell-cycle times.
              */
             p_model->SetStemCellG1Duration(8.0);
             p_model->SetTransitCellG1Duration(8.0);
