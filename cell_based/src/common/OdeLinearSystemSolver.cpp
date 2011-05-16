@@ -25,9 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "OdeLinearSystemSolver.hpp"
 #include "PetscTools.hpp"
-
+#include "ReplicatableVector.hpp"
 
 OdeLinearSystemSolver::OdeLinearSystemSolver(unsigned systemSize, double timeStep)
     :mLinearSystem(systemSize)
@@ -35,15 +36,14 @@ OdeLinearSystemSolver::OdeLinearSystemSolver(unsigned systemSize, double timeSte
     assert(timeStep > 0.0);
     mTimeStep = timeStep;
         
-    // Initialise to zero        
-    mInitialConditionsVector = PetscTools::CreateAndSetVec(systemSize, 0.0);  
+    // Initialise vectors to zero        
+    mCurrentSolution = PetscTools::CreateAndSetVec(systemSize, 0.0);  
     mForceVector = PetscTools::CreateAndSetVec(systemSize, 0.0);
-        
 }
 
 OdeLinearSystemSolver::~OdeLinearSystemSolver()
 {
-    VecDestroy(mInitialConditionsVector);
+    VecDestroy(mCurrentSolution);
     VecDestroy(mForceVector);
 }
 
@@ -51,7 +51,6 @@ double OdeLinearSystemSolver::GetTimeStep()
 {
     return mTimeStep;
 }
-
 
 Mat& OdeLinearSystemSolver::rGetLhsMatrix()
 {
@@ -63,13 +62,26 @@ Vec& OdeLinearSystemSolver::rGetForceVector()
     return mForceVector;
 }
 
-Vec& OdeLinearSystemSolver::rGetInitialConditionVector()
+void OdeLinearSystemSolver::SetInitialConditionVector(Vec initialConditionsVector)
 {
-    return mInitialConditionsVector;
+    VecCopy(initialConditionsVector, mCurrentSolution);
 }
 
 Vec OdeLinearSystemSolver::SolveOneTimeStep()
 {
-    return NULL;
+    // First multiply the force vector by timestep... 
+    VecScale(mForceVector, mTimeStep);
+
+    // ...then add the resulting vector to the product of the LHS matrix and the current solution vector
+    MatMultAdd(mLinearSystem.rGetLhsMatrix(), mCurrentSolution, mForceVector, mLinearSystem.rGetRhsVector());
+
+    // Having constructed the RHS vector, solve the resulting linear system...
+    Vec solution_vector;
+    solution_vector = mLinearSystem.Solve();
+
+    // ...and update and return the current solution vector
+    VecCopy(solution_vector, mCurrentSolution);
+    
+    return mCurrentSolution;
 }
 

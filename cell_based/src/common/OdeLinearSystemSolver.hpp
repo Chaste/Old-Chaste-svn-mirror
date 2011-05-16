@@ -31,66 +31,67 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 
 /**
- *  Solve large systems of ODEs of the form 
+ * Solve large systems of ODEs of the form 
  * 
- *  M dr/dt = f(t,r)
+ * M dr/dt = f(t,r),
  * 
- *  where M is a matrix, typically large and sparse, and r and f are vectors.
+ * where M is a matrix, typically large and sparse, and r and f are vectors.
  * 
- *  This differs from the OdeSolver classes in the ode component, which are for
- *  systems of the form dr/dt = f(t,r) and for small numbers of unknowns.
+ * This differs from the OdeSolver classes in the ode component, which are for
+ * systems of the form dr/dt = f(t,r) and for small numbers of unknowns.
  * 
- *  The solver uses forward euler to dicretise as M r^{n+1} = M r^{n} + dt f
- *  and solves this linear system.
+ * The solver uses forward euler to dicretise as M r^{n+1} = M r^{n} + dt f
+ * and solves this linear system.
  * 
- *  The calling code is responsible with setting up M and f each timestep.  
+ * The calling code is responsible with setting up M and f each timestep.  
  */
 class OdeLinearSystemSolver
 {
 private:
         
-    /** Timestep for solver */
+    /** Timestep for solver. */
     double mTimeStep;
     
     /** The LHS matrix and the force vector. Solve() is called on this. */
     LinearSystem mLinearSystem;
     
-    /** Initial conditions vector */
-    Vec mInitialConditionsVector;
-    
-    /** Force vector (f in M dr/dt = f) */
+    /** Force vector (f in M dr/dt = f). */
     Vec mForceVector; 
 
-// add Vec mCurrentSolution and use 
-    
+    /** Solution at current timestep. */
+    Vec mCurrentSolution;
+        
 public:
 
-    /** Constructor
-     *  @param systemSize size of the ODE system
-     *  @param timeStep timestep
+    /**
+     * Constructor.
+     * 
+     * @param systemSize size of the ODE system
+     * @param timeStep timestep
      */
     OdeLinearSystemSolver(unsigned systemSize, double timeStep);
     
-    /** Destructor */
+    /** Destructor. */
     ~OdeLinearSystemSolver();
        
-    /** Get the timestep for the solver */       
+    /** Get the timestep for the solver. */       
     double GetTimeStep();
     
-    /** Get the matrix */
+    /** Get the matrix. */
     Mat& rGetLhsMatrix();
     
-    /** Get the force vector */
+    /** Get the force vector. */
     Vec& rGetForceVector();
     
-    /** Get the vector of initial conditions */
-    Vec& rGetInitialConditionVector();
+    /**
+     * Set the initial conditions.
+     *  
+     * @param initialConditionsVector the initial condition
+     */
+    void SetInitialConditionVector(Vec initialConditionsVector);
     
-    /** Solve method */
+    /** Solve method. */
     Vec SolveOneTimeStep();
-    
 };
 
 #endif /*ODELINEARSYSTEMSOLVER_HPP_*/
-
-
