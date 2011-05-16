@@ -601,6 +601,35 @@ public:
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), initial_num_nodes + 1);
         TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<1>* >(&(simulator.rGetCellPopulation())))->rGetMesh().GetNumElements(), initial_num_elements + 1);
     }
+
+    ///\todo fix code to make test pass; maybe need to move to nightly test or something (#1670)
+    void DoNotTestMeshBasedMonolayer() throw(Exception)
+    {
+        // Create a large 2D mesh
+        HoneycombMeshGenerator generator(50, 20, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Create some cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), DIFFERENTIATED);
+
+        // Create a mesh-based cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        // Create a cell-based simulation
+        CellBasedSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestMeshBasedMonolayer");
+        simulator.SetEndTime(1.0);
+
+        // Create a linear spring force and add it to the cell-based simulation
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        simulator.AddForce(&linear_force);
+
+        // Run the simulation and test that no exceptions are thrown
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
 };
 
 #endif /*TESTCELLBASEDSIMULATION_HPP_*/
