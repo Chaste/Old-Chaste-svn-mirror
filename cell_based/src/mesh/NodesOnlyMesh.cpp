@@ -33,8 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned SPACE_DIM>
-void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(
-    const std::vector<Node<SPACE_DIM>*> & rNodes)
+void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*> & rNodes)
 {
     this->Clear();
     for (unsigned i=0; i<rNodes.size(); i++)
@@ -58,9 +57,8 @@ double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 template<unsigned SPACE_DIM>     
 void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
 {
-    mCellRadii[index]=radius;
+    mCellRadii[index] = radius;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

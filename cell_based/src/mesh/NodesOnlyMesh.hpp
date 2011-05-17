@@ -31,62 +31,67 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 
-
 #include "MutableMesh.hpp"
 
 /**
- * Mesh class for storing lists of nodes (no elements). This inherits from mutable
- * mesh because we want to be able to add and delete nodes.
+ * Mesh class for storing lists of nodes (no elements). This inherits from MutableMesh
+ * because we want to be able to add and delete nodes.
  */
 template<unsigned SPACE_DIM>
 class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM> 
 {
-    
-template<class Archive>
-void serialize(Archive & archive, const unsigned int version)
-{
-    archive & mCellRadii;    
-    archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
-   
-}
-    
 private:
+
 ///\todo #1762 Add details of the nodes' radii here. 
 
     /**
-     * List of cell radii
+     * Vector of cell radii.
      */
     std::vector<double> mCellRadii;
     
-public:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
     /**
-     * Construct the mesh using only nodes.  No mesh is created, but the nodes are stored.
+     * Archives the member variables of the object which have to be preserved
+     * during its lifetime.
+     *
+     * Note that we must archive any member variables FIRST so that this
+     * method can call a ReMesh (to convert from TrianglesMeshReader input
+     * format into our native format).
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {  
+        archive & mCellRadii;
+        archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
+    }
+    
+public:
+
+    /**
+     * Construct the mesh using only nodes. No mesh is created, but the nodes are stored.
      * The original vector of nodes is deep-copied: new node objects are made with are
      * independent of the pointers in the input so that they can be safely deleted.
      * 
      * If this is the only way of constructing a mesh of this type, then we can be certain that
      * elements and boundary elements are always unused.
      *
-     * @param rNodes the vector of nodes
+     * @param rNodes a vector of pointers to nodes
      */
-    void ConstructNodesWithoutMesh(const std::vector< Node<SPACE_DIM>*> & rNodes);
+    void ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes);
     
-    /*
-     * Get radius of cell associated with a node
+    /**
+     * Get the cell radius associated with a given node index.
      */
     double GetCellRadius(unsigned index);
      
-    /*
-    * Deletes nodes
-    */
-     
-    void Del(unsigned index); 
-     
-     /*
-      * Set radius of a cell associated with a node
-      */
+    /**
+     * Set the cell radius associated with a given node index.
+     */
     void SetCellRadius(unsigned index, double radius);
-    
 };
 
 #endif /*NODESONLYMESH_HPP_*/

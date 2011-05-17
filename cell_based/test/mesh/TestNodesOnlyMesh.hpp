@@ -37,14 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "NodesOnlyMesh.hpp"
-#include "CylindricalHoneycombMeshGenerator.hpp"
-#include "ArchiveOpener.hpp"
-#include "TrianglesMeshWriter.hpp"
 #include "VtkMeshWriter.hpp"
 
 class TestNodesOnlyMesh : public CxxTest::TestSuite
 {
 public:
+
     void TestConstructNodesWithoutMesh()
     {
         std::vector<Node<3>*> nodes;
@@ -59,18 +57,19 @@ public:
 
         NodesOnlyMesh<3> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 0u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 8u);
-        
-        //When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
     }
+
     void TestWriteNodesWithoutMesh()
     {
  #ifdef CHASTE_VTK
@@ -87,12 +86,9 @@ public:
 
         NodesOnlyMesh<3> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
-        
-        //Note in my version of Paraview, you need data on points before you
-        //can view with Glyphs.
+
+        // Note in my version of Paraview, you need data on points before you can view with Glyphs
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "just_nodes", false);
-
-
 
         // Add distance from origin into the node "point" data
         std::vector<double> distance;
@@ -109,7 +105,7 @@ public:
             boundary.push_back(mesh.GetNode(i)->IsBoundaryNode());
         }
         writer.AddPointData("Boundary", boundary);
-        
+
         // Add fibre type to "point" data
         std::vector< c_vector<double, 3> > location;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -120,15 +116,14 @@ public:
 
         writer.WriteFilesUsingMesh(mesh);
 
-        
-        //When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
 #endif //CHASTE_VTK
     }
-    
+
     void TestGetSetMethods()
     {
         std::vector<Node<3>*> nodes;
@@ -137,22 +132,19 @@ public:
 
         NodesOnlyMesh<3> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
-        
+
         mesh.SetCellRadius(0,1.0);
         mesh.SetCellRadius(1, 2.0);
-        
-        TS_ASSERT_EQUALS(mesh.GetCellRadius(0u),1.0);
-        TS_ASSERT_EQUALS(mesh.GetCellRadius(1u),2.0);
 
-        
-        //When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        TS_ASSERT_DELTA(mesh.GetCellRadius(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(1), 2.0, 1e-6);
+
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
     }
-
-
 };
 
 #endif /*TESTNODESONLYMESH_HPP_*/
