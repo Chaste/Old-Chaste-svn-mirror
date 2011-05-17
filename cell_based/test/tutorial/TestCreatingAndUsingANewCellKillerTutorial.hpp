@@ -264,6 +264,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch << p_cell_killer;
+            delete p_cell_killer;
         }
 
         {
@@ -273,7 +274,6 @@ public:
             AbstractCellKiller<2>* p_cell_killer;
 
             input_arch >> p_cell_killer;
-
             delete p_cell_killer;
         }
 
