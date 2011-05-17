@@ -69,11 +69,12 @@ void OdeLinearSystemSolver::SetInitialConditionVector(Vec initialConditionsVecto
 
 Vec OdeLinearSystemSolver::SolveOneTimeStep()
 {
-    // First multiply the force vector by timestep... 
-    VecScale(mForceVector, mTimeStep);
+    // Compute the product of the LHS matrix and the current solution vector,
+    // setting the answer to be the RHS vector
+    MatMult(mLinearSystem.rGetLhsMatrix(), mCurrentSolution, mLinearSystem.rGetRhsVector());
 
-    // ...then add the resulting vector to the product of the LHS matrix and the current solution vector
-    MatMultAdd(mLinearSystem.rGetLhsMatrix(), mCurrentSolution, mForceVector, mLinearSystem.rGetRhsVector());
+    // Add timestep multipled by force vector 
+    PetscVecTools::AddScaledVector(mLinearSystem.rGetRhsVector(), mForceVector, mTimeStep);
 
     // avoid memory leaks
     VecDestroy(mCurrentSolution);

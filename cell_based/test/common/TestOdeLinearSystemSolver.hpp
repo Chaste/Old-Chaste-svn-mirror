@@ -35,11 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscMatTools.hpp"
 #include "ReplicatableVector.hpp"
 #include "OdeLinearSystemSolver.hpp"
-
-// needs to be included in any test 
+// needs to be included in any test using poetsc
 #include "PetscSetupAndFinalize.hpp"
 
-#include <fstream>
 
 class TestOdeLinearSystemSolver : public CxxTest::TestSuite
 {
@@ -70,9 +68,9 @@ public:
         solver.SetInitialConditionVector(initial_condition);
         
         // Then an rGetVector for RHS
-        Vec& r_vector = solver.rGetForceVector();
-        PetscVecTools::SetElement(r_vector, 0, 1.0);         
-        PetscVecTools::SetElement(r_vector, 1, 3.0);
+        Vec& r_force_vector = solver.rGetForceVector();
+        PetscVecTools::SetElement(r_force_vector, 0, 1.0);         
+        PetscVecTools::SetElement(r_force_vector, 1, 3.0);
 
         // Solve to get solution at next timestep
         Vec soln_next_timestep = solver.SolveOneTimeStep();
@@ -81,6 +79,16 @@ public:
         
         TS_ASSERT_DELTA(soln_next_timestep_repl[0], 10.0 + dt, 1e-6);
         TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 + 1.5*dt, 1e-6);
+
+        // Solve again, with the same force
+        soln_next_timestep = solver.SolveOneTimeStep();
+        
+        ReplicatableVector soln_next_timestep_repl2(soln_next_timestep);
+        
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[0], 10.0 + 2*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[1], 11.0 + 3*dt, 1e-6);
+
+        VecDestroy(initial_condition);
     }
 
 
@@ -119,7 +127,19 @@ public:
         ReplicatableVector soln_next_timestep_repl(soln_next_timestep);
         
         TS_ASSERT_DELTA(soln_next_timestep_repl[0], 10.0 + 2*dt, 1e-6);
-        TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 +  dt, 1e-6);    
+        TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 +   dt, 1e-6);    
+
+        // Solve again, with the same force
+        soln_next_timestep = solver.SolveOneTimeStep();
+        
+        ReplicatableVector soln_next_timestep_repl2(soln_next_timestep);
+        
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[0], 10.0 + 4*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[1], 11.0 + 2*dt, 1e-6);
+
+
+        VecDestroy(initial_condition);
+
     }
 };
 
