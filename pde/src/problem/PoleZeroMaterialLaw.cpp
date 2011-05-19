@@ -28,10 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PoleZeroMaterialLaw.hpp"
 
+
 template<unsigned DIM>
 PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw()
 {
-    mpChangeOfBasisMatrix = NULL;
 }
 
 template<unsigned DIM>
@@ -81,7 +81,6 @@ PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw(std::vector<std::vector<double> > 
                                               std::vector<std::vector<double> > b)
 {
     SetParameters(k,a,b);
-    mpChangeOfBasisMatrix = NULL;
 }
 
 
@@ -93,7 +92,6 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                                                                 FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
                                                                 bool                      computeDTdE)
 {
-    // EMTODO: can factor out change of basis code? as repeated in SchmidCosta.
     static c_matrix<double,DIM,DIM> C_transformed;
     static c_matrix<double,DIM,DIM> invC_transformed;
 
@@ -103,17 +101,8 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
     // The transformed C for the fibre/sheet basis is C* = P^T C P.
     // We then compute T* = T*(C*), and then compute T = P T* P^T.
 
-    if(mpChangeOfBasisMatrix)
-    {
-        // C* = P^T C P, and ditto inv(C)
-        C_transformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rC,*mpChangeOfBasisMatrix));          // C*    = P^T C    P
-        invC_transformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rInvC,*mpChangeOfBasisMatrix));   // invC* = P^T invC P
-    }
-    else
-    {
-        C_transformed = rC;
-        invC_transformed = rInvC;
-    }
+    ComputeTransformedDeformationTensor(rC, rInvC, C_transformed, invC_transformed);
+
 
     // compute T*
 
@@ -184,24 +173,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
 
 
     // now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
-    if(mpChangeOfBasisMatrix)
-    {
-        static c_matrix<double,DIM,DIM> T_transformed_times_Ptrans;
-        T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
-
-        rT = prod(*mpChangeOfBasisMatrix, T_transformed_times_Ptrans);  // T = P T* P^T
-
-        // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
-        if (computeDTdE)
-        {
-            static FourthOrderTensor<DIM,DIM,DIM,DIM> temp;
-            temp.template SetAsContractionOnFirstDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
-            rDTdE.template SetAsContractionOnSecondDimension<DIM>(*mpChangeOfBasisMatrix, temp);
-            temp.template SetAsContractionOnThirdDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
-            rDTdE.template SetAsContractionOnFourthDimension<DIM>(*mpChangeOfBasisMatrix, temp);
-        }
-    }
-
+    this->TransformStressAndStressDerivative(rT, rDTdE, computeDTdE);
 }
 
 template<unsigned DIM>

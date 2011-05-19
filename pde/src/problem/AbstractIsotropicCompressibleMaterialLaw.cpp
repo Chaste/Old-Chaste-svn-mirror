@@ -28,19 +28,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractIsotropicCompressibleMaterialLaw.hpp"
 
+#include "Debug.hpp"
+
 template<unsigned DIM>
 AbstractIsotropicCompressibleMaterialLaw<DIM>::~AbstractIsotropicCompressibleMaterialLaw()
 {
 }
 
 template<unsigned DIM>
-void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDerivative(
-        c_matrix<double,DIM,DIM>& rC,
-        c_matrix<double,DIM,DIM>& rInvC,
-        double                    pressure,
-        c_matrix<double,DIM,DIM>& rT,
-        FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
-        bool                      computeDTdE)
+void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
+                                                                                     c_matrix<double,DIM,DIM>& rInvC,
+                                                                                     double                    pressure,
+                                                                                     c_matrix<double,DIM,DIM>& rT,
+                                                                                     FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
+                                                                                     bool                      computeDTdE)
 {
     // this is covered, but gcov doesn't see this as being covered
     // for some reason, maybe because of optimisations
@@ -56,39 +57,40 @@ void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDeriva
     double I2 = SecondInvariant(rC);
     double I3 = Determinant(rC);
 
-    static c_matrix<double,DIM,DIM> dI2dC = I1*identity - rC;
+    static c_matrix<double,DIM,DIM> dI2dC;
+    dI2dC = I1*identity - rC;              // MUST be on separate line to above!
 
     double w1 = Get_dW_dI1(I1,I2,I3);
     double w2 = Get_dW_dI2(I1,I2,I3);
     double w3 = Get_dW_dI3(I1,I2,I3);
 
 
-    // Compute stress:
+    // Compute stress:  **** See FiniteElementImplementations document. ****
     //
     //  T = dW_dE
     //    = 2 dW_dC
     //    = 2 (  w1 dI1/dC   +  w2 dI2/dC      +   w3 dI3/dC )
-    //    = 2 (  w1 I        +  w2 (I1*I - C)  +   w3 inv(C) )
+    //    = 2 (  w1 I        +  w2 (I1*I - C)  +   w3 I3 inv(C) )
     //
     //  where w1 = dW/dI1, etc
     //
-    rT = 2*w1*identity + 2*w3*rInvC;
+    rT = 2*w1*identity + 2*w3*I3*rInvC;
     if (DIM==3)
     {
         rT += 2*w2*dI2dC;
     }
 
-    // Compute stress derivative if required:
+    // Compute stress derivative if required:  **** See FiniteElementImplementations document. ****
     //
     // The stress derivative dT_{MN}/dE_{PQ} is
     //
     //
     //  dT_dE = 2 dT_dC
-    //        = 4  d/dC ( w1 I  +  w2 (I1*I - C)  +   w3 inv(C) )
+    //        = 4  d/dC ( w1 I  +  w2 (I1*I - C)  +   w3 I3 inv(C) )
     //  so (in the following ** represents outer product):
     //  (1/4) dT_dE =        w11 I**I          +    w12 I**(I1*I-C)           +     w13 I**inv(C)
-    //                  +    w21 (I1*I-C)**I   +    w22 (I1*I-C)**(I1*I-C)    +     w23 (I1*I-C)**inv(C)    +   w2 (I**I - dC/dC)
-    //                  +    w31 inv(C)**I     +    w32 inv(C)**(I1*I-C)      +     w33 inv(C)**inv(C)      +   w2 d(invC)/dC
+    //                  +    w21 (I1*I-C)**I   +    w22 (I1*I-C)**(I1*I-C)    +     w23 (I1*I-C)**inv(C)           +   w2 (I**I - dC/dC)
+    //                  +    w31 I3 inv(C)**I  +    w32 I3 inv(C)**(I1*I-C)   +  (w33 I3 + w3) inv(C)**inv(C)      +   w3 d(invC)/dC
     //
     //  Here, I**I represents the tensor A[M][N][P][Q] = (M==N)*(P==Q) // ie delta(M,N)delta(P,Q),   etc
     //
@@ -112,15 +114,15 @@ void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDeriva
                     for (unsigned Q=0; Q<DIM; Q++)
                     {
                         rDTdE(M,N,P,Q) =   4 * w11  * (M==N) * (P==Q)
-                                         + 4 * w13  * ( (M==N) * rInvC(P,Q)  +  rInvC(M,N)*(P==Q) )  // the w13 and w31 terms
-                                         + 4 * w33  * rInvC(M,N) * rInvC(P,Q)
-                                         - 4 * w3   * rInvC(M,P) * rInvC(Q,N);
+                                         + 4 * w13  * I3 * ( (M==N) * rInvC(P,Q)  +  rInvC(M,N)*(P==Q) )  // the w13 and w31 terms
+                                         + 4 * (w33*I3 + w3) * I3 * rInvC(M,N) * rInvC(P,Q)
+                                         - 4 * w3 * I3 * rInvC(M,P) * rInvC(Q,N);
 
                         if (DIM==3)
                         {
                             rDTdE(M,N,P,Q) +=   4 * w22  * dI2dC(M,N) * dI2dC(P,Q)
                                               + 4 * w12  * ((M==N)*dI2dC(P,Q) + (P==Q)*dI2dC(M,N))          // the w12 and w21 terms
-                                              + 4 * w23  * ( dI2dC(M,N)*rInvC(P,Q) + rInvC(M,N)*dI2dC(P,Q)) // the w23 and w32 terms
+                                              + 4 * w23 * I3 * ( dI2dC(M,N)*rInvC(P,Q) + rInvC(M,N)*dI2dC(P,Q)) // the w23 and w32 terms
                                               + 4 * w2   * ((M==N)*(P==Q) - (M==P)*(N==Q));
                         }
                     }

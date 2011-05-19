@@ -46,6 +46,12 @@ template<unsigned DIM>
 class AbstractIncompressibleMaterialLaw : public AbstractMaterialLaw<DIM>
 {
 public :
+    /** Constructor */
+    AbstractIncompressibleMaterialLaw()
+        : AbstractMaterialLaw<DIM>()
+    {
+    }
+
     /**
      *  Get the pressure corresponding to zero stress given zero strain.
      */

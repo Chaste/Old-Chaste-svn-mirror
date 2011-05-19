@@ -92,10 +92,10 @@ c_matrix<double,2,2> Compute1stPkStress(double X, double Y)
     double w3 = ComputeW3(X,Y);
     double lam = ComputeLambda(X);
 
-    S(0,0) = 2*( w1*Q_PARAM*lam + w3/(lam*Q_PARAM) );
+    S(0,0) = 2*( w1*Q_PARAM*lam + w3*Q_PARAM/(lam) );
     S(0,1) = -2* w1*Y*A_PARAM/(lam*lam);
-    S(1,0) = 2* w3*Y*A_PARAM/(Q_PARAM*lam*lam);
-    S(1,1) = 2*( w1/lam + w3*lam );
+    S(1,0) = 2* w3*Y*A_PARAM*Q_PARAM/(lam*lam);
+    S(1,1) = 2*( w1/lam + w3*lam*Q_PARAM*Q_PARAM );
 
     return S;
 }
@@ -112,10 +112,10 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
     double dw3dX = ComputeDW3dX(X(0),X(1));
     double dw3dY = ComputeDW3dY(X(0),X(1));
 
-    double dS00dX = 2*(w1*q*a - w3*a/(q*lam*lam) + dw3dX/(q*lam));
+    double dS00dX = 2*(w1*q*a - w3*q*a/(lam*lam) + dw3dX*q/(lam));
     double dS01dX = 2*(2*w1*a*a*X(1)/(lam*lam*lam));
-    double dS10dY = 2*(w3*a/(q*lam*lam) + a*X(1)*dw3dY/(q*lam*lam));
-    double dS11dY = 2*lam*dw3dY;
+    double dS10dY = 2*(w3*a*q/(lam*lam) + a*X(1)*q*dw3dY/(lam*lam));
+    double dS11dY = 2*lam*dw3dY*q*q;
 
     c_vector<double,2> body_force;
     body_force(0) = -dS00dX-dS10dY;
@@ -229,147 +229,44 @@ public:
     }
 
 
+
+
     /**
-     *  Suppose the deformation is given to be x = (alpha X, beta Y), and the material law is the toy
-     *  law W(I1,I2,I3) = c1(I1-3) - c3(I3-1)     (where c3=-c1)
-     *  On the unit square we specify displacement boundaries on the X=0 which match this deformation, we assume
-     *  zero body force, traction boundary conditions on the top/bottom surfaces, and fixed traction value, s, on
-     *  the X=1 surface.
+     *  Test against an exact solution.
      *
-     *  The given deformation corresponds to constant F=diag(alpha,beta) => constant 1st PK stress
-     *  S=diag(2*c1*alpha + 2*c3/alpha, 2*c1*beta + 2*c3/beta), which satisfies dS/dX_M = 0, so the equilibrium
-     *  equation is trivially satisfied with zero body force. To match the traction boundary conditions we need
-     *  S11 = s   -- defines the traction
-     *  S22 = 0   -- this gives a relationship between alpha and beta, although in this case beta = sqrt(-c3/c1)
-     *  is indep of alpha
-     */
-    void TestSolveForSimpleDeformation() throw(Exception)
-    {
-        double c = 2.0;
-        double alpha = 0.9;
-        double beta = 1; // = sqrt(-c3/c1);
-        double traction_value = 2*c*alpha - 2*c/alpha;
-
-        c_vector<double,2> body_force = zero_vector<double>(2);
-        unsigned num_elem = 5;
-
-        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
-        ToyCompressibleMaterialLaw<2> law(c, 0.0, -c);
-
-        std::vector<unsigned> fixed_nodes;
-        std::vector<c_vector<double,2> > locations;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
-            {
-                fixed_nodes.push_back(i);
-                c_vector<double,2> new_position;
-                new_position(0) = 0;
-                new_position(1) = beta*mesh.GetNode(i)->rGetLocation()[1];
-                locations.push_back(new_position);
-            }
-        }
-
-        std::vector<BoundaryElement<1,2>*> boundary_elems;
-        std::vector<c_vector<double,2> > tractions;
-        c_vector<double,2> traction;
-        traction(0) = traction_value;
-        traction(1) = 0;
-        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
-              = mesh.GetBoundaryElementIteratorBegin();
-            iter != mesh.GetBoundaryElementIteratorEnd();
-            ++iter)
-        {
-            if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
-            {
-                BoundaryElement<1,2>* p_element = *iter;
-                boundary_elems.push_back(p_element);
-                tractions.push_back(traction);
-            }
-        }
-        assert(boundary_elems.size()==num_elem);
-
-        CompressibleNonlinearElasticitySolver<2> solver(&mesh,
-                                                        &law,
-                                                        body_force,
-                                                        1.0,
-                                                        "comp_nonlin_elas_non_zero_bcs",
-                                                        fixed_nodes,
-                                                        &locations);
-
-        solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
-
-        // coverage
-        solver.SetKspAbsoluteTolerance(1e-10);
-
-        solver.Solve();
-
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
-
-        std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
-
-        for (unsigned i=0; i<fixed_nodes.size(); i++)
-        {
-            unsigned index = fixed_nodes[i];
-            TS_ASSERT_DELTA(r_solution[index](0), locations[i](0), 1e-8);
-            TS_ASSERT_DELTA(r_solution[index](1), locations[i](1), 1e-8);
-        }
-
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double exact_x = alpha*mesh.GetNode(i)->rGetLocation()[0];
-            double exact_y = beta*mesh.GetNode(i)->rGetLocation()[1];
-
-            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-5 );
-            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
-        }
-
-        MechanicsEventHandler::Headings();
-        MechanicsEventHandler::Report();
-    }
-
-
-
-    /**
-     *  Same deformation as TestSolveForSimpleDeformation (see description for this). The deformation is given by
-     *  x = (alpha X, beta Y), but with a nonlinear material law
+     *  Suppose the deformation is given by  x = (alpha X, beta Y), with a nonlinear Mooney-Rivlin material law
      *  W(I1,I2,I3) = c(I1*I3^{-1/2} -3) - d(I3^{1/2} - 1)^2
+     *
      *  On the unit square we specify displacement boundaries on the X=0 which match this deformation, we assume
-     *  zero body force, traction boundary conditions on the top/bottom surfaces, and fixed traction value, s, on
-     *  the X=1 surface. As in the above test, we have to compute S by hand, in terms of alpha and beta, then S11
-     *  defines s, and S22=0 gives a relationship between alpha and beta.
+     *  zero body force, zero traction boundary conditions on the top/bottom surfaces, and fixed traction value, s, on
+     *  the X=1 surface. Using the above deformation and material law we can compute S by hand, in terms of alpha and
+     *  beta, and then S11 defines s, and S22=0 gives a relationship between alpha and beta.
      *
-     *  In this case (writing a for alpha, etc), 0.5*S22 = c/a + (1/b)(-0.5c*(a^2+b^2)/(ab)^3 + d(1 - 1/(ab))
+     *  In this case (writing a for alpha, etc), 0.5*S22 = c/a + a^2 b(-0.5c*(a^2+b^2)/(ab)^3 + d(1 - 1/(ab))
      *
-     *  which gives a quartic equation to determine beta:
-     *   (a^2)b^4 + (Da^3)b^3 - (Da^2+1/2)b^2 - a^2/2
-     *  where D=d/c.
+     *  which gives a cubic equation to determine beta given alpha, c and d. Let D=d/c, then:
+     *   (2Da^3)b^3 + (1-2Da^2)b^2  - a^2 = 0
+     *
      *  For a given alpha we can use matlab to get the solution (choosing the positive real root):
      *
      *  >> a=0.9; D=0.5;
-     *  >> roots([a*a, D*a*a*a, -D*a*a-0.5,0,-0.5*a*a])
+     *  >> roots([2*D*a*a*a, 1-2*D*a*a, 0.0, -a*a])
      *  ans =
-     *   -1.415560175004011
-     *    1.048769433904755
-     *   -0.041604629450372 + 0.578844505760885i
-     *   -0.041604629450372 - 0.578844505760885i
+     *    -0.608190204001744 + 0.890314286611269i
+     *    -0.608190204001744 - 0.890314286611269i
+     *     0.955749406631746
      */
     void TestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
     {
         double c = 2.2;
         double d = 1.1;
         double alpha = 0.9;
-        double beta = 1.048769433904755;
+        double beta = 0.955749406631746;
 
-        //// another choice
-        //double d = 0.0;
-        //double alpha = 0.9;
-        //double beta = 1.039313636950019;
+        double w1 = c/(alpha*beta); // dW_dI1
+        double w3 = -0.5*c*(alpha*alpha+beta*beta)*pow(alpha*beta,-3) + d*(1.0 - 1.0/(alpha*beta)); // dW_dI3
 
-        double w1 = c/(alpha*beta);
-        double w3 = -0.5*c*(alpha*alpha+beta*beta)*pow(alpha*beta,-3) + d*(1.0 - 1.0/(alpha*beta));
-
-        double traction_value = 2*w1*alpha + 2*w3/alpha;
+        double traction_value = 2*w1*alpha + 2*w3*alpha*beta*beta;
 
         c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 5;
@@ -463,8 +360,9 @@ public:
      *  incompressible solver). q adds some compressibility
      *
      *  Then after a page of algebra, we can derive what the 1st PK stress is, which allows us to
-     *  determine the required traction and body force. See scanned document attached to
-     *  the wiki page UsefulNotes -> Other -> scans.
+     *  determine the required traction and body force.
+     *
+     *  The calculation is written out fully in the FiniteElementImplementations document
      *
      */
     void TestAgainstExactNonlinearSolution() throw(Exception)

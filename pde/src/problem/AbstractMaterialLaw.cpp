@@ -29,9 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMaterialLaw.hpp"
 
 template<unsigned DIM>
-AbstractMaterialLaw<DIM>::~AbstractMaterialLaw()
+AbstractMaterialLaw<DIM>::AbstractMaterialLaw()
+    : mpChangeOfBasisMatrix(NULL)
 {
 }
+
+
 
 template<unsigned DIM>
 void AbstractMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
@@ -105,6 +108,69 @@ void AbstractMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
     EXCEPTION("[the material law you are using]::ScaleMaterialParameters() has not been implemented\n");
     #undef COVERAGE_IGNORE
 }
+
+
+template<unsigned DIM>
+void AbstractMaterialLaw<DIM>::SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
+{
+    mpChangeOfBasisMatrix = &rChangeOfBasisMatrix;
+}
+
+template<unsigned DIM>
+void AbstractMaterialLaw<DIM>::ResetToNoChangeOfBasisMatrix()
+{
+    mpChangeOfBasisMatrix = NULL;
+}
+
+
+template<unsigned DIM>
+void AbstractMaterialLaw<DIM>::ComputeTransformedDeformationTensor(c_matrix<double,DIM,DIM>& rC, c_matrix<double,DIM,DIM>& rInvC,
+                                                                   c_matrix<double,DIM,DIM>& rCTransformed, c_matrix<double,DIM,DIM>& rInvCTransformed)
+{
+    // Writing the local coordinate system as fibre/sheet/normal, as in cardiac problems..
+
+    // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n).
+    // The transformed C for the fibre/sheet basis is C* = P^T C P.
+
+    if(mpChangeOfBasisMatrix)
+    {
+        // C* = P^T C P, and ditto inv(C)
+        rCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,2,2>)prod(rC,*mpChangeOfBasisMatrix));         // C*    = P^T C    P
+        rInvCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,2,2>)prod(rInvC,*mpChangeOfBasisMatrix));   // invC* = P^T invC P
+    }
+    else
+    {
+        rCTransformed = rC;
+        rInvCTransformed = rInvC;
+    }
+}
+
+template<unsigned DIM>
+void AbstractMaterialLaw<DIM>::TransformStressAndStressDerivative(c_matrix<double,DIM,DIM>& rT,
+                                                                  FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                  bool transformDTdE)
+{
+    //  T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+    if(mpChangeOfBasisMatrix)
+    {
+        static c_matrix<double,2,2> T_transformed_times_Ptrans;
+        T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
+
+        rT = prod(*mpChangeOfBasisMatrix, T_transformed_times_Ptrans);  // T = P T* P^T
+
+        // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+        if (transformDTdE)
+        {
+            static FourthOrderTensor<DIM,DIM,DIM,DIM> temp;
+            temp.template SetAsContractionOnFirstDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.template SetAsContractionOnSecondDimension<DIM>(*mpChangeOfBasisMatrix, temp);
+            temp.template SetAsContractionOnThirdDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.template SetAsContractionOnFourthDimension<DIM>(*mpChangeOfBasisMatrix, temp);
+        }
+    }
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////

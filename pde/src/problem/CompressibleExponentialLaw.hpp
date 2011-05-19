@@ -25,46 +25,49 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef COMPRESSIBLEEXPONENTIALLAW_HPP_
+#define COMPRESSIBLEEXPONENTIALLAW_HPP_
 
 
-#ifndef SCHMIDCOSTAEXPONENTIALLAW2D_HPP_
-#define SCHMIDCOSTAEXPONENTIALLAW2D_HPP_
-
-#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractCompressibleMaterialLaw.hpp"
 
 /**
- *  A 2d version of the material law in Costa, Holmes, McCulloch "Modelling Cardiac
- *  Mechanical Properties in Three Dimensions" Philo. Trans. R. Soc.
+ *  The compressible exponential material law implemented in
  *
- *  W = a[exp(Q)-1]/2
- *  where Q = bff*Eff^2 + bfs*Efs^2 + bsf*Esf^2 + bss*Ess^2
+ *  Uysk, Effect of Laminar Orthotropic Myofiber Architecture on Regional Stress and Strain in the Canine Left Ventricle,
+ *  Journal of Elasticity, 2000.
  *
- *  where the parameters are taken from the fitting in Schmid,Nash,Young,Hunter
- *  "Myocardial Material Parameter Estimation - A Comparative Study for Simple
- *  Shear" Transactions of the ASME.
+ *  W = a[exp(Q)-1]/2 + C (J ln(J) - J + 1)
+ *  where Q = sum b_{MN} E_{MN}^2
+ *
+ *  The exponential term is the same form as in the SchmidCosta law, although the parameters
+ *  here are those given in the paper cited above, not the same as in the SchmidCosta class.
  *
  *  Note, by default, the fibre direction is assumed to be THE X-DIRECTION,
  *  and the sheet direction the Y-DIRECTION (ie sheets in the XY plane). Call
  *  SetChangeOfBasisMatrix() before ComputeStressAndStressDerivative(), with
  *  the matrix P = [fibre_vec, sheet_vec, normal_vec] if this is not the case.
  */
-class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
+
+template<unsigned DIM>
+class CompressibleExponentialLaw : public AbstractCompressibleMaterialLaw<DIM>
 {
 private :
-
     /** Parameter a. (kPa) */
     double mA;
 
     /** Matrix of parameters b (dimensionless). */
     std::vector<std::vector<double> > mB;
 
-    /** 2D identity matrix. */
-    c_matrix<double,2,2> mIdentity;
+    /** Compressibility parameter, c in W = a[exp(Q)-1]/2 + c (J ln(J) - J + 1) */
+    double mCompressibilityParam;
 
+    /** identity matrix. */
+    c_matrix<double,DIM,DIM> mIdentity;
 public :
 
     /** Constructor. */
-    SchmidCostaExponentialLaw2d();
+    CompressibleExponentialLaw();
 
     /**
      *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for
@@ -84,27 +87,32 @@ public :
      *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
-    void ComputeStressAndStressDerivative(c_matrix<double,2,2>&  rC,
-                                          c_matrix<double,2,2>&  rInvC,
+    void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>&  rC,
+                                          c_matrix<double,DIM,DIM >&  rInvC,
                                           double                 pressure,
-                                          c_matrix<double,2,2>&  rT,
-                                          FourthOrderTensor<2,2,2,2>&  rDTdE,
+                                          c_matrix<double,DIM,DIM>&  rT,
+                                          FourthOrderTensor<DIM,DIM,DIM,DIM>&  rDTdE,
                                           bool                   computeDTdE);
 
-    /**
-     * Get method for mA.
-     */
-    double GetA();
+    /** Get method for the parameter a */
+    double GetA()
+    {
+        return mA;
+    }
 
-    /**
-     * Get method for mB.
-     */
-    std::vector<std::vector<double> > GetB();
+    /**  Get method for the parameter b (the values which multiply the strains in Q) */
+    std::vector<std::vector<double> > GetB()
+    {
+        return mB;
+    }
 
-    /**
-     * Get the pressure corresponding to E=0, ie C=identity.
-     */
-    double GetZeroStrainPressure();
+    /** Get method for compressibility parameter */
+    double GetCompressibilityParam()
+    {
+        return mCompressibilityParam;
+    }
 };
 
-#endif /* SCHMIDCOSTAEXPONENTIALLAW2D_HPP_*/
+
+
+#endif /* COMPRESSIBLEEXPONENTIALLAW_HPP_ */

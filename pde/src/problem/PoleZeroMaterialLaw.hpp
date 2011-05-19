@@ -78,9 +78,6 @@ private :
     /** Identity matrix. */
     c_matrix<double,DIM,DIM> mIdentity;
 
-    /** Change of basis matrix. See SetChangeOfBasisMatrix() documentation */
-    c_matrix<double,DIM,DIM>* mpChangeOfBasisMatrix;
-
 protected :
 
     /**
@@ -153,23 +150,6 @@ public :
      * @param scaleFactor
      */
     void ScaleMaterialParameters(double scaleFactor);
-
-
-    /**
-     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction),
-     *  but be implemented to assume the prefered directions are parallel to the X-axis etc.
-     *  Call this with the change of basis matrix and C will be transformed from the Euclidean
-     *  coordinate system to the appropriate coordinate system before used to calculate T, which
-     *  will then be transformed from the appropriate coordinate system back to the Euclidean
-     *  coordinate system before being returned, as will dTdE.
-     *
-     *  The change of basis matrix for pole-zero should be of the form: [ fibre_vec  sheet_vec  normal_vec ]
-     *  @param rChangeOfBasisMatrix Change of basis matrix.
-     */
-    void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
-    {
-        mpChangeOfBasisMatrix = &rChangeOfBasisMatrix;
-    }
 };
 
 #endif /*POLEZEROMATERIALLAW_HPP_*/

@@ -53,36 +53,35 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
     double I1 = Trace(rC);
     double I2 = SecondInvariant(rC);
 
-    double  dW_dI1 = Get_dW_dI1(I1, I2);
-    double  dW_dI2; // only computed if DIM==3
+    double  w1 = Get_dW_dI1(I1, I2);
+    double  w2; // only computed if DIM==3
 
-    double  d2W_dI1;
-    double  d2W_dI2;
-    double  d2W_dI1I2;
-
-    // Compute stress:
+    // Compute stress:  **** See FiniteElementImplementations document. ****
     //
     //  T = dW_dE
-    //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
-    //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC
+    //    = 2 * w1 * dI1_dC_MN   +   2 * w2 * dI1_dC_MN  -  p * invC
+    //    = 2 * w1 * delta_MN    +   2 * w2 * (I1 delta_MN - C_MN)  -  p * invC
+    //
+    //  (where w1 = dW/dI1, etc).
 
-    rT = 2*dW_dI1*identity - pressure*rInvC;
+
+    rT = 2*w1*identity - pressure*rInvC;
     if (DIM==3)
     {
-        dW_dI2 = Get_dW_dI2(I1, I2);
-        rT += 2*dW_dI2*(I1*identity - rC);
+        w2 = Get_dW_dI2(I1, I2);
+        rT += 2*w2*(I1*identity - rC);
     }
 
-    // Compute stress derivative if required:
+    // Compute stress derivative if required:   **** See FiniteElementImplementations document. ****
     //
-    // The stress derivative dT_{MN}/dE_{PQ} can be expanded to be seen to be
+    // The stress derivative dT_{MN}/dE_{PQ} is
     //
-    //  dT_dE =    4 * true_d2WdI1 * dI1_dC_MN * dI1_dC_PQ
-    //           + 4 * true_dWdI1  * d2I1_dC2
-    //           + 4 * true_d2WdI2 * dI2_dC_MN * dI2_dC_PQ
-    //           + 4 * true_dWdI2  * d2I2_dC2
-    //           + 4 * true_d2WdI1I2 * (dI1_dC_MN*dI2_dC_PQ + dI1_dC_PQ*dI2_dC_MN)
-    //          - 2 * pressure * d_invC_dC;
+    //  dT_dE =    4 * w11 * dI1_dC_MN * dI1_dC_PQ
+    //           + 4 * w1  * d2I1_dC2
+    //           + 4 * w22 * dI2_dC_MN * dI2_dC_PQ
+    //           + 4 * w2  * d2I2_dC2
+    //           + 4 * w12 * (dI1_dC_MN*dI2_dC_PQ + dI1_dC_PQ*dI2_dC_MN)
+    //           - 2 * pressure * d_invC_dC;
     //
     // where
     //   dI1_dC_MN = (M==N); // ie delta_{MN}
@@ -94,14 +93,18 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
     //   d2I2_dC2  = (M==N)*(P==Q)-(M==P)*(N==Q);
     //
     //   d_invC_dC = -invC[M][P]*invC[Q][N];
+    //
     if (computeDTdE)
     {
-        d2W_dI1 = Get_d2W_dI1(I1,I2);
+        double w11 = Get_d2W_dI1(I1,I2);
+
+        double w12;
+        double w22;
 
         if (DIM==3)
         {
-            d2W_dI2   = Get_d2W_dI2(I1, I2);
-            d2W_dI1I2 = Get_d2W_dI1I2(I1, I2);
+            w22 = Get_d2W_dI2(I1, I2);
+            w12 = Get_d2W_dI1I2(I1, I2);
         }
 
         for (unsigned M=0; M<DIM; M++)
@@ -112,14 +115,14 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
                 {
                     for (unsigned Q=0; Q<DIM; Q++)
                     {
-                        rDTdE(M,N,P,Q) =   4 * d2W_dI1  * (M==N) * (P==Q)
+                        rDTdE(M,N,P,Q) =   4 * w11  * (M==N) * (P==Q)
                                          + 2 * pressure * rInvC(M,P) * rInvC(Q,N);
 
                         if (DIM==3)
                         {
-                            rDTdE(M,N,P,Q) +=   4 * d2W_dI2   * (I1*(M==N) - rC(M,N)) * (I1*(P==Q) - rC(P,Q))
-                                              + 4 * dW_dI2    * ((M==N)*(P==Q) - (M==P)*(N==Q))
-                                              + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q) - rC(P,Q)) + (P==Q)*(I1*(M==N) - rC(M,N)));
+                            rDTdE(M,N,P,Q) +=   4 * w22   * (I1*(M==N) - rC(M,N)) * (I1*(P==Q) - rC(P,Q))
+                                              + 4 * w2    * ((M==N)*(P==Q) - (M==P)*(N==Q))
+                                              + 4 * w12 * ((M==N)*(I1*(P==Q) - rC(P,Q)) + (P==Q)*(I1*(M==N) - rC(M,N)));
                         }
                     }
                 }

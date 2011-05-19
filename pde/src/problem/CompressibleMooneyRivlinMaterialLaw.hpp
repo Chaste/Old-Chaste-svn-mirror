@@ -50,6 +50,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *      dev(I1) = I1 * J^(-2/DIM)  is the first invariant of the deviatoric part of C
  *
  *  Note T(E=0) = 0 regardless of choice of c1, c3.
+ *
+ *  NOTE: this is really just a NEO-HOOKEAN law at present - the c2 (dev(I2)-3) term hasn't been
+ *  added yet...
+ *
  */
 template<unsigned DIM>
 class CompressibleMooneyRivlinMaterialLaw : public AbstractIsotropicCompressibleMaterialLaw<DIM>

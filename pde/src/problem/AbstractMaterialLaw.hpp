@@ -42,12 +42,52 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A hyper-elastic material law for finite elasticity
  *
  *  The law is given by a strain energy function W(E), where E is the strain, such
- *  that the stress T = dW/dE
+ *  that the (2nd Piola-Kirchhoff) stress T = dW/dE
  */
 template<unsigned DIM>
 class AbstractMaterialLaw
 {
+protected:
+    /**
+     *  Some material laws are based on a particular local set of preferred directions, eg anisotropic
+     *  cardiac laws, which use the fibre sheet and normal directions. This matrix can defines the
+     *  orientation and should set before T and dTdE are computed.
+     *
+     *  The change of matrix should have the form P = [a_f a_s a_n], where each a_i is a vector.
+     */
+    c_matrix<double,DIM,DIM>* mpChangeOfBasisMatrix;
+
+    /**
+     *  Transform the input (C and inv(C), where C in the deformation tensor) to the local coordinate system
+     *  @param rC deformation tensor C (input)
+     *  @param rInvC inverse of C (input)
+     *  @param rCTransformed P^T C P (output)
+     *  @param rInvCTransformed P^T inv(C) P (output)
+     */
+    void ComputeTransformedDeformationTensor(c_matrix<double,DIM,DIM>& rC, c_matrix<double,DIM,DIM>& rInvC,
+                                             c_matrix<double,DIM,DIM>& rCTransformed, c_matrix<double,DIM,DIM>& rInvCTransformed);
+
+    /**
+     *  Transform the output (T and dTdE) back to the original coordinate system
+     *  @param rT stress being computed
+     *  @param rDTdE the stress derivative to be transformed (assuming
+     *    the final parameter is true)
+     *  @param transformDTdE a boolean flag saying whether the stress derivative is
+     *    to be transformed or not
+     */
+    void TransformStressAndStressDerivative(c_matrix<double,DIM,DIM>& rT,
+                                            FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                            bool transformDTdE);
+
 public :
+
+    /** Constuctor */
+    AbstractMaterialLaw();
+
+    /** Destructor */
+    virtual ~AbstractMaterialLaw()
+    {
+    }
 
     /**
      *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for
@@ -126,10 +166,6 @@ public :
      */
     void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC, double pressure, c_matrix<double,DIM,DIM>& rT);
 
-    /**
-     * Destructor.
-     */
-    virtual ~AbstractMaterialLaw();
 
     /**
      *  Set a scale factor by which (dimensional) material parameters are scaled. This method
@@ -144,15 +180,27 @@ public :
     virtual void ScaleMaterialParameters(double scaleFactor);
 
     /**
-     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction),
-     *  but be implemented to assume the prefered directions are parallel to the X-axis etc.
-     *  Call this with the change of basis matrix and C will be transformed from the Euclidean
+     *  Some material laws (eg pole-zero) may have preferred directions (eg fibre direction),
+     *  but be implemented to assume the preferred directions are parallel to the X-axis etc.
+     *  Call this with the change of basis matrix and C will be transformed from the Lagrangian
      *  coordinate system to the appropriate coordinate system before used to calculate T, which
-     *  will then be transformed from the appropriate coordinate system back to the Euclidean
+     *  will then be transformed from the appropriate coordinate system back to the Lagrangian
      *  coordinate system before being returned, as will dTdE
+     *
+     *  Note that no copy of this matrix is taken, so the original matrix must persist whilst
+     *  this class is used. Call ResetToNoChangeOfBasisMatrix() if necessary.
+     *
+     *  The change of matrix should have the form (writing the preferred directions as fibre,
+     *  sheet and normal, as in heart simulations): P = [a_f a_s a_n], where each a_i is a vector.
+     *
      *  @param rChangeOfBasisMatrix Change of basis matrix.
      */
-    virtual void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)=0;
+    void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix);
+
+    /**
+     *  Reset back to no change of basis matrix
+     */
+    void ResetToNoChangeOfBasisMatrix();
 };
 
 #endif /*ABSTRACTMATERIALLAW_HPP_*/

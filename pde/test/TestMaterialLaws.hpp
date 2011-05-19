@@ -40,11 +40,231 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SchmidCostaExponentialLaw2d.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
 #include "ToyCompressibleMaterialLaw.hpp"
+#include "CompressibleExponentialLaw.hpp"
 #include <cassert>
+
+
+#include "Debug.hpp"
+
 
 
 class TestMaterialLaws : public CxxTest::TestSuite
 {
+private:
+    // Helper method for testing T=0 when C=I and p=p_zero_strain (incompressible case)
+    template<unsigned DIM>
+    void CheckZeroStressWhenNoDeformation(AbstractIncompressibleMaterialLaw<DIM>* pLaw)
+    {
+        c_matrix<double,DIM,DIM> C = identity_matrix<double>(DIM);
+        c_matrix<double,DIM,DIM> invC = identity_matrix<double>(DIM);
+
+        c_matrix<double,DIM,DIM> T;
+        FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;
+
+        double pressure = pLaw->GetZeroStrainPressure();
+
+        pLaw->ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
+
+        for (unsigned M=0; M<DIM; M++)
+        {
+            for (unsigned N=0; N<DIM; N++)
+            {
+                TS_ASSERT_DELTA(T(M,N), 0.0, 1e-6);
+            }
+        }
+    }
+
+
+
+    // Helper method for testing T=0 when C=I (compressible case)
+    template<unsigned DIM>
+    void CheckZeroStressWhenNoDeformation(AbstractCompressibleMaterialLaw<DIM>* pLaw)
+    {
+        c_matrix<double,DIM,DIM> C = identity_matrix<double>(DIM);
+        c_matrix<double,DIM,DIM> invC = identity_matrix<double>(DIM);
+
+        c_matrix<double,DIM,DIM> T;
+        FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;
+
+        pLaw->ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,false);
+
+        for (unsigned M=0; M<DIM; M++)
+        {
+            for (unsigned N=0; N<DIM; N++)
+            {
+                TS_ASSERT_DELTA(T(M,N), 0.0, 1e-6);
+            }
+        }
+    }
+
+    // Helper method for testing that the analytic dTdE code is correct, by
+    // computing a numerical derivative of T
+    //
+    // Compressible version
+    template<unsigned DIM>
+    void CheckDTdEComputation(AbstractCompressibleMaterialLaw<DIM>* pLaw)
+    {
+        c_matrix<double,DIM,DIM> C;
+        c_matrix<double,DIM,DIM> invC;
+        C(0,0) = 1.1;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 0.9;
+        if(DIM==3)
+        {
+            C(2,2) = 0.95;
+            C(0,2) = C(2,0) = 0;
+            C(1,2) = C(2,1) = 0;
+        }
+
+        invC = Inverse(C);
+
+        c_matrix<double,DIM,DIM> T_base;
+        FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;
+
+        pLaw->ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+
+        double h=0.00001;
+
+        for (unsigned M=0; M<DIM; M++)
+        {
+            C(M,M) += h;     // just change C00 and C11 (and C22). Can't see how to compute numerical
+                             // derivative of wrt C01,C10, given that C is assumed symmetric
+            invC = Inverse(C);
+
+            c_matrix<double,DIM,DIM> T;
+
+            pLaw->ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+
+            for (unsigned P=0; P<DIM; P++)
+            {
+                for (unsigned Q=0; Q<DIM; Q++)
+                {
+                    double dtdc = (T(P,Q)-T_base(P,Q))/h;
+                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";
+                    double tol = std::max(fabs(dTdE(P,Q,M,M))*1e-3, 1e-6);
+                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), tol);
+                }
+            }
+
+            C(M,M) -= h;
+        }
+    }
+
+    // Helper method for testing that the analytic dTdE code is correct, by
+    // computing a numerical derivative of T
+    //
+    // Incompressible version
+    template<unsigned DIM>
+    void CheckDTdEComputation(AbstractIncompressibleMaterialLaw<DIM>* pLaw)
+    {
+        c_matrix<double,DIM,DIM> C;
+        c_matrix<double,DIM,DIM> invC;
+        C(0,0) = 1.06;
+        C(0,1) = C(1,0) = 0.106;
+        C(1,1) = 0.954;            // overall C satifies det(C) = 1
+        if(DIM==3)
+        {
+            C(2,2) = 1.0;
+            C(0,2) = C(2,0) = 0;
+            C(1,2) = C(2,1) = 0;
+        }
+
+        invC = Inverse(C);
+
+        c_matrix<double,DIM,DIM> T_base;
+        FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;
+
+        double pressure = 1.0;
+
+        pLaw->ComputeStressAndStressDerivative(C,invC,pressure,T_base,dTdE,false);
+
+        double h=0.00001;
+
+        for (unsigned M=0; M<DIM; M++)
+        {
+            C(M,M) += h;     // just change C00 and C11 (and C22). Can't see how to compute numerical
+                             // derivative of wrt C01,C10, given that C is assumed symmetric
+            invC = Inverse(C);
+
+            c_matrix<double,DIM,DIM> T;
+
+            pLaw->ComputeStressAndStressDerivative(C,invC,1.0,T,dTdE,true);
+
+            for (unsigned P=0; P<DIM; P++)
+            {
+                for (unsigned Q=0; Q<DIM; Q++)
+                {
+                    double dtdc = (T(P,Q)-T_base(P,Q))/h;
+                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";
+                    double tol = std::max(fabs(dTdE(P,Q,M,M))*1e-3, 1e-6);
+                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), tol);
+                }
+            }
+
+            C(M,M) -= h;
+        }
+    }
+
+    // helper method for testing change of basis (implemented for 2d only)
+    void CheckChangeOfBasis(AbstractMaterialLaw<2>* pLaw)
+    {
+        c_matrix<double,2,2> C;
+        c_matrix<double,2,2> invC;
+        C(0,0) = 1.2;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 1.1;
+        invC = Inverse(C);
+
+        c_matrix<double,2,2> T_Xfibres;
+        c_matrix<double,2,2> T_Yfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Xfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
+
+        double p = 1.0;
+        if(dynamic_cast<AbstractCompressibleMaterialLaw<2>*>(pLaw) != NULL)
+        {
+            p = 0.0; // ie if compressible, then should give p=0
+        }
+
+        pLaw->ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
+
+        // now assume fibres in Y-dir. first set up equivalent C
+        C(0,0) = 1.1;
+        C(1,1) = 1.2;
+        invC = Inverse(C);
+
+        // change of basis matrix
+        c_matrix<double,2,2> P;
+        P(0,0) = P(1,1) = 0.0;
+        P(1,0) = P(0,1) = 1.0;
+
+        pLaw->SetChangeOfBasisMatrix(P);
+        pLaw->ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
+
+        TS_ASSERT_DELTA(T_Xfibres(0,0), T_Yfibres(1,1), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,1), T_Yfibres(0,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(0,1), T_Yfibres(1,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,0), T_Yfibres(0,1), 1e-8);
+
+        // dTdE_Xfibres(0,1,1,0) should be equal to dTdE_Yfibres(1,0,0,1), etc
+        for (unsigned M=0; M<2; M++)
+        {
+            for (unsigned N=0; N<2; N++)
+            {
+                for (unsigned P=0; P<2; P++)
+                {
+                    for (unsigned Q=0; Q<2; Q++)
+                    {
+                        TS_ASSERT_DELTA(dTdE_Xfibres(M,N,P,Q), dTdE_Yfibres((M+1)%2,(N+1)%2,(P+1)%2,(Q+1)%2), 1e-8);
+                    }
+                }
+            }
+        }
+
+        pLaw->ResetToNoChangeOfBasisMatrix();
+    }
+
+
 public:
     void TestMooneyRivlinLaw()
     {
@@ -55,31 +275,21 @@ public:
 
         MooneyRivlinMaterialLaw<2> law_2d(c1);
 
+        CheckZeroStressWhenNoDeformation<2>(&law_2d);
+        CheckDTdEComputation<2>(&law_2d);
+
+        CheckChangeOfBasis(&law_2d);
+
         TS_ASSERT_DELTA(law_2d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
         TS_ASSERT_DELTA(law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
 
-        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
-        // obviously it should be zero
-        TS_ASSERT_DELTA(law_2d.GetZeroStrainPressure(), 2*c1, 1e-12);
-        c_matrix<double,2,2> identity_strain_2d = identity_matrix<double>(2);
-
-        c_matrix<double,2,2> T_2d;
-        law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
-                                                law_2d.GetZeroStrainPressure(),
-                                                T_2d);
-        for (unsigned i=0; i<2; i++)
-        {
-            for (unsigned j=0; j<2; j++)
-            {
-                TS_ASSERT_DELTA(T_2d(i,j),0.0,1e-12);
-            }
-        }
-
-
         double c2 = 3.0;
 
         MooneyRivlinMaterialLaw<3> law_3d(c1, c2);
+
+        CheckZeroStressWhenNoDeformation<3>(&law_3d);
+        CheckDTdEComputation<3>(&law_3d);
 
         TS_ASSERT_DELTA(law_3d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(law_3d.GetC2(), c2, 1e-12);
@@ -91,20 +301,6 @@ public:
 
         TS_ASSERT_DELTA(law_3d.GetZeroStrainPressure(), 2*c1+4*c2, 1e-12);
 
-        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
-        // obviously it should be zero
-        c_matrix<double,3,3> identity_strain_3d = identity_matrix<double>(3);
-        c_matrix<double,3,3> T_3d;
-        law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
-                                                law_3d.GetZeroStrainPressure(),
-                                                T_3d);
-        for (unsigned i=0; i<3; i++)
-        {
-            for (unsigned j=0; j<3; j++)
-            {
-                TS_ASSERT_DELTA(T_3d(i,j),0.0,1e-12);
-            }
-        }
 
         // compute stress given a non-zero deformation
         c_matrix<double,3,3> F;
@@ -205,6 +401,9 @@ public:
 
         ExponentialMaterialLaw<2> exp_law_2d(a,b);
 
+        CheckZeroStressWhenNoDeformation<2>(&exp_law_2d);
+        CheckDTdEComputation<2>(&exp_law_2d);
+
         TS_ASSERT_DELTA(exp_law_2d.GetA(), a, 1e-12);
         TS_ASSERT_DELTA(exp_law_2d.GetB(), b, 1e-12);
 
@@ -212,6 +411,9 @@ public:
         TS_ASSERT_DELTA(exp_law_2d.Get_d2W_dI1(I1,I2), b*exp_law_2d.Get_dW_dI1(I1,I2), 1e-12);
 
         ExponentialMaterialLaw<3> exp_law_3d(a,b);
+
+        CheckZeroStressWhenNoDeformation<3>(&exp_law_3d);
+        CheckDTdEComputation<3>(&exp_law_3d);
 
         TS_ASSERT_DELTA(exp_law_3d.GetA(), a, 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.GetB(), b, 1e-12);
@@ -222,30 +424,12 @@ public:
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI1(I1,I2),  b*exp_law_3d.Get_dW_dI1(I1,I2), 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI2(I1,I2),  0.0,                 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI1I2(I1,I2),0.0,                 1e-12);
-
-
-        TS_ASSERT_DELTA(exp_law_3d.GetZeroStrainPressure(), 2*a*b, 1e-12);
-
-        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
-        // obviously it should be zero
-        c_matrix<double,3,3> identity_strain_3d = identity_matrix<double>(3);
-        c_matrix<double,3,3> T_3d;
-        exp_law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
-                                                 exp_law_3d.GetZeroStrainPressure(),
-                                                 T_3d);
-        for (unsigned i=0; i<3; i++)
-        {
-            for (unsigned j=0; j<3; j++)
-            {
-                TS_ASSERT_DELTA(T_3d(i,j),0.0,1e-12);
-            }
-        }
     }
 
 
     // The polynomial material law with N=1 is exactly a mooney-rivlin law and should
     // agree
-    void TestPolynomailMaterialLawAgainstMooneyRivlin()
+    void TestPolynomialMaterialLawAgainstMooneyRivlin()
     {
         unsigned N = 1;
         std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
@@ -269,6 +453,9 @@ public:
 
         PolynomialMaterialLaw3d poly_mr_law(N,alpha);
         MooneyRivlinMaterialLaw<3> mooney_rivlin_law(c1,c2);
+
+        CheckZeroStressWhenNoDeformation<3>(&mooney_rivlin_law);
+        CheckDTdEComputation<3>(&mooney_rivlin_law);
 
         double I1 = 4;
         double I2 = 2.4;
@@ -447,31 +634,26 @@ public:
 
         PoleZeroMaterialLaw<2> pole_zero_law(k,a,b);
 
+        CheckZeroStressWhenNoDeformation<2>(&pole_zero_law);
+        CheckDTdEComputation<2>(&pole_zero_law);
+
+
+        CheckChangeOfBasis(&pole_zero_law);
+
         c_matrix<double,2,2> C;
-        C(0,0) = 1;
-        C(0,1) = C(1,0) = 0;
-        C(1,1) = 1;
-        c_matrix<double,2,2> invC = Inverse(C);
+        c_matrix<double,2,2> invC;
 
         c_matrix<double,2,2> T;
         FourthOrderTensor<2,2,2,2> dTdE;
-        double pressure = pole_zero_law.GetZeroStrainPressure();
-
-        pole_zero_law.ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,true);
-
-        TS_ASSERT_DELTA( T(0,0), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( T(1,0), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( T(0,1), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( T(1,1), 0.0, 1e-9 );
-
-        // non-trivial deformation, (checking all components have such that E_MN < a_MN)
-        C(0,0) = 0.5;
-        C(0,1) = -0.1;
-        C(1,0) = -0.1;
-        C(1,1) = 0.5;
-        invC = Inverse(C);
 
 //// currently been changed on that pole-zero law DOESN'T return T=0 if E<0
+
+//        C(0,0) = 0.5;
+//        C(0,1) = -0.1;
+//        C(1,0) = -0.1;
+//        C(1,1) = 0.5;
+//        invC = Inverse(C);
+//
 //        // C such that E_MN < 0, p=0 => T=0, dTdE=0;
 //        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 //
@@ -492,8 +674,7 @@ public:
 
         // non-trivial deformation, (checking all components have such that E_MN < a_MN)
         C(0,0) = 2;
-        C(0,1) = 2;
-        C(1,0) = 2;
+        C(0,1) = C(1,0) = 2;
         C(1,1) = 5;
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
@@ -534,16 +715,6 @@ public:
                 }
             }
         }
-
-        // test dTdE via a numerical derivative
-        double old_T00 = T(0,0);
-        double h=0.001;
-        C(0,0)+=h;
-        invC = Inverse(C);
-        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,false);
-
-        double dTdC00_numerical = (T(0,0) - old_T00)/h;  // dC not dE
-        TS_ASSERT_DELTA( dTdE(0,0,0,0), 2*dTdC00_numerical, 1e-4);
 
 
         // test the pressure terms in the stress and stress-deriv, by calling with
@@ -602,6 +773,9 @@ public:
 
         PoleZeroMaterialLaw<3> pole_zero_law(k,a,b);
 
+        CheckZeroStressWhenNoDeformation<3>(&pole_zero_law);
+        CheckDTdEComputation<3>(&pole_zero_law);
+
         c_matrix<double,3,3> C;
         C(0,0) = 2;
         C(0,1) = C(1,0) = 2;
@@ -648,27 +822,13 @@ public:
         TS_ASSERT_DELTA(pole_zero_law.mB[0][0], 7, 1e-12);
     }
 
-//    void dontTestPoleZero3dIn1dLaw() throw(Exception)
-//    {
-//        PoleZero3dIn1dLaw law;
-//
-//        TS_ASSERT_DELTA( law.GetT(0), 0.0, 1e-12 );
-//        TS_ASSERT_DELTA( law.GetT(0.1), 2.0809, 1e-3 );
-//        TS_ASSERT_DELTA( law.GetT(0.2), 8.5158, 1e-3 );
-//        TS_ASSERT_DELTA( law.GetT(0.3), 37.0291, 1e-3 );
-//
-//        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
-//        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
-//
-//        law.SetUpStores();
-//
-//        TS_ASSERT_DELTA( law.GetT(-0.1), -0.5023, 1e-3 );
-//        TS_ASSERT_DELTA( law.GetT(-0.2), -2.2589, 1e-3 );
-//    }
 
     void TestNashHunterPoleZeroLaw3d() throw(Exception)
     {
         NashHunterPoleZeroLaw<3> law;
+
+        CheckZeroStressWhenNoDeformation<3>(&law);
+        CheckDTdEComputation<3>(&law);
 
         c_matrix<double,3,3> C;
         c_matrix<double,3,3> invC;
@@ -695,6 +855,11 @@ public:
     {
         NashHunterPoleZeroLaw<2> law;
 
+        CheckZeroStressWhenNoDeformation<2>(&law);
+        CheckDTdEComputation<2>(&law);
+
+        CheckChangeOfBasis(&law);
+
         c_matrix<double,2,2> C;
         c_matrix<double,2,2> invC;
         C(0,0) = 1.2;
@@ -716,111 +881,15 @@ public:
         TS_ASSERT_THROWS_CONTAINS(law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true), "strain unacceptably large");
     }
 
-    void TestNashHunterPoleZeroChangeOfBasis() throw(Exception)
-    {
-        NashHunterPoleZeroLaw<2> law;
-
-        c_matrix<double,2,2> C;
-        c_matrix<double,2,2> invC;
-        C(0,0) = 1.2;
-        C(0,1) = C(1,0) = 0.1;
-        C(1,1) = 1.1;
-        invC = Inverse(C);
-
-        c_matrix<double,2,2> T_Xfibres;
-        c_matrix<double,2,2> T_Yfibres;
-        FourthOrderTensor<2,2,2,2> dTdE_Xfibres;
-        FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
-
-        double p = 1.0;
-        law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
-
-        // now assume fibres in Y-dir. first set up equivalent C
-        C(0,0) = 1.1;
-        C(1,1) = 1.2;
-        invC = Inverse(C);
-
-        // change of basis matrix
-        c_matrix<double,2,2> P;
-        P(0,0) = P(1,1) = 0.0;
-        P(1,0) = P(0,1) = 1.0;
-
-        law.SetChangeOfBasisMatrix(P);
-        law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
-
-        TS_ASSERT_DELTA(T_Xfibres(0,0), T_Yfibres(1,1), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(1,1), T_Yfibres(0,0), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(0,1), T_Yfibres(1,0), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(1,0), T_Yfibres(0,1), 1e-8);
-
-        // dTdE_Xfibres(0,1,1,0) should be able to dTdE_Yfibres(1,0,0,1), etc
-        for (unsigned M=0; M<2; M++)
-        {
-            for (unsigned N=0; N<2; N++)
-            {
-                for (unsigned P=0; P<2; P++)
-                {
-                    for (unsigned Q=0; Q<2; Q++)
-                    {
-                        TS_ASSERT_DELTA(dTdE_Xfibres(M,N,P,Q), dTdE_Yfibres((M+1)%2,(N+1)%2,(P+1)%2,(Q+1)%2), 1e-8);
-                    }
-                }
-            }
-        }
-    }
-
-    void TestDerivateInPoleZeroLaw2d() throw(Exception)
-    {
-        NashHunterPoleZeroLaw<2> law;
-
-        c_matrix<double,2,2> C;
-        c_matrix<double,2,2> invC;
-        C(0,0) = 1.1;
-        C(0,1) = C(1,0) = 0.1;
-        C(1,1) = 0.9;
-        invC = Inverse(C);
-
-        c_matrix<double,2,2> T_base;
-        FourthOrderTensor<2,2,2,2> dTdE;
-
-        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
-
-        double h=0.0001;
-
-        for (unsigned M=0; M<2; M++)
-        {
-            c_matrix<double,2,2> C;
-            c_matrix<double,2,2> invC;
-
-            C(0,0) = 1.1;
-            C(0,1) = C(1,0) = 0.1;
-            C(1,1) = 0.9;
-
-            C(M,M) += h;     // just change C00 and C11. Can't see how to compute numerical
-                              // derivative of wrt C01,C10, given the C has to be passed in symmetric
-            invC = Inverse(C);
-
-            c_matrix<double,2,2> T;
-
-            law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
-
-            for (unsigned P=0; P<2; P++)
-            {
-                for (unsigned Q=0; Q<2; Q++)
-                {
-                    double dtdc = (T(P,Q)-T_base(P,Q))/h;
-                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";
-                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), dTdE(P,Q,M,M)*1e-3);
-                }
-            }
-            C(M,M) -= h;
-        }
-    }
-
 
     void TestSchmidCostaExponentialLaw()
     {
         SchmidCostaExponentialLaw2d law;
+
+        CheckZeroStressWhenNoDeformation<2>(&law);
+        CheckDTdEComputation<2>(&law);
+
+        CheckChangeOfBasis(&law);
 
         double a = law.GetA();
         assert(a>0);
@@ -847,143 +916,37 @@ public:
         double e01 = 0.5*C(0,1);
         double e11 = 0.5*(C(1,1)-1);
         double Q = bff*e00*e00 + 2*bfs*e01*e01 + bss*e11*e11;
-        TS_ASSERT_DELTA(T_base(0,0), a*exp(Q-1)*bff*e00, 1e-9);
-        TS_ASSERT_DELTA(T_base(0,1), a*exp(Q-1)*bfs*e01, 1e-9);
-        TS_ASSERT_DELTA(T_base(1,0), a*exp(Q-1)*bsf*e01, 1e-9);
-        TS_ASSERT_DELTA(T_base(1,1), a*exp(Q-1)*bss*e11, 1e-9);
-
-        double h=0.00001;
-
-        for (unsigned M=0; M<2; M++)
-        {
-            c_matrix<double,2,2> C;
-            c_matrix<double,2,2> invC;
-
-            C(0,0) = 1.1;
-            C(0,1) = C(1,0) = 0.1;
-            C(1,1) = 0.9;
-
-            C(M,M) += h;     // just change C00 and C11. Can't see how to compute numerical
-                              // derivative of wrt C01,C10, given the C is assumed symmetric
-            invC = Inverse(C);
-
-            c_matrix<double,2,2> T;
-
-            law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
-
-            for (unsigned P=0; P<2; P++)
-            {
-                for (unsigned Q=0; Q<2; Q++)
-                {
-                    double dtdc = (T(P,Q)-T_base(P,Q))/h;
-                    //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";
-                    TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), fabs(dTdE(P,Q,M,M)*1e-3));
-                }
-            }
-
-            C(M,M) -= h;
-        }
-
-        // test get zero strain pressure
-        C(0,0) = 1.0;
-        C(0,1) = C(1,0) = 0.0;
-        C(1,1) = 1.0;
-        invC = Inverse(C);
-        double p = law.GetZeroStrainPressure();
-        law.ComputeStressAndStressDerivative(C,invC,p,T_base,dTdE,false);
-        TS_ASSERT_DELTA(T_base(0,0), 0.0, 1e-9);
-        TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
-        TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
-        TS_ASSERT_DELTA(T_base(1,1), 0.0, 1e-9);
-    }
-
-    void TestSchmidCostaChangeOfBasis() throw(Exception)
-    {
-        SchmidCostaExponentialLaw2d law;
-
-        c_matrix<double,2,2> C;
-        c_matrix<double,2,2> invC;
-        C(0,0) = 1.2;
-        C(0,1) = C(1,0) = 0.1;
-        C(1,1) = 1.1;
-        invC = Inverse(C);
-
-        c_matrix<double,2,2> T_Xfibres;
-        c_matrix<double,2,2> T_Yfibres;
-        FourthOrderTensor<2,2,2,2> dTdE_Xfibres;
-        FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
-
-        double p = 1.0;
-        law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
-
-        // now assume fibres in Y-dir. first set up equivalent C
-        C(0,0) = 1.1;
-        C(1,1) = 1.2;
-        invC = Inverse(C);
-
-        // change of basis matrix
-        c_matrix<double,2,2> P;
-        P(0,0) = P(1,1) = 0.0;
-        P(1,0) = P(0,1) = 1.0;
-
-        law.SetChangeOfBasisMatrix(P);
-        law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
-
-        TS_ASSERT_DELTA(T_Xfibres(0,0), T_Yfibres(1,1), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(1,1), T_Yfibres(0,0), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(0,1), T_Yfibres(1,0), 1e-8);
-        TS_ASSERT_DELTA(T_Xfibres(1,0), T_Yfibres(0,1), 1e-8);
-
-        // dTdE_Xfibres(0,1,1,0) should be able to dTdE_Yfibres(1,0,0,1), etc
-        for (unsigned M=0; M<2; M++)
-        {
-            for (unsigned N=0; N<2; N++)
-            {
-                for (unsigned P=0; P<2; P++)
-                {
-                    for (unsigned Q=0; Q<2; Q++)
-                    {
-                        TS_ASSERT_DELTA(dTdE_Xfibres(M,N,P,Q), dTdE_Yfibres((M+1)%2,(N+1)%2,(P+1)%2,(Q+1)%2), 1e-8);
-                    }
-                }
-            }
-        }
+        TS_ASSERT_DELTA(T_base(0,0), a*exp(Q)*bff*e00/2, 1e-9);
+        TS_ASSERT_DELTA(T_base(0,1), a*exp(Q)*bfs*e01/2, 1e-9);
+        TS_ASSERT_DELTA(T_base(1,0), a*exp(Q)*bsf*e01/2, 1e-9);
+        TS_ASSERT_DELTA(T_base(1,1), a*exp(Q)*bss*e11/2, 1e-9);
     }
 
 
+    // Uses the simple material law W(I1,I2,I3) = c1(I1-3) + c2(I2-3) + c3(I3-1),
+    // which may not correspond to a physically acceptable law but can still be used
+    // to test the code
     void TestCompressibleLawsUsingToyCompressibleMaterialLaw()
     {
         double c1 = 2.0;
 
         ToyCompressibleMaterialLaw<2> law_2d(c1, 0.0, -c1);
 
+        CheckZeroStressWhenNoDeformation<2>(&law_2d);
+        CheckDTdEComputation<2>(&law_2d);
+
         TS_ASSERT_DELTA(law_2d.Get_dW_dI1(2.0,1.0,1.0), c1, 1e-12);
         TS_ASSERT_DELTA(law_2d.Get_dW_dI3(2.0,1.0,1.0), -c1, 1e-12);
 
-        // compute the stress given C=delta_{MN}, obviously it should be zero
-        c_matrix<double,2,2> identity_strain_2d = identity_matrix<double>(2);
-
-        c_matrix<double,2,2> T_2d;
-        law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
-                                                0.0,
-                                                T_2d);
-        for (unsigned i=0; i<2; i++)
-        {
-            for (unsigned j=0; j<2; j++)
-            {
-                TS_ASSERT_DELTA(T_2d(i,j),0.0,1e-12);
-            }
-        }
-
-
         double c2 = 3.0;
 
-        ToyCompressibleMaterialLaw<3> law_3d(c1, c2, -c1-c2);
+        ToyCompressibleMaterialLaw<3> law_3d(c1, c2, -c1-2*c2); // this choice of c3 gives zero stress for zero strain
+        CheckZeroStressWhenNoDeformation<3>(&law_3d);
+        CheckDTdEComputation<3>(&law_3d);
 
         TS_ASSERT_DELTA(law_3d.Get_dW_dI1(2.0,2.0,1.0), c1, 1e-12);
         TS_ASSERT_DELTA(law_3d.Get_dW_dI2(2.0,2.0,1.0), c2, 1e-12);
-        TS_ASSERT_DELTA(law_3d.Get_dW_dI3(2.0,2.0,1.0),  -c1-c2, 1e-12);
-
+        TS_ASSERT_DELTA(law_3d.Get_dW_dI3(2.0,2.0,1.0), -c1-2*c2, 1e-12);
 
         // compute stress given a non-zero deformation
         c_matrix<double,3,3> F;
@@ -1002,6 +965,8 @@ public:
         double I1 =  Trace(C);
 
         c_matrix<double,3,3> invC = Inverse(C);
+
+        double I3 = Determinant(C);
 
         c_matrix<double,3,3> T;
         c_matrix<double,3,3> T2;
@@ -1047,7 +1012,7 @@ public:
                 assert(C(M,N)==C(N,M));
 
                 // check the stress
-                TS_ASSERT_DELTA(T(M,N), (2*c1+2*c2*I1)*(M==N) - 2*c2*C(M,N) - 2*(c1+c2)*invC(M,N), 1e-12);
+                TS_ASSERT_DELTA(T(M,N), (2*c1+2*c2*I1)*(M==N) - 2*c2*C(M,N) - 2*(c1+2*c2)*I3*invC(M,N), 1e-12);
 
                 // check alternative computation of the stress
                 TS_ASSERT_DELTA(T(M,N), T2(M,N), 1e-12);
@@ -1057,7 +1022,7 @@ public:
                     for (unsigned Q=0;Q<3;Q++)
                     {
                         double true_val =   4*c2*((M==N)*(P==Q)-(M==P)*(N==Q))
-                                            + 4*(c1+c2)*invC(M,P)*invC(Q,N);
+                                          - 4*(c1+2*c2)*I3*(invC(M,N)*invC(P,Q) - invC(M,P)*invC(Q,N) );
 
                         TS_ASSERT_DELTA(dTdE(M,N,P,Q), true_val, 1e-12);
                     }
@@ -1073,6 +1038,11 @@ public:
         double c3 = 2.0;
 
         CompressibleMooneyRivlinMaterialLaw<2> law_2d(c1, c3);
+
+        CheckZeroStressWhenNoDeformation<2>(&law_2d);
+        CheckDTdEComputation<2>(&law_2d);
+
+        CheckChangeOfBasis(&law_2d);
 
         TS_ASSERT_DELTA(law_2d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(law_2d.GetC3(), c3, 1e-12);
@@ -1103,12 +1073,127 @@ public:
 
         CompressibleMooneyRivlinMaterialLaw<3> law_3d(c1, c3);
 
+
+        CheckZeroStressWhenNoDeformation<3>(&law_3d);
+        CheckDTdEComputation<3>(&law_3d);
+
         TS_ASSERT_DELTA(law_3d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(law_3d.GetC3(), c3, 1e-12);
 
         TS_ASSERT_DELTA(law_3d.Get_dW_dI1(3.0,3.0,1.0), c1, 1e-12);
         TS_ASSERT_DELTA(law_3d.Get_dW_dI2(3.0,3.0,1.0), 0.0, 1e-12);
         TS_ASSERT_DELTA(law_3d.Get_dW_dI3(3.0,3.0,1.0), -c1, 1e-12);
+    }
+
+
+    void TestCompressibleExponentialLaw() throw(Exception)
+    {
+        CompressibleExponentialLaw<2> law;
+
+        CheckZeroStressWhenNoDeformation<2>(&law);
+        CheckDTdEComputation<2>(&law);
+
+        CheckChangeOfBasis(&law);
+
+        double a = law.GetA();
+        assert(a>0);
+        double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
+        double bfs = law.GetB()[0][1];
+        double bsf = law.GetB()[1][0];
+        double bss = law.GetB()[1][1];
+
+        double c = law.GetCompressibilityParam();
+
+        TS_ASSERT(bsf == bfs);
+
+        c_matrix<double,2,2> C;
+        c_matrix<double,2,2> invC;
+        C(0,0) = 1.1;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 0.9;
+        invC = Inverse(C);
+
+        double I3 = Determinant(C);
+        double w3  = c*0.5*(1.0/I3 - pow(I3,-0.5));
+
+        c_matrix<double,2,2> T_base;
+        FourthOrderTensor<2,2,2,2> dTdE;
+
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+
+        double e00 = 0.5*(C(0,0)-1);
+        double e01 = 0.5*C(0,1);
+        double e11 = 0.5*(C(1,1)-1);
+        double Q = bff*e00*e00 + 2*bfs*e01*e01 + bss*e11*e11;
+        TS_ASSERT_DELTA(T_base(0,0), a*exp(Q)*bff*e00/2 + 2*w3*I3*invC(0,0), 1e-9);
+        TS_ASSERT_DELTA(T_base(0,1), a*exp(Q)*bfs*e01/2 + 2*w3*I3*invC(0,1), 1e-9);
+        TS_ASSERT_DELTA(T_base(1,0), a*exp(Q)*bsf*e01/2 + 2*w3*I3*invC(1,0), 1e-9);
+        TS_ASSERT_DELTA(T_base(1,1), a*exp(Q)*bss*e11/2 + 2*w3*I3*invC(1,1), 1e-9);
+
+        CheckDTdEComputation<2>(&law);
+    }
+
+
+    void TestCompressibleExponentialLaw3d() throw(Exception)
+    {
+        CompressibleExponentialLaw<3> law;
+
+        CheckZeroStressWhenNoDeformation<3>(&law);
+        CheckDTdEComputation<3>(&law);
+
+
+        double a = law.GetA();
+        assert(a>0);
+        double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
+        double bfs = law.GetB()[0][1];
+        double bsf = law.GetB()[1][0];
+        double bss = law.GetB()[1][1];
+
+        double c = law.GetCompressibilityParam();
+
+        double bnn = law.GetB()[2][2];
+        double bsn = law.GetB()[1][2];
+        double bns = law.GetB()[2][1];
+        double bfn = law.GetB()[0][2];
+        double bnf = law.GetB()[2][0];
+
+        TS_ASSERT(bsf == bfs);
+        TS_ASSERT(bfn == bnf);
+        TS_ASSERT(bsn == bns);
+
+        c_matrix<double,3,3> C;
+        c_matrix<double,3,3> invC;
+        C(0,0) = 1.1;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 0.9;
+        C(0,2) = C(2,0) = 0.05;
+        C(1,2) = C(2,1) = 0.01;
+        C(2,2) = 0.95;
+        invC = Inverse(C);
+
+        double I3 = Determinant(C);
+        double w3  = c*0.5*(1.0/I3 - pow(I3,-0.5));
+
+        c_matrix<double,3,3> T_base;
+        FourthOrderTensor<3,3,3,3> dTdE;
+
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
+
+        double e00 = 0.5*(C(0,0)-1);
+        double e11 = 0.5*(C(1,1)-1);
+        double e22 = 0.5*(C(2,2)-1);
+        double e01 = 0.5*C(0,1);
+        double e12 = 0.5*C(1,2);
+        double e02 = 0.5*C(0,2);
+        double Q = bff*e00*e00 + bss*e11*e11 + bnn*e22*e22 + 2*bfs*e01*e01 + 2*bfn*e02*e02 + 2*bsn*e12*e12;
+        TS_ASSERT_DELTA(T_base(0,0), a*exp(Q)*bff*e00/2 + 2*w3*I3*invC(0,0), 1e-9);
+        TS_ASSERT_DELTA(T_base(0,1), a*exp(Q)*bfs*e01/2 + 2*w3*I3*invC(0,1), 1e-9);
+        TS_ASSERT_DELTA(T_base(1,0), a*exp(Q)*bsf*e01/2 + 2*w3*I3*invC(1,0), 1e-9);
+        TS_ASSERT_DELTA(T_base(1,1), a*exp(Q)*bss*e11/2 + 2*w3*I3*invC(1,1), 1e-9);
+
+        TS_ASSERT_DELTA(T_base(0,2), a*exp(Q)*bfs*e02/2 + 2*w3*I3*invC(0,2), 1e-9);
+        TS_ASSERT_DELTA(T_base(1,2), a*exp(Q)*bsf*e12/2 + 2*w3*I3*invC(1,2), 1e-9);
+        TS_ASSERT_DELTA(T_base(2,2), a*exp(Q)*bss*e22/2 + 2*w3*I3*invC(2,2), 1e-9);
     }
 };
 

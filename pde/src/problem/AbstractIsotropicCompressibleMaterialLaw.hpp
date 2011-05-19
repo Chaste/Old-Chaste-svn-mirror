@@ -165,18 +165,6 @@ public :
      * Destructor.
      */
     virtual ~AbstractIsotropicCompressibleMaterialLaw();
-
-
-
-    /**
-     *  See documentation in AbstractMaterialLaw.
-     *  Isotropic materials have no preferred directions so this method does not
-     *  need to do anything.
-     *  @param rChangeOfBasisMatrix Change of basis matrix.
-     */
-    void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
-    {
-    }
 };
 
 #endif /*ABSTRACTISOTROPICCOMPRESSIBLEMATERIALLAW_HPP_*/
