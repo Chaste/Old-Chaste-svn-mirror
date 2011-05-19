@@ -220,6 +220,8 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         delete p_cell;
         throw e;
     }
+    // Generate lookup tables if present
+    p_cell->GetLookupTableCollection();
 
     return p_cell;
 }
