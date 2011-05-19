@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Parse the email download logs to get some information about
 who has downloaded Chaste.
 
-See also https://chaste.comlab.ox.ac.uk/chaste/stats.php for
+See also https://chaste.cs.ox.ac.uk/chaste/stats.php for
 raw download numbers.
 """
 
