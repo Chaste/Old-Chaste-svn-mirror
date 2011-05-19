@@ -392,7 +392,7 @@ def OptionalLibraryDefines():
     actual_flags = []
     if getattr(conf, 'use_cvode', False):
         # Need to set a define for CVODE version.  Assume 2.3.0 if not specified.
-        actual_flags.append('CHASTE_SUNDIALS_VERSION=' + getattr(conf, 'cvode_version', '203000'))
+        actual_flags.append('CHASTE_SUNDIALS_VERSION=' + getattr(conf, 'cvode_version', '20300'))
     for libname, symbol in possible_flags.iteritems():
         if getattr(conf, 'use_' + libname, False):
             actual_flags.append(symbol)
