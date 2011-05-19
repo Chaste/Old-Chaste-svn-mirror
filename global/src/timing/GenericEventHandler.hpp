@@ -56,11 +56,10 @@ class GenericEventHandler
     friend class TestHeartEventHandler;
 
 private:
-    static std::vector<double> mWallTime; /**< Wall time assigned to each event */
-    static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
-    static bool mEnabled; /**< Whether the event handler is recording event times */
-    static bool mInitialised; /**< For internal use */
-    static bool mInUse; /**< Determines if any of the event have begun */
+    std::vector<double> mWallTime; /**< Wall time assigned to each event */
+    std::vector<bool> mHasBegun; /**< Whether each event is in progress */
+    bool mEnabled; /**< Whether the event handler is recording event times */
+    bool mInUse; /**< Determines if any of the event have begun */
 
     /**
      * Sleep for a specified number of milliseconds
@@ -69,7 +68,7 @@ private:
      *
      * @param milliseconds  minimim number of milliseconds for which to sleep (ought to be a multiple of 10)
      */
-    inline static void MilliSleep(unsigned milliseconds)
+    static inline void MilliSleep(unsigned milliseconds)
     {
         double start = MPI_Wtime();
         double min_Wtime = milliseconds/1000.0 + start;
@@ -80,7 +79,7 @@ private:
     }
 
     /** Helper function - get the current wall clock time */
-    inline static double GetWallTime()
+    inline double GetWallTime()
     {
         return MPI_Wtime();
     }
@@ -90,7 +89,7 @@ private:
      *
      * @param wallTime  the wall time
      */
-    inline static double ConvertWallTimeToMilliseconds(double wallTime)
+    inline double ConvertWallTimeToMilliseconds(double wallTime)
     {
         return wallTime*1000.0;
     }
@@ -100,30 +99,120 @@ private:
      *
      * @param wallTime  the wall time
      */
-    inline static double ConvertWallTimeToSeconds(double wallTime)
+    inline double ConvertWallTimeToSeconds(double wallTime)
     {
         return wallTime;
     }
 
-    /** Make sure the vectors are the right length. */
-    inline static void CheckVectorSizes()
-    {
-        if (!mInitialised)
-        {
-            mWallTime.resize(NUM_EVENTS, 0.0);
-            mHasBegun.resize(NUM_EVENTS, false);
-            mInitialised = true;
-        }
-    }
-
 public:
+    /**
+     * Get the singleton instance of the event handler.
+     */
+    static GenericEventHandler<NUM_EVENTS, CONCRETE>* Instance()
+    {
+        static CONCRETE inst;
+        return &inst;
+    }
 
     /**
      * Reset the event handler - set all event durations to zero.
      */
     static void Reset()
     {
-        CheckVectorSizes();
+        Instance()->ResetImpl();
+    }
+
+    /**
+     * Record the start of an event.
+     *
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
+     */
+    static void BeginEvent(unsigned event) throw (Exception)
+    {
+        Instance()->BeginEventImpl(event);
+    }
+
+    /**
+     * Record the ending of an event.
+     *
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
+     */
+    static void EndEvent(unsigned event)
+    {
+        Instance()->EndEventImpl(event);
+    }
+
+    /**
+     * Get the time (in milliseconds) accounted so far to the given event.
+     *
+     * Will automatically determine if the event is currently ongoing or not.
+     *
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
+     */
+    static double GetElapsedTime(unsigned event)
+    {
+        return Instance()->GetElapsedTimeImpl(event);
+    }
+
+    /**
+     * Print a report on the timed events and reset the handler.
+     *
+     * Assumes all events have ended.
+     *
+     * If there is a collection of processes then the report will include an
+     * average and maximum over all CPUs.
+     */
+    static void Report()
+    {
+        Instance()->ReportImpl();
+    }
+
+    /**
+     * Output the headings for a report.
+     */
+    static void Headings()
+    {
+        Instance()->HeadingsImpl();
+    }
+
+    /**
+     * Enable the event handler so that it will record event durations.
+     */
+    static void Enable()
+    {
+        Instance()->EnableImpl();
+    }
+
+    /** Disable the event handler, so that event durations are no longer recorded. */
+    static void Disable()
+    {
+        Instance()->DisableImpl();
+    }
+
+    /** Check whether the event handler is enabled. */
+    static bool IsEnabled()
+    {
+        return Instance()->IsEnabledImpl();
+    }
+
+protected:
+    /**
+     * Default constructor.
+     */
+    GenericEventHandler()
+    {
+        mEnabled = true;
+        mInUse = false;
+        mWallTime.resize(NUM_EVENTS, 0.0);
+        mHasBegun.resize(NUM_EVENTS, false);
+    }
+
+private:
+    /**
+     * Reset the event handler - set all event durations to zero.
+     */
+    void ResetImpl()
+    {
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
             mWallTime[event] = 0.0;
@@ -138,7 +227,7 @@ public:
      *
      * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
-    static void BeginEvent(unsigned event) throw (Exception)
+    void BeginEventImpl(unsigned event) throw (Exception)
     {
         if (!mEnabled)
         {
@@ -149,7 +238,6 @@ public:
 #endif
         mInUse = true;
         assert(event<NUM_EVENTS);
-        CheckVectorSizes();
         //Check that we are recording the total
         if (event != NUM_EVENTS-1) // If use <, Intel complains when NUM_EVENTS==1
         {
@@ -179,7 +267,7 @@ public:
      *
      * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
-    static void EndEvent(unsigned event)
+    void EndEventImpl(unsigned event)
     {
         assert(event<NUM_EVENTS);
         if (!mEnabled)
@@ -187,9 +275,8 @@ public:
             return;
         }
 #ifdef CHASTE_EVENT_BARRIERS
-        PetscTools::Barrier("EndEvent");        
+        PetscTools::Barrier("EndEvent");
 #endif
-        CheckVectorSizes();
         if (!mHasBegun[event])
         {
             std::string msg;
@@ -210,14 +297,13 @@ public:
      *
      * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
-    static double GetElapsedTime(unsigned event)
+    double GetElapsedTimeImpl(unsigned event)
     {
         assert(event<NUM_EVENTS);
         if (!mEnabled)
         {
             return 0.0;
         }
-        CheckVectorSizes();
         double time;
         if (mHasBegun[event])
         {
@@ -238,10 +324,8 @@ public:
      * If there is a collection of processes then the report will include an
      * average and maximum over all CPUs.
      */
-    static void Report()
+    void ReportImpl()
     {
-        CheckVectorSizes();
-
         if (!mEnabled)
         {
             EXCEPTION("Asked to report on a disabled event handler.  Check for contributory errors above.");
@@ -343,9 +427,8 @@ public:
     /**
      * Output the headings for a report.
      */
-    static void Headings()
+    void HeadingsImpl()
     {
-        CheckVectorSizes();
         // Make sure that all output (on all processes) is flushed
         std::cout.flush();
         PetscTools::Barrier();
@@ -369,39 +452,22 @@ public:
     /**
      * Enable the event handler so that it will record event durations.
      */
-    static void Enable()
+    void EnableImpl()
     {
-        CheckVectorSizes();
         mEnabled = true;
     }
 
     /** Disable the event handler, so that event durations are no longer recorded. */
-    static void Disable()
+    void DisableImpl()
     {
-        CheckVectorSizes();
         mEnabled = false;
     }
 
     /** Check whether the event handler is enabled. */
-    static bool IsEnabled()
+    bool IsEnabledImpl()
     {
         return mEnabled;
     }
 };
-
-template<unsigned NUM_EVENTS, class CONCRETE>
-std::vector<double> GenericEventHandler<NUM_EVENTS, CONCRETE>::mWallTime;
-
-template<unsigned NUM_EVENTS, class CONCRETE>
-std::vector<bool> GenericEventHandler<NUM_EVENTS, CONCRETE>::mHasBegun;
-
-template<unsigned NUM_EVENTS, class CONCRETE>
-bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mEnabled = true;
-
-template<unsigned NUM_EVENTS, class CONCRETE>
-bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mInitialised = false;
-
-template<unsigned NUM_EVENTS, class CONCRETE>
-bool GenericEventHandler<NUM_EVENTS, CONCRETE>::mInUse = false;
 
 #endif /*GENERICEVENTHANDLER_HPP_*/
