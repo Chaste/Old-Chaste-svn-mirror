@@ -84,4 +84,3 @@ Vec OdeLinearSystemSolver::SolveOneTimeStep()
     
     return mCurrentSolution;
 }
-

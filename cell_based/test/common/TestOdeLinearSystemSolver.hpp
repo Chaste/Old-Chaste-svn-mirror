@@ -91,7 +91,6 @@ public:
         VecDestroy(initial_condition);
     }
 
-
     // Solve a simple ODE linear system M dr/dt = f
     // where M = [0 1; 1 0] and f = [1 2];
     void TestWithSimpleProblem()
@@ -116,7 +115,7 @@ public:
                 
         solver.SetInitialConditionVector(initial_condition);
         
-        // Then an rGetVector for RHS
+        // Then an rGetForceVector for RHS
         Vec& r_vector = solver.rGetForceVector();
         PetscVecTools::SetElement(r_vector, 0, 1.0);         
         PetscVecTools::SetElement(r_vector, 1, 2.0);

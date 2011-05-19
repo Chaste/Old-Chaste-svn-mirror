@@ -85,11 +85,16 @@ public:
     
     /**
      * Get the cell radius associated with a given node index.
+     * 
+     * @param index the index of a node
      */
     double GetCellRadius(unsigned index);
      
     /**
      * Set the cell radius associated with a given node index.
+     * 
+     * @param index the index of a node
+     * @param radius the cell radius
      */
     void SetCellRadius(unsigned index, double radius);
 };

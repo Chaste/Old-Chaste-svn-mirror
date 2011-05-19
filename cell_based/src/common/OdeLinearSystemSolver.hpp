@@ -67,7 +67,7 @@ public:
      * Constructor.
      * 
      * @param systemSize size of the ODE system
-     * @param timeStep timestep
+     * @param timeStep the time step used to integrate the ODE system
      */
     OdeLinearSystemSolver(unsigned systemSize, double timeStep);
     
@@ -90,7 +90,7 @@ public:
      */
     void SetInitialConditionVector(Vec initialConditionsVector);
     
-    /** Solve method. */
+    /** Solve the ODE system over one time step. */
     Vec SolveOneTimeStep();
 };
 
