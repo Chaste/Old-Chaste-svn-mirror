@@ -849,6 +849,21 @@ public:
         // the correct magnitude, which is dependent on whether the params
         // have been entered a Pa or KPa)
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
+        
+        // pick a P such that P =/= P^T
+        c_matrix<double,3,3> basis = identity_matrix<double>(3);
+        basis(0,0) = 1/sqrt(2);
+        basis(1,0) = 1/sqrt(2);
+        basis(0,1) = -1/sqrt(2);
+        basis(1,1) = 1/sqrt(2);
+        
+        law.SetChangeOfBasisMatrix(basis);
+        law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
+        
+        // carefully checked that the P's and P^T's are the right way
+        // round in the transformations, this is just a hardcoded check that
+        // nothing has changed
+        TS_ASSERT_DELTA(T(0,0),1.7052,1e-3);
     }
 
     void TestNashHunterPoleZeroLaw2d() throw(Exception)

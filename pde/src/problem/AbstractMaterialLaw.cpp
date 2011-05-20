@@ -135,8 +135,8 @@ void AbstractMaterialLaw<DIM>::ComputeTransformedDeformationTensor(c_matrix<doub
     if(mpChangeOfBasisMatrix)
     {
         // C* = P^T C P, and ditto inv(C)
-        rCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,2,2>)prod(rC,*mpChangeOfBasisMatrix));         // C*    = P^T C    P
-        rInvCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,2,2>)prod(rInvC,*mpChangeOfBasisMatrix));   // invC* = P^T invC P
+        rCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rC,*mpChangeOfBasisMatrix));         // C*    = P^T C    P
+        rInvCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rInvC,*mpChangeOfBasisMatrix));   // invC* = P^T invC P
     }
     else
     {
@@ -153,7 +153,7 @@ void AbstractMaterialLaw<DIM>::TransformStressAndStressDerivative(c_matrix<doubl
     //  T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
     if(mpChangeOfBasisMatrix)
     {
-        static c_matrix<double,2,2> T_transformed_times_Ptrans;
+        static c_matrix<double,DIM,DIM> T_transformed_times_Ptrans;
         T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
 
         rT = prod(*mpChangeOfBasisMatrix, T_transformed_times_Ptrans);  // T = P T* P^T
