@@ -182,6 +182,13 @@ public:
 
 
         solver.AssembleSystem(true, true);
+
+        // check that the matrix is symmetric
+        Mat J_trans;
+        PetscTruth is_symmetric;
+        MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
+        MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
+        TS_ASSERT(is_symmetric);
     }
 
     // It just tests that nothing happens if zero force and tractions are given
@@ -415,6 +422,19 @@ public:
             TS_ASSERT_DELTA(r_solution[i](0), exact_x, 1e-4);
             TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-4);
         }
+
+
+        // check that the last matrix was symmetric
+        Mat J_trans;
+        PetscTruth is_symmetric;
+        MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
+        MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
+
+
+/// ****  WHY IS THIS FAILING? *****
+        //TS_ASSERT(is_symmetric);
+
+        //PetscMatTools::Display(solver.mJacobianMatrix);
     }
 };
 

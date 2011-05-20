@@ -363,37 +363,9 @@ void LinearSystem::SetMatrixRow(PetscInt row, double value)
     PetscMatTools::SetRow(mLhsMatrix, row, value);
 }
 
-Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
+Vec LinearSystem::GetMatrixRowDistributed(unsigned rowIndex)
 {
-    /*
-     *   We need to make sure that lhs_ith_row doesn't ignore off processor entries when assemblying,
-     *  otherwise the VecSetValuesm call a few lines below will not work as expected.
-     */
-    Vec lhs_ith_row = PetscTools::CreateVec(mSize, mOwnershipRangeHi-mOwnershipRangeLo, false);
-
-    PetscInt num_entries;
-    const PetscInt *column_indices;
-    const PetscScalar *values;
-
-    bool am_row_owner = (PetscInt)row_index >= mOwnershipRangeLo && (PetscInt)row_index < mOwnershipRangeHi;
-
-    // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
-    // In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
-    if (am_row_owner)
-    {
-        MatGetRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);
-        VecSetValues(lhs_ith_row, num_entries, column_indices, values, INSERT_VALUES);
-    }
-
-    VecAssemblyBegin(lhs_ith_row);
-    VecAssemblyEnd(lhs_ith_row);
-
-    if (am_row_owner)
-    {
-        MatRestoreRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);
-    }
-
-    return lhs_ith_row;
+	return PetscMatTools::GetMatrixRowDistributed(mLhsMatrix, rowIndex);
 }
 
 void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue)

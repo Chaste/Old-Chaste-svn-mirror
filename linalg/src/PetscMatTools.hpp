@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _PETSCMATTOOLS_HPP_
 
 #include "UblasMatrixInclude.hpp" // needs to be 'first'
-
+#include "PetscTools.hpp"
 #include <vector>
 #include <petscvec.h>
 #include <petscmat.h>
@@ -167,6 +167,14 @@ public:
      * @param option  the option to set
      */
     static void SetOption(Mat matrix, MatOption option);
+
+    /**
+     * Returns the i-th row of the LHS matrix as a distributed PETSc Vec
+     *
+     * @param rowIndex the row index
+     * @return rowIndex-th row of the matrix in distributed format
+     */
+    static Vec GetMatrixRowDistributed(Mat matrix, unsigned rowIndex);
 
     /**
      * Add multiple values to a matrix.

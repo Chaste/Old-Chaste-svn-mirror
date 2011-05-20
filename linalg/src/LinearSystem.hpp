@@ -354,10 +354,10 @@ public:
     /**
      * Returns the i-th row of the LHS matrix as a distributed PETSc Vec
      *
-     * @param row_index the row index
-     * @return i-th row of the matrix in distributed format
+     * @param rowIndex the row index
+     * @return rowIndex-th row of the matrix in distributed format
      */
-    Vec GetMatrixRowDistributed(unsigned row_index);
+    Vec GetMatrixRowDistributed(unsigned rowIndex);
 
     /**
      *  Zero several rows of the matrix, putting a given value in the diagonal entries.

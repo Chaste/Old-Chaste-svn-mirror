@@ -185,28 +185,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
         }
     }
 
-    if (assembleResidual)
-    {
-        PetscVecTools::Assemble(this->mResidualVector);
-    }
-    if (assembleJacobian)
-    {
-        PetscMatTools::AssembleIntermediate(this->mJacobianMatrix);
-        PetscMatTools::AssembleIntermediate(this->mPreconditionMatrix);
-    }
-
-    // Apply Dirichlet boundary conditions
-    this->ApplyBoundaryConditions(assembleJacobian);
-
-    if (assembleResidual)
-    {
-        PetscVecTools::Assemble(this->mResidualVector);
-    }
-    if (assembleJacobian)
-    {
-        PetscMatTools::AssembleFinal(this->mJacobianMatrix);
-        PetscMatTools::AssembleFinal(this->mPreconditionMatrix);
-    }
+    this->FinishAssembleSystem(assembleResidual, assembleJacobian);
 }
 
 template<size_t DIM>

@@ -134,9 +134,33 @@ protected:
     Vec mResidualVector;
 
     /**
+     *  The RHS side in the linear system that is solved each Newton iteration. Since Newton's method
+     *  is Ju = f, where J is the Jacobian, u the (negative of the) update and f the residual, it might seem necessary
+     *  to store this as well as the residual. However, when applying Dirichlet boundary conditions in
+     *  the compressible case, we alter the rows of the matrix, but also alter the columns in order to
+     *  maintain symmetry. This requires making further changes to the right-hand vector, meaning that
+     *  it no longer properly represents the residual. Hence, we have to use two vectors.
+     *
+     *  Overall, this can be represents as
+     *   - compute residual f
+     *   - compute Jacobian J
+     *   - apply BCs to f.
+     *   - alter the linear system from Ju=f to (J*)u=f* which enforces the dirichlet boundary conditions but enforces them symmetrically.
+     *
+     *  mLinearSystemRhsVector represents f*.
+     */
+    Vec mLinearSystemRhsVector;
+
+    /**
      *  Jacobian matrix of the nonlinear system, LHS matrix for the linear system.
      */
     Mat mJacobianMatrix;
+
+    /**
+     *  Helper vector (see ApplyBoundaryConditions code)
+     */
+    Vec mDirichletBoundaryConditionsVector;
+
 
     /**
      *  Precondition matrix for the linear system
@@ -242,10 +266,13 @@ protected:
      *
      * Must be overridden in concrete derived classes.
      *
-     * @param assembleResidual A bool stating whether to assemble the residual vector.
-     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
+     * @param assembleResidual     A bool stating whether to assemble the residual vector.
+     * @param assembleLinearSystem A bool stating whether to assemble the Jacobian matrix and the RHS
+     *  vector of the linear system (which is based on the residual but could be slightly different
+     *  due to the way dirichlet boundary conditions are applied to the linear system - see comments in
+     *  ApplyBoundaryConditions).
      */
-    virtual void AssembleSystem(bool assembleResidual, bool assembleJacobian)=0;
+    virtual void AssembleSystem(bool assembleResidual, bool assembleLinearSystem)=0;
 
 
 
@@ -262,13 +289,28 @@ protected:
      */
     void AllocateMatrixMemory();
 
-
     /**
      * Apply the Dirichlet boundary conditions to the linear system.
      *
-     * @param applyToMatrix Whether to apply the boundary conditions to the matrix (as well as the vector)
+     * This will always apply the Dirichlet boundary conditions to the residual vector (basically, setting a component to
+     * the difference between the current value and the correct value).
+     *
+     * If the boolean parameter is true, this will apply the boundary conditions to the Jacobian and the linear system RHS
+     * vector (which should be equal to the residual on entering this function). In the compressible case the boundary conditions
+     * are applied by zeroing both rows and columns of the Jacobian matrix (to maintain) symmetry, which means additional
+     * changes are needed for the RHS vector.
+     *
+     * @param assembleLinearSystem Whether to apply the boundary conditions to the linear system (as well as the residual).
      */
     void ApplyBoundaryConditions(bool applyToMatrix);
+
+    /**
+     *  To be called at the end of AssembleSystem. Calls (Petsc) assemble methods on the Vecs and Mat, and calls
+     *  ApplyBoundaryConditions.
+     *  @assembleResidual see documentation for AssembleSystem
+     *  @assembleLinearSystem see documentation for AssembleSystem
+     */
+    void FinishAssembleSystem(bool assembleResidual, bool assembleLinearSystem);
 
     /**
      *  Set up the residual vector (using the current solution), and get its
@@ -559,12 +601,18 @@ void AbstractNonlinearElasticitySolver<DIM>::Initialise(std::vector<c_vector<dou
 template<unsigned DIM>
 void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
 {
+    mResidualVector = PetscTools::CreateVec(mNumDofs);
+    VecDuplicate(mResidualVector, &mLinearSystemRhsVector);
+    if(mCompressibilityType==COMPRESSIBLE)
+    {
+        VecDuplicate(mResidualVector, &mDirichletBoundaryConditionsVector);
+    }
+
     if(DIM==2)
     {
         // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
         unsigned num_non_zeros = std::min(75u, mNumDofs);
 
-        mResidualVector = PetscTools::CreateVec(mNumDofs);
         PetscTools::SetupMat(mJacobianMatrix, mNumDofs, mNumDofs, num_non_zeros, PETSC_DECIDE, PETSC_DECIDE);
         PetscTools::SetupMat(mPreconditionMatrix, mNumDofs, mNumDofs, num_non_zeros, PETSC_DECIDE, PETSC_DECIDE);
 
@@ -572,8 +620,6 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
     else
     {
         assert(DIM==3);
-
-        mResidualVector = PetscTools::CreateVec(mNumDofs);
 
         // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
 
@@ -675,12 +721,46 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
     }
 }
 
-
-
+/*
+ * This method applies the appropriate BCs to the residual vector, and possible also the linear system.
+ *
+ * For the latter, in the compressible case, the BCs are imposed in such a way as to ensure that a
+ * symmetric linear system remains symmetric. For each row with boundary condition applied, both the
+ * row and column are zero'd and the RHS vector modified to take into account the zero'd column.
+ *
+ * Suppose we have a matrix
+ * [a b c] [x] = [ b1 ]
+ * [d e f] [y]   [ b2 ]
+ * [g h i] [z]   [ b3 ]
+ * and we want to apply the boundary condition x=v without losing symmetry if the matrix is
+ * symmetric. We apply the boundary condition
+ * [1 0 0] [x] = [ v  ]
+ * [d e f] [y]   [ b2 ]
+ * [g h i] [z]   [ b3 ]
+ * and then zero the column as well, adding a term to the RHS to take account for the
+ * zero-matrix components
+ * [1 0 0] [x] = [ v  ] - v[ 0 ]
+ * [0 e f] [y]   [ b2 ]    [ d ]
+ * [0 h i] [z]   [ b3 ]    [ g ]
+ * Note the last term is the first column of the matrix, with one component zeroed, and
+ * multiplied by the boundary condition value. This last term is then stored in
+ * rLinearSystem.rGetDirichletBoundaryConditionsVector(), and in general form is the
+ * SUM_{d=1..D} v_d a'_d
+ * where v_d is the boundary value of boundary condition d (d an index into the matrix),
+ * and a'_d is the dth-column of the matrix but with the d-th component zeroed, and where
+ * there are D boundary conditions
+ */
 template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyToMatrix)
+void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyToLinearSystem)
 {
     assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
+
+    assert(mResidualVector); // BCs will be added to all the time
+    if(applyToLinearSystem)
+    {
+        assert(mJacobianMatrix);
+        assert(mLinearSystemRhsVector);
+    }
 
     // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
     // on the boundary nodes. However:
@@ -689,10 +769,21 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
     // u=current_soln-boundary_values on the boundary nodes
 
     std::vector<unsigned> rows;
-    if(applyToMatrix)
+    std::vector<double> values;
+
+    rows.resize(DIM*mFixedNodes.size());
+    values.resize(DIM*mFixedNodes.size());
+
+    // whether to apply symmetrically, ie alter columns as well as rows (see comment above)
+    bool applySymmetrically = (applyToLinearSystem) && (mCompressibilityType==COMPRESSIBLE);
+
+    if(applySymmetrically)
     {
-        rows.resize(DIM*mFixedNodes.size());
+        assert(applyToLinearSystem);
+        PetscVecTools::Zero(mDirichletBoundaryConditionsVector);
+        PetscMatTools::AssembleFinal(mJacobianMatrix);
     }
+
 
     for (unsigned i=0; i<mFixedNodes.size(); i++)
     {
@@ -700,22 +791,103 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
         for (unsigned j=0; j<DIM; j++)
         {
             unsigned dof_index = DIM*node_index+j;
-
-            if(applyToMatrix)
-            {
-                rows[DIM*i+j] = dof_index;
-            }
-
-            double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
-
-            PetscVecTools::SetElement(mResidualVector, dof_index, value);
+            rows[DIM*i+j] = dof_index;
+            values[DIM*i+j] = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);;
         }
     }
 
-    if(applyToMatrix)
+
+    if(applySymmetrically)
     {
-        PetscMatTools::ZeroRowsWithValueOnDiagonal(mJacobianMatrix, rows, 1.0);
-        PetscMatTools::ZeroRowsWithValueOnDiagonal(mPreconditionMatrix, rows, 1.0);
+        // Modify the matrix columns
+        for (unsigned i=0; i<rows.size(); i++)
+        {
+            unsigned col = rows[i];
+            double minus_value = -values[i];
+
+            // Get a vector which will store the column of the matrix (column d, where d is
+            // the index of the row (and column) to be altered for the boundary condition.
+            // Since the matrix is symmetric when get row number "col" and treat it as a column.
+            // PETSc uses compressed row format and therefore getting rows is far more efficient
+            // than getting columns.
+            Vec matrix_col = PetscMatTools::GetMatrixRowDistributed(mJacobianMatrix,col);
+
+            // Zero the correct entry of the column
+            PetscVecTools::SetElement(matrix_col, col, 0.0);
+
+            // Set up the RHS Dirichlet boundary conditions vector
+            // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
+            //   -value*[0 a_21 a_31 .. a_N1]
+            // and will be added to the RHS.
+            PetscVecTools::AddScaledVector(mDirichletBoundaryConditionsVector, matrix_col, minus_value);
+            VecDestroy(matrix_col);
+        }
+    }
+
+    if(applyToLinearSystem)
+    {
+        // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the
+        // boundary conditions in a way the symmetry isn't lost (rows and columns). If not only the row is
+        // zeroed.
+        if (applySymmetrically)
+        {
+            PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(mJacobianMatrix, rows, 1.0);
+            PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(mPreconditionMatrix, rows, 1.0);
+
+            // Apply the RHS boundary conditions modification if required.
+            PetscVecTools::AddScaledVector(mLinearSystemRhsVector, mDirichletBoundaryConditionsVector, 1.0);
+        }
+        else
+        {
+            PetscMatTools::ZeroRowsWithValueOnDiagonal(mJacobianMatrix, rows, 1.0);
+            PetscMatTools::ZeroRowsWithValueOnDiagonal(mPreconditionMatrix, rows, 1.0);
+        }
+
+    }
+
+    for (unsigned i=0; i<rows.size(); i++)
+    {
+        PetscVecTools::SetElement(mResidualVector, rows[i], values[i]);
+    }
+
+    if(applyToLinearSystem)
+    {
+        for (unsigned i=0; i<rows.size(); i++)
+        {
+            PetscVecTools::SetElement(mLinearSystemRhsVector, rows[i], values[i]);
+        }
+    }
+}
+
+
+
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::FinishAssembleSystem(bool assembleResidual, bool assembleJacobian)
+{
+    if (assembleResidual)
+    {
+        PetscVecTools::Assemble(mResidualVector);
+    }
+    if (assembleJacobian)
+    {
+        PetscMatTools::AssembleIntermediate(mJacobianMatrix);
+        PetscMatTools::AssembleIntermediate(mPreconditionMatrix);
+
+        VecCopy(mResidualVector, mLinearSystemRhsVector);
+    }
+
+    // Apply Dirichlet boundary conditions
+    ApplyBoundaryConditions(assembleJacobian);
+
+    if (assembleResidual)
+    {
+        PetscVecTools::Assemble(mResidualVector);
+    }
+    if (assembleJacobian)
+    {
+        PetscMatTools::AssembleFinal(mJacobianMatrix);
+        PetscMatTools::AssembleFinal(mPreconditionMatrix);
+        PetscVecTools::Assemble(mLinearSystemRhsVector);
     }
 }
 
@@ -819,9 +991,16 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 
     KSPSetOperators(solver, mJacobianMatrix, mPreconditionMatrix, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
-    unsigned num_restarts = 100;
-    KSPSetType(solver,KSPGMRES);
-    KSPGMRESSetRestart(solver,num_restarts);
+    if(mCompressibilityType==COMPRESSIBLE)
+    {
+        KSPSetType(solver,KSPCG);
+    }
+    else
+    {
+        unsigned num_restarts = 100;
+        KSPSetType(solver,KSPGMRES);
+        KSPGMRESSetRestart(solver,num_restarts);
+    }
 
     if(mKspAbsoluteTol < 0)
     {
@@ -866,7 +1045,8 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     Timer::PrintAndReset("KSP Setup");
     #endif
     
-    KSPSolve(solver,mResidualVector,solution);
+//todo
+    KSPSolve(solver,mLinearSystemRhsVector,solution);
     
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
@@ -1132,8 +1312,13 @@ AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
     if(mResidualVector)
     {
         VecDestroy(mResidualVector);
+        VecDestroy(mLinearSystemRhsVector);
         MatDestroy(mJacobianMatrix);
         MatDestroy(mPreconditionMatrix);
+        if(mCompressibilityType==COMPRESSIBLE)
+        {
+            VecDestroy(mDirichletBoundaryConditionsVector);
+        }
     }
 
     if(mpQuadratureRule)

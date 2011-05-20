@@ -303,3 +303,41 @@ void PetscMatTools::SetOption(Mat matrix, MatOption option)
     MatSetOption(matrix, option);
 #endif
 }
+
+
+
+Vec PetscMatTools::GetMatrixRowDistributed(Mat matrix, unsigned rowIndex)
+{
+    //  We need to make sure that lhs_ith_row doesn't ignore off processor entries when assembling,
+    //  otherwise the VecSetValues call a few lines below will not work as expected.
+
+    PetscInt lo, hi;
+    PetscMatTools::GetOwnershipRange(matrix, lo, hi);
+    unsigned size = PetscMatTools::GetSize(matrix);
+
+    Vec mat_ith_row = PetscTools::CreateVec(size, hi-lo, false);
+
+    PetscInt num_entries;
+    const PetscInt* column_indices;
+    const PetscScalar* values;
+
+    bool am_row_owner = (PetscInt)rowIndex >= lo && (PetscInt)rowIndex < hi;
+
+    // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
+    // In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
+    if (am_row_owner)
+    {
+        MatGetRow(matrix, rowIndex, &num_entries, &column_indices, &values);
+        VecSetValues(mat_ith_row, num_entries, column_indices, values, INSERT_VALUES);
+    }
+
+    VecAssemblyBegin(mat_ith_row);
+    VecAssemblyEnd(mat_ith_row);
+
+    if (am_row_owner)
+    {
+        MatRestoreRow(matrix, rowIndex, &num_entries, &column_indices, &values);
+    }
+
+    return mat_ith_row;
+}
