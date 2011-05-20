@@ -636,6 +636,8 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
 
         if(PetscTools::IsSequential())
         {
+            MatSetType(mJacobianMatrix, MATSEQAIJ);
+            MatSetType(mPreconditionMatrix, MATSEQAIJ);
             MatSeqAIJSetPreallocation(mJacobianMatrix,     PETSC_NULL, num_non_zeros_each_row);
             MatSeqAIJSetPreallocation(mPreconditionMatrix, PETSC_NULL, num_non_zeros_each_row);
         }
@@ -652,6 +654,8 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
                 zero[i] = 0;
             }
 
+            MatSetType(mJacobianMatrix, MATMPIAIJ);
+            MatSetType(mPreconditionMatrix, MATMPIAIJ);
             MatMPIAIJSetPreallocation(mJacobianMatrix,     PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
             MatMPIAIJSetPreallocation(mPreconditionMatrix, PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
         }
