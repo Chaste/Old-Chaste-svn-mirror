@@ -186,7 +186,11 @@ public:
         // check that the matrix is symmetric
         Mat J_trans;
         PetscTruth is_symmetric;
+#if PETSC_VERSION_MAJOR==2
+        MatTranspose(solver.mJacobianMatrix, &J_trans);
+#else        
         MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
+#endif
         MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
         TS_ASSERT(is_symmetric);
     }
@@ -427,7 +431,11 @@ public:
         // check that the last matrix was symmetric
         Mat J_trans;
         PetscTruth is_symmetric;
+#if PETSC_VERSION_MAJOR==2
+        MatTranspose(solver.mJacobianMatrix, &J_trans);
+#else        
         MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
+#endif
         MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
 
 
