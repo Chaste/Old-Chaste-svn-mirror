@@ -134,6 +134,27 @@ void PetscTools::Barrier(const std::string callerId)
     }
 }
 
+void PetscTools::BeginRoundRobin()
+{
+    Barrier("PetscTools::RoundRobin"); // We want barriers both before all and after all, just in case
+    const unsigned my_rank = GetMyRank();
+    for (unsigned turn=0; turn<my_rank; turn++)
+    {
+        Barrier("PetscTools::RoundRobin");
+    }
+}
+
+
+void PetscTools::EndRoundRobin()
+{
+    const unsigned num_procs = GetNumProcs();
+    for (unsigned turn=GetMyRank(); turn<num_procs; turn++)
+    {
+        Barrier("PetscTools::RoundRobin");
+    }
+}
+
+
 #ifndef SPECIAL_SERIAL
 
 bool PetscTools::ReplicateBool(bool flag)
@@ -237,7 +258,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
 #endif
 
-    
+
     if(PetscTools::IsSequential())
     {
         MatSetType(rMat, MATSEQAIJ);
@@ -255,11 +276,11 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
             MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.7), PETSC_NULL);
         }
     }
-    
+
     MatSetFromOptions(rMat);
 
 
-        
+
     if (ignoreOffProcEntries)//&& IsParallel())
     {
         if (rowPreallocation == 0)
@@ -312,12 +333,12 @@ void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFile
 void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout)
 {
     /*
-     *  PETSc (as of 3.1) doesn't provide any method for loading a Mat object with a user-defined parallel 
-     * layout, i.e. there's no equivalent to VecLoadIntoVector for Mat's. 
-     * 
+     *  PETSc (as of 3.1) doesn't provide any method for loading a Mat object with a user-defined parallel
+     * layout, i.e. there's no equivalent to VecLoadIntoVector for Mat's.
+     *
      * It seems to be in their future plans though: http://lists.mcs.anl.gov/pipermail/petsc-users/2010-March/006062.html
      */
-        
+
     PetscViewer view;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     PetscViewerFileType type = PETSC_FILE_RDONLY;
@@ -329,7 +350,7 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
                           type, &view);
     MatLoad(view, MATMPIAIJ, &rMat);
     PetscViewerDestroy(view);
-    
+
     if (rParallelLayout != NULL)
     {
         /*
@@ -337,20 +358,20 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
          * parallel layout. Inefficient...
          */
         PetscInt num_rows, num_local_rows;
-        
+
         VecGetSize(rParallelLayout, &num_rows);
-        VecGetLocalSize(rParallelLayout, &num_local_rows);               
-        
+        VecGetLocalSize(rParallelLayout, &num_local_rows);
+
         Mat temp_mat;
         /// \todo: #1082 work out appropriate nz allocation.
         PetscTools::SetupMat(temp_mat, num_rows, num_rows, 100, num_local_rows, num_local_rows, false);
-     
-        MatCopy(rMat, temp_mat, DIFFERENT_NONZERO_PATTERN);        
-        
+
+        MatCopy(rMat, temp_mat, DIFFERENT_NONZERO_PATTERN);
+
         MatDestroy(rMat);
         rMat = temp_mat;
-        
-    }        
+
+    }
 }
 
 void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout)
@@ -381,21 +402,21 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 void PetscTools::Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
 {
     std::stringstream error_message;
-    
+
     error_message<<"\nChaste termination: " << rFilename << ":" << lineNumber  << ": " << rMessage<<"\n";
     std::cerr<<error_message.str();
-    
-    //double check for PETSc.  We could use mPetscIsInitialised, but only if we are certain that the 
+
+    //double check for PETSc.  We could use mPetscIsInitialised, but only if we are certain that the
     //PetscTools class has been used previously.
     PetscTruth is_there;
     PetscInitialized(&is_there);
     if (is_there)
     {
-        MPI_Abort(PETSC_COMM_WORLD, EXIT_FAILURE); 
+        MPI_Abort(PETSC_COMM_WORLD, EXIT_FAILURE);
     }
     else
     {
         exit(EXIT_FAILURE);
-    } 
+    }
 }
 #undef COVERAGE_IGNORE //Termination NEVER EVER happens under normal testing conditions.

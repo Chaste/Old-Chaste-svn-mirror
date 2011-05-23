@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include "OutputFileHandler.hpp"
-#include <sys/utsname.h>
 
 /**
  * Various helpful static methods for people writing their own executables
@@ -61,7 +60,7 @@ public:
      * Output extra diagnostics when Chaste is launched in parallel.
      */
     static void ShowParallelLaunching();
-    
+
     /**
      * Set the directory to which the files created by WriteMachineInfoFile,
      * and WriteProvenanceInfoFile will be written.
@@ -75,7 +74,7 @@ public:
      * Write to log files information about the machine that ran the code.
      * Each process will output its own file.
      *
-     * @param fileBaseName base name of the file to write to 
+     * @param fileBaseName base name of the file to write to
      */
     static void WriteMachineInfoFile(std::string fileBaseName);
 
@@ -88,11 +87,11 @@ public:
     /**
      * Write information about library and compiler versions to the provenance_info.txt
      * output file.
-     * 
+     *
      * @param outFile the provenance_info.txt file.
      */
     static void WriteLibraryInfo( out_stream &outFile );
-    
+
     /**
      * Call InitializePetsc, ShowCopyright, then ShowParallelLaunching.
      *
@@ -100,10 +99,10 @@ public:
      * @param pArgv  pointer to the argument list
      */
     static void StandardStartup(int* pArgc, char*** pArgv);
-    
+
     /**
      * Display an error message to the user, on stderr.
-     * 
+     *
      * @param rMessage  the message to display
      * @param masterOnly  whether only the master process should display the error
      */
@@ -120,19 +119,19 @@ public:
      * Shut down PETSc so we exit cleanly.
      */
     static void FinalizePetsc();
-    
+
     /**
      * Standard exit codes for executables to return from main():
      * successful termination.
      */
     static const int EXIT_OK = 0;
-    
+
     /**
      * Standard exit codes for executables to return from main():
      * exception thrown during execution.
      */
     static const int EXIT_ERROR = 1;
-    
+
     /**
      * Standard exit codes for executables to return from main():
      * bad arguments passed on command line.

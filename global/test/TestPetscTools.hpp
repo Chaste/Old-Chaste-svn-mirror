@@ -61,6 +61,11 @@ public:
         bool am_right = (my_rank == num_procs - 1 );
         TS_ASSERT_EQUALS( PetscTools::AmTopMost(), am_right);
 
+        std::cout << "These should be ordered:" << std::endl;
+        PetscTools::BeginRoundRobin();
+        std::cout << "  Process " << PetscTools::GetMyRank() << std::endl;
+        PetscTools::EndRoundRobin();
+
         ////////////////////////////////////////////////////
         // test CreateVec which returns a vec of constants
         ////////////////////////////////////////////////////
@@ -116,7 +121,7 @@ public:
         {
             TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
         }
-        
+
         VecDestroy(vec1);
         VecDestroy(vec2);
         MatDestroy(mat);
@@ -161,11 +166,11 @@ public:
         }
 
         MatDestroy(mat2);
-        
+
         Mat mat_over_allocate;
         PetscTools::SetupMat(mat_over_allocate, 12, 12, 13);
         MatDestroy(mat_over_allocate);
-        
+
         // coverage
         Mat mat3;
         PetscTools::SetupMat(mat3, 1, 1, 0);
@@ -276,13 +281,13 @@ public:
     }
 
     /*
-     *  This test reuses the 10x10 matrix written to disc in the previous test. It reads it 
-     * back in with a different parallel layout. For p=2 it is partitioned in 6 and 4 rows, 
-     * for p=3 4, 4, and 2. 
-     */    
+     *  This test reuses the 10x10 matrix written to disc in the previous test. It reads it
+     * back in with a different parallel layout. For p=2 it is partitioned in 6 and 4 rows,
+     * for p=3 4, 4, and 2.
+     */
     void TestReadWithNonDefaultParallelLayout()
     {
-        DistributedVectorFactory factory(5);        
+        DistributedVectorFactory factory(5);
         Vec parallel_layout = factory.CreateVec(2);
 
         PetscInt lo, hi;
@@ -320,10 +325,10 @@ public:
 
         MatDestroy(matrix_read);
         VecDestroy(vector_read);
-        VecDestroy(parallel_layout);        
+        VecDestroy(parallel_layout);
     }
-    
-    
+
+
     void TestUnevenCreation()
     {
         //Uneven test (as in TestDistributedVectorFactory).

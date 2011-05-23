@@ -361,26 +361,23 @@ private:
             format = "%8.3f ";
         }
 
-        for (unsigned turn=0; turn<PetscTools::GetNumProcs(); turn++)
+        PetscTools::BeginRoundRobin();
         {
             std::cout.flush();
-            PetscTools::Barrier();
-            if (turn == PetscTools::GetMyRank())
+            if (PetscTools::IsParallel())
             {
-                if (PetscTools::IsParallel())
-                {
-                    // Report the process number at the beginning of the line
-                    printf("%3i: ", turn); //5 chars
-                }
-                for (unsigned event=0; event<NUM_EVENTS; event++)
-                {
-                    const double secs = ConvertWallTimeToSeconds(mWallTime[event]);
-                    printf(format, secs);
-                    printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
-                }
-                std::cout << "(seconds) \n";
+                // Report the process number at the beginning of the line
+                printf("%3i: ", PetscTools::GetMyRank()); //5 chars
             }
+            for (unsigned event=0; event<NUM_EVENTS; event++)
+            {
+                const double secs = ConvertWallTimeToSeconds(mWallTime[event]);
+                printf(format, secs);
+                printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
+            }
+            std::cout << "(seconds) \n";
         }
+        PetscTools::EndRoundRobin();
 
         // If there is a collection of processes then report an average
         if (PetscTools::IsParallel())

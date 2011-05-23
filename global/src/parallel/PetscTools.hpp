@@ -145,6 +145,16 @@ public:
      */
     static void Barrier(const std::string callerId="");
 
+    /**
+     * Call at the start of a block of code that should be executed by each process in turn.
+     */
+    static void BeginRoundRobin();
+
+    /**
+     * Call at the end of a block of code that should be executed by each process in turn.
+     */
+    static void EndRoundRobin();
+
 #ifndef SPECIAL_SERIAL
     /**
      * Create a vector of the specified size. SetFromOptions is called.
@@ -152,7 +162,7 @@ public:
      * @param size  the size of the vector
      * @param localSize  the local number of items owned by this process
      * @param ignoreOffProcEntries whether to ignore entries destined to be stored on a separate processor when assembling (eliminates global reductions).
-     * 
+     *
      */
     static Vec CreateVec(int size, int localSize=PETSC_DECIDE, bool ignoreOffProcEntries = true);
 
@@ -173,14 +183,14 @@ public:
     static Vec CreateAndSetVec(int size, double value);
 
     /**
-     * Set up a matrix - set the size using the given parameters. The number of local rows 
+     * Set up a matrix - set the size using the given parameters. The number of local rows
      * and columns is by default PETSC_DECIDE. SetFromOptions is called.
      *
      * @param rMat the matrix
      * @param numRows the number of rows in the matrix
      * @param numColumns the number of columns in the matrix
      * @param rowPreallocation the max number of nonzero entries expected on a row
-     *   A value of 0 is allowed: no preallocation is then done and the user must 
+     *   A value of 0 is allowed: no preallocation is then done and the user must
      *   preallocate the memory for the matrix themselves.
      * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
@@ -229,7 +239,7 @@ public:
      *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to read the matrix from
-     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant. 
+     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant.
      */
     static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
 
@@ -238,16 +248,16 @@ public:
      *
      * @param rVec a vector
      * @param rOutputFileFullPath where to read the matrix from
-     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant. 
+     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant.
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
-    
+
 #endif //SPECIAL_SERIAL (ifndef)
 
     /**
      * Level 4 error (Termination).  Execution cannot continue from this point and hence
      * should be terminated (even when running with NDEBUG).
-     * 
+     *
      * @param rMessage An error message to appear on the screen
      * @param rFilename  which source file produced the termination error
      * @param lineNumber  which line number of the source file produced the termination error
@@ -269,7 +279,7 @@ public:
  *
  * The exit statement at the end of NEVER_REACHED is not really needed but prevents g++ from complaining about
  * uninitialised variables when you have code that looks like:
- * 
+ *
  * \code
  *   RelativeTo::Value relative_to;
  *   switch (rPath.relative_to())
@@ -291,9 +301,9 @@ public:
  *           break;
  *   }
  * \endcode
- * 
+ *
  * relative_to is considered potentially uninitialised in the default branch unless the compiler finds a exit,
- * assert or throw statement. 
+ * assert or throw statement.
  */
 #define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__); exit(EXIT_FAILURE)
 

@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExecutableSupport.hpp"
 
 #include <iostream>
+#include <sstream>
+#include <sys/utsname.h>
+#include <hdf5.h>
 
 #include "CommandLineArguments.hpp"
 #include "Exception.hpp"
@@ -36,10 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscException.hpp"
 #include "Version.hpp"
 #include "OutputFileHandler.hpp"
-#include <sys/utsname.h>
-
 #include "ChasteSerialization.hpp"
-#include <hdf5.h>
 
 #ifdef CHASTE_VTK
 #define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
@@ -103,15 +103,10 @@ void ExecutableSupport::ShowParallelLaunching()
     if (PetscTools::IsParallel())
     {
         ///Information to show that Chaste is being run in parallel
-        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
-        {
-            if (i==PetscTools::GetMyRank())
-            {
-                std::cout << "Chaste launched on process " << PetscTools::GetMyRank()
-                    << " of " << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
-            }
-            PetscTools::Barrier();
-        }
+        PetscTools::BeginRoundRobin();
+        std::cout << "Chaste launched on process " << PetscTools::GetMyRank()
+            << " of " << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
+        PetscTools::EndRoundRobin();
     }
 }
 
