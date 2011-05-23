@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TwoDimOdeSystem.hpp"
 #include "VanDerPolOde.hpp"
 #include "ParameterisedOde.hpp"
+#include "OdeSystemForCoupledHeatEquation.hpp"
 
 #include "OutputFileHandler.hpp"
 
@@ -481,6 +482,30 @@ public:
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tx:0\n\tv:1\n");
     }
 
+    void TestAbstractOdeSystemForCoupledPdeSystem()
+    {
+        // Create ODE system
+        OdeSystemForCoupledHeatEquation ode_system(1.0);
+
+        // Test setting/getting a PDE solution vector with the correct size
+        std::vector<double> solution(1);
+        solution[0] = 12.3;
+
+        ode_system.SetPdeSolution(solution);
+
+        TS_ASSERT_EQUALS(ode_system.GetPdeSolutionSize(), 1u);
+
+        std::vector<double> obtained_solution = ode_system.rGetPdeSolution();
+        TS_ASSERT_DELTA(obtained_solution[0], solution[0], 1e-6);
+
+        // Test an exception is thrown if setting a PDE solution vector with incorrect size
+        std::vector<double> bad_solution(2);
+        bad_solution[0] = 2.1;
+        bad_solution[1] = 4.9;
+
+        TS_ASSERT_THROWS_THIS(ode_system.SetPdeSolution(bad_solution),
+                              "The supplied vector is not the correct size.");
+    }
 };
 
 #endif //_TESTABSTRACTODESYSTEM_HPP_
