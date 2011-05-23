@@ -84,6 +84,17 @@ public:
     void ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes);
     
     /**
+     * A Helper method to enable you to construct a nodes only mesh by stripping the nodes
+     * TetrahedralMesh, this calls the ConstructNodesWithoutMesh method with the nodes
+     *
+     * If this is the only way of constructing a mesh of this type, then we can be certain that
+     * elements and boundary elements are always unused.
+     *
+     * @param rGeneratingMesh TetrahedralMesh used to generate the NodesOnlyMesh
+     */
+    void ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh);
+
+    /**
      * Get the cell radius associated with a given node index.
      * 
      * @param index the index of a node

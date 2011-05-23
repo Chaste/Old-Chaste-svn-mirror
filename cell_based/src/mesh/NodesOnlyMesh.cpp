@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned SPACE_DIM>
-void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*> & rNodes)
+void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes)
 {
     this->Clear();
     for (unsigned i=0; i<rNodes.size(); i++)
@@ -46,6 +46,19 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
         this->mNodes.push_back( p_node_copy );
         mCellRadii.push_back(1.0);
     }
+}
+
+template<unsigned SPACE_DIM>
+void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh)
+{
+    // Get a std::vector of nodes from the mesh
+    std::vector<Node<SPACE_DIM>* > nodes;
+    for (unsigned i=0; i<rGeneratingMesh.GetNumNodes(); i++)
+    {
+        Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(*(rGeneratingMesh.GetNode(i)));
+        nodes.push_back(p_node);
+    }
+    ConstructNodesWithoutMesh(nodes);
 }
 
 template<unsigned SPACE_DIM>
