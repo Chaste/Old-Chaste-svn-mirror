@@ -37,7 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * dv/dt = a*u, v(0) = 1,
  * 
- * where u is the solution to the heat equation. For use in TestLinearParabolicPdeSystemWithCoupledOdeSystemSolver.
+ * that couples with the heat equation
+ * 
+ * u_t = div (grad u),
+ * 
+ * which is defined in the separate class HeatEquationForCoupledOdeSystem.
  */
 class OdeSystemForCoupledHeatEquation : public AbstractOdeSystemForCoupledPdeSystem
 {

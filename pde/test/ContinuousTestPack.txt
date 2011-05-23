@@ -9,6 +9,7 @@ TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
+TestLinearParabolicPdeSystemForCoupledOdeSystem.hpp
 TestMaterialLaws.hpp
 TestNonlinearElasticitySolver.hpp
 TestNonlinearElasticityTools.hpp
