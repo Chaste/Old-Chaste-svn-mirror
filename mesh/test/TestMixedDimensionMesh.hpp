@@ -43,14 +43,17 @@ class TestMixedDimensionMesh : public CxxTest::TestSuite
 public:
     void TestReadingSquareMesh() throw (Exception)
     {
+        /**
+         * \todo This test crashes on 4 processes! Due to hitting a NEVER_REACHED at MixedDimensionMesh.cpp:92.
+         */
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
-        
+
         /*
          * Cables:
         0       55      56      1
@@ -64,13 +67,13 @@ public:
         8       63      64      9
         9       64      65      10
          *
-         */ 
+         */
         TS_ASSERT_EQUALS(mesh.GetNumCableElements(), 10u);
-        
+
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 10u);
-            
+
             for (unsigned i=0; i<10u; i++)
             {
                 Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
@@ -82,7 +85,7 @@ public:
                 TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
                 TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) );
             }
-            
+
             for (unsigned i=0; i<200u; i++)
             {
                 Element<2,2>* p_elt = mesh.GetElement(i);
@@ -127,7 +130,7 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNodeOrHaloNode(55u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
-                    
+
                     // Not designated owner of the first of these as node 0 is owned by process 0
                     if (i==4)
                     {
@@ -137,7 +140,7 @@ public:
                     {
                         TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) );
                     }
-                        
+
                 }
             }
         }
@@ -164,7 +167,7 @@ public:
             TS_ASSERT_LESS_THAN(mesh.GetNumLocalCableElements(), 11u);
         }
     }
-    
+
     void TestCableElementIterator() throw (Exception)
     {
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
@@ -185,16 +188,16 @@ public:
             TS_ASSERT_EQUALS((*iter)->GetNode(0u), mesh.GetNodeOrHaloNode(55u + index));
             TS_ASSERT_EQUALS((*iter)->GetNode(1u), mesh.GetNodeOrHaloNode(56u + index));
             TS_ASSERT_EQUALS((*iter)->GetRegion(), index+1);
-            
+
             count++;
         }
 
         if (PetscTools::IsSequential())
         {
-            TS_ASSERT_EQUALS(count, 10u);                
+            TS_ASSERT_EQUALS(count, 10u);
         }
         if (PetscTools::GetNumProcs() == 2)
-        {            
+        {
             if (PetscTools::GetMyRank() == 0)
             {
                 TS_ASSERT_EQUALS(count, 5u);
@@ -204,7 +207,7 @@ public:
                 TS_ASSERT_EQUALS(count, 6u);
             }
         }
-        
+
         //Test that every cable element has a designated owner
         unsigned local_owned=0u;
         for (unsigned i=0; i<mesh.GetNumCableElements(); i++)
@@ -218,19 +221,19 @@ public:
         MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(total_owned, mesh.GetNumCableElements());
     }
-    
+
     void TestReadingMeshWithNoCables() throw (Exception)
     {
         std::string mesh_base("mesh/test/data/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
         TS_ASSERT_EQUALS(mesh.GetNumCableElements(), 0u);
     }
-    
+
     void TestExceptions() throw (Exception)
     {
         // Only TrianglesMeshReader supports cables
@@ -239,44 +242,45 @@ public:
         TS_ASSERT_EQUALS(memfem_reader.GetNumCableElementAttributes(), 0u);
         TS_ASSERT_THROWS_THIS(memfem_reader.GetNextCableElementData(), "Cable elements are not supported by this mesh format.");
     }
-    
-        
+
+
     void TestWritingCableFiles() throw(Exception)
     {
         EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
-        
+
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
-        
+
         TrianglesMeshWriter<2,2> mesh_writer("TestMixedDimensionMesh", "CableMesh", true);
 
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMesh.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
-        
+
     }
-    
-    
+
+
     void TestWritingCableFilesUsingMeshReader() throw(Exception)
     {
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        
+
         TrianglesMeshWriter<2,2> mesh_writer("TestMixedDimensionMesh", "CableMeshFromReader");
         mesh_writer.WriteFilesUsingMeshReader(reader);
-        
+        PetscTools::Barrier("TestWritingCableFilesUsingMeshReader");
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/CableMeshFromReader.cable mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements.cable").c_str()), 0);
-        
+
     }
-    
+
     void TestWritingBinaryFormat()
     {
         EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
-        
+
         //Read as ascii
         TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
 
@@ -290,19 +294,19 @@ public:
         TrianglesMeshReader<2,2> binary_reader(results_dir + "CableMeshBinary");
         MixedDimensionMesh<2,2> binary_mesh;
         binary_mesh.ConstructFromMeshReader(binary_reader);
-        
+
         //Read original file into a mesh
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> original_reader(mesh_base);
         MixedDimensionMesh<2,2> original_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         original_mesh.ConstructFromMeshReader(original_reader);
-        
+
         //Compare to original
         TS_ASSERT_EQUALS(binary_mesh.GetNumNodes(), original_mesh.GetNumNodes());
         TS_ASSERT_EQUALS(binary_mesh.GetNumElements(), original_mesh.GetNumElements());
-        
+
         TS_ASSERT_EQUALS(binary_mesh.GetNumCableElements(), original_mesh.GetNumCableElements());
-        
+
         MixedDimensionMesh<2,2>::CableElementIterator original_iter = original_mesh.GetCableElementIteratorBegin();
         for (MixedDimensionMesh<2,2>::CableElementIterator binary_iter = binary_mesh.GetCableElementIteratorBegin();
              binary_iter != binary_mesh.GetCableElementIteratorEnd();
@@ -315,7 +319,7 @@ public:
 
             ++original_iter;
         }
-        
+
         //Write a binary from the original mesh
         TrianglesMeshWriter<2,2> writer_from_mesh("TestMixedDimensionMesh", "CableMeshBinaryFromMesh", false);
         writer_from_mesh.SetWriteFilesAsBinary();
