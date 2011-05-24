@@ -1,3 +1,4 @@
+bidomain/TestAdaptiveBidomainProblemNightly.hpp
 bidomain/TestBidomain3D.hpp
 bidomain/TestBidomainWithBathLong.hpp
 convergence/TestConvergenceEfficiency.hpp

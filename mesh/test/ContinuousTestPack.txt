@@ -1,3 +1,4 @@
+TestAdaptiveTetrahedralMesh.hpp
 TestChastePoint.hpp
 TestChasteRegions.hpp
 TestDistributedTetrahedralMesh.hpp
