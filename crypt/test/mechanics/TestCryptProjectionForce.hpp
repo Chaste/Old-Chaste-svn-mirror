@@ -556,11 +556,17 @@ public:
             double y = (double)(i);
             nodes.push_back(new Node<2>(i, true, x, y));
         }
+        // Convert this to a NodesOnlyMesh
+		NodesOnlyMesh<2> mesh;
+		mesh.ConstructNodesWithoutMesh(nodes);
+
+
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, num_nodes);
 
-        NodeBasedCellPopulation<2> cell_population(nodes, cells);
+
+        NodeBasedCellPopulation<2> cell_population(mesh, nodes, cells);
 
         // Create a vector forces on nodes
         std::vector<c_vector<double, 2> > node_forces;
