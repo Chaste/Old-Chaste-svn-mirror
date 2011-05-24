@@ -171,6 +171,7 @@ public:
     /**
      * Returns the i-th row of the LHS matrix as a distributed PETSc Vec
      *
+     * @param matrix  the matrix
      * @param rowIndex the row index
      * @return rowIndex-th row of the matrix in distributed format
      */

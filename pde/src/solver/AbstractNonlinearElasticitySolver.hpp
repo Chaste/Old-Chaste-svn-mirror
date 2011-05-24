@@ -300,15 +300,16 @@ protected:
      * are applied by zeroing both rows and columns of the Jacobian matrix (to maintain) symmetry, which means additional
      * changes are needed for the RHS vector.
      *
-     * @param assembleLinearSystem Whether to apply the boundary conditions to the linear system (as well as the residual).
+     * @param applyToMatrix Whether to apply the boundary conditions to the linear system (as well as the residual).
      */
     void ApplyBoundaryConditions(bool applyToMatrix);
 
     /**
-     *  To be called at the end of AssembleSystem. Calls (Petsc) assemble methods on the Vecs and Mat, and calls
-     *  ApplyBoundaryConditions.
-     *  @assembleResidual see documentation for AssembleSystem
-     *  @assembleLinearSystem see documentation for AssembleSystem
+     * To be called at the end of AssembleSystem. Calls (Petsc) assemble methods on the Vecs and Mat, and calls
+     * ApplyBoundaryConditions.
+     * 
+     * @param assembleResidual see documentation for AssembleSystem
+     * @param assembleLinearSystem see documentation for AssembleSystem
      */
     void FinishAssembleSystem(bool assembleResidual, bool assembleLinearSystem);
 
