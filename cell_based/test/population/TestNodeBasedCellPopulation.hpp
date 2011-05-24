@@ -56,8 +56,12 @@ private:
     {
         // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
-        TetrahedralMesh<DIM,DIM> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<DIM,DIM> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<DIM> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -66,7 +70,7 @@ private:
         unsigned num_cells = cells.size();
 
         // Create the cell population
-        NodeBasedCellPopulation<DIM> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<DIM> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Test we have the correct numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), mesh.GetNumNodes());
@@ -109,26 +113,30 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
+
+        // Get a std::vector of nodes from the mesh
+        std::vector<Node<2>* > nodes;
+        for (unsigned i=0; i<generating_mesh.GetNumNodes(); i++)
+        {
+            Node<2>* p_node = new Node<2>(*(generating_mesh.GetNode(i)));
+            nodes.push_back(p_node);
+        }
 
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-
-        // Get a std::vector of nodes from the mesh
-        std::vector<Node<2>* > nodes;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
-            nodes.push_back(p_node);
-        }
+        cells_generator.GenerateBasic(cells, generating_mesh.GetNumNodes());
 
         // Create the cell population
         unsigned num_cells = cells.size();
         std::vector<CellPtr> cells_copy(cells);
-        NodeBasedCellPopulation<2> node_based_cell_population(nodes, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells);
 
         TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), nodes.size());
@@ -141,7 +149,7 @@ public:
         location_indices.push_back(1);
         location_indices.push_back(2);
 
-        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> node_based_cell_population(nodes, cells_copy, location_indices),
+        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells_copy, location_indices),
                               "There is not a one-one correspondence between cells and location indices");
     }
 
@@ -149,8 +157,12 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -167,7 +179,7 @@ public:
         }
         // Fails as no cell corresponding to node 4
         std::vector<CellPtr> cells_copy(cells);
-        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> cell_population(nodes, cells_copy),
+        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> cell_population(mesh, nodes, cells_copy),
                               "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
@@ -179,7 +191,7 @@ public:
         p_cell->SetBirthTime(birth_time);
         cells.push_back(p_cell);
 
-        NodeBasedCellPopulation<2> cell_population(nodes, cells);
+        NodeBasedCellPopulation<2> cell_population(mesh, nodes, cells);
 
         // throws exception as update hasn't been called so no node pairs set up yet
         TS_ASSERT_THROWS_THIS(cell_population.rGetNodePairs(),
@@ -213,6 +225,10 @@ public:
         nodes.push_back(p_node0);
         nodes.push_back(p_node1);
 
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
         // Create two cells
         boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
         FixedDurationGenerationBasedCellCycleModel* p_model0 = new FixedDurationGenerationBasedCellCycleModel();
@@ -230,7 +246,7 @@ public:
         cells.push_back(p_cell1);
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(nodes, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells);
 
         // Create a new cell, DON'T set the node index, set birth time=-1
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
@@ -249,8 +265,12 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -258,7 +278,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Test SetNode() by moving node 0 by a small amount
         AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
@@ -347,8 +367,12 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -359,7 +383,7 @@ public:
         cells[27]->StartApoptosis();
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), 81u);
@@ -397,8 +421,12 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -409,7 +437,7 @@ public:
         cells[27]->StartApoptosis();
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), 81u);
@@ -461,8 +489,12 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -470,7 +502,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Test that the cell population makes all cells fix the node index as ancestor
         node_based_cell_population.SetCellAncestorsToLocationIndices();
@@ -506,8 +538,12 @@ public:
     {
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -515,7 +551,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         // Loop over nodes
         for (AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
@@ -545,8 +581,12 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -554,7 +594,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh,generating_mesh, cells);
 
         // For coverage of WriteResultsToFiles()
         boost::shared_ptr<AbstractCellProperty> p_state(node_based_cell_population.GetCellPropertyRegistry()->Get<WildTypeCellMutationState>());
@@ -662,8 +702,12 @@ public:
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -678,7 +722,7 @@ public:
         cells[0]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
 
         TS_ASSERT_EQUALS(node_based_cell_population.GetIdentifier(), "NodeBasedCellPopulation-2");
 
@@ -722,8 +766,12 @@ public:
 
             // Create a simple mesh
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-            TetrahedralMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
+            TetrahedralMesh<2,2> generating_mesh;
+            generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+            // Convert this to a NodesOnlyMesh
+            NodesOnlyMesh<2> mesh;
+            mesh.ConstructNodesWithoutMesh(generating_mesh);
 
             // Create cells
             std::vector<CellPtr> cells;
@@ -731,7 +779,7 @@ public:
             cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
             // Create a cell population
-            NodeBasedCellPopulation<2>* const p_cell_population = new NodeBasedCellPopulation<2>(mesh, cells);
+            NodeBasedCellPopulation<2>* const p_cell_population = new NodeBasedCellPopulation<2>(mesh, generating_mesh, cells);
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;

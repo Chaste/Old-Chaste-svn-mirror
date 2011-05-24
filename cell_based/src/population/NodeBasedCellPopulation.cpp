@@ -28,14 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeBasedCellPopulation.hpp"
 #include "CellwiseData.hpp"
 #include "VtkMeshWriter.hpp"
-#include "NodesOnlyMesh.hpp"
 
 template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes,
+NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+									  const std::vector<Node<DIM>* > nodes,
                                       std::vector<CellPtr>& rCells,
                                       const std::vector<unsigned> locationIndices,
                                       bool deleteNodes)
     : AbstractCentreBasedCellPopulation<DIM>(rCells, locationIndices),
+      mrMesh(rMesh),
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
       mpBoxCollection(NULL),
@@ -47,8 +48,12 @@ NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM
 
 // archiving constructor
 template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, double mechanicsCutOffLength, bool deleteNodes)
+NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+	                                                  const std::vector<Node<DIM>* > nodes,
+	                                                  double mechanicsCutOffLength,
+	                                                  bool deleteNodes)
     : AbstractCentreBasedCellPopulation<DIM>(),
+      mrMesh(rMesh),
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
       mpBoxCollection(NULL),
@@ -59,21 +64,23 @@ NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM
 }
 
 template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const AbstractMesh<DIM,DIM>& rMesh,
-                                      std::vector<CellPtr>& rCells)
+NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+		                                              const AbstractMesh<DIM,DIM>& rGeneratingMesh,
+                                                      std::vector<CellPtr>& rCells)
     : AbstractCentreBasedCellPopulation<DIM>(rCells),
+      mrMesh(rMesh),
       mAddedNodes(false),
       mpBoxCollection(NULL),
       mDeleteNodes(true),
       mMechanicsCutOffLength(DBL_MAX)
 {
-    unsigned num_nodes = rMesh.GetNumNodes();
+    unsigned num_nodes = rGeneratingMesh.GetNumNodes();
 
     mNodes.reserve(num_nodes);
     // Copy the actual node objects from mesh to this (mesh-less) cell population.
     for (unsigned i=0; i<num_nodes; i++)
     {
-        Node<DIM>* p_node = new Node<DIM>(*(rMesh.GetNode(i)));
+        Node<DIM>* p_node = new Node<DIM>(*(rGeneratingMesh.GetNode(i)));
         mNodes.push_back(p_node);
     }
     mAddedNodes = true;
@@ -94,6 +101,19 @@ NodeBasedCellPopulation<DIM>::~NodeBasedCellPopulation()
         }
     }
 }
+
+template<unsigned DIM>
+NodesOnlyMesh<DIM>& NodeBasedCellPopulation<DIM>::rGetMesh()
+{
+    return mrMesh;
+}
+
+template<unsigned DIM>
+const NodesOnlyMesh<DIM>& NodeBasedCellPopulation<DIM>::rGetMesh() const
+{
+    return mrMesh;
+}
+
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Clear()

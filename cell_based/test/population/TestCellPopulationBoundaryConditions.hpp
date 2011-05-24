@@ -55,15 +55,19 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator generator(2, 2, 0);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_generating_mesh = generator.GetMesh();
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(*p_generating_mesh);
 
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create cell population
-        NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        NodeBasedCellPopulation<2> cell_population(mesh, *p_generating_mesh, cells);
         cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell population boundary condition

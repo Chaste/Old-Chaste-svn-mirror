@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "AbstractTetrahedralMesh.hpp" // for constructor which takes in a mesh
 #include "BoxCollection.hpp"
+#include "NodesOnlyMesh.hpp"
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -48,6 +49,9 @@ class NodeBasedCellPopulation : public AbstractCentreBasedCellPopulation<DIM>
     friend class TestBoxCollection;
 
 protected:
+
+    /** Reference to the mesh. */
+    NodesOnlyMesh<DIM>& mrMesh;
 
     /** List of nodes. */
     std::vector<Node<DIM>* > mNodes;
@@ -150,15 +154,17 @@ public:
      *
      * Note that the cell population will take responsibility for freeing the memory used by the nodes.
      *
+     * @param rMesh a mutable nodes only mesh
      * @param nodes a vector of Nodes
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteNodes whether to delete nodes in destructor
      */
-    NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes,
-                    std::vector<CellPtr>& rCells,
-                    const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
-                    bool deleteNodes=true);
+    NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+    		                const std::vector<Node<DIM>* > nodes,
+                            std::vector<CellPtr>& rCells,
+                            const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
+                            bool deleteNodes=true);
 
     /**
      * Constructor for use by the archiving - doesn't take in cells, since these are
@@ -166,11 +172,15 @@ public:
      *
      * Note that the cell population will take responsibility for freeing the memory used by the nodes.
      *
+     * @param rMesh a mutable nodes only mesh
      * @param nodes a vector of Nodes
      * @param mechanicsCutOffLength the cut of length for mechanics uised to create the BoxedCollection to improve speed
      * @param deleteNodes whether to delete nodes in destructor
      */
-    NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, double mechanicsCutOffLength, bool deleteNodes=true);
+    NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+    		                const std::vector<Node<DIM>* > nodes,
+    		                double mechanicsCutOffLength,
+    		                bool deleteNodes=true);
 
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
@@ -179,11 +189,13 @@ public:
      * This constructor is a helper constructor: it is generally easier for the user to
      * create a mesh than a set of nodes.
      *
-     * @param rMesh any mesh.
+     * @param rMesh a mutable nodes only mesh
+     * @param rGeneratingMesh any mesh used to generate the nodes.
      * @param rCells a vector of cells.
      */
-    NodeBasedCellPopulation(const AbstractMesh<DIM,DIM>& rMesh,
-                    std::vector<CellPtr>& rCells);
+    NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
+    		                const AbstractMesh<DIM,DIM>& rGeneratingMesh,
+                            std::vector<CellPtr>& rCells);
 
     /**
      * Destructor.
@@ -191,6 +203,16 @@ public:
      * Frees all our node memory.
      */
     ~NodeBasedCellPopulation();
+
+    /**
+     * @return reference to  mrMesh.
+     */
+    NodesOnlyMesh<DIM>& rGetMesh();
+
+    /**
+     * @return const reference to mrMesh (used in archiving).
+     */
+    const NodesOnlyMesh<DIM>& rGetMesh() const;
 
     /**
      * @return the number of nodes in the cell population.
@@ -408,7 +430,11 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const NodeBasedCellPopulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    ar & t->rGetNodes();
+    // Save data required to construct instance
+	// Should be able to archive the mesh directly see #1784
+//    const NodesOnlyMesh<DIM>* p_mesh = &(t->rGetMesh());
+//    ar & p_mesh;
+	ar & t->rGetNodes();
 //    const double cut_off_length = t->GetMechanicsCutOffLength();
 //    ar << cut_off_length;
 
@@ -421,16 +447,23 @@ template<class Archive, unsigned DIM>
 inline void load_construct_data(
     Archive & ar, NodeBasedCellPopulation<DIM> * t, const unsigned int file_version)
 {
-    // Load the nodes
-    std::vector<Node<DIM>* > nodes;
+    // Retrieve data from archive required to construct new instance
+	// Should be able to load the mesh directly see #1784
+//    NodesOnlyMesh<DIM>* p_mesh;
+//    ar >> p_mesh;
+	std::vector<Node<DIM>* > nodes;
     ar >> nodes;
+
+    // Generate a NodesOnlyMesh from the nodes as can't archive NodesOnlyMeshes yet #1784
+    NodesOnlyMesh<DIM> mesh;
+    mesh.ConstructNodesWithoutMesh(nodes);
 
     // load the cut of distance
     double cut_off_length = 1.0; //\todo this is temporary till we fix archiving
 //    ar >> cut_off_length;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)NodeBasedCellPopulation<DIM>(nodes, cut_off_length);
+    ::new(t)NodeBasedCellPopulation<DIM>(mesh, nodes, cut_off_length);
 }
 
 }} // close namespaces
