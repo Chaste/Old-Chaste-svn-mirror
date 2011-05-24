@@ -94,11 +94,11 @@ public:
      */
     unsigned GetNumBoundaryFaces();
 
-    /**
-     * Get the number of boundary faces in the mesh.
-     */
-    unsigned GetNumBoundaryEdges();
-
+//    /**
+//     * Get the number of boundary faces in the mesh.
+//     */
+//    unsigned GetNumBoundaryEdges();
+//
     /**
      * Get the number of cable elements in the mesh.
      */

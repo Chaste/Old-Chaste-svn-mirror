@@ -676,6 +676,7 @@ public:
         C(0,0) = 2;
         C(0,1) = C(1,0) = 2;
         C(1,1) = 5;
+        invC = Inverse(C);
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 

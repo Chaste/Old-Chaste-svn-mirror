@@ -80,11 +80,11 @@ unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements()
     return mNumCableElements;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryEdges()
-{
-    return mBoundaryFaceData.size();
-}
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryEdges()
+//{
+//    return mBoundaryFaceData.size();
+//}
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

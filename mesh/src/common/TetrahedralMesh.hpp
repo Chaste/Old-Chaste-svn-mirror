@@ -58,7 +58,7 @@ class TetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
-
+    template <unsigned A_DIMENSION> friend class NodesOnlyMesh; //NodesOnlyMesh is able to grab the node information in order to copy
 private:
     /** Needed for serialization.*/
     friend class boost::serialization::access;

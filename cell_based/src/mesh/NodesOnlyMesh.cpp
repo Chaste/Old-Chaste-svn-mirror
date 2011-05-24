@@ -52,13 +52,8 @@ template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh)
 {
     // Get a std::vector of nodes from the mesh
-    std::vector<Node<SPACE_DIM>* > nodes;
-    for (unsigned i=0; i<rGeneratingMesh.GetNumNodes(); i++)
-    {
-        Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(*(rGeneratingMesh.GetNode(i)));
-        nodes.push_back(p_node);
-    }
-    ConstructNodesWithoutMesh(nodes);
+    
+    ConstructNodesWithoutMesh(rGeneratingMesh.mNodes);
 }
 
 template<unsigned SPACE_DIM>

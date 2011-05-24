@@ -114,12 +114,14 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
                     TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) ); // Designated owner of all these five, since we own node 0 (lowest index)
                 }
+                TS_ASSERT_THROWS_THIS(mesh.GetCableElement(5), "Requested cable element 5 does not belong to processor 0");
             }
             else
             {
                 // For a dumb partition, process 1 owns nodes 60 to 120
                 // Cables 4, 5, 6, 7, 8, 9
                 TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 6u);
+                TS_ASSERT_THROWS_THIS(mesh.GetCableElement(0), "Requested cable element 0 does not belong to processor 1");
 
                 for (unsigned i=4; i<10u; i++)
                 {

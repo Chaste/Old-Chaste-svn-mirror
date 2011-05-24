@@ -193,6 +193,7 @@ public:
 #endif
         MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
         TS_ASSERT(is_symmetric);
+        MatDestroy(J_trans);
     }
 
     // It just tests that nothing happens if zero force and tractions are given
@@ -437,6 +438,7 @@ public:
         MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
 #endif
         MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
+        MatDestroy(J_trans);
 
 
 /// ****  WHY IS THIS FAILING? *****
