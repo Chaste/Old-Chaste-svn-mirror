@@ -28,16 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTODELINEARSYSTEMSOLVER_HPP_
 #define TESTODELINEARSYSTEMSOLVER_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 
 #include "PetscVecTools.hpp"
 #include "PetscMatTools.hpp"
 #include "ReplicatableVector.hpp"
 #include "OdeLinearSystemSolver.hpp"
-// needs to be included in any test using poetsc
-#include "PetscSetupAndFinalize.hpp"
 
+// The header file below must be included in any test that uses Petsc
+#include "PetscSetupAndFinalize.hpp"
 
 class TestOdeLinearSystemSolver : public CxxTest::TestSuite
 {
@@ -45,7 +44,7 @@ public:
 
     // Solve a trivial ODE linear system M dr/dt = f
     // where M = [1 0 ; 0 2] and f = [1 3];
-    void TestWithTrivialProblem()
+    void TestWithTrivial2dProblem()
     {
         // Declare solver and give the size of the system and timestep
         unsigned system_size = 2;
@@ -88,12 +87,13 @@ public:
         TS_ASSERT_DELTA(soln_next_timestep_repl2[0], 10.0 + 2*dt, 1e-6);
         TS_ASSERT_DELTA(soln_next_timestep_repl2[1], 11.0 + 3*dt, 1e-6);
 
+        // Tidy up
         VecDestroy(initial_condition);
     }
 
     // Solve a simple ODE linear system M dr/dt = f
     // where M = [0 1; 1 0] and f = [1 2];
-    void TestWithSimpleProblem()
+    void TestWithSimple2dProblem()
     {
         // Declare solver and give the size of the system and timestep
         unsigned system_size = 2;
@@ -136,11 +136,78 @@ public:
         TS_ASSERT_DELTA(soln_next_timestep_repl2[0], 10.0 + 4*dt, 1e-6);
         TS_ASSERT_DELTA(soln_next_timestep_repl2[1], 11.0 + 2*dt, 1e-6);
 
-
+        // Tidy up
         VecDestroy(initial_condition);
+    }
 
+    // Solve a simple ODE linear system M dr/dt = f
+    // where M = [1 2 3 4; 4 1 2 3; 3 2 2 1; 3 2 1 1] and f = [1 2 3 4];
+    void TestWithSimple4dProblem()
+    {
+        // Declare solver and give the size of the system and timestep
+        unsigned system_size = 4;
+        double dt = 0.01;
+        OdeLinearSystemSolver solver(system_size, dt);
+
+        // Set up the matrix
+        Mat& r_matrix = solver.rGetLhsMatrix();
+        PetscMatTools::SetElement(r_matrix, 0, 0, 1.0);
+        PetscMatTools::SetElement(r_matrix, 0, 1, 2.0);
+        PetscMatTools::SetElement(r_matrix, 0, 2, 3.0);
+        PetscMatTools::SetElement(r_matrix, 0, 3, 4.0);
+        PetscMatTools::SetElement(r_matrix, 1, 0, 4.0);
+        PetscMatTools::SetElement(r_matrix, 1, 1, 1.0);
+        PetscMatTools::SetElement(r_matrix, 1, 2, 2.0);
+        PetscMatTools::SetElement(r_matrix, 1, 3, 3.0);
+        PetscMatTools::SetElement(r_matrix, 2, 0, 3.0);
+        PetscMatTools::SetElement(r_matrix, 2, 1, 2.0);
+        PetscMatTools::SetElement(r_matrix, 2, 2, 2.0);
+        PetscMatTools::SetElement(r_matrix, 2, 3, 1.0);
+        PetscMatTools::SetElement(r_matrix, 3, 0, 3.0);
+        PetscMatTools::SetElement(r_matrix, 3, 1, 2.0);
+        PetscMatTools::SetElement(r_matrix, 3, 2, 1.0);
+        PetscMatTools::SetElement(r_matrix, 3, 3, 1.0);
+        PetscMatTools::AssembleFinal(r_matrix);
+
+        // Initial condition
+        Vec initial_condition = PetscTools::CreateAndSetVec(4, 0.0);
+        PetscVecTools::SetElement(initial_condition, 0, 10.0);         
+        PetscVecTools::SetElement(initial_condition, 1, 11.0);        
+        PetscVecTools::SetElement(initial_condition, 2, 12.0);        
+        PetscVecTools::SetElement(initial_condition, 3, 13.0);
+
+        solver.SetInitialConditionVector(initial_condition);
+
+        // Then an rGetForceVector for RHS
+        Vec& r_vector = solver.rGetForceVector();
+        PetscVecTools::SetElement(r_vector, 0, 1.0);         
+        PetscVecTools::SetElement(r_vector, 1, 2.0);        
+        PetscVecTools::SetElement(r_vector, 2, 3.0);        
+        PetscVecTools::SetElement(r_vector, 3, 4.0);
+
+        // Solve to get solution at next timestep
+        Vec soln_next_timestep = solver.SolveOneTimeStep();
+
+        ReplicatableVector soln_next_timestep_repl(soln_next_timestep);
+
+        TS_ASSERT_DELTA(soln_next_timestep_repl[0], 10.0 + 0.56*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl[1], 11.0 + 1.64*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl[2], 12.0 - 1.00*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl[3], 13.0 + 0.04*dt, 1e-6);
+
+        // Solve again, with the same force
+        soln_next_timestep = solver.SolveOneTimeStep();
+
+        ReplicatableVector soln_next_timestep_repl2(soln_next_timestep);
+
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[0], 10.0 + 2*0.56*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[1], 11.0 + 2*1.64*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[2], 12.0 - 2*1.00*dt, 1e-6);
+        TS_ASSERT_DELTA(soln_next_timestep_repl2[3], 13.0 + 2*0.04*dt, 1e-6);
+
+        // Tidy up
+        VecDestroy(initial_condition);
     }
 };
-
 
 #endif /*TESTODELINEARSYSTEMSOLVER_HPP_*/

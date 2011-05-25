@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 
 OdeLinearSystemSolver::OdeLinearSystemSolver(unsigned systemSize, double timeStep)
-    :mLinearSystem(systemSize)
+    : mLinearSystem(systemSize)
 {
     assert(timeStep > 0.0);
     mTimeStep = timeStep;
