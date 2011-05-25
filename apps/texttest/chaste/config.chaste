@@ -7,6 +7,7 @@ link_test_path:ChasteParameters.xml
 link_test_path:ChasteParameters_2_0.xsd
 link_test_path:ChasteParameters_2_1.xsd
 link_test_path:ChasteParameters_2_2.xsd
+link_test_path:ChasteParameters_2_3.xsd
 link_test_path:cube_1626_elements.ele
 link_test_path:cube_1626_elements.face
 link_test_path:cube_1626_elements.node
@@ -53,6 +54,7 @@ link_test_path:simple_cube.ele
 results_h5:ChasteResults/SimulationResults.h5
 results_v_dat:ChasteResults/output/SimulationResults_V.dat
 results_v_dat:ChasteResults/output/1dResults_V.dat
+results_v_dat:ChasteResults/output/DrugActionResults_V.dat
 results_v_dat:ChasteResults/output/3dResults_V.dat
 results_v_dat:ChasteResults/output/BathResults_V.dat
 results_phi_e_dat:ChasteResults/output/SimulationResults_Phi_e.dat
@@ -67,6 +69,7 @@ mesh_tetras:ChasteResults/output/SimulationResults_mesh.tetras
 mesh_pts:ChasteResults/output/S1S2Results_mesh.pts
 mesh_tri:ChasteResults/output/S1S2Results_mesh.tri
 mesh_pts:ChasteResults/output/1dResults_mesh.pts
+mesh_pts:ChasteResults/output/DrugActionResults_mesh.pts
 mesh_pts:ChasteResults/output/3dResults_mesh.pts
 mesh_tri:ChasteResults/output/3dResults_mesh.tri
 mesh_tetras:ChasteResults/output/3dResults_mesh.tetras
