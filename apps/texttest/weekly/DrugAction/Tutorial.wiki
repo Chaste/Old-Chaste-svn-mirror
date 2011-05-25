@@ -28,31 +28,33 @@ and then add the following RDF metadata description. This tells Chaste to conver
 
 === Understanding the XML parameters file ===
 
-This tutorial is based upon [wiki:UserTutorials/CardiacExecutable/Propagation1d 1D Propogation tutorial].
+This tutorial is based upon [wiki:UserTutorials/CardiacExecutable/Propagation1d 1D Propagation tutorial].
 
 Open `ChasteParameters.xml` (it is sensible to do this in a web-browser or XML editor in order to get syntax highlighting). The file has been altered to add the following sections:
  * physiological parameters: 
    * The following xml has been added, this specifies a drug concentration and IC50 values for (in this case) two ion-channels. You can use any units, but they need to be self-consistent (concentration in same units as IC50 values), if not specified the dose-response curve hill coefficient defaults to 1.
 {{{
+#!xml
 <!-- Parameters for drug action model -->
 <ApplyDrug concentration="3">
     <!-- Current names should match those in the Oxford metadata -->
     <IC50 current="membrane_fast_sodium_current" hill="1.0">16000</IC50>
-	
-	<!-- Add action on a second channel -->
-	<!-- Hill coefficient defaults to 1.0 -->
-	<IC50 current="membrane_rapid_delayed_rectifier_potassium_current">5</IC50>
+    
+    <!-- Add action on a second channel -->
+    <!-- Hill coefficient defaults to 1.0 -->
+    <IC50 current="membrane_rapid_delayed_rectifier_potassium_current">5</IC50>
 </ApplyDrug>
 }}}
    * Here we named the currents which are to have their conductances modified - i.e. the name of the conductance tags WITHOUT {{{_conductance}}} on the end.
  * post-processing:
    * The following XML has been added:
 {{{
-    <!-- Postprocessing parameters -->
-	<PostProcessing>	        
-	        <!-- Extrapolate nodal time trace at node 200 --> 
-            <TimeTraceAtNode node_number="200"/>
-	</PostProcessing>
+#!xml
+<!-- Postprocessing parameters -->
+<PostProcessing>            
+    <!-- Extrapolate nodal time trace at node 200 --> 
+    <TimeTraceAtNode node_number="200"/>
+</PostProcessing>
 }}}
 As we wish to record an action potential for comparing control and drug action.
 
@@ -73,7 +75,6 @@ Run the simulation by doing
 {{{
 <path_to_chaste>/Chaste.sh ChasteParameters.xml
 }}}
-'''Note:''' In release 2.1 onwards the executable should be called via the shell script `Chaste.sh`; as above.
 
 A folder called {{{testoutput}}} will appear once the simulation has finished.
 
@@ -89,11 +90,11 @@ In this folder you will find the following files and folders:
  * `progress_status.txt`  -- this file can be viewed whilst the simulation is running to gauge how long it will take
  * `DrugActionResults.h5` -- the output of the simulation, in HDF5 format
  * `output` (folder) -- contains the following files:
-   * DrugActionResults_mesh.pts --- output converted into meshalyzer format
-   * DrugActionResults_mesh.cnnx --- output converted into meshalyzer format
-   * DrugActionResults_V.dat --- output converted into meshalyzer format
-   * NodalTraces_V.dat --- voltage trace at node 200.
-   * Apd_90_-30_Map.dat --- the APD recorded at each node.
+   * `DrugActionResults_mesh.pts` -- output converted into meshalyzer format
+   * `DrugActionResults_mesh.cnnx` -- output converted into meshalyzer format
+   * `DrugActionResults_V.dat` -- output converted into meshalyzer format
+   * `NodalTraces_V.dat` -- voltage trace at node 200.
+   * `Apd_90_-30_Map.dat` -- the APD recorded at each node.
    
 Move now into the Meshalyzer-compatible output folder 
 {{{
@@ -114,16 +115,18 @@ gnuplot
 
 You should then change the drug concentration to zero:
 {{{
+#!xml
 <!-- Parameters for drug action model -->
 <ApplyDrug concentration="0">
     <!-- Current names should match those in the Oxford metadata -->
     <IC50 current="membrane_fast_sodium_current" hill="1.0">16000</IC50>
-	
-	<!-- Add action on a second channel -->
-	<!-- Hill coefficient defaults to 1.0 -->
-	<IC50 current="membrane_rapid_delayed_rectifier_potassium_current">5</IC50>
+    
+    <!-- Add action on a second channel -->
+    <!-- Hill coefficient defaults to 1.0 -->
+    <IC50 current="membrane_rapid_delayed_rectifier_potassium_current">5</IC50>
 </ApplyDrug>
 }}}
-then re-run the simulation and compare results. You should observe the following
+then re-run the simulation and compare results. You should observe the following:
+
 [[Image(drug_action_traces.png)]]
 
