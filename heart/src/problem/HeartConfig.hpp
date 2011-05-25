@@ -49,10 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteEllipsoid.hpp"
 #include "DistributedTetrahedralMeshPartitionType.hpp"
 
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-
 #include <boost/shared_ptr.hpp>
 
 #include "ChasteSerialization.hpp"
@@ -175,15 +171,6 @@ private:
      * Set default schema locations in the Chaste source tree.
      */
     void SetDefaultSchemaLocations();
-
-    /**
-     * Helper method for URL-escaping spaces in file paths, to avoid confusing Xerces
-     * regarding schema locations.  Note that this is a very specific fix: it doesn't
-     * do general URL-escaping.
-     *
-     * @param rPath  the path to escape
-     */
-    std::string EscapeSpaces(const std::string& rPath);
 
 public:
     /**
