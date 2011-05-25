@@ -148,12 +148,12 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write boundary face file
     std::string face_file_name = this->mBaseName;
 
-    if (SPACE_DIM == 1)///\todo This should be ELEMENT_DIM
+    if (ELEMENT_DIM == 1)
     {
         // In 1-D there is no boundary file.  It's trivial to calculate
         return;
     }
-    else if (SPACE_DIM == 2)
+    else if (ELEMENT_DIM == 2)
     {
         face_file_name = face_file_name + ".edge";
     }

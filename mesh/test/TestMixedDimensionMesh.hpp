@@ -248,8 +248,6 @@ public:
 
     void TestWritingCableFiles() throw(Exception)
     {
-        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
-
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
@@ -281,7 +279,7 @@ public:
 
     void TestWritingBinaryFormat()
     {
-        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
+//        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
 
         //Read as ascii
         TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
@@ -291,10 +289,11 @@ public:
         writer_from_reader.SetWriteFilesAsBinary();
         writer_from_reader.WriteFilesUsingMeshReader(reader);
 
+        PetscTools::Barrier();
         //Read created binary file into a mesh
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMixedDimensionMesh/";
         TrianglesMeshReader<2,2> binary_reader(results_dir + "CableMeshBinary");
-        MixedDimensionMesh<2,2> binary_mesh;
+        MixedDimensionMesh<2,2> binary_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         binary_mesh.ConstructFromMeshReader(binary_reader);
 
         //Read original file into a mesh
