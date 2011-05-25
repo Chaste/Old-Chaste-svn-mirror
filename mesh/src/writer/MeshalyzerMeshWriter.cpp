@@ -157,16 +157,16 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         double material_property = 0.0;
         for (unsigned item_num=0; item_num<num_faces; item_num++)
         {
-            std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
+            ElementData current_item = this->GetNextBoundaryElement();
             for (unsigned i=0; i<ELEMENT_DIM; i++)
             {
                 if (this->mIndexFromZero)
                 {
-                    *p_face_file << current_item[i] << "\t";
+                    *p_face_file << current_item.NodeIndices[i] << "\t";
                 }
                 else
                 {
-                    *p_face_file << current_item[i]+1 <<"\t";
+                    *p_face_file << current_item.NodeIndices[i]+1 <<"\t";
                 }
             }
             *p_face_file << material_property << "\n";

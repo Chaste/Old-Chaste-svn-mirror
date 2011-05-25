@@ -1738,10 +1738,10 @@ public:
 
         distributed_mesh.ConstructFromMeshReader(reader);
         MeshalyzerMeshWriter<3,3> mesh_writer_par("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements", false);
-        mesh_writer_par.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't presevre element ordering
+        mesh_writer_par.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't preserve element ordering
 
         MeshalyzerMeshWriter<3,3> mesh_writer_par_cg("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements_cg", false, true); //Don't clean, Do use CG
-        mesh_writer_par_cg.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't presevre element ordering
+        mesh_writer_par_cg.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't preserve element ordering
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
 

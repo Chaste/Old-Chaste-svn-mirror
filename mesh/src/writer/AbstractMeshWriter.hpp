@@ -47,7 +47,7 @@ protected: // Give access of these members to subclasses
     OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
-    std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
+//    std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
 
     AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>* mpMeshReader; /**< Writer by default writes from a reader (for conversion).  If this pointer is non-null, data can be copied straight across*/
 
@@ -94,11 +94,6 @@ public:
      */
     unsigned GetNumBoundaryFaces();
 
-//    /**
-//     * Get the number of boundary faces in the mesh.
-//     */
-//    unsigned GetNumBoundaryEdges();
-//
     /**
      * Get the number of cable elements in the mesh.
      */
@@ -116,16 +111,15 @@ public:
     virtual ElementData GetNextElement();
 
     /**
+     * @return the data (indices/attributes) of the next face to be written to file
+     */
+    virtual ElementData GetNextBoundaryElement();
+
+    /**
      * @return the data (indices/attributes) of the next cable element to be written to file
      */
     virtual ElementData GetNextCableElement();
 
-    /**
-     * Add an entry to mBoundaryFaceData.
-     *
-     * @param nextFace array of the nodes on the boundary face to add
-     */
-    void SetNextBoundaryFace(std::vector<unsigned> nextFace);
 
     /**
      * Write mesh data to files.

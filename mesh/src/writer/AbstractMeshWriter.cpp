@@ -102,17 +102,19 @@ ElementData AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextBoundaryElement()
+{
+    assert(mpMeshReader!=NULL);
+    return mpMeshReader->GetNextFaceData();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableElement()
 {
     assert(mpMeshReader!=NULL);
     return mpMeshReader->GetNextCableElementData();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<unsigned> nextFace)
-{
-    mBoundaryFaceData.push_back(nextFace);
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
@@ -131,11 +133,11 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
         return;
     }
 
-    //Boundary faces are cached
-    for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
-    {
-        SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
-    }
+//    //Boundary faces are cached
+//    for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
+//    {
+//        SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
+//    }
     WriteFiles();
 }
 

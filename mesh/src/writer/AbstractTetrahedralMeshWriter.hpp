@@ -94,6 +94,7 @@ private:
 protected:
 
     unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
+    unsigned mNodesPerBoundaryElement; /**< Same as (ELEMENT_DIM), except when writing a quadratic mesh!*/
 
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpDistributedMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
     MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* mpMixedMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
@@ -103,6 +104,7 @@ protected:
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
     unsigned mNodeCounterForParallelMesh; /**< Used by master process for polling processes for the next node */
     unsigned mElementCounterForParallelMesh;/**< Used by master process for polling processes for the next element */
+    unsigned mBoundaryElementCounterForParallelMesh;/**< Used by master process for polling processes for the next boundary element */
     unsigned mCableElementCounterForParallelMesh;/**< Used by master process for polling processes for the next cable element */
     bool mFilesAreBinary;  /**< Whether all data is to be written as binary - used in derived class TrianglesMeshWriter*/
 
@@ -147,6 +149,11 @@ public:
      * @return the data (indices/attributes) of the next element to be written to file
      */
     ElementData GetNextElement();
+
+    /**
+     * @return the data (indices) of the next boundary element to be written to file
+     */
+    ElementData GetNextBoundaryElement();
 
     /**
      * @return the data (indices/attributes) of the next cable element to be written to file

@@ -148,7 +148,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write boundary face file
     std::string face_file_name = this->mBaseName;
 
-    if (SPACE_DIM == 1)
+    if (SPACE_DIM == 1)///\todo This should be ELEMENT_DIM
     {
         // In 1-D there is no boundary file.  It's trivial to calculate
         return;
@@ -181,7 +181,8 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     default_marker = UINT_MAX;
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
-        WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);
+        ElementData face_data = this->GetNextBoundaryElement();
+        WriteItem(p_face_file, item_num, face_data.NodeIndices, default_marker);
     }
     *p_face_file << comment << "\n";
     p_face_file->close();
@@ -298,7 +299,8 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
-        WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);
+        ElementData face_data = this->GetNextBoundaryElement();
+        WriteItem(p_face_file, item_num, face_data.NodeIndices, default_marker);
     }
     *p_face_file << comment << "\n";
     p_face_file->close();
