@@ -15,11 +15,13 @@ Before performing drug action simulations with the executable, your CellML file 
 
 i.e. add a cmeta tag to the relevant variable:
 {{{
+#!xml
 <variable units="milliS_per_cm2" name="g_Kmax" public_interface="out" initial_value="0.282" cmeta:id="IKr_conductance"/>
 }}}
 
 and then add the following RDF metadata description. This tells Chaste to convert the model leaving the parameter modifiable, and also tells Chaste what name to use - the name in the `<bqbiol:is>` tag is the one to use in the XML parameter file later. It MUST end in {{{_conductance}}} (to ensure that only conductances are modified!).
 {{{     
+#!xml
 <rdf:Description rdf:about="#IKr_conductance">
   <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
   <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
@@ -52,7 +54,7 @@ Open `ChasteParameters.xml` (it is sensible to do this in a web-browser or XML e
 #!xml
 <!-- Postprocessing parameters -->
 <PostProcessing>            
-    <!-- Extrapolate nodal time trace at node 200 --> 
+    <!-- Extract nodal time trace at node 200 --> 
     <TimeTraceAtNode node_number="200"/>
 </PostProcessing>
 }}}

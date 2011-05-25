@@ -222,7 +222,7 @@ public:
 
     }
 
-    void TestExtrapolateNodeTracesWithNodePermutation() throw (Exception)
+    void TestExtractNodeTracesWithNodePermutation() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         DistributedTetrahedralMesh<2,2> mesh;

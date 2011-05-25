@@ -74,7 +74,7 @@
 	
     <!-- Postprocessing parameters -->
 	<PostProcessing>	        
-	        <!-- Extrapolate nodal time trace at node 200 --> 
+	        <!-- Extract nodal time trace at node 200 --> 
             <TimeTraceAtNode node_number="200"/>
 	</PostProcessing>
 
