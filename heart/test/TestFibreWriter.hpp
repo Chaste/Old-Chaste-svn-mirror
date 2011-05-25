@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FibreReader.hpp"
 #include "FibreWriter.hpp"
+#include "PetscTools.hpp"
 #include "UblasIncludes.hpp"
 
 
@@ -44,17 +45,24 @@ class TestFibreWriter : public CxxTest::TestSuite
 public:
     void TestAxiWriter()
     {
+        EXIT_IF_PARALLEL;
+        
         FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, AXISYM);
 
         std::vector< c_vector<double, 3> > fibre_vector;
         fibre_reader.GetAllAxi(fibre_vector);
         
+        //Write ascii file
         FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric", false);
         fibre_writer.WriteAllAxi(fibre_vector);
         
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
         TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric.axi heart/test/data/fibre_tests/SimpleAxisymmetric.axi").c_str()), 0);
+        
+        //Write binary file
+        fibre_writer.SetWriteFileAsBinary();
+        // \todo #1768 - Implement binary writing and test
     }
 };
 

@@ -49,7 +49,7 @@ private:
     OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
 
     std::string mBaseName; /**< Base name for the input files */
-
+    bool mFileIsBinary;  /**< Whether all data is to be written as binary*/
 public:
     /**
      * Create a new FibreWriter.
@@ -71,6 +71,14 @@ public:
       * Writes all axisymmetric vectors to the file.
       */
      void WriteAllAxi(std::vector< c_vector<double, DIM> >& direction);
+    
+    /**
+     * Switch to write binary fiber file
+     *
+     * (set to write ascii files in the constructor)
+     */
+     void SetWriteFileAsBinary();
+     
 };
 
 #endif /*FIBREWRITER_HPP_*/

@@ -33,7 +33,8 @@ template<unsigned DIM>
 FibreWriter<DIM>::FibreWriter(const std::string& rDirectory,
                               const std::string& rBaseName,
                               const bool clearOutputDir)
-    : mBaseName(rBaseName)               
+    : mBaseName(rBaseName),
+      mFileIsBinary(false)               
 {
     mpOutputFileHandler= new OutputFileHandler(rDirectory, clearOutputDir); 
 }
@@ -50,6 +51,16 @@ void FibreWriter<DIM>::WriteAllAxi(std::vector< c_vector<double, DIM> >& directi
     // Write axi file
     std::string axi_file_name = this->mBaseName + ".axi";
     out_stream p_axi_file = this->mpOutputFileHandler->OpenOutputFile(axi_file_name);
+  
+// \todo #1768 - Make binary writing work  
+//    if (this->mFileIsBinary)
+//    {
+//        *p_axi_file << "\tBIN\n";
+//    }
+//    else
+//    {
+//        *p_axi_file << "\n";
+//    }
     
     *p_axi_file << direction.size() << std::endl;
     for (unsigned i=0; i<direction.size();i++ )
@@ -64,6 +75,12 @@ void FibreWriter<DIM>::WriteAllAxi(std::vector< c_vector<double, DIM> >& directi
     p_axi_file->close();
 }
 
+
+template<unsigned DIM>
+void FibreWriter<DIM>::SetWriteFileAsBinary()
+{
+    mFileIsBinary = true;   
+}
 
 template class FibreWriter<1>;
 template class FibreWriter<2>;

@@ -39,6 +39,7 @@ TestCheckpointing.hpp
 TestConductivityTensors.hpp
 TestElectrodes.hpp
 TestFibreReader.hpp
+TestFibreWriter.hpp
 TestHeartConfig.hpp
 TestHeartFileFinder.hpp
 TestHeartGeometryInformation.hpp
