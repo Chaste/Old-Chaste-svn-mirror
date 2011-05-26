@@ -83,11 +83,13 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadXmlFile(
             EXCEPTION("XML parsing error in configuration file: " + rFileName);
         }
     }
+#define COVERAGE_IGNORE
     catch (...)
-    {
+    { // This shouldn't happen, but just in case...
         Finalize();
         throw;
     }
+#undef COVERAGE_IGNORE
     return p_doc;
 }
 
