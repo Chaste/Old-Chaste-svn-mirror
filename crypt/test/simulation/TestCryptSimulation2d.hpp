@@ -1843,6 +1843,47 @@ public:
         WntConcentration<2>::Destroy();
         delete p_crypt;
     }
+
+    void noTestGeneralisedLinearSpringForceWithSpringConstantsForIngeBCatCells()
+    {
+        // Create mesh
+        double crypt_length = 1.1*12.0*sqrt(3)/2.0;
+        CylindricalHoneycombMeshGenerator generator(6, 12, 0, 1.1);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, false);
+
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells,location_indices);
+
+        // Set up WntConcentration and associate with cell population
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+
+        // Create simulation
+        CryptSimulation2d simulator(crypt);
+        simulator.SetOutputDirectory("TestLinearSpringWithVariableSpringConstantsForceModified");
+        simulator.SetEndTime(0.5);
+
+        crypt.CreateVoronoiTessellation(); // this method is normally called in a simulation loop
+
+        // Create force and associate with simulation
+        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
+        linear_force.SetBetaCateninSprings(true);
+        simulator.AddForce(&linear_force);
+
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        // Tidy up
+        WntConcentration<2>::Destroy();
+        SimulationTime::Destroy();
+    }
+
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/
