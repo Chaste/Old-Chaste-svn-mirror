@@ -621,13 +621,18 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
             assert (element_extras == "");
         }
 
-        if ( mNumElementNodes != mNodesPerElement )
+        // The condition below allows the writer to cope with a NodesOnlyMesh
+        ///\todo throw a warning if this is the case? (#1784)
+        if (mNumElements != 0)
         {
-            std::stringstream error;
-            error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
-                  << "expected number, " << mNodesPerElement << " (which is calculated given "
-                  << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)";
-            EXCEPTION(error.str());
+            if (mNumElementNodes != mNodesPerElement)
+            {
+                std::stringstream error;
+                error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
+                      << "expected number, " << mNodesPerElement << " (which is calculated given "
+                      << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)";
+                EXCEPTION(error.str());
+            }
         }
     }
     else
@@ -658,63 +663,68 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     /*
      *  Reading face/edge file header
      */
-    if (ELEMENT_DIM == 1)
+    // The condition below allows the writer to cope with a NodesOnlyMesh
+    ///\todo throw a warning if this is the case? (#1784)
+    if (mNumElements != 0)
     {
-       GetOneDimBoundary();
-       mNumFaces = mOneDimBoundary.size();
-    }
-    else
-    {
-        GetNextLineFromStream(mFacesFile, buffer);
-        std::stringstream face_header_line(buffer);
-
-        face_header_line >> mNumFaces >> mNumFaceAttributes;
-        assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
-        // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
-        // the number of faces which are marked as boundary faces
-        //Double check for binaryness
-        std::string face_extras;
-        face_header_line >> face_extras;
-        assert (mFilesAreBinary == (face_extras == "BIN"));
-        if ((mNumFaceAttributes==1))
+        if (ELEMENT_DIM == 1)
         {
-            unsigned num_boundary_faces = 0;
-            bool end_of_file=false;
-            while (!end_of_file)
-            {
-                try
-                {
-                    GetNextFaceData();
-                    num_boundary_faces++;
-                }
-                catch(Exception& e)
-                {
-                    if(mEofException)
-                    {
-                        end_of_file = true;
-                    }
-                    else
-                    {
-                        throw e;
-                    }
-                }
-            }
-            mNumFaces = num_boundary_faces;
-
-//// This exception would be helpful to have until #1116 is done, unfortunately some meshes do
-//// actually have no boundary elements (eg closed 2d meshes in 3d space).
-//            if(mNumFaces==0)
-//            {
-//                EXCEPTION("No boundary elements found. NOTE: elements in face/edge file with an attribute value of 0 are considered to be internal (non-boundary) elements");
-//            }
-
-            // close the file, reopen, and skip the header again
-            mFacesFile.close();
-            mFacesFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
-            OpenFacesFile();
+           GetOneDimBoundary();
+           mNumFaces = mOneDimBoundary.size();
+        }
+        else
+        {
             GetNextLineFromStream(mFacesFile, buffer);
-            mFacesRead = 0;
-            mBoundaryFacesRead = 0;
+            std::stringstream face_header_line(buffer);
+    
+            face_header_line >> mNumFaces >> mNumFaceAttributes;
+            assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
+            // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
+            // the number of faces which are marked as boundary faces
+            //Double check for binaryness
+            std::string face_extras;
+            face_header_line >> face_extras;
+            assert (mFilesAreBinary == (face_extras == "BIN"));
+            if ((mNumFaceAttributes==1))
+            {
+                unsigned num_boundary_faces = 0;
+                bool end_of_file=false;
+                while (!end_of_file)
+                {
+                    try
+                    {
+                        GetNextFaceData();
+                        num_boundary_faces++;
+                    }
+                    catch(Exception& e)
+                    {
+                        if(mEofException)
+                        {
+                            end_of_file = true;
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
+                }
+                mNumFaces = num_boundary_faces;
+    
+    //// This exception would be helpful to have until #1116 is done, unfortunately some meshes do
+    //// actually have no boundary elements (eg closed 2d meshes in 3d space).
+    //            if(mNumFaces==0)
+    //            {
+    //                EXCEPTION("No boundary elements found. NOTE: elements in face/edge file with an attribute value of 0 are considered to be internal (non-boundary) elements");
+    //            }
+    
+                // close the file, reopen, and skip the header again
+                mFacesFile.close();
+                mFacesFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
+                OpenFacesFile();
+                GetNextLineFromStream(mFacesFile, buffer);
+                mFacesRead = 0;
+                mBoundaryFacesRead = 0;
+            }
         }
     }
 

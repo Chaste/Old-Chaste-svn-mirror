@@ -108,42 +108,62 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned num_elements = this->GetNumElements();
     num_attr = 1u; // We have a single region code
 
-    ElementData element_data = this->GetNextElement();
-
-    unsigned nodes_per_element = element_data.NodeIndices.size();
-    if (nodes_per_element != ELEMENT_DIM+1)
+    // The condition below allows the writer to cope with a NodesOnlyMesh
+    ///\todo throw a warning if this is the case? (#1784)
+    if (num_elements == 0)
     {
-        // Check that this is a quadratic mesh
-        assert(ELEMENT_DIM == SPACE_DIM);
-        assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
-     }
-
-    *p_element_file << num_elements << "\t";
-    *p_element_file << nodes_per_element << "\t";
-    *p_element_file << num_attr;
-    if (this->mFilesAreBinary)
-    {
-        *p_element_file << "\tBIN\n";
+        *p_element_file << 0 << "\t";
+        *p_element_file << 0 << "\t";
+        *p_element_file << 0;
+        if (this->mFilesAreBinary)
+        {
+            *p_element_file << "\tBIN\n";
+        }
+        else
+        {
+            *p_element_file << "\n";
+        }
+        p_element_file->close();
     }
     else
     {
-        *p_element_file << "\n";
-    }
-
-    // Write each element's data
-    for (unsigned item_num=0; item_num<num_elements; item_num++)
-    {
-        // if item_num==0 we will already got the element above (in order to
-        // get the number of nodes per element
-        if (item_num>0)
+        ElementData element_data = this->GetNextElement();
+    
+        unsigned nodes_per_element = element_data.NodeIndices.size();
+        if (nodes_per_element != ELEMENT_DIM+1)
         {
-            element_data = this->GetNextElement();
+            // Check that this is a quadratic mesh
+            assert(ELEMENT_DIM == SPACE_DIM);
+            assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
+         }
+    
+        *p_element_file << num_elements << "\t";
+        *p_element_file << nodes_per_element << "\t";
+        *p_element_file << num_attr;
+        if (this->mFilesAreBinary)
+        {
+            *p_element_file << "\tBIN\n";
         }
-
-        WriteItem(p_element_file, item_num, element_data.NodeIndices, element_data.AttributeValue);
+        else
+        {
+            *p_element_file << "\n";
+        }
+    
+        // Write each element's data
+        for (unsigned item_num=0; item_num<num_elements; item_num++)
+        {
+            // if item_num==0 we will already got the element above (in order to
+            // get the number of nodes per element
+            if (item_num>0)
+            {
+                element_data = this->GetNextElement();
+            }
+    
+            WriteItem(p_element_file, item_num, element_data.NodeIndices, element_data.AttributeValue);
+        }
+        *p_element_file << comment << "\n";
+        p_element_file->close();
     }
-    *p_element_file << comment << "\n";
-    p_element_file->close();
 
     // Write boundary face file
     std::string face_file_name = this->mBaseName;
@@ -164,59 +184,62 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
 
     // Write the boundary face header
-    unsigned num_faces = this->GetNumBoundaryFaces();
-
-    *p_face_file << num_faces << "\t";
-    *p_face_file << max_bdy_marker;
-    if (this->mFilesAreBinary)
+    if (num_elements != 0)
     {
-        *p_face_file << "\tBIN\n";
-    }
-    else
-    {
-        *p_face_file << "\n";
-    }
-
-    // Write each face's data
-    default_marker = UINT_MAX;
-    for (unsigned item_num=0; item_num<num_faces; item_num++)
-    {
-        ElementData face_data = this->GetNextBoundaryElement();
-        WriteItem(p_face_file, item_num, face_data.NodeIndices, default_marker);
-    }
-    *p_face_file << comment << "\n";
-    p_face_file->close();
-
-    if( this->GetNumCableElements() > 0)
-    {
-        // Write cable element file
-        std::string cable_element_file_name = this->mBaseName + ".cable";
-        out_stream p_cable_element_file = this->mpOutputFileHandler->OpenOutputFile(cable_element_file_name);
+        unsigned num_faces = this->GetNumBoundaryFaces();
     
-        // Write the cable element header
-        unsigned num_cable_elements = this->GetNumCableElements();
-        num_attr = 1u; // We have a single region code
-    
-        *p_cable_element_file << num_cable_elements << "\t";
-        *p_cable_element_file << 2 << "\t";
-        *p_cable_element_file << num_attr;
+        *p_face_file << num_faces << "\t";
+        *p_face_file << max_bdy_marker;
         if (this->mFilesAreBinary)
         {
-            *p_cable_element_file << "\tBIN\n";
+            *p_face_file << "\tBIN\n";
         }
         else
         {
-            *p_cable_element_file << "\n";
+            *p_face_file << "\n";
         }
     
-        // Write each element's data
-        for (unsigned item_num=0; item_num<num_cable_elements; item_num++)
+        // Write each face's data
+        default_marker = UINT_MAX;
+        for (unsigned item_num=0; item_num<num_faces; item_num++)
         {
-            ElementData cable_element_data = this->GetNextCableElement();
-            WriteItem(p_cable_element_file, item_num, cable_element_data.NodeIndices, cable_element_data.AttributeValue);
+            ElementData face_data = this->GetNextBoundaryElement();
+            WriteItem(p_face_file, item_num, face_data.NodeIndices, default_marker);
         }
-        *p_cable_element_file << comment;
-        p_cable_element_file->close();
+        *p_face_file << comment << "\n";
+        p_face_file->close();
+    
+        if( this->GetNumCableElements() > 0)
+        {
+            // Write cable element file
+            std::string cable_element_file_name = this->mBaseName + ".cable";
+            out_stream p_cable_element_file = this->mpOutputFileHandler->OpenOutputFile(cable_element_file_name);
+        
+            // Write the cable element header
+            unsigned num_cable_elements = this->GetNumCableElements();
+            num_attr = 1u; // We have a single region code
+        
+            *p_cable_element_file << num_cable_elements << "\t";
+            *p_cable_element_file << 2 << "\t";
+            *p_cable_element_file << num_attr;
+            if (this->mFilesAreBinary)
+            {
+                *p_cable_element_file << "\tBIN\n";
+            }
+            else
+            {
+                *p_cable_element_file << "\n";
+            }
+        
+            // Write each element's data
+            for (unsigned item_num=0; item_num<num_cable_elements; item_num++)
+            {
+                ElementData cable_element_data = this->GetNextCableElement();
+                WriteItem(p_cable_element_file, item_num, cable_element_data.NodeIndices, cable_element_data.AttributeValue);
+            }
+            *p_cable_element_file << comment;
+            p_cable_element_file->close();
+        }
     }
 }
 

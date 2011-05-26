@@ -142,7 +142,7 @@ public:
 #endif //CHASTE_VTK
     }
 
-    void noTestWriteNodesWithoutMesh()
+    void TestWriteNodesWithoutMesh()
     {
          std::vector<Node<3>*> nodes;
          nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
@@ -176,7 +176,7 @@ public:
         NodesOnlyMesh<3> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
 
-        mesh.SetCellRadius(0,1.0);
+        mesh.SetCellRadius(0, 1.0);
         mesh.SetCellRadius(1, 2.0);
 
         TS_ASSERT_DELTA(mesh.GetCellRadius(0), 1.0, 1e-6);
@@ -189,7 +189,7 @@ public:
         }
     }
 
-    void noTestArchiving() throw(Exception)
+    void TestArchiving() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "nodes_only_mesh.arch";
@@ -201,19 +201,26 @@ public:
             generating_mesh.ConstructFromMeshReader(mesh_reader);
 
             // Convert this to a NodesOnlyMesh
-            NodesOnlyMesh<2>* const p_mesh = new NodesOnlyMesh<2>;
-            p_mesh->ConstructNodesWithoutMesh(generating_mesh);
+            NodesOnlyMesh<2> nodes_only_mesh;
+            nodes_only_mesh.ConstructNodesWithoutMesh(generating_mesh);
+
+            nodes_only_mesh.SetCellRadius(0, 1.12);
+            nodes_only_mesh.SetCellRadius(1, 2.34);
+    
+            TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(0), 1.12, 1e-6);
+            TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(1), 2.34, 1e-6);
+
+            AbstractTetrahedralMesh<2,2>* const p_mesh = &nodes_only_mesh;
 
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             (*p_arch) << p_mesh;
-            delete p_mesh;
         }
 
         {
-            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // Should archive the most abstract class you can to check boost knows what individual classes are
             // (but here AbstractMesh doesn't have the methods below).
             AbstractTetrahedralMesh<2,2>* p_mesh2;
 
@@ -221,7 +228,7 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            // restore from the archive
+            // Restore from the archive
             (*p_arch) >> p_mesh2;
 
             // Check we have the right number of nodes & elements
@@ -234,13 +241,11 @@ public:
             TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
             TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
 
-            // Check first element has the right nodes
-            TetrahedralMesh<2,2>::ElementIterator iter = p_mesh2->GetElementIteratorBegin();
-            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
-            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
-            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
-            TS_ASSERT_EQUALS(iter->GetNode(1), p_mesh2->GetNode(144));
+            // Check some cell radii
+            TS_ASSERT_DELTA(dynamic_cast<NodesOnlyMesh<2>*>(p_mesh2)->GetCellRadius(0), 1.12, 1e-6);
+            TS_ASSERT_DELTA(dynamic_cast<NodesOnlyMesh<2>*>(p_mesh2)->GetCellRadius(1), 2.34, 1e-6);
 
+            // Tidy up
             delete p_mesh2;
         }
     }

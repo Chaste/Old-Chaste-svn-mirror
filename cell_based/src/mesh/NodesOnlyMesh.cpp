@@ -75,3 +75,7 @@ void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
 template class NodesOnlyMesh<1>;
 template class NodesOnlyMesh<2>;
 template class NodesOnlyMesh<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(NodesOnlyMesh)
