@@ -214,9 +214,9 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocume
 #define COVERAGE_IGNORE
 void XmlTools::PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildren)
 {
-    std::string prefix = xsd::cxx::xml::transcode<char>(pNode->getPrefix());
-    std::string name = xsd::cxx::xml::transcode<char>(pNode->getLocalName());
-    std::string nsuri = xsd::cxx::xml::transcode<char>(pNode->getNamespaceURI());
+    std::string prefix = X2C(pNode->getPrefix());
+    std::string name = X2C(pNode->getLocalName());
+    std::string nsuri = X2C(pNode->getNamespaceURI());
     std::cout << rMsg << " " << pNode << " " << prefix << ":" << name << " in " << nsuri << std::endl;
     if (showChildren)
     {
@@ -233,7 +233,7 @@ void XmlTools::PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool 
             for (XMLSize_t i=0; i<p_attrs->getLength(); i++)
             {
                  xercesc::DOMNode* p_attr = p_attrs->item(i);
-                 std::string value = xsd::cxx::xml::transcode<char>(p_attr->getNodeValue());
+                 std::string value = X2C(p_attr->getNodeValue());
                  PrintNode("     attr (" + value + ")", p_attr, false);
             }
         }
@@ -255,7 +255,7 @@ xercesc::DOMElement* XmlTools::SetNamespace(xercesc::DOMDocument* pDocument,
         for (XMLSize_t i=0; i<p_orig_attrs->getLength(); i++)
         {
             DOMNode* p_attr = p_orig_attrs->item(i);
-            attr_values.push_back(xsd::cxx::xml::transcode<char>(p_attr->getNodeValue()));
+            attr_values.push_back(X2C(p_attr->getNodeValue()));
         }
     }
     DOMElement* p_new_elt = static_cast<DOMElement*>(

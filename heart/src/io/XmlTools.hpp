@@ -50,6 +50,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define X(str) xsd::cxx::xml::string(str).c_str()
 
 /**
+ * Convenience macro for transcoding an XML string to a C++ std::string.
+ * @param str  the string to transcode
+ */
+#define X2C(str) xsd::cxx::xml::transcode<char>(str)
+
+/**
  * A class of utility methods for processing XML files, using Xerces and CodeSynthesis XSD.
  */
 class XmlTools
@@ -58,14 +64,14 @@ public:
     /**
      * Read an XML file into a DOM document, turning parsing errors into Chaste Exceptions.
      * Handles initialising the Xerces runtime.
-     * 
+     *
      * @param rFileName  the file to read
      * @param rProps  properties that specify fixed schema locations, if wanted
      */
     static xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadXmlFile(
         const std::string& rFileName,
         const ::xsd::cxx::tree::properties<char>& rProps);
-    
+
     /**
      * Must be called after you have finished working with a document returned by the ReadXmlFile methods.
      */

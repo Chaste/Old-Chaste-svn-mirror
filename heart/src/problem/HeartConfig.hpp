@@ -145,11 +145,11 @@ private:
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-    
+
     /**
      * When loading a simulation from archive, some parameters can get overridden by the content of the ResumeSimulation
      * element.  This method does that.
-     * 
+     *
      * @param pResumeParameters  the parameters containing the ResumeSimulation element.
      */
     void UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::chaste_parameters_type> pResumeParameters);
@@ -200,13 +200,13 @@ public:
      * @param rFileName The name of the defaults file
      */
     void SetDefaultsFile(const std::string& rFileName);
-    
+
     /**
      * #mpUserParameters  is set to a new context associated with a parameters file
      * @param rFileName The name of the parameters file
      */
     void SetParametersFile(const std::string& rFileName);
-    
+
     /**
      * Write out the complete configuration set (ChasteParameters
      * and ChasteDefaults) as an XML file.
@@ -238,13 +238,13 @@ public:
      * "New" another #mpInstance
      */
     static void Reset();
-    
+
     ~HeartConfig(); /**< Destructor*/
-    
+
     /**
      * Get the Chaste version of a parameters file, given its namespace URI.
      * The version will be encoded as major*1000+minor.
-     * 
+     *
      * @param rNamespaceUri  the namespace URI of the parameters file
      */
     unsigned GetVersionFromNamespace(const std::string& rNamespaceUri);
@@ -354,7 +354,7 @@ public:
      * \todo There is no set method
      */
      template<unsigned DIM>
-    void GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuliApplied, 
+    void GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuliApplied,
                     std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rStimulatedAreas) const;
 
     /**
@@ -455,7 +455,7 @@ public:
      *    Note: will be cleared before being filled.
      */
     void GetOutputVariables(std::vector<std::string>& rOutputVariables) const;
-    
+
     /**
      * @return whether to write output HDF5 file using the original
      * mesh permutation (in situations where a parallel partition may have
@@ -525,24 +525,24 @@ public:
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
     /**
-     *  Returns bath conductivities for different regions of the bath. When called without a 
+     *  Returns bath conductivities for different regions of the bath. When called without a
      * region identifier, it will return whatever has been defined as BathConductivity
-     *  
+     *
      *  @param bathRegion region identifier
      *  @return bath conductivity (mS/cm)
      */
-    double GetBathConductivity(unsigned bathRegion=UINT_MAX) const; 
+    double GetBathConductivity(unsigned bathRegion=UINT_MAX) const;
 
     /**
      *  Gets  region identifiers that have to be considered as cardiac tissue.
-     * 
+     *
      *  @return set of identifiers
      */
     const std::set<unsigned>& rGetTissueIdentifiers();
 
     /**
      *  Gets region identifiers that have to be considered as bath.
-     * 
+     *
      *  @return set of identifiers
      */
     const std::set<unsigned>& rGetBathIdentifiers();
@@ -614,7 +614,7 @@ public:
      * @return true if there is a post-processing section
      */
     bool IsPostProcessingSectionPresent() const;
-    
+
     /**
      * Create a PostProcessing section in the user parameters if one doesn't exist.
      */
@@ -629,7 +629,7 @@ public:
      * @return true if APD maps have been requested
      */
     bool IsApdMapsRequested() const;
-    
+
     /**
      * @param rApdMaps  each entry is a request for a map with
      *  - a percentage in the range [1, 100)
@@ -678,19 +678,19 @@ public:
      * @param rRequestedNodes vector of indices of requested nodes that will be filled in by this function
      */
     void GetNodalTimeTraceRequested(std::vector<unsigned>& rRequestedNodes) const;
-    
+
     /**
      * @return true iff pseudo-ECG calculation has been requested
      */
     bool IsPseudoEcgCalculationRequested() const;
-    
+
     /**
      * @param rPseudoEcgElectrodePositions  will be filled in with the positions of electrodes
      * to use in calculating pseudo-ECGs (if any)
      */
     template<unsigned SPACE_DIM>
     void GetPseudoEcgElectrodePositions(std::vector<ChastePoint<SPACE_DIM> >& rPseudoEcgElectrodePositions) const;
-    
+
     /**
      * @return true if state variable interpolation is used
      */
@@ -710,14 +710,14 @@ public:
 
     /** Whether to convert the output from HDF5 to Vtk readable format */
     bool GetVisualizeWithVtk() const;
-     
+
     /** Whether to convert the output from HDF5 to parallel Vtk readable format */
     bool GetVisualizeWithParallelVtk() const;
-    
+
     /**
      * @return true if there is an electrodes section
      */
-    bool IsElectrodesPresent() const;    
+    bool IsElectrodesPresent() const;
 
 
     /**
@@ -748,7 +748,7 @@ public:
      *  Set method documentation).
      */
     bool GetUseReactionDiffusionOperatorSplitting();
-    
+
     /**
      *  Get whether to use a fixed number of iterations in the linear solver
      */
@@ -756,9 +756,9 @@ public:
 
     /**
      *  Get how often perform a solve with residual-based stop criteria in order to decide how many iterations to perform in following linear solves.
-     */    
+     */
     unsigned GetEvaluateNumItsEveryNSolves();
-    
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -879,8 +879,8 @@ public:
      * mesh permutation (in situations where a parallel partition may have
      * permuted the node).  The default is to use the new, not original permutation,
      * i.e.  useOriginal=false
-     * 
-     * @param useOriginal  whether to use the original permutation 
+     *
+     * @param useOriginal  whether to use the original permutation
      */
     void SetOutputUsingOriginalNodeOrdering(bool useOriginal);
 
@@ -936,14 +936,14 @@ public:
 
     /**
      * Set multiple bath conductivities based on element region label (mS/cm)
-     * 
+     *
      * @param bathConductivities map between different bath region identifier and their conductivity (if different from default)
      */
     void SetBathMultipleConductivities(std::map<unsigned, double> bathConductivities);
 
     /**
      *  Sets which region identifiers have to be considered cardiac tissue and bath.
-     * 
+     *
      *  @param tissueIds set of identifiers
      *  @param bathIds set of identifiers
      */
@@ -951,7 +951,7 @@ public:
 
     /**
      *  Sets which region identifiers have to be considered cardiac tissue.
-     * 
+     *
      *  param tissueIds set of identifiers
      * \todo #1703 Think about adding this convenience method either copying the existing BathIds, resetting them out of the way, or making them empty...
      */
@@ -977,13 +977,13 @@ public:
      * @param printingTimeStep  printing value to use
      */
     void SetOdePdeAndPrintingTimeSteps(double odeTimeStep, double pdeTimeStep, double printingTimeStep);
-    
+
     /** Set the configuration to use ode time of given value
      * Calls CheckTimeSteps via SetOdePdeAndPrintingTimeSteps
      * @param odeTimeStep  the value to use
      */
     void SetOdeTimeStep(double odeTimeStep);
-    
+
     /** Set the configuration to use pde time of given value
      * Calls CheckTimeSteps via SetOdePdeAndPrintingTimeSteps
      * @param pdeTimeStep  the value to use
@@ -1000,7 +1000,7 @@ public:
      * @param relativeTolerance  the value to use
      */
     void SetUseRelativeTolerance(double relativeTolerance);
-    
+
     /** Set the configuration to use KSP absolute tolerance of given value
      * @param absoluteTolerance  the value to use
      */
@@ -1010,7 +1010,7 @@ public:
      * @param kspSolver  a string from {"gmres", "cg", "symmlq"}
      */
     void SetKSPSolver(const char* kspSolver);
-    
+
     /** Set the type of preconditioner as with the flag "-pc_type"
      * @param kspPreconditioner  a string from {"jacobi", "bjacobi", "hypre", "ml", "spai", "blockdiagonal", "ldufactorisation", "none"}
      */
@@ -1122,7 +1122,7 @@ public:
     void SetRequestedNodalTimeTraces (std::vector<unsigned>& requestedNodes);
 
     /** Set the parameters for pseudo-ECG calculation.
-     * 
+     *
      * @param rPseudoEcgElectrodePositions  should contan the positions of electrodes
      * to use in calculating pseudo-ECGs (if any)
      */
@@ -1152,13 +1152,13 @@ public:
      * @param useVtk
      */
     void SetVisualizeWithVtk(bool useVtk=true);
-    
+
     /** Set whether to convert the output from HDF5 to parallel Vtk readable format
      *
      * @param useParallelVtk
      */
     void SetVisualizeWithParallelVtk(bool useParallelVtk=true);
-    
+
     /**
      * Setup electrode parameters.
      *
@@ -1169,17 +1169,17 @@ public:
      *  @param duration Duration of the stimulus.
      */
     void SetElectrodeParameters( bool groundSecondElectrode,
-                                 unsigned index, double magnitude, 
+                                 unsigned index, double magnitude,
                                  double startTime, double duration );
 
    /**
      * Set the use of State Variable Interpolation in the computation of ionic currents.
      * See documentation page ChasteGuides/StateVariableInterpolation.
-     * 
+     *
      * @param  useStateVariableInterpolation Whether to use it.
      */
     void SetUseStateVariableInterpolation( bool useStateVariableInterpolation = true);
-    
+
     /**
      * Set the use of mass lumping in the FE solver.
      *
@@ -1206,7 +1206,7 @@ public:
 
     /**
      * Set the use of fixed number of iterations in the linear solver
-     * 
+     *
      * @param useFixedNumberIterations Whether to use a fixed number of iterations for the linear solver
      * @param evaluateNumItsEveryNSolves Perform a solve with convergence-based stop criteria every n solves to decide how many iterations perform for the next n-1 solves. Default is perfoming a single evaluation at the beginning of the simulation.
      */
@@ -1216,33 +1216,33 @@ public:
      * @return whether HeartConfig has a drug concentration and any IC50s set up
      */
     bool HasDrugDose() const;
-    
+
     /**
      * @return the dose of the drug (in the same units as the IC50s)
      */
     double GetDrugDose() const;
-    
+
     /**
      * @param drugDose  The dose of the drug to use (should be in units consistent with the IC50s).
      */
     void SetDrugDose(double drugDose);
-    
+
     /**
      * Add a new conductance block model for a particular channel.
-     * 
+     *
      * @param rCurrentName  The Oxford metadata name of the current (e.g. membrane_fast_sodium_current)
      * @param ic50  The IC50 value for this channel (should be in consistent units with drug dose)
      * @param hill  The hill coefficient to use (usually default to 1)
      */
     void SetIc50Value(const std::string& rCurrentName, double ic50, double hill=1.0);
-    
+
     /**
-     * Get the parameters for the model of "conductance-block" drug action on a set of ion channels.  
-     * 
+     * Get the parameters for the model of "conductance-block" drug action on a set of ion channels.
+     *
      * @return  A map between the current/channel name, and a pair giving IC50 value and hill coefficient.
      */
     std::map<std::string, std::pair<double, double> > GetIc50Values();
-    
+
 private:
     // Only to be accessed by the tests
     friend class TestHeartConfig;
@@ -1254,7 +1254,7 @@ private:
      * (override those given by #mpDefaultParameters).
      */
     boost::shared_ptr<cp::chaste_parameters_type> mpUserParameters;
-    
+
     /** Pointer to parameters read from the default input XML file (to be read before
      * #mpUserParameters, but may be subsequently overridden).
      */
@@ -1324,29 +1324,29 @@ private:
      *  Map defining bath conductivity for multiple bath regions
      */
     std::map<unsigned, double> mBathConductivities;
-    
+
     /**
-     * Mesh region identifiers to be considered as cardiac tissue 
+     * Mesh region identifiers to be considered as cardiac tissue
      */
     std::set<unsigned> mTissueIdentifiers;
-    
+
     /**
      * Mesh region identifiers to be considered as Bath
      */
     std::set<unsigned> mBathIdentifiers;
-    
+
     /**
      * Whether to use a fixed number of iterations for the linear solver
      */
     bool mUseFixedNumberIterations;
-    
+
     /**
-     * Perform a solve with convergence-based stop criteria every n solves 
-     * to decide how many iterations perform for the next n-1 solves. Default 
+     * Perform a solve with convergence-based stop criteria every n solves
+     * to decide how many iterations perform for the next n-1 solves. Default
      * is perfoming a single evaluation at the beginning of the simulation.
      */
     unsigned mEvaluateNumItsEveryNSolves;
-    
+
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)
@@ -1364,7 +1364,7 @@ private:
      * has been defined and therefore is safe to use the Simulation().get() pointer to access
      * other data.
      *
-     * Throws and exception if not.
+     * Throws an exception if not.
      *
      * @param callingMethod string describing the get method performing the check.
      */
@@ -1375,7 +1375,7 @@ private:
      * has been defined and therefore is safe to use the ResumeSimulation().get() pointer to access
      * other data.
      *
-     * Throws and exception if not.
+     * Throws an exception if not.
      *
      * @param callingMethod string describing the get method performing the check.
      */
@@ -1383,7 +1383,7 @@ private:
 };
 
 
-BOOST_CLASS_VERSION(HeartConfig, 1) 
+BOOST_CLASS_VERSION(HeartConfig, 1)
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(HeartConfig)
