@@ -48,26 +48,27 @@ private:
      * Vector of cell radii.
      */
     std::vector<double> mCellRadii;
-    
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Archives the member variables of the object which have to be preserved
-     * during its lifetime.
-     *
-     * Note that we must archive any member variables FIRST so that this
-     * method can call a ReMesh (to convert from TrianglesMeshReader input
-     * format into our native format).
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {  
-        archive & mCellRadii;
-        archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
-    }
+
+///\todo Implement archiving for this class (#1762/#1784)
+//    /** Needed for serialization. */
+//    friend class boost::serialization::access;
+//    /**
+//     * Archives the member variables of the object which have to be preserved
+//     * during its lifetime.
+//     *
+//     * Note that we must archive any member variables FIRST so that this
+//     * method can call a ReMesh (to convert from TrianglesMeshReader input
+//     * format into our native format).
+//     *
+//     * @param archive the archive
+//     * @param version the current version of this class
+//     */
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {  
+//        archive & mCellRadii;
+//        archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
+//    }
     
 public:
 

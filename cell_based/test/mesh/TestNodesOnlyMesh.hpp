@@ -144,7 +144,6 @@ public:
 
     void noTestWriteNodesWithoutMesh()
     {
-
          std::vector<Node<3>*> nodes;
          nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
          nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
