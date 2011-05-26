@@ -575,7 +575,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a CellPopulation.
+ * Serialize information required to construct a MeshBasedCellPopulation.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -587,7 +587,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a CellPopulation.
+ * De-serialize constructor parameters and initialise a MeshBasedCellPopulation.
  * Loads the mesh from separate files.
  */
 template<class Archive, unsigned DIM>

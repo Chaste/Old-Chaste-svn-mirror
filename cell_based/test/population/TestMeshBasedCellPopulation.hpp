@@ -820,7 +820,7 @@ public:
         // Archive a cell population
         {
             // Need to set up time
-            unsigned num_steps=10;
+            unsigned num_steps = 10;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 

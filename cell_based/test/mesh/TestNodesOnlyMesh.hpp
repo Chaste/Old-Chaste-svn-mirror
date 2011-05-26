@@ -231,19 +231,21 @@ public:
             // Restore from the archive
             (*p_arch) >> p_mesh2;
 
+            NodesOnlyMesh<2>* p_nodes_only_mesh = dynamic_cast<NodesOnlyMesh<2>*>(p_mesh2);
+
             // Check we have the right number of nodes & elements
-            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
-            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
+            TS_ASSERT_EQUALS(p_nodes_only_mesh->GetNumNodes(), 543u);
+            TS_ASSERT_EQUALS(p_nodes_only_mesh->GetNumElements(), 0u);
 
             // Check some node co-ordinates
-            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
-            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
-            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
-            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
 
             // Check some cell radii
-            TS_ASSERT_DELTA(dynamic_cast<NodesOnlyMesh<2>*>(p_mesh2)->GetCellRadius(0), 1.12, 1e-6);
-            TS_ASSERT_DELTA(dynamic_cast<NodesOnlyMesh<2>*>(p_mesh2)->GetCellRadius(1), 2.34, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetCellRadius(0), 1.12, 1e-6);
+            TS_ASSERT_DELTA(p_nodes_only_mesh->GetCellRadius(1), 2.34, 1e-6);
 
             // Tidy up
             delete p_mesh2;

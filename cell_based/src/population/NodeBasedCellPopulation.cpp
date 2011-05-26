@@ -31,74 +31,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
-									  const std::vector<Node<DIM>* > nodes,
                                       std::vector<CellPtr>& rCells,
                                       const std::vector<unsigned> locationIndices,
-                                      bool deleteNodes)
+                                      bool deleteMesh)
     : AbstractCentreBasedCellPopulation<DIM>(rCells, locationIndices),
       mrMesh(rMesh),
-      mNodes(nodes.begin(), nodes.end()),
-      mAddedNodes(true),
       mpBoxCollection(NULL),
-      mDeleteNodes(deleteNodes),
+      mDeleteMesh(deleteMesh),
       mMechanicsCutOffLength(DBL_MAX)
 {
     Validate();
 }
 
-// archiving constructor
 template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
-	                                                  const std::vector<Node<DIM>* > nodes,
-	                                                  double mechanicsCutOffLength,
-	                                                  bool deleteNodes)
+NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh)
     : AbstractCentreBasedCellPopulation<DIM>(),
       mrMesh(rMesh),
-      mNodes(nodes.begin(), nodes.end()),
-      mAddedNodes(true),
       mpBoxCollection(NULL),
-      mDeleteNodes(deleteNodes),
-      mMechanicsCutOffLength(mechanicsCutOffLength)
+      mDeleteMesh(true),
+      mMechanicsCutOffLength(DBL_MAX) // will be set by serialize() method
 {
     // No Validate() because the cells are not associated with the cell population yet in archiving
-}
-
-template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(NodesOnlyMesh<DIM>& rMesh,
-		                                              const AbstractMesh<DIM,DIM>& rGeneratingMesh,
-                                                      std::vector<CellPtr>& rCells)
-    : AbstractCentreBasedCellPopulation<DIM>(rCells),
-      mrMesh(rMesh),
-      mAddedNodes(false),
-      mpBoxCollection(NULL),
-      mDeleteNodes(true),
-      mMechanicsCutOffLength(DBL_MAX)
-{
-    unsigned num_nodes = rGeneratingMesh.GetNumNodes();
-
-    mNodes.reserve(num_nodes);
-    // Copy the actual node objects from mesh to this (mesh-less) cell population.
-    for (unsigned i=0; i<num_nodes; i++)
-    {
-        Node<DIM>* p_node = new Node<DIM>(*(rGeneratingMesh.GetNode(i)));
-        mNodes.push_back(p_node);
-    }
-    mAddedNodes = true;
-    Validate();
 }
 
 template<unsigned DIM>
 NodeBasedCellPopulation<DIM>::~NodeBasedCellPopulation()
 {
     Clear();
-
-    // Free node memory
-    if (mDeleteNodes)
+    if (mDeleteMesh)
     {
-        for (unsigned i=0; i<mNodes.size(); i++)
-        {
-            delete mNodes[i];
-        }
+        delete &mrMesh;
     }
 }
 
@@ -114,15 +76,12 @@ const NodesOnlyMesh<DIM>& NodeBasedCellPopulation<DIM>::rGetMesh() const
     return mrMesh;
 }
 
-
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Clear()
 {
     delete mpBoxCollection;
     mpBoxCollection = NULL;
     mNodePairs.clear();
-    mDeletedNodeIndices.clear();
-    mAddedNodes = false;
 }
 
 template<unsigned DIM>
@@ -152,27 +111,15 @@ void NodeBasedCellPopulation<DIM>::Validate()
 }
 
 template<unsigned DIM>
-std::vector<Node<DIM>* >& NodeBasedCellPopulation<DIM>::rGetNodes()
-{
-    return mNodes;
-}
-
-template<unsigned DIM>
-const std::vector<Node<DIM>* >& NodeBasedCellPopulation<DIM>::rGetNodes() const
-{
-    return mNodes;
-}
-
-template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
 {
     mpBoxCollection = new BoxCollection<DIM>(cutOffLength, domainSize);
     mpBoxCollection->SetupLocalBoxesHalfOnly();
 
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
     {
-        unsigned box_index = mpBoxCollection->CalculateContainingBox(mNodes[i]);
-        mpBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
+        unsigned box_index = mpBoxCollection->CalculateContainingBox(this->GetNode(i));
+        mpBoxCollection->rGetBox(box_index).AddNode(this->GetNode(i));
     }
 }
 
@@ -187,7 +134,7 @@ void NodeBasedCellPopulation<DIM>::FindMaxAndMin()
         max_posn(i) = -DBL_MAX;
     }
 
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
     {
         c_vector<double, DIM> posn = this->GetNode(i)->rGetLocation();
 
@@ -217,67 +164,50 @@ void NodeBasedCellPopulation<DIM>::FindMaxAndMin()
 template<unsigned DIM>
 Node<DIM>* NodeBasedCellPopulation<DIM>::GetNode(unsigned index)
 {
-    return mNodes[index];
+    return mrMesh.GetNode(index);
 }
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
 {
-    mNodes[nodeIndex]->SetPoint(rNewLocation);
+    mrMesh.GetNode(nodeIndex)->SetPoint(rNewLocation);
 }
 
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 {
-    if (hasHadBirthsOrDeaths)
+    NodeMap map(mrMesh.GetNumAllNodes());
+    mrMesh.ReMesh(map);
+
+    if (!map.IsIdentityMap())
     {
-        // Create and reserve space for a temporary vector
-        std::vector<Node<DIM>*> old_nodes;
-        old_nodes.reserve(mNodes.size());
+        // Update the mappings between cells and location indices
+        std::map<Cell*, unsigned> old_map = this->mCellLocationMap;
 
-        // Store all non-deleted nodes in the temporary vector
-        for (unsigned i=0; i<mNodes.size(); i++)
-        {
-            if (!mNodes[i]->IsDeleted())
-            {
-                old_nodes.push_back(mNodes[i]);
-            }
-            else
-            {
-                // Free node memory
-                delete mNodes[i];
-            }
-        }
-
-        std::map<unsigned,CellPtr> old_map = this->mLocationCellMap;
-        mNodes.clear();
-
-        // Clear maps
+        // Remove any dead pointers from the maps (needed to avoid archiving errors)
         this->mLocationCellMap.clear();
         this->mCellLocationMap.clear();
 
-        // Update mNodes to new indices which go from 0 to NumNodes-1
-        for (unsigned i=0; i<old_nodes.size(); i++)
+        for (std::list<CellPtr>::iterator it = this->mCells.begin();
+             it != this->mCells.end();
+             ++it)
         {
-            // Get the living cell associated with the old node
-            CellPtr p_live_cell = old_map[old_nodes[i]->GetIndex()];
+            unsigned old_node_index = old_map[(*it).get()];
 
-            // Set the node up
-            mNodes.push_back(old_nodes[i]);
-            mNodes[i]->SetIndex(i);
+            // This shouldn't ever happen, as the cell vector only contains living cells
+            assert(!map.IsDeleted(old_node_index));
 
-            // Set the maps up
-            this->mLocationCellMap[i] = p_live_cell;
-            this->mCellLocationMap[p_live_cell.get()] = i;
+            unsigned new_node_index = map.GetNewIndex(old_node_index);
+            this->mLocationCellMap[new_node_index] = *it;
+            this->mCellLocationMap[(*it).get()] = new_node_index;
         }
 
-        // Remove current dead indices data
-        Clear();
-
-        Validate();
+        this->Validate();
     }
 
-    if (mpBoxCollection!=NULL)
+    mrMesh.SetMeshHasChangedSinceLoading();
+
+    if (mpBoxCollection != NULL)
     {
         delete mpBoxCollection;
     }
@@ -286,7 +216,6 @@ void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 
     // Something here to set up the domain size (max and min of each node position dimension)
     c_vector<double, 2*DIM> domain_size;
-
     for (unsigned i=0; i<DIM; i++)
     {
         domain_size(2*i) = mMinSpatialPositions(i);
@@ -304,55 +233,54 @@ void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
     // Allocates memory for mpBoxCollection and does the splitting and putting nodes into boxes
     SplitUpIntoBoxes(mMechanicsCutOffLength, domain_size);
 
-    mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
+    ///\todo Would it make more sense to have BoxCollection take in a NodesOnlyMesh? (#1762)
+    std::vector<Node<DIM>*> nodes;
+    for (unsigned index=0; index<mrMesh.GetNumNodes(); index++)
+    {
+        Node<DIM>* p_node = mrMesh.GetNode(index);
+        nodes.push_back(p_node);
+    }
+    mpBoxCollection->CalculateNodePairs(nodes, mNodePairs);
 }
 
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
-
-    for (std::list<CellPtr>::iterator cell_iter = this->mCells.begin();
-         cell_iter != this->mCells.end();
-         ++cell_iter)
+    for (std::list<CellPtr>::iterator it = this->mCells.begin();
+         it != this->mCells.end();
+         ++it)
     {
-        if ((*cell_iter)->IsDead())
+        if ((*it)->IsDead())
         {
-            // Remove the node
+            // Remove the node from the mesh
             num_removed++;
-            this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
-            mDeletedNodeIndices.push_back(this->mCellLocationMap[(*cell_iter).get()]);
-            cell_iter = this->mCells.erase(cell_iter);
-            --cell_iter;
+            mrMesh.DeleteNodePriorToReMesh(this->mCellLocationMap[(*it).get()]);
+
+            // Update mappings between cells and location indices
+            unsigned location_index_of_removed_node = this->mCellLocationMap[(*it).get()];
+            this->mCellLocationMap.erase((*it).get());
+            this->mLocationCellMap.erase(location_index_of_removed_node);
+
+            // Update vector of cells
+            it = this->mCells.erase(it);
+            --it;
         }
     }
+
     return num_removed;
 }
 
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::AddNode(Node<DIM>* pNewNode)
 {
-    if (mDeletedNodeIndices.empty())
-    {
-        pNewNode->SetIndex(mNodes.size());
-        mNodes.push_back(pNewNode);
-    }
-    else
-    {
-        unsigned index = mDeletedNodeIndices.back();
-        pNewNode->SetIndex(index);
-        mDeletedNodeIndices.pop_back();
-        delete mNodes[index];
-        mNodes[index] = pNewNode;
-    }
-    mAddedNodes = true;
-    return pNewNode->GetIndex();
+    return mrMesh.AddNode(pNewNode);
 }
 
 template<unsigned DIM>
 unsigned NodeBasedCellPopulation<DIM>::GetNumNodes()
 {
-    return mNodes.size() - mDeletedNodeIndices.size();
+    return mrMesh.GetNumAllNodes();
 }
 
 template<unsigned DIM>
@@ -508,14 +436,9 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
             mesh_writer.AddPointData(data_name.str(), cellwise_data_var);
         }
     }
-    
-    {
-        ///\todo #1762 When mesh is a delegated member, then we won't need this copy
-        // Make a copy of the nodes in a disposable mesh for writing...
-        NodesOnlyMesh<DIM> mesh;
-        mesh.ConstructNodesWithoutMesh(mNodes);
-        mesh_writer.WriteFilesUsingMesh(mesh);
-    }
+
+    mesh_writer.WriteFilesUsingMesh(mrMesh);
+
     *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
     *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
     *(this->mpVtkMetaFile) << "\" group=\"\" part=\"0\" file=\"results_";

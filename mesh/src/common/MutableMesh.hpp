@@ -189,7 +189,7 @@ public:
      *
      * @param index is the index of the node to be deleted
      */
-    void DeleteNode(unsigned index);
+    virtual void DeleteNode(unsigned index);
 #undef COVERAGE_IGNORE
 
 #define COVERAGE_IGNORE

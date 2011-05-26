@@ -43,8 +43,6 @@ class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM>
 {
 private:
 
-///\todo #1762 Add details of the nodes' radii here. 
-
     /**
      * Vector of cell radii.
      */
@@ -85,7 +83,7 @@ public:
     void ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes);
     
     /**
-     * A Helper method to enable you to construct a nodes only mesh by stripping the nodes
+     * A Helper method to enable you to construct a nodes-only mesh by stripping the nodes
      * TetrahedralMesh, this calls the ConstructNodesWithoutMesh method with the nodes
      *
      * If this is the only way of constructing a mesh of this type, then we can be certain that
@@ -109,6 +107,20 @@ public:
      * @param radius the cell radius
      */
     void SetCellRadius(unsigned index, double radius);
+
+    /**
+     * Overridden ReMesh() method.
+     *
+     * @param rMap a reference to a nodemap which should be created with the required number of nodes.
+     */
+    void ReMesh(NodeMap& rMap);
+
+    /**
+     * Overridden DeleteNode() method.
+     *
+     * @param index is the index of the node to be deleted
+     */
+    void DeleteNode(unsigned index);
 };
 
 #include "SerializationExportWrapper.hpp"

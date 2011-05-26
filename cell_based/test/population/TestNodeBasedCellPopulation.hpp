@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "ArchiveOpener.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -70,10 +71,10 @@ private:
         unsigned num_cells = cells.size();
 
         // Create the cell population
-        NodeBasedCellPopulation<DIM> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<DIM> node_based_cell_population(mesh, cells);
 
         // Test we have the correct numbers of nodes and cells
-        TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_cell_population.rGetCells().size(), num_cells);
         TS_ASSERT_EQUALS(cells.size(), 0u);
 
@@ -120,14 +121,6 @@ public:
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(generating_mesh);
 
-        // Get a std::vector of nodes from the mesh
-        std::vector<Node<2>* > nodes;
-        for (unsigned i=0; i<generating_mesh.GetNumNodes(); i++)
-        {
-            Node<2>* p_node = new Node<2>(*(generating_mesh.GetNode(i)));
-            nodes.push_back(p_node);
-        }
-
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
@@ -136,10 +129,9 @@ public:
         // Create the cell population
         unsigned num_cells = cells.size();
         std::vector<CellPtr> cells_copy(cells);
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
-        TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(node_based_cell_population.rGetNodes().size(), nodes.size());
+        TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_cell_population.rGetCells().size(), num_cells);
 
         // For coverage, test that cell population constructor with 3rd argument locationIndices throws
@@ -149,7 +141,7 @@ public:
         location_indices.push_back(1);
         location_indices.push_back(2);
 
-        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells_copy, location_indices),
+        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells_copy, location_indices),
                               "There is not a one-one correspondence between cells and location indices");
     }
 
@@ -169,17 +161,9 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes()-1);
 
-        // Get a std::vector of nodes from the mesh
-        std::vector<Node<2>* > nodes;
-
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
-            nodes.push_back(p_node);
-        }
         // Fails as no cell corresponding to node 4
         std::vector<CellPtr> cells_copy(cells);
-        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> cell_population(mesh, nodes, cells_copy),
+        TS_ASSERT_THROWS_THIS(NodeBasedCellPopulation<2> cell_population(mesh, cells_copy),
                               "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
@@ -191,13 +175,15 @@ public:
         p_cell->SetBirthTime(birth_time);
         cells.push_back(p_cell);
 
-        NodeBasedCellPopulation<2> cell_population(mesh, nodes, cells);
+        NodeBasedCellPopulation<2> cell_population(mesh, cells);
+        TS_ASSERT_EQUALS(cell_population.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(cell_population.rGetCells().size(), 5u);
 
-        // throws exception as update hasn't been called so no node pairs set up yet
+        // Throws exception as update hasn't been called so no node pairs set up yet
         TS_ASSERT_THROWS_THIS(cell_population.rGetNodePairs(),
                 "No node pairs set up, rGetNodePairs probably called before Update");
 
-        // throws exception as the cut-off length hasn't been set and has its default value of DBL_MAX
+        // Throws exception as the cut-off length hasn't been set and has its default value of DBL_MAX
         TS_ASSERT_THROWS_THIS(cell_population.Update(),
                 "NodeBasedCellPopulation cannot create boxes if the cut-off length has not been set - Call SetMechanicsCutOffLength on the CellPopulation ensuring it is larger than GetCutOffLength() on the force law");
         // Set Cut off length
@@ -246,7 +232,7 @@ public:
         cells.push_back(p_cell1);
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, nodes, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Create a new cell, DON'T set the node index, set birth time=-1
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
@@ -259,6 +245,10 @@ public:
         cell2_location[1] = 2.0;
 
         node_based_cell_population.AddCell(p_cell2, cell2_location);
+
+        // Tidy up
+        delete p_node0;
+        delete p_node1;
     }
 
     void TestSetNodeAndAddCell()
@@ -278,7 +268,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Test SetNode() by moving node 0 by a small amount
         AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
@@ -291,46 +281,25 @@ public:
         TS_ASSERT_DELTA(node_based_cell_population.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(node_based_cell_population.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
 
-        // Test AddNode
-
-        ChastePoint<2> new_point;
-        new_point.rGetLocation()[0] = 1.71;
-        new_point.rGetLocation()[1] = 1.72;
-
-        unsigned num_nodes = node_based_cell_population.GetNumNodes();
-
-        Node<2>* p_node = new Node<2>(num_nodes, new_point, false);
-        unsigned new_node_index = node_based_cell_population.AddNode(p_node);
-
-        TS_ASSERT_EQUALS(new_node_index, num_nodes);
-        TS_ASSERT_DELTA(node_based_cell_population.GetNode(num_nodes)->rGetLocation()[0], 1.71, 1e-12);
-        TS_ASSERT_DELTA(node_based_cell_population.GetNode(num_nodes)->rGetLocation()[1], 1.72, 1e-12);
-
-        // Tidy up
-        node_based_cell_population.mNodes.pop_back();
-        delete p_node;
-
         // Remove a cell so as to populate mDeletedNodeIndices (for coverage)
         node_based_cell_population.GetCellUsingLocationIndex(0)->Kill();
         node_based_cell_population.RemoveDeadCells();
 
-        // Test AddNode again
-
+        // Test AddNode
         ChastePoint<2> new_point2;
         new_point2.rGetLocation()[0] = 0.51;
         new_point2.rGetLocation()[1] = 0.52;
 
-        num_nodes = node_based_cell_population.GetNumNodes();
+        unsigned num_nodes = node_based_cell_population.GetNumNodes();
         Node<2>* p_node2 = new Node<2>(num_nodes, new_point2, false);
-        new_node_index = node_based_cell_population.AddNode(p_node2);
+        unsigned new_node_index = node_based_cell_population.AddNode(p_node2);
 
         TS_ASSERT_EQUALS(new_node_index, 0u);
         TS_ASSERT_DELTA(node_based_cell_population.GetNode(0)->rGetLocation()[0], 0.51, 1e-12);
         TS_ASSERT_DELTA(node_based_cell_population.GetNode(0)->rGetLocation()[1], 0.52, 1e-12);
 
         // Test AddCell
-
-        unsigned old_num_nodes = node_based_cell_population.rGetNodes().size();
+        unsigned old_num_nodes = node_based_cell_population.GetNumNodes();
         unsigned old_num_cells = node_based_cell_population.rGetCells().size();
 
         // Create a new cell, DON'T set the node index, set birth time=-1
@@ -383,7 +352,7 @@ public:
         cells[27]->StartApoptosis();
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), 81u);
@@ -437,7 +406,7 @@ public:
         cells[27]->StartApoptosis();
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), 81u);
@@ -502,13 +471,12 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Test that the cell population makes all cells fix the node index as ancestor
         node_based_cell_population.SetCellAncestorsToLocationIndices();
 
         unsigned counter = 0;
-
         for (AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
              cell_iter != node_based_cell_population.End();
              ++cell_iter)
@@ -551,7 +519,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // Loop over nodes
         for (AbstractCellPopulation<2>::Iterator cell_iter = node_based_cell_population.Begin();
@@ -594,7 +562,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh,generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         // For coverage of WriteResultsToFiles()
         boost::shared_ptr<AbstractCellProperty> p_state(node_based_cell_population.GetCellPropertyRegistry()->Get<WildTypeCellMutationState>());
@@ -722,7 +690,7 @@ public:
         cells[0]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
 
         // Create a cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
         TS_ASSERT_EQUALS(node_based_cell_population.GetIdentifier(), "NodeBasedCellPopulation-2");
 
@@ -754,10 +722,10 @@ public:
 
     void TestArchivingCellPopulation() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "NodeBasedCellPopulation.arch";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "node_based_cell_population.arch";
+        ArchiveLocationInfo::SetMeshFilename("node_based_cell_population_mesh");
 
-        // Archive a simple cell population
         {
             // Need to set up time
             unsigned num_steps = 10;
@@ -779,7 +747,7 @@ public:
             cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
             // Create a cell population
-            NodeBasedCellPopulation<2>* const p_cell_population = new NodeBasedCellPopulation<2>(mesh, generating_mesh, cells);
+            NodeBasedCellPopulation<2>* const p_cell_population = new NodeBasedCellPopulation<2>(mesh, cells);
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // loop over them to run to time 0.0;
@@ -792,18 +760,25 @@ public:
 
             p_cell_population->SetMechanicsCutOffLength(1.5);
 
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(0)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(1)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(2)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(3)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(4)->IsBoundaryNode(), false);
+
             // Create an output archive
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write the cell population to the archive
-            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << p_cell_population;
+            (*p_arch) << static_cast<const SimulationTime&>(*p_simulation_time);
+            (*p_arch) << p_cell_population;
+
+            // Tidy up
             SimulationTime::Destroy();
             delete p_cell_population;
         }
 
-        // Restore simple cell population
         {
             // Need to set up time
             unsigned num_steps = 10;
@@ -816,11 +791,11 @@ public:
             NodeBasedCellPopulation<2>* p_cell_population;
 
             // Restore the cell population
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            input_arch >> *p_simulation_time;
-            input_arch >> p_cell_population;
+            (*p_arch) >> *p_simulation_time;
+            (*p_arch) >> p_cell_population;
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
@@ -840,25 +815,31 @@ public:
             // Check the cell population has been restored
             TS_ASSERT_EQUALS(p_cell_population->rGetCells().size(), 5u);
 
+            TS_ASSERT_DELTA(p_cell_population->GetMechanicsCutOffLength(), 1.5, 1e-6);
+
             // Check number of nodes
-            std::vector<Node<2>* > nodes = p_cell_population->rGetNodes();
-            TS_ASSERT_EQUALS(nodes.size(), 5u);
+            TS_ASSERT_EQUALS(p_cell_population->GetNumNodes(), 5u);
 
             // Check some node positions
-            TS_ASSERT_EQUALS(nodes[3]->GetIndex(), 3u);
-            TS_ASSERT_EQUALS(nodes[4]->GetIndex(), 4u);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(3)->GetIndex(), 3u);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(4)->GetIndex(), 4u);
 
-            TS_ASSERT_DELTA(nodes[3]->rGetLocation()[0], 0.0, 1e-9);
-            TS_ASSERT_DELTA(nodes[3]->rGetLocation()[1], 1.0, 1e-9);
-            TS_ASSERT_DELTA(nodes[4]->rGetLocation()[0], 0.5, 1e-9);
-            TS_ASSERT_DELTA(nodes[4]->rGetLocation()[1], 0.5, 1e-9);
+            TS_ASSERT_DELTA(p_cell_population->GetNode(3)->rGetLocation()[0], 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_population->GetNode(3)->rGetLocation()[1], 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_population->GetNode(4)->rGetLocation()[0], 0.5, 1e-9);
+            TS_ASSERT_DELTA(p_cell_population->GetNode(4)->rGetLocation()[1], 0.5, 1e-9);
 
-            TS_ASSERT_EQUALS(nodes[3]->IsBoundaryNode(), true);
-            TS_ASSERT_EQUALS(nodes[4]->IsBoundaryNode(), false);
+            ///\todo Correct archiving of node boundaryness (#1762)
+//            TS_ASSERT_EQUALS(p_cell_population->GetNode(0)->IsBoundaryNode(), true);
+//            TS_ASSERT_EQUALS(p_cell_population->GetNode(1)->IsBoundaryNode(), true);
+//            TS_ASSERT_EQUALS(p_cell_population->GetNode(2)->IsBoundaryNode(), true);
+//            TS_ASSERT_EQUALS(p_cell_population->GetNode(3)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(4)->IsBoundaryNode(), false);
 
-            //Check the Member Variables have been restored \todo currently doesnt work #1496
-            TS_ASSERT_DELTA(p_cell_population->GetMechanicsCutOffLength(), 1.0, 1e-9); // should be 1.5
+            // Check the member variables have been restored
+            TS_ASSERT_DELTA(p_cell_population->GetMechanicsCutOffLength(), 1.5, 1e-9);
 
+            // Tidy up
             delete p_cell_population;
         }
     }

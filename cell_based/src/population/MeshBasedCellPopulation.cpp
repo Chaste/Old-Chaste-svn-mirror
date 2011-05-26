@@ -65,7 +65,7 @@ MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMe
 
 template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh)
-             : mrMesh(rMesh)
+    : mrMesh(rMesh)
 {
     this->mCellPopulationContainsMesh = true;
     mpVoronoiTessellation = NULL;

@@ -87,7 +87,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
         // Create a node-based cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
@@ -138,7 +138,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
         // Create a node-based cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
@@ -171,36 +171,6 @@ public:
         TS_ASSERT(min_distance_between_cells > 1e-3);
     }
 
-    // results: with a few cells and small end times, Simple was twice as fast as meineke
-    //          with 10000 cells, and t_end=0.05, (fixed cell cycle) takes 6.5 mins
-    //          => 2 hours real time to do 1hr simulation time
-    //   run commented test before to see how meineke does with 10000 cells
-    //
-    // \TODO this is out of date and needs to be updated with new force law system
-//    void TestSimpleMonolayer2() throw (Exception)
-//    {
-//        // Create a simple mesh
-//        int num_cells_depth = 100;
-//        int num_cells_width = 100;
-//        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
-//        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
-//
-//        // Set up cells, one for each node. Give each a random birth time.
-//        std::vector<CellPtr> cells = SetUpCells(p_mesh);
-//
-//        // Create a cell population
-//        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-//
-//        Meineke2001SpringSystem<2> mechanics_system(cell_population);
-//
-//        // Create a cell-based simulation
-//        CellBasedSimulation<2> simulator(cell_population, &mechanics_system);
-//        simulator.SetOutputDirectory("TestSimpleMonolayer2");
-//        simulator.SetEndTime(0.05);
-//
-//        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-//    }
-
     /**
      * Create a simulation of a NodeBasedCellPopulation with a NodeBasedCellPopulationMechanicsSystem
      * and a CellKiller. Test that no exceptions are thrown, and write the results to file.
@@ -223,7 +193,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
         // Create a node based cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
@@ -273,7 +243,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
         // Create a node based cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
@@ -324,7 +294,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
         // Create a node based cell population
-        NodeBasedCellPopulation<2> node_based_cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
@@ -358,24 +328,16 @@ public:
         CellBasedSimulation<2>* p_simulator1;
         p_simulator1 = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
 
-        // Need to reset the Cut off length as not archived properly see #1496
-        (dynamic_cast<NodeBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->SetMechanicsCutOffLength(1.5);
-
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
-
 
         // Save, then reload and run from 1.0 to 2.5
         CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(p_simulator1);
         CellBasedSimulation<2>* p_simulator2
             = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
 
-        // Need to reset the Cut off length as not archived properly see #1496
-        (dynamic_cast<NodeBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->SetMechanicsCutOffLength(1.5);
-
         p_simulator2->SetEndTime(2.5);
         p_simulator2->Solve();
-
 
         // These results are from time 2.5 in TestStandardResultForArchivingTestBelow()
         std::vector<double> node_3_location = p_simulator2->GetNodeLocation(3);

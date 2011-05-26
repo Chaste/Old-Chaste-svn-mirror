@@ -67,7 +67,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create cell population
-        NodeBasedCellPopulation<2> cell_population(mesh, *p_generating_mesh, cells);
+        NodeBasedCellPopulation<2> cell_population(mesh, cells);
         cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell population boundary condition

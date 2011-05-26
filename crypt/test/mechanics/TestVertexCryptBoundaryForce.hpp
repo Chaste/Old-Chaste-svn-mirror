@@ -143,7 +143,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, num_nodes);
 
-        NodeBasedCellPopulation<2> non_vertex_cell_population(mesh, nodes, cells);
+        NodeBasedCellPopulation<2> non_vertex_cell_population(mesh, cells);
 
         // Create a vector forces on nodes
         std::vector<c_vector<double, 2> > node_forces;
