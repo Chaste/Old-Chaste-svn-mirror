@@ -69,11 +69,12 @@ public:
     
      /**
       * Writes all axisymmetric vectors to the file.
+      * @param direction  an vector of fibre direction vectors  
       */
-     void WriteAllAxi(std::vector< c_vector<double, DIM> >& direction);
+     void WriteAllAxi(const std::vector< c_vector<double, DIM> >& direction);
     
     /**
-     * Switch to write binary fiber file
+     * Switch to write binary fibre file
      *
      * (set to write ascii files in the constructor)
      */

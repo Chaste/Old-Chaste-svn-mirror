@@ -47,8 +47,6 @@ protected: // Give access of these members to subclasses
     OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
-//    std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
-
     AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>* mpMeshReader; /**< Writer by default writes from a reader (for conversion).  If this pointer is non-null, data can be copied straight across*/
 
     unsigned mNumNodes; /**< Total number of nodes in mesh/mesh-reader*/

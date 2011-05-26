@@ -80,12 +80,6 @@ unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumCableElements()
     return mNumCableElements;
 }
 
-//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryEdges()
-//{
-//    return mBoundaryFaceData.size();
-//}
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
@@ -125,7 +119,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     mNumElements = mpMeshReader->GetNumElements();
     mNumBoundaryElements = mpMeshReader->GetNumFaces();
     
-    /// \todo: #1760 currently only triangles mesh readers know about cable elements
+    ///Only triangles mesh readers know about cable elements
     mNumCableElements = mpMeshReader->GetNumCableElements();
 
     if (!PetscTools::AmMaster())
@@ -133,11 +127,6 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
         return;
     }
 
-//    //Boundary faces are cached
-//    for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
-//    {
-//        SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
-//    }
     WriteFiles();
 }
 

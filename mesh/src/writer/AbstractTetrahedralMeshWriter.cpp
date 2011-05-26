@@ -468,7 +468,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
     
     //Have we got a MixedDimensionMesh?
-    ///\todo #1322, #1760 This should be const too
+    ///\todo #1322,  This should be const too
     mpMixedMesh = dynamic_cast<MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* >(this->mpMesh);
     
 

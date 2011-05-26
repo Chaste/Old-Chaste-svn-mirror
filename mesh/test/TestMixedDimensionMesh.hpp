@@ -329,12 +329,6 @@ public:
         //Compare the binary written from the reader to the binary written from the mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/CableMeshBinary.cable " + results_dir + "/CableMeshBinaryFromMesh.cable").c_str()), 0);
     }
-
-    void TestEfficientParallelWriting3D()
-    {
-        ///\todo #1760 This should test round-robin writing - see  TestEfficientParallelWriting3D() in Distributed test
-    }
-
 };
 
 #endif /*TESTMIXEDDIMENSIONMESH_HPP_*/

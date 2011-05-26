@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * associated to the different elements of the mesh.
  *
  *  After instantiating the class any of SetFibreOrientationFile() or SetNonConstantConductivities()
- * (or both) can be called to implement fiber orientation or heterogeneous conductivity into the
+ * (or both) can be called to implement fibre orientation or heterogeneous conductivity into the
  * tensors, respectively. If none of them is called a constant tensor (with constant conductivities)
  * will be generated for all the elements of the mesh.
  *

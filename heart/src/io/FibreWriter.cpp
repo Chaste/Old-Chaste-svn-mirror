@@ -46,7 +46,7 @@ FibreWriter<DIM>::~FibreWriter()
 }
 
 template<unsigned DIM>
-void FibreWriter<DIM>::WriteAllAxi(std::vector< c_vector<double, DIM> >& direction)
+void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& direction)
 {
     // Write axi file
     std::string axi_file_name = this->mBaseName + ".axi";

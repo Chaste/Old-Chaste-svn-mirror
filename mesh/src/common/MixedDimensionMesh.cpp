@@ -80,7 +80,7 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
     
             for (unsigned j=0; j<2; j++) // cables are always 1d
             {
-                //Note (#1760) that if we own one node on a cable element then we are likely to own the other.
+                //Note that if we own one node on a cable element then we are likely to own the other.
                 //If not, we are likely to have a halo.
                 //If not, (free-running Purkinje with monodomain mesh?), then this will terminate.
                 try
