@@ -74,6 +74,12 @@ public:
 
     /**
      * Must be called after you have finished working with a document returned by the ReadXmlFile methods.
+     * An alternative is to instantiate
+     * \code
+     * xsd::cxx::xml::auto_initializer init_fini(false, true);
+     * \endcode
+     * just before calling ReadXmlFile, provided that you will do all your processing within that scope.
+     * The init_fini object will call (the equivalent of) Finalize in its destructor.
      */
     static void Finalize();
 

@@ -383,6 +383,8 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
     // which returns a std::auto_ptr. We convert to a shared_ptr for easier semantics.
     try
     {
+        // Make sure Xerces finalization happens
+        xsd::cxx::xml::auto_initializer init_fini(false, true);
         // Parse XML to DOM
         xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = XmlTools::ReadXmlFile(rFileName, props);
         // Test the namespace on the root element
@@ -405,13 +407,11 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));
         // Get rid of the DOM stuff
         p_doc.reset();
-        XmlTools::Finalize();
 
         return boost::shared_ptr<cp::chaste_parameters_type>(p_params);
     }
     catch (const xml_schema::exception& e)
     {
-        XmlTools::Finalize();
         std::cerr << e << std::endl;
         // Make sure we don't store invalid parameters
         mpUserParameters.reset();
@@ -420,7 +420,6 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
     }
     catch (...)
     {
-        XmlTools::Finalize();
         // Make sure we don't store invalid parameters
         mpUserParameters.reset();
         mpDefaultParameters.reset();
