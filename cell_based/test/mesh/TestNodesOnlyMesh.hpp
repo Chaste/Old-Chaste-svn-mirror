@@ -189,6 +189,39 @@ public:
         }
     }
 
+    void TestDeleteNodes() throw (Exception)
+    {
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 0.0, 0.5));
+        nodes.push_back(new Node<2>(2, true, 1.0, 0.0));
+        nodes.push_back(new Node<2>(3, true, 1.0, 1.0));
+        nodes.push_back(new Node<2>(4, true, 0.0, 1.0));
+        nodes.push_back(new Node<2>(5, false, 0.4, 0.5));
+        nodes.push_back(new Node<2>(6, false, 0.6, 0.5));
+        nodes.push_back(new Node<2>(7, false, 0.0, 0.5));
+
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
+
+        // Delete from interior
+        mesh.DeleteNode(6);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+
+        // Delete from edge
+        mesh.DeleteNode(1);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
+
+        // Delete from corner
+        mesh.DeleteNode(3);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+
+        // Deleting a deleted node should throw an exception
+        TS_ASSERT_THROWS_THIS(mesh.DeleteNode(3),"Trying to delete a deleted node");
+    }
+
     void TestArchiving() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);

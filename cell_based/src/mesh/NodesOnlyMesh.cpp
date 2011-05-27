@@ -127,7 +127,9 @@ void NodesOnlyMesh<SPACE_DIM>::DeleteNode(unsigned index)
     {
         EXCEPTION("Trying to delete a deleted node");
     }
-    delete this->mNodes[index];
+    
+    this->mNodes[index]->MarkAsDeleted();
+    this->mDeletedNodeIndices.push_back(index);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
