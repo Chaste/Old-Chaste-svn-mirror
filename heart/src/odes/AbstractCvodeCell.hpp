@@ -104,14 +104,6 @@ protected:
      */
     void Init();
 
-    /**
-     * Create a new N_Vector by copying the given vector.
-     * Used by GetStateVariables and SetStateVariablesUsingACopyOfThisVector.
-     *
-     * @param originalVec  the vector to copy
-     */
-    N_Vector CopyVector(N_Vector originalVec);
-
 public:
     /**
      * Create a new cardiac cell.
@@ -144,38 +136,6 @@ public:
      * @param voltage  new value
      */
     void SetVoltage(double voltage);
-
-    /**
-     * Reset the model's state variables to the default initial conditions.
-     */
-    void ResetToInitialConditions();
-
-    /**
-     * Get the initial conditions for the cell.
-     *
-     * Creates and returns a fresh N_Vector, which must be destroyed
-     * by the caller when finished with.
-     */
-    N_Vector GetInitialConditions();
-
-    /**
-     * Assign a vector to be used for this cell's state.
-     *
-     * The cell takes responsibility for freeing this vector when it
-     * is destroyed.  If the cell already has state, it will be freed.
-     *
-     * @param stateVars  new state variables vector
-     */
-    void SetStateVariables(N_Vector stateVars);
-
-    /**
-     * Assign a vector to be copied for this cell's state.
-     *
-     * Caller retains responsibility for freeing the vector.
-     *
-     * @param stateVars  new state variables vector
-     */
-    void SetStateVariablesUsingACopyOfThisVector(N_Vector stateVars);
 
     /**
      * RHS evaluation function, to be provided by subclasses.

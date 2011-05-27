@@ -51,13 +51,8 @@ AbstractCardiacCell::~AbstractCardiacCell()
 
 void AbstractCardiacCell::Init()
 {
-    SetStateVariables(GetInitialConditions());
+    ResetToInitialConditions();
     mParameters.resize(rGetParameterNames().size());
-}
-
-void AbstractCardiacCell::ResetToInitialConditions()
-{
-    SetStateVariables(GetInitialConditions());
 }
 
 void AbstractCardiacCell::SetTimestep(double dt)

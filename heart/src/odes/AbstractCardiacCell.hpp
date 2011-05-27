@@ -145,11 +145,6 @@ public:
     void Init();
 
     /**
-     * Reset the model's state variables to the default initial conditions.
-     */
-    void ResetToInitialConditions();
-
-    /**
      * Set the timestep to use for simulating this cell.
      *
      * @param dt  the timestep

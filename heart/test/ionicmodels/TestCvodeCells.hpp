@@ -304,7 +304,8 @@ public:
         }
 
         // Free memory
-        state_vars_after_solve->ops->nvdestroy(state_vars_after_solve);
+        DeleteVector(state_vars);
+        DeleteVector(state_vars_after_solve);
 
         // Solve using Chaste solvers for comparison.
         OdeSolution solution_chaste = sh04_ode_system.Compute(start_time, end_time, sampling_time);
@@ -395,18 +396,6 @@ public:
         solution_block = sh04_cvode_system.Solve(0.0, 100.0, max_timestep, sampling_time);
         solution_block.WriteToFile("TestCvodeCells","sh04_block_param","ms",1,clean_dir);
         CompareCellModelResults("sh04_block_param", "sh04_block_modifier", 1e-6, voltage_only, "TestCvodeCells");
-
-        // Coverage of a helper method
-        N_Vector yvalues = sh04_cvode_system.GetInitialConditions();
-        sh04_cvode_system.SetStateVariablesUsingACopyOfThisVector(yvalues);
-        N_Vector yvalues2 = sh04_cvode_system.rGetStateVariables();
-
-        TS_ASSERT_EQUALS(GetVectorSize(yvalues),GetVectorSize(yvalues2));
-        for (unsigned i=0; i<GetVectorSize(yvalues); i++)
-        {
-            TS_ASSERT_DELTA(GetVectorComponent(yvalues,i), GetVectorComponent(yvalues2,i), 1e-9);
-        }
-        DeleteVector(yvalues);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE

@@ -94,7 +94,7 @@ NhsContractionModel::NhsContractionModel()
     :   AbstractOdeBasedContractionModel(5) // five state variables
 {
     mpSystemInfo = OdeSystemInformation<NhsContractionModel>::Instance();
-    SetStateVariables(GetInitialConditions());
+    ResetToInitialConditions();
 
     mLambda = 1.0;
     mDLambdaDt = 0.0;

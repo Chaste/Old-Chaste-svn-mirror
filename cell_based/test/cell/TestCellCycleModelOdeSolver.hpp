@@ -55,7 +55,7 @@ public:
     SimpleOde() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
@@ -171,7 +171,7 @@ public:
         TS_ASSERT_THROWS_THIS(p_solver->Initialise(), "SetSizeOfOdeSystem() must be called before calling Initialise()");
         p_solver->SetSizeOfOdeSystem(1);
         p_solver->Initialise();
-       
+
         // Check the solver can be called for a simple ODE system
         SimpleOde ode;
         double last_time = 0.0;

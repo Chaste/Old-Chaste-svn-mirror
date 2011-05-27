@@ -42,7 +42,7 @@ public:
     Ode1() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<Ode1>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

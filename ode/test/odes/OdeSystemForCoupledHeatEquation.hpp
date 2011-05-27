@@ -34,13 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * An ODE system given by
- * 
+ *
  * dv/dt = a*u, v(0) = 1,
- * 
+ *
  * that couples with the heat equation
- * 
+ *
  * u_t = div (grad u),
- * 
+ *
  * which is defined in the separate class HeatEquationForCoupledOdeSystem.
  */
 class OdeSystemForCoupledHeatEquation : public AbstractOdeSystemForCoupledPdeSystem
@@ -54,7 +54,7 @@ public:
           mA(a)
     {
         mpSystemInfo = OdeSystemInformation<OdeSystemForCoupledHeatEquation>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

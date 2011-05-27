@@ -48,7 +48,7 @@ public:
     SimpleOde1() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde1>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
         mParameters.resize(1);
     }
 
@@ -81,7 +81,7 @@ public:
     SimpleOde2() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde2>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
         mParameters.resize(1);
     }
 
@@ -122,7 +122,7 @@ public:
     SimpleOde3() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde3>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
         mParameters.resize(2);
     }
 
@@ -151,7 +151,7 @@ public:
     SimpleOde4() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde4>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
         mParameters.resize(1);
     }
 
@@ -181,7 +181,7 @@ public:
     SimpleOde5() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde5>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
         mParameters.resize(1);
     }
 
@@ -213,7 +213,7 @@ public:
     SimpleOde6() : AbstractOdeSystem(2) // 2 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<SimpleOde6>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

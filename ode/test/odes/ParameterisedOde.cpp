@@ -35,7 +35,7 @@ bool ParameterisedOde::noParameterDefaults = false;
 ParameterisedOde::ParameterisedOde() : AbstractOdeSystem(1) // 1 here is the number of variables
 {
     mpSystemInfo = OdeSystemInformation<ParameterisedOde>::Instance();
-    SetStateVariables(GetInitialConditions());
+    ResetToInitialConditions();
     if (!noParameterDefaults)
     {
         mParameters.push_back(0);

@@ -65,41 +65,6 @@ std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
     return res.str();
 }
 
-void AbstractOdeSystem::SetDefaultInitialConditions(const std::vector<double>& rInitialConditions)
-{
-    if (rInitialConditions.size() != mNumberOfStateVariables)
-    {
-        EXCEPTION("The number of initial conditions must be that of the number of state variables.");
-    }
-    assert(mpSystemInfo);
-    mpSystemInfo->SetDefaultInitialConditions(rInitialConditions);
-}
-
-void AbstractOdeSystem::SetDefaultInitialCondition(unsigned index, double initialCondition)
-{
-    if (index >= mNumberOfStateVariables)
-    {
-        EXCEPTION("Index is greater than the number of state variables.");
-    }
-    assert(mpSystemInfo);
-    mpSystemInfo->SetDefaultInitialCondition(index, initialCondition);
-}
-
-std::vector<double> AbstractOdeSystem::GetInitialConditions() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetInitialConditions();
-}
-
-void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVariables)
-{
-    if ( mNumberOfStateVariables != rStateVariables.size() )
-    {
-        EXCEPTION("The size of the passed in vector must be that of the number of state variables.");
-    }
-    mStateVariables = rStateVariables;
-}
-
 double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     bool stop = CalculateStoppingEvent(time, rY);

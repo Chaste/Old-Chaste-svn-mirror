@@ -102,12 +102,12 @@ private:
         archive & mUseAnalyticJacobian;
         archive & mStateVariables;
         archive & mParameters;
-        
+
         if (version > 0)
         {
             archive & rGetParameterNames();
         }
-        
+
         // This is always set up by subclass constructors, and is essentially
         // 'static' data, so shouldn't go in the archive.
         //archive &mpSystemInfo;
@@ -126,12 +126,12 @@ private:
         archive & mStateVariables;
         std::vector<double> parameters;
         archive & parameters;
-        
+
         if (version > 0)
         {
             std::vector<std::string> param_names;
             archive & param_names;
-            
+
             if (mParameters.size() != rGetParameterNames().size())
             {
                 // Subclass constructor didn't give default values, so we need the archive to provide them all
@@ -141,7 +141,7 @@ private:
                 }
                 mParameters.resize(rGetParameterNames().size());
             }
-            
+
             // Check whether the archive specifies parameters that don't appear in this class,
             // and create a map from archive index to local index
             std::vector<unsigned> index_map(param_names.size());
@@ -154,7 +154,7 @@ private:
                     EXCEPTION("Archive specifies a parameter '" + param_names[i] + "' which does not appear in this class.");
                 }
             }
-            
+
             for (unsigned i=0; i<param_names.size(); ++i)
             {
                 mParameters[index_map[i]] = parameters[i];
@@ -208,35 +208,6 @@ public:
                                       std::vector<double>& rDY)=0;
 
     /**
-     * Set the default initial conditions for the ODE system. This method DOES NOT change the
-     * state variables of the ODE object on which it is called.
-     *
-     * @param rInitialConditions  vector containing initial values for the state variables
-     */
-    void SetDefaultInitialConditions(const std::vector<double>& rInitialConditions);
-
-    /**
-     * Set a single component of the default initial conditions for the ODE system. This method 
-     * DOES NOT change the state variables of the ODE object on which it is called.
-     *
-     * @param index  the index of the state variable in the system
-     * @param initialCondition  the initial value for the state variable
-     */
-    void SetDefaultInitialCondition(unsigned index, double initialCondition);
-
-    /**
-     * Get the initial conditions for the ODE system.
-     */
-    std::vector<double> GetInitialConditions() const;
-
-    /**
-     * Set the values of the state variables in the ODE system.
-     *
-     * @param rStateVariables vector containing values for the state variables
-     */
-    void SetStateVariables(const std::vector<double>& rStateVariables);
-
-    /**
      * CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
      * only until a particular event (for example, only until the y value becomes
      * negative.
@@ -270,7 +241,7 @@ public:
 
     /**
      * \todo move to AbstractParameterisedSystem? (1540)
-     * 
+     *
      * @return const reference to the state variables in the ODE system (used in archiving).
      */
     const std::vector<double>& rGetConstStateVariables() const;

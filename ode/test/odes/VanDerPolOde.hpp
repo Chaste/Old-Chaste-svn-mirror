@@ -40,7 +40,7 @@ public :
     VanDerPolOde() : AbstractOdeSystem(2)  // 2 here is the number of unknowns
     {
         mpSystemInfo = OdeSystemInformation<VanDerPolOde>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

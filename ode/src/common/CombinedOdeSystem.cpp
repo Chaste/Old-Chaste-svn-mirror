@@ -41,7 +41,7 @@ CombinedOdeSystem::CombinedOdeSystem(std::vector<AbstractOdeSystem*> odeSystems)
         mNumberOfStateVariables += odeSystems[i]->GetNumberOfStateVariables();
     }
     mpSystemInfo = CombinedOdeSystemInformation::Instance(odeSystems);
-    SetStateVariables(GetInitialConditions());
+    ResetToInitialConditions();
 
     // Set up working memory
     unsigned num_systems = odeSystems.size();

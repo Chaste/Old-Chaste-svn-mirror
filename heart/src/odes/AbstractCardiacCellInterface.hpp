@@ -74,11 +74,6 @@ public:
     virtual ~AbstractCardiacCellInterface();
 
     /**
-     * Reset the model's state variables to the default initial conditions.
-     */
-    virtual void ResetToInitialConditions()=0;
-
-    /**
      * Set the timestep (or maximum timestep) to use for simulating this cell.
      *
      * @param dt  the timestep

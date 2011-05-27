@@ -89,6 +89,20 @@ VECTOR AbstractParameterisedSystem<VECTOR>::GetStateVariables()
 }
 
 template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetStateVariables(const VECTOR& rStateVariables)
+{
+    if ( mNumberOfStateVariables != GetVectorSize(rStateVariables) )
+    {
+        EXCEPTION("The size of the passed in vector must be that of the number of state variables.");
+    }
+    CreateVectorIfEmpty(mStateVariables, mNumberOfStateVariables);
+    for (unsigned i=0; i<mNumberOfStateVariables; i++)
+    {
+        SetVectorComponent(mStateVariables, i, GetVectorComponent(rStateVariables, i));
+    }
+}
+
+template<typename VECTOR>
 double AbstractParameterisedSystem<VECTOR>::GetStateVariable(unsigned index) const
 {
     if (index >= mNumberOfStateVariables)
@@ -153,6 +167,53 @@ std::string AbstractParameterisedSystem<VECTOR>::GetStateVariableUnits(unsigned 
 {
     assert(mpSystemInfo);
     return mpSystemInfo->GetStateVariableUnits(index);
+}
+
+//
+// Initial condition methods
+//
+
+template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetDefaultInitialConditions(const VECTOR& rInitialConditions)
+{
+    if (GetVectorSize(rInitialConditions) != mNumberOfStateVariables)
+    {
+        EXCEPTION("The number of initial conditions must be that of the number of state variables.");
+    }
+    assert(mpSystemInfo);
+    std::vector<double> inits;
+    CopyToStdVector(rInitialConditions, inits);
+    mpSystemInfo->SetDefaultInitialConditions(inits);
+}
+
+template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetDefaultInitialCondition(unsigned index, double initialCondition)
+{
+    if (index >= mNumberOfStateVariables)
+    {
+        EXCEPTION("Index is greater than the number of state variables.");
+    }
+    assert(mpSystemInfo);
+    mpSystemInfo->SetDefaultInitialCondition(index, initialCondition);
+}
+
+template<typename VECTOR>
+VECTOR AbstractParameterisedSystem<VECTOR>::GetInitialConditions() const
+{
+    assert(mpSystemInfo);
+    VECTOR v;
+    InitialiseEmptyVector(v);
+    CreateVectorIfEmpty(v, mNumberOfStateVariables);
+    CopyFromStdVector(mpSystemInfo->GetInitialConditions(), v);
+    return v;
+}
+
+template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::ResetToInitialConditions()
+{
+    VECTOR inits = GetInitialConditions();
+    SetStateVariables(inits);
+    DeleteVector(inits);
 }
 
 //

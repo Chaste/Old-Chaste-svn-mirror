@@ -107,9 +107,16 @@ public:
 
     /**
      * Get a copy of the state variable vector.
-     * Caller takes responsibility for freeing the vector.
+     * Caller takes responsibility for freeing the vector (if required for the VECTOR type).
      */
     VECTOR GetStateVariables();
+
+    /**
+     * Set the state variables equal to the values in the given vector.
+     *
+     * @param rStateVariables  new values for the state variables
+     */
+    void SetStateVariables(const VECTOR& rStateVariables);
 
     /**
      * Get the value of a given state variable.
@@ -181,6 +188,45 @@ public:
      * @return the units of the state variable.
      */
     std::string GetStateVariableUnits(unsigned index) const;
+
+    //
+    // Initial condition methods
+    //
+
+    /**
+     * Set the default initial conditions for the system.
+     *
+     * @note The default initial conditions are shared among all instances of the particular concrete
+     *     system class.
+     * @note This method DOES NOT change the state variables of the object on which it is called.
+     *
+     * @param rInitialConditions  vector containing initial values for the state variables
+     */
+    void SetDefaultInitialConditions(const VECTOR& rInitialConditions);
+
+    /**
+     * Set a single component of the default initial conditions for the system.
+     *
+     * @note The default initial conditions are shared among all instances of the particular concrete
+     *     system class.
+     * @note This method DOES NOT change the state variables of the object on which it is called.
+     *
+     * @param index  the index of the state variable in the system
+     * @param initialCondition  the initial value for the state variable
+     */
+    void SetDefaultInitialCondition(unsigned index, double initialCondition);
+
+    /**
+     * Get the default initial conditions for this system.
+     *
+     * @note Returns a fresh vector, which the caller should delete if appropriate for the type.
+     */
+    VECTOR GetInitialConditions() const;
+
+    /**
+     * Reset the system's state variables to the default initial conditions.
+     */
+    void ResetToInitialConditions();
 
     //
     // Parameter methods

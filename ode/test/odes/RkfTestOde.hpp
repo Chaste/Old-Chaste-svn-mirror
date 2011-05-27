@@ -43,7 +43,7 @@ public :
     RkfTestOde() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<RkfTestOde>::Instance();
-        SetStateVariables(GetInitialConditions());
+        ResetToInitialConditions();
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
+#include "VectorHelperFunctions.hpp"
 
 // CVODE headers
 #include <cvode/cvode.h>
@@ -86,27 +87,16 @@ AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* 
 
 AbstractCvodeCell::~AbstractCvodeCell()
 {
-    if (mStateVariables)
-    {
-        mStateVariables->ops->nvdestroy(mStateVariables);
-        mStateVariables = NULL;
-    }
-    if (mParameters)
-    {
-        mParameters->ops->nvdestroy(mParameters);
-        mParameters = NULL;
-    }
+    DeleteVector(mStateVariables);
+    DeleteVector(mParameters);
 }
 
 
 void AbstractCvodeCell::Init()
 {
-    SetStateVariables(GetInitialConditions());
-    if (mParameters)
-    {
-        mParameters->ops->nvdestroy(mParameters);
-        mParameters = NULL;
-    }
+    DeleteVector(mStateVariables);
+    mStateVariables = GetInitialConditions();
+    DeleteVector(mParameters);
     mParameters = N_VNew_Serial(rGetParameterNames().size());
     for (int i=0; i<NV_LENGTH_S(mParameters); i++)
     {
@@ -126,46 +116,6 @@ void AbstractCvodeCell::SetVoltage(double voltage)
     assert(mStateVariables);
     SetAnyVariable(mVoltageIndex, voltage);
 }
-
-
-void AbstractCvodeCell::ResetToInitialConditions()
-{
-    SetStateVariables(GetInitialConditions());
-}
-
-N_Vector AbstractCvodeCell::GetInitialConditions()
-{
-    assert(mpSystemInfo);
-    std::vector<double> inits = mpSystemInfo->GetInitialConditions();
-    N_Vector v = N_VNew_Serial(inits.size());
-    for (unsigned i=0; i<inits.size(); i++)
-    {
-        NV_Ith_S(v, i) = inits[i];
-    }
-    return v;
-}
-
-void AbstractCvodeCell::SetStateVariables(N_Vector stateVars)
-{
-    if (mStateVariables and stateVars != mStateVariables)
-    {
-        mStateVariables->ops->nvdestroy(mStateVariables);
-        ///\todo #890 re-init CVODE here?
-    }
-    mStateVariables = stateVars;
-}
-
-void AbstractCvodeCell::SetStateVariablesUsingACopyOfThisVector(N_Vector stateVars)
-{
-    // Cope if stateVars == mStateVariables
-    N_Vector temp = CopyVector(stateVars);
-    if (mStateVariables)
-    {
-        mStateVariables->ops->nvdestroy(mStateVariables);
-    }
-    mStateVariables = temp;
-}
-
 
 void AbstractCvodeCell::SetVoltageDerivativeToZero(bool clamp)
 {
@@ -331,8 +281,8 @@ void AbstractCvodeCell::SetupCvode(N_Vector initialConditions,
     // Set the user data & setup CVODE
 #if CHASTE_SUNDIALS_VERSION >= 20400
     CVodeSetUserData(mpCvodeMem, (void*)(this));
-    CVodeInit(mpCvodeMem, AbstractCvodeCellRhsAdaptor, tStart, initialConditions); 
-    CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol); 
+    CVodeInit(mpCvodeMem, AbstractCvodeCellRhsAdaptor, tStart, initialConditions);
+    CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
 #else
     CVodeSetFdata(mpCvodeMem, (void*)(this));
     CVodeMalloc(mpCvodeMem, AbstractCvodeCellRhsAdaptor, tStart, initialConditions,
@@ -369,12 +319,8 @@ void AbstractCvodeCell::CvodeError(int flag, const char * msg)
 
 std::vector<double> AbstractCvodeCell::MakeStdVec(N_Vector v)
 {
-    unsigned size = NV_LENGTH_S(v);
-    std::vector<double> sv(size);
-    for (unsigned i=0; i<size; i++)
-    {
-        sv[i] = NV_Ith_S(v, i);
-    }
+    std::vector<double> sv;
+    CopyToStdVector(v, sv);
     return sv;
 }
 
@@ -393,17 +339,6 @@ std::string AbstractCvodeCell::DumpState(const std::string& message,
         res << "\t" << rGetStateVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
     }
     return res.str();
-}
-
-N_Vector AbstractCvodeCell::CopyVector(N_Vector originalVec)
-{
-    unsigned size = NV_LENGTH_S(originalVec);
-    N_Vector v = N_VClone(originalVec);
-    for (unsigned i=0; i<size; i++)
-    {
-        NV_Ith_S(v, i) = NV_Ith_S(originalVec, i);
-    }
-    return v;
 }
 
 

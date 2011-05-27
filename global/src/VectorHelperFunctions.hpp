@@ -94,6 +94,19 @@ template<typename VECTOR>
 inline void InitialiseEmptyVector(VECTOR& rVec);
 
 /**
+ * If the given vector is empty, set it to have a particular size, allocating memory if necessary.
+ * It is a no-op if the vector is non-empty.
+ *
+ * This isn't a member so that we can specialise it without having to
+ * specialise the whole class.
+ *
+ * @param rVec  the empty vector
+ * @param size  the size to create it as
+ */
+template<typename VECTOR>
+inline void CreateVectorIfEmpty(VECTOR& rVec, unsigned size);
+
+/**
  * Helper function to delete a vector.
  *
  * This isn't a member so that we can specialise it without having to
@@ -115,55 +128,29 @@ inline void DeleteVector(VECTOR& rVec);
 template<typename VECTOR>
 inline VECTOR CopyVector(VECTOR& rVec);
 
-
-#ifdef CHASTE_CVODE
-
 /**
- * A helper function to copy an N_Vector into a std::vector<double>.
- * Only exists if CHASTE_CVODE is defined.
+ * A helper function to copy a VECTOR into a std::vector<double>.
  *
- * @param src  source vector
- * @param rDest  destination vector; will be resized and filled
- */
-inline void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
-{
-    // Check for no-op
-    realtype* p_src = NV_DATA_S(src);
-    if (p_src == &(rDest[0])) return;
-    // Set dest size
-    long size = NV_LENGTH_S(src);
-    rDest.resize(size);
-    // Copy data
-    for (long i=0; i<size; i++)
-    {
-        rDest[i] = p_src[i];
-    }
-}
-
-
-/**
- * A helper function to copy a std::vector<double> into an N_Vector.
- * Only exists if CHASTE_CVODE is defined.
+ * This isn't a member so that we can specialise it without having to
+ * specialise the whole class.
  *
  * @param rSrc  source vector
- * @param dest  destination vector; must exist and be the correct size
+ * @param rDest  destination vector; will be resized and filled
  */
-inline void CopyFromStdVector(const std::vector<realtype>& rSrc, N_Vector dest)
-{
-    // Check for no-op
-    realtype* p_dest = NV_DATA_S(dest);
-    if (p_dest == &(rSrc[0])) return;
-    // Check dest size
-    long size = NV_LENGTH_S(dest);
-    assert(size == (long)rSrc.size());
-    // Copy data
-    for (long i=0; i<size; i++)
-    {
-        p_dest[i] = rSrc[i];
-    }
-}
+template<typename VECTOR>
+inline void CopyToStdVector(const VECTOR& rSrc, std::vector<double>& rDest);
 
-#endif // CHASTE_CVODE
+/**
+ * A helper function to copy a std::vector<double> into a VECTOR.
+ *
+ * This isn't a member so that we can specialise it without having to
+ * specialise the whole class.
+ *
+ * @param rSrc  source vector
+ * @param rDest  destination vector; must exist and be the correct size
+ */
+template<typename VECTOR>
+inline void CopyFromStdVector(const std::vector<double>& rSrc, VECTOR& rDest);
 
 
 //
@@ -217,6 +204,20 @@ inline void InitialiseEmptyVector(std::vector<double>& rVec)
 /**
  * Specialisation for std::vector<double>.
  * @param rVec
+ * @param size
+ */
+template<>
+inline void CreateVectorIfEmpty(std::vector<double>& rVec, unsigned size)
+{
+    if (rVec.empty())
+    {
+        rVec.resize(size);
+    }
+}
+
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
  */
 template<>
 inline void DeleteVector(std::vector<double>& rVec)
@@ -232,6 +233,29 @@ inline std::vector<double> CopyVector(std::vector<double>& rVec)
 {
     return rVec;
 }
+
+/**
+ * Specialisation for std::vector<double>.
+ * @param rSrc
+ * @param rDest
+ */
+template<>
+inline void CopyToStdVector(const std::vector<double>& rSrc, std::vector<double>& rDest)
+{
+    rDest = rSrc;
+}
+
+/**
+ * Specialisation for std::vector<double>.
+ * @param rSrc
+ * @param rDest
+ */
+template<>
+inline void CopyFromStdVector(const std::vector<double>& rSrc, std::vector<double>& rDest)
+{
+    rDest = rSrc;
+}
+
 
 //
 // Specialisations for N_Vector
@@ -288,6 +312,20 @@ inline void InitialiseEmptyVector(N_Vector& rVec)
 /**
  * Specialisation for CVODE's N_Vector type.
  * @param rVec
+ * @param size
+ */
+template<>
+inline void CreateVectorIfEmpty(N_Vector& rVec, unsigned size)
+{
+    if (rVec == NULL)
+    {
+        rVec = N_VNew_Serial(size);
+    }
+}
+
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
  */
 template<>
 inline void DeleteVector(N_Vector& rVec)
@@ -317,6 +355,50 @@ inline N_Vector CopyVector(N_Vector& rVec)
         }
     }
     return copy;
+}
+
+/**
+ * A helper function to copy an N_Vector into a std::vector<double>.
+ *
+ * @param rSrc  source vector
+ * @param rDest  destination vector; will be resized and filled
+ */
+template<>
+inline void CopyToStdVector(const N_Vector& rSrc, std::vector<double>& rDest)
+{
+    // Check for no-op
+    realtype* p_src = NV_DATA_S(rSrc);
+    if (p_src == &(rDest[0])) return;
+    // Set dest size
+    long size = NV_LENGTH_S(rSrc);
+    rDest.resize(size);
+    // Copy data
+    for (long i=0; i<size; i++)
+    {
+        rDest[i] = p_src[i];
+    }
+}
+
+/**
+ * A helper function to copy a std::vector<double> into an N_Vector.
+ *
+ * @param rSrc  source vector
+ * @param rDest  destination vector; must exist and be the correct size
+ */
+template<>
+inline void CopyFromStdVector(const std::vector<double>& rSrc, N_Vector& rDest)
+{
+    // Check for no-op
+    realtype* p_dest = NV_DATA_S(rDest);
+    if (p_dest == &(rSrc[0])) return;
+    // Check dest size
+    long size = NV_LENGTH_S(rDest);
+    assert(size == (long)rSrc.size());
+    // Copy data
+    for (long i=0; i<size; i++)
+    {
+        p_dest[i] = rSrc[i];
+    }
 }
 #endif // CHASTE_CVODE
 
