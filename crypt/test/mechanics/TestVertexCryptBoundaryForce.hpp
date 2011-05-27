@@ -157,6 +157,12 @@ public:
         VertexCryptBoundaryForce<2> force(100);
         TS_ASSERT_THROWS_THIS(force.AddForceContribution(node_forces, non_vertex_cell_population),
                 "VertexCryptBoundaryForce is to be used with VertexBasedCellPopulations only");
+
+        // When the node-only mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 };
 

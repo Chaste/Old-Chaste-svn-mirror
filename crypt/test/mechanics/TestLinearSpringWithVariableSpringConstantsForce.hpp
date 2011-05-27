@@ -596,6 +596,12 @@ public:
         LinearSpringWithVariableSpringConstantsForce<2> spring_force;
         TS_ASSERT_THROWS_THIS(spring_force.AddForceContribution(node_forces, cell_population),
                 "LinearSpringWithVariableSpringConstantsForce is to be used with a subclass of MeshBasedCellPopulation only");
+    
+        // When the node-only mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 };
 

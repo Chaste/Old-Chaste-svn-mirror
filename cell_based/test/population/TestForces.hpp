@@ -1208,6 +1208,12 @@ public:
         WelikyOsterForce<2> weliky_oster_force;
         TS_ASSERT_THROWS_THIS(weliky_oster_force.AddForceContribution(node_forces, cell_population),
                 "WelikyOsterForce is to be used with a VertexBasedCellPopulation only");
+
+        // When the node-only mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 };
 
