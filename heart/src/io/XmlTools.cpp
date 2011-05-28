@@ -99,6 +99,18 @@ void XmlTools::Finalize()
     xercesc::XMLPlatformUtils::Terminate();
 }
 
+XmlTools::Finalizer::Finalizer(bool init)
+{
+    if (init)
+    {
+        xercesc::XMLPlatformUtils::Initialize();
+    }
+}
+
+XmlTools::Finalizer::~Finalizer()
+{
+    XmlTools::Finalize();
+}
 
 xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocument(
         const std::string& rFileName,

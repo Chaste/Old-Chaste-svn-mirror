@@ -384,7 +384,7 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
     try
     {
         // Make sure Xerces finalization happens
-        xsd::cxx::xml::auto_initializer init_fini(false, true);
+        XmlTools::Finalizer finalizer(false);
         // Parse XML to DOM
         xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = XmlTools::ReadXmlFile(rFileName, props);
         // Test the namespace on the root element

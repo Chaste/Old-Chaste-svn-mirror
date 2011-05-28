@@ -76,12 +76,30 @@ public:
      * Must be called after you have finished working with a document returned by the ReadXmlFile methods.
      * An alternative is to instantiate
      * \code
-     * xsd::cxx::xml::auto_initializer init_fini(false, true);
+     * XmlTools::Finalizer finalizer(false);
      * \endcode
      * just before calling ReadXmlFile, provided that you will do all your processing within that scope.
-     * The init_fini object will call (the equivalent of) Finalize in its destructor.
+     * The finalizer object will call Finalize in its destructor.
      */
     static void Finalize();
+
+    /**
+     * A little class that automatically finalizes Xerces in its destructor.
+     */
+    class Finalizer
+    {
+    public:
+        /**
+         * Create the object.
+         * @param init  whether to initialize the Xerces runtime also
+         */
+        Finalizer(bool init);
+
+        /**
+         * Finalize the Xerces runtime.
+         */
+        ~Finalizer();
+    };
 
     /**
      * Read an XML file into a DOM document.
