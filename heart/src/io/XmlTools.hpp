@@ -172,6 +172,13 @@ public:
                                      const XMLCh* pNewElementLocalName);
 
     /**
+     * Get all the child elements of the given element.
+     *
+     * @param pElement  the parent element
+     */
+    static std::vector<xercesc::DOMElement*> GetChildElements(xercesc::DOMElement* pElement);
+
+    /**
      * Find all elements matching the given path from this context element.
      *
      * @param pContextElement  the root element to search from

@@ -288,14 +288,10 @@ xercesc::DOMElement* XmlTools::SetNamespace(xercesc::DOMDocument* pDocument,
     }
     //PrintNode("   after attr fix", p_new_elt, true);
 
-    for (DOMNode* p_node = p_new_elt->getFirstChild();
-         p_node != NULL;
-         p_node = p_node->getNextSibling())
+    std::vector<DOMElement*> children = GetChildElements(p_new_elt);
+    for (std::vector<DOMElement*>::iterator it = children.begin(); it != children.end(); ++it)
     {
-        if (p_node->getNodeType() == DOMNode::ELEMENT_NODE)
-        {
-            p_node = SetNamespace(pDocument, static_cast<DOMElement*>(p_node), pNamespace);
-        }
+        SetNamespace(pDocument, *it, pNamespace);
     }
 
     return p_new_elt;
@@ -307,6 +303,23 @@ xercesc::DOMElement* XmlTools::SetNamespace(xercesc::DOMDocument* pDocument,
 {
     return SetNamespace(pDocument, pElement, X(rNamespace));
 }
+
+
+std::vector<xercesc::DOMElement*> XmlTools::GetChildElements(xercesc::DOMElement* pElement)
+{
+    std::vector<xercesc::DOMElement*> children;
+    for (xercesc::DOMNode* p_node = pElement->getFirstChild();
+         p_node != NULL;
+         p_node = p_node->getNextSibling())
+    {
+        if (p_node->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
+        {
+            children.push_back(static_cast<xercesc::DOMElement*>(p_node));
+        }
+    }
+    return children;
+}
+
 
 void XmlTools::FindElements(xercesc::DOMElement* pContextElement,
                             const std::vector<std::string>& rNames,
@@ -352,6 +365,7 @@ std::vector<xercesc::DOMElement*> XmlTools::FindElements(xercesc::DOMElement* pC
     FindElements(pContextElement, path, results);
     return results;
 }
+
 
 void XmlTools::WrapContentInElement(xercesc::DOMDocument* pDocument,
                                     xercesc::DOMElement* pElement,
