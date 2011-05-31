@@ -1,3 +1,9 @@
+chaste-source (2.3) intrepid; urgency=low
+
+  * Package release 2.3 of Chaste.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Tue, 31 May 2011 15:50:28 +0000
+
 chaste-source (2.2) intrepid; urgency=low
 
   * Package release 2.2 of Chaste.
