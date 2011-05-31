@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ChasteParameters_2_0.xsd">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ChasteParameters_2_2.xsd">
 
 	<Simulation>
 		<!-- 
@@ -68,6 +68,8 @@
 	        <MaxUpstrokeVelocityMap threshold="-30.0" threshold_unit="mV"/>
 	        <ConductionVelocityMap origin_node="10"/>
 	        <ConductionVelocityMap origin_node="20"/>
+	        <TimeTraceAtNode node_number="1"/>
+	        <TimeTraceAtNode node_number="25"/>
 	</PostProcessing>
 		    
 </ChasteParameters>

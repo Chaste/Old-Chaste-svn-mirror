@@ -68,6 +68,7 @@ The following new files/directories were created:
 ------------ConductionVelocityFromNode10.dat
 ------------ConductionVelocityFromNode20.dat
 ------------MaxUpstrokeVelocityMap_-30.dat
+------------NodalTraces_V.dat
 ------------UpstrokeTimeMap_-30.dat
 --------vtk_output
 ------------.chaste_deletable_folder
