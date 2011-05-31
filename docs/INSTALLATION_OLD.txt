@@ -6,13 +6,13 @@ dependencies automatically.
 
 This guide walks you through a "standard" installation of Chaste and all its
 dependencies.  Other guides can be found on the developer wiki at
-https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/DeveloperInstallGuide
+https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/DeveloperInstallGuide
 For a guest login, use the username "anonymous", and your email address as
 the password.
 
 There are many dependencies, so if you are running the Ubuntu Linux
 distribution we strongly recommend using our Ubuntu package of Chaste.
-See https://chaste.comlab.ox.ac.uk/chaste/Inc/download.php?file=Ubuntu_package.html
+See https://chaste.cs.ox.ac.uk/chaste/Inc/download.php?file=Ubuntu_package.html
 for details.
 
 
@@ -67,7 +67,7 @@ developers have also used OpenMPI successfully.
 
 Note: if you are installing on a machine with g++ 4.3 or later, download 
 the patched MPICH from
-https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/attachment/wiki/InstallGuides/NonRootDeveloper/mpich-1.2.7p1.tar.gz
+https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/attachment/wiki/InstallGuides/NonRootDeveloper/mpich-1.2.7p1.tar.gz
 
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
@@ -438,7 +438,7 @@ scons chaste_libs=1 core
 
 
 Further details on build options can be found on the Chaste developers' wiki at
-https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide.
+https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/BuildGuide.
 For a guest login, use the username "anonymous", and your email address as
 the password.
 

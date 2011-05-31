@@ -24,13 +24,13 @@ own source and test files if you do not wish to modify the chaste
 source code.
 
 For more information please refer to the chaste website at: 
-http://web.comlab.ox.ac.uk/chaste/
+http://www.cs.ox.ac.uk/chaste/
 
 Information on changes in this release can be found in the file
 docs/ReleaseNotes.html.
 
 Tutorial examples for this release are available at:
-https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.2
+https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.3
 
 Documentation generated from the code by Doxygen is available at:
-https://chaste.comlab.ox.ac.uk/chaste/docs/release_2.2
+https://chaste.cs.ox.ac.uk/chaste/docs/release_2.3

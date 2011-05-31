@@ -7,6 +7,57 @@
 
 <h1>Chaste Release Notes</h1>
 
+<h2>Release 2.3 (changes since Release 2.2)</h2>
+<h3>Headline features</h3>
+<h4>General</h4>
+<ul>
+  <li>Support for the latest version of CVODE (2.6.0)</li>
+  <li>Reduced source download size (mainly through a reduction in the amount of data distributed with tests)</li>
+</ul>
+<h4>Cardiac</h4>
+<ul>
+  <li>A simple model of drug conductance block is now available in the standalone executable.</li>
+  <li>A sequential implementation of adaptive mesh refinement has been added, using a library developed in collaboration with Imperial College London to reduce the computational load and memory footprint of large simulations.  This is not available within the standalone executable however.  Instructions for installing the required library are available on the Chaste wiki at <a class="wiki" href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary">InstallAdaptivityLibrary</a>, and you will need to edit your hostconfig file to turn on support in Chaste (by setting <tt>use_adaptivity = True</tt> and adding appropriate paths etc.).</li>
+</ul>
+<h4>Cell-based</h4>
+
+<h3>New functionality &amp; major code changes</h3>
+<h4>General</h4>
+<ul>
+  <li>Archiving of ODE systems with parameters has been improved.  You can now add parameters without breaking archive backwards compatibility.</li>
+  <li>A mixed-dimension mesh format has been defined and implemented (see the <tt>MixedDimensionMesh</tt> class) as the first step towards incorporating a Purkinje model in Chaste.</li>
+  <li>Further improvements to the compressible elasticity solver (although this is still in the process of being implemented).</li>
+</ul>
+<h4>Cardiac</h4>
+<ul>
+  <li>Added an optional <tt>ApplyDrug</tt> element to the <tt>Physiological</tt> section of the XML parameters file.  This applies conductance block model to as many channels as required.  Note that conductances to block must be annotated in the CellML file with oxmeta names and as modifiable parameters.  This has been done for the LR91 model as an example.  If a channel is not found in the CellML file, a warning will be generated (once per node...).
+  <ul>
+    <li><strong>NB</strong> This means that the parameter already in the LR91 model has changed name, which breaks archive backwards compatibility.  Run the <tt>archive_convert.sed</tt> script on your archives to make them usable again.  e.g. "<tt>find . -name *arch.? -print | xargs sed -i -f archive_convert.sed</tt>"</li>
+  </ul></li>
+  <li>The cardiac post-processing performance has been improved through greater use of caching.</li>
+  <li>Alternative material laws for mechanics can now be set from a test (see the tutorials for an example).</li>
+</ul>
+<h4>Cell-based</h4>
+
+<h3>Code interface changes, which may require changes to user code</h3>
+<h4>General</h4>
+<ul>
+  <li>The interface of <tt>AbstractCvodeCell</tt> has been changed to be more like <tt>AbstractCardiacCell</tt>.
+  <ul>
+    <li>Moved <tt>SetStateVariables</tt> to <tt>AbstractParameterisedSystem</tt>. This means that its behaviour for <tt>AbstractCvodeCell</tt> has changed: it just copies the contents now, rather than handing over ownership of the vector. So callers must now delete the vector they pass to this method.
+    <ul><li>Hence removed <tt>AbstractCvodeCell::SetStateVariablesUsingACopyOfThisVector</tt> - use <tt>SetStateVariables</tt> instead.</li>
+    </ul></li>
+    <li>Moved initial conditions methods (<tt>GetInitialConditions</tt>, <tt>SetDefaultInitialConditions</tt>, <tt>SetDefaultInitialCondition</tt>, and <tt>ResetToInitialConditions</tt>) to <tt>AbstractParameterisedSystem</tt>.</li>
+    <li>Added helper functions <tt>CreateVectorIfEmpty</tt>, <tt>CopyToStdVector</tt>, and <tt>CopyFromStdVector</tt> to <tt>VectorHelperFunctions.hpp</tt>.</li>
+  </ul></li>
+  <li>Made <tt>CalculateOnElement</tt> public in <tt>AbstractFunctionalCalculator</tt> so users can compute contributions to integrals on each element.</li>
+</ul>
+<h4>Cardiac</h4>
+<h4>Cell-based</h4>
+
+<hr />
+
+
 <h2>Release 2.2 (changes since Release 2.1)</h2>
 
 <h3>Headline features</h3>
@@ -16,7 +67,7 @@
 <ul>
   <li>Full default test pack should now pass on more configurations.</li>
   <li>Smarter chunking in HDF5 should reduce the time spent on I/O significantly for simulations with many output time steps.</li>
-  <li>Mesh load is scalable in parallel only with our binary mesh format.  A conversion utility is provided.  Please refer to the <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/CardiacExecutable/MeshConvert">MeshConvert</a> tutorial.</li>
+  <li>Mesh load is scalable in parallel only with our binary mesh format.  A conversion utility is provided.  Please refer to the <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/CardiacExecutable/MeshConvert">MeshConvert</a> tutorial.</li>
   <li>Performance of checkpointing with large meshes has been improved. We now archive permuted meshes without writing from memory to disc; instead the original files are copied.</li>
   <li>Further improvements to tutorials (including the addition of solid mechanics tutorials), and user documentation.  Executable tutorials (as well as tutorial tests) are now routinely tested automatically.</li>
 </ul>
@@ -25,7 +76,7 @@
 
 <ul>
   <li>Added support for the definition of multiple bath/tissue regions. Based on whichever convention you followed in the elements file, you can inform Chaste of your choice of region identifiers with <tt>HeartConfig::SetTissueIdentifiers(std::set&lt;unsigned&gt; )</tt> and <tt>HeartConfig::SetBathIdentifiers(std::set&lt;unsigned&gt; )</tt>. One can also assign different conductivities to different bath regions with <tt>HeartConfig::SetBathMultipleConductivities(std::map&lt;unsigned, double&gt; )</tt>.</li>
-  <li>State variable interpolation may now be used for cardiac simulations.  This can lead to improved conduction velocity accuracy on meshes with spatial resolutions typically used in simulation studies, and has been implemented in an efficient manner. See <a class="wiki" href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/StateVariableInterpolation">ChasteGuides/StateVariableInterpolation</a> for more details.</li>
+  <li>State variable interpolation may now be used for cardiac simulations.  This can lead to improved conduction velocity accuracy on meshes with spatial resolutions typically used in simulation studies, and has been implemented in an efficient manner. See <a class="wiki" href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/StateVariableInterpolation">ChasteGuides/StateVariableInterpolation</a> for more details.</li>
   <li>It is now possible to output visualisation in parallel VTK (.pvtu) format. To do this you need to set the <tt>parallel_vtk</tt> attribute to "yes" in the <tt>OutputVisualizer</tt> element in the parameters file.</li>
   <li>Fixed bug in fibre direction heterogeneities: when running in parallel some fibre directions were permuted between elements.  (This bug did not exist prior to release 2.1.)</li>
   <li>Fixed bug with conductivity heterogeneities in 1D and 2D causing a '<tt>boost::numeric::ublas::bad_size</tt>' error.</li>
@@ -135,7 +186,7 @@
 <ul>
   <li>
     The user documentation has been significantly extended, and tutorials written for the cardiac executable.  Static versions of user guides and tutorials are available
-    for this release <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/">here</a>.
+    for this release <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/">here</a>.
   </li>
   <li>
     External calls to the TetGen binary for <tt>MutableMesh::ReMesh()</tt> and for constructing instances of <tt>QuadraticMesh</tt> have been replaced by library calls.
@@ -152,7 +203,7 @@
   <li>
     The integration of CellML models of cardiac cells has been significantly improved.  Code for all cell models shipped with Chaste is now generated on-the-fly from CellML,
     leading to some naming changes which will affect users of the source distribution (see below for details).  The process is highly configurable; see our
-    <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for details.  In particular, variables
+    <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for details.  In particular, variables
     within the model may be annotated as modifiable parameters or derived quantities, and are then made available for access by name, both in the source release and via the
     executable.
     There is also improved support for units conversions, so that models can use any convention for the ionic currents and stimulus.
@@ -189,11 +240,11 @@
     </li>
     <li>
       The finite element assembler hierarchy has been completely changed and replaced with new assemblers and new solvers.
-      See <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/FiniteElementAssemblersAndSolvers.html">ChasteGuides/FiniteElementAssemblersAndSolvers</a> for details.
+      See <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/FiniteElementAssemblersAndSolvers.html">ChasteGuides/FiniteElementAssemblersAndSolvers</a> for details.
     </li>
     <li>
       Some SCons synonyms for common developer options have been provided (e.g. <tt>scons cl=1 b=_2 up=0 ts=mesh/test/TestDistributedTetrahedralMesh.hpp</tt>).
-      See the <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/UserBuildGuide.html">build guide</a> for details.
+      See the <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/UserBuildGuide.html">build guide</a> for details.
     </li>
     <li>
       The <tt>DistanceMapCalculator</tt> calculates in-mesh path distances along mesh edges rather than Euclidean distances.  The underlying algorithm is Dijkstra/A*
@@ -239,7 +290,7 @@
   </ul>
   </li>
   <li>Cardiac:<ul>
-    <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint. See <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/UserTutorials/CardiacExecutable/CheckpointingAndRestarting.html">UserTutorials/CardiacExecutable/CheckpointingAndRestarting</a> for details.</li>
+    <li>Numerical and post-processing parameters can now be changed when resuming a simulation from a checkpoint. See <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/UserTutorials/CardiacExecutable/CheckpointingAndRestarting.html">UserTutorials/CardiacExecutable/CheckpointingAndRestarting</a> for details.</li>
     <li>
       The <tt>OutputVariables</tt> functionality has been fixed to actually output the variables requested!  It can now output any state variable, or any variable annotated
       as a parameter or derived quantity in the cell model.
@@ -321,7 +372,7 @@
     <li>In <tt>AbstractLinearParabolicPde</tt>, <tt>ComputeLinearSourceTerm(x)</tt> and <tt>ComputeNonlinearSourceTerm(x,u)</tt> have been merged into one method <tt>ComputeSourceTerm(x,u)</tt>.</li>
     <li>
       The macro <tt>NEVER_REACHED</tt> has become a termination error and will always terminate (sequential/parallel and debug/NDEBUG).  This is a level 4 error according to our
-      <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ExceptionStrategy">exception strategy</a>.  <tt>NEVER_REACHED</tt> now relies on <tt>PetscTools</tt> (so that it
+      <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/ExceptionStrategy">exception strategy</a>.  <tt>NEVER_REACHED</tt> now relies on <tt>PetscTools</tt> (so that it
       can either exit or abort in parallel) -- compilation may fail if you are missing <tt>#include "PetscTools.hpp"</tt>.
     </li>
     <li>
@@ -362,7 +413,7 @@
         <li>Class names: New names all take the form "<tt>Cell&lt;FileBaseName>FromCellML&lt;Modifiers></tt>", e.g. <tt>CellLuoRudy1991FromCellML</tt>,
             <tt>CellTenTusscher2006EpiFromCellMLOpt</tt>, <tt>CellLuoRudy1991FromCellMLCvodeOpt</tt>, <tt>CellTenTusscher2006EpiFromCellMLBackwardEuler</tt>.</li>
       </ul>
-      See the <a href="https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for more details.
+      See the <a href="https://chaste.cs.ox.ac.uk/chaste/tutorials/release_2.1/ChasteGuides/CodeGenerationFromCellML.html">guide page</a> for more details.
     </li>
     <li><tt>#include "Maleckar2009OdeSystem.hpp"</tt> should be replaced with <tt>#include "Maleckar2008.hpp"</tt> to reflect year of publication.</li>
   </ul>
@@ -452,9 +503,9 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
     To update your parameters XML files, simply add a namespace declaration by adding the following attributes to the root
     <tt>ChasteParameters</tt> element:
     <pre>
-       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
+       xmlns="https://chaste.cs.ox.ac.uk/nss/parameters/2_0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ChasteParameters_2_0.xsd"</pre>
+       xsi:schemaLocation="https://chaste.cs.ox.ac.uk/nss/parameters/2_0 ChasteParameters_2_0.xsd"</pre>
     See <tt>ChasteParameters.xml</tt> in the Chaste source folder for an example.  Make sure to use the correct path to the
     <tt>ChasteParameters_2_0.xsd</tt> file.
     Chaste should still be able to read old parameters files, but you will need to use the new version to take advantage of new features
@@ -480,7 +531,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
     
     <br />Another side effect of this
     is that the continuous test pack now requires the prerequisites for PyCml to be installed in order for the tests of this new functionality
-    to pass.  See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallPyCml">InstallPyCml</a> for installation instructions.
+    to pass.  See <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallPyCml">InstallPyCml</a> for installation instructions.
   </li>
   
   <li>
@@ -601,7 +652,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       You should include the first in .hpp files, after the class definition.  The second should be included in .cpp files, after any
       other includes (I suggest putting it at the end of the file for consistency).  In both cases, a suitable <tt>CHASTE_CLASS_EXPORT</tt>
       line should be used, the same in both .hpp and .cpp.  (There are also the usual variant macros for common cases of templated classes.)
-      See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BoostSerialization">BoostSerialization</a> for more info. 
+      See <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/BoostSerialization">BoostSerialization</a> for more info. 
     </li>
     <li>
       The dependency on the METIS library has been replaced by one on parMETIS. This will require a small edit of the hostconfig file (see 
@@ -686,7 +737,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
 <h3>General</h3>
 
 <ul>
-<li>Parts of the <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/">Chaste developers wiki</a> have now been opened to the general public.  For a guest login, use the username &quot;anonymous&quot;, and your email address as the password.</li>
+<li>Parts of the <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/">Chaste developers wiki</a> have now been opened to the general public.  For a guest login, use the username &quot;anonymous&quot;, and your email address as the password.</li>
 <li>Improved doxygen documentation.</li>
 <li>PyCml is now included in the main Chaste trunk (<tt>python/pycml</tt>).  This means that you no longer need to download it separately.  Note that the PyCml distributed with release 1 will <em>not</em> generate code compatible with Chaste release 1.1 (see also below).</li>
 </ul>
@@ -696,7 +747,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
 <ul>
 <li>Improved code portability.
   <ul>
-  <li>(Some of) Chaste can now be run under Cygwin; see the <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallGuides/Cygwin">InstallGuides/Cygwin</a> wiki page for details.</li>
+  <li>(Some of) Chaste can now be run under Cygwin; see the <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallGuides/Cygwin">InstallGuides/Cygwin</a> wiki page for details.</li>
   <li>Chaste now uses version 3.2.0 of <a href="http://www.codesynthesis.com/products/xsd/">XSD</a> (although versions 2.3.1 and 3.1.1a3 are also supported for now).  This should hopefully make Chaste easier to install on Macs</li>
   </ul></li>
 
@@ -729,7 +780,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
 
 <li>General:<ul>
 <li>Triangle and tetgen binaries are no longer included with the code and must be installed and set in the <tt>PATH</tt>.  Most re-meshing still works since 2D re-mesh compiles Triangle code from source (which is included).</li>
-<li>The <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/CodeStructureStrategy#Policyonincludes"><tt>#include</tt> policy</a> has changed. It might be the case that tests that used to compile are unable to find certain header files now. Please <tt>#include</tt> such headers explicitly as needed.</li>
+<li>The <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/CodeStructureStrategy#Policyonincludes"><tt>#include</tt> policy</a> has changed. It might be the case that tests that used to compile are unable to find certain header files now. Please <tt>#include</tt> such headers explicitly as needed.</li>
 <li>It is now impossible to create vectors (either PETSc <tt>Vec</tt>s or <tt>DistributedVector</tt>s) directly from a <tt>DistributedVector</tt>.  This must now be done via a <tt>DistributedVectorFactory</tt>.  If you have a mesh, a factory can be obtained using the <tt>GetDistributedVectorFactory</tt> method.  The cardiac PDEs also store a factory.</li>
 <li>Static iterators are not available anymore in <tt>DistributedVector</tt>. You can access the iterator from a <tt>DistributedVector</tt> object. If there isn't one in scope, use <tt>GetLow()</tt> and <tt>GetHigh()</tt> in <tt>DistributedVectorFactory</tt> (accessible via any mesh object).</li>
 <li>For a dynamic assembler, if the matrix is constant you must now call <tt>this-&gt;SetMatrixIsConstant()</tt> in the constructor otherwise the matrix will now be assembled each timestep. If your matrix is not constant in time, you were getting wrong answers before!</li>
