@@ -220,6 +220,12 @@ public:
 
         // Deleting a deleted node should throw an exception
         TS_ASSERT_THROWS_THIS(mesh.DeleteNode(3),"Trying to delete a deleted node");
+
+        // Free memory - the constructor does a deep copy of its input
+        for (std::vector<Node<2>*>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+        {
+            delete *it;
+        }
     }
 
     void TestArchiving() throw(Exception)
@@ -239,7 +245,7 @@ public:
 
             nodes_only_mesh.SetCellRadius(0, 1.12);
             nodes_only_mesh.SetCellRadius(1, 2.34);
-    
+
             TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(0), 1.12, 1e-6);
             TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(1), 2.34, 1e-6);
 

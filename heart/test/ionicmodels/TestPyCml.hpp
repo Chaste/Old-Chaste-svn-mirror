@@ -333,7 +333,7 @@ public:
 
         // With zero g_Na
         normal.SetParameter(0u, 0.0);
-        normal.SetStateVariables(normal.GetInitialConditions());
+        normal.ResetToInitialConditions();
         RunOdeSolverWithIonicModel(&normal,
                                    end_time,
                                    "Lr91FromPyCmlZeroGna");
@@ -376,7 +376,7 @@ public:
 
         // With zero g_Na
         be.SetParameter(0u, 0.0);
-        be.SetStateVariables(be.GetInitialConditions());
+        be.ResetToInitialConditions();
         RunOdeSolverWithIonicModel(&be,
                                    end_time,
                                    "Lr91BEFromPyCmlZeroGna");
@@ -394,12 +394,12 @@ public:
         CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlCvode", 1e-1, true);
         // Coverage
         cvode_cell.SetVoltageDerivativeToZero();
-        cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
+        cvode_cell.ResetToInitialConditions();
         cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_cell.GetIIonic(), 0.0, 1e-1); // Cell should be at rest
         cvode_cell.SetVoltageDerivativeToZero(false);
         // Check GetIIonic
-        cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
+        cvode_cell.ResetToInitialConditions();
         cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_cell.GetIIonic(), i_ionic, 1e-1);
 
@@ -413,12 +413,12 @@ public:
         CompareCellModelResults("Lr91FromPyCmlCvode", "Lr91FromPyCmlCvodeOpt", 1e-1, true);
         // Coverage
         cvode_opt.SetVoltageDerivativeToZero();
-        cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
+        cvode_opt.ResetToInitialConditions();
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), 0.0, 1e-1); // Cell should be at rest
         cvode_opt.SetVoltageDerivativeToZero(false);
         // Check GetIIonic
-        cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
+        cvode_opt.ResetToInitialConditions();
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), i_ionic, 1e-1);
 

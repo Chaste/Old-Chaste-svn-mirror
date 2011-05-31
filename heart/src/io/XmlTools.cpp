@@ -101,9 +101,13 @@ void XmlTools::Finalize()
 
 XmlTools::Finalizer::Finalizer(bool init)
 {
+    // The init=true case will very rarely be used, but a parameter to the constructor is needed
+    // to stop some compilers complaining about an unused variable!
     if (init)
     {
+#define COVERAGE_IGNORE
         xercesc::XMLPlatformUtils::Initialize();
+#undef COVERAGE_IGNORE
     }
 }
 
