@@ -19,7 +19,6 @@
   <li>A simple model of drug conductance block is now available in the standalone executable.</li>
   <li>A sequential implementation of adaptive mesh refinement has been added, using a library developed in collaboration with Imperial College London to reduce the computational load and memory footprint of large simulations.  This is not available within the standalone executable however.  Instructions for installing the required library are available on the Chaste wiki at <a class="wiki" href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary">InstallAdaptivityLibrary</a>, and you will need to edit your hostconfig file to turn on support in Chaste (by setting <tt>use_adaptivity = True</tt> and adding appropriate paths etc.).</li>
 </ul>
-<h4>Cell-based</h4>
 
 <h3>New functionality &amp; major code changes</h3>
 <h4>General</h4>
@@ -37,7 +36,6 @@
   <li>The cardiac post-processing performance has been improved through greater use of caching.</li>
   <li>Alternative material laws for mechanics can now be set from a test (see the tutorials for an example).</li>
 </ul>
-<h4>Cell-based</h4>
 
 <h3>Code interface changes, which may require changes to user code</h3>
 <h4>General</h4>
@@ -52,8 +50,10 @@
   </ul></li>
   <li>Made <tt>CalculateOnElement</tt> public in <tt>AbstractFunctionalCalculator</tt> so users can compute contributions to integrals on each element.</li>
 </ul>
-<h4>Cardiac</h4>
 <h4>Cell-based</h4>
+<ul>
+  <li><tt>NodeBasedCellPopulation</tt> constructors now take in a <tt>NodesOnlyMesh</tt> instead of a vector of nodes.</li>
+</ul>
 
 <hr />
 
