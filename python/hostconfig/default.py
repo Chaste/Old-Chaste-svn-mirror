@@ -107,7 +107,16 @@ def Configure(prefs, build):
     # use_vtk defaults to false. Change to True if VTK development libraries are available.
     use_vtk = int(prefs.get('use-vtk', False))
     
-    #Extra libraries for VTK output
+    # VTK is required for adaptivity to work, so if vtk is turned off, turn off adaptivity too.
+    # See also https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary
+    use_adaptivity = int(prefs.get('use-adaptivity', False)) and use_vtk
+    if use_adaptivity:
+        other_includepaths.append(chaste_libs_path+'libadaptivity/include')
+        other_libpaths.append(chaste_libs_path+'libadaptivity/lib')
+        other_libraries.extend(['adaptivity', 'gfortran', 'gfortranbegin'])
+
+    # Extra libraries for VTK output
+    # This has to come after the 'if use_adaptivity' block, because the libraries there depend on these
     if use_vtk:
         other_includepaths.append(chaste_libs_path+'Vtk5/include/vtk-5.2')
         other_libpaths.append(chaste_libs_path+'Vtk5/lib/vtk-5.2')
