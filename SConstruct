@@ -246,8 +246,7 @@ else:
         ENV={'PATH': '.:' + os.environ['PATH'],
              'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
              'USER': os.environ['USER'],
-             'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk:' +
-                                   os.environ.get('INTEL_LICENSE_FILE', '.'),
+             'INTEL_LICENSE_FILE': os.environ.get('INTEL_LICENSE_FILE', '.'),
              'CHASTE_TEST_OUTPUT':
              os.environ.get('CHASTE_TEST_OUTPUT',
                             '/tmp/'+os.environ['USER']+'/testoutput/'),
