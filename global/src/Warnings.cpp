@@ -81,15 +81,15 @@ Warnings* Warnings::Instance()
 }
 
 
-void 
+void
 Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce)
 {
-    
+
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
     std::string context("Chaste warning: in file " + rFilename + " at line "  + line_number_stream.str()  + ": ");
     std::pair<std::string, std::string> item(context, rMessage);
-    
+
     if (onlyOnce)
     {
         WarningsContainerType::iterator it = find(mWarningMessages.begin(), mWarningMessages.end(), item);
@@ -104,12 +104,12 @@ Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, 
 }
 
 
-unsigned 
+unsigned
 Warnings::GetNumWarnings()
 {
     return mWarningMessages.size();
-}  
-    
+}
+
 std::string Warnings::GetNextWarningMessage()
 {
     if (mWarningMessages.empty())

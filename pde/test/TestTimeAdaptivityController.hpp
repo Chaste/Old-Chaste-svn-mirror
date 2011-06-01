@@ -34,16 +34,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTimeAdaptivityController.hpp"
 
-// very simple toy time-adaptivity controller
+// Very simple toy time-adaptivity controller
 class ToyController : public AbstractTimeAdaptivityController
 {
     double ComputeTimeStep(double currentTime, Vec currentSolution)
     {
-        if(currentTime < 1)
+        if (currentTime < 1)
         {
             return 0.1;
         }
-        else if(currentTime < 2)
+        else if (currentTime < 2)
         {
             return 0.5;
         }
@@ -52,7 +52,6 @@ class ToyController : public AbstractTimeAdaptivityController
             return 1.5;
         }
     }
-            
 
 public:
     ToyController(double minDt, double maxDt)
@@ -60,7 +59,6 @@ public:
     {
     }
 };
-
 
 class TestTimeAdaptivityController : public CxxTest::TestSuite
 {

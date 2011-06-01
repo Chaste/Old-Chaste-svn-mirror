@@ -74,8 +74,7 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
 
     ComputeTransformedDeformationTensor(rC, rInvC, C_transformed, invC_transformed);
 
-
-    // compute T*
+    // Compute T*
 
     c_matrix<double,2,2> E = 0.5*(C_transformed - mIdentity);
 
@@ -112,7 +111,7 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
         }
     }
 
-    // now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+    // Now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
     this->TransformStressAndStressDerivative(rT, rDTdE, computeDTdE);
 }
 

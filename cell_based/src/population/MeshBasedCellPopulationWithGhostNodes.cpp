@@ -70,7 +70,7 @@ MeshBasedCellPopulationWithGhostNodes<DIM>::MeshBasedCellPopulationWithGhostNode
 
 template<unsigned DIM>
 MeshBasedCellPopulationWithGhostNodes<DIM>::MeshBasedCellPopulationWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-																  double ghostSpringStiffness)
+                                                                  double ghostSpringStiffness)
              : MeshBasedCellPopulation<DIM>(rMesh),
                mGhostSpringStiffness(ghostSpringStiffness)
 {
@@ -280,7 +280,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
         VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
         std::stringstream time;
         time << SimulationTime::Instance()->GetTimeStepsElapsed();
-    
+
         unsigned num_elements = this->mpVoronoiTessellation->GetNumElements();
         std::vector<double> ghosts(num_elements);
         std::vector<double> cell_types(num_elements);
@@ -290,7 +290,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
         std::vector<double> cell_cycle_phases(num_elements);
         std::vector<double> cell_volumes(num_elements);
         std::vector<std::vector<double> > cellwise_data;
-    
+
         if (CellwiseData<DIM>::Instance()->IsSetUp())
         {
             CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
@@ -301,7 +301,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                 cellwise_data.push_back(cellwise_data_var);
             }
         }
-    
+
         // Loop over Voronoi elements
         for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = this->mpVoronoiTessellation->GetElementIteratorBegin();
              elem_iter != this->mpVoronoiTessellation->GetElementIteratorEnd();
@@ -309,16 +309,16 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
         {
             // Get index of this element in the Voronoi tessellation mesh
             unsigned elem_index = elem_iter->GetIndex();
-    
+
             unsigned node_index = this->mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
-    
+
             ghosts[elem_index] = (double)(this->IsGhostNode(node_index));
-    
+
             if (!this->IsGhostNode(node_index))
             {
                 // Get the cell corresponding to this element
                 CellPtr p_cell = this->mLocationCellMap[node_index];
-    
+
                 if (this->mOutputCellAncestors)
                 {
                     double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
@@ -387,7 +387,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                 }
             }
         }
-    
+
         mesh_writer.AddCellData("Non-ghosts", ghosts);
         if (this->mOutputCellProliferativeTypes)
         {
@@ -423,7 +423,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                 mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
             }
         }
-    
+
         mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
         *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
         *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
@@ -437,10 +437,10 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
 template<unsigned DIM>
 void MeshBasedCellPopulationWithGhostNodes<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t<GhostSpringStiffness>" << mGhostSpringStiffness << "</GhostSpringStiffness> \n";
+    *rParamsFile << "\t\t<GhostSpringStiffness>" << mGhostSpringStiffness << "</GhostSpringStiffness> \n";
 
-	// Call method on direct parent class
-	MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    // Call method on direct parent class
+    MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////

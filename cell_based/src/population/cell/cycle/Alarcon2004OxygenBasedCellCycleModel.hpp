@@ -60,7 +60,7 @@ private:
 
     /**
      * Adjust any ODE parameters needed before solving until currentTime.
-     * 
+     *
      * @param currentTime  the time up to which the system will be solved.
      */
     void AdjustOdeParameters(double currentTime);
@@ -69,7 +69,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());

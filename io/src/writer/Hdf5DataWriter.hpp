@@ -75,11 +75,11 @@ private:
 
     static const unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
     hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
-    
-    Mat mSinglePermutation; /**< Stores a permutation as a matrix */ 
-    Mat mDoublePermutation;/**< Stores a permutation of a striped structure (u_0 v_0 u_1 v_1) as a matrix */ 
-    
-    Mat mSingleIncompleteOutputMatrix; /**< Stores nodes to be output as a matrix */ 
+
+    Mat mSinglePermutation; /**< Stores a permutation as a matrix */
+    Mat mDoublePermutation;/**< Stores a permutation of a striped structure (u_0 v_0 u_1 v_1) as a matrix */
+
+    Mat mSingleIncompleteOutputMatrix; /**< Stores nodes to be output as a matrix */
     Mat mDoubleIncompleteOutputMatrix; /**< Stores striped nodes to be output as a matrix */
 
     bool mUseOptimalChunkSizeAlgorithm; /**< Whether to use the built-in algorithm for optimal chunk size */
@@ -184,7 +184,7 @@ public:
     /**
      * Write data for a given variable from a Petsc vector to the dataset.
      *
-     * @param variableID the variable id of the column in the HDF5 file 
+     * @param variableID the variable id of the column in the HDF5 file
      * @param petscVector the data
      */
     void PutVector(int variableID, Vec petscVector);
@@ -217,8 +217,8 @@ public:
      * @return  HDF5 id for the given variable.
      */
     int GetVariableByName(const std::string& rVariableName);
-    
-    
+
+
     /**
      * Apply a permutation to all occurences of PutVector
      * Should be called when in define mode
@@ -226,7 +226,7 @@ public:
      * @return success value.  A value "false" indictates that the permutation was empty or was the identity and was not applied
      */
     bool ApplyPermutation(const std::vector<unsigned>& rPermutation);
-    
+
      /**
      * Define the fixed dimension, assuming incomplete data output (subset of the nodes) and using a matrix
      * to convert from full to incomplete output (rather than picking required data values out one at a time).

@@ -99,10 +99,10 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddProvenance(std::string fileName)
 {
     std::string comment = "<!-- " + ChasteBuildInfo::GetProvenanceString() + "-->";
-    
+
     out_stream p_vtu_file = this->mpOutputFileHandler->OpenOutputFile(fileName, std::ios::out | std::ios::app);
 
-    *p_vtu_file << "\n" << comment << "\n";    
+    *p_vtu_file << "\n" << comment << "\n";
     p_vtu_file->close();
 }
 
@@ -125,7 +125,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         //p_writer->PrintSelf(std::cout, vtkIndent());
         p_writer->Write();
         p_writer->Delete(); //Reference counted
-    }    
+    }
 
     AddProvenance(this->mBaseName + ".vtu");
 }
@@ -157,7 +157,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std
         {
             p_vectors->InsertNextValue(dataPayload[i][j]);
         }
-        //When SPACE_DIM<3, then pad 
+        //When SPACE_DIM<3, then pad
         for (unsigned j=SPACE_DIM; j<3; j++)
         {
             p_vectors->InsertNextValue(0.0);
@@ -175,18 +175,18 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
-        
+
     if (mWriteParallelFiles)
     {
         // In parallel, the vector we pass will only contain the values from the privately owned nodes.
-        // To get the values from the halo nodes (which will be inserted at the end of the vector we need to 
+        // To get the values from the halo nodes (which will be inserted at the end of the vector we need to
         // communicate with the equivalent vectors on other processes.
 
         // resize the payload data to include halos
         assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
-        
-        
+
+
         // then do the communication
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
@@ -204,7 +204,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 for (unsigned node = 0; node < number_of_nodes_to_send; node++)
                 {
                     unsigned global_node_index = mNodesToSendPerProcess[send_to][node];
-                    unsigned local_node_index = global_node_index 
+                    unsigned local_node_index = global_node_index
                                 - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
                     send_data[node] = dataPayload[local_node_index];
                 }
@@ -245,7 +245,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                     dataPayload[halo_index] = receive_data[node];
                 }
             }
-        }    
+        }
     }
 
     for (unsigned i=0; i<dataPayload.size(); i++)
@@ -269,13 +269,13 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
     if (mWriteParallelFiles)
     {
         // In parallel, the vector we pass will only contain the values from the privately owned nodes.
-        // To get the values from the halo nodes (which will be inserted at the end of the vector we need to 
+        // To get the values from the halo nodes (which will be inserted at the end of the vector we need to
         // communicate with the equivalent vectors on other processes.
 
         // resize the payload data to include halos
         assert( dataPayload.size() == this->mpDistributedMesh->GetNumLocalNodes() );
         dataPayload.resize( this->mpDistributedMesh->GetNumLocalNodes() + this->mpDistributedMesh->GetNumHaloNodes() );
-        
+
         // then do the communication
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
@@ -293,7 +293,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
                 for (unsigned node = 0; node < number_of_nodes_to_send; node++)
                 {
                     unsigned global_node_index = mNodesToSendPerProcess[send_to][node];
-                    unsigned local_node_index = global_node_index 
+                    unsigned local_node_index = global_node_index
                                 - this->mpDistributedMesh->GetDistributedVectorFactory()->GetLow();
                     for (unsigned j=0; j<SPACE_DIM; j++)
                     {
@@ -342,7 +342,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
             }
         }
     }
-    
+
     p_vectors->SetNumberOfComponents(3);
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
@@ -350,7 +350,7 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, st
         {
             p_vectors->InsertNextValue(dataPayload[i][j]);
         }
-        //When SPACE_DIM<3, then pad 
+        //When SPACE_DIM<3, then pad
         for (unsigned j=SPACE_DIM; j<3; j++)
         {
             p_vectors->InsertNextValue(0.0);
@@ -372,16 +372,16 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetParallelFiles( AbstractTetrahedral
     {
         EXCEPTION("Cannot write parallel files using a sequential mesh");
     }
-    
+
     if ( PetscTools::IsSequential())
     {
         return;     // mWriteParallelFiles is not set sequentially (so we don't set up data exchange machinery)
     }
-    
+
     mWriteParallelFiles = true;
 
     // Populate the global to node index map (as this will be required to add point data)
-    
+
     //Node index that we are writing to VTK (index into mNodes and mHaloNodes as if they were concatenated)
     unsigned index = 0;
 
@@ -393,19 +393,19 @@ void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetParallelFiles( AbstractTetrahedral
         mGlobalToNodeIndexMap[node_iter->GetIndex()] = index;
         index++;
     }
-    
+
     // Halo nodes
-    for(typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator halo_iter=this->mpDistributedMesh->GetHaloNodeIteratorBegin(); 
+    for (typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator halo_iter=this->mpDistributedMesh->GetHaloNodeIteratorBegin();
             halo_iter != this->mpDistributedMesh->GetHaloNodeIteratorEnd();
             ++halo_iter)
     {
         mGlobalToNodeIndexMap[(*halo_iter)->GetIndex()] = index;
         index++;
     }
-        
+
     //Calculate the halo exchange so that node-wise payloads can be communicated
     this->mpDistributedMesh->CalculateNodeExchange( mNodesToSendPerProcess, mNodesToReceivePerProcess );
-           
+
 }
 
 ///\todo #1322 Mesh should be const
@@ -416,7 +416,7 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 {
     //Have we got a parallel mesh?
     this->mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
-    
+
     if ( PetscTools::IsSequential() || !mWriteParallelFiles || this->mpDistributedMesh == NULL )
     {
         AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFilesUsingMesh( rMesh,keepOriginalElementIndexing );
@@ -428,7 +428,7 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         assert(SPACE_DIM==ELEMENT_DIM);
         vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
         p_pts->GetData()->SetName("Vertex positions");
-        
+
         // Owned nodes
         for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = rMesh.GetNodeIteratorBegin();
              node_iter != rMesh.GetNodeIteratorEnd();
@@ -437,24 +437,24 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             c_vector<double, SPACE_DIM> current_item = node_iter->rGetLocation();
             p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
         }
-        
+
         // Halo nodes
-        for(typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator halo_iter=this->mpDistributedMesh->GetHaloNodeIteratorBegin(); 
+        for (typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::HaloNodeIterator halo_iter=this->mpDistributedMesh->GetHaloNodeIteratorBegin();
                 halo_iter != this->mpDistributedMesh->GetHaloNodeIteratorEnd();
                 ++halo_iter)
         {
             c_vector<double, SPACE_DIM> current_item = (*halo_iter)->rGetLocation();
             p_pts->InsertNextPoint(current_item[0], current_item[1], (SPACE_DIM==3)?current_item[2]:0.0);
-        }       
-        
+        }
+
         mpVtkUnstructedMesh->SetPoints(p_pts);
         p_pts->Delete(); //Reference counted
-        
+
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator elem_iter = rMesh.GetElementIteratorBegin();
              elem_iter != rMesh.GetElementIteratorEnd();
              ++elem_iter)
         {
-        
+
             vtkCell* p_cell=NULL;
             if (SPACE_DIM == 3)
             {
@@ -474,13 +474,13 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             p_cell->Delete(); //Reference counted
         }
         //This block is to guard the mesh writers (vtkXMLPUnstructuredGridWriter) so that they
-        //go out of scope, flush buffers and close files 
+        //go out of scope, flush buffers and close files
         {
             assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
             vtkXMLPUnstructuredGridWriter* p_writer = vtkXMLPUnstructuredGridWriter::New();
 
             p_writer->SetDataModeToBinary();
- 
+
             p_writer->SetNumberOfPieces(PetscTools::GetNumProcs());
             //p_writer->SetGhostLevel(-1);
             p_writer->SetStartPiece(PetscTools::GetMyRank());
@@ -499,11 +499,11 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             p_writer->Write();
             p_writer->Delete(); //Reference counted
         }
-        
-        //Add provenance to the individual files
+
+        // Add provenance to the individual files
         std::stringstream filepath;
         filepath << this->mBaseName << "_" << PetscTools::GetMyRank() << ".vtu";
-        AddProvenance(filepath.str());  
+        AddProvenance(filepath.str());
         /// Add to the main file \todo #1494 Do we need a barrier?
         if (PetscTools::AmMaster())
         {
@@ -519,8 +519,8 @@ void VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 template class VtkMeshWriter<1,1>;
 template class VtkMeshWriter<1,2>;
 template class VtkMeshWriter<1,3>;
-template class VtkMeshWriter<2,2>; //Actually used
+template class VtkMeshWriter<2,2>; // Actually used
 template class VtkMeshWriter<2,3>;
-template class VtkMeshWriter<3,3>; //Actually used
+template class VtkMeshWriter<3,3>; // Actually used
 
 #endif //CHASTE_VTK

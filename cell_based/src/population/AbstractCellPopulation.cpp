@@ -76,7 +76,7 @@ AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells
 
     /*
      * Initialise cell counts to zero.
-     * 
+     *
      * Note: In its current form the code requires each cell-cycle model
      * to comprise four phases (G1, S, G2, M) and requires a cell to have
      * one of three possible proliferative types (STEM, TRANSIT and
@@ -651,7 +651,7 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
     /*
      * Loop over cells and generate a set of cell-cycle model classes
      * that are present in the population.
-     * 
+     *
      * \todo this currently ignores different parameter regimes (#1453)
      */
     std::set<std::string> unique_cell_cycle_models;

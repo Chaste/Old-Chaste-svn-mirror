@@ -50,7 +50,7 @@ public:
 
     void TestCellLabelMethods() throw (Exception)
     {
-    	boost::shared_ptr<CellLabel> p_label(new CellLabel());
+        boost::shared_ptr<CellLabel> p_label(new CellLabel());
         TS_ASSERT_EQUALS(p_label->GetCellCount(), 0u);
         p_label->IncrementCellCount();
         TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
@@ -191,11 +191,11 @@ public:
 
         // Save
         {
-        	boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
+            boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
-	        TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
-	        TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellProperty>(), true);
-	        TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellMutationState>(), false);
+            TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
+            TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellProperty>(), true);
+            TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellMutationState>(), false);
 
             const CellPropertyRegistry* const p_registry = CellPropertyRegistry::Instance()->TakeOwnership();
 
@@ -212,7 +212,7 @@ public:
 
         // Restore boost::shared_ptr to cell property
         {
-        	CellPropertyRegistry::Instance()->Clear();
+            CellPropertyRegistry::Instance()->Clear();
 
             // Initialize a registry
             CellPropertyRegistry* p_registry;
@@ -224,10 +224,10 @@ public:
             input_arch >> p_registry;
 
             boost::shared_ptr<AbstractCellProperty> p_label = p_registry->Get<CellLabel>();
-            
-	        TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
-	        TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellProperty>(), true);
-	        TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellMutationState>(), false);
+
+            TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
+            TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellProperty>(), true);
+            TS_ASSERT_EQUALS(p_label->IsSubType<AbstractCellMutationState>(), false);
 
             // Tidy up
             delete p_registry;

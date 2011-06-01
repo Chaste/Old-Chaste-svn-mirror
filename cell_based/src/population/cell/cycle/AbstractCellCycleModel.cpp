@@ -35,11 +35,11 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mDimension(UNSIGNED_UNSET),
       mMinimumGapDuration(0.01), // an educated guess
       // Default parameter values all have units of hours.
-	  mStemCellG1Duration(14.0),
-	  mTransitCellG1Duration(2.0),
-	  mSDuration(5.0),               // apparently between 5-6 hours normally
-	  mG2Duration(4.0),              // apparently 3-4 hours normally
-	  mMDuration(1.0)               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
+      mStemCellG1Duration(14.0),
+      mTransitCellG1Duration(2.0),
+      mSDuration(5.0),               // apparently between 5-6 hours normally
+      mG2Duration(4.0),              // apparently 3-4 hours normally
+      mMDuration(1.0)               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
 {
 }
 

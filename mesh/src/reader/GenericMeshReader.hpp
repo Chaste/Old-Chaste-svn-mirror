@@ -114,9 +114,7 @@ public:
 #endif // CHASTE_VTK
             }
         }
-
     }
-
 
     /**
      * Destructor
@@ -125,7 +123,6 @@ public:
     {
         delete mpMeshReader;
     }
-
 
     /**
      * Method uses the public method of the delegated mesh reader

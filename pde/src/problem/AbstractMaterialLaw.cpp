@@ -34,8 +34,6 @@ AbstractMaterialLaw<DIM>::AbstractMaterialLaw()
 {
 }
 
-
-
 template<unsigned DIM>
 void AbstractMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
                                                    double pressure,
@@ -52,9 +50,11 @@ void AbstractMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
 
     ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, false);
 
-    // looping it probably more eficient then doing rSigma = (1/detF)*rF*T*transpose(rF)
-    // which doesn't seem to compile anyway, as rF is a Tensor<2,DIM> and T is a
-    // SymmetricTensor<2,DIM>
+    /*
+     * Looping is probably more eficient then doing rSigma = (1/detF)*rF*T*transpose(rF),
+     * which doesn't seem to compile anyway, as rF is a Tensor<2,DIM> and T is a
+     * SymmetricTensor<2,DIM>.
+     */
     for (unsigned i=0; i<DIM; i++)
     {
         for (unsigned j=0; j<DIM; j++)
@@ -109,7 +109,6 @@ void AbstractMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
     #undef COVERAGE_IGNORE
 }
 
-
 template<unsigned DIM>
 void AbstractMaterialLaw<DIM>::SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
 {
@@ -122,7 +121,6 @@ void AbstractMaterialLaw<DIM>::ResetToNoChangeOfBasisMatrix()
     mpChangeOfBasisMatrix = NULL;
 }
 
-
 template<unsigned DIM>
 void AbstractMaterialLaw<DIM>::ComputeTransformedDeformationTensor(c_matrix<double,DIM,DIM>& rC, c_matrix<double,DIM,DIM>& rInvC,
                                                                    c_matrix<double,DIM,DIM>& rCTransformed, c_matrix<double,DIM,DIM>& rInvCTransformed)
@@ -131,8 +129,7 @@ void AbstractMaterialLaw<DIM>::ComputeTransformedDeformationTensor(c_matrix<doub
 
     // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n).
     // The transformed C for the fibre/sheet basis is C* = P^T C P.
-
-    if(mpChangeOfBasisMatrix)
+    if (mpChangeOfBasisMatrix)
     {
         // C* = P^T C P, and ditto inv(C)
         rCTransformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rC,*mpChangeOfBasisMatrix));         // C*    = P^T C    P
@@ -151,7 +148,7 @@ void AbstractMaterialLaw<DIM>::TransformStressAndStressDerivative(c_matrix<doubl
                                                                   bool transformDTdE)
 {
     //  T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
-    if(mpChangeOfBasisMatrix)
+    if (mpChangeOfBasisMatrix)
     {
         static c_matrix<double,DIM,DIM> T_transformed_times_Ptrans;
         T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
@@ -169,9 +166,6 @@ void AbstractMaterialLaw<DIM>::TransformStressAndStressDerivative(c_matrix<doubl
         }
     }
 }
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

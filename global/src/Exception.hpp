@@ -140,12 +140,12 @@ public:
 /**
  * Handy for calling functions like system which return non-zero on error.
  * Throws if an error occurs.
- * 
+ *
  * @note DO NOT use this macro within an if (PetscTools::AmMaster) block, as then you'll
  * get deadlock if an exception is thrown when running in parallel!
  * (Unless the block is wrapped in a try-catch and exception replication handler.)
  * Instead, use MPIABORTIFNON0.
- * 
+ *
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */

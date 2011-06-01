@@ -50,7 +50,7 @@ public:
      * @param dt  the time step to use.
      * @param enforceConstantTimeStep If this is true the stepper estimates whether non-constant
      *  timesteps will be used and quits if so.
-     * @param additionalTimes If the timestepper needs to stop at certain additional times, they can be passed in in this std::vector. 
+     * @param additionalTimes If the timestepper needs to stop at certain additional times, they can be passed in in this std::vector.
      *  Defaults to empty. These times must be in ascending order. Note that if, for example, start=0, end=0.5, dt=0.1, and the additional
      *  stopping time is 0.33, the times used will be 0,0.1,0.2,0.3,0.33,0.4,0.5  NOT  ..,0.33,0.43,0.5
      */
@@ -98,7 +98,7 @@ public:
      * Set the time step to use for adaptive time integration. Note that
      * this also resets mStart to be the current time and zeroes
      * mTotalTimeStepsTaken.
-     * 
+     *
      * @param dt  is the new time-step
      */
     void ResetTimeStep(double dt);
@@ -118,7 +118,7 @@ private:
     /** The total number of time steps taken, including those to get one of the 'additional times'. */
     unsigned mTotalTimeStepsTaken;
 
-    /** The number of times one of the 'additional times' has been passed. */    
+    /** The number of times one of the 'additional times' has been passed. */
     unsigned mAdditionalTimesReached;
 
     /** The current time. */
@@ -129,7 +129,7 @@ private:
 
     /** Compute what the time will be after the next time step. */
     double CalculateNextTime();
-    
+
     /** Vector to store the additional times the stepper must stop at. */
     std::vector<double> mAdditionalTimes;
 };

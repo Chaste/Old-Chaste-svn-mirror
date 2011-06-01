@@ -198,7 +198,7 @@ void CvodeAdaptor::SetupCvode(AbstractOdeSystem* pOdeSystem,
 #endif
     // Setup CVODE
 #if CHASTE_SUNDIALS_VERSION >= 20400
-    CVodeInit(mpCvodeMem, CvodeRhsAdaptor, startTime, mInitialValues); 
+    CVodeInit(mpCvodeMem, CvodeRhsAdaptor, startTime, mInitialValues);
     CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
 #else
     CVodeMalloc(mpCvodeMem, CvodeRhsAdaptor, startTime, mInitialValues,

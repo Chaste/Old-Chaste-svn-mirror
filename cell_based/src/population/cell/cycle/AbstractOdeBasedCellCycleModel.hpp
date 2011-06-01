@@ -145,21 +145,21 @@ public:
 
     /**
      * Set mFinishedRunningOdes. Used in CreateCellCycleModel().
-     * 
+     *
      * @param finishedRunningOdes the new value of mFinishedRunningOdes
      */
     void SetFinishedRunningOdes(bool finishedRunningOdes);
 
     /**
      * Set mDivideTime.
-     * 
+     *
      * @param divideTime the new value of mDivideTime
      */
     void SetDivideTime(double divideTime);
 
     /**
      * Set mG2PhaseStartTime. Used in CreateCellCycleModel().
-     * 
+     *
      * @param g2PhaseStartTime the new value of mG2PhaseStartTime
      */
     void SetG2PhaseStartTime(double g2PhaseStartTime);

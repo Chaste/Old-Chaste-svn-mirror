@@ -81,7 +81,7 @@ void PetscVecTools::Zero(Vec vector)
 #endif
 }
 
-unsigned PetscVecTools::GetSize(Vec vector) 
+unsigned PetscVecTools::GetSize(Vec vector)
 {
     PetscInt size;
     VecGetSize(vector, &size);
@@ -126,7 +126,7 @@ void PetscVecTools::Scale(Vec vector, double scaleFactor)
     PETSCEXCEPT( VecScale(&scaleFactor, vector) );
 #else
     PETSCEXCEPT( VecScale(vector, scaleFactor) );
-#endif    
+#endif
 }
 
 void PetscVecTools::WAXPY(Vec w, double a, Vec x, Vec y)

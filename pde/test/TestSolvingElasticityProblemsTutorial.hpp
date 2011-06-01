@@ -418,7 +418,7 @@ public:
          * sequence of static problems with time-dependent tractions (say), for which they should allow `MyTraction` to
          * depend on time, and put the solve inside a time-loop, for example:
          */
-        //for(double t=0; t<T; t+=dt)
+        //for (double t=0; t<T; t+=dt)
         //{
         //    solver.SetCurrentTime(t);
         //    solver.Solve();

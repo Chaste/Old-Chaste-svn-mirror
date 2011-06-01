@@ -100,7 +100,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the object and its member variables.
-     * 
+     *
      * @param archive the archive
      * @param version the current version of this class
      */
@@ -157,7 +157,7 @@ public:
 
     /**
      * Set #mIsLabelled.
-     * 
+     *
      * @param isLabelled whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system)
      */
     void SetIsLabelled(bool isLabelled);

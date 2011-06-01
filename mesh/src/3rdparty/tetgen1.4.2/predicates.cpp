@@ -2291,7 +2291,7 @@ REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
   adxbdy = adx * bdy;
   bdxady = bdx * ady;
 
-  det = adz * (bdxcdy - cdxbdy) 
+  det = adz * (bdxcdy - cdxbdy)
       + bdz * (cdxady - adxcdy)
       + cdz * (adxbdy - bdxady);
 
@@ -2671,7 +2671,7 @@ REAL incircleadapt(REAL *pa, REAL *pb, REAL *pc, REAL *pd, REAL permanent)
   REAL err1, err2, err3;
   INEXACT REAL _i, _j;
   REAL _0;
-  
+
   axtbclen=0;
   aytbclen=0;
   bxtcalen=0;

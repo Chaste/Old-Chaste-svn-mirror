@@ -211,7 +211,7 @@ public:
         // Create a 1D mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(5);
-        
+
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 1> cells_generator;
@@ -427,20 +427,20 @@ public:
 
     void TestForceOutputParameters()
     {
-		std::string output_directory = "TestForcesOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
+        std::string output_directory = "TestForcesOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
 
-		// Test with GeneralisedLinearSpringForce
-		GeneralisedLinearSpringForce<2> linear_force;
-		linear_force.SetCutOffLength(1.5);
-		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce-2");
+        // Test with GeneralisedLinearSpringForce
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetCutOffLength(1.5);
+        TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce-2");
 
-		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
-		linear_force.OutputForceParameters(linear_force_parameter_file);
-		linear_force_parameter_file->close();
+        out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
+        linear_force.OutputForceParameters(linear_force_parameter_file);
+        linear_force_parameter_file->close();
 
-		std::string linear_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + linear_force_results_dir + "linear_results.parameters cell_based/test/data/TestForces/linear_results.parameters").c_str()), 0);
+        std::string linear_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + linear_force_results_dir + "linear_results.parameters cell_based/test/data/TestForces/linear_results.parameters").c_str()), 0);
 
         // Test with ChemotacticForce
         ChemotacticForce<2> chemotactic_force;
@@ -494,10 +494,10 @@ public:
 
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
-		        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-		        p_model->SetCellProliferativeType(STEM);
+                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+                p_model->SetCellProliferativeType(STEM);
 
-		        CellPtr p_cell(new Cell(p_state, p_model));
+                CellPtr p_cell(new Cell(p_state, p_model));
                 p_cell->SetBirthTime(-50.0);
                 cells.push_back(p_cell);
             }

@@ -632,7 +632,7 @@ public:
     }
 
     void TestHdf5DataWriterFullFormatStripedWith3Variables() throw(Exception)
-	{
+    {
         int number_nodes = 100;
         DistributedVectorFactory vec_factory(number_nodes);
 
@@ -682,7 +682,7 @@ public:
                                                 "io/test/data", "hdf5_test_full_format_striped_3vars", false));
         VecDestroy(petsc_data);
 
-	}
+    }
 
 
     void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
@@ -756,8 +756,7 @@ public:
         VecDestroy(petsc_data_long);
         writer.Close();
 
-        //Now cover two exceptions
-        //one is the unsupported PutStripedVector for incomplete data and 3 vars...
+        // Now cover two exceptions: one is the unsupported PutStripedVector for incomplete data and 3 vars...
         int first = writer.DefineVariable("first","millivolts");
         int second = writer.DefineVariable("second","millivolts");
         int third = writer.DefineVariable("third","milliAmps");
@@ -770,19 +769,19 @@ public:
 
         Vec petsc_data_3vars = factory.CreateVec(3);
         TS_ASSERT_THROWS_THIS(writer.PutStripedVector(three_variable_IDs, petsc_data_3vars),
-								"The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
+                                "The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
 
         VecDestroy(petsc_data_3vars);
         writer.Close();
 
-        //and one is the case when we pass in a short vector to the PutStripedVector method
+        // ...and one is the case when we pass in a short vector to the PutStripedVector method
         int single_var = writer.DefineVariable("only","one");
         std::vector<int> one_ID;
         one_ID.push_back(single_var);
         writer.EndDefineMode();
         Vec petsc_data_1var = factory.CreateVec(1);
         TS_ASSERT_THROWS_THIS(writer.PutStripedVector(one_ID, petsc_data_1var),
-								"The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
+                                "The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
         VecDestroy(petsc_data_1var);
     }
 
@@ -1106,7 +1105,7 @@ public:
         //Re-instate permission to overwrite file
         system(("chmod u+w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
     }
-    
+
     /**
      * Test the functionality for adding further data to an existing file.
      *
@@ -1182,8 +1181,8 @@ public:
         TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false, true),
                               "Unable to extend an incomplete data file at present.");
     }
-    
-    
+
+
     void TestPermutation()
     {
         int number_nodes = 10;
@@ -1195,7 +1194,7 @@ public:
         int index_id = writer.DefineVariable("index","dimensionless");
         int vm_id = writer.DefineVariable("V_m", "millivolts");
         int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
-     
+
         std::vector<int> variable_IDs;
         variable_IDs.push_back(vm_id);
         variable_IDs.push_back(phi_e_id);
@@ -1203,13 +1202,13 @@ public:
         std::vector<unsigned> rotation_perm;
         std::vector<unsigned> identity_perm;
         std::vector<unsigned> short_perm;
-        
+
         //Can't apply empty permutation - nothing happens
         TS_ASSERT_EQUALS(writer.ApplyPermutation(rotation_perm), false);
         //Can't apply a permutation of the wrong length
         short_perm.push_back(0u);
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(short_perm), "Permutation doesn't match the expected problem size");
-        
+
         for (unsigned index=0; index<(unsigned)number_nodes; index++)
         {
             rotation_perm.push_back( (index + 3) % number_nodes); // 3, 4, ... 0, 1, 2
@@ -1219,21 +1218,21 @@ public:
         //Make the permutation incorrect
         TS_ASSERT_EQUALS(rotation_perm[0], 3u);
         rotation_perm[0]=0;
-        
+
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Permutation vector doesn't contain a valid permutation");
 
         //Correct the mistake imposed above
         rotation_perm[0]=3;
-        
+
         TS_ASSERT_EQUALS(writer.ApplyPermutation(identity_perm), false); //Does nothing
-        
+
         // +++ This is where the permutation is really applied +++
         TS_ASSERT(writer.ApplyPermutation(rotation_perm));
-        
+
         writer.EndDefineMode();
         //Can't apply permutation after define mode
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Cannot define permutation when not in Define mode");
-        
+
         Vec petsc_data_short = factory.CreateVec();
         DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
         for (DistributedVector::Iterator index = distributed_vector_short.Begin();
@@ -1268,9 +1267,9 @@ public:
                                                 "io/test/data", "hdf5_unpermuted", false));
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_permuted", true,
                                                 "io/test/data", "hdf5_permuted", false));
-        
+
     }
-    
+
     void TestHdf5DataWriterFullFormatIncompleteUsingMatrix() throw(Exception)
     {
         int number_nodes = 100;
@@ -1394,13 +1393,13 @@ public:
 
         VecDestroy(petsc_data_long);
     }
-    
+
     void TestHdf5BigFiles() throw(Exception)
     {
-        // With a chunk size of 100 the chunk size in bytes will be 2^32*100/99 > 4GB 
+        // With a chunk size of 100 the chunk size in bytes will be 2^32*100/99 > 4GB
         // which would result in an error in HDF5 1.8.x, and bad files
         // in previous versions - Hdf5DataWriter checks for this and throws an Exception
-        int number_nodes = 43383508; // 2^32/99 
+        int number_nodes = 43383508; // 2^32/99
 
         DistributedVectorFactory vec_factory(number_nodes);
 
@@ -1408,7 +1407,7 @@ public:
         writer.DefineFixedDimension(number_nodes);
 
         writer.DefineVariable("index", "nondimensional");
-  
+
         writer.DefineUnlimitedDimension("Time", "msec");
 
         TS_ASSERT_THROWS_CONTAINS(writer.EndDefineMode(), "HDF5 may be writing more than 4GB");

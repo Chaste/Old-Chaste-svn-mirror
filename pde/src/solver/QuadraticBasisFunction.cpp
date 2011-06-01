@@ -32,8 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp"
 #include "PetscTools.hpp"
 
-
-/** Specialization for 0d.
+/**
+ * Specialization for 0d.
  *
  * @param rPoint The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
@@ -47,7 +47,8 @@ double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0>& rPo
     return 1.0;
 }
 
-/** Specialization for 0d.
+/**
+ * Specialization for 0d.
  *
  * @param rPoint The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
@@ -369,7 +370,6 @@ void QuadraticBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivat
     ComputeBasisFunctionDerivatives(rPoint, rReturnValue);
     rReturnValue = prod(trans(rInverseJacobian), rReturnValue);
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation

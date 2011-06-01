@@ -47,10 +47,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 
-/* 
- * This test is seperate from TestCell.hpp to avoid strange errors with the 
+/*
+ * This test is seperate from TestCell.hpp to avoid strange errors with the
  * intel compiler - see #1569
- */ 
+ */
 
 class TestArchiveCell: public AbstractCellBasedTestSuite
 {
@@ -74,9 +74,9 @@ public:
             p_cell_model->SetCellProliferativeType(STEM);
 
             // Create cell property collection
-	        CellPropertyCollection collection;
-	        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-	        collection.AddProperty(p_label);
+            CellPropertyCollection collection;
+            boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+            collection.AddProperty(p_label);
 
             // Create cell
             CellPtr p_cell(new Cell(p_healthy_state, p_cell_model, false, collection));
@@ -130,18 +130,18 @@ public:
 
             CellPropertyCollection& collection = p_cell->rGetCellPropertyCollection();
             TS_ASSERT_EQUALS(collection.GetSize(), 2u);
-	        TS_ASSERT_EQUALS(collection.HasProperty<WildTypeCellMutationState>(), true);
-	        TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), false);
-	        TS_ASSERT_EQUALS(collection.HasProperty<ApcTwoHitCellMutationState>(), false);
+            TS_ASSERT_EQUALS(collection.HasProperty<WildTypeCellMutationState>(), true);
+            TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), false);
+            TS_ASSERT_EQUALS(collection.HasProperty<ApcTwoHitCellMutationState>(), false);
             TS_ASSERT_EQUALS(collection.HasProperty<CellLabel>(), true);
-	        TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellProperty>(), true);
-	        TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellMutationState>(), true);
+            TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellProperty>(), true);
+            TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellMutationState>(), true);
 
-	        for (CellPropertyCollection::Iterator it = collection.Begin(); it != collection.End(); ++it)
-	        {
-	            TS_ASSERT_EQUALS(collection.HasProperty(*it), true);
-	            TS_ASSERT((*it)->IsType<WildTypeCellMutationState>() || (*it)->IsType<CellLabel>());
-	        }
+            for (CellPropertyCollection::Iterator it = collection.Begin(); it != collection.End(); ++it)
+            {
+                TS_ASSERT_EQUALS(collection.HasProperty(*it), true);
+                TS_ASSERT((*it)->IsType<WildTypeCellMutationState>() || (*it)->IsType<CellLabel>());
+            }
         }
     }
 };

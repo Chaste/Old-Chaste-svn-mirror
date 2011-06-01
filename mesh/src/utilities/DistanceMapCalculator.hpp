@@ -65,13 +65,13 @@ private:
     unsigned mRoundCounter;
     /** Used to check implementation for number of queue pops per calculation*/
     unsigned mPopCounter;
-    /** Used in the calculation of point-to-point distances.*/    
+    /** Used in the calculation of point-to-point distances.*/
     unsigned mTargetNodeIndex;
-    /** True for point-to-point distances.*/    
+    /** True for point-to-point distances.*/
     bool mSingleTarget;
-    /** Also used in the calculation of point-to-point distances with A* heuristic -- this requires a parallel communication*/    
+    /** Also used in the calculation of point-to-point distances with A* heuristic -- this requires a parallel communication*/
     c_vector<double, SPACE_DIM> mTargetNodePoint;
-    
+
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      * Priorities (given as the first in the pair for lexographical ordering) are
@@ -86,7 +86,7 @@ private:
      * @param rNodeDistances distance map computed
      * @return true when a single target has been found
      * @return false when there is work remaining or the queue is flushed
-     *  
+     *
      */
     bool WorkOnLocalQueue(std::vector<double>& rNodeDistances);
 
@@ -144,12 +144,12 @@ public:
     /**
      *  Calculates a single point-to-point distance
      *
-     *  @param sourceNodeIndex node index for source of distance computation.  Calculations will be cached so 
-     *  that multiple point-to-point distance computations will get faster. 
+     *  @param sourceNodeIndex node index for source of distance computation.  Calculations will be cached so
+     *  that multiple point-to-point distance computations will get faster.
      *  @param destinationNodeIndex target destination node
      */
     double SingleDistance(unsigned sourceNodeIndex, unsigned destinationNodeIndex);
-                            
+
 };
 
 #endif /*DISTANCEMAPCALCULATOR_HPP_*/

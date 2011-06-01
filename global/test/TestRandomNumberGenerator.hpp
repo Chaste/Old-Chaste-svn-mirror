@@ -103,7 +103,7 @@ public:
                 p_gen->ranf();
             }
 
-            //A few extra calls before archiving
+            // A few extra calls before archiving
             p_gen->ranf();
             p_gen->randMod(3);
             p_gen->StandardNormalRandomDeviate();

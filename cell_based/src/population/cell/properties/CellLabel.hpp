@@ -36,9 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Cell label class.
  *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer 
+ * Each Cell owns a CellPropertyCollection, which may include a shared pointer
  * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled. 
+ * cells are both labelled.
  *
  * The CellLabel object keeps track of the number of cells that have the label, as well
  * as what colour should be used by the visualizer to display cells with the label.

@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A tetrahedral mesh that also supports embedded 1D cable elements.
- * 
+ *
  * Could be used for Purkinje or blood vessels, etc.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -49,27 +49,27 @@ public:
      * @param partitioningMethod  defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
      */
     MixedDimensionMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod=DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
-     
+
     /**
      * Destructor - cleans up the cables
      *
      */
     ~MixedDimensionMesh();
-    
+
     /**
      * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader
      */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
-    
+
    /**
      * Add the most recently constructed cable element to the global->local cable element mapping
      *
      * @param index is the global index of cable element to be registered
      */
     void RegisterCableElement(unsigned index);
-    
+
     /**
      * Get the number of cable elements.
      */
@@ -79,7 +79,7 @@ public:
      * Get the number of cable elements on this process.
      */
     unsigned GetNumLocalCableElements() const;
-    
+
     /**
      * Get the cable element with a given index in the mesh.
      *
@@ -87,7 +87,7 @@ public:
      * @return a pointer to the cable element.
      */
     Element<1u, SPACE_DIM>* GetCableElement(unsigned globalElementIndex) const;
-    
+
     /**
      * Determine whether or not the current process owns node 0 of this cable element (tie breaker to determine which process writes
      * to file for when two or more share ownership of a cable element).
@@ -95,7 +95,7 @@ public:
      * @param globalElementIndex is the global index of the cable element
      */
      bool CalculateDesignatedOwnershipOfCableElement( unsigned globalElementIndex );
-    
+
 
 private:
     /** The elements making up the 1D cables */
@@ -104,7 +104,7 @@ private:
     unsigned mNumCableElements;
     /** A map from global cable index to local index used by this process. */
     std::map<unsigned, unsigned> mCableElementsMapping;
-    
+
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ public:
 
     /** Definition of cable element Iterator type. */
     typedef typename std::vector<Element<1, SPACE_DIM> *>::const_iterator CableElementIterator;
-    
+
         /**
      * Return a pointer to the first boundary element in the mesh.
      */
@@ -124,7 +124,7 @@ public:
      * (for consistency with STL iterators).
      */
     CableElementIterator GetCableElementIteratorEnd() const;
-    
+
 
 };
 

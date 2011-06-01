@@ -109,7 +109,7 @@ public:
 
     /**
      * Zero several rows and columns of a matrix, putting a given value on the diagonal.
-     * 
+     *
      * @param matrix  the matrix
      * @param rRowColIndices A list of indices. All the rows with these indices, and all the columns
      * with these indices, will be zeroed.
@@ -159,10 +159,10 @@ public:
      * @param col  the column index
      */
     static double GetElement(Mat matrix, PetscInt row, PetscInt col);
-    
+
     /**
      * Set a PETSc matrix option to be true, using the PETSc method MatSetOption.
-     * 
+     *
      * @param matrix  the matrix for which to set the option
      * @param option  the option to set
      */

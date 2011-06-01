@@ -204,30 +204,30 @@ public:
     }
 
     /**
-	 * Test a cell-based simulation with multiple forces.
-	 */
-	void TestCellBasedSimulationWithMultipleForces() throw (Exception)
-	{
-		// Create a simple mesh
-		int num_cells_depth = 5;
-		int num_cells_width = 5;
-		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+     * Test a cell-based simulation with multiple forces.
+     */
+    void TestCellBasedSimulationWithMultipleForces() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
-		// Create a cell population
-		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Set up cell-based simulation
-		CellBasedSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
-		simulator.SetEndTime(0.5);
+        // Set up cell-based simulation
+        CellBasedSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
+        simulator.SetEndTime(0.5);
 
-		// Create some force laws and pass them to the simulation
+        // Create some force laws and pass them to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
@@ -243,15 +243,15 @@ public:
         ChemotacticForce<2> chemotactic_force;
         simulator.AddForce(&chemotactic_force);
 
-		simulator.Solve();
+        simulator.Solve();
 
-		// Check that the number of nodes is equal to the number of cells
-		TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), simulator.rGetCellPopulation().GetNumRealCells());
+        // Check that the number of nodes is equal to the number of cells
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), simulator.rGetCellPopulation().GetNumRealCells());
 
-		// For coverage of these 'Get' functions
-		TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
-		TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
-	}
+        // For coverage of these 'Get' functions
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
+    }
 
     /**
      * Test a cell-based simulation with multiple boundary conditions. y<2 and y>0
@@ -317,7 +317,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CellPropertyRegistry::Instance()->Clear();   
+        CellPropertyRegistry::Instance()->Clear();
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
         // Set up cells
@@ -331,21 +331,21 @@ public:
             CellProliferativeType cell_type;
             unsigned generation;
             double y = 0.0;
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             }
-    
+
             FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
             p_cell_cycle_model->SetDimension(2);
-    
+
             double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
             double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
-    
+
             double birth_time = 0.0;
             birth_time = -p_random_num_gen->ranf();
-    
+
             if (y <= 0.3)
             {
                 cell_type = STEM;
@@ -376,15 +376,15 @@ public:
                 generation = 4;
                 birth_time *= typical_transit_cycle_time; // hours
             }
-    
+
             p_cell_cycle_model->SetGeneration(generation);
             p_cell_cycle_model->SetCellProliferativeType(cell_type);
-    
+
             boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-    
+
             CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
             p_cell->SetBirthTime(birth_time);
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 cells.push_back(p_cell);
@@ -524,33 +524,33 @@ public:
 
         //#1453 should have forces and cell killer included here to make it a better test.
 
-		std::string output_directory = "TestCellBasedSimulationOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
-		out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_results.parameters");
-		simulator.OutputSimulationParameters(parameter_file);
-		parameter_file->close();
+        std::string output_directory = "TestCellBasedSimulationOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+        out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_results.parameters");
+        simulator.OutputSimulationParameters(parameter_file);
+        parameter_file->close();
 
-		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_results.parameters").c_str()), 0);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_results.parameters").c_str()), 0);
 
-		simulator.SetOutputDirectory("TestCellBasedSimulationOutputParameters");
-		simulator.OutputSimulationSetup();
-		///\todo #1453 This is to do with the pre Boost 1.37 problem ---
+        simulator.SetOutputDirectory("TestCellBasedSimulationOutputParameters");
+        simulator.OutputSimulationSetup();
+        ///\todo #1453 This is to do with the pre Boost 1.37 problem ---
         //TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff --ignore-matching-lines=\"CellPopulation\" " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
 
-		// Check that the files which we don't want to compare actually exist
-		std::ifstream machine_file;
-		std::string command = results_dir + "/system_info_0.txt";
-		machine_file.open(command.c_str());
-		TS_ASSERT(machine_file.is_open());
-		machine_file.close();
+        // Check that the files which we don't want to compare actually exist
+        std::ifstream machine_file;
+        std::string command = results_dir + "/system_info_0.txt";
+        machine_file.open(command.c_str());
+        TS_ASSERT(machine_file.is_open());
+        machine_file.close();
 
-		std::ifstream info_file;
-		command = results_dir + "/build.info";
-		info_file.open(command.c_str());
-		TS_ASSERT(info_file.is_open());
-		info_file.close();
+        std::ifstream info_file;
+        command = results_dir + "/build.info";
+        info_file.open(command.c_str());
+        TS_ASSERT(info_file.is_open());
+        info_file.close();
     }
 
     /**

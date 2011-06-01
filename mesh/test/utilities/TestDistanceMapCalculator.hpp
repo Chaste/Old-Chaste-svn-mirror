@@ -93,7 +93,7 @@ public:
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         unsigned num_nodes=9261u;
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes); // 21x21x21 nodes
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
@@ -150,16 +150,16 @@ public:
             double error_bound = (manhattan_distance - euclidean_distance)/2.0;
             //If they don't differ, then we expect the in-mesh distance to be similar
             if (error_bound == 0.0)
-            { 
+            {
                 error_bound = 1e-15;
             }
             TS_ASSERT_LESS_THAN_EQUALS(distances[index], manhattan_distance+DBL_EPSILON);
             TS_ASSERT_LESS_THAN_EQUALS(euclidean_distance, distances[index]+DBL_EPSILON);
             TS_ASSERT_DELTA(distances[index], euclidean_distance, error_bound);
-            
+
             TS_ASSERT_DELTA(distances[index], parallel_distances[index], 1e-15);
         }
-        
+
         //Test some point-to-point distances
         RandomNumberGenerator::Instance()->Reseed(1);
         unsigned trials=25;
@@ -174,30 +174,29 @@ public:
             sequential_pops += distance_calculator.mPopCounter;
             TS_ASSERT_LESS_THAN_EQUALS(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs()+2);
         }
-        
-        // Without A*: TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
-        TS_ASSERT_LESS_THAN(sequential_pops/(double)trials, num_nodes/20.0); 
+
+        // Without A*: TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300);
+        TS_ASSERT_LESS_THAN(sequential_pops/(double)trials, num_nodes/20.0);
         if (PetscTools::IsSequential())
         {
-            //Early termination 
-            TS_ASSERT_EQUALS(pops, sequential_pops); 
+            //Early termination
+            TS_ASSERT_EQUALS(pops, sequential_pops);
         }
         else
         {
             //Early termination on remote processes is not yet possible
             //This may lead to multiple updates from remote
             //A* Leads to even more updates on average
-            // Without A*: TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0); 
-            TS_ASSERT_LESS_THAN(pops/(double)trials, num_nodes/10.0 ); 
+            // Without A*: TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0);
+            TS_ASSERT_LESS_THAN(pops/(double)trials, num_nodes/10.0 );
          }
-        
+
         //Reverse - to check that cached information is flushed.
         for (unsigned i=0; i<3; i++)
         {
             unsigned index=RandomNumberGenerator::Instance()->randMod(parallel_distances.size());
             TS_ASSERT_DELTA(parallel_distance_calculator.SingleDistance(index, 9260u), parallel_distances[index], 1e-15);
         }
-        
     }
 
     void TestDistancesToFaceDumb()

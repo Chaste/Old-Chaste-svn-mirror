@@ -209,7 +209,7 @@ public:
         SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
         /* The solver also needs to be given an initial guess, which will be
-         * a Petsc vector. We can make use of a helper method to create it. 
+         * a Petsc vector. We can make use of a helper method to create it.
          */
         Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 0.25);
 

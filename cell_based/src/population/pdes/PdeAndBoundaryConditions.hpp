@@ -51,70 +51,70 @@ private:
     /**
      * Pointer to a linear elliptic PDE object.
      */
-	AbstractLinearEllipticPde<DIM,DIM>* mpPde;
+    AbstractLinearEllipticPde<DIM,DIM>* mpPde;
 
-	/**
-	 * AbstractBoundaryCondition<SPACE_DIM>
-	 */
-	AbstractBoundaryCondition<DIM>* mpBoundaryCondition;
+    /**
+     * AbstractBoundaryCondition<SPACE_DIM>
+     */
+    AbstractBoundaryCondition<DIM>* mpBoundaryCondition;
 
-	/**
-	 * Whether the boundary condition is Neumann (false
-	 * corresponds to a Dirichlet boundary condition).
-	 */
-	bool mIsNeumannBoundaryCondition;
+    /**
+     * Whether the boundary condition is Neumann (false
+     * corresponds to a Dirichlet boundary condition).
+     */
+    bool mIsNeumannBoundaryCondition;
 
     /**
      * Current solution to the PDE problem, for use as an initial guess
      * when solving at the next time step.
      */
-	Vec mCurrentSolution;
+    Vec mCurrentSolution;
 
 public:
 
-	/**
-	 * Constructor.
-	 *
-	 * @param pPde A pointer to a linear elliptic PDE object
-	 * @param pBoundaryCondition A pointer to an abstract boundary condition
-	 *                           (defaults to NULL, corresponding to a constant boundary condition with value zero)
-	 * @param isNeumannBoundaryCondition Whether the boundary condition is Neumann (defaults to true)
-	 */
-	PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
-			                 AbstractBoundaryCondition<DIM>* pBoundaryCondition=NULL,
-					         bool isNeumannBoundaryCondition=true);
+    /**
+     * Constructor.
+     *
+     * @param pPde A pointer to a linear elliptic PDE object
+     * @param pBoundaryCondition A pointer to an abstract boundary condition
+     *                           (defaults to NULL, corresponding to a constant boundary condition with value zero)
+     * @param isNeumannBoundaryCondition Whether the boundary condition is Neumann (defaults to true)
+     */
+    PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
+                             AbstractBoundaryCondition<DIM>* pBoundaryCondition=NULL,
+                             bool isNeumannBoundaryCondition=true);
 
-	/**
-	 * Destructor.
-	 */
-	~PdeAndBoundaryConditions();
+    /**
+     * Destructor.
+     */
+    ~PdeAndBoundaryConditions();
 
-	/**
-	 * @return mpPde
-	 */
-	AbstractLinearEllipticPde<DIM,DIM>* GetPde();
+    /**
+     * @return mpPde
+     */
+    AbstractLinearEllipticPde<DIM,DIM>* GetPde();
 
     /**
      * @return mpBoundaryCondition
      */
     AbstractBoundaryCondition<DIM>* GetBoundaryCondition() const;
 
-	/**
-	 * @return mCurrentSolution
-	 */
-	Vec GetSolution();
+    /**
+     * @return mCurrentSolution
+     */
+    Vec GetSolution();
 
-	/**
-	 * Set mCurrentSolution.
-	 *
-	 * @param solution the current solution
-	 */
-	void SetSolution(Vec solution);
+    /**
+     * Set mCurrentSolution.
+     *
+     * @param solution the current solution
+     */
+    void SetSolution(Vec solution);
 
-	/**
-	 * @return mIsNeumannBoundaryCondition
-	 */
-	bool IsNeumannBoundaryCondition();
+    /**
+     * @return mIsNeumannBoundaryCondition
+     */
+    bool IsNeumannBoundaryCondition();
 
     /**
      * @return whether the PDE is of type AveragedSourcePde

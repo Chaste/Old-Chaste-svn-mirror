@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class PolynomialMaterialLaw3d : public AbstractIsotropicIncompressibleMaterialLaw<3>
 {
-private :
+private:
 
     /** Parameter N. */
     unsigned mN;
@@ -64,7 +64,7 @@ private :
     /** Matrix of parameters alpha. */
     std::vector< std::vector<double> > mAlpha;
 
-public :
+public:
 
     /**
      * Get the first derivative dW/dI1.
@@ -124,7 +124,7 @@ public :
      */
     double GetAlpha(unsigned i, unsigned j);
 
-public :
+public:
 
     /**
      * Constructor.

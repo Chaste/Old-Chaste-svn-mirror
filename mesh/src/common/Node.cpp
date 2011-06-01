@@ -91,7 +91,7 @@ Node<SPACE_DIM>::Node(unsigned index, double *location, bool isBoundaryNode)
         mLocation(i) = location[i];
     }
     CommonConstructor(index, isBoundaryNode);
-    
+
 }
 //////////////////////////////////////////////////////////////////////////
 // Methods dealing with node location
@@ -119,7 +119,7 @@ void Node<SPACE_DIM>::SetAsBoundaryNode(bool value)
 template<unsigned SPACE_DIM>
 ChastePoint<SPACE_DIM> Node<SPACE_DIM>::GetPoint() const
 {
-    return ChastePoint<SPACE_DIM>(mLocation); 
+    return ChastePoint<SPACE_DIM>(mLocation);
 }
 
 template<unsigned SPACE_DIM>

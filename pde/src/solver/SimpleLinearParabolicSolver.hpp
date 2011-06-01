@@ -35,13 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearParabolicPde.hpp"
 
 /**
- *  SimpleLinearParabolicSolver
+ * SimpleLinearParabolicSolver.
  *
- *  Solver for solving AbstractLinearParabolicPdes
+ * Solver for solving AbstractLinearParabolicPdes
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleLinearParabolicSolver 
-    : public AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, 1, NORMAL>, 
+class SimpleLinearParabolicSolver
+    : public AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, 1, NORMAL>,
       public AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>
 {
 protected:
@@ -52,7 +52,7 @@ protected:
     /**
      * The term to be added to the element stiffness matrix:
      *
-     *   grad_phi[row] . ( pde_diffusion_term * grad_phi[col]) +
+     * grad_phi[row] . ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
@@ -99,7 +99,7 @@ protected:
     virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
             c_vector<double, ELEMENT_DIM>& rPhi,
             ChastePoint<SPACE_DIM>& rX);
-    
+
     /**
      * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.
      *  @param currentSolution The current solution which can be used in setting up
@@ -115,7 +115,7 @@ protected:
 public:
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE

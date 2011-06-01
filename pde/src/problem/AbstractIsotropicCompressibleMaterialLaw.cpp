@@ -28,8 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractIsotropicCompressibleMaterialLaw.hpp"
 
-#include "Debug.hpp"
-
 template<unsigned DIM>
 AbstractIsotropicCompressibleMaterialLaw<DIM>::~AbstractIsotropicCompressibleMaterialLaw()
 {
@@ -43,8 +41,10 @@ void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDeriva
                                                                                      FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
                                                                                      bool                      computeDTdE)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
     assert((DIM==2) || (DIM==3));
     #undef COVERAGE_IGNORE
@@ -132,12 +132,9 @@ void AbstractIsotropicCompressibleMaterialLaw<DIM>::ComputeStressAndStressDeriva
     }
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 ////////////////////////////////////////////////////////////////////////////////////
-
 
 //template class AbstractIsotropicCompressibleMaterialLaw<1>;
 template class AbstractIsotropicCompressibleMaterialLaw<2>;

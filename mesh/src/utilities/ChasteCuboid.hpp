@@ -56,7 +56,7 @@ class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
     {
         archive & boost::serialization::base_object<AbstractChasteRegion<SPACE_DIM> >(*this);
     }
-    
+
 private:
     /** Lower vertex of the cuboid. */
     ChastePoint<SPACE_DIM> mLowerCorner;
@@ -72,7 +72,7 @@ public:
      * @param rUpperPoint Upper vertex of the cuboid.
      */
     ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint);
-    
+
     /**
      * Checks if a given point is contained in the cuboid.
      *
@@ -82,17 +82,17 @@ public:
 
     /** @return the upper vertex of the cuboid */
     const ChastePoint<SPACE_DIM>& rGetUpperCorner() const;
-    
+
     /** @return the lower vertex of the cuboid */
     const ChastePoint<SPACE_DIM>& rGetLowerCorner() const;
-    
-    /** 
+
+    /**
      * @param rDimension dimension
      * @return the width in a particular dimension */
     double GetWidth(unsigned rDimension) const;
-    
+
     /**
-     * @return the longest axis of the cuboid (<SPACE_DIM).  
+     * @return the longest axis of the cuboid (<SPACE_DIM).
      * In the case where there's a tie, then any of the longest
      * axes are returned.
      */

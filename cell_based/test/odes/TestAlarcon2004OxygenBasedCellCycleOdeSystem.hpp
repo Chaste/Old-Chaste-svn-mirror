@@ -198,7 +198,7 @@ public:
         {
             double oxygen_concentration = 0.7;
             bool is_labelled = true;
-    
+
             Alarcon2004OxygenBasedCellCycleOdeSystem ode_system(oxygen_concentration, is_labelled);
 
             TS_ASSERT_DELTA(ode_system.GetOxygenConcentration(), 0.70, 1e-6);

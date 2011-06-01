@@ -46,7 +46,7 @@ void StochasticOxygenBasedCellCycleModel::GenerateStochasticG2Duration()
     // Check that the normal random deviate has not returned a small or negative G2 duration
     if (mStochasticG2Duration < mMinimumGapDuration)
     {
-    	mStochasticG2Duration = mMinimumGapDuration;
+        mStochasticG2Duration = mMinimumGapDuration;
     }
 }
 
@@ -81,12 +81,12 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
     /*
      * Set each member variable of the new cell-cycle model that inherits
      * its value from the parent.
-     * 
+     *
      * Note 1: some of the new cell-cycle model's member variables (namely
      * mBirthTime, mCurrentCellCyclePhase, mReadyToDivide, mTimeSpentInG1Phase,
      * mCurrentHypoxicDuration, mCurrentHypoxiaOnsetTime) will already have been
      * correctly initialized in its constructor.
-     * 
+     *
      * Note 2: one or more of the new cell-cycle model's member variables
      * may be set/overwritten as soon as InitialiseDaughterCell() is called on
      * the new cell-cycle model.

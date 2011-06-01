@@ -764,7 +764,7 @@ public:
                 "These nodes cannot be merged since they are not neighbours");
         TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_feasible_index, false),
                 "Moving node caused an element to have a non-positive Jacobian determinant");
-        //Added "crossReference=false" to stop elements deregistering
+        // Added "crossReference=false" to stop elements deregistering
 
         TS_ASSERT_THROWS_NOTHING( mesh.MoveMergeNode(node_index, target_index));
         TS_ASSERT_DELTA(volume, mesh.GetVolume(), 1e-6);

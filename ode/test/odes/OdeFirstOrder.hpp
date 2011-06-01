@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class OdeFirstOrder : public AbstractOdeSystem
 {
-public :
+public:
     OdeFirstOrder() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mpSystemInfo = OdeSystemInformation<OdeFirstOrder>::Instance();

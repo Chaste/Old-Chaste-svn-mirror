@@ -246,29 +246,30 @@ bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsConforming()
             std::set<unsigned> face_info;
             for (unsigned node_index=0; node_index<=ELEMENT_DIM; node_index++)
             {
-                //Leave one index out each time
+                // Leave one index out each time
                 if (node_index != face_index)
                 {
                     face_info.insert(iter->GetNodeGlobalIndex(node_index));
                 }
             }
-            //Face is now formed - attempt to find it
+            // Face is now formed - attempt to find it
             std::set< std::set<unsigned> >::iterator find_face=odd_parity_faces.find(face_info);
-            if( find_face != odd_parity_faces.end())
+            if (find_face != odd_parity_faces.end())
             {
-                //Face was in set, so it now has even parity.
-                //Remove it via the iterator
+                // Face was in set, so it now has even parity.
+                // Remove it via the iterator
                 odd_parity_faces.erase(find_face);
             }
             else
             {
-                //Face is not in set so it now has odd parity.  Insert it
+                // Face is not in set so it now has odd parity. Insert it
                 odd_parity_faces.insert(face_info);
             }
 
         }
     }
-    /* At this point the odd parity faces should be the same as the
+    /*
+     * At this point the odd parity faces should be the same as the
      * boundary elements.  We could check this explicitly or we
      * could just count them.
      */
@@ -375,7 +376,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(cons
         }
     }
 
-    if(!onlyTryWithTestElements)
+    if (!onlyTryWithTestElements)
     {
         for (unsigned i=0; i<this->mElements.size(); i++)
         {
@@ -390,12 +391,12 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(cons
     // If it's in none of the elements, then throw
     std::stringstream ss;
     ss << "Point [";
-    for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
+    for (unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
         ss << rTestPoint[j] << ",";
     }
     ss << rTestPoint[SPACE_DIM-1] << "] is not in ";
-    if(!onlyTryWithTestElements)
+    if (!onlyTryWithTestElements)
     {
         ss << "mesh - all elements tested";
     }
@@ -417,7 +418,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     unsigned i = startingElementGuess;
     bool reached_end = false;
 
-    while(!reached_end)
+    while (!reached_end)
     {
         if (this->mElements[i]->IncludesPoint(rTestPoint, strict))
         {
@@ -425,15 +426,15 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
             return i;
         }
 
-        // increment
+        // Increment
         i++;
-        if(i==this->GetNumElements())
+        if (i==this->GetNumElements())
         {
             i=0;
         }
 
-        // back to the beginning yet?
-        if(i==startingElementGuess)
+        // Back to the beginning yet?
+        if (i==startingElementGuess)
         {
             reached_end = true;
         }
@@ -442,7 +443,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     // If it's in none of the elements, then throw
     std::stringstream ss;
     ss << "Point [";
-    for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
+    for (unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
         ss << rTestPoint[j] << ",";
     }
@@ -472,7 +473,6 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(const C
             max_min_weight = neg_weight_sum;
             closest_index = i;
         }
-
     }
     assert(!this->mElements[closest_index]->IsDeleted());
     return closest_index;
@@ -482,11 +482,11 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTestElements(const ChastePoint<SPACE_DIM>& rTestPoint,
                                                                                          std::set<unsigned> testElements)
 {
-    assert(testElements.size()>0);
+    assert(testElements.size() > 0);
 
     double max_min_weight = -INFINITY;
     unsigned closest_index = 0;
-    for(std::set<unsigned>::iterator iter = testElements.begin();
+    for (std::set<unsigned>::iterator iter = testElements.begin();
         iter != testElements.end();
         iter++)
     {
@@ -504,7 +504,6 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTest
             max_min_weight = neg_weight_sum;
             closest_index = *iter;
         }
-
     }
     assert(!this->mElements[closest_index]->IsDeleted());
     return closest_index;
@@ -627,11 +626,11 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned in
 
     if (x_diff==0)
     {
-        if (y_diff>0)
+        if (y_diff > 0)
         {
             return M_PI/2.0;
         }
-        else if (y_diff<0)
+        else if (y_diff < 0)
         {
             return -M_PI/2.0;
         }
@@ -733,7 +732,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
 
         if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1) // advance to next element...
         {
-            
+
             // ...skipping deleted ones
             do
             {
@@ -741,7 +740,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
             }
             while (mElemIndex!=num_elements && mrMesh.GetElement(mElemIndex)->IsDeleted());
         }
-         
+
         if (mElemIndex != num_elements)
         {
             Element<ELEMENT_DIM, SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
@@ -749,10 +748,10 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
             unsigned node_b_global_index = p_element->GetNodeGlobalIndex(mNodeBLocalIndex);
             if (node_b_global_index < node_a_global_index)
             {
-            	//Swap them over
-            	unsigned temp = node_a_global_index;
-            	node_a_global_index = node_b_global_index;
-            	node_b_global_index = temp;
+                //Swap them over
+                unsigned temp = node_a_global_index;
+                node_a_global_index = node_b_global_index;
+                node_b_global_index = temp;
             }
 
             // Check we haven't seen it before
@@ -791,10 +790,10 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::EdgeIterator(TetrahedralM
     unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
     if (node_b_global_index < node_a_global_index)
     {
-    	//Swap them over
-    	unsigned temp = node_a_global_index;
-    	node_a_global_index = node_b_global_index;
-    	node_b_global_index = temp;
+        //Swap them over
+        unsigned temp = node_a_global_index;
+        node_a_global_index = node_b_global_index;
+        node_b_global_index = temp;
     }
 
     // Check we haven't seen it before
@@ -958,7 +957,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& m
         mesherIo.numberofpoints=0;
         free(mesherIo.pointlist);
     }
-            
+
     //These (and the above) should actually be safe since we explicity set to NULL above
     free(mesherIo.pointattributelist);
     free(mesherIo.pointmarkerlist);
@@ -966,7 +965,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& m
     free(mesherIo.triangleattributelist);
     free(mesherIo.edgelist);
     free(mesherIo.edgemarkerlist);
-}    
+}
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesherInput, int *elementList)
@@ -998,7 +997,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHE
             new_index++;
         }
     }
-    if(elementList != NULL)
+    if (elementList != NULL)
     {
         unsigned element_index=0u;
         //Assume there is enough space for this
@@ -1006,8 +1005,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHE
         for (typename TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator elem_iter = this->GetElementIteratorBegin();
              elem_iter != this->GetElementIteratorEnd();
              ++elem_iter)
-        {         
-            
+        {
+
             for (unsigned j=0; j<=ELEMENT_DIM; j++)
             {
                 elementList[element_index*(ELEMENT_DIM+1) + j] = (*elem_iter).GetNodeGlobalIndex(j);
@@ -1015,7 +1014,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHE
             }
             element_index++;
         }
-    }        
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1023,7 +1022,7 @@ template <class MESHER_IO>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList)
 {
     unsigned nodes_per_element = mesherOutput.numberofcorners;
-    
+
     assert( nodes_per_element == ELEMENT_DIM+1 || nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2 );
 
     Clear();
@@ -1045,7 +1044,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
             unsigned global_node_index = elementList[element_index*(nodes_per_element) + j];
             assert(global_node_index < this->mNodes.size());
             nodes.push_back(this->mNodes[global_node_index]);
-            
+
         }
         //For some reason, tetgen in library mode makes its initial Delauney with
         //very thin slivers.  Hence we expect to ignore some of the elements!
@@ -1055,7 +1054,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
             p_element = new Element<ELEMENT_DIM, SPACE_DIM>(real_element_index, nodes);
             //Shouldn't throw after this point
             this->mElements.push_back(p_element);
-            
+
             //Add the internals to quadratics
             for (unsigned j=ELEMENT_DIM+1; j<nodes_per_element; j++)
             {
@@ -1071,7 +1070,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
         {
             //Tetgen is feeding us lies
             assert(SPACE_DIM == 3);
-            
+
             // #1670: To run large MeshBased Simulations comment out the line above
             // To find out the error message uncomment this:
             //std::cout<<e.GetMessage() << std::endl;
@@ -1114,8 +1113,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
             }
         }
     }
-    
-    this->RefreshJacobianCachedData();    
+
+    this->RefreshJacobianCachedData();
 }
 
 

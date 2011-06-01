@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class OdeThirdOrder : public AbstractOdeSystem
 {
-public :
+public:
     OdeThirdOrder()
             : AbstractOdeSystem(3) // 3 here is the number of unknowns
     {

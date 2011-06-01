@@ -191,9 +191,9 @@ protected:
     void PerformT3Swap(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
     /**
-	 * Helper method for ReMesh() to remove a triangular void in which one of the edges is
-	 * less than the cell rearrangement threshold.
-	 *
+     * Helper method for ReMesh() to remove a triangular void in which one of the edges is
+     * less than the cell rearrangement threshold.
+     *
      * @param pNodeA one of the nodes on the short edge
      * @param pNodeB the other node on the short edge
      * @param pNodeC the other node in the triangular void
@@ -315,20 +315,20 @@ public:
      */
     std::vector< c_vector<double, SPACE_DIM> > GetLocationsOfT1Swaps();
 
-	/**
-	 * @return the locations of the T3Swaps
-	 */
-	std::vector< c_vector<double, SPACE_DIM> > GetLocationsOfT3Swaps();
+    /**
+     * @return the locations of the T3Swaps
+     */
+    std::vector< c_vector<double, SPACE_DIM> > GetLocationsOfT3Swaps();
 
-	/**
-	 * Helper method to clear the stored T1Swaps
-	 */
-	void ClearLocationsOfT1Swaps();
+    /**
+     * Helper method to clear the stored T1Swaps
+     */
+    void ClearLocationsOfT1Swaps();
 
-	/**
-	 * Helper method to clear the stored T3Swaps
-	 */
-	void ClearLocationsOfT3Swaps();
+    /**
+     * Helper method to clear the stored T3Swaps
+     */
+    void ClearLocationsOfT3Swaps();
 
 
     /**

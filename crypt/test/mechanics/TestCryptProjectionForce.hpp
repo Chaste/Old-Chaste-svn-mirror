@@ -421,7 +421,7 @@ private:
             rCells.push_back(p_cell);
         }
     }
-    
+
     void DoTestZeroForces(MeshBasedCellPopulationWithGhostNodes<2>& rCellPopulation,
                           std::vector<AbstractForce<2>* >& rForces)
     {
@@ -558,8 +558,8 @@ public:
         }
 
         // Convert this to a NodesOnlyMesh
-		NodesOnlyMesh<2> mesh;
-		mesh.ConstructNodesWithoutMesh(nodes);
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
 
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

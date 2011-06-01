@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractIsotropicIncompressibleMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
-protected :
+protected:
 
     /**
      * Get the first derivative dW/dI1.
@@ -99,7 +99,7 @@ protected :
      */
     virtual double Get_d2W_dI1I2(double I1, double I2)=0;
 
-public :
+public:
 
     /**
      *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE

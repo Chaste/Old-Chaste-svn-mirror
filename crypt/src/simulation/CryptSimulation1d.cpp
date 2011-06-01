@@ -37,7 +37,7 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                           deleteCellPopulationAndForceCollection,
                           initialiseCells)
 {
-	mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
+    mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
 }
 
 
@@ -143,10 +143,10 @@ void CryptSimulation1d::ApplyCellPopulationBoundaryConditions(const std::vector<
 
 void CryptSimulation1d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	// No parameters to output
+    // No parameters to output
 
-	// Call method on direct parent class
-	CellBasedSimulation<1>::OutputSimulationParameters(rParamsFile);
+    // Call method on direct parent class
+    CellBasedSimulation<1>::OutputSimulationParameters(rParamsFile);
 }
 
 // Serialization for Boost >= 1.36

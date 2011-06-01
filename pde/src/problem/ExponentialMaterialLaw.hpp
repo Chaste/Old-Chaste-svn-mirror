@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class ExponentialMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
 {
-private :
+private:
 
     /** Parameter a. */
     double mA;
@@ -62,7 +62,7 @@ private :
     /** Parameter b. */
     double mB;
 
-public :
+public:
 
     /**
      * Get the first derivative dW/dI1.
@@ -120,7 +120,7 @@ public :
     /** Get method for mB. */
     double GetB();
 
-public :
+public:
 
     /**
      * Constructor, taking in the parameters a and b. a must be positive.

@@ -38,10 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class Ode5Jacobian : public AbstractOdeSystemWithAnalyticJacobian
 {
-private :
+private:
+
     double mAlpha;
 
-public :
+public:
+
     Ode5Jacobian() : AbstractOdeSystemWithAnalyticJacobian(1)  // 1 here is the number of unknowns
     {
         mpSystemInfo = OdeSystemInformation<Ode5Jacobian>::Instance();

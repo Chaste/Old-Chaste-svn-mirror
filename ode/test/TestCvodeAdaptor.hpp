@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class OdeWithRootFunction : public OdeSecondOrderWithEvents
 {
-public :
+public:
     OdeWithRootFunction()
         : OdeSecondOrderWithEvents()
     {
@@ -66,7 +66,7 @@ class ExceptionalOdeWithRootFunction : public OdeSecondOrderWithEvents
 {
 private:
     bool mNice;
-public :
+public:
     ExceptionalOdeWithRootFunction()
         : OdeSecondOrderWithEvents()
     {
@@ -107,7 +107,7 @@ private:
         OdeSolution solutions;
         CvodeAdaptor solver;
 
-        // Solving the ode problem.
+        // Solving the ODE problem.
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = solver.Solve(&ode_system, state_variables, startTime, endTime, endTime-startTime, samplingTime);
 

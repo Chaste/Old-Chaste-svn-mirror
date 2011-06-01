@@ -58,7 +58,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class CompressibleMooneyRivlinMaterialLaw : public AbstractIsotropicCompressibleMaterialLaw<DIM>
 {
-private :
+private:
+
     /** Parameter c1. */
     double mC1;
 
@@ -67,7 +68,8 @@ private :
 
     /** -1.0/DIM */
     static const double mMinusOneOverDimension = -1.0/DIM;
-public :
+
+public:
 
     /**
      * Get the first derivative dW/dI1.

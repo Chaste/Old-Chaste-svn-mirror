@@ -55,14 +55,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-// Very simple toy time-adaptivity controller, for use in 
+// Very simple toy time-adaptivity controller, for use in
 // Test1DProblemUsingTimeAdaptivityController. Returns dt=0.001 for
-// the first half of simulation, dt=0.01 for the second half. 
+// the first half of simulation, dt=0.01 for the second half.
 class ToyController : public AbstractTimeAdaptivityController
 {
     double ComputeTimeStep(double currentTime, Vec currentSolution)
     {
-        if(currentTime < 0.05)
+        if (currentTime < 0.05)
         {
             return 0.001;
         }
@@ -71,7 +71,7 @@ class ToyController : public AbstractTimeAdaptivityController
             return 0.01;
         }
     }
-            
+
 public:
     ToyController()
       : AbstractTimeAdaptivityController(0.001, 0.01)
@@ -175,7 +175,7 @@ public:
         double t_end = 0.1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
-        
+
         solver.SetInitialCondition(initial_condition);
 
         Vec result = solver.Solve();
@@ -789,7 +789,7 @@ public:
         {
             time += dt;
             solver.SetTimes(time, time+dt);
-    
+
             result = solver.Solve();
 
             solver.SetInitialCondition(result);
@@ -803,7 +803,7 @@ public:
     }
 
     // identical problem to TestSimpleLinearParabolicSolver1DZeroDirich(), but uses
-    // a time adaptivity controller to increase the timestep after a given time 
+    // a time adaptivity controller to increase the timestep after a given time
     void Test1DProblemUsingTimeAdaptivityController()
     {
         // Create mesh from mesh reader

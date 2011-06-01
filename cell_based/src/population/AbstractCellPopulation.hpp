@@ -193,7 +193,7 @@ protected:
 
     /**
      * Check consistency of our internal data structures.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      */
@@ -201,7 +201,7 @@ protected:
 
     /**
      * Write the current results to mpVtkMetaFile.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      */
@@ -264,7 +264,7 @@ public:
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
-     * 
+     *
      * @param pCell the cell
      * @return the location of the cell
      */
@@ -272,7 +272,7 @@ public:
 
     /**
      * Get a pointer to the node with a given index.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -536,7 +536,7 @@ public:
 
     /**
      * Outputs CellPopulation parameters to file
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -545,13 +545,13 @@ public:
     virtual void OutputCellPopulationParameters(out_stream& rParamsFile)=0;
 
     /**
-	 * @return mDampingConstantNormal
-	 */
-	double GetDampingConstantNormal();
-	/**
-	 * @return mDampingConstantMutant
-	 */
-	double GetDampingConstantMutant();
+     * @return mDampingConstantNormal
+     */
+    double GetDampingConstantNormal();
+    /**
+     * @return mDampingConstantMutant
+     */
+    double GetDampingConstantMutant();
 
     /**
      * @return mOutputCellIdData
@@ -594,18 +594,18 @@ public:
     bool GetOutputCellVolumes();
 
     /**
- 	 * Set mDampingConstantNormal.
- 	 * 
- 	 * @param dampingConstantNormal  the new value of mDampingConstantNormal
-	 */
-	void SetDampingConstantNormal(double dampingConstantNormal);
+      * Set mDampingConstantNormal.
+      *
+      * @param dampingConstantNormal  the new value of mDampingConstantNormal
+     */
+    void SetDampingConstantNormal(double dampingConstantNormal);
 
-	/**
-	 * Set mDampingConstantMutant.
-	 * 
+    /**
+     * Set mDampingConstantMutant.
+     *
      * @param dampingConstantMutant  the new value of mDampingConstantMutant
-	 */
-	void SetDampingConstantMutant(double dampingConstantMutant);
+     */
+    void SetDampingConstantMutant(double dampingConstantMutant);
 
     /**
      * Set mOutputCellIdData.

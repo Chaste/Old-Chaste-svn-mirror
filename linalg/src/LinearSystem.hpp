@@ -105,7 +105,7 @@ private:
     PCLDUFactorisation* mpLDUFactorisationPC;
     /** Stores a pointer to a purpose-build preconditioner*/
     PCTwoLevelsBlockDiagonal* mpTwoLevelsBlockDiagonalPC;
-    
+
     /** Pointer to vector containing a list of bath nodes*/
     boost::shared_ptr<std::vector<PetscInt> > mpBathNodes;
 
@@ -114,14 +114,14 @@ private:
 
     /** The max number of nonzero entries expected on a LHS row */
     unsigned mRowPreallocation;
-    
-    /** Whether to use fixed number of iterations */ 
+
+    /** Whether to use fixed number of iterations */
     bool mUseFixedNumberIterations;
-        
-    /** 
-     * When using fixed number of iterations, a solve with residual-based 
-     * stop criteria will be performed every mEvaluateNumItsEveryNSolves solves 
-     * to decide how many iterations perform for the next mEvaluateNumItsEveryNSolves-1 solves 
+
+    /**
+     * When using fixed number of iterations, a solve with residual-based
+     * stop criteria will be performed every mEvaluateNumItsEveryNSolves solves
+     * to decide how many iterations perform for the next mEvaluateNumItsEveryNSolves-1 solves
      */
     unsigned mEvaluateNumItsEveryNSolves;
 
@@ -136,7 +136,7 @@ private:
 
     /** Preconditioned operator largest eigenvalue */
     PetscReal mEigMax;
-    
+
     /** Under certain circunstances you have to reevaluate the spectrum before the k*n-th, k=0,1,..., iteration*/
     bool mForceSpectrumReevaluation;
 
@@ -174,9 +174,9 @@ public:
      *
      * @param lhsVectorSize  the size of the LHS vector
      * @param rowPreallocation the max number of nonzero entries expected on a row
-     *  - a value of 0 is allowed: no preallocation is then done and the user must 
+     *  - a value of 0 is allowed: no preallocation is then done and the user must
      *    preallocate the memory for the matrix themselves.
-     *  - the default value allows for small size systems to be set as dense matrices 
+     *  - the default value allows for small size systems to be set as dense matrices
      *    automatically.
      */
     LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation=UINT_MAX);
@@ -267,7 +267,7 @@ public:
 
     /**
      * Sets up the PETSc matrix used for preconditioning.
-     */    
+     */
     void AssembleFinalPrecondMatrix();
 
     /**
@@ -448,9 +448,9 @@ public:
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
     /**
-     * Remove the null space from the linear system. 
-     * 
-     * Use for example if Dirichlet BC are applied to a singular system and, therefore, there's 
+     * Remove the null space from the linear system.
+     *
+     * Use for example if Dirichlet BC are applied to a singular system and, therefore, there's
      * no null space anymore.
      */
     void RemoveNullSpace();
@@ -553,16 +553,16 @@ public:
      * @param precondIsDifferent  whether the matrix used for preconditioning is the same as the LHS.
      */
     void SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent = true);
-    
+
     /**
      * Set method for #mUseFixedNumberIterations
      * @param useFixedNumberIterations whether to use fixed number of iterations
-     * @param evaluateNumItsEveryNSolves tells LinearSystem to perform a solve with convergence-based stop criteria every n solves to decide how many iterations perform for the next n-1 solves. Default is perfoming a single evaluation at the beginning of the simulation. 
+     * @param evaluateNumItsEveryNSolves tells LinearSystem to perform a solve with convergence-based stop criteria every n solves to decide how many iterations perform for the next n-1 solves. Default is perfoming a single evaluation at the beginning of the simulation.
      */
     void SetUseFixedNumberIterations(bool useFixedNumberIterations = true, unsigned evaluateNumItsEveryNSolves = UINT_MAX);
-    
+
     /**
-     * Method to regenerate all KSP objects, including the solver and the preconditioner (e.g. after 
+     * Method to regenerate all KSP objects, including the solver and the preconditioner (e.g. after
      * changing the PDE time step when using time adaptivity).
      */
     void ResetKspSolver();

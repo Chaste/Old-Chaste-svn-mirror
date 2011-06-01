@@ -47,7 +47,7 @@ public:
      * Constructor which takes in a vector of nodes.
      *
      * @param index  the index of the element in the mesh
-     * @param rNodes  the nodes owned by the element 
+     * @param rNodes  the nodes owned by the element
      */
     BoundaryElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 

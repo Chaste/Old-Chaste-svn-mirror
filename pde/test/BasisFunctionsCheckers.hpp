@@ -32,13 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp"
 #include <vector>
 
-
-
 /*
- *  Test whether the basis functions are correctly equal to 1 or 0 at the nodes of the canonical element.
+ * Test whether the basis functions are correctly equal to 1 or 0 at the
+ * nodes of the canonical element.
  *
- *  NOTE: This is a badly written test, because it assumes evaluationPoints are the nodes in the canonical element, in the correct
- *  order.
+ * NOTE: This is a badly written test, because it assumes evaluationPoints
+ * are the nodes in the canonical element, in the correct order.
  */
 template <unsigned ELEMENT_DIM>
 class BasisFunctionsCheckers
@@ -46,7 +45,7 @@ class BasisFunctionsCheckers
 public:
     void checkLinearBasisFunctions(std::vector<ChastePoint<ELEMENT_DIM>*> evaluationPoints)
     {
-        unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
+        unsigned size = evaluationPoints.size(); // number of evalutation points and basis functions too
 
         assert(size==ELEMENT_DIM+1);
 
@@ -61,9 +60,9 @@ public:
 
             for (unsigned func_index=0; func_index<size; func_index ++)
             {
-                if (func_index==point_index)
+                if (func_index == point_index)
                 {
-                    expected_evaluation=1.0;
+                    expected_evaluation = 1.0;
                 }
                 else
                 {
@@ -83,7 +82,7 @@ public:
 
     void checkQuadraticBasisFunctions(std::vector<ChastePoint<ELEMENT_DIM>*> evaluationPoints)
     {
-        unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
+        unsigned size = evaluationPoints.size(); // number of evalutation points and basis functions too
 
         assert(size==(ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
 
@@ -98,9 +97,9 @@ public:
 
             for (unsigned func_index=0; func_index<size; func_index ++)
             {
-                if (func_index==point_index)
+                if (func_index == point_index)
                 {
-                    expected_evaluation=1.0;
+                    expected_evaluation = 1.0;
                 }
                 else
                 {
@@ -119,4 +118,5 @@ public:
     }
 
 };
+
 #endif //_BASISFUNCTIONSCHECKERS_HPP_

@@ -37,10 +37,10 @@ class TestWarnings: public CxxTest::TestSuite
 {
 private:
 
-	void ThrowWarning()
-	{
-		WARN_ONCE_ONLY("Ozzy is Hungry.");
-	}
+    void ThrowWarning()
+    {
+        WARN_ONCE_ONLY("Ozzy is Hungry.");
+    }
 
 public:
     void TestGetMessage()
@@ -48,31 +48,31 @@ public:
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
         WARNING("Ozzy is near.");
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        WARNING("Stay alert.");   
+        WARNING("Stay alert.");
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Ozzy is near.");
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::QuietDestroy();
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
     }
-    
-    
+
+
     void TestWarningsWithLogging()
     {
         LogFile* p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile", "log_warnings.txt");
-        
+
         WARNING("This one goes into a log file");
-        
+
         LogFile::Close();
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log_warnings.txt  global/test/data/log_warnings.txt").c_str()), 0);
         Warnings::QuietDestroy();
     }
-    
+
     void TestWarningOnceOnly()
     {
-        for(unsigned year=1970; year<2100; year+=4)
+        for (unsigned year=1970; year<2100; year+=4)
         {
             WARN_ONCE_ONLY("Don't get your hopes up, England are not going to win the World Cup.");
         }
@@ -82,19 +82,19 @@ public:
 
     void TestWarningOnlyOnceReset()
     {
-    	for(unsigned i=0; i<10; i++)
-    	{
-    		ThrowWarning();
+        for (unsigned i=0; i<10; i++)
+        {
+            ThrowWarning();
         }
-    	TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-    	Warnings::QuietDestroy();
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::QuietDestroy();
 
-    	ThrowWarning();
+        ThrowWarning();
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::QuietDestroy();
     }
 
-    void TestLastTestWithWarningsIsNoisy() //Needs to happen last (after any QuietDestroy()), so that a warning is printed 
+    void TestLastTestWithWarningsIsNoisy() //Needs to happen last (after any QuietDestroy()), so that a warning is printed
     {
         TS_ASSERT_THROWS_THIS(Warnings::Instance()->GetNextWarningMessage(),"There are no warnings");
         WARNING("This one will get printed.");

@@ -309,7 +309,7 @@ public:
         Element<2,2> element(INDEX_IS_NOT_USED, element_nodes);
 
         // Note that nodes 2 and 3 are swapped by the element constructor
-        // to ensure that the jacobian determinant is positive
+        // to ensure that the Jacobian determinant is positive
         TS_ASSERT_EQUALS(element.GetNodeLocation(0,0), 0.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(0)(0), 0.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(1,0), 2.0);
@@ -470,8 +470,8 @@ public:
         nodes_the_same.push_back(new Node<3>(1, false, 0.0, 0.0, 0.0));
         nodes_the_same.push_back(new Node<3>(2, false, 0.0, 0.0, 0.0));
         TS_ASSERT_THROWS_THIS(new BOUNDARY_ELEMENT_2_3(INDEX_IS_NOT_USED, nodes_the_same), "Jacobian determinant is zero");
-        
-        
+
+
         Node<3>* p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
         Node<3>* p_fake_node2 = new Node<3>(0, false, 0.0, 0.0, 0.0);
         TS_ASSERT_THROWS_THIS(element.ReplaceNode(p_fake_node, p_fake_node2),"You didn\'t have that node to start with.");

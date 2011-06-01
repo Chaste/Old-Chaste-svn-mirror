@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
  * different compared to a real cardiac simulation. Do not take conclusions about preconditioner performance
- * based on these tests only. 
+ * based on these tests only.
  */
 class TestPCBlockDiagonal : public CxxTest::TestSuite
 {
@@ -50,12 +50,12 @@ public:
     void TestBasicFunctionality() throw (Exception)
     {
         /*
-         *  We need to make sure here that the matrix is loaded with the appropriate parallel layout. Petsc's 
-         * default puts 1331 rows in each processor. This wouldn't be possible in a real bidomain simulation 
+         *  We need to make sure here that the matrix is loaded with the appropriate parallel layout. Petsc's
+         * default puts 1331 rows in each processor. This wouldn't be possible in a real bidomain simulation
          * because implies that equations V_665 an Phi_e_665 are solved in different processors.
          */
         unsigned num_nodes = 1331;
-        DistributedVectorFactory factory(num_nodes);        
+        DistributedVectorFactory factory(num_nodes);
         Vec parallel_layout = factory.CreateVec(2);
 
         Mat system_matrix;
@@ -63,7 +63,7 @@ public:
 
         VecDestroy(parallel_layout);
 
-        // Set rhs = A * [1 0 1 0 ... 1 0]'        
+        // Set rhs = A * [1 0 1 0 ... 1 0]'
         Vec one_zeros = factory.CreateVec(2);
         Vec rhs = factory.CreateVec(2);
 
@@ -131,7 +131,7 @@ public:
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
         Vec parallel_layout = factory.CreateVec(2);
-        
+
         unsigned point_jacobi_its;
         unsigned block_diag_its;
 

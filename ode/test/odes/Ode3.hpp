@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class Ode3 : public AbstractOdeSystem
 {
-public :
+public:
 
     Ode3()  : AbstractOdeSystem(2) // 2 here is the number of unknowns
     {

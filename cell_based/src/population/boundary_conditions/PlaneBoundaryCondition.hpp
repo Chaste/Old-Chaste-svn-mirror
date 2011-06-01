@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A plane cell population boundary condition class, which stops nodes moving through
  * a specified plane in the domain.
- * 
+ *
  * \todo The naming of this class indicates that it is specific to 3D (see #1589)
  */
 template<unsigned DIM>
@@ -94,7 +94,7 @@ public:
 
     /**
      * Overridden ImposeBoundaryCondition() method.
-     * 
+     *
      * Apply the cell population boundary conditions.
      */
     void ImposeBoundaryCondition();
@@ -111,7 +111,7 @@ public:
     /**
      * Overridden OutputCellPopulationBoundaryConditionParameters() method.
      * Output cell population boundary condition parameters to file.
-	 *
+     *
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile);

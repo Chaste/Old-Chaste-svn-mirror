@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class FunctionalBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
-private :
+private:
 
     /**
      * The function pointer used to determine the value of the boundary condition at a given point.
@@ -47,7 +47,7 @@ private :
      */
     double (*mFunction)(const ChastePoint<SPACE_DIM>& rX);
 
-public :
+public:
 
     /**
      * Typical use:

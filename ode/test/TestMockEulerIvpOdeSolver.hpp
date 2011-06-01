@@ -52,7 +52,7 @@ public:
         // Initialising the instance of our solution class
         OdeSolution solutions;
 
-        // Solving the ode problem and writing to solution
+        // Solving the ODE problem and writing to solution
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
 

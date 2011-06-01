@@ -128,7 +128,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the object and its member variables.
-     * 
+     *
      * @param archive the archive
      * @param version the current version of this class
      */
@@ -142,7 +142,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
     TysonNovak2001OdeSystem(std::vector<double> stateVariables=std::vector<double>());

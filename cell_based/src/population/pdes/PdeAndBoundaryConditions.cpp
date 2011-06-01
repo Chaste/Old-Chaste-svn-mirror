@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 PdeAndBoundaryConditions<DIM>::PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
-		                                                AbstractBoundaryCondition<DIM>* pBoundaryCondition,
-		                                                bool isNeumannBoundaryCondition)
+                                                        AbstractBoundaryCondition<DIM>* pBoundaryCondition,
+                                                        bool isNeumannBoundaryCondition)
     : mpPde(pPde),
       mpBoundaryCondition(pBoundaryCondition),
       mIsNeumannBoundaryCondition(isNeumannBoundaryCondition),
@@ -42,16 +42,16 @@ PdeAndBoundaryConditions<DIM>::PdeAndBoundaryConditions(AbstractLinearEllipticPd
 template<unsigned DIM>
 PdeAndBoundaryConditions<DIM>::~PdeAndBoundaryConditions()
 {
-	if (mCurrentSolution)
-	{
-		VecDestroy(mCurrentSolution);
-	}
+    if (mCurrentSolution)
+    {
+        VecDestroy(mCurrentSolution);
+    }
 }
 
 template<unsigned DIM>
 AbstractLinearEllipticPde<DIM,DIM>* PdeAndBoundaryConditions<DIM>::GetPde()
 {
-	return mpPde;
+    return mpPde;
 }
 
 template<unsigned DIM>
@@ -63,41 +63,41 @@ AbstractBoundaryCondition<DIM>* PdeAndBoundaryConditions<DIM>::GetBoundaryCondit
 template<unsigned DIM>
 Vec PdeAndBoundaryConditions<DIM>::GetSolution()
 {
-	return mCurrentSolution;
+    return mCurrentSolution;
 }
 
 template<unsigned DIM>
 void PdeAndBoundaryConditions<DIM>::SetSolution(Vec solution)
 {
-	mCurrentSolution = solution;
+    mCurrentSolution = solution;
 }
 
 template<unsigned DIM>
 bool PdeAndBoundaryConditions<DIM>::IsNeumannBoundaryCondition()
 {
-	return mIsNeumannBoundaryCondition;
+    return mIsNeumannBoundaryCondition;
 }
 
 template<unsigned DIM>
 bool PdeAndBoundaryConditions<DIM>::HasAveragedSourcePde()
 {
-	return (dynamic_cast<AveragedSourcePde<DIM>*>(mpPde) != NULL);
+    return (dynamic_cast<AveragedSourcePde<DIM>*>(mpPde) != NULL);
 }
 
 template<unsigned DIM>
 void PdeAndBoundaryConditions<DIM>::DestroySolution()
 {
-	if (mCurrentSolution)
-	{
-	    VecDestroy(mCurrentSolution);
-	}
+    if (mCurrentSolution)
+    {
+        VecDestroy(mCurrentSolution);
+    }
 }
 
 template<unsigned DIM>
 void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh)
 {
-	assert(HasAveragedSourcePde());
-	static_cast<AveragedSourcePde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
+    assert(HasAveragedSourcePde());
+    static_cast<AveragedSourcePde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
 }
 
 /////////////////////////////////////////////////////////////////////////////

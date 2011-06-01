@@ -77,7 +77,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * implement this we define a new cell killer class, {{{MyCellKiller}}},
  * which inherits from {{{AbstractCellKiller}}} and overrides the
  * {{{TestAndLabelCellsForApoptosisOrDeath()}}} method.
- * 
+ *
  * Note that usually this code would be separated out into a separate declaration in
  * a .hpp file and definition in a .cpp file.
  */

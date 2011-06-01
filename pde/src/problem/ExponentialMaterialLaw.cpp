@@ -33,7 +33,7 @@ ExponentialMaterialLaw<DIM>::ExponentialMaterialLaw(double a, double b)
     : mA(a),
       mB(b)
 {
-    assert(DIM==2 || DIM ==3);
+    assert(DIM==2 || DIM==3);
     if (a < 0.0)
     {
         EXCEPTION("a must be positive");
@@ -61,10 +61,12 @@ double ExponentialMaterialLaw<DIM>::Get_dW_dI1(double I1, double I2)
 template<unsigned DIM>
 double ExponentialMaterialLaw<DIM>::Get_dW_dI2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
 
     return 0.0;
@@ -79,10 +81,12 @@ double ExponentialMaterialLaw<DIM>::Get_d2W_dI1(double I1, double I2)
 template<unsigned DIM>
 double ExponentialMaterialLaw<DIM>::Get_d2W_dI2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
 
     return 0.0;
@@ -91,10 +95,12 @@ double ExponentialMaterialLaw<DIM>::Get_d2W_dI2(double I1, double I2)
 template<unsigned DIM>
 double ExponentialMaterialLaw<DIM>::Get_d2W_dI1I2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
 
     return 0.0;

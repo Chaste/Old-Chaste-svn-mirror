@@ -59,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 /* The next header defines a base class for cell population boundary conditions,
  * from which the new class will inherit. */
 #include "AbstractCellPopulationBoundaryCondition.hpp"
@@ -97,7 +97,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<2> >(*this);
     }
-    
+
 public:
     /* The first public method is a default constructor, which calls the base
      * constructor. There is a single input argument, a pointer to a cell population.
@@ -113,13 +113,13 @@ public:
      * in the cell population has been updated according to its equation of motion.
      * The method iterates over all cells in the population, and moves any cell whose
      * centre has y coordinate less than 0 or greater than 5 back into the domain.
-     * 
+     *
      * Implicit in this method is the assumption that, when a node hits the
      * boundary of the domain, it does so inelastically. This means, for example,
      * that a node hitting the boundary at y=0 has its location moved to y=0. A
      * more physically realistic modelling assumption might be to assume that
      * momentum is conserved in the collision.
-     *  
+     *
      * Also implicit in this method is the assumption that we are using a cell-centre
      * based population. If we were using a vertex-based population then each node
      * would correspond not to a cell centre but to a vertex.
@@ -133,7 +133,7 @@ public:
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
             Node<2>* p_node = this->mpCellPopulation->GetNode(node_index);
             double y_coordinate = p_node->rGetLocation()[1];
-            
+
             if (y_coordinate > 5.0)
             {
                 p_node->rGetModifiableLocation()[1] = 5.0;
@@ -153,7 +153,7 @@ public:
     bool VerifyBoundaryCondition()
     {
         bool condition_satisfied = true;
-    
+
         for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
              cell_iter != this->mpCellPopulation->End();
              ++cell_iter)
@@ -275,7 +275,7 @@ public:
         bc.ImposeBoundaryCondition();
 
         /* ... and check that the cell population does indeed now satisfy the boundary condition:
-         */ 
+         */
         population_satisfies_bc = bc.VerifyBoundaryCondition();
         TS_ASSERT_EQUALS(population_satisfies_bc, true);
 

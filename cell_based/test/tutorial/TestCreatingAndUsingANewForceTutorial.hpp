@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 /* The next header defines a base class for forces, from which the new class will inherit. */
 #include "AbstractForce.hpp"
 /* The remaining header files define classes that will be used in the cell population
@@ -105,7 +105,7 @@ private:
         archive & boost::serialization::base_object<AbstractForce<2> >(*this);
         archive & mStrength;
     }
-    
+
 public:
     /* The first public method is a default constructor, which calls the base
      * constructor. There is a single input argument, which defines the strength
@@ -145,7 +145,7 @@ public:
     {
         return mStrength;
     }
-   
+
     /* Just as we encountered in the cell killer tutorial, here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, we output the member variable {{{mStrength}, then call the method on the base class.

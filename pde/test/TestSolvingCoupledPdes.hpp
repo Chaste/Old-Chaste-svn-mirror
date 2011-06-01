@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 //////////////////////////////////////////////////////////////////////////////
-// a simple pde : u_xx + u_yy + x = 0
+// A simple pde : u_xx + u_yy + x = 0
 //////////////////////////////////////////////////////////////////////////////
 class MySimplePde : public AbstractLinearEllipticPde<2,2>
 {
@@ -72,14 +72,14 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////////
-// an solver to solve the 'coupled' 2-unknown problem
+// A solver to solve the 'coupled' 2-unknown problem
 //    u_xx + u_yy +         x  = 0
 //    v_xx + v_yy + \lambda x  = 0
 //
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 class MySimpleCoupledSolver
-   : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>, 
+   : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>,
      public AbstractStaticLinearPdeSolver<2,2,2>
 {
 private:
@@ -94,7 +94,7 @@ private:
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
 
-        // the following can be done more efficiently using matrix slices and prods
+        // The following can be done more efficiently using matrix slices and prods
         // and so on (see BidomainDg0Assembler) - efficiency not needed for this
         // test though
         for (unsigned i=0; i<3; i++)
@@ -129,7 +129,6 @@ private:
         return ret;
     }
 
-
     virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2>& rSurfaceElement,
                                                            c_vector<double,2>& rPhi,
                                                            ChastePoint<2>& rX )
@@ -147,7 +146,6 @@ private:
 
         return ret;
     }
-
 
     void InitialiseForSolve(Vec initialSolution)
     {
@@ -168,7 +166,7 @@ private:
     {
         SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
     }
-    
+
 public:
     MySimpleCoupledSolver(TetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
@@ -183,7 +181,7 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////////
-// an solver to solve the coupled 2-unknown problem
+// A solver to solve the coupled 2-unknown problem
 //    u_xx + u_yy + v = f(x,y)
 //    v_xx + v_yy + u = g(x,y)
 //
@@ -224,23 +222,22 @@ private:
         return ret;
     }
 
-
-public :
+public:
     AnotherCoupledSolver(TetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
             MySimpleCoupledSolver(pMesh, pBoundaryConditions, 0.0)
     {}
 };
 
-
 //////////////////////////////////////////////////////////////////////////////
-// test class
+// Test class
 //////////////////////////////////////////////////////////////////////////////
 class TestSolvingCoupledPdes : public CxxTest::TestSuite
 {
 public:
 
-    /*  Solve:
+    /*
+     * Solve:
      *     u_xx + u_yy + x  = 0
      *     v_xx + v_yy + 2x = 0
      *  with zero dirichlet on boundary
@@ -258,12 +255,12 @@ public:
         // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
-        // boundary conditions for 2-unknown problem
+        // Boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // lambda in MySimpleCoupledSolver = 2
+        // Lambda in MySimpleCoupledSolver = 2
         MySimpleCoupledSolver solver_2unknowns(&mesh,&bcc_2unknowns,2.0);
         Vec result_2unknowns = solver_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
@@ -276,7 +273,7 @@ public:
         // Instantiate PDE object
         MySimplePde pde;  //defined above
 
-        // boundary conditions for 1-unknown problem
+        // Boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<2,2,1> bcc_1unknown;
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
 

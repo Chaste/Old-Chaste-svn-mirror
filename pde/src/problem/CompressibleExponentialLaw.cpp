@@ -26,9 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CompressibleExponentialLaw.hpp"
-
 
 template<unsigned DIM>
 CompressibleExponentialLaw<DIM>::CompressibleExponentialLaw()
@@ -45,7 +43,7 @@ CompressibleExponentialLaw<DIM>::CompressibleExponentialLaw()
     mCompressibilityParam = 100.0;
 
     mB.resize(DIM);
-    for(unsigned i=0; i<DIM; i++)
+    for (unsigned i=0; i<DIM; i++)
     {
         mB[i].resize(DIM);
     }
@@ -54,7 +52,7 @@ CompressibleExponentialLaw<DIM>::CompressibleExponentialLaw()
     mB[0][1] = mB[1][0] = bfs;
     mB[1][1] = bss;
 
-    if(DIM>2)
+    if (DIM > 2)
     {
         mB[2][2] = bnn;
         mB[0][2] = mB[2][0] = bfn;
@@ -69,8 +67,6 @@ CompressibleExponentialLaw<DIM>::CompressibleExponentialLaw()
         }
     }
 }
-
-
 
 template<unsigned DIM>
 void CompressibleExponentialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
@@ -91,7 +87,7 @@ void CompressibleExponentialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<
 
     ComputeTransformedDeformationTensor(rC, rInvC, C_transformed, invC_transformed);
 
-    // compute T*
+    // Compute T*
 
     c_matrix<double,DIM,DIM> E = 0.5*(C_transformed - mIdentity);
 
@@ -134,11 +130,9 @@ void CompressibleExponentialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<
         }
     }
 
-    // now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+    // Now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
     this->TransformStressAndStressDerivative(rT, rDTdE, computeDTdE);
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

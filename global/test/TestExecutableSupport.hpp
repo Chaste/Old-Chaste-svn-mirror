@@ -51,7 +51,7 @@ public:
         ExecutableSupport::WriteProvenanceInfoFile();
         ExecutableSupport::WriteMachineInfoFile("write_test");
         ExecutableSupport::FinalizePetsc();
-        
+
         TS_ASSERT_EQUALS(ExecutableSupport::EXIT_OK, 0);
         TS_ASSERT_EQUALS(ExecutableSupport::EXIT_ERROR, 1);
         TS_ASSERT_EQUALS(ExecutableSupport::EXIT_BAD_ARGUMENTS, 2);

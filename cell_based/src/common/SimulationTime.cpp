@@ -102,10 +102,7 @@ unsigned SimulationTime::GetTimeStepsElapsed() const
 
 double SimulationTime::GetTime() const
 {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
-    // wasn't called in the previous test                                   //
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
     assert(mStartTimeSet);
 
     return mCurrentTime;
@@ -114,13 +111,11 @@ double SimulationTime::GetTime() const
 
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
 {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
-    // wasn't called in the previous test                                   //
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
     assert(mStartTimeSet);
+
     assert(!mEndTimeAndNumberOfTimeStepsSet);
-    assert(endTime>mCurrentTime);
+    assert(endTime > mCurrentTime);
     mEndTime = endTime;
     mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
@@ -130,17 +125,18 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
 
 void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun)
 {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
-    // wasn't called in the previous test                                   //
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
     assert(mStartTimeSet);
-    assert(rEndTime>mCurrentTime);
-    assert(mTimeStepsElapsed>0); // if this throws you should be using set rather than reset.
-    //reset the machinery that works out the time
+    assert(rEndTime > mCurrentTime);
+
+    // NOTE: If this assertion fails, you should be using set rather than reset
+    assert(mTimeStepsElapsed > 0);
+
+    // Reset the machinery that works out the time
     mStartTime = mCurrentTime;
     mTimeStepsElapsed = 0;
-    // set up the new end time and stuff
+
+    // Set up the new end time and other member variables
     mEndTime = rEndTime;
     mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = rNumberOfTimeStepsInThisRun;

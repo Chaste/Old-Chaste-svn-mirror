@@ -634,7 +634,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
 
-        // coverage 
+        // coverage
         TS_ASSERT(solver.GetLinearSystem()!=NULL);
 
         VecDestroy(result);

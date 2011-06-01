@@ -41,38 +41,38 @@ class MeshalyzerMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, S
 private:
     /**
      * Open the file node information is written to.
-     * 
+     *
      * @param append  whether to append to the file, or overwrite it
      */
     out_stream OpenNodeFile(bool append=false);
-    
+
     /**
      * Open the file element information is written to.
-     * 
+     *
      * @param append  whether to append to the file, or overwrite it
      */
     out_stream OpenElementFile(bool append=false);
-    
+
     /**
      * Open the file face information is written to.
-     * 
+     *
      * @param append  whether to append to the file, or overwrite it
      */
     out_stream OpenFaceFile(bool append=false);
-    
+
     /**
      * Write the meta information file.
      */
     void WriteMetaFile();
-    
+
     /**
      * Append footers to output files.
      */
-    void WriteFilesFooter();    
-    
+    void WriteFilesFooter();
+
     /**
      * Get the mode to use when opening files.
-     * 
+     *
      * @param append  whether to append to the file, or overwrite it
      */
     std::ios_base::openmode GetOpenMode(bool append);
@@ -82,12 +82,12 @@ protected:
      * Create output files and add headers.
      */
     void CreateFilesWithHeaders();
-    
+
     /**
      * Append local mesh data to output files.
      */
-    void AppendLocalDataToFiles();    
-    
+    void AppendLocalDataToFiles();
+
 public:
 
     /**

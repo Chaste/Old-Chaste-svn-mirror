@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In Boost 1.36 (and up to 1.40) both the archive header includes and the
  * BOOST_CLASS_EXPORT should go in .cpp files.
- * 
+ *
  * We don't yet support 1.41 and above, which introduce BOOST_CLASS_EXPORT_KEY
  * and BOOST_CLASS_EXPORT_IMPLEMENT.
  *
@@ -54,14 +54,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   1. In .hpp files, include this header after the class definition.
  *   2. In .cpp files, after any other includes, include SerializationExportWrapperForCpp.hpp.
  * In both cases, CHASTE_CLASS_EXPORT should be used instead of BOOST_CLASS_EXPORT.
- * 
+ *
  * There are also variant macros for common cases of templated classes:
  *  - EXPORT_TEMPLATE_CLASS_SAME_DIMS
  *  - EXPORT_TEMPLATE_CLASS_ALL_DIMS
  *  - EXPORT_TEMPLATE_CLASS1
  *  - EXPORT_TEMPLATE_CLASS2
  *  - EXPORT_TEMPLATE_CLASS3
- * 
+ *
  * The latter 3 macros are usable in any situation where a class has up to 3 template parameters,
  * and you know what values will be needed.  Unfortunately a fully general template solution seems
  * to be impossible in any Boost version (the library makes use of either explicit instantiation or
@@ -225,7 +225,7 @@ template<class> struct pack;
 /**
  * Argument pack for macros.  Used to give a type for templated classes when exporting.
  * See http://lists.boost.org/Archives/boost/2004/08/70149.php for more.
- * 
+ *
  * \todo Check if we need this on Boost>=1.38.  Even if it's not needed there, we might still need it to load earlier archives.
  */
 template<class T> struct pack<void (T)> {

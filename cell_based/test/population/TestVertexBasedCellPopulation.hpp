@@ -104,44 +104,44 @@ public:
     }
 
     // Test that exception is thrown if no boundary nodes are defined in the mesh.
-	void TestExceptions() throw (Exception)
-	{
-		// Create a simple 2D VertexMesh
-		// Make four nodes all non boundary nodes to assign to one elements
-		std::vector<Node<2>*> basic_nodes;
-		basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-		basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-		basic_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-		basic_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+    void TestExceptions() throw (Exception)
+    {
+        // Create a simple 2D VertexMesh
+        // Make four nodes all non boundary nodes to assign to one elements
+        std::vector<Node<2>*> basic_nodes;
+        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        basic_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        basic_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
 
-		// Make one square elements out of these nodes
-		std::vector<Node<2>*> element_nodes;
-		for (unsigned i=0; i<4; i++)
-		{
-			element_nodes.push_back(basic_nodes[i]);
-		}
+        // Make one square elements out of these nodes
+        std::vector<Node<2>*> element_nodes;
+        for (unsigned i=0; i<4; i++)
+        {
+            element_nodes.push_back(basic_nodes[i]);
+        }
 
-		std::vector<VertexElement<2,2>*> basic_vertex_elements;
-		basic_vertex_elements.push_back(new VertexElement<2,2>(0, element_nodes));
+        std::vector<VertexElement<2,2>*> basic_vertex_elements;
+        basic_vertex_elements.push_back(new VertexElement<2,2>(0, element_nodes));
 
-		// Make a vertex mesh with no boundary nodes
-		MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
+        // Make a vertex mesh with no boundary nodes
+        MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, basic_vertex_mesh.GetNumElements());
 
-		// Create cell population
-		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(basic_vertex_mesh, cells),
-				"No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");
-	}
+        // Create cell population
+        TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(basic_vertex_mesh, cells),
+                "No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");
+    }
 
     void TestValidate() throw (Exception)
     {
-		// Create a simple vertex-based mesh
-		HoneycombVertexMeshGenerator generator(3, 3);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a simple vertex-based mesh
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -154,60 +154,60 @@ public:
             cell_location_indices.push_back(i);
         }
 
-		// This should throw an exception as the number of cells does not equal the number of elements
-		std::vector<CellPtr> cells_copy(cells);
-		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy),
-				"Element 8 does not appear to have a cell associated with it");
+        // This should throw an exception as the number of cells does not equal the number of elements
+        std::vector<CellPtr> cells_copy(cells);
+        TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy),
+                "Element 8 does not appear to have a cell associated with it");
 
         boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-		FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-		p_model->SetCellProliferativeType(STEM);
-		CellPtr p_cell(new Cell(p_state, p_model));
+        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+        CellPtr p_cell(new Cell(p_state, p_model));
 
-		double birth_time = 0.0 - p_mesh->GetNumElements()-1;
-		p_cell->SetBirthTime(birth_time);
+        double birth_time = 0.0 - p_mesh->GetNumElements()-1;
+        p_cell->SetBirthTime(birth_time);
 
-		cells.push_back(p_cell);
-		cell_location_indices.push_back(p_mesh->GetNumElements()-1);
+        cells.push_back(p_cell);
+        cell_location_indices.push_back(p_mesh->GetNumElements()-1);
 
-		// This should pass as the number of cells equals the number of elements
-		std::vector<CellPtr> cells_copy2(cells);
-		TS_ASSERT_THROWS_NOTHING(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy2));
+        // This should pass as the number of cells equals the number of elements
+        std::vector<CellPtr> cells_copy2(cells);
+        TS_ASSERT_THROWS_NOTHING(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy2));
 
-		// Create cell population
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Check correspondence between elements and cells
-		for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-			 iter != p_mesh->GetElementIteratorEnd();
-			 ++iter)
-		{
-			std::set<unsigned> expected_node_indices;
-			unsigned expected_index = iter->GetIndex();
+        // Check correspondence between elements and cells
+        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+             iter != p_mesh->GetElementIteratorEnd();
+             ++iter)
+        {
+            std::set<unsigned> expected_node_indices;
+            unsigned expected_index = iter->GetIndex();
 
-			for (unsigned i=0; i<iter->GetNumNodes(); i++)
-			{
-				expected_node_indices.insert(iter->GetNodeGlobalIndex(i));
-			}
+            for (unsigned i=0; i<iter->GetNumNodes(); i++)
+            {
+                expected_node_indices.insert(iter->GetNodeGlobalIndex(i));
+            }
 
-			std::set<unsigned> actual_node_indices;
-			unsigned elem_index = iter->GetIndex();
-			CellPtr p_cell = cell_population.GetCellUsingLocationIndex(elem_index);
-			VertexElement<2,2>* p_actual_element = cell_population.GetElementCorrespondingToCell(p_cell);
-			unsigned actual_index = p_actual_element->GetIndex();
+            std::set<unsigned> actual_node_indices;
+            unsigned elem_index = iter->GetIndex();
+            CellPtr p_cell = cell_population.GetCellUsingLocationIndex(elem_index);
+            VertexElement<2,2>* p_actual_element = cell_population.GetElementCorrespondingToCell(p_cell);
+            unsigned actual_index = p_actual_element->GetIndex();
 
-			for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
-			{
-				actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
-			}
+            for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
+            {
+                actual_node_indices.insert(p_actual_element->GetNodeGlobalIndex(i));
+            }
 
-			TS_ASSERT_EQUALS(actual_index, expected_index);
-			TS_ASSERT_EQUALS(actual_node_indices, expected_node_indices);
-		}
+            TS_ASSERT_EQUALS(actual_index, expected_index);
+            TS_ASSERT_EQUALS(actual_node_indices, expected_node_indices);
+        }
 
-		// Create anoter simple vertex-based mesh
-		HoneycombVertexMeshGenerator generator2(3, 3);
-		MutableVertexMesh<2,2>* p_mesh2 = generator.GetMesh();
+        // Create anoter simple vertex-based mesh
+        HoneycombVertexMeshGenerator generator2(3, 3);
+        MutableVertexMesh<2,2>* p_mesh2 = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells2;
@@ -220,10 +220,10 @@ public:
             cell_location_indices2.push_back(i%p_mesh2->GetNumElements()); // Element 0 will have 2 cells
         }
 
-		// This should throw an exception as the number of cells
-		// does not equal the number of elements
-		TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population2(*p_mesh2, cells2, false, true, cell_location_indices2),
-				"Element 0 appears to have 2 cells associated with it");
+        // This should throw an exception as the number of cells
+        // does not equal the number of elements
+        TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population2(*p_mesh2, cells2, false, true, cell_location_indices2),
+                "Element 0 appears to have 2 cells associated with it");
     }
 
     void TestGetDampingConstant()
@@ -237,7 +237,7 @@ public:
         boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-        
+
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

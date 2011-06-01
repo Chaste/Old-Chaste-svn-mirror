@@ -128,105 +128,105 @@ public:
     }
 
     void TestRandomCellKiller() throw(Exception)
-	{
-		// Set up singleton classes
-		SimulationTime* p_simulation_time = SimulationTime::Instance();
-		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(32.0, 32);
+    {
+        // Set up singleton classes
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(32.0, 32);
 
-		// Create mesh
-		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-		MutableMesh<2,2> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
+        // Create mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-		// Create cells
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-		double death_time = p_simulation_time->GetTime() + cells[0]->GetApoptosisTime();
+        double death_time = p_simulation_time->GetTime() + cells[0]->GetApoptosisTime();
 
-		// Create cell population
-		MeshBasedCellPopulation<2> cell_population(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-		// Get a reference to the cells held in cell population
-		std::list<CellPtr>& r_cells = cell_population.rGetCells();
+        // Get a reference to the cells held in cell population
+        std::list<CellPtr>& r_cells = cell_population.rGetCells();
 
-		// Check for bad probabilities being passed in
-		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population, -0.1),
-							 "Probability of death must be between zero and one");
+        // Check for bad probabilities being passed in
+        TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population, -0.1),
+                             "Probability of death must be between zero and one");
 
-		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population,  1.1),
-							 "Probability of death must be between zero and one");
+        TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population,  1.1),
+                             "Probability of death must be between zero and one");
 
-		// Create cell killer
-		RandomCellKiller<2> random_cell_killer(&cell_population, 0.05);
+        // Create cell killer
+        RandomCellKiller<2> random_cell_killer(&cell_population, 0.05);
 
-		TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller-2");
+        TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller-2");
 
-		// Check that a single cell reaches apoptosis
-		unsigned max_tries = 0;
-		while (!(*r_cells.begin())->HasApoptosisBegun() && max_tries<99)
-		{
-		    random_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
-		    max_tries++;
-		}
-		TS_ASSERT_DIFFERS(max_tries, 99u);
-		TS_ASSERT_DIFFERS(max_tries, 0u);
+        // Check that a single cell reaches apoptosis
+        unsigned max_tries = 0;
+        while (!(*r_cells.begin())->HasApoptosisBegun() && max_tries<99)
+        {
+            random_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
+            max_tries++;
+        }
+        TS_ASSERT_DIFFERS(max_tries, 99u);
+        TS_ASSERT_DIFFERS(max_tries, 0u);
 
-		// Check that some of the vector of cells reach apotosis
-		random_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+        // Check that some of the vector of cells reach apotosis
+        random_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-		std::set< double > old_locations;
+        std::set< double > old_locations;
 
-		bool apoptosis_cell_found = false;
-		std::list<CellPtr>::iterator cell_it = r_cells.begin();
-		++cell_it;
-		while (cell_it != r_cells.end() && !apoptosis_cell_found)
-		{
-		    if ((*cell_it)->HasApoptosisBegun())
-		    {
-			    apoptosis_cell_found = true;
-		    }
-		    ++cell_it;
-		}
+        bool apoptosis_cell_found = false;
+        std::list<CellPtr>::iterator cell_it = r_cells.begin();
+        ++cell_it;
+        while (cell_it != r_cells.end() && !apoptosis_cell_found)
+        {
+            if ((*cell_it)->HasApoptosisBegun())
+            {
+                apoptosis_cell_found = true;
+            }
+            ++cell_it;
+        }
 
-		TS_ASSERT_EQUALS(apoptosis_cell_found, true);
+        TS_ASSERT_EQUALS(apoptosis_cell_found, true);
 
-		// Increment time to a time after cell death
-		p_simulation_time->IncrementTimeOneStep();
-		p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
-		p_simulation_time->IncrementTimeOneStep();
+        // Increment time to a time after cell death
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
+        p_simulation_time->IncrementTimeOneStep();
 
-		// Store 'locations' of cells which are not dead
-		for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
-			cell_iter != r_cells.end();
-			++cell_iter)
-		{
-			if (!(*cell_iter)->IsDead())
-			{
-				Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
-				c_vector<double, 2> location = p_node->rGetLocation();
-				old_locations.insert(location[0] + location[1]*1000);
-			}
-		}
+        // Store 'locations' of cells which are not dead
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
+            cell_iter != r_cells.end();
+            ++cell_iter)
+        {
+            if (!(*cell_iter)->IsDead())
+            {
+                Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
+                c_vector<double, 2> location = p_node->rGetLocation();
+                old_locations.insert(location[0] + location[1]*1000);
+            }
+        }
 
-		// Remove dead cells
-		cell_population.RemoveDeadCells();
+        // Remove dead cells
+        cell_population.RemoveDeadCells();
 
-		// Check that dead cells are removed from the mesh
-		std::set< double > new_locations;
-		for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
-			cell_iter != r_cells.end();
-			++cell_iter)
-		{
-			TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
-			Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
-			c_vector<double, 2> location = p_node->rGetLocation();
-			new_locations.insert(location[0] + location[1]*1000);
-		}
+        // Check that dead cells are removed from the mesh
+        std::set< double > new_locations;
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
+            cell_iter != r_cells.end();
+            ++cell_iter)
+        {
+            TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
+            Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
+            c_vector<double, 2> location = p_node->rGetLocation();
+            new_locations.insert(location[0] + location[1]*1000);
+        }
 
-		TS_ASSERT(new_locations == old_locations);
-	}
+        TS_ASSERT(new_locations == old_locations);
+    }
 
     void TestOxygenBasedCellKiller() throw(Exception)
     {
@@ -247,10 +247,10 @@ public:
 
         // Set some model parameters for the cell-cycle model
         for (unsigned index=0; index < cells.size(); index++)
-		{
-        	cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
-			cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
-		}
+        {
+            cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
+            cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
+        }
 
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
@@ -474,41 +474,41 @@ public:
 
 
     void TestArchivingOfTargetedCellKiller() throw (Exception)
-	{
-	    // Set up singleton classes
-	    OutputFileHandler handler("archive", false);    // don't erase contents of folder
-	    std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_cell_killer.arch";
+    {
+        // Set up singleton classes
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_cell_killer.arch";
 
-	    {
-	    	// Create an output archive
-	 	    TargetedCellKiller<2> cell_killer(NULL, 1u);
+        {
+            // Create an output archive
+             TargetedCellKiller<2> cell_killer(NULL, 1u);
 
-		    std::ofstream ofs(archive_filename.c_str());
-		    boost::archive::text_oarchive output_arch(ofs);
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-		    // Serialize via pointer
-		    TargetedCellKiller<2>* const p_cell_killer = &cell_killer;
-		    output_arch << p_cell_killer;
+            // Serialize via pointer
+            TargetedCellKiller<2>* const p_cell_killer = &cell_killer;
+            output_arch << p_cell_killer;
 
-		    TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
-	    }
+            TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
+        }
 
-	    {
-		    // Create an input archive
-		    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-		    boost::archive::text_iarchive input_arch(ifs);
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
-		    TargetedCellKiller<2>* p_cell_killer;
+            TargetedCellKiller<2>* p_cell_killer;
 
-		    // Restore from the archive
-		    input_arch >> p_cell_killer;
+            // Restore from the archive
+            input_arch >> p_cell_killer;
 
-		    // Test we have restored the Target Cell correctly
-		    TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
+            // Test we have restored the Target Cell correctly
+            TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
 
-		    delete p_cell_killer;
-	   }
-	}
+            delete p_cell_killer;
+       }
+    }
 
     void TestArchivingOfRandomCellKiller() throw (Exception)
     {

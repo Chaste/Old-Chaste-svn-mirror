@@ -227,7 +227,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,&incompressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "ompressibleNonlinearElasticitySolver must take in a compressible material law");
 
         std::vector<AbstractMaterialLaw<2>*> incompressible_laws;
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             incompressible_laws.push_back(&incompressible_law);
         }

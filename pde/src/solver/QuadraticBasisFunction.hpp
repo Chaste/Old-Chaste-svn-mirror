@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChastePoint.hpp"
 
-
 /**
  * Quadratic basis functions for the finite element method,
  * computed on a canonical element.
@@ -52,8 +51,6 @@ public:
     static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
                                                            const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& rInverseJacobian,
                                                            c_matrix<double, ELEMENT_DIM, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2>& rReturnValue);
-
-
 };
 
 /**
@@ -68,4 +65,3 @@ public:
 };
 
 #endif //_QUADRATICBASISFUNCTION_HPP_
-

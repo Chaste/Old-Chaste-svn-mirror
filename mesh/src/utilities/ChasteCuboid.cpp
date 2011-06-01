@@ -41,7 +41,7 @@ template <unsigned SPACE_DIM>
             }
         }
     }
-    
+
 template <unsigned SPACE_DIM>
     bool ChasteCuboid<SPACE_DIM>::DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
     {
@@ -61,7 +61,7 @@ template <unsigned SPACE_DIM>
     {
         return mUpperCorner;
     }
-    
+
 template <unsigned SPACE_DIM>
     const ChastePoint<SPACE_DIM>& ChasteCuboid<SPACE_DIM>::rGetLowerCorner() const
     {

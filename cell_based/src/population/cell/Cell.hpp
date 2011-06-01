@@ -244,24 +244,24 @@ public:
     template<typename CLASS>
     void RemoveCellProperty()
     {
-    	bool cell_has_property = false;
+        bool cell_has_property = false;
 
-    	for (std::set<boost::shared_ptr<AbstractCellProperty> >::iterator property_iter = mCellPropertyCollection.Begin();
-    	     property_iter != mCellPropertyCollection.End();
-    	     ++property_iter)
-    	{
-    		if ((*property_iter)->IsType<CLASS>())
-    		{
-    			cell_has_property = true;
+        for (std::set<boost::shared_ptr<AbstractCellProperty> >::iterator property_iter = mCellPropertyCollection.Begin();
+             property_iter != mCellPropertyCollection.End();
+             ++property_iter)
+        {
+            if ((*property_iter)->IsType<CLASS>())
+            {
+                cell_has_property = true;
                 (*property_iter)->DecrementCellCount();
                 break;
-    		}
-    	}
+            }
+        }
 
-    	if (cell_has_property)
-    	{
-    	    mCellPropertyCollection.RemoveProperty<CLASS>();
-    	}
+        if (cell_has_property)
+        {
+            mCellPropertyCollection.RemoveProperty<CLASS>();
+        }
     }
 
     /**

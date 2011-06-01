@@ -78,10 +78,10 @@ double CellwiseData<DIM>::GetValue(CellPtr pCell, unsigned variableNumber)
 {
     if (variableNumber >= mNumberOfVariables)
     {
-    	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+        EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
     }
 
-	// To test a cell and cell-cycle models without a cell population
+    // To test a cell and cell-cycle models without a cell population
     if (mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];
@@ -103,7 +103,7 @@ void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned 
     assert(IsSetUp());
     if (variableNumber >= mNumberOfVariables)
     {
-    	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+        EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
     }
 
     unsigned vector_index = locationIndex*mNumberOfVariables + variableNumber;

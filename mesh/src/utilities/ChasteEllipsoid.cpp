@@ -73,7 +73,7 @@ bool ChasteEllipsoid<2>::DoesContain(const ChastePoint<2>& rPointToCheck) const
 {
     double x_distance = (rPointToCheck[0]-mCentre[0])/mRadii[0];
     double y_distance = (rPointToCheck[1]-mCentre[1])/mRadii[1];
-    
+
     if ( (x_distance*x_distance + y_distance*y_distance) > (1.0 + 100.0 * DBL_EPSILON) )
     {
         return false;
@@ -98,7 +98,7 @@ bool ChasteEllipsoid<3>::DoesContain(const ChastePoint<3>& rPointToCheck) const
     double x_distance = (rPointToCheck[0]-mCentre[0])/mRadii[0];
     double y_distance = (rPointToCheck[1]-mCentre[1])/mRadii[1];
     double z_distance = (rPointToCheck[2]-mCentre[2])/mRadii[2];
-    
+
     if ( (x_distance*x_distance + y_distance*y_distance + z_distance*z_distance) > (1.0 + 100.0 * DBL_EPSILON) )
     {
         return false;

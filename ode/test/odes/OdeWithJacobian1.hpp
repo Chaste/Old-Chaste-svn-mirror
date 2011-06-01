@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class OdeWithJacobian1 : public AbstractOdeSystemWithAnalyticJacobian
 {
-public :
+public:
     OdeWithJacobian1()
             : AbstractOdeSystemWithAnalyticJacobian(1) // 1 here is the number of variables
     {

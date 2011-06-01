@@ -177,7 +177,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
             this->mBoundaryNodes.push_back(p_node);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
         }
-        if (node_index>0) // create element
+        if (node_index > 0) // create element
         {
             std::vector<Node<SPACE_DIM>*> nodes;
             nodes.push_back(this->mNodes[node_index-1]);
@@ -397,7 +397,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
                     this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
                 }
 
-                //Are we at a boundary?
+                // Are we at a boundary?
                 std::vector<Node<SPACE_DIM>*> triangle_nodes;
 
                 if (i == 0) //low face at x==0
@@ -584,19 +584,24 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
     if (max_num == 0u)
     {
 #define COVERAGE_IGNORE
-        //Coverage of this block requires a mesh regular slab mesh with the number of
-        //elements in the primary dimension less than (num_procs - 1), e.g.
-        //a 1D mesh one element wide with num_procs >=3.
+        /*
+         * Coverage of this block requires a mesh regular slab mesh with the number of
+         * elements in the primary dimension less than (num_procs - 1), e.g. a 1D mesh
+         * one element wide with num_procs >=3.
+         */
 
-        //This process owns no nodes and thus owns none of the mesh
+        // This process owns no nodes and thus owns none of the mesh
         assert(this->mNodes.size() == 0u);
-        return(1u);
-        //Note that if a process owns no nodes, then it will still need to enter the collective
-        //call to MatMPIAIJSetPreallocation.  In PetscTools::SetupMat, the rowPreallocation parameter
-        //uses the special value zero to indicate no preallocation.
+        return (1u);
+
+        /*
+         * Note that if a process owns no nodes, then it will still need to enter the
+         * collective call to MatMPIAIJSetPreallocation. In PetscTools::SetupMat, the
+         * rowPreallocation parameter uses the special value zero to indicate no preallocation.
+         */
 #undef COVERAGE_IGNORE
     }
-    //connected_node_index now has the index of a maximally connected node
+    // connected_node_index now has the index of a maximally connected node
     std::set<unsigned> forward_star_nodes;
     unsigned nodes_per_element = this->mElements[0]->GetNumNodes(); //Usually ELEMENT_DIM+1, except in Quadratic case
     for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[connected_node_index]->ContainingElementsBegin();
@@ -615,7 +620,7 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const
 {
-    //Make sure the output vector is empty
+    // Make sure the output vector is empty
     rHaloIndices.clear();
 }
 
@@ -628,7 +633,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMesh(Abstract
         assert(!p_node->IsDeleted());
         c_vector<double, SPACE_DIM> location=p_node->rGetLocation();
         bool is_boundary=p_node->IsBoundaryNode();
-        
+
         Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, is_boundary);
         this->mNodes.push_back( p_node_copy );
         if (is_boundary)
@@ -650,7 +655,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMesh(Abstract
         p_elem_copy->RegisterWithNodes();
         this->mElements.push_back(p_elem_copy);
     }
-    
+
     for (unsigned i=0; i<rOtherMesh.GetNumBoundaryElements(); i++)
     {
         BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_elem =  rOtherMesh.GetBoundaryElement(i);
@@ -675,15 +680,15 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
 {
     assert( rNodesToSendPerProcess.empty() );
     assert( rNodesToReceivePerProcess.empty() );
-    
+
     //Initialise vectors of sets for the exchange data
     std::vector<std::set<unsigned> > node_sets_to_send_per_process;
     std::vector<std::set<unsigned> > node_sets_to_receive_per_process;
-    
+
     node_sets_to_send_per_process.resize(PetscTools::GetNumProcs());
     node_sets_to_receive_per_process.resize(PetscTools::GetNumProcs());
     std::vector<unsigned> global_lows = this->GetDistributedVectorFactory()->rGetGlobalLows();
-    
+
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
@@ -694,7 +699,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             unsigned node_index=iter->GetNodeGlobalIndex(i);
-            if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index)) 
+            if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index))
             {
                 nodes_on_this_process.push_back(node_index);
             }
@@ -703,29 +708,30 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
                 nodes_not_on_this_process.push_back(node_index);
             }
         }
-        
-        /* If this is a TetrahedralMesh (not distributed) then it's possible that we own none
+
+        /*
+         * If this is a TetrahedralMesh (not distributed) then it's possible that we own none
          * of the nodes in this element.  In that case we must skip the element.
          */
         if (nodes_on_this_process.empty())
         {
             continue; //Move on to the next element.
         }
-        //If there are any non-local nodes on this element then we need to add to the data exchange
-        if(!nodes_not_on_this_process.empty()) 
+        // If there are any non-local nodes on this element then we need to add to the data exchange
+        if (!nodes_not_on_this_process.empty())
         {
             for (unsigned i=0; i<nodes_not_on_this_process.size(); i++)
             {
-                //Calculate who owns this remote node
+                // Calculate who owns this remote node
                 unsigned remote_process=global_lows.size()-1;
-                for(; global_lows[remote_process] > nodes_not_on_this_process[i]; remote_process--)
+                for (; global_lows[remote_process] > nodes_not_on_this_process[i]; remote_process--)
                 {
                 }
-                
-                //Add this node to the correct receive set
+
+                // Add this node to the correct receive set
                 node_sets_to_receive_per_process[remote_process].insert(nodes_not_on_this_process[i]);
-                
-                //Add all local nodes to the send set
+
+                // Add all local nodes to the send set
                 for (unsigned j=0; j<nodes_on_this_process.size(); j++)
                 {
                     node_sets_to_send_per_process[remote_process].insert(nodes_on_this_process[j]);
@@ -733,22 +739,22 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateNodeExchange(
             }
         }
     }
- 
+
     for (unsigned process_number = 0; process_number < PetscTools::GetNumProcs(); process_number++)
     {
         std::vector<unsigned> process_send_vector( node_sets_to_send_per_process[process_number].begin(),
                                                    node_sets_to_send_per_process[process_number].end()    );
         std::sort(process_send_vector.begin(), process_send_vector.end());
-        
+
         rNodesToSendPerProcess.push_back(process_send_vector);
 
         std::vector<unsigned> process_receive_vector( node_sets_to_receive_per_process[process_number].begin(),
                                                       node_sets_to_receive_per_process[process_number].end()    );
         std::sort(process_receive_vector.begin(), process_receive_vector.end());
-        
+
         rNodesToReceivePerProcess.push_back(process_receive_vector);
     }
-    
+
 }
 
 

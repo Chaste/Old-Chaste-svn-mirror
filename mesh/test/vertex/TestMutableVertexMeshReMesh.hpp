@@ -40,83 +40,83 @@ class TestMutableVertexMeshReMesh : public CxxTest::TestSuite
 {
 public:
 
-	/*
-	 * This tests both PerformNodeMerge and IdentifySwapType
-	 *
-	 *       /|
-	 *      / |
-	 *     /  |
-	 *    /   |
-	 *   /    |
-	 *  /     |
-	 *  --xx--
-	 *
-	 *  The nodes marked with an x are merged
-	 *
-	 */
-	void TestPerformNodeMerge() throw(Exception)
-	{
-		// Create nodes
-		std::vector<Node<2>*> nodes;
-		nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-		nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-		nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
-		nodes.push_back(new Node<2>(3, true, 0.4, 0.0));
-		nodes.push_back(new Node<2>(4, true, 0.6, 0.0));
+    /*
+     * This tests both PerformNodeMerge and IdentifySwapType
+     *
+     *       /|
+     *      / |
+     *     /  |
+     *    /   |
+     *   /    |
+     *  /     |
+     *  --xx--
+     *
+     *  The nodes marked with an x are merged
+     *
+     */
+    void TestPerformNodeMerge() throw(Exception)
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, true, 0.4, 0.0));
+        nodes.push_back(new Node<2>(4, true, 0.6, 0.0));
 
-		// Create two elements containing nodes
-		unsigned node_indices_elem_0[5] = {0, 3, 4, 1, 2};
-		std::vector<Node<2>*> nodes_elem_0;
-		for (unsigned i=0; i<5; i++)
-		{
-		    nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
-		}
+        // Create two elements containing nodes
+        unsigned node_indices_elem_0[5] = {0, 3, 4, 1, 2};
+        std::vector<Node<2>*> nodes_elem_0;
+        for (unsigned i=0; i<5; i++)
+        {
+            nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
+        }
 
-		std::vector<VertexElement<2,2>*> vertex_elements;
-		vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
 
-		// Make a vertex mesh
-		MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        // Make a vertex mesh
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
-		// Test mesh has the correct numbers of elements and nodes
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 1u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
+        // Test mesh has the correct numbers of elements and nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
 
-		// Test the correct nodes are boundary nodes
-		for (unsigned i=0; i<5; i++)
-		{
-		    TS_ASSERT_EQUALS(vertex_mesh.GetNode(i)->IsBoundaryNode(), true);
-		}
+        // Test the correct nodes are boundary nodes
+        for (unsigned i=0; i<5; i++)
+        {
+            TS_ASSERT_EQUALS(vertex_mesh.GetNode(i)->IsBoundaryNode(), true);
+        }
 
-		// Merge nodes 3 and 4
-		VertexElementMap map(vertex_mesh.GetNumElements());
-		vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(3), vertex_mesh.GetNode(4), map);
+        // Merge nodes 3 and 4
+        VertexElementMap map(vertex_mesh.GetNumElements());
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(3), vertex_mesh.GetNode(4), map);
 
-		// Test that the mesh is correctly updated
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 1u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
+        // Test that the mesh is correctly updated
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
 
-		// Test the correct nodes are boundary nodes
+        // Test the correct nodes are boundary nodes
         for (unsigned i=0; i<4; i++)
         {
             TS_ASSERT_EQUALS(vertex_mesh.GetNode(i)->IsBoundaryNode(), true);
         }
 
-		// Test merged node is in the correct place
-		TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[0], 0.5, 1e-3);
-		TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[1], 0.0, 1e-3);
+        // Test merged node is in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[0], 0.5, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[1], 0.0, 1e-3);
 
-		// Test elements have correct nodes
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(0), 0u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(1), 3u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(2), 1u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(3), 2u);
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(1), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(2), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(3), 2u);
 
-		// Test Area and Perimeter of element
-		TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.5, 1e-6);
-		TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0), 2+sqrt(2), 1e-6);
-	}
+        // Test Area and Perimeter of element
+        TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.5, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0), 2+sqrt(2), 1e-6);
+    }
 
     /**
      * This test provides coverage of the case in which, when the elements
@@ -901,28 +901,28 @@ public:
 
     void TestPerformT2SwapWithBoundaryNodes() throw(Exception)
     {
-		// Make 6 nodes to assign to three elements
-		std::vector<Node<2>*> nodes;
-		nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-		nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-		nodes.push_back(new Node<2>(2, true, 0.5, 0.5));
-		nodes.push_back(new Node<2>(3, true, 0.4, 0.25));
-		nodes.push_back(new Node<2>(4, true, 0.6, 0.25));
-		nodes.push_back(new Node<2>(5, false, 0.5, 0.3));
+        // Make 6 nodes to assign to three elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, true, 0.5, 0.5));
+        nodes.push_back(new Node<2>(3, true, 0.4, 0.25));
+        nodes.push_back(new Node<2>(4, true, 0.6, 0.25));
+        nodes.push_back(new Node<2>(5, false, 0.5, 0.3));
 
-		/*
-		 *  Make two trapezium elements with a central triangular element out of these nodes
-		 *
-		 *      /|\
-		 *     / | \
-		 *    /  |  \
-		 *   /2 /_\ 1\   Triangular element is element zero
-		 *  / _/   \_ \
-		 * /_/       \_\
-		 *
-		 */
+        /*
+         *  Make two trapezium elements with a central triangular element out of these nodes
+         *
+         *      /|\
+         *     / | \
+         *    /  |  \
+         *   /2 /_\ 1\   Triangular element is element zero
+         *  / _/   \_ \
+         * /_/       \_\
+         *
+         */
 
-		// Create elements
+        // Create elements
         std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2;
         unsigned node_indices_elem_0[3] = {3, 4, 5};
         unsigned node_indices_elem_1[4] = {1, 2, 5, 4};
@@ -937,104 +937,104 @@ public:
             nodes_elem_2.push_back(nodes[node_indices_elem_2[i]]);
         }
 
-		std::vector<VertexElement<2,2>*> vertex_elements;
-		vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-		vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-		vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
-		// Make a vertex mesh
-		MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        // Make a vertex mesh
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
 
-		// Perform a T2 swap on the middle triangle element
-		VertexElement<2,2>* p_element_0 = vertex_mesh.GetElement(0);
-		vertex_mesh.PerformT2Swap(*p_element_0);
+        // Perform a T2 swap on the middle triangle element
+        VertexElement<2,2>* p_element_0 = vertex_mesh.GetElement(0);
+        vertex_mesh.PerformT2Swap(*p_element_0);
 
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
 
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumAllElements(), 3u);
-		TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 7u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumAllElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 7u);
 
-		for (unsigned j=1; j<3; j++)
-		{
-			TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNumNodes(), 3u);
-			TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(0), j%3);
-			TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(1), (j+1)%3);
-			TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(2), 6u);
-		}
+        for (unsigned j=1; j<3; j++)
+        {
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNumNodes(), 3u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(0), j%3);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(1), (j+1)%3);
+            TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNodeGlobalIndex(2), 6u);
+        }
 
-		// Test boundary property of nodes. All are boundary nodes.
-		for (unsigned i=0; i<vertex_mesh.GetNumNodes(); i++)
-		{
-			TS_ASSERT_EQUALS(vertex_mesh.GetNode(i)->IsBoundaryNode(), true);
-		}
+        // Test boundary property of nodes. All are boundary nodes.
+        for (unsigned i=0; i<vertex_mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(vertex_mesh.GetNode(i)->IsBoundaryNode(), true);
+        }
 
-		// Make 5 nodes to assign to two elements
-		std::vector<Node<2>*> nodes2;
-		nodes2.push_back(new Node<2>(0, true, 1.0, 0.0));
-		nodes2.push_back(new Node<2>(1, true, 0.5, 0.5));
-		nodes2.push_back(new Node<2>(2, true, 0.4, 0.25));
-		nodes2.push_back(new Node<2>(3, true, 0.6, 0.25));
-		nodes2.push_back(new Node<2>(4, true, 0.5, 0.3));
+        // Make 5 nodes to assign to two elements
+        std::vector<Node<2>*> nodes2;
+        nodes2.push_back(new Node<2>(0, true, 1.0, 0.0));
+        nodes2.push_back(new Node<2>(1, true, 0.5, 0.5));
+        nodes2.push_back(new Node<2>(2, true, 0.4, 0.25));
+        nodes2.push_back(new Node<2>(3, true, 0.6, 0.25));
+        nodes2.push_back(new Node<2>(4, true, 0.5, 0.3));
 
-		/*
-		 *  Make one trapezium element with a central triangular element out of these nodes
-		 *
-		 *       |\
-		 *       | \
-		 *       |  \
-		 *      /_\ 1\   Triangular element is element zero
-		 *         \_ \
-		 *           \_\
-		 *
-		 */
+        /*
+         *  Make one trapezium element with a central triangular element out of these nodes
+         *
+         *       |\
+         *       | \
+         *       |  \
+         *      /_\ 1\   Triangular element is element zero
+         *         \_ \
+         *           \_\
+         *
+         */
 
-		// Triangle element
-		std::vector<Node<2>*> nodes2_elem_0;
-		nodes2_elem_0.push_back(nodes2[2]);
-		nodes2_elem_0.push_back(nodes2[3]);
-		nodes2_elem_0.push_back(nodes2[4]);
+        // Triangle element
+        std::vector<Node<2>*> nodes2_elem_0;
+        nodes2_elem_0.push_back(nodes2[2]);
+        nodes2_elem_0.push_back(nodes2[3]);
+        nodes2_elem_0.push_back(nodes2[4]);
 
-		// Trapezium
-		std::vector<Node<2>*> nodes2_elem_1;
-		nodes2_elem_1.push_back(nodes2[0]);
-		nodes2_elem_1.push_back(nodes2[1]);
-		nodes2_elem_1.push_back(nodes2[4]);
-		nodes2_elem_1.push_back(nodes2[3]);
+        // Trapezium
+        std::vector<Node<2>*> nodes2_elem_1;
+        nodes2_elem_1.push_back(nodes2[0]);
+        nodes2_elem_1.push_back(nodes2[1]);
+        nodes2_elem_1.push_back(nodes2[4]);
+        nodes2_elem_1.push_back(nodes2[3]);
 
-		std::vector<VertexElement<2,2>*> vertex_elements2;
-		vertex_elements2.push_back(new VertexElement<2,2>(0, nodes2_elem_0));
-		vertex_elements2.push_back(new VertexElement<2,2>(1, nodes2_elem_1));
+        std::vector<VertexElement<2,2>*> vertex_elements2;
+        vertex_elements2.push_back(new VertexElement<2,2>(0, nodes2_elem_0));
+        vertex_elements2.push_back(new VertexElement<2,2>(1, nodes2_elem_1));
 
-		// Make a vertex mesh
-		MutableVertexMesh<2,2> vertex_mesh2(nodes2, vertex_elements2);
+        // Make a vertex mesh
+        MutableVertexMesh<2,2> vertex_mesh2(nodes2, vertex_elements2);
 
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumElements(), 2u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumNodes(), 5u);
 
-		// Perform a T2 swap on the middle triangle element
-		p_element_0 = vertex_mesh2.GetElement(0);
-		vertex_mesh2.PerformT2Swap(*p_element_0);
+        // Perform a T2 swap on the middle triangle element
+        p_element_0 = vertex_mesh2.GetElement(0);
+        vertex_mesh2.PerformT2Swap(*p_element_0);
 
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumElements(), 1u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumNodes(), 3u);
 
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumAllElements(), 2u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetNumAllNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumAllElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetNumAllNodes(), 6u);
 
-	    TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNumNodes(), 3u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(0), 0u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(1), 1u);
-		TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(2), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh2.GetElement(1)->GetNodeGlobalIndex(2), 5u);
 
-		// Test boundary property of nodes. All are boundary nodes.
-		for (unsigned i=0; i<vertex_mesh2.GetNumNodes(); i++)
-		{
-			TS_ASSERT_EQUALS(vertex_mesh2.GetNode(i)->IsBoundaryNode(), true);
-		}
+        // Test boundary property of nodes. All are boundary nodes.
+        for (unsigned i=0; i<vertex_mesh2.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(vertex_mesh2.GetNode(i)->IsBoundaryNode(), true);
+        }
     }
 
 
@@ -1231,30 +1231,30 @@ public:
     void TestReMeshExceptions() throw(Exception)
     {
         // This also tests IdentifySwapType
-    	{
-    		/*
-			 *   ______
-			 *  |     /|
-			 *  |    / |
-			 *  |   x  |
-			 *  |  x   |
-			 *  | /    |
-			 *  |/_____|
-			 *
-			 *  The nodes marked with an x are merged
-			 *
-			 */
+        {
+            /*
+             *   ______
+             *  |     /|
+             *  |    / |
+             *  |   x  |
+             *  |  x   |
+             *  | /    |
+             *  |/_____|
+             *
+             *  The nodes marked with an x are merged
+             *
+             */
 
-    		// Create nodes
-    		std::vector<Node<2>*> nodes;
-    		nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-    		nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-    		nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
-    		nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
-    		nodes.push_back(new Node<2>(4, false, 0.49, 0.49));
-    		nodes.push_back(new Node<2>(5, false, 0.51, 0.51));
+            // Create nodes
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(4, false, 0.49, 0.49));
+            nodes.push_back(new Node<2>(5, false, 0.51, 0.51));
 
-    		// Create two elements containing nodes
+            // Create two elements containing nodes
             std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
             unsigned node_indices_elem_0[5] = {0, 1, 2, 5, 4};
             unsigned node_indices_elem_1[5] = {0, 4, 5, 2, 3};
@@ -1264,41 +1264,41 @@ public:
                 nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
             }
 
-    		std::vector<VertexElement<2,2>*> vertex_elements;
-    		vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-    		vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
-    		// Make a vertex mesh
-    		MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-    		vertex_mesh.SetCellRearrangementThreshold(0.1);
+            // Make a vertex mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+            vertex_mesh.SetCellRearrangementThreshold(0.1);
 
-    		// Try to Merge nodes 4 and 5
-    		TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There are non-boundary nodes contained in only in 2 elements something has gone wrong.");
-    	}
+            // Try to Merge nodes 4 and 5
+            TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There are non-boundary nodes contained in only in 2 elements something has gone wrong.");
+        }
 
-    	{
-			/* Create 4 joined elements.
-			 *  _________
-			 * |    |   /
-			 * |    |  /
-			 * |____|_/
-			 * |    | \
-			 * |    |  \
-			 * |____|___\
-			 *
-			 */
+        {
+            /* Create 4 joined elements.
+             *  _________
+             * |    |   /
+             * |    |  /
+             * |____|_/
+             * |    | \
+             * |    |  \
+             * |____|___\
+             *
+             */
 
-			// Create some nodes all boundary nodes except the central one
-			std::vector<Node<2>*> nodes;
-			nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-			nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-			nodes.push_back(new Node<2>(2, true, 2.0, 0.0));
-			nodes.push_back(new Node<2>(3, true, 1.1, 1.0));
-			nodes.push_back(new Node<2>(4, true, 2.0, 2.0));
-			nodes.push_back(new Node<2>(5, true, 1.0, 2.0));
-			nodes.push_back(new Node<2>(6, true, 0.0, 2.0));
-			nodes.push_back(new Node<2>(7, true, 0.0, 1.0));
-			nodes.push_back(new Node<2>(8, false, 1.0, 1.0));
+            // Create some nodes all boundary nodes except the central one
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 2.0, 0.0));
+            nodes.push_back(new Node<2>(3, true, 1.1, 1.0));
+            nodes.push_back(new Node<2>(4, true, 2.0, 2.0));
+            nodes.push_back(new Node<2>(5, true, 1.0, 2.0));
+            nodes.push_back(new Node<2>(6, true, 0.0, 2.0));
+            nodes.push_back(new Node<2>(7, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(8, false, 1.0, 1.0));
 
             // Create two elements containing nodes
             std::vector<Node<2>*> nodes_in_element0, nodes_in_element1, nodes_in_element2, nodes_in_element3;
@@ -1314,105 +1314,105 @@ public:
                 nodes_in_element3.push_back(nodes[node_indices_element_3[i]]);
             }
 
-			std::vector<VertexElement<2,2>* > elements;
-			elements.push_back(new VertexElement<2,2>(0, nodes_in_element0));
-			elements.push_back(new VertexElement<2,2>(1, nodes_in_element1));
-			elements.push_back(new VertexElement<2,2>(2, nodes_in_element2));
-			elements.push_back(new VertexElement<2,2>(3, nodes_in_element3));
+            std::vector<VertexElement<2,2>* > elements;
+            elements.push_back(new VertexElement<2,2>(0, nodes_in_element0));
+            elements.push_back(new VertexElement<2,2>(1, nodes_in_element1));
+            elements.push_back(new VertexElement<2,2>(2, nodes_in_element2));
+            elements.push_back(new VertexElement<2,2>(3, nodes_in_element3));
 
-			// Create mesh
-			MutableVertexMesh<2,2> vertex_mesh(nodes, elements);
-			vertex_mesh.SetCellRearrangementThreshold(0.2); // so will call IdentifySwapType()
+            // Create mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, elements);
+            vertex_mesh.SetCellRearrangementThreshold(0.2); // so will call IdentifySwapType()
 
-			TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
-			TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
-			// Call remesh
+            // Call remesh
 
-	        // Attempt to merge nodes 7 and 8.
-	        TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "A node is contained in more than three elements");
-    	}
+            // Attempt to merge nodes 7 and 8.
+            TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "A node is contained in more than three elements");
+        }
 
-    	{
-			/*
-    	     *             ______
-    	     *            /      |
-    	     *           /       |
-    	     *          /        |
-    	     *   -----xx---------|
-    	     *  |       \        |
-    	     *  |        \       |
-    	     *  |_________\______|
-    	     *
-    	     *  The nodes marked with an x are to be merged.
-    	     *  This will throw an exception in IdentifySwapType.
-    	     */
+        {
+            /*
+             *             ______
+             *            /      |
+             *           /       |
+             *          /        |
+             *   -----xx---------|
+             *  |       \        |
+             *  |        \       |
+             *  |_________\______|
+             *
+             *  The nodes marked with an x are to be merged.
+             *  This will throw an exception in IdentifySwapType.
+             */
 
-			// Create nodes, all boundary nodes
-			std::vector<Node<2>*> nodes;
-			nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-			nodes.push_back(new Node<2>(1, true, 2.0, 0.0));
-			nodes.push_back(new Node<2>(2, true, 3.0, 0.0));
-			nodes.push_back(new Node<2>(3, true, 3.0, 1.0));
-			nodes.push_back(new Node<2>(4, true, 3.0, 2.0));
-			nodes.push_back(new Node<2>(5, true, 2.0, 2.0));
-			nodes.push_back(new Node<2>(6, true, 1.0, 1.0));
-			nodes.push_back(new Node<2>(7, true, 0.99, 1.0));
-			nodes.push_back(new Node<2>(8, true, 0.0, 1.0));
+            // Create nodes, all boundary nodes
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 2.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 3.0, 0.0));
+            nodes.push_back(new Node<2>(3, true, 3.0, 1.0));
+            nodes.push_back(new Node<2>(4, true, 3.0, 2.0));
+            nodes.push_back(new Node<2>(5, true, 2.0, 2.0));
+            nodes.push_back(new Node<2>(6, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(7, true, 0.99, 1.0));
+            nodes.push_back(new Node<2>(8, true, 0.0, 1.0));
 
-			// Create three elements containing nodes
-			std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2;
-			unsigned node_indices_elem_0[5] = {0, 1, 6, 7, 8};
-			unsigned node_indices_elem_1[4] = {1, 2, 3, 6};
-			unsigned node_indices_elem_2[4] = {3, 4, 5, 6};
-			for (unsigned i=0; i<5; i++)
-			{
-			    nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
-			    if (i < 4)
-			    {
-			        nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
+            // Create three elements containing nodes
+            std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2;
+            unsigned node_indices_elem_0[5] = {0, 1, 6, 7, 8};
+            unsigned node_indices_elem_1[4] = {1, 2, 3, 6};
+            unsigned node_indices_elem_2[4] = {3, 4, 5, 6};
+            for (unsigned i=0; i<5; i++)
+            {
+                nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
+                if (i < 4)
+                {
+                    nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
                     nodes_elem_2.push_back(nodes[node_indices_elem_2[i]]);
-			    }
-			}
+                }
+            }
 
-			std::vector<VertexElement<2,2>*> vertex_elements;
-			vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-			vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-			vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
-			// Create a mesh
-			MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-			vertex_mesh.SetCellRearrangementThreshold(0.1);
+            // Create a mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+            vertex_mesh.SetCellRearrangementThreshold(0.1);
 
-			TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-			TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
 
-			// Attempt to Merge nodes 6 and 7
-			VertexElementMap map(vertex_mesh.GetNumElements());
-			TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map), "There is a boundary node contained in three elements something has gone wrong.");
-		}
+            // Attempt to Merge nodes 6 and 7
+            VertexElementMap map(vertex_mesh.GetNumElements());
+            TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map), "There is a boundary node contained in three elements something has gone wrong.");
+        }
 
-    	{
-			/* Make 7 nodes to assign to 2 elements with 6 boundary nodes
-			 *
-			 * |\   /|
-			 * | \ / |
-			 * |  x  |
-			 * |  x  |
-			 * |__|__|
-			 *
-			 */
+        {
+            /* Make 7 nodes to assign to 2 elements with 6 boundary nodes
+             *
+             * |\   /|
+             * | \ / |
+             * |  x  |
+             * |  x  |
+             * |__|__|
+             *
+             */
 
-			std::vector<Node<2>*> nodes;
-			nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-			nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-			nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
-			nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
-			nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
-			nodes.push_back(new Node<2>(5, true, 0.5, 0.51));
-			nodes.push_back(new Node<2>(6, true, 0.5, 0.0));
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
+            nodes.push_back(new Node<2>(5, true, 0.5, 0.51));
+            nodes.push_back(new Node<2>(6, true, 0.5, 0.0));
 
-			// Make two elements out of these nodes
+            // Make two elements out of these nodes
             std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
             unsigned node_indices_elem_0[5] = {1, 2, 5, 4, 6};
             unsigned node_indices_elem_1[5] = {0, 6, 4, 5, 3};
@@ -1422,43 +1422,43 @@ public:
                 nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
             }
 
-			std::vector<VertexElement<2,2>*> vertex_elements;
-			vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-			vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
-			// Make a vertex mesh
-			MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-    		vertex_mesh.SetCellRearrangementThreshold(0.1);
+            // Make a vertex mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+            vertex_mesh.SetCellRearrangementThreshold(0.1);
 
-			// Attempt to Merge nodes 4 and 5
-			TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There is a non boundary node contained only in 2 elements something has gone wrong.");
-		}
+            // Attempt to Merge nodes 4 and 5
+            TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There is a non boundary node contained only in 2 elements something has gone wrong.");
+        }
 
-    	{
-			/* Make 8 nodes to assign to 3 elements with 5 boundary nodes
-			 *  __x__
-			 * |\   /|
-			 * | \ / |
-			 * |  x  |
-			 * |  x  |
-			 * |__|__|
-			 *
-			 * Not the extra node on the top is to stop the element only having 3 nodes,
-			 * otherwise wont go into IdentifySwapType().
-			 *
-			 */
+        {
+            /* Make 8 nodes to assign to 3 elements with 5 boundary nodes
+             *  __x__
+             * |\   /|
+             * | \ / |
+             * |  x  |
+             * |  x  |
+             * |__|__|
+             *
+             * Not the extra node on the top is to stop the element only having 3 nodes,
+             * otherwise wont go into IdentifySwapType().
+             *
+             */
 
-			std::vector<Node<2>*> nodes;
-			nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-			nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
-			nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
-			nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
-			nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
-			nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
-			nodes.push_back(new Node<2>(6, true, 0.5, 0.0));
-			nodes.push_back(new Node<2>(7, true, 0.5, 1.0));
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(4, false, 0.5, 0.49));
+            nodes.push_back(new Node<2>(5, false, 0.5, 0.51));
+            nodes.push_back(new Node<2>(6, true, 0.5, 0.0));
+            nodes.push_back(new Node<2>(7, true, 0.5, 1.0));
 
-			// Make three elements out of these nodes
+            // Make three elements out of these nodes
             std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2;
             unsigned node_indices_elem_0[5] = {1, 2, 5, 4, 6};
             unsigned node_indices_elem_1[5] = {0, 6, 4, 5, 3};
@@ -1473,18 +1473,18 @@ public:
                 }
             }
 
-			std::vector<VertexElement<2,2>*> vertex_elements;
-			vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-			vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-			vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
-			// Make a vertex mesh
-			MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-			vertex_mesh.SetCellRearrangementThreshold(0.1);
+            // Make a vertex mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+            vertex_mesh.SetCellRearrangementThreshold(0.1);
 
-			// Attempt to Merge nodes 4 and 5
-			TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There are non-boundary nodes contained only in 2 elements something has gone wrong.");
-		}
+            // Attempt to Merge nodes 4 and 5
+            TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "There are non-boundary nodes contained only in 2 elements something has gone wrong.");
+        }
     }
 
     void TestElementIncludesPointAndGetLocalIndexForElementEdgeClosestToPoint()
@@ -1647,7 +1647,7 @@ public:
         mesh.ReMesh();
 
         // Save the mesh data using mesh writers
-		std::string dirname = "TempyTempy";
+        std::string dirname = "TempyTempy";
         std::string mesh_filename = "vertex_remesh_T3";
         VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -1914,7 +1914,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        
+
         // Test elements have correct nodes
         unsigned new_node_indices_element_0[7] = {0, 1, 8, 4, 9, 2, 3};
         unsigned new_node_indices_element_1[4] = {5, 6, 4, 8};
@@ -2641,7 +2641,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 9u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 4u);
-        
+
         // Test elements have correct nodes
         unsigned node_indices_element_0[9] = {0, 1, 2, 10, 6, 11, 3, 4, 5};
         unsigned node_indices_element_1[6] = {5, 4, 11, 6, 7, 8};

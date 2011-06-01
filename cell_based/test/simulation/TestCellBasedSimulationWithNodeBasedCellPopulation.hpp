@@ -312,7 +312,7 @@ public:
         normal(1) =-1.0;
         PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), normal);//y>0
         simulator.AddCellPopulationBoundaryCondition(&boundary_condition);
-        
+
         // Solve
         simulator.Solve();
 

@@ -112,7 +112,6 @@ public:
      */
     virtual ~AbstractDataWriter()
     {}
-
 };
 
 #endif //ABSTRACTDATAWRITER_HPP

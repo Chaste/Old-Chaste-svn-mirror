@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "NonlinearElasticityTools.hpp"
 
 template<unsigned DIM>
@@ -42,7 +43,7 @@ std::vector<unsigned> NonlinearElasticityTools<DIM>::GetNodesByComponentValue(Te
         }
     }
 
-    if (fixed_nodes.size()==0)
+    if (fixed_nodes.size() == 0)
     {
         std::stringstream error;
         error << "Could not find any nodes on requested surface (note: tolerance = "<<tol<<")";

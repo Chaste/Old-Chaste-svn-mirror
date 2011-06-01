@@ -46,7 +46,7 @@ double ALPHA = 0.2;
 // Body force corresponding to the deformation
 // x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
 //
-//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE 
+//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE
 //   CURRENT TIME TO BE SET TO 1.0
 //
 c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
@@ -59,7 +59,7 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
     body_force(1) = -2*MATERIAL_PARAM * 2*ALPHA*ALPHA*X(1)/(lam*lam*lam);
 
     // Make sure the time has been passed through to here correctly.
-    // This function requires t=1 for the test to pass    
+    // This function requires t=1 for the test to pass
     body_force(0) += (t-1)*5723485;
     return body_force;
 }
@@ -67,9 +67,9 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
 // Surface traction on three sides of a cube, corresponding to
 // x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
 //
-//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE 
+//   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE
 //   CURRENT TIME TO BE SET TO 1.0
-// 
+//
 c_vector<double,2> MyTraction(c_vector<double,2>& location, double t)
 {
     c_vector<double,2> traction = zero_vector<double>(2);
@@ -94,11 +94,11 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location, double t)
     {
         NEVER_REACHED;
     }
-    
+
     // Make sure the time has been passed through to here correctly.
     // This function requires t=1 for the test to pass
     traction(0) += (t-1.0)*543548;
-    
+
     return traction;
 }
 
@@ -155,7 +155,7 @@ public:
         }
 
         ///////////////////////////////////////////////////////////////////
-        // compute numerical jacobian and compare with analytic jacobian
+        // compute numerical Jacobian and compare with analytic jacobian
         // (about u=0, p=p0)
         ///////////////////////////////////////////////////////////////////
         unsigned num_dofs = rhs_vec.GetSize();
@@ -251,7 +251,7 @@ public:
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader1);
         NashHunterPoleZeroLaw<3> law;
-        
+
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
@@ -264,7 +264,7 @@ public:
 
         // compute the residual norm - should be zero as no force or tractions
         TS_ASSERT_DELTA( solver.ComputeResidualAndGetNorm(false), 0.0, 1e-7);
-        
+
         // the change the current solution (=displacement) to correspond to a small stretch
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -349,7 +349,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,&compressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "NonlinearElasticitySolver must take in an incompressible material law");
 
         std::vector<AbstractMaterialLaw<2>*> compressible_laws;
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             compressible_laws.push_back(&compressible_law);
         }
@@ -412,7 +412,7 @@ public:
                                             fixed_nodes);
 
         solver.Solve();
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u); // 'hardcoded' answer, protects against jacobian getting messed up
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u); // 'hardcoded' answer, protects against Jacobian getting messed up
 
         std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
 
@@ -529,11 +529,11 @@ public:
 
         solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
 
-    	// coverage
+        // coverage
         solver.SetKspAbsoluteTolerance(1e-10);
 
         solver.Solve();
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against Jacobian getting messed up
 
         std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
 
@@ -629,7 +629,7 @@ public:
         solver.Solve();
 
         // matrix might have (small) errors introduced if this fails
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against Jacobian getting messed up
 
         // check CreateCmguiOutput() - call and check output files were written.
         solver.CreateCmguiOutput();
@@ -675,7 +675,7 @@ public:
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         solver.rGetCurrentSolution().clear();
-		solver.rGetCurrentSolution().resize(solver.mNumDofs, 0.0);
+        solver.rGetCurrentSolution().resize(solver.mNumDofs, 0.0);
         solver.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(solver.Solve(), "KSP Absolute tolerance was too high");
     }

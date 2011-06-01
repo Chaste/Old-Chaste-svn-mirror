@@ -235,7 +235,7 @@ c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(Cell
     }
     else
     {
-    	// Do something for Vertex / Potts Models here
+        // Do something for Vertex / Potts Models here
         return zero_vector<double>(DIM);
     }
 }
@@ -681,7 +681,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
 
-	// Output machine information
+    // Output machine information
     ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system_info");
 
     // Output Chaste provenance information
@@ -697,7 +697,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 
     *parameter_file << "<Chaste>\n";
     *parameter_file << "\n\t<" << simulation_type << ">\n";
-	OutputSimulationParameters(parameter_file);
+    OutputSimulationParameters(parameter_file);
     *parameter_file << "\t</" << simulation_type << ">\n";
     *parameter_file << "\n";
 
@@ -710,21 +710,21 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
          iter != mForceCollection.end();
          ++iter)
     {
-    	// Output force details
-    	(*iter)->OutputForceInfo(parameter_file);
+        // Output force details
+        (*iter)->OutputForceInfo(parameter_file);
     }
     *parameter_file << "\t</Forces>\n";
 
     // Loop over cell killers
-	*parameter_file << "\n\t<CellKillers>\n";
-	for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
+    *parameter_file << "\n\t<CellKillers>\n";
+    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
          iter != mCellKillers.end();
          ++iter)
-	{
-		// Output cell killer details
-		(*iter)->OutputCellKillerInfo(parameter_file);
-	}
-	*parameter_file << "\t</CellKillers>\n";
+    {
+        // Output cell killer details
+        (*iter)->OutputCellKillerInfo(parameter_file);
+    }
+    *parameter_file << "\t</CellKillers>\n";
 
     // Loop over cell population boundary conditions
     *parameter_file << "\n\t<CellPopulationBoundaryConditions>\n";

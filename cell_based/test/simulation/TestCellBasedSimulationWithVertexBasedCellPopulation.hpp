@@ -348,7 +348,7 @@ public:
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
         p_mesh->SetCellRearrangementThreshold(0.1);
         p_mesh->SetT2Threshold(1.0); // so T2Swaps once it becomes a triangle
-        
+
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
@@ -390,28 +390,28 @@ public:
         unsigned new_num_elements = (static_cast<VertexBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetCellPopulation().GetNumRealCells();
 
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-7);	// Due to the cells on the boundary that get killed and the apoptotic cell that does a T2 swap
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-7);    // Due to the cells on the boundary that get killed and the apoptotic cell that does a T2 swap
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements-5);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells-5);
         TS_ASSERT_EQUALS(new_num_cells, new_num_elements);
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Cell removed due to T2Swap this is not counted in the dead cells counter");
-		Warnings::QuietDestroy();
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Cell removed due to T2Swap this is not counted in the dead cells counter");
+        Warnings::QuietDestroy();
     }
 
     /*
      * This test visualizing cells of 2 mutation types, wildtype and labelled type.
-	 * It asserts that neighboring cells have the correct adhesion parameter for difference
-	 * pairs of nodes.
-	 */
-	void TestVertexMonolayerWithTwoMutationTypes() throw (Exception)
-	{
-		// Create a simple 2D MutableVertexMesh with only four cells
-		HoneycombVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+     * It asserts that neighboring cells have the correct adhesion parameter for difference
+     * pairs of nodes.
+     */
+    void TestVertexMonolayerWithTwoMutationTypes() throw (Exception)
+    {
+        // Create a simple 2D MutableVertexMesh with only four cells
+        HoneycombVertexMeshGenerator generator(2, 2);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -427,32 +427,32 @@ public:
         cells[0]->AddCellProperty(p_label);
         cells[2]->AddCellProperty(p_label);
 
-		// Create cell population
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
         cell_population.SetOutputCellMutationStates(true);
 
-		// Set up cell-based simulation
-		CellBasedSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestVertexMonolayerWithTwoMutationStates");
-		simulator.SetEndTime(1.0);
+        // Set up cell-based simulation
+        CellBasedSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestVertexMonolayerWithTwoMutationStates");
+        simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 
-		// Run simulation
-		simulator.Solve();
+        // Run simulation
+        simulator.Solve();
 
-		///\todo test against a saved simulation or something similar, i.e check the positions of some vertices.
-		TS_ASSERT_EQUALS(p_mesh->GetNode(13)->IsBoundaryNode(), true);
-		TS_ASSERT_EQUALS(p_mesh->GetNumElements(),4u);
-		TS_ASSERT_EQUALS(cells[0]->HasCellProperty<CellLabel>(), true);
+        ///\todo test against a saved simulation or something similar, i.e check the positions of some vertices.
+        TS_ASSERT_EQUALS(p_mesh->GetNode(13)->IsBoundaryNode(), true);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(),4u);
+        TS_ASSERT_EQUALS(cells[0]->HasCellProperty<CellLabel>(), true);
 
-		// Test Warnings
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
-		Warnings::QuietDestroy();
-	}
+        // Test Warnings
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), "Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
+        Warnings::QuietDestroy();
+    }
 
     void TestSingleCellRelaxationAndApoptosis() throw (Exception)
     {

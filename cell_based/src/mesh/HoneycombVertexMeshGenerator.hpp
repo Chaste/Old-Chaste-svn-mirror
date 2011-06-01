@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableVertexMesh.hpp"
 
 /**
- * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance 
+ * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance
  * between nodes) for use in vertex simulations.
- * 
+ *
  * NOTE: the user should delete the mesh after use to manage memory.
  */
 class HoneycombVertexMeshGenerator

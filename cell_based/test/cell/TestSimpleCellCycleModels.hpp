@@ -141,10 +141,10 @@ public:
         TS_ASSERT_DELTA(p_stem_model->GetStemCellG1Duration(), 14.0, 1e-9);
 
         p_stem_model->SetSDuration(7.4);
-		p_stem_model->SetG2Duration(1.4);
-		p_stem_model->SetMDuration(0.72);
-		p_stem_model->SetTransitCellG1Duration(9.4);
-		p_stem_model->SetStemCellG1Duration(9.4);
+        p_stem_model->SetG2Duration(1.4);
+        p_stem_model->SetMDuration(0.72);
+        p_stem_model->SetTransitCellG1Duration(9.4);
+        p_stem_model->SetStemCellG1Duration(9.4);
 
         TS_ASSERT_DELTA(p_stem_model->GetSDuration(), 7.4, 1e-9);
         TS_ASSERT_DELTA(p_stem_model->GetG2Duration(), 1.4, 1e-9);
@@ -185,9 +185,9 @@ public:
 
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-		unsigned num_steps = 100;
-		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-						2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), num_steps);
+        unsigned num_steps = 100;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+                        2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), num_steps);
 
         for (unsigned i=0; i<num_steps; i++)
         {

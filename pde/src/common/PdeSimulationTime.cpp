@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "PdeSimulationTime.hpp"
 
 double PdeSimulationTime::mTime;
@@ -41,7 +42,6 @@ double PdeSimulationTime::GetTime()
     return mTime;
 }
 
-
 void PdeSimulationTime::SetPdeTimeStep(double timestep)
 {
     mPdeTimeStep = timestep;
@@ -52,7 +52,6 @@ double PdeSimulationTime::GetPdeTimeStep()
 {
     return mPdeTimeStep;
 }
-
 
 double PdeSimulationTime::GetPdeTimeStepInverse()
 {

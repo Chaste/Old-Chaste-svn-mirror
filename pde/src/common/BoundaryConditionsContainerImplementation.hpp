@@ -340,29 +340,29 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         }
     }
 
-    if(applyToRhsVector)
+    if (applyToRhsVector)
     {
-        //Apply the RHS boundary conditions modification if required.
+        // Apply the RHS boundary conditions modification if required.
         if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
         {
             PetscVecTools::AddScaledVector(rLinearSystem.rGetRhsVector(), rLinearSystem.rGetDirichletBoundaryConditionsVector(), 1.0);
         }
-    
-        //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
-        //RHS vector.
+
+        // Apply the actual boundary condition to the RHS, note this must be done after the modification to the
+        // RHS vector.
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-    
+
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
-    
+
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
-    
+
                 rLinearSystem.SetRhsVectorElement(row, value);
-    
+
                 this->mDirichIterator++;
             }
         }

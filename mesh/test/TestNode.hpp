@@ -74,7 +74,7 @@ public:
         // This shouldn't give an error, even though we specify too many
         // coordinates: the 3rd coord should be ignored.
         Node<2> node3(2, true, 1.0, 2.0, 3.0);
-        
+
         double location[3];
         location[0]=100.0;
         location[1]=101.0;
@@ -97,13 +97,14 @@ public:
 
         TS_ASSERT_DELTA(node6.GetPoint()[2], location[2], 1e-12);
 
-        //test the node attributes
+        // Test the node attributes
         TS_ASSERT_EQUALS(node6.rGetNodeAttributes().size(),0u);
         double attribute = 54.98;
         node6.AddNodeAttribute(attribute);
         TS_ASSERT_EQUALS(node6.rGetNodeAttributes().size(),1u);
         TS_ASSERT_DELTA(node6.rGetNodeAttributes()[0],attribute, 1e-12);
-        //add another one
+
+        // Add another one
         node6.AddNodeAttribute(attribute*2);
         TS_ASSERT_EQUALS(node6.rGetNodeAttributes().size(),2u);
         TS_ASSERT_DELTA(node6.rGetNodeAttributes()[1],attribute*2, 1e-12);

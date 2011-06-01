@@ -125,7 +125,7 @@ public:
      * @param ghostSpringStiffness spring stiffness used to move the ghost nodes defaults to 15.0.
      */
     MeshBasedCellPopulationWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-								  double ghostSpringStiffness=15.0);
+                                  double ghostSpringStiffness=15.0);
 
     /**
      * Overridden UpdateNodeLocation() method.

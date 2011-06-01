@@ -108,7 +108,7 @@ protected:
     /**
      * Method that actually performs the solving on behalf of the public Solve methods.
      *
-     * @param rSolution  an ode solution to input data into if requited
+     * @param rSolution  an ODE solution to input data into if requited
      * @param pAbstractOdeSystem  the ODE system to solve
      * @param rCurrentYValues  the current (initial) state; results will also be returned in here
      * @param rWorkingMemory  working memory; same size as rCurrentYValues

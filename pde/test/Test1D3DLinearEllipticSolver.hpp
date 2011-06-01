@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "TrianglesMeshReader.hpp"
 
-// these are need for the nD problems in mD space (n!=m), as those
+// These are need for the nD problems in mD space (n!=m), as those
 // particular cases are not explicitly instantiated
 #include "AbstractBoundaryConditionsContainerImplementation.hpp"
 #include "BoundaryConditionsContainerImplementation.hpp"
@@ -132,6 +132,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 3u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 3u);
+
         // Instantiate PDE object
         SimplePoissonEquation<ELEMENT_DIM,SPACE_DIM> pde;
 

@@ -139,7 +139,7 @@ public:
 
     /**
      * Set method for mHypoxicConcentration.
-     * 
+     *
      * @param hypoxicConcentration the new value of mHypoxicConcentration
      */
     void SetHypoxicConcentration(double hypoxicConcentration);
@@ -151,7 +151,7 @@ public:
 
     /**
      * Set method for mQuiescentConcentration.
-     * 
+     *
      * @param quiescentConcentration the new value of mQuiescentConcentration
      */
     void SetQuiescentConcentration(double quiescentConcentration);
@@ -163,14 +163,14 @@ public:
 
     /**
      * Set method for mCriticalHypoxicDuration.
-     * 
+     *
      * @param criticalHypoxicDuration the new value of mCriticalHypoxicDuration
      */
     void SetCriticalHypoxicDuration(double criticalHypoxicDuration);
 
     /**
      * Set method for mCurrentHypoxiaOnsetTime.
-     * 
+     *
      * @param currentHypoxiaOnsetTime the new value of mCurrentHypoxiaOnsetTime
      */
     void SetCurrentHypoxiaOnsetTime(double currentHypoxiaOnsetTime);

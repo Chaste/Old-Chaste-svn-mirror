@@ -54,7 +54,7 @@ public:
         TS_ASSERT_DELTA(pde2.ComputeDuDtCoefficientFunction(zero2), 1.0, 1e-12);
         TS_ASSERT_DELTA(pde3.ComputeDuDtCoefficientFunction(zero3), 1.0, 1e-12);
 
-        // diffusion matrices should be equal to identity
+        // Diffusion matrices should be equal to identity
         c_matrix<double, 1, 1> diff1 = pde1.ComputeDiffusionTerm(zero1);
         c_matrix<double, 2, 2> diff2 = pde2.ComputeDiffusionTerm(zero2);
         c_matrix<double, 3, 3> diff3 = pde3.ComputeDiffusionTerm(zero3);

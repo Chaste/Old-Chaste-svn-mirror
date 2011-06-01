@@ -40,9 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
-					                                    std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
-					                                    bool deleteCellPopulationAndForceCollection,
-					                                    bool initialiseCells)
+                                                        std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
+                                                        bool deleteCellPopulationAndForceCollection,
+                                                        bool initialiseCells)
     : CellBasedSimulation<DIM>(rCellPopulation,
                                deleteCellPopulationAndForceCollection,
                                initialiseCells),
@@ -77,7 +77,7 @@ void CellBasedSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndB
 template<unsigned DIM>
 Vec CellBasedSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 {
-	assert(pdeIndex<mPdeAndBcCollection.size());
+    assert(pdeIndex<mPdeAndBcCollection.size());
     return mPdeAndBcCollection[pdeIndex]->GetSolution();
 }
 
@@ -135,7 +135,7 @@ void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleF
     assert(!mPdeAndBcCollection.empty());
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde());
+        assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde());
     }
 
     CreateCoarsePdeMesh(coarseGrainScaleFactor);
@@ -262,8 +262,8 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
 
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert(mPdeAndBcCollection[pde_index]);
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == false);
+        assert(mPdeAndBcCollection[pde_index]);
+        assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == false);
     }
 
     // Note: If not using a coarse PDE mesh, we MUST be using a MeshBasedCellPopulation
@@ -279,74 +279,74 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
         // Get pointer to this PdeAndBoundaryConditions object
         PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
 
-		// Set up boundary conditions
+        // Set up boundary conditions
         AbstractBoundaryCondition<DIM>* p_bc = p_pde_and_bc->GetBoundaryCondition();
 
-		BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
-		if (p_pde_and_bc->IsNeumannBoundaryCondition())
-		{
-			for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
-				 elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
-				 ++elem_iter)
-			{
-				bcc.AddNeumannBoundaryCondition(*elem_iter, p_bc);
-			}
-		}
-		else // assuming that if it's not Neumann, then it's Dirichlet
-		{
-			for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
-				 node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
-				 ++node_iter)
-			{
-				bcc.AddDirichletBoundaryCondition(*node_iter, p_bc);
-			}
-		}
+        BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
+        if (p_pde_and_bc->IsNeumannBoundaryCondition())
+        {
+            for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
+                 elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
+                 ++elem_iter)
+            {
+                bcc.AddNeumannBoundaryCondition(*elem_iter, p_bc);
+            }
+        }
+        else // assuming that if it's not Neumann, then it's Dirichlet
+        {
+            for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+                 node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
+                 ++node_iter)
+            {
+                bcc.AddDirichletBoundaryCondition(*node_iter, p_bc);
+            }
+        }
 
-		/*
-		 * Set up solver. This is a purpose-made elliptic solver which must
-		 * interpolate contributions to source terms from nodes onto Gauss points,
-		 * because the PDE solution is only stored at the cells (nodes).
-		 */
-		CellBasedSimulationWithPdesAssembler<DIM> solver(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
+        /*
+         * Set up solver. This is a purpose-made elliptic solver which must
+         * interpolate contributions to source terms from nodes onto Gauss points,
+         * because the PDE solution is only stored at the cells (nodes).
+         */
+        CellBasedSimulationWithPdesAssembler<DIM> solver(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
 
-		PetscInt size_of_soln_previous_step = 0;
+        PetscInt size_of_soln_previous_step = 0;
 
-		if (p_pde_and_bc->GetSolution())
-		{
-			VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
-		}
-		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
-		{
-			// We make an initial guess which gets copied by the Solve method of
-			// SimpleLinearSolver, so we need to delete it too.
-			Vec initial_guess;
-			VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
-			VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
+        if (p_pde_and_bc->GetSolution())
+        {
+            VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
+        }
+        if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+        {
+            // We make an initial guess which gets copied by the Solve method of
+            // SimpleLinearSolver, so we need to delete it too.
+            Vec initial_guess;
+            VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
+            VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
 
-			// Use current solution as the initial guess
-			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
-			VecDestroy(initial_guess);
-		}
-		else
-		{
-			if (p_pde_and_bc->GetSolution())
-			{
-				assert(size_of_soln_previous_step != 0);
-				p_pde_and_bc->DestroySolution();
-			}
-			p_pde_and_bc->SetSolution(solver.Solve());
-		}
+            // Use current solution as the initial guess
+            p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+            p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
+            VecDestroy(initial_guess);
+        }
+        else
+        {
+            if (p_pde_and_bc->GetSolution())
+            {
+                assert(size_of_soln_previous_step != 0);
+                p_pde_and_bc->DestroySolution();
+            }
+            p_pde_and_bc->SetSolution(solver.Solve());
+        }
 
-		ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
+        ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
 
-		// Update cellwise data
-		for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
-		{
-			double solution = solution_repl[i];
-			unsigned index = r_mesh.GetNode(i)->GetIndex();
-			CellwiseData<DIM>::Instance()->SetValue(solution, index, pde_index);
-		}
+        // Update cellwise data
+        for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+        {
+            double solution = solution_repl[i];
+            unsigned index = r_mesh.GetNode(i)->GetIndex();
+            CellwiseData<DIM>::Instance()->SetValue(solution, index, pde_index);
+        }
     }
 }
 
@@ -357,8 +357,8 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert(mPdeAndBcCollection[pde_index]);
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == true);
+        assert(mPdeAndBcCollection[pde_index]);
+        assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == true);
     }
 
     TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarsePdeMesh;
@@ -393,126 +393,126 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         // Get pointer to this PdeAndBoundaryConditions object
         PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
 
-		// Set up boundary conditions
+        // Set up boundary conditions
         AbstractBoundaryCondition<DIM>* p_bc = p_pde_and_bc->GetBoundaryCondition();
 
-		BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
-		if (p_pde_and_bc->IsNeumannBoundaryCondition())
-		{
+        BoundaryConditionsContainer<DIM,DIM,1> bcc(false);
+        if (p_pde_and_bc->IsNeumannBoundaryCondition())
+        {
             EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
-		}
-		else
-		{
-			// Get the set of coarse element indices that contain cells
-			std::set<unsigned> coarse_element_indices_in_map;
-			for (typename MeshBasedCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
-				cell_iter != this->mrCellPopulation.End();
-				++cell_iter)
-			{
-				coarse_element_indices_in_map.insert(mCellPdeElementMap[*cell_iter]);
-			}
+        }
+        else
+        {
+            // Get the set of coarse element indices that contain cells
+            std::set<unsigned> coarse_element_indices_in_map;
+            for (typename MeshBasedCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+                cell_iter != this->mrCellPopulation.End();
+                ++cell_iter)
+            {
+                coarse_element_indices_in_map.insert(mCellPdeElementMap[*cell_iter]);
+            }
 
-			// Find the node indices that associated with elements whose
-			// indices are NOT in the set coarse_element_indices_in_map
-			std::set<unsigned> coarse_mesh_boundary_node_indices;
+            // Find the node indices that associated with elements whose
+            // indices are NOT in the set coarse_element_indices_in_map
+            std::set<unsigned> coarse_mesh_boundary_node_indices;
 
-			for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
-			{
-				// If the element index is NOT in the set...
-				if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
-				{
-					// ... then get the element...
-					Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
+            for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+            {
+                // If the element index is NOT in the set...
+                if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
+                {
+                    // ... then get the element...
+                    Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
 
-					// ... and add its associated nodes to coarse_mesh_boundary_node_indices
-					for (unsigned local_index=0; local_index<DIM+1; local_index++)
-					{
-						unsigned node_index = p_element->GetNodeGlobalIndex(local_index);
-						coarse_mesh_boundary_node_indices.insert(node_index);
-					}
-				}
-			}
+                    // ... and add its associated nodes to coarse_mesh_boundary_node_indices
+                    for (unsigned local_index=0; local_index<DIM+1; local_index++)
+                    {
+                        unsigned node_index = p_element->GetNodeGlobalIndex(local_index);
+                        coarse_mesh_boundary_node_indices.insert(node_index);
+                    }
+                }
+            }
 
-			// Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
-			for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
-				 iter != coarse_mesh_boundary_node_indices.end();
-				 ++iter)
-			{
-				bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
-			}
-		}
+            // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
+            for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
+                 iter != coarse_mesh_boundary_node_indices.end();
+                 ++iter)
+            {
+                bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
+            }
+        }
 
-		PetscInt size_of_soln_previous_step = 0;
+        PetscInt size_of_soln_previous_step = 0;
 
-		if (p_pde_and_bc->GetSolution())
-		{
-			VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
-		}
+        if (p_pde_and_bc->GetSolution())
+        {
+            VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
+        }
 
-		p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
+        p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
 
-		SimpleLinearEllipticSolver<DIM,DIM> solver(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
+        SimpleLinearEllipticSolver<DIM,DIM> solver(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 
-		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
-		{
-			// We make an initial guess which gets copied by the Solve method of
-			// SimpleLinearSolver, so we need to delete it too.
-			Vec initial_guess;
-			VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
-			VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
+        if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+        {
+            // We make an initial guess which gets copied by the Solve method of
+            // SimpleLinearSolver, so we need to delete it too.
+            Vec initial_guess;
+            VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
+            VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
 
-			// Use current solution as the initial guess
-			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
-			VecDestroy(initial_guess);
-		}
-		else
-		{
-			/*
-			 * Eventually we will enable the coarse PDE mesh to change size, for example
-			 * in the case of a spheroid that grows a lot (see #630). In this case we should
-			 * uncomment the following code.
-			 *
-			if (mCurrentPdeSolution)
-			{
-				assert(0);
-				VecDestroy(mCurrentPdeSolution);
-			}
-			*
-			*/
-			p_pde_and_bc->SetSolution(solver.Solve());
-		}
+            // Use current solution as the initial guess
+            p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+            p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
+            VecDestroy(initial_guess);
+        }
+        else
+        {
+            /*
+             * Eventually we will enable the coarse PDE mesh to change size, for example
+             * in the case of a spheroid that grows a lot (see #630). In this case we should
+             * uncomment the following code.
+             *
+            if (mCurrentPdeSolution)
+            {
+                assert(0);
+                VecDestroy(mCurrentPdeSolution);
+            }
+            *
+            */
+            p_pde_and_bc->SetSolution(solver.Solve());
+        }
 
-		/*
-		 * Update cellwise data - since the cells are not nodes on the coarse
-		 * mesh, we have to interpolate from the nodes of the coarse mesh onto
-		 * the cell locations.
-		 */
-		ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
+        /*
+         * Update cellwise data - since the cells are not nodes on the coarse
+         * mesh, we have to interpolate from the nodes of the coarse mesh onto
+         * the cell locations.
+         */
+        ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
 
-		for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
-			cell_iter != this->mrCellPopulation.End();
-			++cell_iter)
-		{
-			// Find coarse mesh element containing cell
-			unsigned elem_index = FindCoarseElementContainingCell(*cell_iter);
+        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+            cell_iter != this->mrCellPopulation.End();
+            ++cell_iter)
+        {
+            // Find coarse mesh element containing cell
+            unsigned elem_index = FindCoarseElementContainingCell(*cell_iter);
 
-			Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
+            Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
 
-			const ChastePoint<DIM>& r_position_of_cell = this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+            const ChastePoint<DIM>& r_position_of_cell = this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
-			c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
+            c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
-			double interpolated_solution = 0.0;
-			for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
-			{
-				double nodal_value = solution_repl[ p_element->GetNodeGlobalIndex(i) ];
-				interpolated_solution += nodal_value*weights(i);
-			}
+            double interpolated_solution = 0.0;
+            for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
+            {
+                double nodal_value = solution_repl[ p_element->GetNodeGlobalIndex(i) ];
+                interpolated_solution += nodal_value*weights(i);
+            }
 
-			unsigned index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
-			CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index,pde_index);
-		}
+            unsigned index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+            CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index,pde_index);
+        }
     }
 }
 
@@ -693,11 +693,11 @@ void CellBasedSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t<WriteAverageRadialPdeSolution>" << mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
-	*rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>" << mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
+    *rParamsFile << "\t\t<WriteAverageRadialPdeSolution>" << mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
+    *rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>" << mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
 
-	// Call method on direct parent class
-	CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
+    // Call method on direct parent class
+    CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////

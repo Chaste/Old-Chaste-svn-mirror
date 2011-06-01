@@ -56,11 +56,11 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
     ///\todo we should be able to do this, but mBoundaryNodes is not used in vertex meshes (#1558)
     if (!contains_boundary_nodes)
     {
-    	EXCEPTION("No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");
+        EXCEPTION("No boundary nodes are defined in the supplied vertex mesh which are needed for vertex based simulations.");
     }
 
     // Check each element has only one cell attached
-	 if (validate)
+     if (validate)
     {
         Validate();
     }
@@ -259,8 +259,8 @@ void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_ve
          */
         if (norm_2(displacement) > 0.5*mrMesh.GetCellRearrangementThreshold())
         {
-        	WARN_ONCE_ONLY("Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
-        	displacement *= 0.5*mrMesh.GetCellRearrangementThreshold()/norm_2(displacement);
+            WARN_ONCE_ONLY("Vertices are moving more than half the CellRearrangementThreshold. This could cause elements to become inverted so the motion has been restricted. Use a smaller timestep to avoid these warnings.");
+            displacement *= 0.5*mrMesh.GetCellRearrangementThreshold()/norm_2(displacement);
         }
 
         // Get new node location
@@ -291,7 +291,7 @@ void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 
     if (!element_map.IsIdentityMap())
     {
-    	// Fix up the mappings between CellPtrs and VertexElements
+        // Fix up the mappings between CellPtrs and VertexElements
         std::map<Cell*, unsigned> old_map = this->mCellLocationMap;
 
         this->mCellLocationMap.clear();
@@ -306,20 +306,20 @@ void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 
             if (element_map.IsDeleted(old_elem_index))
             {
-            	/**
-            	 * \todo this is a kludge to remove the cell once a T2Swap occurs this is not included in the dead cells counter.
-            	 * This should be included in the RemoveDeadCells method so the death is counted
-            	 */
-            	WARNING("Cell removed due to T2Swap this is not counted in the dead cells counter");
-            	cell_iter = this->mCells.erase(cell_iter);
-            	--cell_iter;
+                /**
+                 * \todo this is a kludge to remove the cell once a T2Swap occurs this is not included in the dead cells counter.
+                 * This should be included in the RemoveDeadCells method so the death is counted
+                 */
+                WARNING("Cell removed due to T2Swap this is not counted in the dead cells counter");
+                cell_iter = this->mCells.erase(cell_iter);
+                --cell_iter;
             }
             else
             {
-				unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
+                unsigned new_elem_index = element_map.GetNewIndex(old_elem_index);
 
-				this->mLocationCellMap[new_elem_index] = *cell_iter;
-				this->mCellLocationMap[(*cell_iter).get()] = new_elem_index;
+                this->mLocationCellMap[new_elem_index] = *cell_iter;
+                this->mCellLocationMap[(*cell_iter).get()] = new_elem_index;
             }
         }
 
@@ -334,7 +334,7 @@ void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::Validate()
 {
-	// Check each element has only one cell attached
+    // Check each element has only one cell attached
     std::vector<unsigned> validated_element = std::vector<unsigned>(this->GetNumElements(), 0);
 
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
@@ -374,13 +374,13 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     // Write Locations of T1Swaps to file
     *mpT1SwapLocationsFile << p_time->GetTime() << "\t";
     std::vector< c_vector<double, DIM> > t1_swap_locations = mrMesh.GetLocationsOfT1Swaps();
-	*mpT1SwapLocationsFile << t1_swap_locations.size() << "\t";
+    *mpT1SwapLocationsFile << t1_swap_locations.size() << "\t";
     for (unsigned index = 0;  index < t1_swap_locations.size(); index++)
     {
-		for (unsigned i=0; i<DIM; i++)
-		{
-			*mpT1SwapLocationsFile << t1_swap_locations[index][i] << "\t";
-		}
+        for (unsigned i=0; i<DIM; i++)
+        {
+            *mpT1SwapLocationsFile << t1_swap_locations[index][i] << "\t";
+        }
     }
     *mpT1SwapLocationsFile << "\n";
     mrMesh.ClearLocationsOfT1Swaps();
@@ -388,13 +388,13 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     // Write Locations of T3Swaps to file
     *mpT3SwapLocationsFile << p_time->GetTime() << "\t";
     std::vector< c_vector<double, DIM> > t3_swap_locations = mrMesh.GetLocationsOfT3Swaps();
-	*mpT3SwapLocationsFile << t3_swap_locations.size() << "\t";
+    *mpT3SwapLocationsFile << t3_swap_locations.size() << "\t";
     for (unsigned index = 0;  index < t3_swap_locations.size(); index++)
     {
-		for (unsigned i=0; i<DIM; i++)
-		{
-			*mpT3SwapLocationsFile << t3_swap_locations[index][i] << "\t";
-		}
+        for (unsigned i=0; i<DIM; i++)
+        {
+            *mpT3SwapLocationsFile << t3_swap_locations[index][i] << "\t";
+        }
     }
     *mpT3SwapLocationsFile << "\n";
     mrMesh.ClearLocationsOfT3Swaps();
@@ -407,32 +407,32 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
          cell_iter != this->mCells.end();
          ++cell_iter)
     {
-    	unsigned elem_index = this->GetLocationIndexUsingCell(*cell_iter);
+        unsigned elem_index = this->GetLocationIndexUsingCell(*cell_iter);
 
-    	// Hack that covers the case where the element is associated with a cell that has just been killed (#1129)
-		bool elem_corresponds_to_dead_cell = false;
+        // Hack that covers the case where the element is associated with a cell that has just been killed (#1129)
+        bool elem_corresponds_to_dead_cell = false;
 
-		if (this->mLocationCellMap[elem_index])
-		{
-			elem_corresponds_to_dead_cell = this->mLocationCellMap[elem_index]->IsDead();
-		}
+        if (this->mLocationCellMap[elem_index])
+        {
+            elem_corresponds_to_dead_cell = this->mLocationCellMap[elem_index]->IsDead();
+        }
 
-		// Write node data to file
-		if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
-		{
-			VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(elem_index);
+        // Write node data to file
+        if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
+        {
+            VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(elem_index);
 
-			unsigned num_nodes_in_element = p_element->GetNumNodes();
+            unsigned num_nodes_in_element = p_element->GetNumNodes();
 
-			// First write the number of Nodes belonging to this VertexElement
-			*mpVizElementsFile << num_nodes_in_element << " ";
+            // First write the number of Nodes belonging to this VertexElement
+            *mpVizElementsFile << num_nodes_in_element << " ";
 
-			// Then write the global index of each Node in this element
-			for (unsigned i=0; i<num_nodes_in_element; i++)
-			{
-				*mpVizElementsFile << p_element->GetNodeGlobalIndex(i) << " ";
-			}
-		}
+            // Then write the global index of each Node in this element
+            for (unsigned i=0; i<num_nodes_in_element; i++)
+            {
+                *mpVizElementsFile << p_element->GetNodeGlobalIndex(i) << " ";
+            }
+        }
     }
     *mpVizElementsFile << "\n";
 
@@ -689,8 +689,8 @@ void VertexBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& 
     *rParamsFile << "\t\t<T2Threshold>" <<  mrMesh.GetT2Threshold() << "</T2Threshold> \n";
     *rParamsFile << "\t\t<CellRearrangementRatio>" << mrMesh.GetCellRearrangementRatio() << "</CellRearrangementRatio> \n";
 
-	// Call method on direct parent class
-	AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 template<unsigned DIM>

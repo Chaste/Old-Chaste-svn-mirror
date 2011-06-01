@@ -163,7 +163,7 @@ void BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstract
                                                     std::vector<double>& rCurrentYValues,
                                                     std::vector<double>& rNextYValues)
 {
-    // check the size of the ode system matches the solvers expected
+    // Check the size of the ODE system matches the solvers expected
     assert(mSizeOfOdeSystem == pAbstractOdeSystem->GetNumberOfStateVariables());
 
     unsigned counter = 0;

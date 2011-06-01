@@ -199,7 +199,7 @@ ElementData VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNextElementData()
         EXCEPTION( "Trying to read data for an element that doesn't exist" );
     }
 
-    if( !mpVtkUnstructuredGrid->GetCell(mElementsRead)->IsA("vtkTetra") )
+    if ( !mpVtkUnstructuredGrid->GetCell(mElementsRead)->IsA("vtkTetra") )
     {
         EXCEPTION("Element is not a vtkTetra");
     }

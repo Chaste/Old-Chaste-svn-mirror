@@ -165,7 +165,7 @@ private:
      * This method should only ever be called by the public ReMesh() method.
      *
      * @param nodeIndex  The index of an original/mirrored node
-     * @return the index of the corresponding mirror image of that node 
+     * @return the index of the corresponding mirror image of that node
      *         (can be either an original or mirror node)
      */
     unsigned GetCorrespondingNodeIndex(unsigned nodeIndex);
@@ -192,7 +192,7 @@ private:
      * by each ReMesh() call so they do not need to be archived.
      *
      * @param archive the archive
-     * @param version the current version of this class the current version 
+     * @param version the current version of this class the current version
      *                of this class
      */
     template<class Archive>
@@ -229,7 +229,7 @@ public:
 
     /**
      * Overridden ReMesh() method.
-     * 
+     *
      * Conduct a cylindrical remesh by calling CreateMirrorNodes() to create
      * mirror image nodes, then calling ReMesh() on the parent class, then
      * mapping the new node indices and calling ReconstructCylindricalMesh()
@@ -241,7 +241,7 @@ public:
 
     /**
      * Overridden GetVectorFromAtoB() method.
-     * 
+     *
      * Evaluates the (surface) distance between two points in a 2D cylindrical
      * geometry.
      *
@@ -256,7 +256,7 @@ public:
      *
      * If the location should be set outside a cylindrical boundary, it is moved
      * back onto the cylinder.
-     * 
+     *
      * @param index is the index of the node to be moved
      * @param point is the new target location of the node
      * @param concreteMove is set to false if we want to skip the signed area tests
@@ -265,7 +265,7 @@ public:
 
     /**
      * Overridden GetWidth() method.
-     * 
+     *
      * Calculate the 'width' of any dimension of the mesh, taking periodicity
      * into account.
      *

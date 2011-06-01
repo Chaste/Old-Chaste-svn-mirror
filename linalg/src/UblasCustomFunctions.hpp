@@ -82,7 +82,7 @@ template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,2>& rM)
 {
     using namespace boost::numeric::ublas;
-    
+
     return rM(0,0)*rM(1,1) - rM(1,0)*rM(0,1);
 }
 /**
@@ -186,11 +186,11 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM)
  * 1x1 SubDeterminant
  * Return the determinant of a submatrix after removing a particular row and column
  * For a 1x1 matrix this should always remove the only row and column (0,0).
- * 
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
- * 
+ *
  */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 1>& rM, const unsigned missrow, const unsigned misscol)
@@ -206,11 +206,11 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 1>& rM, const unsig
 /**
  * 2x2 SubDeterminant
  * Return the determinant of a submatrix after removing a particular row and column
- * 
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
- * 
+ *
  */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 2, 2>& rM, const unsigned missrow, const unsigned misscol)
@@ -365,7 +365,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM, const unsig
 /**
  * 1x1 Inverse
  * Get the inverse of a ublas matrix
- * 
+ *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */
@@ -384,7 +384,7 @@ boost::numeric::ublas::c_matrix<T, 1, 1> Inverse(const boost::numeric::ublas::c_
 /**
  * 2x2 Inverse
  * Get the inverse of a ublas matrix
- * 
+ *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */
@@ -407,7 +407,7 @@ boost::numeric::ublas::c_matrix<T, 2, 2> Inverse(const boost::numeric::ublas::c_
 /**
  * 3x3 Inverse
  * Get the inverse of a ublas matrix
- * 
+ *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */

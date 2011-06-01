@@ -352,8 +352,8 @@ void MeshBasedCellPopulation<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
 template<unsigned DIM>
 CellPtr MeshBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell)
 {
-	assert(pNewCell);
-	assert(pParentCell);
+    assert(pNewCell);
+    assert(pParentCell);
 
     // Add new cell to cell population
     CellPtr p_created_cell = AbstractCentreBasedCellPopulation<DIM>::AddCell(pNewCell, rCellDivisionVector, pParentCell);
@@ -508,7 +508,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     if (mWriteVtkAsPoints)
     {
         VtkMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results_"+time.str(), false);
-    
+
         // Loop over cells
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
              cell_iter != this->End();
@@ -516,7 +516,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
         {
             // Get the node index corresponding to this cell
             unsigned node_index = this->GetLocationIndexUsingCell(*cell_iter);
-    
+
             // Get this cell-cycle model
             AbstractCellCycleModel* p_model = cell_iter->GetCellCycleModel();
 
@@ -590,7 +590,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
                 Node<DIM>* p_node = mrMesh.GetNode(index);
                 nodes.push_back(p_node);
             }
-            
+
             NodesOnlyMesh<DIM> mesh;
             mesh.ConstructNodesWithoutMesh(nodes);
             mesh_writer.WriteFilesUsingMesh(mesh);
@@ -606,7 +606,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     {
         VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
         std::vector<double> cell_volumes(num_points);
-    
+
         // Loop over elements of mpVoronoiTessellation
         for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
              elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
@@ -614,19 +614,19 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
         {
             // Get index of this element in mpVoronoiTessellation
             unsigned elem_index = elem_iter->GetIndex();
-    
+
             // Get the index of the corresponding node in mrMesh
             unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
-    
+
             // There should be no ghost nodes
             assert(!this->IsGhostNode(node_index));
-    
+
             // Get the cell corresponding to this element
             CellPtr p_cell = this->mLocationCellMap[node_index];
 
             // Get this cell-cycle model
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
-    
+
             if (this->mOutputCellAncestors)
             {
                 double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
@@ -661,7 +661,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
                 }
             }
         }
-    
+
         if (this->mOutputCellProliferativeTypes)
         {
             mesh_writer.AddCellData("Cell types", cell_types);
@@ -696,7 +696,7 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
                 mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
             }
         }
-    
+
         mesh_writer.WriteVtkUsingMesh(*mpVoronoiTessellation, time.str());
         *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
         *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
@@ -941,7 +941,7 @@ void MeshBasedCellPopulation<2>::CreateVoronoiTessellation()
     bool is_mesh_periodic = false;
     if (dynamic_cast<Cylindrical2dMesh*>(&mrMesh))
     {
-    	is_mesh_periodic = true;
+        is_mesh_periodic = true;
     }
 
     mpVoronoiTessellation = new VertexMesh<2, 2>(mrMesh, is_mesh_periodic);
@@ -1084,8 +1084,8 @@ void MeshBasedCellPopulation<DIM>::CheckCellPointers()
 template<unsigned DIM>
 std::pair<CellPtr,CellPtr> MeshBasedCellPopulation<DIM>::CreateCellPair(CellPtr pCell1, CellPtr pCell2)
 {
-	assert(pCell1);
-	assert(pCell2);
+    assert(pCell1);
+    assert(pCell2);
 
     std::pair<CellPtr,CellPtr> cell_pair;
 
@@ -1105,8 +1105,8 @@ std::pair<CellPtr,CellPtr> MeshBasedCellPopulation<DIM>::CreateCellPair(CellPtr 
 template<unsigned DIM>
 bool MeshBasedCellPopulation<DIM>::IsMarkedSpring(const std::pair<CellPtr,CellPtr>& rCellPair)
 {
-	// the pair should be ordered like this (CreateCellPair will ensure this)
-	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
+    // the pair should be ordered like this (CreateCellPair will ensure this)
+    assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
 
     return mMarkedSprings.find(rCellPair) != mMarkedSprings.end();
 }
@@ -1114,19 +1114,19 @@ bool MeshBasedCellPopulation<DIM>::IsMarkedSpring(const std::pair<CellPtr,CellPt
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::MarkSpring(std::pair<CellPtr,CellPtr>& rCellPair)
 {
-	// the pair should be ordered like this (CreateCellPair will ensure this)
-	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
+    // the pair should be ordered like this (CreateCellPair will ensure this)
+    assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
 
-	mMarkedSprings.insert(rCellPair);
+    mMarkedSprings.insert(rCellPair);
 }
 
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::UnmarkSpring(std::pair<CellPtr,CellPtr>& rCellPair)
 {
-	// the pair should be ordered like this (CreateCellPair will ensure this)
-	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
+    // the pair should be ordered like this (CreateCellPair will ensure this)
+    assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
 
-	mMarkedSprings.erase(rCellPair);
+    mMarkedSprings.erase(rCellPair);
 }
 
 template<unsigned DIM>
@@ -1169,13 +1169,13 @@ void MeshBasedCellPopulation<DIM>::SetOutputCellPopulationVolumes(bool outputCel
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t<UseAreaBasedDampingConstant>" << mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant> \n";
+    *rParamsFile << "\t\t<UseAreaBasedDampingConstant>" << mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant> \n";
     *rParamsFile << "\t\t<AreaBasedDampingConstantParameter>" <<  mAreaBasedDampingConstantParameter << "</AreaBasedDampingConstantParameter> \n";
-	*rParamsFile << "\t\t<OutputVoronoiData>" <<  mOutputVoronoiData << "</OutputVoronoiData> \n";
-	*rParamsFile << "\t\t<OutputCellPopulationVolumes>" << mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes> \n";
+    *rParamsFile << "\t\t<OutputVoronoiData>" <<  mOutputVoronoiData << "</OutputVoronoiData> \n";
+    *rParamsFile << "\t\t<OutputCellPopulationVolumes>" << mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes> \n";
 
-	// Call method on direct parent class
-	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 template<unsigned DIM>

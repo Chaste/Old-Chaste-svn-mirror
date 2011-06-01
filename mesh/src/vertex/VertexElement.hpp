@@ -120,7 +120,7 @@ public:
     /**
      * Constructor used to specify the element completely. This ensures that
      * the nodes and faces are owned by the element *in a specified order*.
-     * See #1076 and #1377 for more details. 
+     * See #1076 and #1377 for more details.
      *
      * @param index global index of the element
      * @param rFaces vector of faces associated with the element

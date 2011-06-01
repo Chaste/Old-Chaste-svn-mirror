@@ -81,7 +81,7 @@ public:
         }
 #endif //CHASTE_VTK
     }
-    
+
     void TestSequentialMeshCannotWriteParallelFiles() throw(Exception)
     {
 #ifdef CHASTE_VTK
@@ -91,10 +91,10 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
-        
-        TS_ASSERT_THROWS_THIS( writer.SetParallelFiles(mesh), 
+
+        TS_ASSERT_THROWS_THIS( writer.SetParallelFiles(mesh),
                                "Cannot write parallel files using a sequential mesh");
-#endif //CHASTE_VTK        
+#endif //CHASTE_VTK
     }
 
     void TestParallelVtkMeshWriter() throw(Exception)
@@ -104,9 +104,9 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
-        
+
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements_with_data");
-        
+
         writer.SetParallelFiles(mesh);
 
         // Add distance from origin into the node "point" data
@@ -118,7 +118,7 @@ public:
             distance.push_back(norm_2(node_iter->rGetLocation()));
         }
         writer.AddPointData("Distance from origin", distance);
-        
+
         // Add location (vector) to "point" data
         std::vector< c_vector<double, 3> > location;
         for (DistributedTetrahedralMesh<3,3>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
@@ -128,7 +128,7 @@ public:
             location.push_back(node_iter->rGetLocation());
         }
         writer.AddPointData("Location", location);
-        
+
         // Add element quality into the element "cell" data
         std::vector<double> quality;
         for (DistributedTetrahedralMesh<3,3>::ElementIterator ele_iter = mesh.GetElementIteratorBegin();
@@ -138,7 +138,7 @@ public:
             quality.push_back(ele_iter->CalculateQuality());
         }
         writer.AddCellData("Quality", quality);
-    
+
         // Add fibre type to "cell" data
         std::vector< c_vector<double, 3> > centroid;
         for (DistributedTetrahedralMesh<3,3>::ElementIterator ele_iter = mesh.GetElementIteratorBegin();
@@ -150,41 +150,43 @@ public:
         writer.AddCellData("Centroid", centroid);
 
         writer.WriteFilesUsingMesh(mesh);
-        
+
         PetscTools::Barrier("Wait for files to be written");
-        
+
         std::stringstream filepath;
         filepath << OutputFileHandler::GetChasteTestOutputDirectory() << "TestVtkMeshWriter/cube_2mm_12_elements_with_data";
-         //Add suffix to VTK vtu file.
+        // Add suffix to VTK vtu file
         if (PetscTools::IsSequential())
         {
             filepath <<  ".vtu";
         }
         else
         {
-            //Check that the pvtu file exists.  Note that checking its content is hard because the number of processes (.vtu file
-            //references) will vary
-            FileFinder vtk_file(filepath.str() + ".pvtu", RelativeTo::Absolute); 
-            TS_ASSERT(vtk_file.Exists()); 
-            //Add suffix to VTK vtu file
+            /*
+             * Check that the pvtu file exists. Note that checking its content is hard
+             * because the number of processes (.vtu file references) will vary.
+             */
+            FileFinder vtk_file(filepath.str() + ".pvtu", RelativeTo::Absolute);
+            TS_ASSERT(vtk_file.Exists());
+            // Add suffix to VTK vtu file
             filepath << "_" << PetscTools::GetMyRank() << ".vtu";
         }
-        {        
-            //Check that the reader can see it
+        {
+            // Check that the reader can see it
             VtkMeshReader<3,3> vtk_reader(filepath.str());
             TS_ASSERT_EQUALS(vtk_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes());
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumLocalElements());
-            
-            //Check that it has the correct data
+
+            // Check that it has the correct data
             std::vector<double> distance_read;
             vtk_reader.GetPointData("Distance from origin", distance_read);
             TS_ASSERT_EQUALS(distance.size(), mesh.GetNumLocalNodes() );
             TS_ASSERT_EQUALS(distance_read.size(), mesh.GetNumLocalNodes()  + mesh.GetNumHaloNodes());
-            
+
             for (unsigned i=0; i<distance.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
-            } 
+            }
 
             std::vector<c_vector<double,3> > location_read;
             vtk_reader.GetPointData("Location", location_read);
@@ -218,11 +220,10 @@ public:
                     TS_ASSERT_EQUALS(centroid[i][j], centroid_read[i][j]);
                 }
             }
-
         }
 #endif //CHASTE_VTK
     }
-            
+
     void TestParallelVtkMeshWriter2d() throw(Exception)
     {
 #ifdef CHASTE_VTK
@@ -235,13 +236,12 @@ public:
         writer.SetParallelFiles(mesh);
         // Add distance from origin into the node "point" data
         std::vector<double> rank;
-        //Real rank for the owned nodes
+        // Real rank for the owned nodes
         for (unsigned i=0; i<mesh.GetNumLocalNodes(); i++)
         {
             rank.push_back(PetscTools::GetMyRank());
         }
         writer.AddPointData("Process rank", rank);
-
 
         writer.WriteFilesUsingMesh(mesh);
 
@@ -249,29 +249,30 @@ public:
 
         std::stringstream filepath;
         filepath << OutputFileHandler::GetChasteTestOutputDirectory() << "TestVtkMeshWriter/2D_0_to_1mm_200_elements_parallel_data";
-         //Add suffix to VTK vtu file.
+        // Add suffix to VTK vtu file.
         if (PetscTools::IsSequential())
         {
             filepath <<  ".vtu";
         }
         else
         {
-            //Check that the pvtu file exists.  Note that checking its content is hard because the number of processes (.vtu file
-            //references) will vary
-            FileFinder vtk_file(filepath.str() + ".pvtu", RelativeTo::Absolute); 
-            TS_ASSERT(vtk_file.Exists()); 
-            //Add suffix to VTK vtu file
+            /*
+             * Check that the pvtu file exists. Note that checking its content is hard
+             * because the number of processes (.vtu file references) will vary.
+             */
+            FileFinder vtk_file(filepath.str() + ".pvtu", RelativeTo::Absolute);
+            TS_ASSERT(vtk_file.Exists());
+            // Add suffix to VTK vtu file
             filepath << "_" << PetscTools::GetMyRank() << ".vtu";
         }
 
-
-        {        
-            //Check that the reader can see it
+        {
+            // Check that the reader can see it
             VtkMeshReader<2,2> vtk_reader(filepath.str());
             TS_ASSERT_EQUALS(vtk_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes());
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumLocalElements());
-            
-            //Check that it has the correct data
+
+            // Check that it has the correct data
             std::vector<double> rank_read;
             vtk_reader.GetPointData("Process rank", rank_read);
             TS_ASSERT_EQUALS(rank.size(), mesh.GetNumLocalNodes() );
@@ -280,7 +281,7 @@ public:
             {
                 TS_ASSERT_EQUALS(rank[i], rank_read[i]);
                 TS_ASSERT_EQUALS(rank_read[i], PetscTools::GetMyRank());
-            } 
+            }
         }
 #endif //CHASTE_VTK
     }
@@ -331,19 +332,19 @@ public:
         writer.WriteFilesUsingMesh(mesh);
         //13K uncompressed, 3.7K compressed
 
-        {        
-            //Check that the reader can see it
+        {
+            // Check that the reader can see it
             VtkMeshReader<2,2> vtk_reader(OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/2D_0_to_1mm_200_elements.vtu");
             TS_ASSERT_EQUALS(vtk_reader.GetNumNodes(), mesh.GetNumNodes());
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
-            
-            //Check that it has the correct data
-           std::vector<double> distance_read;
-           vtk_reader.GetPointData("Distance from origin", distance_read);
+
+            // Check that it has the correct data
+            std::vector<double> distance_read;
+            vtk_reader.GetPointData("Distance from origin", distance_read);
             for (unsigned i=0; i<distance_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
-            } 
+            }
             std::vector<c_vector<double,2> > location_read;
             vtk_reader.GetPointData("Location", location_read);
             for (unsigned i=0; i<location_read.size(); i++)
@@ -371,7 +372,6 @@ public:
         }
 #endif //CHASTE_VTK
     }
-
 
     void TestVtkMeshWriterWithData() throw(Exception)
     {
@@ -419,31 +419,30 @@ public:
         //32K uncompressed, 19K compressed
 
 
-        {        
-            //Check that the reader can see it
+        {
+            // Check that the reader can see it
             VtkMeshReader<3,3> vtk_reader(OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/heart_decimation.vtu");
             TS_ASSERT_EQUALS(vtk_reader.GetNumNodes(), mesh.GetNumNodes());
             TS_ASSERT_EQUALS(vtk_reader.GetNumElements(), mesh.GetNumElements());
-            
-            //Check that it has the correct data
+
+            // Check that it has the correct data
             std::vector<double> distance_read;
             vtk_reader.GetPointData("Distance from origin", distance_read);
             for (unsigned i=0; i<distance_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(distance[i], distance_read[i]);
-            } 
+            }
             std::vector<double> quality_read;
             vtk_reader.GetCellData("Quality", quality_read);
             for (unsigned i=0; i<quality_read.size(); i++)
             {
                 TS_ASSERT_EQUALS(quality[i], quality_read[i]);
             }
-            
+
             std::vector<c_vector<double,3> > centroid_read;
             vtk_reader.GetCellData("Centroid", centroid_read);
             TS_ASSERT_EQUALS(centroid_read.size(),centroid.size());
-            ///\todo #1731 - need to read the tensors too. 
-
+            ///\todo #1731 - need to read the tensors too.
         }
 #endif //CHASTE_VTK
     }

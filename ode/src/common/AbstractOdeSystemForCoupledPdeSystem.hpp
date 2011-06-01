@@ -35,19 +35,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Represents an ODE system of the form
- * 
+ *
  * d/dt (v_j) = g_j(x, u_1, ..., u_p, v_1, ..., v_q),  j=1,...,q,
- * 
+ *
  * where the variables u_1, ..., u_p are assumed to satisfy a coupled PDE system of the form
- * 
+ *
  * d/dt (u_i) = div (D(x) grad (u_i)) + f_i (x, u_1, ..., u_p, v_1, ..., v_q),  i=1,...,p.
- * 
+ *
  * Such systems may be solved using LinearParabolicPdeSystemWithCoupledOdeSystemSolver.
  */
 class AbstractOdeSystemForCoupledPdeSystem : public AbstractOdeSystem
 {
 protected:
-    
+
     /**
      * Current solution to the PDE problem.
      */
@@ -55,7 +55,7 @@ protected:
 
     /**
      * The size of the PDE solution at a point in space.
-     */ 
+     */
     unsigned mPdeSolutionSize;
 
 public:
@@ -84,7 +84,7 @@ public:
 
     /**
      * Set mPdeSolution.
-     * 
+     *
      * @param pdeSolution the PDE solution at a point in space
      */
     void SetPdeSolution(std::vector<double> pdeSolution)

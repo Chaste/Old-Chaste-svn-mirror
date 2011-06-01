@@ -106,18 +106,18 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
-        // Create a mesh writer pointing to the correct file and directory.
+        // Create a mesh writer pointing to the correct file and directory
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
                                                                false);
-        //Binary meshes have similar content to the original Triangle/Tetgen format, but take up less space on disk
+        // Binary meshes have similar content to the original Triangle/Tetgen format, but take up less space on disk
         mesh_writer.SetWriteFilesAsBinary();
 
-        // Archive the mesh permutation, so we can just copy the original mesh files whenever possible.
+        // Archive the mesh permutation, so we can just copy the original mesh files whenever possible
         bool permutation_available = (this->rGetNodePermutation().size() != 0);
         archive & permutation_available;
 
-        if( permutation_available )
+        if (permutation_available)
         {
             const std::vector<unsigned>& rPermutation = this->rGetNodePermutation();
             archive & rPermutation;
@@ -176,11 +176,11 @@ private:
         bool permutation_available=false;
         std::vector<unsigned> permutation;
 
-        if(version>0)
+        if (version > 0)
         {
             archive & permutation_available;
 
-            if( permutation_available )
+            if (permutation_available)
             {
                 archive & permutation;
             }
@@ -189,6 +189,7 @@ private:
         // Store the DistributedVectorFactory loaded from the archive
         DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
         this->mpDistributedVectorFactory = NULL;
+
         // Check whether we're migrating, or if we can use the original partition for the mesh
         DistributedVectorFactory* p_our_factory = NULL;
         if (p_factory)
@@ -209,7 +210,7 @@ private:
 
         if (mMeshIsLinear)
         {
-            //I am a linear mesh
+            // I am a linear mesh
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
 
             if (permutation_available)
@@ -221,7 +222,7 @@ private:
         }
         else
         {
-            //I am a quadratic mesh and need quadratic information from the reader
+            // I am a quadratic mesh and need quadratic information from the reader
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename(), 2, 2);
             this->ConstructFromMeshReader(mesh_reader);
         }
@@ -251,7 +252,6 @@ private:
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-
 protected:  // Give access of these variables to subclasses
 
     /** Vector of pointers to elements in the mesh. */
@@ -268,6 +268,7 @@ protected:  // Give access of these variables to subclasses
      * an element is "owned" if one or more of its nodes are owned
      */
     void SetElementOwnerships();
+
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -334,7 +335,7 @@ public:
 
     /**
      * Get the number of cable elements that are actually in use.
-     * 
+     *
      * This will always return zero until overridden in the MixedDimensionMesh class
      */
     virtual unsigned GetNumCableElements() const;

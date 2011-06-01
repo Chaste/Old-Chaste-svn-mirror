@@ -90,7 +90,7 @@ private:
     }
 
 protected:
-#define COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
+#define COVERAGE_IGNORE // Avoid prototypes being treated as code by gcov
     /** Reference to the mesh. */
     MutableMesh<DIM, DIM>& mrMesh;
 
@@ -151,7 +151,7 @@ protected:
     /** Whether to write cells as points in VTK. */
     bool mWriteVtkAsPoints;
 
-#undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
+#undef COVERAGE_IGNORE // Avoid prototypes being treated as code by gcov
 
     /**
      * Update mIsGhostNode if required by a remesh.
@@ -167,7 +167,7 @@ protected:
     virtual void Validate();
 
 public:
-#define COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
+#define COVERAGE_IGNORE // Avoid prototypes being treated as code by gcov
 
     /**
      * Create a new cell population facade from a mesh and collection of cells.
@@ -399,7 +399,7 @@ public:
 
     /**
      * Overridden GetWidth() method.
-     * 
+     *
      * Calculate the 'width' of any dimension of the cell population by calling
      * GetWidth() on the mesh.
      *
@@ -554,7 +554,7 @@ public:
 
     /**
      * Set mWriteVtkAsPoints.
-     * 
+     *
      * @param writeVtkAsPoints whether to write cells as points in VTK
      */
     void SetWriteVtkAsPoints(bool writeVtkAsPoints);
@@ -564,7 +564,7 @@ public:
      */
     bool GetWriteVtkAsPoints();
 };
-#undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
+#undef COVERAGE_IGNORE // Avoid prototypes being treated as code by gcov
 
 
 #include "SerializationExportWrapper.hpp"

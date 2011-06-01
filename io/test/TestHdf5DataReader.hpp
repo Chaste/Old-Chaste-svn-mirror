@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestHdf5DataReader : public CxxTest::TestSuite
 {
-private :
+private:
 
     std::string h5file_name;
     #define DATASETNAME "IntArray"
@@ -117,7 +117,7 @@ private :
         PetscTools::Barrier("WriteDataTestSimpleReadDirectlyWithHdf5");
     }
 
-public :
+public:
 
     void TestSimpleReadDirectlyWithHdf5()
     {
@@ -420,7 +420,7 @@ public:
 
         VecDestroy(data);
         reader.Close();
-        
+
         // Missing dir
         FileFinder absent_dir("absent_dir", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_THROWS_CONTAINS(Hdf5DataReader(absent_dir, "base"), "Directory does not exist: ");

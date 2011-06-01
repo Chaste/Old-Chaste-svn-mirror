@@ -81,7 +81,7 @@ public:
 
     void TestConstruct3D()
     {
-        // TetrahedralMesh with jacobian caching
+        // TetrahedralMesh with Jacobian caching
         unsigned cached_mem_usage;
         time_t cached_start = std::clock();
         {
@@ -91,7 +91,6 @@ public:
         }
         time_t cached_finish = std::clock();
         unsigned cached_construction_time = (cached_finish-cached_start);
-
 
         // No caching
         unsigned non_cached_mem_usage;
@@ -125,7 +124,7 @@ public:
         //TS_ASSERT_EQUALS(cached_mesh.GetNumFaces(), non_cached_mesh.GetNumFaces());
 
         /*
-         *  Check element jacobian data is consistent
+         *  Check element Jacobian data is consistent
          */
 
         for (unsigned element_index = 0; element_index < cached_mesh.GetNumElements(); element_index++)
@@ -162,7 +161,7 @@ public:
             cached_mesh.GetInverseJacobianForElement(element_index, j_cached,det_cached,ij_cached);
         }
         unsigned cached_access_time = (std::clock()-cached_start);
-        
+
         time_t non_cached_start = std::clock();
         for (unsigned element_index = 0; element_index < non_cached_mesh.GetNumElements(); element_index++)
         {
@@ -178,7 +177,7 @@ public:
         TS_ASSERT_LESS_THAN((double) cached_access_time/CLOCKS_PER_SEC, (double) non_cached_access_time/CLOCKS_PER_SEC);
 
         /*
-         *  Check boundary element jacobian data is consistent
+         *  Check boundary element Jacobian data is consistent
          */
         for (unsigned boundary_element_index = 0; boundary_element_index < cached_mesh.GetNumBoundaryElements(); boundary_element_index++)
         {

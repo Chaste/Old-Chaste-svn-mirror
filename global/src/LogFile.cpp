@@ -132,6 +132,6 @@ bool LogFile::IsFileSet()
 
 void LogFile::SetPrecision(unsigned precision)
 {
-    assert(precision>0);
+    assert(precision > 0);
     mPrecision = precision;
 }

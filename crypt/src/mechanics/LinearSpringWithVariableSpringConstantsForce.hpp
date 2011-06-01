@@ -178,7 +178,7 @@ public:
 
     /**
      * Set mBetaCatSpringScaler.
-     * 
+     *
      * @param betaCatSpringScaler the new value of mBetaCatSpringScaler
      */
     void SetBetaCatSpringScaler(double betaCatSpringScaler);
@@ -190,7 +190,7 @@ public:
 
     /**
      * Set mApoptoticSpringTensionStiffness.
-     * 
+     *
      * @param apoptoticSpringTensionStiffness the new value of mApoptoticSpringTensionStiffness
      */
     void SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness);
@@ -202,14 +202,14 @@ public:
 
     /**
      * Set mApoptoticSpringCompressionStiffness.
-     * 
+     *
      * @param apoptoticSpringCompressionStiffness the new value of mApoptoticSpringCompressionStiffness
      */
     void SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness);
 
     /**
      * Outputs force parameters to file
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *

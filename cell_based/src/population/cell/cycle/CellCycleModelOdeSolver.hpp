@@ -80,12 +80,12 @@ public:
 
     /** Initialise the ODE solver. */
     void Initialise();
-    
+
     /**
      * Return true iff this is an adaptive solver such as CVODE for which it is safe to set the 'timestep'
      * to be the outer simulation timestep, because the ODE solver will use this as its maximum, not actual,
      * timestep.
-     * 
+     *
      * By default calls the base class version; it is defined here so that specializations can override it.
      */
     virtual bool IsAdaptive();

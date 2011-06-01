@@ -38,16 +38,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Try recompiling with icpc version 10.0.025.
  */
 
-
 #include "AbstractNonlinearElasticitySolver.hpp"
 #include "AbstractIncompressibleMaterialLaw.hpp"
 
 /**
- *  Finite elasticity solver. Solves static *incompressible* nonlinear elasticity
- *  problems with arbitrary (incompressible) material laws and a body force.
+ * Finite elasticity solver. Solves static *incompressible* nonlinear elasticity
+ * problems with arbitrary (incompressible) material laws and a body force.
  *
- *  Uses quadratic-linear bases (for displacement and pressure), and is therefore
- *  outside other assembler or solver hierarchy.
+ * Uses quadratic-linear bases (for displacement and pressure), and is therefore
+ * outside other assembler or solver hierarchy.
  */
 template<size_t DIM>
 class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
@@ -57,35 +56,38 @@ class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
     friend class AdaptiveNonlinearElasticityProblem;
 
 protected:
-    /** Number of nodes per element */
+
+    /** Number of nodes per element. */
     static const size_t NUM_NODES_PER_ELEMENT    = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_ELEMENT;
-    /** Number of vertices per element */
+
+    /** Number of vertices per element. */
     static const size_t NUM_VERTICES_PER_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_VERTICES_PER_ELEMENT;
-    /** Number of nodes per boundary element */
+
+    /** Number of nodes per boundary element. */
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_BOUNDARY_ELEMENT;
 
-    /** Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
-     *  NUM_VERTICES_PER_ELEMENT pressure unknowns */
+    /**
+     * Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
+     * NUM_VERTICES_PER_ELEMENT pressure unknowns.
+     */
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
-    /** Boundary stencil size */
+
+    /** Boundary stencil size. */
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
-
-
     /**
-     *  The material laws for each element. This will either be of size 1 (same material law for all elements,
-     *  ie homogeneous), or size num_elem.
+     * The material laws for each element. This will either be of size 1 (same material law for all elements,
+     * i.e. homogeneous), or size num_elem.
      */
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
 
     /**
-     *  The solution pressures. mPressures[i] = pressure at node i (ie vertex i).
+     * The solution pressures. mPressures[i] = pressure at node i (ie vertex i).
      */
     std::vector<double> mPressures;
 
-
     /**
-     * Assemble residual or jacobian on an element, using the current solution
+     * Assemble residual or Jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
      * rBElem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
      *
@@ -132,20 +134,20 @@ protected:
                                            bool assembleJacobian);
 
     /**
-     *  Set up the current guess to be the solution given no displacement.
-     *  The current solution (in 2d) is order as
-     *  [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
-     *  (where there are N total nodes and M vertices)
-     *  so the initial guess is
-     *  [0 0 0 0 ... 0 0 p1 p2 .. pM]
-     *  where p_i are such that T is zero (depends on material law).
+     * Set up the current guess to be the solution given no displacement.
+     * The current solution (in 2d) is order as
+     * [u1 v1 u2 v2 ... uN vN p1 p2 .. pM]
+     * (where there are N total nodes and M vertices)
+     * so the initial guess is
+     * [0 0 0 0 ... 0 0 p1 p2 .. pM]
+     * where p_i are such that T is zero (depends on material law).
      *
-     *  In a homogeneous problem, all p_i are the same.
-     *  In a heterogeneous problem, p for a given vertex is the
-     *  zero-strain-pressure for ONE of the elements containing that
-     *  vertex (which element containing the vertex is reached LAST). In
-     *  this case the initial guess will be close but not exactly the
-     *  solution given zero body force.
+     * In a homogeneous problem, all p_i are the same.
+     * In a heterogeneous problem, p for a given vertex is the
+     * zero-strain-pressure for ONE of the elements containing that
+     * vertex (which element containing the vertex is reached LAST). In
+     * this case the initial guess will be close but not exactly the
+     * solution given zero body force.
      */
     void FormInitialGuess();
 
@@ -182,7 +184,7 @@ public:
                               std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /**
-     * Variant constructor taking a vector of material laws for heterogeneous problems
+     * Variant constructor taking a vector of material laws for heterogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
      * @param rMaterialLaws Vector of material laws for each element
@@ -204,10 +206,9 @@ public:
     ~NonlinearElasticitySolver();
 
     /**
-     * Get pressures for each vertex
+     * Get pressures for each vertex.
      */
     std::vector<double>& rGetPressures();
-
 };
 
 #endif /*NONLINEARELASTICITYSOLVER_HPP_*/

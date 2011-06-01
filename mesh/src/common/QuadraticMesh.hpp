@@ -53,7 +53,7 @@ protected:
      * Check that internals appear after vertices in the list
      */
     void CountAndCheckVertices();
-    
+
     /**
      * Top level method for making 2D edges have 3 nodes not 2 and making 3D faces have 6 nodes not 3  (ie linear to quadratic).
      * @param pMeshReader Pointer to the reader. Only used if boundaryElemFileHasContainElementInfo==true (can be null if not).
@@ -154,8 +154,8 @@ protected:
     }
 
 
-    /** 
-     * Create a quadratic mesh on the interval [0,numElemX] with numElemX elements in each 
+    /**
+     * Create a quadratic mesh on the interval [0,numElemX] with numElemX elements in each
      * direction.  This is private, users should call ConstructRegularSlabMesh();
      *
      * Very badly named. This creates a QUADRATIC mesh, the linear just refers to the fact the
@@ -168,21 +168,21 @@ protected:
 
     /**
      * Create a quadratic mesh on a rectangle from (0,0) to (numElemX,numElemY)
-     * with that number of elements in each direction. This writes a temporary node file and uses 
-     * triangle to mesh this nodefile. The method overloads the equivalent method in 
+     * with that number of elements in each direction. This writes a temporary node file and uses
+     * triangle to mesh this nodefile. The method overloads the equivalent method in
      * AbstractTetrahedralMesh. This is private, users should call ConstructRegularSlabMesh();
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
      * @param numElemY Number of elements in y-direction (also, the height of the final mesh)
-     * @param unused (defaults to true; must always be true) is for compatibility of the 
+     * @param unused (defaults to true; must always be true) is for compatibility of the
      *   interface of this method with same name in AbstractTetrahedralMesh.
      */
     void ConstructRectangularMesh(unsigned numElemX, unsigned numElemY, bool unused=true);
 
     /**
      * Create a quadratic mesh on a cuobid from (0,0,0) to (numElemX,numElemY,numElemZ)
-     * with that number of elements in each direction. This writes a temporary node file and uses 
-     * tetgen to mesh this nodefile. The method overloads the equivalent method in 
+     * with that number of elements in each direction. This writes a temporary node file and uses
+     * tetgen to mesh this nodefile. The method overloads the equivalent method in
      * AbstractTetrahedralMesh. This is private, users should call ConstructRegularSlabMesh();
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
@@ -190,7 +190,7 @@ protected:
      * @param numElemZ Number of elements in y-direction (also, the depth of the final mesh)
      */
     void ConstructCuboid(unsigned numElemX, unsigned numElemY, unsigned numElemZ);
-    
+
 public:
 
     /**
@@ -205,7 +205,7 @@ public:
 
     /**
      * Create a quadratic mesh on a slab (on a line in 1D, rectangle in 2d, cuboid in 3D),
-     * with the given widths and given spacestep. In 1D height and depth need to passed in 
+     * with the given widths and given spacestep. In 1D height and depth need to passed in
      * as 0 (the default value), in 2D depth must be zero
      *
      * @param spaceStep The spatial stepsize
@@ -225,9 +225,9 @@ public:
 
     /**
      * Load a quadratic mesh from a linear mesh file.
-     * 
+     *
      * Constructs as linear mesh, then exports to triangle/tetgen
-     * 
+     *
      * @param rMeshReader the mesh reader
      */
     void ConstructFromLinearMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);

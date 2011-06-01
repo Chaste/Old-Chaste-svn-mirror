@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A force class for use in vertex-based simulations, based on a mechanical
  * model proposed by T. Nagai and H. Honda ("A dynamic cell model for the formation
  * of epithelial tissues", Philosophical Magazine Part B 81:699-719).
- * 
+ *
  * Each of the model parameter member variables are rescaled such that mDampingConstantNormal
  * takes the default value 1, whereas Nagai and Honda (who denote the parameter by
  * nu) take the value 0.01.
@@ -148,28 +148,28 @@ public:
 
     /**
      * Set mNagaiHondaDeformationEnergyParameter.
-     * 
+     *
      * @param nagaiHondaDeformationEnergyParameter the new value of mNagaiHondaDeformationEnergyParameter
      */
     void SetNagaiHondaDeformationEnergyParameter(double nagaiHondaDeformationEnergyParameter);
 
     /**
      * Set mNagaiHondaMembraneSurfaceEnergyParameter.
-     * 
+     *
      * @param nagaiHondaMembraneSurfaceEnergyParameter the new value of mNagaiHondaMembraneSurfaceEnergyParameter
      */
     void SetNagaiHondaMembraneSurfaceEnergyParameter(double nagaiHondaMembraneSurfaceEnergyParameter);
 
     /**
      * Set mNagaiHondaCellCellAdhesionEnergyParameter.
-     * 
+     *
      * @param nagaiHondaCellCellAdhesionEnergyEnergyParameter the new value of mNagaiHondaCellCellAdhesionEnergyParameter
      */
     void SetNagaiHondaCellCellAdhesionEnergyParameter(double nagaiHondaCellCellAdhesionEnergyEnergyParameter);
 
     /**
      * Set mNagaiHondaCellBoundaryAdhesionEnergyParameter.
-     * 
+     *
      * @param nagaiHondaCellBoundaryAdhesionEnergyParameter the new value of mNagaiHondaCellBoundaryAdhesionEnergyParameter
      */
     void SetNagaiHondaCellBoundaryAdhesionEnergyParameter(double nagaiHondaCellBoundaryAdhesionEnergyParameter);
@@ -192,7 +192,7 @@ public:
 
     /**
      * Set mMatureCellTargetArea.
-     * 
+     *
      * @param matureCellTargetArea the new value of mMatureCellTargetArea
      */
     void SetMatureCellTargetArea(double matureCellTargetArea);

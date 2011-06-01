@@ -50,12 +50,12 @@ unsigned TargetedCellKiller<DIM>::GetBloodLust() const
 template<unsigned DIM>
 void TargetedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-	if ( !mBloodLust || this->mpCellPopulation->GetNumRealCells()==0 || this->mpCellPopulation->GetNumRealCells()<mTargetIndex+1)
-	{
-		return;
-	}
-	this->mpCellPopulation->GetCellUsingLocationIndex(mTargetIndex)->Kill();
-	mBloodLust = false;
+    if ( !mBloodLust || this->mpCellPopulation->GetNumRealCells()==0 || this->mpCellPopulation->GetNumRealCells()<mTargetIndex+1)
+    {
+        return;
+    }
+    this->mpCellPopulation->GetCellUsingLocationIndex(mTargetIndex)->Kill();
+    mBloodLust = false;
 }
 
 template<unsigned DIM>

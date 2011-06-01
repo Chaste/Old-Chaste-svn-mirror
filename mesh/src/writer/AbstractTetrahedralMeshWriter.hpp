@@ -68,7 +68,7 @@ private:
      * Write a parallel mesh to file. Used by the serialization methods
      *
      * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
-     *                                     Optimisations can be applied if this is not needed. 
+     *                                     Optimisations can be applied if this is not needed.
      */
     virtual void WriteFilesUsingParallelMesh(bool keepOriginalElementIndexing=true);
 
@@ -76,12 +76,12 @@ private:
      * Create output files and add headers.
      */
     virtual void CreateFilesWithHeaders();
-    
+
     /**
      * Append local mesh data to output files.
      */
     virtual void AppendLocalDataToFiles();
-    
+
     /**
      * Append footers to output files.
      */
@@ -131,11 +131,11 @@ public:
      *
      * @param rMesh the mesh
      * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
-     *                                     Optimisations can be applied if this is not needed. 
-     * 
+     *                                     Optimisations can be applied if this is not needed.
+     *
      * \todo #1322 Mesh should really be const!
      */
-    virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, 
+    virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
                                      bool keepOriginalElementIndexing=true);
 
 

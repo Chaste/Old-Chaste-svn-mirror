@@ -36,15 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 ChastePoint<DIM>::ChastePoint(double v1, double v2, double v3)
 {
-    if (DIM>0)
+    if (DIM > 0)
     {
         mLocation[0] = v1;
     }
-    if (DIM>1)
+    if (DIM > 1)
     {
         mLocation[1] = v2;
     }
-    if (DIM>2)
+    if (DIM > 2)
     {
         mLocation[2] = v3;
     }

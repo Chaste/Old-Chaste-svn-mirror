@@ -26,8 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
 /*
  * NOTE ON COMPILATION ERRORS:
  *
@@ -65,14 +63,12 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
     }
 
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
-    // the (element) preconditioner matrix: this is the same as the jacobian, but
+    // The (element) preconditioner matrix: this is the same as the jacobian, but
     // with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond;
     c_vector<double, STENCIL_SIZE> b_elem;
 
-    ////////////////////////////////////////////////////////
-    // loop over elements
-    ////////////////////////////////////////////////////////
+    // Loop over elements
     for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = this->mpQuadMesh->GetElementIteratorBegin();
          iter != this->mpQuadMesh->GetElementIteratorEnd();
          ++iter)
@@ -89,18 +85,17 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
         if (element.GetOwnership() == true)
         {
             AssembleOnElement(element, a_elem, a_elem_precond, b_elem, assembleResidual, assembleJacobian);
-            
+
             //// todo: assemble quickly by commenting the AssembleOnElement() and doing
-            //// the following, to determine exact non-zeroes per row, and reallocate 
+            //// the following, to determine exact non-zeroes per row, and reallocate
             //// with correct nnz (by destroying old matrix and creating a new one)
-            //for(unsigned i=0; i<STENCIL_SIZE; i++)
+            //for (unsigned i=0; i<STENCIL_SIZE; i++)
             //{
-            //    for(unsigned j=0; j<STENCIL_SIZE; j++)
+            //    for (unsigned j=0; j<STENCIL_SIZE; j++)
             //    {
             //        a_elem(i,j)=1.0;
             //    }
             //}
-            
 
             unsigned p_indices[STENCIL_SIZE];
             for (unsigned i=0; i<NUM_NODES_PER_ELEMENT; i++)
@@ -124,13 +119,10 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
         }
     }
 
-    ////////////////////////////////////////////////////////////
-    // loop over specified boundary elements and compute
-    // surface traction terms
-    ////////////////////////////////////////////////////////////
+    // Loop over specified boundary elements and compute surface traction terms
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
     c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
-    if (this->mBoundaryElements.size()>0)
+    if (this->mBoundaryElements.size() > 0)
     {
         for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
         {
@@ -174,7 +166,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double,DIM,DIM> jacobian;
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
-    
+
     this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
@@ -188,9 +180,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         rBElem.clear();
     }
 
-    ///////////////////////////////////////////////
     // Get the current displacement at the nodes
-    ///////////////////////////////////////////////
     static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> element_current_displacements;
     for (unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
     {
@@ -200,44 +190,42 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         }
     }
 
-    // allocate memory for the basis functions values and derivative values
+    // Allocate memory for the basis functions values and derivative values
     static c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
     static c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
     static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
     static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
 
-
-    // get the material law
+    // Get the material law
     AbstractCompressibleMaterialLaw<DIM>* p_material_law;
-    if (this->mMaterialLaws.size()==1)
+    if (this->mMaterialLaws.size() == 1)
     {
-        // homogeneous
+        // Homogeneous
         p_material_law = this->mMaterialLaws[0];
     }
     else
     {
-        // heterogeneous
+        // Heterogeneous
         #define COVERAGE_IGNORE // not going to have tests in cts for everything
         p_material_law = this->mMaterialLaws[rElement.GetIndex()];
         #undef COVERAGE_IGNORE
     }
-    
-    
+
     static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
-            
+
     static c_matrix<double,DIM,DIM> F;      // the deformation gradient, F = dx/dX, F_{iM} = dx_i/dX_M
     static c_matrix<double,DIM,DIM> C;      // Green deformation tensor, C = F^T F
     static c_matrix<double,DIM,DIM> inv_C;  // inverse(C)
     static c_matrix<double,DIM,DIM> inv_F;  // inverse(F)
-    static c_matrix<double,DIM,DIM> T;      // Second Piola-Kirchoff stress tensor (= dW/dE = 2dW/dC) 
+    static c_matrix<double,DIM,DIM> T;      // Second Piola-Kirchoff stress tensor (= dW/dE = 2dW/dC)
 
     static c_matrix<double,DIM,DIM> F_T;    // F*T
     static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> F_T_grad_quad_phi; // F*T*grad_quad_phi
 
     c_vector<double,DIM> body_force;
 
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;    // dTdE(M,N,P,Q) = dT_{MN}/dE_{PQ} 
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dSdF;    // dSdF(M,i,N,j) = dS_{Mi}/dF_{jN} 
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;    // dTdE(M,N,P,Q) = dT_{MN}/dE_{PQ}
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dSdF;    // dSdF(M,i,N,j) = dS_{Mi}/dF_{jN}
 
     static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
     static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dSdF_quad_quad;
@@ -245,16 +233,10 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp_matrix;
     static c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF;
 
-
-
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
-    //// loop over Gauss points
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
+    // Loop over Gauss points
     for (unsigned quadrature_index=0; quadrature_index < this->mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
     {
-        // this is needed by the cardiac mechanics solver
+        // This is needed by the cardiac mechanics solver
         unsigned current_quad_point_global_index =   rElement.GetIndex()*this->mpQuadratureRule->GetNumQuadPoints()
                                                    + quadrature_index;
 
@@ -262,20 +244,14 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
 
         const ChastePoint<DIM>& quadrature_point = this->mpQuadratureRule->rGetQuadPoint(quadrature_index);
 
-        //////////////////////////////////////
-        // set up basis function info
-        //////////////////////////////////////
+        // Set up basis function information
         LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
         QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
         QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
         trans_grad_quad_phi = trans(grad_quad_phi);
-        
-        
-        ////////////////////////////////////////////////////
-        // get the body force, interpolating X if necessary
-        ////////////////////////////////////////////////////
 
-        if(assembleResidual)
+        // Get the body force, interpolating X if necessary
+        if (assembleResidual)
         {
             if (this->mUsingBodyForceFunction)
             {
@@ -293,11 +269,8 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
             }
         }
 
-        //////////////////////////////////////
-        // interpolate grad_u
-        //////////////////////////////////////
-        grad_u = zero_matrix<double>(DIM,DIM); 
-
+        // Interpolate grad_u
+        grad_u = zero_matrix<double>(DIM,DIM);
         for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
         {
             for (unsigned i=0; i<DIM; i++)
@@ -309,10 +282,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
             }
         }
 
-
-        ///////////////////////////////////////////////
-        // calculate C, inv(C) and T
-        ///////////////////////////////////////////////
+        // Calculate C, inv(C) and T
         for (unsigned i=0; i<DIM; i++)
         {
             for (unsigned M=0; M<DIM; M++)
@@ -328,40 +298,34 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         this->ComputeStressAndStressDerivative(p_material_law, C, inv_C, 0.0, rElement.GetIndex(), current_quad_point_global_index,
                                                T, dTdE, assembleJacobian);
 
-
-        /////////////////////////////////////////
-        // residual vector
-        /////////////////////////////////////////
+        // Residual vector
         if (assembleResidual)
         {
             F_T = prod(F,T);
             F_T_grad_quad_phi = prod(F_T, grad_quad_phi);
-            
+
             for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
             {
                 unsigned spatial_dim = index%DIM;
                 unsigned node_index = (index-spatial_dim)/DIM;
 
-                rBElem(index) +=  - this->mDensity
-                                  * body_force(spatial_dim)
-                                  * quad_phi(node_index)
-                                  * wJ;
-                                  
-                // the  T(M,N)*F(spatial_dim,M)*grad_quad_phi(N,node_index)  term                  
+                rBElem(index) += - this->mDensity
+                                 * body_force(spatial_dim)
+                                 * quad_phi(node_index)
+                                 * wJ;
+
+                // The T(M,N)*F(spatial_dim,M)*grad_quad_phi(N,node_index) term
                 rBElem(index) +=   F_T_grad_quad_phi(spatial_dim,node_index)
                                  * wJ;
             }
         }
-        
-        
-        /////////////////////////////////////////
+
         // Jacobian matrix
-        /////////////////////////////////////////
-        if (assembleJacobian) 
+        if (assembleJacobian)
         {
-            // save trans(grad_quad_phi) * invF
+            // Save trans(grad_quad_phi) * invF
             grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F);
-            
+
             /////////////////////////////////////////////////////////////////////////////////////////////
             // Set up the tensor dSdF
             //
@@ -369,12 +333,12 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
             //
             // dS_{Mi}/dF_{jN} = (dT_{MN}/dC_{PQ}+dT_{MN}/dC_{PQ}) F{iP} F_{jQ}  + T_{MN} delta_{ij}
             //
-            // todo1: this should probably move into the material law (but need to make sure 
+            // todo1: this should probably move into the material law (but need to make sure
             // memory is handled efficiently
             // todo2: get material law to return this immediately, not dTdE
             /////////////////////////////////////////////////////////////////////////////////////////////
 
-            // set up the tensor 0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P))
+            // Set up the tensor 0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P))
             for (unsigned M=0; M<DIM; M++)
             {
                 for (unsigned N=0; N<DIM; N++)
@@ -389,56 +353,53 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
                     }
                 }
             }
+
             // This is NOT dTdE, just reusing memory. A^{MdPQ}  = F^d_N * dTdE_sym^{MNPQ}
-            dTdE.template SetAsContractionOnSecondDimension<DIM>(F, dSdF);  
+            dTdE.template SetAsContractionOnSecondDimension<DIM>(F, dSdF);
+
             // dSdF{MdPe} := F^d_N * F^e_Q * dTdE_sym^{MNPQ}
-            dSdF.template SetAsContractionOnFourthDimension<DIM>(F, dTdE);  
-            
-            // now add the T_{MN} delta_{ij} term
-            for(unsigned M=0; M<DIM; M++)
+            dSdF.template SetAsContractionOnFourthDimension<DIM>(F, dTdE);
+
+            // Now add the T_{MN} delta_{ij} term
+            for (unsigned M=0; M<DIM; M++)
             {
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
-                    for(unsigned i=0; i<DIM; i++)
+                    for (unsigned i=0; i<DIM; i++)
                     {
                         dSdF(M,i,N,i) += T(M,N);
                     }
                 }
             }
-            
 
             ///////////////////////////////////////////////////////
-            // Set up the tensor  
+            // Set up the tensor
             //   dSdF_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
-            //            =    dS_{M,spatial_dim1}/d_F{spatial_dim2,N}      
-            //               * grad_quad_phi(M,node_index1) 
+            //            =    dS_{M,spatial_dim1}/d_F{spatial_dim2,N}
+            //               * grad_quad_phi(M,node_index1)
             //               * grad_quad_phi(P,node_index2)
             //
             //            =    dSdF(M,spatial_index1,N,spatial_index2)
-            //               * grad_quad_phi(M,node_index1) 
+            //               * grad_quad_phi(M,node_index1)
             //               * grad_quad_phi(P,node_index2)
-            //            
+            //
             ///////////////////////////////////////////////////////
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dSdF );
-            dSdF_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
-
-
-
+            temp_tensor.template SetAsContractionOnFirstDimension<DIM>(trans_grad_quad_phi, dSdF);
+            dSdF_quad_quad.template SetAsContractionOnThirdDimension<DIM>(trans_grad_quad_phi, temp_tensor);
 
             for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
             {
                 unsigned spatial_dim1 = index1%DIM;
                 unsigned node_index1 = (index1-spatial_dim1)/DIM;
 
-
                 for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
-                    // the dSdF*grad_quad_phi*grad_quad_phi term
-                    rAElem(index1,index2)  +=   dSdF_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
-                                              * wJ;
+                    // The dSdF*grad_quad_phi*grad_quad_phi term
+                    rAElem(index1,index2) +=   dSdF_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
+                                             * wJ;
                 }
             }
         }
@@ -447,11 +408,11 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     rAElemPrecond.clear();
     if (assembleJacobian)
     {
-//        for(unsigned index1=0; index1<NUM_NODES_PER_ELEMENT; index1++)
+//        for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT; index1++)
 //        {
-//            for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT; index2++)
+//            for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT; index2++)
 //            {
-//                for(unsigned dim=0; dim<DIM; dim++)
+//                for (unsigned dim=0; dim<DIM; dim++)
 //                {
 //                    rAElemPrecond(NUM_NODES_PER_ELEMENT*dim + index1, NUM_NODES_PER_ELEMENT*dim + index2)
 //                        = rAElem(NUM_NODES_PER_ELEMENT*dim + index1, NUM_NODES_PER_ELEMENT*dim + index2);
@@ -461,8 +422,6 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
         rAElemPrecond = rAElem;
     }
 }
-
-
 
 template<size_t DIM>
 void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
@@ -478,7 +437,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     if (assembleJacobian && !assembleResidual)
     {
-        // nothing to do
+        // Nothing to do
         return;
     }
 
@@ -496,8 +455,8 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
         QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
 
-        // get the required traction, interpolating X (slightly inefficiently, as interpolating
-        // using quad bases) if necessary.
+        // Get the required traction, interpolating X (slightly inefficiently,
+        // as interpolating using quad bases) if necessary
         c_vector<double,DIM> traction = zero_vector<double>(DIM);
         if (this->mUsingTractionBoundaryConditionFunction)
         {
@@ -513,7 +472,6 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             traction = rTraction;
         }
 
-
         for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
         {
             unsigned spatial_dim = index%DIM;
@@ -521,14 +479,12 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
             assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
 
-            rBelem(index) -=    traction(spatial_dim)
-                              * phi(node_index)
-                              * wJ;
+            rBelem(index) -=   traction(spatial_dim)
+                             * phi(node_index)
+                             * wJ;
         }
     }
 }
-
-
 
 template<size_t DIM>
 CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(
@@ -547,7 +503,7 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
     assert(pMaterialLaw != NULL);
 
     AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(pMaterialLaw);
-    if(!p_law)
+    if (!p_law)
     {
         EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
     }
@@ -555,7 +511,6 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
 
     Initialise(pFixedNodeLocations);
 }
-
 
 template<size_t DIM>
 CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(
@@ -575,7 +530,7 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
         AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
-        if(!p_law)
+        if (!p_law)
         {
             EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
         }
@@ -587,11 +542,11 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
     Initialise(pFixedNodeLocations);
 }
 
-
 template<size_t DIM>
 CompressibleNonlinearElasticitySolver<DIM>::~CompressibleNonlinearElasticitySolver()
 {
 }
+
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////

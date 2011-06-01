@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * because we want to be able to add and delete nodes.
  */
 template<unsigned SPACE_DIM>
-class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM> 
+class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM>
 {
 private:
 
@@ -63,25 +63,25 @@ private:
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {  
+    {
         archive & mCellRadii;
         archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
     }
-    
+
 public:
 
     /**
      * Construct the mesh using only nodes. No mesh is created, but the nodes are stored.
      * The original vector of nodes is deep-copied: new node objects are made with are
      * independent of the pointers in the input so that they can be safely deleted.
-     * 
+     *
      * If this is the only way of constructing a mesh of this type, then we can be certain that
      * elements and boundary elements are always unused.
      *
      * @param rNodes a vector of pointers to nodes
      */
     void ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes);
-    
+
     /**
      * A Helper method to enable you to construct a nodes-only mesh by stripping the nodes
      * TetrahedralMesh, this calls the ConstructNodesWithoutMesh method with the nodes
@@ -95,14 +95,14 @@ public:
 
     /**
      * Get the cell radius associated with a given node index.
-     * 
+     *
      * @param index the index of a node
      */
     double GetCellRadius(unsigned index);
-     
+
     /**
      * Set the cell radius associated with a given node index.
-     * 
+     *
      * @param index the index of a node
      * @param radius the cell radius
      */

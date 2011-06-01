@@ -43,11 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CompressibleExponentialLaw.hpp"
 #include <cassert>
 
-
-#include "Debug.hpp"
-
-
-
 class TestMaterialLaws : public CxxTest::TestSuite
 {
 private:
@@ -109,7 +104,7 @@ private:
         C(0,0) = 1.1;
         C(0,1) = C(1,0) = 0.1;
         C(1,1) = 0.9;
-        if(DIM==3)
+        if (DIM==3)
         {
             C(2,2) = 0.95;
             C(0,2) = C(2,0) = 0;
@@ -162,7 +157,7 @@ private:
         C(0,0) = 1.06;
         C(0,1) = C(1,0) = 0.106;
         C(1,1) = 0.954;            // overall C satifies det(C) = 1
-        if(DIM==3)
+        if (DIM==3)
         {
             C(2,2) = 1.0;
             C(0,2) = C(2,0) = 0;
@@ -221,7 +216,7 @@ private:
         FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
 
         double p = 1.0;
-        if(dynamic_cast<AbstractCompressibleMaterialLaw<2>*>(pLaw) != NULL)
+        if (dynamic_cast<AbstractCompressibleMaterialLaw<2>*>(pLaw) != NULL)
         {
             p = 0.0; // ie if compressible, then should give p=0
         }
@@ -850,17 +845,17 @@ public:
         // the correct magnitude, which is dependent on whether the params
         // have been entered a Pa or KPa)
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
-        
+
         // pick a P such that P =/= P^T
         c_matrix<double,3,3> basis = identity_matrix<double>(3);
         basis(0,0) = 1/sqrt(2);
         basis(1,0) = 1/sqrt(2);
         basis(0,1) = -1/sqrt(2);
         basis(1,1) = 1/sqrt(2);
-        
+
         law.SetChangeOfBasisMatrix(basis);
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
-        
+
         // carefully checked that the P's and P^T's are the right way
         // round in the transformations, this is just a hardcoded check that
         // nothing has changed
@@ -908,7 +903,7 @@ public:
         CheckChangeOfBasis(&law);
 
         double a = law.GetA();
-        assert(a>0);
+        assert(a > 0);
         double bff = law.GetB()[0][0];
         double bfs = law.GetB()[0][1];
         double bsf = law.GetB()[1][0];
@@ -1112,7 +1107,7 @@ public:
         CheckChangeOfBasis(&law);
 
         double a = law.GetA();
-        assert(a>0);
+        assert(a > 0);
         double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
         double bfs = law.GetB()[0][1];
         double bsf = law.GetB()[1][0];
@@ -1157,9 +1152,8 @@ public:
         CheckZeroStressWhenNoDeformation<3>(&law);
         CheckDTdEComputation<3>(&law);
 
-
         double a = law.GetA();
-        assert(a>0);
+        assert(a > 0);
         double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
         double bfs = law.GetB()[0][1];
         double bsf = law.GetB()[1][0];

@@ -64,11 +64,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * As in the crypt simulation tutorial, we begin by including the necessary header files. We have
- * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}} 
+ * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}}
  * or {{{CellBasedSimulationArchiver.hpp}}} must be included the first Chaste header.
  */
 #include <cxxtest/TestSuite.h>
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 /*
@@ -82,7 +82,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
-/* 
+/*
  * The next two header files define: a PDE that describes how oxygen is transported via through the
  * domain via diffusion and is consumed by live cells; and a constant-valued boundary condition to
  * associate with the PDE.
@@ -167,7 +167,7 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
-	         * We also alter the default cell-cycle times.
+             * We also alter the default cell-cycle times.
              */
             p_model->SetStemCellG1Duration(8.0);
             p_model->SetTransitCellG1Duration(8.0);

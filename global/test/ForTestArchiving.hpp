@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class BaseClass
 {
-public :
+public:
     unsigned mTagInBaseClass;
     BaseClass();
     virtual ~BaseClass();

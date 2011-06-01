@@ -49,18 +49,18 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     }
 
     // Remove any additionalTimes entries which fall too close to a time when the stepper would stop anyway
-    for(unsigned i=0;i<additionalTimes.size();i++)
+    for (unsigned i=0;i<additionalTimes.size();i++)
     {
-        if(i>0)
+        if (i > 0)
         {
-            if(additionalTimes[i-1] >= additionalTimes[i])
+            if (additionalTimes[i-1] >= additionalTimes[i])
             {
                 EXCEPTION("The additional times vector should be in ascending numerical order");
             }
-        }        
-        
+        }
+
         double test_value=(additionalTimes[i]-startTime)/mDt;
-        if(fabs(floor(test_value+0.5)-test_value)>1e-12)
+        if (fabs(floor(test_value+0.5)-test_value)>1e-12)
         {
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
@@ -78,7 +78,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     }
 }
 
-double TimeStepper::CalculateNextTime() 
+double TimeStepper::CalculateNextTime()
 {
     double next_time = mStart + (mTotalTimeStepsTaken-mAdditionalTimesReached+1) * mDt;
 
@@ -86,9 +86,9 @@ double TimeStepper::CalculateNextTime()
     {
         next_time = mEnd;
     }
-    
-    if (    (mAdditionalTimes.size()>0)                          // any additional times given  
-         && (mAdditionalTimesReached<mAdditionalTimes.size())    // not yet done all the additional times
+
+    if (    (mAdditionalTimes.size() > 0)                          // any additional times given
+         && (mAdditionalTimesReached < mAdditionalTimes.size())    // not yet done all the additional times
          && ((next_time) + SMIDGE*(mDt) >= mAdditionalTimes[mAdditionalTimesReached]) ) // this next step takes us over an additional time
     {
         next_time = mAdditionalTimes[mAdditionalTimesReached];
@@ -123,18 +123,18 @@ double TimeStepper::GetNextTime() const
 double TimeStepper::GetNextTimeStep()
 {
     double dt = mDt;
-    
+
     if (mNextTime == mEnd)
     {
         dt = mEnd - mTime;
     }
 
-    // if the next time or the current time is one of the additional times, the timestep will not be mDt    
-    if ((mAdditionalTimesReached>0)  &&  
+    // if the next time or the current time is one of the additional times, the timestep will not be mDt
+    if ((mAdditionalTimesReached > 0)  &&
         ( (mNextTime == mAdditionalTimes[mAdditionalTimesReached-1]) || (mTime == mAdditionalTimes[mAdditionalTimesReached-1]) ) )
     {
         dt = mNextTime - mTime;
-        assert(dt>0);
+        assert(dt > 0);
     }
 
     return dt;
@@ -159,11 +159,11 @@ void TimeStepper::ResetTimeStep(double dt)
 {
     if (fabs(mDt-dt) > 1e-8)
     {
-        assert(dt>0);
-        mDt = dt;    
+        assert(dt > 0);
+        mDt = dt;
         mStart = mTime;
         mTotalTimeStepsTaken = 0;
-    
+
         mNextTime = CalculateNextTime();
-    }    
+    }
 }

@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * of all CryptSimulation1d, CryptSimulation2d and VertexCryptSimulation2d
  * objects. It has no explicit constructor (just uses a default one) and
  * no member variables.
- * 
+ *
  * \todo reduce code duplication with CellBasedSimulationArchiver (#1568)
  */
 template<unsigned DIM, class SIM>

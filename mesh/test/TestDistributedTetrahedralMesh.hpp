@@ -59,7 +59,7 @@ private:
         TS_ASSERT_EQUALS(rMesh1.GetNumBoundaryElements(), rMesh2.GetNumBoundaryElements());
         TS_ASSERT_EQUALS(rMesh1.GetNumElements(), rMesh2.GetNumElements());
         TS_ASSERT_EQUALS(rMesh1.GetNumNodes(), rMesh2.GetNumNodes());
-        
+
         // Check that the nodes and elements of each mesh are identical
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator iter = rMesh1.GetElementIteratorBegin();
              iter != rMesh1.GetElementIteratorEnd();
@@ -78,7 +78,7 @@ private:
             }
         }
     }
-    
+
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
     void CheckEverythingIsAssigned(DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     {
@@ -90,9 +90,9 @@ private:
              ++iter)
         {
             for (unsigned node_local_index=0; node_local_index<ELEMENT_DIM+1; node_local_index++)
-            { 
+            {
                 unsigned node_global_index = iter->GetNodeGlobalIndex(node_local_index);
-                
+
                 TS_ASSERT_THROWS_NOTHING(rMesh.GetNodeOrHaloNode(node_global_index));
             }
         }
@@ -107,7 +107,7 @@ private:
         {
             TS_ASSERT_EQUALS(prev_node->GetIndex()+1, current_node->GetIndex())
         }
-         
+
 
 
         /*
@@ -117,7 +117,7 @@ private:
         {
             const unsigned num_global_nodes = rMesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
-            for(unsigned index=0; index<num_global_nodes; index++)
+            for (unsigned index=0; index<num_global_nodes; index++)
             {
                 nodes_owned[index]=0u;
             }
@@ -534,7 +534,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 12u);
 
-        //check all nodes have 2 attributes
+        // Check all nodes have 2 attributes
         for (unsigned node_index = 0; node_index < mesh.GetNumNodes(); node_index++)
         {
             if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index) )
@@ -543,11 +543,11 @@ public:
             }
         }
 
-        //now check attribute values at two probe nodes
+        // Now check attribute values at two probe nodes
         unsigned probe_node_1 = 0u;
         unsigned probe_node_2 = 8u;
 
-        if (mesh.rGetNodePermutation().size() >0)//need to figure out where they end up in permutation
+        if (mesh.rGetNodePermutation().size() > 0)//need to figure out where they end up in permutation
         {
             probe_node_1 = mesh.rGetNodePermutation()[probe_node_1];
             probe_node_2 = mesh.rGetNodePermutation()[probe_node_2];
@@ -564,7 +564,6 @@ public:
         }
     }
 
-
     void TestConstructFromMeshReaderWithBinaryFiles()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
@@ -576,7 +575,7 @@ public:
         DistributedTetrahedralMesh<3,3> mesh_from_ascii;
         mesh_from_ascii.ConstructFromMeshReader(mesh_reader_ascii);
 
-        CompareMeshes( mesh, mesh_from_ascii );
+        CompareMeshes(mesh, mesh_from_ascii);
     }
 
     void TestConstructFromMeshReaderWithNclFile()
@@ -584,7 +583,7 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         TrianglesMeshWriter<3,3> mesh_writer("WritingNclFile", "cube_136_elements_binary");
         mesh_writer.SetWriteFilesAsBinary();
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -611,70 +610,69 @@ public:
 
         CheckEverythingIsAssigned<3,3>(mesh);
     }
-    
+
     void TestRandomShuffle() throw (Exception)
     {
         unsigned num_elts = 200;
-        
+
         std::vector<unsigned> random_order(num_elts);
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(0);
         p_gen->Shuffle(num_elts,random_order);
-                
+
         unsigned my_entry;
         unsigned neighbours_entry;
-        
+
         int num_procs = PetscTools::GetNumProcs();
         int my_rank = PetscTools::GetMyRank();
         int source_rank = (my_rank + num_procs - 1) % num_procs;
         int destination_rank = (my_rank + 1) % num_procs;
         int my_tag;
         int source_tag;
-        
+
         MPI_Status status;
-        
+
         for (unsigned element_number = 0; element_number < num_elts; element_number++)
         {
             my_entry = random_order[element_number];
-            
+
             my_tag = my_rank + num_elts*element_number;
             source_tag = source_rank + num_elts*element_number;
-            
+
             MPI_Send( &my_entry, 1, MPI_UNSIGNED, destination_rank, my_tag, PETSC_COMM_WORLD );
             MPI_Recv( &neighbours_entry, 1, MPI_UNSIGNED, source_rank, source_tag, PETSC_COMM_WORLD, &status );
             PetscTools::Barrier();
-        
+
             TS_ASSERT_EQUALS( my_entry, neighbours_entry );
         }
-        
     }
-    
+
     /*
      *  If you need to generate a binary mesh from an existing one. Use something like:
-     * 
+     *
      *      TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
      *      TrianglesMeshWriter<3,3> mesh_writer("new_binary_mesh", "3D_0_to_1mm_6000_elements_binary");
-     *      mesh_writer.SetWriteFilesAsBinary();        
+     *      mesh_writer.SetWriteFilesAsBinary();
      *      mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
-     * 
+     *
      */
     void TestComparePartitionQualities()
     {
         unsigned num_local_nodes_petsc_parmetis, num_local_nodes_binary, num_local_nodes_metis, num_total_nodes;
-        
+
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
             //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
             DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
             TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
             TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-    
+
             CheckEverythingIsAssigned<3,3>(mesh);
-            
+
             num_local_nodes_metis = mesh.GetNumLocalNodes();
             num_total_nodes=mesh.GetNumNodes();
         }
@@ -684,31 +682,31 @@ public:
             //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart_binary");
             DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::PETSC_MAT_PARTITION);
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
             TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
             TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-    
+
             CheckEverythingIsAssigned<3,3>(mesh);
-            
+
             num_local_nodes_petsc_parmetis = mesh.GetNumLocalNodes();
         }
 
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements_binary");
-            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart_binary");            
+            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart_binary");
             DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::PARMETIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
             TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
             TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-    
+
             CheckEverythingIsAssigned<3,3>(mesh);
 
             num_local_nodes_binary = mesh.GetNumLocalNodes();
         }
-        
+
         unsigned max_local_nodes_metis;
         unsigned max_local_nodes_petsc_parmetis;
         unsigned max_local_nodes_binary;
@@ -716,26 +714,26 @@ public:
         MPI_Allreduce (&num_local_nodes_metis, &max_local_nodes_metis, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
         MPI_Allreduce (&num_local_nodes_petsc_parmetis, &max_local_nodes_petsc_parmetis, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
         MPI_Allreduce (&num_local_nodes_binary, &max_local_nodes_binary, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
-        
+
         if (PetscTools::AmMaster())
         {
             std::cout << "METIS\tPETSC PARMETIS\tPARMETIS BINARY" << std::endl;
             std::cout << max_local_nodes_metis << "\t" << max_local_nodes_petsc_parmetis << "\t\t" << max_local_nodes_binary << std::endl;
         }
         PetscTools::Barrier();
-        
+
         TS_ASSERT(num_local_nodes_petsc_parmetis <= max_local_nodes_binary);
         //Watch out for dumb partition and warn about it
         if (PetscTools::IsParallel())
         {
             //Dumb partition is ceil(n/p), ceil(n/p), .... [ceil(n/p) + n - p*ceil(n/p)]
             //i.e. most processes get ceil(n/p)  = floor((n+p-1)/p)
-            unsigned max_in_dumb_partition = (num_total_nodes + PetscTools::GetNumProcs() - 1)/PetscTools::GetNumProcs(); 
+            unsigned max_in_dumb_partition = (num_total_nodes + PetscTools::GetNumProcs() - 1)/PetscTools::GetNumProcs();
             if (max_local_nodes_petsc_parmetis ==  max_in_dumb_partition)
             {
                 TS_TRACE("That was dumb partition -- it did not use ParMETIS");
             }
-        }                             
+        }
     }
 
     void TestEverythingIsAssignedParMetisLibraryAsciiFiles()
@@ -986,7 +984,7 @@ public:
             else
             {
                 typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
-                if (PetscTools::GetMyRank()>0)
+                if (PetscTools::GetMyRank() > 0)
                 {
                     /// Should not read this archive because none exists here.
                     TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, "distributed_tetrahedral_mesh.arch"),
@@ -1120,9 +1118,9 @@ private:
     template <unsigned DIM>
     void CompareParallelMeshOwnership(DistributedTetrahedralMesh<DIM,DIM> &readMesh, DistributedTetrahedralMesh<DIM,DIM> &constructedMesh)
     {
-        //The read mesh has a dumb partition in the test
+        // The read mesh has a dumb partition in the test
         TS_ASSERT_EQUALS(readMesh.GetPartitionType(), DistributedTetrahedralMeshPartitionType::DUMB);
-        //All constructed meshes have dumb partitioning -- so that they are invariant under archiving
+        // All constructed meshes have dumb partitioning -- so that they are invariant under archiving
         TS_ASSERT_EQUALS(constructedMesh.GetPartitionType(), DistributedTetrahedralMeshPartitionType::DUMB);
         TS_ASSERT_EQUALS(constructedMesh.GetDistributedVectorFactory()->GetLocalOwnership(),
                          readMesh.GetDistributedVectorFactory()->GetLocalOwnership());
@@ -1138,13 +1136,13 @@ private:
             try
             {
                 unsigned index=constructedMesh.SolveNodeMapping(i);
-                //Read mesh didn't throw so owns the node
+                // Read mesh didn't throw so owns the node
                 TS_ASSERT_THROWS_NOTHING(constructedMesh.GetNode(i));
                 TS_ASSERT_EQUALS(index, readMesh.SolveNodeMapping(i));
              }
             catch(Exception& e)
             {
-                //Read mesh threw so does not own node
+                // Read mesh threw so does not own node
                 TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetNode(i), "does not belong to processor");
             }
         }
@@ -1154,13 +1152,13 @@ private:
             try
             {
                 unsigned index=constructedMesh.SolveElementMapping(i);
-                //Read mesh didn't throw so owns the element
+                // Read mesh didn't throw so owns the element
                 TS_ASSERT_THROWS_NOTHING(constructedMesh.GetElement(i));
                 TS_ASSERT_EQUALS(index, readMesh.SolveElementMapping(i));
              }
             catch(Exception& e)
             {
-                //Read mesh threw so does not own element
+                // Read mesh threw so does not own element
                 TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetElement(i), "does not belong to processor");
             }
         }
@@ -1169,15 +1167,14 @@ private:
         {
             try
             {
-
-                unsigned index=constructedMesh.SolveBoundaryElementMapping(i);
-                //Read mesh didn't throw so owns the element
+                unsigned index = constructedMesh.SolveBoundaryElementMapping(i);
+                // Read mesh didn't throw so owns the element
                 TS_ASSERT_THROWS_NOTHING(constructedMesh.GetBoundaryElement(i));
                 TS_ASSERT_EQUALS(index, readMesh.SolveBoundaryElementMapping(i));
              }
             catch(Exception& e)
             {
-                //Read mesh threw so does not own element
+                // Read mesh threw so does not own element
                 TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetBoundaryElement(i), "does not belong to processor");
             }
         }
@@ -1194,15 +1191,15 @@ public:
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
 
-        unsigned owned=constructed_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
-        unsigned owned_in_read=read_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned = constructed_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned_in_read = read_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         TS_ASSERT_EQUALS(owned_in_read, owned);
         TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryElements(), 2u);
         TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalNodes(), owned);
-        //Sequential: Process owns one fewer element than the number of nodes
-        //Parallel: End processes own the same as the number of node (since one node is paired with a halo node)
-        //Parallel: Middle processes own one more than the number of nodes (since two nodes are paired with a halo nodes)
-        unsigned expected_elements=owned+1;
+        // Sequential: Process owns one fewer element than the number of nodes
+        // Parallel: End processes own the same as the number of node (since one node is paired with a halo node)
+        // Parallel: Middle processes own one more than the number of nodes (since two nodes are paired with a halo nodes)
+        unsigned expected_elements = owned+1;
         if (PetscTools::AmMaster())
         {
             expected_elements--;
@@ -1213,7 +1210,7 @@ public:
         }
         TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalElements(), expected_elements);
 
-        //Note that boundary nodes are local to the process
+        // Note that boundary nodes are local to the process
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), 2u);
@@ -1222,48 +1219,45 @@ public:
         {
             TS_ASSERT_LESS_THAN(constructed_mesh.GetNumBoundaryNodes(), 2u);
         }
-
     }
-
 
     void TestConstructLinearMeshVerySmall()
     {
         DistributedTetrahedralMesh<1,1> small_mesh;
-        //Coverage hack
+        // Coverage hack
         TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(0), "There aren't enough nodes to make parallelisation worthwhile");
-        
-        //Works with up to 3 processes
+
+        // Works with up to 3 processes
         small_mesh.ConstructRegularSlabMesh(10.0, 20.0);
         unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
         TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
         TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
-        //See logic in earlier test
+        // See logic in earlier test
         unsigned expected_elements=owned+1;
 
         std::vector<unsigned> halo_indices;
         small_mesh.GetHaloNodeIndices(halo_indices);
-        
-        //Check the size
+
+        // Check the size
         TS_ASSERT_EQUALS(small_mesh.GetNumHaloNodes(), halo_indices.size());
-        
-        //Check no halos in a sequential simulation
+
+        // Check no halos in a sequential simulation
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(small_mesh.GetNumHaloNodes(), 0u);
         }
-        
-        //Check that iteration does the same thing
-        unsigned i=0;
-        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=small_mesh.GetHaloNodeIteratorBegin(); 
-                it != small_mesh.GetHaloNodeIteratorEnd();
-                ++it,i++)
+
+        // Check that iteration does the same thing
+        unsigned i = 0;
+        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=small_mesh.GetHaloNodeIteratorBegin();
+             it != small_mesh.GetHaloNodeIteratorEnd();
+             ++it,i++)
         {
             TS_ASSERT_EQUALS(halo_indices[i], (*it)->GetIndex());
         }
-        
-        
+
         /**
          * 1 Proc:
          * p0:  0 Ow 1 Ow 2 Ow
@@ -1289,7 +1283,7 @@ public:
             else
             {
                 TS_ASSERT_EQUALS(halo_indices.size(), 1u);
-                TS_ASSERT_DELTA(halo_indices[0], 1u, 1u);//Halo is at index 1 (3 procs) or index 2 (2 procs)
+                TS_ASSERT_DELTA(halo_indices[0], 1u, 1u); // Halo is at index 1 (3 procs) or index 2 (2 procs)
             }
         }
         if (PetscTools::AmTopMost() && PetscTools::GetNumProcs() <= 3)
@@ -1304,7 +1298,7 @@ public:
                 TS_ASSERT_EQUALS(halo_indices.size(), 1u);
                 TS_ASSERT_EQUALS(halo_indices[0], 1u); //Halo is at index 1 (2 or 3 procs)
                 TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNodeOrHaloNode(0), "Requested node/halo");
-                //Right processor has  node 1 as halo
+                // Right processor has  node 1 as halo
                 TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
                 TS_ASSERT_THROWS_NOTHING(small_mesh.GetNodeOrHaloNode(1));//It's a halo
                 TS_ASSERT_DELTA(small_mesh.GetNodeOrHaloNode(1)->rGetLocation()[0], 10.0, 1e-5);
@@ -1312,8 +1306,8 @@ public:
             }
         }
         if (PetscTools::GetNumProcs() > 3 && PetscTools::GetMyRank()==2)
-        {   
-            //This is the equivalent to "top most"
+        {
+            // This is the equivalent to "top most"
             expected_elements--;
         }
         if (PetscTools::GetMyRank() < 3)
@@ -1322,7 +1316,7 @@ public:
         }
         else
         {
-            //This process owns nothing
+            // This process owns nothing
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), 0u);
             TS_ASSERT_EQUALS(owned, 0u);
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), 0u);
@@ -1330,11 +1324,10 @@ public:
         }
     }
 
-
     void TestConstructLinearMeshSmall()
     {
-        unsigned width=2;
-        //Works well with exactly 3 processors
+        unsigned width = 2;
+        // Works well with exactly 3 processors
         if (PetscTools::GetNumProcs() != width + 1)
         {
             TS_TRACE("This test works with exactly 3 processes.");
@@ -1353,15 +1346,16 @@ public:
         DistributedTetrahedralMesh<1,1> constructed_mesh;
         constructed_mesh.ConstructLinearMesh(width);
 
-        //Double check
+        // Double check
         TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
     }
+
     void TestConstructRetangularMeshSmall()
     {
-        unsigned width=1;
-        unsigned height=2;
-        //Works well with exactly 3 processors
+        unsigned width = 1;
+        unsigned height = 2;
+        // Works well with exactly 3 processors
         if (PetscTools::GetNumProcs() != height + 1)
         {
             TS_TRACE("This test works with exactly 3 processes.");
@@ -1386,8 +1380,8 @@ public:
 
     void TestConstructRetangularMesh()
     {
-        unsigned width=5;
-        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
+        unsigned width = 5;
+        unsigned height = 4*PetscTools::GetNumProcs()-1; // 4*NumProcs layers of nodes (ensure dumb partition works in slices)
 
         TetrahedralMesh<2,2> base_mesh;
         base_mesh.ConstructRectangularMesh(width, height);
@@ -1400,18 +1394,18 @@ public:
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
         DistributedTetrahedralMesh<2,2> constructed_mesh;
-        //Coverage
+        // Coverage
         TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructRectangularMesh(width, 0, false),
                             "There aren't enough nodes to make parallelisation worthwhile");
 
-        //Real mesh construction
+        // Real mesh construction
         constructed_mesh.ConstructRectangularMesh(width, height, false);
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
 
         if (PetscTools::AmTopMost())
         {
-            //Verify some element indices -- top left diagonal goes NW-SE (normal)
+            // Verify some element indices -- top left diagonal goes NW-SE (normal)
             TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0],            2.0/3.0, 1e-5);
             TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
             TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
@@ -1419,20 +1413,18 @@ public:
         }
         if (PetscTools::AmMaster())
         {
-            //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
+            // Verify some element indices -- bottom left diagonal goes NW-SE (normal)
             TS_ASSERT_DELTA(constructed_mesh.GetElement(0)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
             TS_ASSERT_DELTA(constructed_mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
             TS_ASSERT_DELTA(constructed_mesh.GetElement(1)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
             TS_ASSERT_DELTA(constructed_mesh.GetElement(1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
         }
-
     }
-
 
     void TestConstructRetangularMeshStagger()
     {
-        unsigned width=4;
-        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
+        unsigned width = 4;
+        unsigned height = 4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
 
         TetrahedralMesh<2,2> base_mesh;
         base_mesh.ConstructRectangularMesh(width, height, true);
@@ -1470,9 +1462,9 @@ public:
 
     void TestConstructCuboidMesh()
     {
-        unsigned width=2;
-        unsigned height=3;
-        unsigned depth=4*PetscTools::GetNumProcs()-1;
+        unsigned width = 2;
+        unsigned height = 3;
+        unsigned depth = 4*PetscTools::GetNumProcs()-1;
 
         TetrahedralMesh<3,3> base_mesh;
         base_mesh.ConstructCuboid(width, height, depth);
@@ -1485,52 +1477,51 @@ public:
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
         DistributedTetrahedralMesh<3,3> constructed_mesh;
-        //Coverage
+        // Coverage
         TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructCuboid(width, height, 0),
                             "There aren't enough nodes to make parallelisation worthwhile");
         constructed_mesh.ConstructCuboid(width, height, depth);
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
-        
-        //Test the bounding box methods
+
+        // Test the bounding box methods
         ChasteCuboid<3> base_bounding_box=base_mesh.CalculateBoundingBox();
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(0), (double) width);
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(1), (double) height);
         TS_ASSERT_EQUALS(base_bounding_box.GetWidth(2), (double) depth);
         if (PetscTools::IsSequential())
         {
-            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 1U); //Tie between 1 and 2 
+            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 1U); // Tie between 1 and 2
         }
         else
         {
-            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 2U); //2 wins outright
-        }        
+            TS_ASSERT_EQUALS(base_bounding_box.GetLongestAxis(), 2U); // 2 wins outright
+        }
         ChasteCuboid<3> constructed_bounding_box=constructed_mesh.CalculateBoundingBox();
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(0), (double) width);
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(1), (double) height);
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(2), (double) depth);
         if (PetscTools::IsSequential())
         {
-            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 1U); //Tie between 1 and 2 
+            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 1U); // Tie between 1 and 2
         }
         else
         {
-            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 2U); //2 wins outright
-        }        
-        TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumContainingElementsPerProcess(), 24U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
-        TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumNodeConnectivityPerProcess(), 15U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
- 
+            TS_ASSERT_EQUALS(constructed_bounding_box.GetLongestAxis(), 2U); // 2 wins outright
+        }
+        TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumContainingElementsPerProcess(), 24U);  // Four surrounding cubes may have all 6 tetrahedra meeting at a node
+        TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumNodeConnectivityPerProcess(), 15U);  // Four surrounding cubes may have all 6 tetrahedra meeting at a node
     }
 
     void TestConstructLinearMeshSmallest()
     {
         DistributedTetrahedralMesh<1,1> smallest_mesh;
         smallest_mesh.ConstructLinearMesh(1);
-        
+
         TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 2u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  2u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 1u);
-        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned = smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 2u);
@@ -1559,11 +1550,11 @@ public:
     {
         DistributedTetrahedralMesh<2,2> smallest_mesh;
         smallest_mesh.ConstructRectangularMesh(1,1);
-        
+
         TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  4u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 2u);
-        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned = smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 4u);
@@ -1592,11 +1583,11 @@ public:
     {
         DistributedTetrahedralMesh<3,3> smallest_mesh;
         smallest_mesh.ConstructCuboid(1,1,1);
-        
+
         TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 8u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  12u);
         TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 6u);
-        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned = smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 8u);
@@ -1613,13 +1604,14 @@ public:
             }
             else
             {
-                //Own nothing
+                // Own nothing
                 TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 0u);
                 TS_ASSERT_EQUALS(owned, 0u);
                 TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 0u);
             }
         }
     }
+
     void TestParallelWriting1D()
     {
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
@@ -1636,7 +1628,7 @@ public:
 
         std::string output_dir = mesh_writer1.GetOutputDirectory();
         /* Compare
-          grep -ab "#" /tmp/chaste/testoutput/TestDistributedMeshWriter/seq_line_10_elements.node 
+          grep -ab "#" /tmp/chaste/testoutput/TestDistributedMeshWriter/seq_line_10_elements.node
          219:# Created by Chaste version 1.1.8525 on Wed, 31 Mar 2010 14:13:58 +0000.  Chaste was built on Wed, 31 Mar 2010 14:10:35 +0000 by machine (uname) 'Linux userpc59.comlab.ox.ac.uk 2.6.24-27-generic #1 SMP Fri Mar 12 00:52:19 UTC 2010 x86_64' using settings: default, shared libraries.
          grep -ab "#" /tmp/$USER/testoutput/TestDistributedMeshWriter/seq_line_10_elements.node
          i.e. Bytes after 219 are provenance data and will change -- one second clock difference will be spotted
@@ -1651,56 +1643,56 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
-        std::vector<std::vector<unsigned> > nodes_to_send_per_process; 
-        std::vector<std::vector<unsigned> > nodes_to_receive_per_process; 
+
+        std::vector<std::vector<unsigned> > nodes_to_send_per_process;
+        std::vector<std::vector<unsigned> > nodes_to_receive_per_process;
         mesh.CalculateNodeExchange(nodes_to_send_per_process, nodes_to_receive_per_process);
-        
+
         TS_ASSERT_EQUALS(nodes_to_send_per_process.size(), PetscTools::GetNumProcs());
         TS_ASSERT_EQUALS(nodes_to_receive_per_process.size(), PetscTools::GetNumProcs());
         TS_ASSERT(nodes_to_receive_per_process[PetscTools::GetMyRank()].empty());
         TS_ASSERT(nodes_to_send_per_process[PetscTools::GetMyRank()].empty());
-        
+
         // Do some communication
-        
+
         //mesh.rGetDistributedVectorFactory()->rGetGlobalLows();
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
             unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
             unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
-                  
-            MPI_Send( &(nodes_to_send_per_process[send_to][0]), 
-                      nodes_to_send_per_process[send_to].size(), 
-                      MPI_UNSIGNED, 
-                      send_to, 
-                      0, 
+
+            MPI_Send( &(nodes_to_send_per_process[send_to][0]),
+                      nodes_to_send_per_process[send_to].size(),
+                      MPI_UNSIGNED,
+                      send_to,
+                      0,
                       PETSC_COMM_WORLD );
-                      
+
             unsigned received[nodes_to_receive_per_process[receive_from].size()];
             MPI_Status status;
 
             MPI_Recv( received,
-                      nodes_to_receive_per_process[receive_from].size(), 
-                      MPI_UNSIGNED, 
+                      nodes_to_receive_per_process[receive_from].size(),
+                      MPI_UNSIGNED,
                       receive_from,
                       0,
-                      PETSC_COMM_WORLD, 
+                      PETSC_COMM_WORLD,
                       &status );
-                      
+
             for ( unsigned i = 0; i < nodes_to_receive_per_process[receive_from].size(); i++ )
             {
                 TS_ASSERT_EQUALS( received[i], nodes_to_receive_per_process[receive_from][i] );
             }
         }
-        
+
 //        for (unsigned process = 0; process < PetscTools::GetNumProcs(); process++)
-//        {            
-//            PRINT_3_VARIABLES( process, 
+//        {
+//            PRINT_3_VARIABLES( process,
 //                               nodes_to_receive_per_process[process].size(),
 //                               nodes_to_send_per_process[process].size() );
 //        }
     }
-    
+
     void TestParallelWriting3D()
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
@@ -1722,7 +1714,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
     }
-    
+
     void TestEfficientParallelWriting3D()
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
@@ -1746,25 +1738,24 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements.pts "+ output_dir + "/seq_cube_2mm_12_elements.pts").c_str()), 0);
-        
-        //cg output is indexed from 1, but the pts file doesn't have indices
+
+        // cg output is indexed from 1, but the pts file doesn't have indices
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements_cg.pts "+ output_dir + "/seq_cube_2mm_12_elements_cg.pts").c_str()), 0);
 
         // Master process sorts element and face file and the rest wait before comparing.
         if (PetscTools::AmMaster())
         {
-            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tetras > " + output_dir + "seq_sorted.tetras").c_str());       
+            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tetras > " + output_dir + "seq_sorted.tetras").c_str());
             system(("sort " + output_dir + "/par_efficient_cube_2mm_12_elements.tetras > " + output_dir + "par_eff_sorted.tetras").c_str());
 
-            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tri > " + output_dir + "seq_sorted.tri").c_str());       
+            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tri > " + output_dir + "seq_sorted.tri").c_str());
             system(("sort " + output_dir + "/par_efficient_cube_2mm_12_elements.tri > " + output_dir + "par_eff_sorted.tri").c_str());
-        }       
+        }
         PetscTools::Barrier();
-                
+
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tetras " + output_dir + "par_eff_sorted.tetras").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tri " + output_dir + "par_eff_sorted.tri").c_str()), 0);
     }
-
 
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
@@ -1779,9 +1770,9 @@ public:
         unsigned local_num_nodes;
         unsigned num_elements;
 
-        unsigned width=4;
-        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
-        // archive
+        unsigned width = 4;
+        unsigned height = 4*PetscTools::GetNumProcs()-1; // 4*NumProcs layers of nodes (ensure dumb partition works in slices)
+        // Archive
         {
             p_mesh->ConstructRectangularMesh(width, height);
             num_nodes = p_mesh->GetNumNodes();
@@ -1797,7 +1788,7 @@ public:
             (*p_arch) << p_mesh_abstract;
         }
 
-        // restore
+        // Restore
         {
             // Should archive the most abstract class you can to check boost knows what individual classes are.
             // (but here AbstractMesh doesn't have the methods below).
@@ -1807,8 +1798,9 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            // restore from the archive
+            // Restore from the archive
             (*p_arch) >> p_mesh_abstract2;
+
             // Check we have the right number of nodes & elements
             DistributedTetrahedralMesh<2,2>* p_mesh2 = static_cast<DistributedTetrahedralMesh<2,2>*>(p_mesh_abstract2);
 
@@ -1817,10 +1809,11 @@ public:
             TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
 
             CompareParallelMeshOwnership(*p_mesh, *p_mesh2);
+
             // Check some node co-ordinates
             try
             {
-                Node<2>* p_node1 =p_mesh->GetNode(0);
+                Node<2>* p_node1 = p_mesh->GetNode(0);
                 Node<2>* p_node2 = p_mesh2->GetNode(0);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
@@ -1877,12 +1870,8 @@ public:
         delete p_mesh;
     }
 
-
-
     void TestLoadBadFacesException() throw (Exception)
     {
-
-
         DistributedTetrahedralMesh<3,3> distributed_mesh_bad;
         TrianglesMeshReader<3,3> mesh_reader_bad("mesh/test/data/cube_21_nodes_side/Cube21_bad_faces"); // 5x5x5mm cube (internode distance = 0.25mm)
         if (PetscTools::IsSequential())
@@ -1929,9 +1918,7 @@ public:
         //Test for connectivity
         ///\todo #1621 use the mesh reader when it's written
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_binary_v2.ncl").c_str()), 0);
-
-        
     }
-
 };
+
 #endif /*TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_*/

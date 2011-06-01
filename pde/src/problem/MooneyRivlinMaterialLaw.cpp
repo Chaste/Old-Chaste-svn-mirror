@@ -37,10 +37,12 @@ double MooneyRivlinMaterialLaw<DIM>::Get_dW_dI1(double I1, double I2)
 template<unsigned DIM>
 double MooneyRivlinMaterialLaw<DIM>::Get_dW_dI2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
     return mC2;
 }
@@ -54,10 +56,12 @@ double MooneyRivlinMaterialLaw<DIM>::Get_d2W_dI1(double I1, double I2)
 template<unsigned DIM>
 double MooneyRivlinMaterialLaw<DIM>::Get_d2W_dI2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
     return 0.0;
 }
@@ -65,10 +69,12 @@ double MooneyRivlinMaterialLaw<DIM>::Get_d2W_dI2(double I1, double I2)
 template<unsigned DIM>
 double MooneyRivlinMaterialLaw<DIM>::Get_d2W_dI1I2(double I1, double I2)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
-    assert(DIM==3);
+    assert(DIM == 3);
     #undef COVERAGE_IGNORE
     return 0.0;
 }
@@ -93,7 +99,7 @@ MooneyRivlinMaterialLaw<DIM>::MooneyRivlinMaterialLaw(double c1, double c2)
 {
     assert(DIM==2 || DIM ==3);
 
-    // if dim==3, check that c2 was passed in, ie c2 isn't the default value
+    // If dim==3, check that c2 was passed in, ie c2 isn't the default value
     if ((DIM==3) && (c2<MINUS_LARGE+1))
     {
         EXCEPTION("Two parameters needed for 3d Mooney-Rivlin");
@@ -112,7 +118,6 @@ void MooneyRivlinMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
     mC1 /= scaleFactor;
     mC2 /= scaleFactor;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

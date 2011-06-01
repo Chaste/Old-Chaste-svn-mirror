@@ -56,7 +56,7 @@ class ChastePoint
     {
         //archive & mLocation; //earlier versions of boost are unable to do this. See #1709
     }
-    
+
 private:
 
     /** The location of the Point. */
@@ -107,7 +107,7 @@ public:
      * @param i the index of the vector to return
      */
     double operator[] (unsigned i) const;
-    
+
     /**
      * Get a co-ordinate, returning the default value if the co-ordinate doesn't exist.
      * @param i  the co-ordinate to get

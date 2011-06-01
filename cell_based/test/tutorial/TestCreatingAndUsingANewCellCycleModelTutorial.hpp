@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-/* The next header defines a base class for simple generation-based cell-cycle models. 
+/* The next header defines a base class for simple generation-based cell-cycle models.
  * A cell-cycle model is defined as ''simple'' if the duration of each phase of the cell
  * cycle is determined when the cell-cycle model is created, rather than
  * evaluated on the fly (e.g. by solving a system of ordinary differential
@@ -89,7 +89,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cells divide a certain number of generations before becoming differentiated. To implement this model we define a new cell-cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
- * 
+ *
  * Note that usually this code would be separated out into a separate declaration in
  * a .hpp file and definition in a .cpp file.
  */
@@ -158,7 +158,7 @@ public:
      * builder method to create new copies of the cell-cycle model. We first create
      * a new cell-cycle model, then set each member variable of the new cell-cycle
      * model that inherits its value from the parent.
-     * 
+     *
      * There are a number of things to mention regarding the {{{CreateCellCycleModel()}}}
      * method: these are quite technical, but are worth stating here for the sake of
      * completeness. If we look at which member variables
@@ -171,7 +171,7 @@ public:
      * model does not need to know the spatial dimension, so if we were to call
      * {{{SetDimension()}}} on the new cell-cycle model an exception would be triggered;
      * hence we do not set this member variable. It is also worth noting that in a simulation,
-     * one or more of the new cell-cycle model's member variables 
+     * one or more of the new cell-cycle model's member variables
      * may be set/overwritten as soon as {{{InitialiseDaughterCell()}}} is called on
      * the new cell-cycle model; this occurs when the associated cell has called its
      * {{{Divide()}}} method.
@@ -232,7 +232,7 @@ public:
     void TestMyCellCycleModel() throw(Exception)
     {
         /* We must first set the start time. In addition, it is advisable to reset
-         * the values of all model parameters. Recall that {{{SimulationTime}}} is a 
+         * the values of all model parameters. Recall that {{{SimulationTime}}} is a
          * ''singleton'' class; this means one and only
          * one of each of this object is instantiated at any time, and that single
          * object is accessible from anywhere in the code. As a result, we do not need

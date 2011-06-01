@@ -97,8 +97,8 @@ public:
         // Load and run crypt simulation
         CryptSimulation2d* p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
-        
-        ///\todo we should also test the rest of the simulation setup 
+
+        ///\todo we should also test the rest of the simulation setup
 
         // Tidy up
         delete p_simulator;

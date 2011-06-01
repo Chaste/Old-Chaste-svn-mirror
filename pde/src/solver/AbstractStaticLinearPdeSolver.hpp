@@ -33,53 +33,54 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearPdeSolver.hpp"
 
 /**
- *  Abstract class for static linear PDE solves.
- *  This class defines the Solve() method. The concrete class should implement
- *  the SetupLinearSystem() method (defined in AbstractLinearPdeSolver), based
- *  on the PDE being solved and the numerical method.
+ * Abstract class for static linear PDE solves.
+ * This class defines the Solve() method. The concrete class should implement
+ * the SetupLinearSystem() method (defined in AbstractLinearPdeSolver), based
+ * on the PDE being solved and the numerical method.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractStaticLinearPdeSolver : public AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
 public:
-    /** 
-     *  Constructor
-     *  @param pMesh the mesh
+
+    /**
+     * Constructor.
+     *
+     * @param pMesh the mesh
      */
     AbstractStaticLinearPdeSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
         : AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>(pMesh)
     {
     }
-    
-    /** Static solve method 
-     *  @param initialGuess optional initial guess for passing into the linear solve
-     *  method 
+
+    /**
+     * Static solve method.
+     *
+     * @param initialGuess optional initial guess for passing into the linear solve method
      */
     Vec Solve(Vec initialGuess=NULL);
-};    
-
+};
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractStaticLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Vec initialGuess)
 {
-    // set up the linear system
+    // Set up the linear system
     this->InitialiseForSolve(initialGuess);
 
-    // this method can be overloaded if neccessary
+    // This method can be overloaded if neccessary
     this->PrepareForSetupLinearSystem(NULL);
 
-    // this method should be implemented by the concrete class
+    // This method should be implemented by the concrete class
     this->SetupLinearSystem(NULL, true);
-    
+
     this->FinaliseLinearSystem(NULL);
-    
-    // solve the linear system
+
+    // Solve the linear system
     Vec solution = this->mpLinearSystem->Solve(initialGuess);
 
     this->FollowingSolveLinearSystem(solution);
 
     return solution;
 }
-
 
 #endif /*ABSTRACTSTATICLINEARPDESOLVER_HPP_*/

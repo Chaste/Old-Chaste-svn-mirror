@@ -36,16 +36,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * associated weights.
  *
  * Data is available for 1d, 2d and 3d quadrature over (canonical) triangles,
- * with between 1 and 3 (inclusive) gauss points in each dimension.
+ * with between 1 and 3 (inclusive) Gauss points in each dimension.
  * The values are computed when an object is instantiated.
  */
 template<unsigned ELEMENT_DIM>
 class GaussianQuadratureRule
 {
-    /** The total number of gauss points. */
+    /** The total number of Gauss points. */
     unsigned mNumQuadPoints;
+
     /** The gaussian quadrature points. */
     std::vector<ChastePoint<ELEMENT_DIM> > mPoints;
+
     /** The associated weights. */
     std::vector<double> mWeights;
 
@@ -59,7 +61,7 @@ public:
      * An exception is thrown if data is not available for the requested
      * parameters.
      *
-     * @param numPointsInEachDimension  number of gauss points in each dimension
+     * @param numPointsInEachDimension  number of Gauss points in each dimension
      */
     GaussianQuadratureRule(unsigned numPointsInEachDimension);
 
@@ -83,7 +85,6 @@ public:
      * each dimension, raised to the power of the number of dimensions.
      */
     unsigned GetNumQuadPoints() const;
-
 };
 
 #endif //_GAUSSIANQUADRATURERULE_HPP_

@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChastePoint.hpp"
 
-
 /**
  * Linear basis functions for the finite element method,
  * computed on a canonical element.
@@ -84,6 +83,5 @@ public:
     static double ComputeBasisFunction(const ChastePoint<0>& rPoint, unsigned basisIndex);
     static void ComputeBasisFunctions(const ChastePoint<0>& rPoint,c_vector<double,1>& rReturnValue);
 };
-
 
 #endif //_LINEARBASISFUNCTION_HPP_

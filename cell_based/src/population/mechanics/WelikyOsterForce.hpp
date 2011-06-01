@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A force class for use in vertex-based simulations, based on a mechanical
  * model proposed by M. Weliky and G. Oster ("The mechanical basis of cell rearrangement.
  * I. Epithelial morphogenesis during Fundulus epiboly", Development 109:373-386).
- * 
+ *
  * The default values for the two model parameter member variables are our own best
  * estimates, since they are not given in the Weliky & Oster paper.
  */
@@ -110,14 +110,14 @@ public:
 
     /**
      * Set mWelikyOsterAreaParameter.
-     * 
+     *
      * @param welikyOsterAreaParameter the new value of mWelikyOsterAreaParameter
      */
     void SetWelikyOsterAreaParameter(double welikyOsterAreaParameter);
 
     /**
      * Set mWelikyOsterPerimeterParameter.
-     * 
+     *
      * @param welikyOsterPerimeterParameter the new value of mWlikyOsterPerimeterParameter
      */
     void SetWelikyOsterPerimeterParameter(double welikyOsterPerimeterParameter);

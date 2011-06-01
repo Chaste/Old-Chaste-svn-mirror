@@ -100,11 +100,11 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CellPropertyRegistry::Instance()->Clear();   
+        CellPropertyRegistry::Instance()->Clear();
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
         // Set up cells
-        std::vector<CellPtr> cells;    
+        std::vector<CellPtr> cells;
         cells.clear();
         unsigned num_cells = location_indices.empty() ? p_mesh->GetNumNodes() : location_indices.size();
         cells.reserve(num_cells);
@@ -114,21 +114,21 @@ public:
             CellProliferativeType cell_type;
             unsigned generation;
             double y = 0.0;
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             }
-    
+
             FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
             p_cell_cycle_model->SetDimension(2);
-    
+
             double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
             double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
-    
+
             double birth_time = 0.0;
             birth_time = -p_random_num_gen->ranf();
-    
+
             if (y <= 0.3)
             {
                 cell_type = STEM;
@@ -159,15 +159,15 @@ public:
                 generation = 4;
                 birth_time *= typical_transit_cycle_time; // hours
             }
-    
+
             p_cell_cycle_model->SetGeneration(generation);
             p_cell_cycle_model->SetCellProliferativeType(cell_type);
-    
+
             boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-    
+
             CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
             p_cell->SetBirthTime(birth_time);
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 cells.push_back(p_cell);
@@ -245,7 +245,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CellPropertyRegistry::Instance()->Clear();   
+        CellPropertyRegistry::Instance()->Clear();
         RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
         // Set up cells
@@ -259,21 +259,21 @@ public:
             CellProliferativeType cell_type;
             unsigned generation;
             double y = 0.0;
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             }
-    
+
             FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel;
             p_cell_cycle_model->SetDimension(2);
-    
+
             double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
             double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
-    
+
             double birth_time = 0.0;
             birth_time = -p_random_num_gen->ranf();
-    
+
             if (y <= 0.3)
             {
                 cell_type = STEM;
@@ -304,15 +304,15 @@ public:
                 generation = 4;
                 birth_time *= typical_transit_cycle_time; // hours
             }
-    
+
             p_cell_cycle_model->SetGeneration(generation);
             p_cell_cycle_model->SetCellProliferativeType(cell_type);
-    
+
             boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-    
+
             CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
             p_cell->SetBirthTime(birth_time);
-    
+
             if (std::find(location_indices.begin(), location_indices.end(), i) != location_indices.end())
             {
                 cells.push_back(p_cell);
@@ -575,8 +575,8 @@ public:
         }
 
         // Convert this to a NodesOnlyMesh
-		NodesOnlyMesh<2> mesh;
-		mesh.ConstructNodesWithoutMesh(nodes);
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
 
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
@@ -596,7 +596,7 @@ public:
         LinearSpringWithVariableSpringConstantsForce<2> spring_force;
         TS_ASSERT_THROWS_THIS(spring_force.AddForceContribution(node_forces, cell_population),
                 "LinearSpringWithVariableSpringConstantsForce is to be used with a subclass of MeshBasedCellPopulation only");
-    
+
         // When the node-only mesh goes out of scope, then it's a different set of nodes that get destroyed
         for (unsigned i=0; i<nodes.size(); i++)
         {

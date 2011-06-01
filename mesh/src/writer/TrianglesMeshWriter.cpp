@@ -59,7 +59,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 {
     std::string comment = "#\n# " + ChasteBuildInfo::GetProvenanceString();
-    
+
     // Write node file
     std::string node_file_name = this->mBaseName + ".node";
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
@@ -128,7 +128,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     else
     {
         ElementData element_data = this->GetNextElement();
-    
+
         unsigned nodes_per_element = element_data.NodeIndices.size();
         if (nodes_per_element != ELEMENT_DIM+1)
         {
@@ -136,7 +136,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             assert(ELEMENT_DIM == SPACE_DIM);
             assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
          }
-    
+
         *p_element_file << num_elements << "\t";
         *p_element_file << nodes_per_element << "\t";
         *p_element_file << num_attr;
@@ -148,17 +148,17 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         {
             *p_element_file << "\n";
         }
-    
+
         // Write each element's data
         for (unsigned item_num=0; item_num<num_elements; item_num++)
         {
             // if item_num==0 we will already got the element above (in order to
             // get the number of nodes per element
-            if (item_num>0)
+            if (item_num > 0)
             {
                 element_data = this->GetNextElement();
             }
-    
+
             WriteItem(p_element_file, item_num, element_data.NodeIndices, element_data.AttributeValue);
         }
         *p_element_file << comment << "\n";
@@ -187,7 +187,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     if (num_elements != 0)
     {
         unsigned num_faces = this->GetNumBoundaryFaces();
-    
+
         *p_face_file << num_faces << "\t";
         *p_face_file << max_bdy_marker;
         if (this->mFilesAreBinary)
@@ -198,7 +198,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         {
             *p_face_file << "\n";
         }
-    
+
         // Write each face's data
         default_marker = UINT_MAX;
         for (unsigned item_num=0; item_num<num_faces; item_num++)
@@ -208,17 +208,17 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         }
         *p_face_file << comment << "\n";
         p_face_file->close();
-    
-        if( this->GetNumCableElements() > 0)
+
+        if (this->GetNumCableElements() > 0)
         {
             // Write cable element file
             std::string cable_element_file_name = this->mBaseName + ".cable";
             out_stream p_cable_element_file = this->mpOutputFileHandler->OpenOutputFile(cable_element_file_name);
-        
+
             // Write the cable element header
             unsigned num_cable_elements = this->GetNumCableElements();
             num_attr = 1u; // We have a single region code
-        
+
             *p_cable_element_file << num_cable_elements << "\t";
             *p_cable_element_file << 2 << "\t";
             *p_cable_element_file << num_attr;
@@ -230,7 +230,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             {
                 *p_cable_element_file << "\n";
             }
-        
+
             // Write each element's data
             for (unsigned item_num=0; item_num<num_cable_elements; item_num++)
             {

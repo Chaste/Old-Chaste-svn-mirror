@@ -134,7 +134,7 @@ public:
      * Set all components of the tensor to zero.
      */
     void Zero();
-    
+
     /**
      * Get a reference to the internal data of the tensor.
      */
@@ -168,15 +168,15 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
     std::vector<double>::iterator iter = mData.begin();
     std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
 
-    for(unsigned d=0; d<DIM4; d++)
+    for (unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned c=0; c<DIM3; c++)
+        for (unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned b=0; b<DIM2; b++)
+            for (unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned a=0; a<DIM1; a++)
+                for (unsigned a=0; a<DIM1; a++)
                 {
-                    for(unsigned N=0; N<CONTRACTED_DIM; N++)
+                    for (unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
                         // The following just does
                         //
@@ -187,10 +187,10 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
                         *iter += rMatrix(a,N) * *other_tensor_iter;
                         other_tensor_iter++;
                     }
-                    
+
                     iter++;
-                    
-                    if(a != DIM1-1)
+
+                    if (a != DIM1-1)
                     {
                         other_tensor_iter -= CONTRACTED_DIM;
                     }
@@ -199,7 +199,7 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
         }
     }
 }
- 
+
 
 template<unsigned DIM1, unsigned DIM2, unsigned DIM3, unsigned DIM4>
 template<unsigned CONTRACTED_DIM>
@@ -210,15 +210,15 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnSecondDimension(c
     std::vector<double>::iterator iter = mData.begin();
     std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
 
-    for(unsigned d=0; d<DIM4; d++)
+    for (unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned c=0; c<DIM3; c++)
+        for (unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned b=0; b<DIM2; b++)
+            for (unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned N=0; N<CONTRACTED_DIM; N++)
+                for (unsigned N=0; N<CONTRACTED_DIM; N++)
                 {
-                    for(unsigned a=0; a<DIM1; a++)
+                    for (unsigned a=0; a<DIM1; a++)
                     {
                         // The following just does
                         //
@@ -230,13 +230,13 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnSecondDimension(c
                         iter++;
                         other_tensor_iter++;
                     }
-                    
-                    if(N != CONTRACTED_DIM-1)
+
+                    if (N != CONTRACTED_DIM-1)
                     {
                         iter -= DIM1;
                     }
                 }
-                if(b != DIM2-1)
+                if (b != DIM2-1)
                 {
                     other_tensor_iter -= CONTRACTED_DIM*DIM1;
                 }
@@ -251,19 +251,19 @@ template<unsigned CONTRACTED_DIM>
 void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnThirdDimension(const c_matrix<double,DIM3,CONTRACTED_DIM>& rMatrix, FourthOrderTensor<DIM1,DIM2,CONTRACTED_DIM,DIM4>& rTensor)
 {
     Zero();
-    
+
     std::vector<double>::iterator iter = mData.begin();
     std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
-    
-    for(unsigned d=0; d<DIM4; d++)
+
+    for (unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned c=0; c<DIM3; c++)
+        for (unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned N=0; N<CONTRACTED_DIM; N++)
+            for (unsigned N=0; N<CONTRACTED_DIM; N++)
             {
-                for(unsigned b=0; b<DIM2; b++)
+                for (unsigned b=0; b<DIM2; b++)
                 {
-                    for(unsigned a=0; a<DIM1; a++)
+                    for (unsigned a=0; a<DIM1; a++)
                     {
                         // The following just does
                         //
@@ -277,13 +277,13 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnThirdDimension(co
                     }
                 }
 
-                if(N != CONTRACTED_DIM-1)
+                if (N != CONTRACTED_DIM-1)
                 {
                     iter -= DIM1*DIM2;
-                }             
+                }
             }
 
-            if(c != DIM3-1)
+            if (c != DIM3-1)
             {
                 other_tensor_iter -= CONTRACTED_DIM*DIM1*DIM2;
             }
@@ -297,19 +297,19 @@ template<unsigned CONTRACTED_DIM>
 void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFourthDimension(const c_matrix<double,DIM4,CONTRACTED_DIM>& rMatrix, FourthOrderTensor<DIM1,DIM2,DIM3,CONTRACTED_DIM>& rTensor)
 {
     Zero();
-   
+
     std::vector<double>::iterator iter = mData.begin();
     std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
 
-    for(unsigned d=0; d<DIM4; d++)
+    for (unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned N=0; N<CONTRACTED_DIM; N++)
+        for (unsigned N=0; N<CONTRACTED_DIM; N++)
         {
-            for(unsigned c=0; c<DIM3; c++)
+            for (unsigned c=0; c<DIM3; c++)
             {
-                for(unsigned b=0; b<DIM2; b++)
+                for (unsigned b=0; b<DIM2; b++)
                 {
-                    for(unsigned a=0; a<DIM1; a++)
+                    for (unsigned a=0; a<DIM1; a++)
                     {
                         // The following just does
                         //
@@ -318,17 +318,17 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFourthDimension(c
                         // but more efficiently using iterators into the data vector, not
                         // using random access
                         *iter += rMatrix(d,N) * *other_tensor_iter;
-                        
+
                         iter++;
                         other_tensor_iter++;
                     }
                 }
             }
-    
-            if(N != CONTRACTED_DIM-1)
+
+            if (N != CONTRACTED_DIM-1)
             {
                 iter-= DIM1*DIM2*DIM3;
-            }  
+            }
         }
 
         other_tensor_iter -= CONTRACTED_DIM*DIM1*DIM2*DIM3;

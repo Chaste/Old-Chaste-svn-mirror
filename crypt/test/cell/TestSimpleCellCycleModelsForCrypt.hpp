@@ -341,8 +341,8 @@ public:
             // Set up associated cell
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-			CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
-			p_stem_cell->InitialiseCellCycleModel();
+            CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
+            p_stem_cell->InitialiseCellCycleModel();
 
 
             while (p_cell_model->GetAge() < g1_duration + p_cell_model->GetSG2MDuration()
@@ -429,9 +429,9 @@ public:
 
         // Create an output archive
         {
-        	// Set up the simulation time note here it needs to be done before we create a cell-cycle model.
-        	SimulationTime* p_simulation_time = SimulationTime::Instance();
-        	p_simulation_time->SetStartTime(0.0);
+            // Set up the simulation time note here it needs to be done before we create a cell-cycle model.
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
 
             // Create cell-cycle model
             SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
@@ -440,13 +440,13 @@ public:
             p_cell_model->SetCellProliferativeType(STEM);
 
             // Set end time for simulation
-			// The number for the G1 duration is taken from
-			// the first random number generated
-			double g1_duration = mFirstRandomNumber;
+            // The number for the G1 duration is taken from
+            // the first random number generated
+            double g1_duration = mFirstRandomNumber;
 
-			double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
-			unsigned num_timesteps = 50;
-			p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+            double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
+            unsigned num_timesteps = 50;
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
@@ -482,7 +482,7 @@ public:
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
 
-			// Tidy Up
+            // Tidy Up
             RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }

@@ -70,14 +70,14 @@ public:
         // Defines element list
         int **nodes;
         nodes = new int *[num_elements];
-        for(int i=0;i<num_elements;i++)
+        for (int i=0;i<num_elements;i++)
         {
             nodes[i] = new int[5];
         }
         // Defines coordinate list
         double **coords;
         coords = new double *[num_nodes];
-        for(int i=0;i<num_nodes;i++)
+        for (int i=0;i<num_nodes;i++)
         {
             coords[i] = new double[3];
         }
@@ -92,7 +92,7 @@ public:
         // Reads in elements
         int node0, node1, node2, node3, tag, dummy;
         nodesfile >> dummy;
-        for(int i=0;i<num_elements;i++)
+        for (int i=0;i<num_elements;i++)
         {
             nodesfile >> node0 >> node1 >> node2 >> node3 >> tag;
             nodes[i][0] = node0;
@@ -111,7 +111,7 @@ public:
         // Reads in coords file
         double x,y,z;
         coordsfile >> dummy;
-        for(int i=0;i<num_nodes;i++)
+        for (int i=0;i<num_nodes;i++)
         {
             coordsfile >> x >> y >> z;
             coords[i][0] = x*x_factor;
@@ -124,7 +124,7 @@ public:
 
         // Reads in list of papillary nodes
         int pap_face_value;
-        for(int i=0;i<num_pap_face;i++)
+        for (int i=0;i<num_pap_face;i++)
         {
             pap_facefile >> pap_face_value;
             pap_face[i] = pap_face_value;
@@ -134,7 +134,7 @@ public:
         // Defines a list into which radial vectors are stored
         double **gradients;
         gradients = new double *[num_elements];
-        for(int i=0;i<num_elements;i++)
+        for (int i=0;i<num_elements;i++)
         {
             gradients[i] = new double[3];
         }
@@ -146,7 +146,7 @@ public:
 
 
         // Loops over all elements finding radius vector
-        for(int i=0;i<num_elements;i++)
+        for (int i=0;i<num_elements;i++)
         {
             // Checks to see if we're in a papillary element
             if (nodes[i][4] == 6)
@@ -160,7 +160,7 @@ public:
                 r = 1000000;
 
                 // Loops over all papillary face nodes
-                for(int j=0;j<num_pap_face;j++)
+                for (int j=0;j<num_pap_face;j++)
                 {
                     // Defines the coordinates of the papillary face node
                     x_f = coords[pap_face[j]][0];
@@ -194,7 +194,7 @@ public:
 
         // Writes-out the radius vector file
         ofstream vectorfile("/home/chaste/heart_data/radius_vector.dat");
-        for(int i=0;i<num_elements;i++)
+        for (int i=0;i<num_elements;i++)
         {
             vectorfile << gradients[i][0] << " " << gradients[i][1] << " " << gradients[i][2] << "\n";
         }

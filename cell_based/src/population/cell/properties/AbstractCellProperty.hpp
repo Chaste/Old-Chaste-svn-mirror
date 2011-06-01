@@ -105,7 +105,7 @@ public:
     {
         // We put a const_cast in here so users don't have to worry about whether the
         // property object they are testing is const or not.
-    	BASECLASS* p_subclass = dynamic_cast<BASECLASS*>(const_cast<AbstractCellProperty*>(this));
+        BASECLASS* p_subclass = dynamic_cast<BASECLASS*>(const_cast<AbstractCellProperty*>(this));
         return (p_subclass != NULL);
     }
 

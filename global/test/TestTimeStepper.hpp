@@ -141,26 +141,26 @@ public:
         }
         TS_ASSERT_EQUALS(counter,10u);
     }
-    
+
     void TestAdditionalSteppingPoints() throw(Exception)
     {
-        
+
         std::vector<double> additional_times_bad_order;
         additional_times_bad_order.push_back(0.75);
         additional_times_bad_order.push_back(0.25);
-        
+
         TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_order),"The additional times vector should be in ascending numerical order");
-                      
+
         std::vector<double> additional_times;
         additional_times.push_back(0.03);
         additional_times.push_back(0.25);
         additional_times.push_back(0.5);
         additional_times.push_back(0.75);
-        
+
         TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times);
-        
+
         TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(),13u);
-        
+
         std::vector<double> expected_times_reverse_order;
         expected_times_reverse_order.push_back(1.0);
         expected_times_reverse_order.push_back(0.9);
@@ -181,19 +181,19 @@ public:
         std::vector<double> expected_timesteps_reverse_order;
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.1);
-        expected_timesteps_reverse_order.push_back(0.05); 
+        expected_timesteps_reverse_order.push_back(0.05);
         expected_timesteps_reverse_order.push_back(0.05);
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.1);
-        expected_timesteps_reverse_order.push_back(0.05); 
+        expected_timesteps_reverse_order.push_back(0.05);
         expected_timesteps_reverse_order.push_back(0.05);
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.07);
         expected_timesteps_reverse_order.push_back(0.03);
-        
-        
+
+
         while (!stepper.IsTimeAtEnd())
         {
             TS_ASSERT_DELTA(stepper.GetTime(),expected_times_reverse_order.back(),1e-12);
@@ -205,7 +205,7 @@ public:
 
             stepper.AdvanceOneTimeStep();
         }
-        
+
         TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(),13u);
     }
 
@@ -213,7 +213,7 @@ public:
     {
         double timestep = 0.1;
         TimeStepper stepper(0.0, 0.5, timestep, false);
-        
+
         TS_ASSERT_EQUALS(stepper.GetNextTimeStep(), timestep);
         TS_ASSERT_EQUALS(stepper.GetTime(), 0.0);
         TS_ASSERT_EQUALS(stepper.GetNextTime(), timestep);
@@ -221,7 +221,7 @@ public:
 
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_EQUALS(stepper.GetTime(), 0.1);
-        
+
         timestep = 0.05;
         stepper.ResetTimeStep(timestep);
         TS_ASSERT_DELTA(stepper.GetNextTimeStep(), timestep, 1e-12);
@@ -230,7 +230,7 @@ public:
 
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_DELTA(stepper.GetTime(), 0.15, 1e-12);
-        
+
         timestep = 0.25;
         stepper.ResetTimeStep(timestep);
         TS_ASSERT_DELTA(stepper.GetNextTimeStep(), timestep, 1e-12);
@@ -239,11 +239,11 @@ public:
 
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_DELTA(stepper.GetTime(), 0.4, 1e-12);
-        
+
         TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.1, 1e-12);
         TS_ASSERT_DELTA(stepper.GetNextTime(), 0.5, 1e-12);
         TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 1u);
-        
+
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
     }
@@ -259,7 +259,7 @@ public:
 
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_EQUALS(stepper.GetTime(), 0.1);
-        
+
         timestep = 0.25;
         stepper.ResetTimeStep(timestep);
         TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.23, 1e-12);
@@ -270,7 +270,7 @@ public:
 
         TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.02, 1e-12);
         TS_ASSERT_DELTA(stepper.GetNextTime(), 0.35, 1e-12);
-        
+
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_EQUALS(stepper.GetTime(), 0.35);
 

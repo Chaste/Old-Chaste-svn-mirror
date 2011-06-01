@@ -35,19 +35,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PdeSimulationTime.hpp"
 #include "AbstractTimeAdaptivityController.hpp"
 
-
 /**
- *  Abstract class for dynamic linear PDE solves.
- *  This class defines the Solve() method. The concrete class should implement
- *  the SetupLinearSystem() method (defined in AbstractLinearPdeSolver), based
- *  on the PDE being solved and the numerical method.
+ * Abstract class for dynamic linear PDE solves.
+ * This class defines the Solve() method. The concrete class should implement
+ * the SetupLinearSystem() method (defined in AbstractLinearPdeSolver), based
+ * on the PDE being solved and the numerical method.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicLinearPdeSolver : public AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
     friend class TestSimpleLinearParabolicSolver;
-
 protected:
+
     /** Simulation start time. */
     double mTstart;
 
@@ -63,57 +62,68 @@ protected:
    /** Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
 
-    /** Whether the matrix is constant in time (if so the system need not be assembled at each time step).
-     *  Defaults to false */
+    /**
+     * Whether the matrix is constant in time (if so the system need not be assembled at each time step).
+     * Defaults to false.
+     */
     bool mMatrixIsConstant;
 
-    /** The timestep to use. This is either the last timestep passed in in SetTimeStep,
-     *  or the last timestep suggested by the time adaptivity controller
+    /**
+     * The timestep to use. This is either the last timestep passed in in SetTimeStep,
+     * or the last timestep suggested by the time adaptivity controller.
      */
     double mIdealTimeStep;
-    
-    /** The last actual timestep used */
+
+    /** The last actual timestep used. */
     double mLastWorkingTimeStep;
 
-    /** A controller which determines what timestep to use (defaults to NULL) */ 
+    /** A controller which determines what timestep to use (defaults to NULL). */
     AbstractTimeAdaptivityController* mpTimeAdaptivityController;
 
 public:
-    /** 
-     *  Constructor
-     *  @param pMesh the mesh
+
+    /**
+     * Constructor.
+     *
+     * @param pMesh the mesh
      */
     AbstractDynamicLinearPdeSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Set the times to solve between.
+     *
      * @param tStart the start time
      * @param tEnd the end time
      */
     void SetTimes(double tStart, double tEnd);
 
-    /** Set (or reset) the timestep to use
-     *  @param dt timestep
+    /**
+     * Set (or reset) the timestep to use.
+     *
+     * @param dt timestep
      */
     void SetTimeStep(double dt);
 
     /**
      * Set the initial condition.
+     *
      * @param initialCondition the initial condition
      */
     void SetInitialCondition(Vec initialCondition);
 
-    /** Dynamic solve method */
+    /** Dynamic solve method. */
     Vec Solve();
 
-    /** Tell the solver to assemble the matrix again next timestep  */
+    /** Tell the solver to assemble the matrix again next timestep. */
     void SetMatrixIsNotAssembled()
     {
-    	mMatrixIsAssembled = false;
+        mMatrixIsAssembled = false;
     }
-    
-    /** Set a controller class which alters the dt used 
-     *  @param pTimeAdaptivityController the controller
+
+    /**
+     * Set a controller class which alters the dt used.
+     *
+     * @param pTimeAdaptivityController the controller
      */
     void SetTimeAdaptivityController(AbstractTimeAdaptivityController* pTimeAdaptivityController)
     {
@@ -121,8 +131,7 @@ public:
         assert(mpTimeAdaptivityController == NULL);
         mpTimeAdaptivityController = pTimeAdaptivityController;
     }
-};    
-
+};
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDynamicLinearPdeSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
@@ -141,7 +150,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTimes(double tStart, double tEnd)
 {
     mTstart = tStart;
-    mTend   = tEnd;
+    mTend = tEnd;
 
     if (mTstart >= mTend)
     {
@@ -165,7 +174,7 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTim
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetInitialCondition(Vec initialCondition)
 {
-    assert(initialCondition!=NULL);
+    assert(initialCondition != NULL);
     mInitialCondition = initialCondition;
 }
 
@@ -178,37 +187,39 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
     this->InitialiseForSolve(mInitialCondition);
 
-    if(mIdealTimeStep < 0) // hasn't been set, so a controller must have been given
+    if (mIdealTimeStep < 0) // hasn't been set, so a controller must have been given
     {
         mIdealTimeStep = mpTimeAdaptivityController->GetNextTimeStep(mTstart, mInitialCondition);
     }
 
-    // Note: we use the mIdealTimeStep here (the original timestep that was passed in, or
-    // the last timestep suggested by the controller), rather than the last timestep used
-    // (mLastWorkingTimeStep), because the timestep will be very slightly altered by
-    // the stepper in the final timestep of the last printing-timestep-loop, and these
-    // floating point errors can add up and eventually cause exceptions being thrown.
+    /*
+     * Note: we use the mIdealTimeStep here (the original timestep that was passed in, or
+     * the last timestep suggested by the controller), rather than the last timestep used
+     * (mLastWorkingTimeStep), because the timestep will be very slightly altered by the
+     * stepper in the final timestep of the last printing-timestep-loop, and these floating
+     * point errors can add up and eventually cause exceptions being thrown.
+     */
     TimeStepper stepper(mTstart, mTend, mIdealTimeStep, mMatrixIsConstant);
 
     Vec current_solution = mInitialCondition;
     Vec next_solution;
 
     while ( !stepper.IsTimeAtEnd() )
-    {    
+    {
         bool timestep_changed = false;
 
         PdeSimulationTime::SetTime(stepper.GetTime());
-        
-        ///////////////////////////////
-        // determine timestep to use 
-        ///////////////////////////////
+
+        // Determine timestep to use
         double new_dt;
         if (mpTimeAdaptivityController)
         {
-            // get the timestep the controller wants to use and store it as the ideal timestep
+            // Get the timestep the controller wants to use and store it as the ideal timestep
             mIdealTimeStep = mpTimeAdaptivityController->GetNextTimeStep(stepper.GetTime(), current_solution);
-            // tell the stepper to use this timestep from now on.
+
+            // Tell the stepper to use this timestep from now on...
             stepper.ResetTimeStep(mIdealTimeStep);
+
             // ..but now get the timestep from the stepper, as the stepper might need
             // to trim the timestep if it would take us over the end time
             new_dt = stepper.GetNextTimeStep();
@@ -220,28 +231,26 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             new_dt = stepper.GetNextTimeStep();
         }
 
-        // save the timestep as the last one use, and also put it in PdeSimulationTime
+        // Save the timestep as the last one use, and also put it in PdeSimulationTime
         // so everyone can see it
         mLastWorkingTimeStep = new_dt;
-        PdeSimulationTime::SetPdeTimeStep( new_dt ); 
+        PdeSimulationTime::SetPdeTimeStep( new_dt );
 
-        ///////////////////////////////
-        // solve 
-        ///////////////////////////////
+        // Solve
 
         this->PrepareForSetupLinearSystem(current_solution);
 
         bool compute_matrix = (!mMatrixIsConstant || !mMatrixIsAssembled || timestep_changed);
 //        if (compute_matrix) std::cout << " ** ASSEMBLING MATRIX!!! ** " << std::endl;
         this->SetupLinearSystem(current_solution, compute_matrix);
-       
+
         this->FinaliseLinearSystem(current_solution);
-        
+
         if (compute_matrix)
         {
             this->mpLinearSystem->ResetKspSolver();
         }
-    
+
         next_solution = this->mpLinearSystem->Solve(current_solution);
 
         if (mMatrixIsConstant)
@@ -261,10 +270,9 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
         }
         current_solution = next_solution;
-    }    
-    
+    }
+
     return current_solution;
 }
-
 
 #endif /*ABSTRACTDYNAMICLINEARPDESOLVER_HPP_*/

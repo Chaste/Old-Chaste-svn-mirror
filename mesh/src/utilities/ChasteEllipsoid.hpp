@@ -57,7 +57,7 @@ class ChasteEllipsoid : public AbstractChasteRegion<SPACE_DIM>
     {
         archive & boost::serialization::base_object<AbstractChasteRegion<SPACE_DIM> >(*this);
     }
-    
+
 private:
     /** Centre of the ellipsoid. */
     ChastePoint<SPACE_DIM> mCentre;
@@ -83,7 +83,7 @@ public:
 
     /** @return centre of the ellipsoid */
     const ChastePoint<SPACE_DIM>& rGetCentre() const;
-    
+
     /** @return radii of the ellipsoid */
     const ChastePoint<SPACE_DIM>& rGetRadii() const;
 

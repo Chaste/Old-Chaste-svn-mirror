@@ -35,9 +35,9 @@ OdeLinearSystemSolver::OdeLinearSystemSolver(unsigned systemSize, double timeSte
 {
     assert(timeStep > 0.0);
     mTimeStep = timeStep;
-        
-    // Initialise vectors to zero        
-    mCurrentSolution = PetscTools::CreateAndSetVec(systemSize, 0.0);  
+
+    // Initialise vectors to zero
+    mCurrentSolution = PetscTools::CreateAndSetVec(systemSize, 0.0);
     mForceVector = PetscTools::CreateAndSetVec(systemSize, 0.0);
 }
 
@@ -73,7 +73,7 @@ Vec OdeLinearSystemSolver::SolveOneTimeStep()
     // setting the answer to be the RHS vector
     MatMult(mLinearSystem.rGetLhsMatrix(), mCurrentSolution, mLinearSystem.rGetRhsVector());
 
-    // Add timestep multipled by force vector 
+    // Add timestep multipled by force vector
     PetscVecTools::AddScaledVector(mLinearSystem.rGetRhsVector(), mForceVector, mTimeStep);
 
     // avoid memory leaks
@@ -81,6 +81,6 @@ Vec OdeLinearSystemSolver::SolveOneTimeStep()
 
     // Having constructed the RHS vector, solve the resulting linear system...
     mCurrentSolution = mLinearSystem.Solve();
-    
+
     return mCurrentSolution;
 }

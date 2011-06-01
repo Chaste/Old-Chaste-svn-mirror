@@ -55,7 +55,7 @@ c_vector<double, DIM> AbstractCentreBasedCellPopulation<DIM>::GetLocationOfCellC
 template<unsigned DIM>
 Node<DIM>* AbstractCentreBasedCellPopulation<DIM>::GetNodeCorrespondingToCell(CellPtr pCell)
 {
-	assert(this->mCellLocationMap.find(pCell.get()) != this->mCellLocationMap.end());
+    assert(this->mCellLocationMap.find(pCell.get()) != this->mCellLocationMap.end());
 
     return this->GetNode(this->mCellLocationMap[pCell.get()]);
 }
@@ -202,12 +202,12 @@ void AbstractCentreBasedCellPopulation<DIM>::WriteTimeAndNodeResultsToFiles()
     // Write node data to file
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
-    	// Hack that covers the case where the node in an AbstractCentreBasedCellPopulation is associated with a cell that has just been killed (#1129) This breaks the vertex visualiser when apoptotic cells are involved.
-    	bool node_corresponds_to_dead_cell = false;
+        // Hack that covers the case where the node in an AbstractCentreBasedCellPopulation is associated with a cell that has just been killed (#1129) This breaks the vertex visualiser when apoptotic cells are involved.
+        bool node_corresponds_to_dead_cell = false;
         if (this->mLocationCellMap[node_index])
-		{
-			node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
-		}
+        {
+            node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
+        }
 
         // Write node data to file
         if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
@@ -242,10 +242,10 @@ void AbstractCentreBasedCellPopulation<DIM>::SetMeinekeDivisionSeparation(double
 template<unsigned DIM>
 void AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t<MeinekeDivisionSeparation>" << mMeinekeDivisionSeparation << "</MeinekeDivisionSeparation> \n";
+    *rParamsFile << "\t\t<MeinekeDivisionSeparation>" << mMeinekeDivisionSeparation << "</MeinekeDivisionSeparation> \n";
 
-	// Call method on direct parent class
-	AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////

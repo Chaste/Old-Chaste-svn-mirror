@@ -182,7 +182,7 @@ std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     std::vector<double> ret_coords(SPACE_DIM);
 
-    mNodeAttributes.clear();//clear attributes for this node
+    mNodeAttributes.clear(); // clear attributes for this node
     GetNextItemFromStream(mNodesFile, mNodesRead, ret_coords, mNumNodeAttributes, mNodeAttributes);
 
     mNodesRead++;
@@ -206,18 +206,18 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     EnsureIndexingFromZero(element_data.NodeIndices);
 
     mElementsRead++;
-    
+
     if (mNodePermutationDefined)
-    {    
+    {
         for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
              node_it != element_data.NodeIndices.end();
              ++ node_it)
         {
-            assert(*node_it < mPermutationVector.size());            
+            assert(*node_it < mPermutationVector.size());
             *node_it =  mPermutationVector[*node_it];
         }
     }
-        
+
     return element_data;
 }
 
@@ -238,19 +238,19 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextCableElementData
     EnsureIndexingFromZero(element_data.NodeIndices);
 
     mCableElementsRead++;
-    
+
     // Node permutation can only be done with binary data...
 //    if (mNodePermutationDefined)
-//    {    
+//    {
 //        for (std::vector<unsigned>::iterator node_it = element_data.NodeIndices.begin();
 //             node_it != element_data.NodeIndices.end();
 //             ++ node_it)
 //        {
-//            assert(*node_it < mPermutationVector.size());            
+//            assert(*node_it < mPermutationVector.size());
 //            *node_it =  mPermutationVector[*node_it];
 //        }
 //    }
-        
+
     return element_data;
 }
 
@@ -306,9 +306,9 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     }
 
     mBoundaryFacesRead++;
-    
+
     if (mNodePermutationDefined)
-    {    
+    {
         for (std::vector<unsigned>::iterator node_it = ret_indices.begin();
              node_it != ret_indices.end();
              ++ node_it)
@@ -319,7 +319,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     }
 
     face_data.NodeIndices = ret_indices;
-        
+
     return face_data;
 }
 
@@ -334,13 +334,13 @@ std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigne
     {
         EXCEPTION("Node does not exist - not enough nodes.");
     }
-    
+
     if (mNodePermutationDefined)
     {
         assert(index<mInversePermutationVector.size());
         index = mInversePermutationVector[index];
     }
-    
+
     // Put the file stream pointer to the right location
     mNodesFile.seekg(mNodeFileDataStart + mNodeItemWidth*index, std::ios_base::beg);
     // Read the next item.
@@ -676,7 +676,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         {
             GetNextLineFromStream(mFacesFile, buffer);
             std::stringstream face_header_line(buffer);
-    
+
             face_header_line >> mNumFaces >> mNumFaceAttributes;
             assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
             // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
@@ -698,7 +698,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                     }
                     catch(Exception& e)
                     {
-                        if(mEofException)
+                        if (mEofException)
                         {
                             end_of_file = true;
                         }
@@ -709,14 +709,14 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                     }
                 }
                 mNumFaces = num_boundary_faces;
-    
+
     //// This exception would be helpful to have until #1116 is done, unfortunately some meshes do
     //// actually have no boundary elements (eg closed 2d meshes in 3d space).
-    //            if(mNumFaces==0)
+    //            if (mNumFaces==0)
     //            {
     //                EXCEPTION("No boundary elements found. NOTE: elements in face/edge file with an attribute value of 0 are considered to be internal (non-boundary) elements");
     //            }
-    
+
                 // close the file, reopen, and skip the header again
                 mFacesFile.close();
                 mFacesFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
@@ -752,7 +752,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mNclFileDataStart = mNclFile.tellg(); // Record the position of the first byte after the header.
         mNclItemWidth = mMaxContainingElements * sizeof(unsigned);
     }
-    
+
     /* Read cable file, if available */
     if (mCableElementsFile.is_open())
     {
@@ -805,7 +805,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
     if (mFilesAreBinary)
     {
         rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
-        if (rNumAttributes>0)
+        if (rNumAttributes > 0)
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
@@ -843,7 +843,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
             buffer_stream >> rDataPacket[i];
         }
 
-        if (rNumAttributes>0)
+        if (rNumAttributes > 0)
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
@@ -881,14 +881,14 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
         GetNextItemFromStream(mElementsFile, element_index, node_indices, mNumElementAttributes, dummy_attribute);
         if (!mIndexFromZero)
         {
-            //Adjust so we are indexing from zero
+            // Adjust so we are indexing from zero
             node_indices[0]--;
             node_indices[1]--;
         }
         node_count[node_indices[0]]++;
         node_count[node_indices[1]]++;
     }
-    //Find the ones which are terminals (only one mention)
+    // Find the ones which are terminals (only one mention)
     for (unsigned node_index=0; node_index<mNumNodes;node_index++)
     {
         if (node_count[node_index] == 1u)
@@ -897,7 +897,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
         }
     }
 
-    // close the file, reopen, and skip the header again
+    // Close the file, reopen, and skip the header again
     mElementsFile.close();
     mElementsFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
     OpenElementsFile();
@@ -952,9 +952,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetNodePermutation(std::vector
         // It would be too inefficient otherwise...
         EXCEPTION("Permuted read can only be used with binary files since it requires random access to the node file.");
     }
-    
-    mNodePermutationDefined = true;    
-    mPermutationVector = rPermutationVector;    
+
+    mNodePermutationDefined = true;
+    mPermutationVector = rPermutationVector;
     mInversePermutationVector.resize(mPermutationVector.size());
     for (unsigned index=0; index<mPermutationVector.size(); index++)
     {

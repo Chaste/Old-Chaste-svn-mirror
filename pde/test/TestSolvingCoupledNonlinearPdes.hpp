@@ -82,7 +82,7 @@ private:
 
 
     //  - todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
-    //         - make default jacobian analytic
+    //         - make default Jacobian analytic
 
     virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1>& rPhi,
                                                          c_matrix<double, DIM, DIM+1>& rGradPhi,
@@ -143,7 +143,7 @@ public:
 // where f and g (and boundary conditions) are chosen such that the solution is
 //    u = x^2,  v = y
 //////////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledNonlinearAssembler :  public AbstractNonlinearAssemblerSolverHybrid<2,2,2> //AnotherCoupledNonlinearAssembler>
+class AnotherCoupledNonlinearAssembler :  public AbstractNonlinearAssemblerSolverHybrid<2,2,2> // AnotherCoupledNonlinearAssembler>
 {
 
 private:
@@ -207,10 +207,7 @@ private:
         return ret;
     }
 
-
-
-
-public :
+public:
     AnotherCoupledNonlinearAssembler(TetrahedralMesh<2,2>* pMesh,
                                      BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
         : AbstractNonlinearAssemblerSolverHybrid<2,2,2>(pMesh,pBoundaryConditions)
@@ -218,15 +215,12 @@ public :
     }
 };
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////
-// test class
+// Test class
 //////////////////////////////////////////////////////////////////////////////
 class TestSolvingCoupledNonlinearPdes : public CxxTest::TestSuite
 {
-private :
+private:
 
     template<int DIM>
     void runTestSimpleCoupledNonlinearPde()
@@ -482,7 +476,7 @@ public:
         solver.SetNonlinearSolver(&newton_solver);
 
         //// uncomment this to check whether ComputeMatrixTerm has been coded up correctly
-        //// (by seeing whether the resulting analytic jacobian matches the numerical one).
+        //// (by seeing whether the resulting analytic Jacobian matches the numerical one).
         //assert( solver.VerifyJacobian() );
 
         // IMPORTANT NOTE: both the petsc nonlinear solver and the Newton solver will FAIL

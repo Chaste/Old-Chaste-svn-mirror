@@ -123,28 +123,28 @@ public:
 
     void TestMethods() throw(Exception)
     {
-    	// Create a PdeAndBoundaryConditions object
-    	Simple2dPdeForTesting pde;
-    	ConstBoundaryCondition<2> bc(15.0);
+        // Create a PdeAndBoundaryConditions object
+        Simple2dPdeForTesting pde;
+        ConstBoundaryCondition<2> bc(15.0);
         bool is_neumann_bc = false;
 
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
 
-    	// Test Get methods
-    	ChastePoint<2> point;
+        // Test Get methods
+        ChastePoint<2> point;
         point.rGetLocation()[0] = 0.0;
         point.rGetLocation()[1] = 0.0;
 
-    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 15.0, 1e-6);
-    	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), false);
+        TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 15.0, 1e-6);
+        TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), false);
 
-    	bool solution_exists = pde_and_bc.GetSolution();
-    	TS_ASSERT_EQUALS(solution_exists, false);
+        bool solution_exists = pde_and_bc.GetSolution();
+        TS_ASSERT_EQUALS(solution_exists, false);
 
-    	AbstractLinearEllipticPde<2,2>* p_pde = pde_and_bc.GetPde();
-    	TS_ASSERT_EQUALS(p_pde, &pde);
+        AbstractLinearEllipticPde<2,2>* p_pde = pde_and_bc.GetPde();
+        TS_ASSERT_EQUALS(p_pde, &pde);
 
-    	// Set mCurrentSolution
+        // Set mCurrentSolution
         std::vector<double> data(10);
         for (unsigned i=0; i<10; i++)
         {
@@ -168,33 +168,33 @@ public:
         VecGetSize(pde_and_bc.GetSolution(), &size_of_solution);
         TS_ASSERT_EQUALS(size_of_solution, 10);
 
-    	// Coverage
+        // Coverage
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
     }
 
     void TestMethodsNeumann() throw(Exception)
     {
-    	// Create a PdeAndBoundaryConditions object
-    	Simple2dPdeForTesting pde;
+        // Create a PdeAndBoundaryConditions object
+        Simple2dPdeForTesting pde;
         ConstBoundaryCondition<2> bc(0.0);
 
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc); // third argument defaults to Neumann
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc); // third argument defaults to Neumann
 
-    	// Test Get methods
+        // Test Get methods
         ChastePoint<2> point;
         point.rGetLocation()[0] = 0.0;
         point.rGetLocation()[1] = 0.0;
 
         TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
-    	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
+        TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
 
-    	bool solution_exists = pde_and_bc.GetSolution();
-    	TS_ASSERT_EQUALS(solution_exists, false);
+        bool solution_exists = pde_and_bc.GetSolution();
+        TS_ASSERT_EQUALS(solution_exists, false);
 
-    	AbstractLinearEllipticPde<2,2>* p_pde = pde_and_bc.GetPde();
-    	TS_ASSERT_EQUALS(p_pde, &pde);
+        AbstractLinearEllipticPde<2,2>* p_pde = pde_and_bc.GetPde();
+        TS_ASSERT_EQUALS(p_pde, &pde);
 
-    	// Set mCurrentSolution
+        // Set mCurrentSolution
         std::vector<double> data(10);
         for (unsigned i=0; i<10; i++)
         {
@@ -218,7 +218,7 @@ public:
         VecGetSize(pde_and_bc.GetSolution(), &size_of_solution);
         TS_ASSERT_EQUALS(size_of_solution, 10);
 
-    	// Coverage
+        // Coverage
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
     }
 
@@ -242,7 +242,7 @@ public:
         point2.rGetLocation()[1] = 5.0;
 
         TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point2), 25.0, 1e-6);
-        
+
         ChastePoint<2> point3;
         point3.rGetLocation()[0] = 3.0;
         point3.rGetLocation()[1] = -3.0;
@@ -327,18 +327,18 @@ public:
 
         ConstBoundaryCondition<2> bc(0.0);
 
-    	// Create a PdeAndBoundaryConditions object
-    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc);
+        // Create a PdeAndBoundaryConditions object
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc);
 
         ChastePoint<2> point;
         point.rGetLocation()[0] = 0.0;
         point.rGetLocation()[1] = 0.0;
 
         TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
-    	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
+        TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
 
-    	// Set up source terms for PDE using coarse mesh
-    	pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
+        // Set up source terms for PDE using coarse mesh
+        pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
 
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), true);
 

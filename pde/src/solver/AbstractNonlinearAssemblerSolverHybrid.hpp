@@ -29,8 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTNONLINEARASSEMBLERSOLVERHYBRID_HPP_
 #define ABSTRACTNONLINEARASSEMBLERSOLVERHYBRID_HPP_
 
-
-
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "AbstractNonlinearSolver.hpp"
@@ -41,18 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
 
-
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-////
-////
-////    Definitions of GLOBAL functions used by Petsc nonlinear solver
-////    (implementations at the bottom of this file)
-////
-////
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
+/*
+ * Definitions of GLOBAL functions used by Petsc nonlinear solver
+ * (implementations are at the bottom of this file).
+ */
 
 /**
  * Function called by PETSc to compute the residual vector given the current solution guess.
@@ -74,15 +64,13 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
                                                                       Vec residualVector,
                                                                       void* pContext);
 
-
-
 /**
- * Function called by PETSc to compute the jacobian matrix given the current solution guess.
+ * Function called by PETSc to compute the Jacobian matrix given the current solution guess.
  * Calls a method on a AbstractNonlinearAssemblerSolverHybrid object to do the calculation.
  *
  * @param snes This is not used by us, but required by PETSc.
  * @param currentGuess The solution guess for the current iteration.
- * @param pGlobalJacobian Pointer to object to fill with the jacobian matrix.
+ * @param pGlobalJacobian Pointer to object to fill with the Jacobian matrix.
  * @param pPreconditioner This is not used by us, but required by PETSc.
  * @param pMatStructure This is not used by us, but required by PETSc.
  * @param pContext Pointer to a AbstractNonlinearAssemblerSolverHybrid object.
@@ -100,37 +88,20 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
                                                                       MatStructure* pMatStructure,
                                                                       void* pContext);
 
-
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-////
-////
-////         The ASSEMBLER-SOLVER class
-////
-////
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-
-
 /**
- * 
- *  Abstract solver for solving nonlinear elliptic PDEs. 
+ * The ASSEMBLER-SOLVER class.
+ *
+ * An abstract solver for solving nonlinear elliptic PDEs.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractNonlinearAssemblerSolverHybrid : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>
 {
 protected:
-    /** Mesh class */
+
+    /** The mesh. */
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
-    /** Boundary conditions container */
+    /** Boundary conditions container. */
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* mpBoundaryConditions;
 
     /** The nonlinear solver. */
@@ -142,15 +113,13 @@ protected:
     /** Whether to use an analytical expression for the Jacobian. */
     bool mUseAnalyticalJacobian;
 
-
-
     /**
      * Apply Dirichlet boundary conditions to either the residual or Jacobian.
      *
      * @param currentGuess  the solution guess for the current nonlinear solver iteration
-     * @param residual the residual to apply boundary conditions to (can be NULL if bcs to 
-     *   be applied to jacobian only)
-     * @param pMat the jacobian to apply boundary conditions to (can be NULL if bcs to 
+     * @param residual the residual to apply boundary conditions to (can be NULL if bcs to
+     *   be applied to Jacobian only)
+     * @param pMat the Jacobian to apply boundary conditions to (can be NULL if bcs to
      *   be applied to residual only)
      */
     void ApplyDirichletConditions(Vec currentGuess, Vec residual, Mat* pMat);
@@ -164,7 +133,7 @@ protected:
      */
     void ComputeJacobianNumerically(const Vec currentGuess, Mat* pJacobian);
 
-public :
+public:
 
     /**
      * Compute the residual vector given the current solution guess.
@@ -183,17 +152,15 @@ public :
      * provided by the user (in Solve()).
      *
      * @param currentGuess The solution guess for the current iteration.
-     * @param pJacobian Pointer to object to fill with the jacobian matrix.
+     * @param pJacobian Pointer to object to fill with the Jacobian matrix.
      *
      * NOTE: this method is called indirectly by the PETSc iterative
      * solvers, so must be public.
      */
     void ComputeJacobian(const Vec currentGuess, Mat* pJacobian);
 
-
-
     /**
-     * Constructor
+     * Constructor.
      *
      * @param pMesh The mesh
      * @param pBoundaryConditions The boundary conditions to apply
@@ -213,7 +180,8 @@ public :
       *
       * @param initialGuess An initial guess for the iterative solver
       * @param useAnalyticalJacobian Set to true to use an analytically calculated
-      *     jacobian matrix rather than a numerically approximated one.
+      *     Jacobian matrix rather than a numerically approximated one.
+      *
       * @return A PETSc vector giving the solution at each mesh node.
       */
     virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian=false);
@@ -226,24 +194,22 @@ public :
       * @param pNonlinearSolver a nonlinear solver
       */
     void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver);
-    
-    
+
     /**
-     *  A helper method for use when writing concrete assemblers. Once the user has calculated
-     *  (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check
-     *  whether the analytic Jacobian matches the numerical Jacobian to verify the 
-     *  correctness of the code.
+     * A helper method for use when writing concrete assemblers. Once the user has calculated
+     * (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check
+     * whether the analytic Jacobian matches the numerical Jacobian to verify the
+     * correctness of the code.
      *
-     *  @param tol A tolerance which defaults to 1e-5
-     *  @return true if the componentwise difference between the matrices is less than
-     *    the tolerance, false otherwise.
+     * @param tol A tolerance which defaults to 1e-5
+     * @return true if the componentwise difference between the matrices is less than
+     *   the tolerance, false otherwise.
      *
-     *  This method should NOT be run in simulations - it is only to verify the correctness
-     *  of the concrete assembler code. Allocates dense matrices.
+     * This method should NOT be run in simulations - it is only to verify the correctness
+     * of the concrete assembler code. Allocates dense matrices.
      */
     bool VerifyJacobian(double tol);
 };
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractNonlinearAssemblerSolverHybrid(
@@ -254,8 +220,10 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Abs
        mpMesh(pMesh),
        mpBoundaryConditions(pBoundaryConditions)
 {
-    // if this is run with SPACE_DIM != ELEMENT_DIM the class has to be checked -
-    // lots of places where should be using SPACE_DIM not ELEMENT_DIM??
+    /*
+     * Note: if this is run with SPACE_DIM != ELEMENT_DIM the class has to be checked:
+     * there may be lots of places where we should be using SPACE_DIM not ELEMENT_DIM.
+     */
     assert(SPACE_DIM==ELEMENT_DIM);
     assert(pMesh!=NULL);
     assert(pBoundaryConditions!=NULL);
@@ -266,7 +234,6 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Abs
 
     assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetProblemSize());
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~AbstractNonlinearAssemblerSolverHybrid()
@@ -282,16 +249,15 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
     if (residual)
     {
-        mpBoundaryConditions->ApplyDirichletToNonlinearResidual( currentGuess, 
-                                                                 residual, 
-                                                                 *(mpMesh->GetDistributedVectorFactory()));
+        mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentGuess,
+                                                                residual,
+                                                                *(mpMesh->GetDistributedVectorFactory()));
     }
     if (pJacobian)
     {
         mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
     }
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeResidual(const Vec currentGuess, Vec residualVector)
@@ -314,9 +280,9 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         this->SetMatrixToAssemble(*pJacobian);
         this->SetCurrentSolution(currentGuess);
         this->AssembleMatrix();
-    
+
         PetscMatTools::AssembleIntermediate(*pJacobian);
-        
+
         ApplyDirichletConditions(currentGuess, NULL, pJacobian);
 
         PetscMatTools::AssembleFinal(*pJacobian);
@@ -326,7 +292,6 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         ComputeJacobianNumerically(currentGuess, pJacobian);
     }
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeJacobianNumerically(const Vec currentGuess, Mat* pJacobian)
@@ -340,7 +305,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     residual = PetscTools::CreateVec(num_unknowns);
     result = PetscTools::CreateVec(num_unknowns);
     perturbed_residual = PetscTools::CreateVec(num_unknowns);
-    
+
     // Copy the currentGuess vector; we perturb the copy
     Vec current_guess_copy;
     PETSCEXCEPT( VecDuplicate(currentGuess, &current_guess_copy) );
@@ -357,10 +322,10 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     unsigned lo = ilo;
     unsigned hi = ihi;
 
-    // Iterate over entries in the input vector.
+    // Iterate over entries in the input vector
     for (unsigned global_index_outer = 0; global_index_outer < num_unknowns; global_index_outer++)
     {
-        //Only perturb if we own it
+        // Only perturb if we own it
         PetscVecTools::AddToElement(current_guess_copy, global_index_outer, h);
         ComputeResidual(current_guess_copy, perturbed_residual);
 
@@ -388,12 +353,11 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     PetscMatTools::AssembleFinal(*pJacobian);
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Vec initialGuess,
                                                                                        bool useAnalyticalJacobian)
 {
-    assert(initialGuess!=NULL);
+    assert(initialGuess != NULL);
     mUseAnalyticalJacobian = useAnalyticalJacobian;
 
     PetscInt size_of_init_guess;
@@ -407,17 +371,13 @@ Vec AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>:
         EXCEPTION(error_message.str());
     }
 
-    // run the solver, telling it which global functions to call in order to assemble
-    // the residual or jacobian
+    // Run the solver, telling it which global functions to call in order to assemble the residual or jacobian
     return mpSolver->Solve(&AbstractNonlinearAssemblerSolverHybrid_ComputeResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
                            &AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
                            initialGuess,
-                           PROBLEM_DIM * this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(), 
+                           PROBLEM_DIM * this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(),
                            this);
 }
-
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
@@ -430,15 +390,14 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     mWeAllocatedSolverMemory = false;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::VerifyJacobian(double tol)
 {
     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
     Vec initial_guess = PetscTools::CreateAndSetVec(size, 0.0);
-    
-    Mat analytic_jacobian; 
+
+    Mat analytic_jacobian;
     Mat numerical_jacobian;
 
     PetscTools::SetupMat(analytic_jacobian, size, size, size);
@@ -449,45 +408,35 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 
     mUseAnalyticalJacobian = false;
     ComputeJacobian(initial_guess, &numerical_jacobian);
-    
+
     double minus_one = -1.0;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    // MatAYPX(*a, X, Y) does  Y = X + a*Y. 
+    // MatAYPX(*a, X, Y) does  Y = X + a*Y.
     MatAYPX(&minus_one, analytic_jacobian, numerical_jacobian);
 #elif (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 1) //PETSc 2.3.1
-    // MatAYPX( Y, a, X, structure) does Y = a*Y + X. 
-    MatAYPX(numerical_jacobian, minus_one, analytic_jacobian); 
+    // MatAYPX( Y, a, X, structure) does Y = a*Y + X.
+    MatAYPX(numerical_jacobian, minus_one, analytic_jacobian);
 #else
-    // MatAYPX( Y, a, X, structure) does Y = a*Y + X. 
+    // MatAYPX( Y, a, X, structure) does Y = a*Y + X.
     MatAYPX(numerical_jacobian, minus_one, analytic_jacobian, DIFFERENT_NONZERO_PATTERN);
 #endif
     double norm;
     MatNorm(numerical_jacobian,NORM_INFINITY,&norm);
-    
+
     MatDestroy(numerical_jacobian);
     MatDestroy(analytic_jacobian);
     VecDestroy(initial_guess);
 
-    return (norm<tol);
+    return (norm < tol);
 }
 
-
-
-
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-////
-////
-////   Implementations of GLOBAL functions called by Petsc nonlinear solver
-////
-////
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
+// Implementations of GLOBAL functions called by Petsc nonlinear solver
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes, Vec currentGuess,
-                                                                      Vec residualVector, void* pContext)
+PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
+                                                                      Vec currentGuess,
+                                                                      Vec residualVector,
+                                                                      void* pContext)
 {
     // Extract the solver from the void*
     AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
@@ -498,13 +447,13 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
     return 0;
 }
 
-
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes, Vec currentGuess,
-                                                                      Mat* pGlobalJacobian, Mat* pPreconditioner,
-                                                                      MatStructure* pMatStructure, void* pContext)
+PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
+                                                                      Vec currentGuess,
+                                                                      Mat* pGlobalJacobian,
+                                                                      Mat* pPreconditioner,
+                                                                      MatStructure* pMatStructure,
+                                                                      void* pContext)
 {
     // Extract the solver from the void*
     AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
@@ -514,6 +463,5 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
 
     return 0;
 }
-
 
 #endif /*ABSTRACTNONLINEARASSEMBLERSOLVERHYBRID_HPP_*/

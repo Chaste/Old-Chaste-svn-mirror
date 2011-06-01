@@ -26,40 +26,50 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifndef _ODESYSTEMFORCOUPLEDHEATEQUATIONWITHSOURCE_HPP_
+#define _ODESYSTEMFORCOUPLEDHEATEQUATIONWITHSOURCE_HPP_
 
-#ifndef _ODESECONDORDER_HPP_
-#define _ODESECONDORDER_HPP_
-
-#include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystemForCoupledPdeSystem.hpp"
 #include "OdeSystemInformation.hpp"
 
-class OdeSecondOrder : public AbstractOdeSystem
+/**
+ * An ODE system given by
+ *
+ * dv/dt = a*v, v(0) = 1,
+ *
+ * that 'couples' with (although in this case, is actually independent of) the heat equation with source term
+ *
+ * u_t = del^2 u + v,
+ *
+ * which is defined in the separate class HeatEquationWithSourceForCoupledOdeSystem.
+ */
+class OdeSystemForCoupledHeatEquationWithSource : public AbstractOdeSystemForCoupledPdeSystem
 {
+private:
+    double mA;
 public:
-    OdeSecondOrder() : AbstractOdeSystem(2) // 2 here is the number of unknowns
+
+    OdeSystemForCoupledHeatEquationWithSource(double a)
+        : AbstractOdeSystemForCoupledPdeSystem(1,1),
+          mA(a)
     {
-        mpSystemInfo = OdeSystemInformation<OdeSecondOrder>::Instance();
+        mpSystemInfo = OdeSystemInformation<OdeSystemForCoupledHeatEquationWithSource>::Instance();
+        SetStateVariables(GetInitialConditions());
     }
 
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        rDY[0] =  rY[1];
-        rDY[1] = -rY[0];
+        rDY[0] = -mA * rY[0];
     }
 };
 
 template<>
-void OdeSystemInformation<OdeSecondOrder>::Initialise()
+void OdeSystemInformation<OdeSystemForCoupledHeatEquationWithSource>::Initialise()
 {
-    this->mVariableNames.push_back("Variable_1");
-    this->mVariableUnits.push_back("dimensionless");
-    this->mInitialConditions.push_back(0.0);
-
-    this->mVariableNames.push_back("Variable_2");
-    this->mVariableUnits.push_back("dimensionless");
+    this->mVariableNames.push_back("v");
+    this->mVariableUnits.push_back("non-dim");
     this->mInitialConditions.push_back(1.0);
-
     this->mInitialised = true;
 }
 
-#endif //_ODESECONDORDER_HPP_
+#endif //_ODESYSTEMFORCOUPLEDHEATEQUATIONWITHSOURCE_HPP_

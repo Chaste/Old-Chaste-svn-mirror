@@ -27,8 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistanceMapCalculator.hpp"
-#include "DistributedTetrahedralMesh.hpp" //For dynamic cast
-//#include "Debug.hpp"
+#include "DistributedTetrahedralMesh.hpp" // For dynamic cast
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
@@ -42,7 +41,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
       mSingleTarget(false)
 {
     mNumNodes = mrMesh.GetNumNodes();
-    
+
     DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
     if ( PetscTools::IsSequential() || p_distributed_mesh == NULL)
     {
@@ -77,7 +76,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         rNodeDistances[index] = DBL_MAX;
     }
     assert(mActivePriorityNodeIndexQueue.empty());
-    
+
     if (mSingleTarget)
     {
         assert(rSourceNodeIndices.size()==1);
@@ -106,15 +105,15 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     while (non_empty_queue)
     {
         bool termination=WorkOnLocalQueue(rNodeDistances);
-        //Sanity - check that we aren't doing this very many times
+        // Sanity - check that we aren't doing this very many times
         if (mRoundCounter++ > 3 * PetscTools::GetNumProcs())
         {
-            //This line will be hit if there's a parallel distributed mesh with a really bad partition
+            // This line will be hit if there's a parallel distributed mesh with a really bad partition
             NEVER_REACHED;
         }
         if (mSingleTarget && PetscTools::ReplicateBool(termination))
         {
-            //A single process found the target already
+            // A single process found the target already
             break;
         }
         non_empty_queue=UpdateQueueFromRemote(rNodeDistances);
@@ -123,10 +122,10 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
 
     if (mWorkOnEntireMesh==false)
     {
-        //Update all processes with the best values from everywhere
-        //Take a local copy
+        // Update all processes with the best values from everywhere
+        // Take a local copy
         std::vector<double> local_distances=rNodeDistances;
-        //Share it back into the vector
+        // Share it back into the vector
         MPI_Allreduce( &local_distances[0], &rNodeDistances[0], mNumNodes, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
     }
 }
@@ -155,8 +154,8 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             }
         }
 
-        //Broadcast - this is can be done by casting indices to double and packing everything
-        //into a single array.  That would be better for latency, but this is probably more readable.
+        // Broadcast - this is can be done by casting indices to double and packing everything
+        // into a single array.  That would be better for latency, but this is probably more readable.
         MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE,
                   bcast_process, PETSC_COMM_WORLD);
         MPI_Bcast(index_exchange, mNumHalosPerProcess[bcast_process], MPI_UNSIGNED,
@@ -196,7 +195,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         double distance_when_queued=-mActivePriorityNodeIndexQueue.top().first;
         mActivePriorityNodeIndexQueue.pop();
         //Only act on nodes which haven't been acted on already
-        //(It's possible that a better distance has been found and already been dealt with) 
+        //(It's possible that a better distance has been found and already been dealt with)
         if (distance_when_queued == rNodeDistances[current_node_index]);
         {
             mPopCounter++;
@@ -207,7 +206,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                  current_heuristic=norm_2(p_current_node->rGetLocation()-mTargetNodePoint);
             }
             // Loop over the elements containing the given node
-            for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
+            for (typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
                 element_iterator != p_current_node->ContainingElementsEnd();
                 ++element_iterator)
             {
@@ -215,7 +214,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                 Element<ELEMENT_DIM, SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
 
                 // Loop over the nodes of the element
-                for(unsigned node_local_index=0;
+                for (unsigned node_local_index=0;
                    node_local_index<p_containing_element->GetNumNodes();
                    node_local_index++)
                 {
@@ -223,7 +222,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     unsigned neighbour_node_index = p_neighbour_node->GetIndex();
 
                     // Avoid revisiting the active node
-                    if(neighbour_node_index != current_node_index)
+                    if (neighbour_node_index != current_node_index)
                     {
 
                         double neighbour_heuristic=0.0;
@@ -256,7 +255,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     return false;
                 }
             }
-            
+
         }//If
      }//While !empty
      return false;
@@ -281,16 +280,16 @@ double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::SingleDistance(unsigned so
     }
     //Communicate for wherever to everyone
     MPI_Allreduce( &target_point[0], &mTargetNodePoint[0], SPACE_DIM, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-    
+
     //mTargetNodePoint;
     std::vector<double> distances;
     ComputeDistanceMap(source_node_index_vector, distances);
 
     ///\todo #1414 premature termination when we find the correct one (parallel)
-    
+
     //Reset target, so we don't terminate early next time.
     mSingleTarget=false;
-    
+
     //Make sure that there isn't a non-empty queue from a previous calculation
     if (!mActivePriorityNodeIndexQueue.empty())
     {

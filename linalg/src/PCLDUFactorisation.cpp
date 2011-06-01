@@ -72,9 +72,9 @@ PCLDUFactorisation::~PCLDUFactorisation()
     VecDestroy(mPCContext.y2_subvector);
     VecDestroy(mPCContext.z);
     VecDestroy(mPCContext.temp);
-    
+
     VecScatterDestroy(mPCContext.A11_scatter_ctx);
-    VecScatterDestroy(mPCContext.A22_scatter_ctx);        
+    VecScatterDestroy(mPCContext.A22_scatter_ctx);
 }
 
 void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
@@ -98,8 +98,8 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
     }
 
-    // Allocate memory     
-    unsigned subvector_num_rows = num_rows/2;    
+    // Allocate memory
+    unsigned subvector_num_rows = num_rows/2;
     unsigned subvector_local_rows = num_local_rows/2;
     mPCContext.x1_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
     mPCContext.x2_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
@@ -119,38 +119,38 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     }
 
 
-    // Get matrix sublock A11        
+    // Get matrix sublock A11
     {
-        // Work out local row range for subblock A11 (same as x1 or y1) 
+        // Work out local row range for subblock A11 (same as x1 or y1)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x1_subvector, &low, &high);
-        VecGetSize(mPCContext.x1_subvector, &global_size);        
-        assert(global_size == num_rows/2);       
-        
+        VecGetSize(mPCContext.x1_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS A11_local_rows;
         IS A11_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
-    
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #else
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
-#endif    
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#endif
         ISDestroy(A11_local_rows);
         ISDestroy(A11_columns);
     }
 
     // Get matrix sublock A22
     {
-        // Work out local row range for subblock A22 (same as x2 or y2) 
+        // Work out local row range for subblock A22 (same as x2 or y2)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x2_subvector, &low, &high);
-        VecGetSize(mPCContext.x2_subvector, &global_size);        
-        assert(global_size == num_rows/2);       
-        
+        VecGetSize(mPCContext.x2_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS A22_local_rows;
         IS A22_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &A22_local_rows);
@@ -158,52 +158,52 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #endif
-    
+
         ISDestroy(A22_local_rows);
         ISDestroy(A22_columns);
     }
 
     // Get matrix sublock B (the upper triangular one)
     {
-        // Work out local row range for subblock B (same as A11, x1 or y1) 
+        // Work out local row range for subblock B (same as A11, x1 or y1)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x1_subvector, &low, &high);
-        VecGetSize(mPCContext.x1_subvector, &global_size);        
-        assert(global_size == num_rows/2);        
-        
+        VecGetSize(mPCContext.x1_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS B_local_rows;
         IS B_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &B_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
-    
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, B_local_rows, B_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);        
+            MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
+        MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #endif
-    
+
         ISDestroy(B_local_rows);
         ISDestroy(B_columns);
     }
-    
+
     /*
      * Experimental (#1082): in PP removing the mass matrix from the A22 block seems to work better.
-     *                       This is equivalent to do A22 = A22 + B in this implementation. 
+     *                       This is equivalent to do A22 = A22 + B in this implementation.
      */
 // #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
 //     PetscScalar petsc_one = 1.0;
 //     MatAXPY(&petsc_one, mPCContext.B_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
 // #else
 //     MatAXPY(mPCContext.A22_matrix_subblock, 1.0, mPCContext.B_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
-// #endif    
-    
+// #endif
+
 //     // Shift the block
 // #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
 //     PetscScalar shift = -1e-8;
@@ -211,7 +211,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 // #else
 //     PetscScalar shift = -1e-8;
 //     MatShift(mPCContext.A22_matrix_subblock, shift);
-// #endif    
+// #endif
 
 
 
@@ -250,7 +250,7 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     //PCHYPRESetType(mPCContext.PC_amg_A11, "euclid");
     PetscOptionsSetValue("-pc_hypre_type", "euclid");
     PetscOptionsSetValue("-pc_hypre_euclid_levels", "0");
-    
+
 //     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
 //     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
 //     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
@@ -321,7 +321,7 @@ PetscErrorCode PCLDUFactorisationApply(PC pc_object, Vec x, Vec y)
 {
   void* pc_context;
 
-  PCShellGetContext(pc_object, &pc_context);   
+  PCShellGetContext(pc_object, &pc_context);
 #else
 PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 {
@@ -346,7 +346,7 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 #endif
 
     /*
-     *  Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]' 
+     *  Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]'
      *
      *     z  = inv(A11)*x1
      *     y2 = inv(A22)*(x2 - B*z)

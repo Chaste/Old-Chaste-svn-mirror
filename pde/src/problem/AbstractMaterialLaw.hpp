@@ -79,7 +79,7 @@ protected:
                                             FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
                                             bool transformDTdE);
 
-public :
+public:
 
     /** Constuctor */
     AbstractMaterialLaw();

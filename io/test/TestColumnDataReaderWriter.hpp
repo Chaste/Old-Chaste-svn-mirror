@@ -65,10 +65,10 @@ private:
             getline(goodfile, goodstring);
             if (teststring != goodstring)
             {
-            	if (teststring.substr(0, 17) != "Created by Chaste")
-            	{
-                	matching = false;
-            	}
+                if (teststring.substr(0, 17) != "Created by Chaste")
+                {
+                    matching = false;
+                }
             }
         }
 
@@ -120,7 +120,7 @@ public:
 
         // .info file exists (fixed dim) but .dat file does not
         TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader(dir, "DatMissing"), "Couldn't open data file");
-        
+
         // Folder is missing
         FileFinder absent_dir("absent_dir", RelativeTo::ChasteTestOutput);
         TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader(absent_dir, "file"), "Directory does not exist: ");

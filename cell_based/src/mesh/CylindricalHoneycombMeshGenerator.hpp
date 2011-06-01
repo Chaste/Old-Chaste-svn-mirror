@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Honeycomb mesh generator that creates a 2D "cylindrical" mesh (one in which
  * periodicity is imposed on the left and right boundaries) for use in cell-centre
  * simulations.
- * 
+ *
  * NOTE: the user should delete the mesh after use to manage memory.
  */
 class CylindricalHoneycombMeshGenerator : public HoneycombMeshGenerator

@@ -40,48 +40,50 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Try recompiling with icpc version 10.0.025.
  */
 
-
 #include "AbstractNonlinearElasticitySolver.hpp"
 #include "AbstractCompressibleMaterialLaw.hpp"
 #include "QuadraticMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 /**
- *  Finite elasticity solver. Solves static *compressible* nonlinear elasticity
- *  problems with arbitrary (compressible) material laws and a body force.
+ * Finite elasticity solver. Solves static *compressible* nonlinear elasticity
+ * problems with arbitrary (compressible) material laws and a body force.
  *
- *  Uses quadratic basis functions for displacement, and is therefore outside the other assembler or solver hierarchy.
+ * Uses quadratic basis functions for displacement, and is therefore outside the
+ * other assembler or solver hierarchy.
  */
 template<size_t DIM>
 class CompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
     friend class TestCompressibleNonlinearElasticitySolver;
-
 protected:
-    /** Number of nodes per element */
+
+    /** Number of nodes per element. */
     static const size_t NUM_NODES_PER_ELEMENT    = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_ELEMENT;
-    /** Number of vertices per element */
+
+    /** Number of vertices per element. */
     static const size_t NUM_VERTICES_PER_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_VERTICES_PER_ELEMENT;
-    /** Number of nodes per boundary element */
+
+    /** Number of nodes per boundary element. */
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = AbstractNonlinearElasticitySolver<DIM>::NUM_NODES_PER_BOUNDARY_ELEMENT;
 
-    /** Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
-     *  no pressure unknowns
+    /**
+     * Stencil size - number of unknowns per element (DIM*NUM_NODES_PER_ELEMENT displacement unknowns,
+     * no pressure unknowns.
      */
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT;
-    /** Boundary stencil size */
+
+    /** Boundary stencil size. */
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT;
 
-
     /**
-     *  The material laws for each element. This will either be of size 1 (same material law for all elements,
-     *  ie homogeneous), or size num_elem.
+     * The material laws for each element. This will either be of size 1 (same material law for all elements,
+     * i.e. homogeneous), or size num_elem.
      */
     std::vector<AbstractCompressibleMaterialLaw<DIM>*> mMaterialLaws;
 
-
     /**
-     * Assemble residual or jacobian on an element, using the current solution
+     * Assemble residual or Jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
      * rBElem = [u0 v0 u1 v1 .. u5 v5].
      *
@@ -127,7 +129,6 @@ protected:
                                            bool assembleResidual,
                                            bool assembleJacobian);
 
-
     /**
      * Assemble the residual vector (using the current solution stored
      * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
@@ -161,7 +162,7 @@ public:
                                           std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /**
-     * Variant constructor taking a vector of material laws for heterogeneous problems
+     * Variant constructor taking a vector of material laws for heterogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
      * @param rMaterialLaws Vector of material laws for each element

@@ -137,8 +137,8 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
             double previous_edge_adhesion_parameter;
             double next_edge_adhesion_parameter;
 
-			previous_edge_adhesion_parameter = GetAdhesionParameter(p_previous_node, p_current_node, *p_cell_population);
-			next_edge_adhesion_parameter = GetAdhesionParameter(p_current_node, p_next_node, *p_cell_population);
+            previous_edge_adhesion_parameter = GetAdhesionParameter(p_previous_node, p_current_node, *p_cell_population);
+            next_edge_adhesion_parameter = GetAdhesionParameter(p_current_node, p_next_node, *p_cell_population);
 
             // Compute the gradient of the edge of the cell ending in this node
             c_vector<double, DIM> previous_edge_gradient = p_cell_population->rGetMesh().GetPreviousEdgeGradientOfElementAtNode(p_element, local_index);
@@ -183,7 +183,7 @@ double NagaiHondaForce<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>* 
     // If the edge corresponds to a single element, then the cell is on the boundary
     if (shared_elements.size() == 1)
     {
-    	adhesion_parameter = GetNagaiHondaCellBoundaryAdhesionEnergyParameter();
+        adhesion_parameter = GetNagaiHondaCellBoundaryAdhesionEnergyParameter();
     }
 
     return adhesion_parameter;
@@ -298,14 +298,14 @@ void NagaiHondaForce<DIM>::SetMatureCellTargetArea(double matureCellTargetArea)
 template<unsigned DIM>
 void NagaiHondaForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t\t<NagaiHondaDeformationEnergyParameter>" << mNagaiHondaDeformationEnergyParameter << "</NagaiHondaDeformationEnergyParameter> \n";
-	*rParamsFile << "\t\t\t<NagaiHondaMembraneSurfaceEnergyParameter>" << mNagaiHondaMembraneSurfaceEnergyParameter << "</NagaiHondaMembraneSurfaceEnergyParameter> \n";
-	*rParamsFile << "\t\t\t<NagaiHondaCellCellAdhesionEnergyParameter>" << mNagaiHondaCellCellAdhesionEnergyParameter << "</NagaiHondaCellCellAdhesionEnergyParameter> \n";
-	*rParamsFile << "\t\t\t<NagaiHondaCellBoundaryAdhesionEnergyParameter>" << mNagaiHondaCellBoundaryAdhesionEnergyParameter << "</NagaiHondaCellBoundaryAdhesionEnergyParameter> \n";
-	*rParamsFile << "\t\t\t<MatureCellTargetArea>" << mMatureCellTargetArea << "</MatureCellTargetArea> \n";
+    *rParamsFile << "\t\t\t<NagaiHondaDeformationEnergyParameter>" << mNagaiHondaDeformationEnergyParameter << "</NagaiHondaDeformationEnergyParameter> \n";
+    *rParamsFile << "\t\t\t<NagaiHondaMembraneSurfaceEnergyParameter>" << mNagaiHondaMembraneSurfaceEnergyParameter << "</NagaiHondaMembraneSurfaceEnergyParameter> \n";
+    *rParamsFile << "\t\t\t<NagaiHondaCellCellAdhesionEnergyParameter>" << mNagaiHondaCellCellAdhesionEnergyParameter << "</NagaiHondaCellCellAdhesionEnergyParameter> \n";
+    *rParamsFile << "\t\t\t<NagaiHondaCellBoundaryAdhesionEnergyParameter>" << mNagaiHondaCellBoundaryAdhesionEnergyParameter << "</NagaiHondaCellBoundaryAdhesionEnergyParameter> \n";
+    *rParamsFile << "\t\t\t<MatureCellTargetArea>" << mMatureCellTargetArea << "</MatureCellTargetArea> \n";
 
-	// Call method on direct parent class
-	AbstractForce<DIM>::OutputForceParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 
 

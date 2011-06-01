@@ -128,11 +128,11 @@ public:
         {
             TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.579, 1e-12);
             TS_ASSERT_THROWS_THIS(p_data->GetValue(*cell_iter,1),
-            		"Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+                    "Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
         }
 
         TS_ASSERT_THROWS_THIS(p_data->SetValue(0.0, 0, 1),
-        		"Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+                "Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
 
         p_data->Destroy();
 

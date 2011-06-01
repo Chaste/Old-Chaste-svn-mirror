@@ -29,22 +29,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIMPLELINEARELLIPTICSOLVER_HPP_
 #define SIMPLELINEARELLIPTICSOLVER_HPP_
 
-
-
 #include "AbstractAssemblerSolverHybrid.hpp"
 #include "AbstractStaticLinearPdeSolver.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
-
 /**
- *  SimpleLinearEllipticSolver
+ * SimpleLinearEllipticSolver.
  *
- *  Solver for solving AbstractLinearEllipticPdes.
+ * Solver for solving AbstractLinearEllipticPdes.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleLinearEllipticSolver 
-   : public AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, 1, NORMAL>, 
-     public AbstractStaticLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleLinearEllipticSolver
+    : public AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, 1, NORMAL>,
+      public AbstractStaticLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>
 {
 protected:
 
@@ -54,7 +51,7 @@ protected:
     /**
      * The term to be added to the element stiffness matrix:
      *
-     *   grad_phi[row] . ( pde_diffusion_term * grad_phi[col])
+     * grad_phi[row] . ( pde_diffusion_term * grad_phi[col])
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
@@ -89,13 +86,12 @@ protected:
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-        
-        
+
     /**
      * This method returns the vector to be added to element stiffness vector
-     * for a given gauss point in BoundaryElement. The arguments are the bases,
+     * for a given Gauss point in BoundaryElement. The arguments are the bases,
      * x and current solution computed at the Gauss point. The returned vector
-     * will be multiplied by the gauss weight and jacobian determinent and
+     * will be multiplied by the Gauss weight and Jacobian determinant and
      * added to the element stiffness matrix (see AssembleOnElement()).
      *
      * @param rSurfaceElement the element which is being considered.
@@ -108,16 +104,17 @@ protected:
 
     /**
      * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.
-     *  @param currentSolution The current solution which can be used in setting up
+     *
+     * @param currentSolution The current solution which can be used in setting up
      *   the linear system if needed (NULL if there isn't a current solution)
-     *  @param computeMatrix Whether to compute the LHS matrix of the linear system
+     * @param computeMatrix Whether to compute the LHS matrix of the linear system
      *   (mainly for dynamic solves).
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
     {
         SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
     }
-    
+
 public:
 
     /**
@@ -134,10 +131,10 @@ public:
                                unsigned numQuadPoints = 2);
 
     /**
-     *  Overloaded InitaliseForSolve() which just calls the base class but also
-     *  sets the matrix as symmetric and sets Conjugate Gradients as the solver
-     * 
-     *  @param initialSolution initialSolution (used in base class version of this method)
+     * Overloaded InitaliseForSolve() which just calls the base class but also
+     * sets the matrix as symmetric and sets Conjugate Gradients as the solver
+     *
+     * @param initialSolution initialSolution (used in base class version of this method)
      */
     void InitialiseForSolve(Vec initialSolution = NULL);
 };

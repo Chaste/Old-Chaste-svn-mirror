@@ -81,8 +81,8 @@ public:
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 10.0 + p_cell_model->GetMDuration(); // hours
-		unsigned num_timesteps = 1000*(unsigned)end_time;
-		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
+        unsigned num_timesteps = 1000*(unsigned)end_time;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
 
         TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
 

@@ -92,7 +92,7 @@ protected:
 public:
     /**
      * Constructor allocates memory for the Dirichlet boundary conditions lists.
-     * 
+     *
      * @param deleteConditions whether to delete BCs in destructor (defaults to true)
      */
     AbstractBoundaryConditionsContainer(bool deleteConditions=true);

@@ -73,7 +73,7 @@ protected:
 
     /**
      * Write the current results to mpVtkMetaFile.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      */
@@ -194,7 +194,7 @@ public:
 
     /**
      * Set mMeinekeDivisionSeparation.
-     * 
+     *
      * @param divisionSeparation the new value of mMeinekeDivisionSeparation
      */
     void SetMeinekeDivisionSeparation(double divisionSeparation);

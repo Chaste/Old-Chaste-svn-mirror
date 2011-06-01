@@ -250,14 +250,14 @@ public:
 
     /**
      * Set mMechanicsCutOffLength.
-     * 
+     *
      * @param mechanicsCutOffLength  the new value of mMechanicsCutOffLength
      */
     void SetMechanicsCutOffLength(double mechanicsCutOffLength);
 
     /**
      * Overridden GetWidth() method.
-     * 
+     *
      * Calculate the 'width' of any dimension of the cell population by computing
      * the maximum distance between any nodes in this dimension.
      *
@@ -268,7 +268,7 @@ public:
 
     /**
      * Overridden SetOutputCellVolumes() method.
-     * 
+     *
      * Currently there is no facility for computing the volume associated
      * with each cell in a NodeBasedCellPopulation, so if this method is
      * called with outputCellVolumes = true, an exception is thrown.

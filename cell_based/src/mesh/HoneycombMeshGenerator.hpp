@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance 
+ * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance
  * between nodes) for use in cell-centre simulations.
- * 
+ *
  * NOTE: the user should delete the mesh after use to manage memory.
  */
 class HoneycombMeshGenerator

@@ -37,10 +37,10 @@ CellPropertyRegistry* CellPropertyCollection::GetCellPropertyRegistry()
 {
     if (!mpCellPropertyRegistry)
     {
-    	/*
-    	 * If no cell population has taken ownership of the registry and assigned
-    	 * this class a pointer, then store a pointer to the singleton.
-    	 */
+        /*
+         * If no cell population has taken ownership of the registry and assigned
+         * this class a pointer, then store a pointer to the singleton.
+         */
         mpCellPropertyRegistry = CellPropertyRegistry::Instance();
     }
     return mpCellPropertyRegistry;

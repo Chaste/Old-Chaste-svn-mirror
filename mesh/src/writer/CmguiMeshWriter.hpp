@@ -85,7 +85,7 @@ static const char CmguiElementFileHeader2D[] = "Shape.  Dimension=2, simplex(2)*
 static const char CmguiElementFileHeader2DQuadratic[] = "Shape.  Dimension=2, simplex(2)*simplex\n\
  #Scale factor sets= 0\n\
  #Nodes= 6\n";
- 
+
 /**
  * Header for element base file in 1D (.exelem)
  */
@@ -280,7 +280,7 @@ static const char CmguiCoordinatesFileHeader2D[] = " 1) coordinates, coordinate,
 
 
 /**
- * Header for element base file in 2D (.exelem) (quadratic version), this comes after 
+ * Header for element base file in 2D (.exelem) (quadratic version), this comes after
  * the definition of the number of fields
  */
 static const char CmguiCoordinatesFileHeader2DQuadratic[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=2\n\
@@ -381,8 +381,8 @@ static const char CmguiAdditionalFieldHeader3D[] = " field, rectangular cartesia
 
 
 /**
- * Header for additional fields in the element base file in 3D (.exelem) (quadratic 
- * visualisation). Here we assume all additional fields will be interpolated by cmgui 
+ * Header for additional fields in the element base file in 3D (.exelem) (quadratic
+ * visualisation). Here we assume all additional fields will be interpolated by cmgui
  * in the same way
  */
 static const char CmguiAdditionalFieldHeader3DQuadratic[] = " field, rectangular cartesian, #Components=1\n\
@@ -476,7 +476,7 @@ static const char CmguiAdditionalFieldHeader1D[] = " field, rectangular cartesia
       2.  #Values=1\n\
        Value indices:     1\n\
        Scale factor indices:   2\n";
-       
+
 /**
  * Header for additional fields in the element base file in 1D (.exelem) (quadratic visualisation),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
@@ -492,8 +492,8 @@ static const char CmguiAdditionalFieldHeader1DQuadratic[] = " field, rectangular
        Scale factor indices:   2\n\
       3.  #Values=1\n\
        Value indices:     1\n\
-       Scale factor indices:   3\n";       
-       
+       Scale factor indices:   3\n";
+
 
 /**
  *  CmguiMeshWriter
@@ -515,8 +515,8 @@ protected:
      * For storage of names of additional fields.
      */
     std::vector<std::string> mAdditionalFieldNames;
-    
-    
+
+
     /**
      * Stored the names of different regions that we want Cmgui to be able to visualize separately.
      * There will be one .exelem file per region.
@@ -530,7 +530,7 @@ protected:
      * the group name to stay as "solution", hence this separate variable
      */
     std::string mGroupName;
-    
+
     /**
      *  String which is set to either CmguiElementFileHeader2D or CmguiElementFileHeader2DQuadratic
      *  as appropriate
@@ -538,27 +538,27 @@ protected:
     std::string mElementFileHeader;
 
     /**
-     *  String which is set to either CmguiCoordinatesFileHeader2D or 
+     *  String which is set to either CmguiCoordinatesFileHeader2D or
      *  CmguiCoordinatesFileHeader2DQuadratic as appropriate
      */
 
     std::string mCoordinatesFileHeader;
 
-    /** 
-     *  String which is set to either CmguiAdditionalFieldHeader2D or 
+    /**
+     *  String which is set to either CmguiAdditionalFieldHeader2D or
      *  CmguiAdditionalFieldHeader2DQuadratic as appropriate
-     */ 
+     */
     std::string mAdditionalFieldHeader;
-    
-    /** 
-     *  Number of nodes per element, eg, in 2D, 3 for linear visualisation 
+
+    /**
+     *  Number of nodes per element, eg, in 2D, 3 for linear visualisation
      *  and 6 for quadratic visualisation
      */
     unsigned mNumNodesPerElement;
-    
+
     /**
      *  Ordering of the elements nodes, from Chaste convention to CMGUI convention
-     */ 
+     */
     std::vector<unsigned> mReordering;
 
     /**
@@ -606,14 +606,14 @@ public:
      */
     virtual ~CmguiMeshWriter()
     {}
-    
+
     /**
      * Compare two cmgui files, helper methods for tests. It will ignore the provenance lines of the files.
-     * 
+     *
      * @param rPath1 path to the first file from calling directory (or full absolute)
      * @param rPath2 path to the second file from calling directory (or full absolute)
-     * @return true if the file are the same (except for the provenance lines), false otherwise 
-     * 
+     * @return true if the file are the same (except for the provenance lines), false otherwise
+     *
      */
     static bool CompareCmguiFiles(std::string& rPath1, std::string& rPath2);
 };

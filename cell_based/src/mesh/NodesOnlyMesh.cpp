@@ -42,7 +42,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
         assert(!rNodes[i]->IsDeleted());
         bool boundary = rNodes[i]->IsBoundaryNode();
         c_vector<double, SPACE_DIM> location = rNodes[i]->rGetLocation();
-        
+
         Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, boundary);
         this->mNodes.push_back(p_node_copy);
         mCellRadii.push_back(1.0);
@@ -58,10 +58,10 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<S
 template<unsigned SPACE_DIM>
 double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 {
-    return mCellRadii[index];    
+    return mCellRadii[index];
 }
-    
-template<unsigned SPACE_DIM>     
+
+template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
 {
     mCellRadii[index] = radius;
@@ -127,7 +127,7 @@ void NodesOnlyMesh<SPACE_DIM>::DeleteNode(unsigned index)
     {
         EXCEPTION("Trying to delete a deleted node");
     }
-    
+
     this->mNodes[index]->MarkAsDeleted();
     this->mDeletedNodeIndices.push_back(index);
 }

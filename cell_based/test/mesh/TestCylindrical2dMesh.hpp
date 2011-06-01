@@ -687,9 +687,9 @@ public:
 
         /* The reason that the circumsphere is calculated correctly for a periodic boundary
          * stradling element is somewhat obscure.
-         * The jacobian of the element is calculated when the element has a mirror node
+         * The Jacobian of the element is calculated when the element has a mirror node
          * The mirror node is then replaced with the node within the periodic mesh
-         * The circumsphere is calculated based on the jacobian and the replaced node within the periodic mesh
+         * The circumsphere is calculated based on the Jacobian and the replaced node within the periodic mesh
          *
          * uncommenting the following line of code causes an error:
          * Jacobian determinant is non-positive

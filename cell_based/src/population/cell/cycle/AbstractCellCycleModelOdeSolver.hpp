@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This provides a wrapper around any ODE solver class, exposing roughly the same interface,
  * for use by ODE-based cell-cycle models.  Its main purpose is to allow multiple instances
  * of the same cell-cycle model to share the same ODE solver instance.
- * 
+ *
  * The recommended way to use this wrapper is via the CellCycleModelOdeSolver subclass, which
  * is templated over cell-cycle model class and ODE solver class, providing a singleton
  * instance for each combination of template parameters.
@@ -134,7 +134,7 @@ public:
 
     /**
      * Set method for mSizeOfOdeSystem.
-     * 
+     *
      * @param sizeOfOdeSystem the new value of mSizeOfOdeSystem
      */
     void SetSizeOfOdeSystem(unsigned sizeOfOdeSystem);
@@ -166,12 +166,12 @@ public:
      * @param absTol the absolute tolerance for the solver
      */
     void SetTolerances(double relTol=1e-4, double absTol=1e-6);
-    
+
     /**
      * Return true iff this is an adaptive solver such as CVODE for which it is safe to set the 'timestep'
      * to be the outer simulation timestep, because the ODE solver will use this as its maximum, not actual,
      * timestep.
-     * 
+     *
      * The base class version just returns true iff the solver is the CvodeAdaptor class.
      */
     virtual bool IsAdaptive();

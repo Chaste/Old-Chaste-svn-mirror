@@ -64,20 +64,20 @@ private:
     bool mWriteParallelFiles; /**< Whether to write parallel (.pvtu + .vtu for each process) files, defaults to false */
 
     std::map<unsigned, unsigned> mGlobalToNodeIndexMap; /**< Map a global node index into a local index (into mNodes and mHaloNodes as if they were concatenated) */
-    
-    std::vector<std::vector<unsigned> > mNodesToSendPerProcess; /**< Used to communicate node-wise halo data */ 
-    std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;  /**< Used to communicate node-wise halo data */ 
-    
-        
+
+    std::vector<std::vector<unsigned> > mNodesToSendPerProcess; /**< Used to communicate node-wise halo data */
+    std::vector<std::vector<unsigned> > mNodesToReceivePerProcess;  /**< Used to communicate node-wise halo data */
+
+
     /**
      * A VTK mesh data structure.
      * Created at construction, has data associated with it by AddCellData
-     * and AddCellPoint, then is filled with mesh geometry by MakeVtkMesh() in 
+     * and AddCellPoint, then is filled with mesh geometry by MakeVtkMesh() in
      * WriteFiles().
      */
     vtkUnstructuredGrid* mpVtkUnstructedMesh;
 
-    /** 
+    /**
      * Private helper method which copies the mesh details into the waiting
      * VTK mesh structure.  Called by  WriteFiles().
      */
@@ -115,7 +115,7 @@ public:
      * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
      */
     void AddCellData(std::string name, std::vector<c_vector<double, SPACE_DIM> > data);
-    
+
     /**
      * Add a scalar data field to each node (known as "point" in VTK).
      * @param name is a meaningful name with which to annotate the data
@@ -133,37 +133,37 @@ public:
      * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
      */
     void AddPointData(std::string name, std::vector<c_vector<double, SPACE_DIM> > data);
-    
+
     /**
      * Should be called to enable files to be written in parallel (i.e. a .pvtu file and .vtu files for each
      * process's sub-mesh).
-     * 
+     *
      * @param rMesh the mesh (must be a DistributedTetrahedralMesh)
      */
      void SetParallelFiles(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh);
-     
+
     /**
      * Write files. Overrides the method implemented in AbstractTetrahedralMeshWriter, which concentrates mesh
      * data onto a single file in order to output a monolithic file. For VTK, a DistributedTetrahedralMesh in
      * parallel is instead written out as a set of .vtu files (one for each sub-mesh) and a .pvtu file that
-     * provides the visualizer with information about them.  
+     * provides the visualizer with information about them.
      *
      * @param rMesh the mesh
      * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
-     *                                     Optimisations can be applied if this is not needed. 
-     * 
+     *                                     Optimisations can be applied if this is not needed.
+     *
      * \todo #1322 Mesh should really be const!
      */
-    void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, 
-                                     bool keepOriginalElementIndexing=true);     
+    void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+                                     bool keepOriginalElementIndexing=true);
 
     /**
      * Add Chaste provenance data to a VTK file as an XML comment string
-     * @param fileName is the file name relative to mpOutputFileHandler  
+     * @param fileName is the file name relative to mpOutputFileHandler
      * The file is assumed have been written to and to be closed - so that it can safely be appended to.
      */
     void AddProvenance(std::string fileName);
-    
+
     /**
      * Destructor.
      */

@@ -221,7 +221,7 @@ public:
 
     /**
      * Set mCryptLength. Must be called before GetWntLevel().
-     * 
+     *
      * @param cryptLength  the new value of mCryptLength
      */
     void SetCryptLength(double cryptLength);
@@ -282,14 +282,14 @@ public:
 
     /**
      * Set mCryptProjectionParameterA.
-     * 
+     *
      * @param cryptProjectionParameterA  the new value of mCryptProjectionParameterA
      */
     void SetCryptProjectionParameterA(double cryptProjectionParameterA);
 
     /**
      * Set mCryptProjectionParameterB.
-     * 
+     *
      * @param cryptProjectionParameterB  the new value of mCryptProjectionParameterB
      */
     void SetCryptProjectionParameterB(double cryptProjectionParameterB);

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class FieldNoyesReactionSystem : public AbstractOdeSystem
 {
-public :
+public:
     FieldNoyesReactionSystem() : AbstractOdeSystem(3)
     {
         mpSystemInfo = OdeSystemInformation<FieldNoyesReactionSystem>::Instance();

@@ -189,7 +189,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap& rMap)
      * The mesh now has messed up boundary elements, but this
      * doesn't matter as the ReMesh() below doesn't read them in
      * and reconstructs the boundary elements.
-     * 
+     *
      * Call ReMesh() on the parent class. Note that the mesh now has lots
      * of extra nodes which will be deleted, hence the name 'big_map'.
      */

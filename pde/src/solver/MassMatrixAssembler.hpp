@@ -26,38 +26,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef MASSMATRIXASSEMBLER_HPP_
 #define MASSMATRIXASSEMBLER_HPP_
 
 #include "AbstractFeObjectAssembler.hpp"
 #include "HeartConfig.hpp"
 
-
-/** 
- *  Simple implementation of AbstractFeObjectAssembler which provides mass matrices
- *  for a given mesh, multiplied by a scale factor if required. In other words, the matrix
- *   
- *  M_{ij} = k integral_{domain}  phi_i(x) phi_j(x) dV
- * 
- *  where phi_i is the i-th (linear) basis function and k the scale factor (constant 
- *  throughout the mesh).
+/**
+ * Simple implementation of AbstractFeObjectAssembler which provides mass matrices
+ * for a given mesh, multiplied by a scale factor if required. In other words, the matrix
+ *
+ * M_{ij} = k integral_{domain}  phi_i(x) phi_j(x) dV
+ *
+ * where phi_i is the i-th (linear) basis function and k the scale factor (constant
+ * throughout the mesh).
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MassMatrixAssembler
-   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL> 
+    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 private:
-    /** The scale factor */
+
+    /** The scale factor. */
     double mScaleFactor;
 
-    /** Whether to use mass lumping or not */
+    /** Whether to use mass lumping or not. */
     bool mUseMassLumping;
 
 public:
-    /** Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler. See
-     *  documentation in that class.
-     * 
+
+    /**
+     * Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler.
+     * See documentation in that class.
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i).
      * @param rX The point in space.
@@ -96,10 +97,11 @@ public:
     }
 
     /**
-     *  Constructor
-     *  @param pMesh the mesh
-     *  @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
-     *  @param useMassLumping whether to use mass matrix lumping or not
+     * Constructor.
+     *
+     * @param pMesh the mesh
+     * @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
+     * @param useMassLumping whether to use mass matrix lumping or not
      */
     MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
         : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),

@@ -52,7 +52,7 @@ public:
      * Constructor which takes in a vector of nodes.
      *
      * @param index  the index of the element in the mesh
-     * @param rNodes  the nodes owned by the element 
+     * @param rNodes  the nodes owned by the element
      */
     Element(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
@@ -93,7 +93,7 @@ public:
     /**
      * Calculate the circumsphere/circumcircle of this element.
      *
-     * After reconstructing a cylindrical 2d mesh, the jacobian data of the periodic elements is not valid anymore.
+     * After reconstructing a cylindrical 2d mesh, the Jacobian data of the periodic elements is not valid anymore.
      * We want to use the jacobians computed before swapping the nodes.
 
      * @return a vector containing x_centre, y_centre,...,radius^2
@@ -125,7 +125,7 @@ public:
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
-     * Calculate the interpolation weights (see CalculateInterpolationWeights() documentation), 
+     * Calculate the interpolation weights (see CalculateInterpolationWeights() documentation),
      * but if we are not within the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
      *

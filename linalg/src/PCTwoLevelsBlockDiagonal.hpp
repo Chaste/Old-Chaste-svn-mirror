@@ -96,7 +96,7 @@ public:
         Vec y1_subvector;/**<  Used to store the first half of the preconditioned vector*/
         Vec y21_subvector;/**<  Used to store the tissue part of the second half of the preconditioned vector*/
         Vec y22_subvector;/**<  Used to store the bath part second half of the preconditioned vector*/
-        VecScatter A11_scatter_ctx;/**< Scattering context: gather x1 from x and scatter y1 back into y*/    
+        VecScatter A11_scatter_ctx;/**< Scattering context: gather x1 from x and scatter y1 back into y*/
         VecScatter A22_B1_scatter_ctx;/**< Scattering context: gather x21 from x and scatter y21 back into y*/
         VecScatter A22_B2_scatter_ctx;/**< Scattering context: gather x22 from x and scatter y22 back into y*/
 

@@ -156,7 +156,7 @@ public:
      * (Does not include halo nodes).
      */
     unsigned GetNumLocalNodes() const;
-    
+
     /**
      * Get the number of nodes that are halo owned by the local process.
      */
@@ -279,16 +279,16 @@ public:
      * @param index the global index of the node
      */
     Node<SPACE_DIM>* GetNodeOrHaloNode(unsigned index) const;
-    
+
     /**
      * Calculate the bounding box (width extremes for all dimensions of the mesh.
      * Override for Distribute case
-     * 
+     *
      * @return The minimum and maximum co-ordinates of any node in each dimension
-     * 
+     *
      */
     virtual ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
-  
+
 protected:
     /**
      * Overridden solve node mapping method.
@@ -418,7 +418,7 @@ private:
      * The node indexed with "i" will be re-assigned with the new index mNodesPermutation[i]
      */
     void ReorderNodes();
-    
+
     //////////////////////////////////////////////////////////////////////
     //                            Iterators                             //
     //////////////////////////////////////////////////////////////////////
@@ -429,7 +429,7 @@ public:
 
     /** Definition of halo node Iterator type. */
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator HaloNodeIterator;
-    
+
     /**
      * Get an iterator to the first halo node in the mesh.
      */

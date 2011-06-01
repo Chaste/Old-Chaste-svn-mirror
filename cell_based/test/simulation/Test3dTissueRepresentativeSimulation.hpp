@@ -56,156 +56,156 @@ class Test3dTissueRepresentativeSimulation : public AbstractCellBasedTestSuite
 {
 public:
 
-	/*
-	 * Create and simulate a simple 3D cell population with a cuboid
-	 * mesh, with ghost nodes around the outside
-	 */
-	void Test3DHoneycombMeshWithGhostNodes() throw (Exception)
-	{
-		/*   	   _ _ _ _ _
-		 *        /        /|
-		 *       /        / |
-		 * 	    /_ _ _ _ /  | depth (z-direction)
-		 * 	   |         |  |
-		 *     |         |  |
-		 *     |         |  /
-		 *     |         | / height (y-direction)
-		 * 	   |_ _ _ _ _|/
-		 *        width
-		 *    (x-direction)
-		 */
+    /*
+     * Create and simulate a simple 3D cell population with a cuboid
+     * mesh, with ghost nodes around the outside
+     */
+    void Test3DHoneycombMeshWithGhostNodes() throw (Exception)
+    {
+        /*          _ _ _ _ _
+         *        /        /|
+         *       /        / |
+         *         /_ _ _ _ /  | depth (z-direction)
+         *        |         |  |
+         *     |         |  |
+         *     |         |  /
+         *     |         | / height (y-direction)
+         *        |_ _ _ _ _|/
+         *        width
+         *    (x-direction)
+         */
 
-	    unsigned nodes_across = 12;  // Corresponds to x axis
-	    unsigned nodes_depth = 12;   // Corresponds to y axis
-	    unsigned nodes_up = 12;		// Corresponds to z axis
-	    double ghosts = 2.0;		// Layers of ghost nodes
+        unsigned nodes_across = 12;  // Corresponds to x axis
+        unsigned nodes_depth = 12;   // Corresponds to y axis
+        unsigned nodes_up = 12;        // Corresponds to z axis
+        double ghosts = 2.0;        // Layers of ghost nodes
 
-	    /*
-	     *    *     *     *     *
-	     *   / \   / \   / \   / \       (1 layer of ghost nodes = 1 honeycomb layer)
-	     *  /   \ /   \ /   \ /   \
-	     * *     *     *     *     *
-	     *
-	     */
+        /*
+         *    *     *     *     *
+         *   / \   / \   / \   / \       (1 layer of ghost nodes = 1 honeycomb layer)
+         *  /   \ /   \ /   \ /   \
+         * *     *     *     *     *
+         *
+         */
 
-	    std::vector<Node<3>*> nodes;
+        std::vector<Node<3>*> nodes;
 
-	    double x_coordinate, y_coordinate, z_coordinate;
-	    std::vector<unsigned> ghost_node_indices, real_node_indices;
-	    unsigned node_index = 0;
+        double x_coordinate, y_coordinate, z_coordinate;
+        std::vector<unsigned> ghost_node_indices, real_node_indices;
+        unsigned node_index = 0;
 
-	    for (unsigned k=0; k<2*nodes_up-1; k++)		// Each layer going up
-	    {
-	    	z_coordinate = (double)k/2.0;
+        for (unsigned k=0; k<2*nodes_up-1; k++)        // Each layer going up
+        {
+            z_coordinate = (double)k/2.0;
 
-	    	bool is_even_layer = ((int)k % 2 == 0);
+            bool is_even_layer = ((int)k % 2 == 0);
 
-	    	if (is_even_layer)
-	    	{
-	    		// Want the nodes that sit at x=0,2,4,...
-	        	for (unsigned j=0; j<nodes_depth; j++)
-	        	{
-	        		y_coordinate = (double)j;
-	        		x_coordinate = 0.0;
+            if (is_even_layer)
+            {
+                // Want the nodes that sit at x=0,2,4,...
+                for (unsigned j=0; j<nodes_depth; j++)
+                {
+                    y_coordinate = (double)j;
+                    x_coordinate = 0.0;
 
-	        		for (unsigned i=0; i<nodes_across; i++)
-	        		{
-	        			nodes.push_back(new Node<3>(node_index,  false,  x_coordinate, y_coordinate, z_coordinate));
+                    for (unsigned i=0; i<nodes_across; i++)
+                    {
+                        nodes.push_back(new Node<3>(node_index,  false,  x_coordinate, y_coordinate, z_coordinate));
 
-	        			if (x_coordinate < ghosts || x_coordinate > (double)nodes_across-1.0-ghosts
-	        					|| y_coordinate < ghosts || y_coordinate > (double)nodes_depth-1.0-ghosts
-	        					|| z_coordinate < ghosts|| z_coordinate > (double)nodes_up-1.0-ghosts)
-	                    {
-	                        ghost_node_indices.push_back(node_index);
-	                    }
-	                    else
-	                    {
-	                    	real_node_indices.push_back(node_index);
-	        			}
+                        if (x_coordinate < ghosts || x_coordinate > (double)nodes_across-1.0-ghosts
+                                || y_coordinate < ghosts || y_coordinate > (double)nodes_depth-1.0-ghosts
+                                || z_coordinate < ghosts|| z_coordinate > (double)nodes_up-1.0-ghosts)
+                        {
+                            ghost_node_indices.push_back(node_index);
+                        }
+                        else
+                        {
+                            real_node_indices.push_back(node_index);
+                        }
 
-		            	node_index++;
-		        		x_coordinate += 1.0;
-	        		}
-	        	}
-	    	}
-	    	else
-	    	{
-	    		// Want the nodes that sit at x=1,3,5,...
-	        	for (unsigned j=0; j<nodes_depth-1; j++)
-	        	{
-	        		y_coordinate = (double)j + 0.5;
-	        		x_coordinate = 0.5;
+                        node_index++;
+                        x_coordinate += 1.0;
+                    }
+                }
+            }
+            else
+            {
+                // Want the nodes that sit at x=1,3,5,...
+                for (unsigned j=0; j<nodes_depth-1; j++)
+                {
+                    y_coordinate = (double)j + 0.5;
+                    x_coordinate = 0.5;
 
-	        		for (unsigned i=0; i<nodes_across-1; i++)
-	        		{
-	        			nodes.push_back(new Node<3>(node_index,  false,  x_coordinate, y_coordinate, z_coordinate));
+                    for (unsigned i=0; i<nodes_across-1; i++)
+                    {
+                        nodes.push_back(new Node<3>(node_index,  false,  x_coordinate, y_coordinate, z_coordinate));
 
-	        			if (x_coordinate < ghosts || x_coordinate > (double)nodes_across-1.0-ghosts
-	        					|| y_coordinate < ghosts || y_coordinate > (double)nodes_depth-1.0-ghosts
-	        					|| z_coordinate < ghosts|| z_coordinate > (double)nodes_up-1.0-ghosts)
-	        			{
-	                        ghost_node_indices.push_back(node_index);
-	                    }
-	                    else
-	                    {
-	                    	real_node_indices.push_back(node_index);
-	        			}
+                        if (x_coordinate < ghosts || x_coordinate > (double)nodes_across-1.0-ghosts
+                                || y_coordinate < ghosts || y_coordinate > (double)nodes_depth-1.0-ghosts
+                                || z_coordinate < ghosts|| z_coordinate > (double)nodes_up-1.0-ghosts)
+                        {
+                            ghost_node_indices.push_back(node_index);
+                        }
+                        else
+                        {
+                            real_node_indices.push_back(node_index);
+                        }
 
-		            	node_index++;
-		        		x_coordinate += 1.0;
-	        		}
-	        	}
-	    	}
-	    }
+                        node_index++;
+                        x_coordinate += 1.0;
+                    }
+                }
+            }
+        }
 
-	    MutableMesh<3,3> mesh(nodes);
+        MutableMesh<3,3> mesh(nodes);
 
-	    unsigned total_nodes_including_ghosts = nodes_up*nodes_across*nodes_depth + (nodes_up-1)*(nodes_across-1)*(nodes_depth-1);
-	    TS_ASSERT_EQUALS(mesh.GetNumNodes(),total_nodes_including_ghosts);
-	    TS_ASSERT_LESS_THAN(real_node_indices.size(), mesh.GetNumNodes());
+        unsigned total_nodes_including_ghosts = nodes_up*nodes_across*nodes_depth + (nodes_up-1)*(nodes_across-1)*(nodes_depth-1);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),total_nodes_including_ghosts);
+        TS_ASSERT_LESS_THAN(real_node_indices.size(), mesh.GetNumNodes());
 
-	    unsigned across_without_ghosts = nodes_across-2*ghosts;
-	    unsigned depth_without_ghosts = nodes_depth-2*ghosts;
-	    unsigned up_without_ghosts = nodes_up-2*ghosts;
+        unsigned across_without_ghosts = nodes_across-2*ghosts;
+        unsigned depth_without_ghosts = nodes_depth-2*ghosts;
+        unsigned up_without_ghosts = nodes_up-2*ghosts;
 
-	    unsigned total_nodes_without_ghosts = up_without_ghosts*across_without_ghosts*depth_without_ghosts + (up_without_ghosts-1)*(across_without_ghosts-1)*(depth_without_ghosts-1);
-	    TS_ASSERT_EQUALS(total_nodes_without_ghosts, real_node_indices.size());
+        unsigned total_nodes_without_ghosts = up_without_ghosts*across_without_ghosts*depth_without_ghosts + (up_without_ghosts-1)*(across_without_ghosts-1)*(depth_without_ghosts-1);
+        TS_ASSERT_EQUALS(total_nodes_without_ghosts, real_node_indices.size());
 
-	    // Now only assign cells to real_node_indices
+        // Now only assign cells to real_node_indices
 
-	    std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        std::vector<CellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
-	    for (std::vector<unsigned>::iterator real_node_iter=real_node_indices.begin();
-	    									real_node_iter != real_node_indices.end();
-	    									++real_node_iter)
-	    {
-	    	FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-	    	p_model->SetCellProliferativeType(DIFFERENTIATED);
-	    	CellPtr p_cell(new Cell(p_state, p_model));
-	        cells.push_back(p_cell);
-	    }
+        for (std::vector<unsigned>::iterator real_node_iter=real_node_indices.begin();
+                                            real_node_iter != real_node_indices.end();
+                                            ++real_node_iter)
+        {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            CellPtr p_cell(new Cell(p_state, p_model));
+            cells.push_back(p_cell);
+        }
 
-	    TS_ASSERT_EQUALS(real_node_indices.size(), cells.size());
+        TS_ASSERT_EQUALS(real_node_indices.size(), cells.size());
 
-	    MeshBasedCellPopulationWithGhostNodes<3> cell_population(mesh, cells, real_node_indices);
-	    cell_population.SetOutputVoronoiData(true);
-	    cell_population.SetOutputCellAncestors(true);
+        MeshBasedCellPopulationWithGhostNodes<3> cell_population(mesh, cells, real_node_indices);
+        cell_population.SetOutputVoronoiData(true);
+        cell_population.SetOutputCellAncestors(true);
 
-	    TS_ASSERT_EQUALS(ghost_node_indices.size(), cell_population.GetGhostNodeIndices().size());
+        TS_ASSERT_EQUALS(ghost_node_indices.size(), cell_population.GetGhostNodeIndices().size());
 
-	    CellBasedSimulation<3> simulator(cell_population);
-	    simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
-	    simulator.SetEndTime(1.0);
-	    simulator.SetSamplingTimestepMultiple(12);
+        CellBasedSimulation<3> simulator(cell_population);
+        simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
+        simulator.SetEndTime(1.0);
+        simulator.SetSamplingTimestepMultiple(12);
 
-	    // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the CellBasedSimulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
 
-	    simulator.Solve();
-	}
+        simulator.Solve();
+    }
 };
 
 #endif /*TEST3DTISSUEREPRESENTATIVESIMULATION_HPP_*/

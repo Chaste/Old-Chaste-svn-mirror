@@ -113,7 +113,7 @@ public:
         MatType type;
 #endif
         MatGetType(mat,&type);
-        if(PetscTools::IsSequential())
+        if (PetscTools::IsSequential())
         {
             TS_ASSERT(strcmp(type, MATSEQAIJ)==0);
         }
@@ -136,7 +136,7 @@ public:
         TS_ASSERT_EQUALS(n, 10);
 
         MatGetType(mat2,&type);
-        if(PetscTools::IsSequential())
+        if (PetscTools::IsSequential())
         {
             TS_ASSERT(strcmp(type, MATSEQAIJ)==0);
         }
@@ -151,7 +151,7 @@ public:
         MatGetInfo(mat2,MAT_LOCAL,&info);
         nonzeros_allocated = (unsigned) info.nz_allocated;
 
-        if(PetscTools::IsSequential())
+        if (PetscTools::IsSequential())
         {
             TS_ASSERT_EQUALS( nonzeros_allocated, 4*12u );
         }

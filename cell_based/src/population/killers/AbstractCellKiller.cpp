@@ -48,7 +48,7 @@ const AbstractCellPopulation<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetCellP
 template<unsigned DIM>
 void AbstractCellKiller<DIM>::OutputCellKillerInfo(out_stream& rParamsFile)
 {
-	std::string cell_killer_type = GetIdentifier();
+    std::string cell_killer_type = GetIdentifier();
 
     *rParamsFile << "\t\t<" << cell_killer_type << ">\n";
     OutputCellKillerParameters(rParamsFile);

@@ -84,12 +84,12 @@ private:
     /**
      * Set up internal data structures based on file structure, checking that they
      * contain data in roughly the expected format.
-     * 
+     *
      * @param rDirectory  Absolute path of the directory the files are stored in
      * @param rBaseName  The base name of the files to read (i.e. without the extensions)
      */
     void CheckFiles(const std::string& rDirectory, const std::string& rBaseName);
-    
+
 public:
 
     /**
@@ -116,7 +116,7 @@ public:
     /**
      * Alternative constructor using FileFinder to specify the directory files are stored
      * in.
-     * 
+     *
      * @param rDirectory  The directory the files are stored in
      * @param rBaseName  The base name of the files to read (i.e. without the extensions)
      */

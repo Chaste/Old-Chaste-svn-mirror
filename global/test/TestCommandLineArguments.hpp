@@ -43,7 +43,7 @@ public:
         // test that argc and argv are populated
         int argc = *(CommandLineArguments::Instance()->p_argc);
         TS_ASSERT_LESS_THAN(0, argc); // argc should always be 1 or greater
-        
+
         // argv[0] will be equal to global/build/debug/TestCommandLineArgumentsRunner
         // or global/build/optimised/TestCommandLineArgumentsRunner, etc
         char** argv = *(CommandLineArguments::Instance()->p_argv);
@@ -51,15 +51,15 @@ public:
         std::string arg_as_string(argv[0]);
         std::string final_part_of_string = arg_as_string.substr(arg_as_string.length()-30,arg_as_string.length());
         TS_ASSERT_EQUALS("TestCommandLineArgumentsRunner",final_part_of_string);
-        
+
         // Now test OptionExists() and GetValueCorrespondingToOption()
         //
         // The following tests would require the following arguments to be passed
-        // in: 
+        // in:
         // ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14
-        // 
-        // To test the methods we overwrite the arg_c and arg_v contained in the 
-        // singleton with the arguments that were needed.        
+        //
+        // To test the methods we overwrite the arg_c and arg_v contained in the
+        // singleton with the arguments that were needed.
         int new_argc = 8;
         char new_argv0[] = "..";
         char new_argv1[] = "-myoption";
@@ -69,7 +69,7 @@ public:
         char new_argv5[] = "3.14";
         char new_argv6[] = "-myintval2";
         char new_argv7[] = "-42";
-        
+
         char** new_argv = new char*[8];
         new_argv[0] = new_argv0;
         new_argv[1] = new_argv1;
@@ -87,11 +87,11 @@ public:
         // overwrite the args
         CommandLineArguments::Instance()->p_argc = &new_argc;
         CommandLineArguments::Instance()->p_argv = &new_argv;
-        
+
         // test OptionExists()
-        TS_ASSERT(CommandLineArguments::Instance()->OptionExists("-myoption"));        
+        TS_ASSERT(CommandLineArguments::Instance()->OptionExists("-myoption"));
         TS_ASSERT( ! CommandLineArguments::Instance()->OptionExists("-asddsgijdfgokgfgurgher"));
-        
+
         // test GetValueCorrespondingToOption()
         char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-myintval");
         unsigned i = atol(val);

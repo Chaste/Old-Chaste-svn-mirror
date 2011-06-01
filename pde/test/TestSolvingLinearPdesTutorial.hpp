@@ -129,7 +129,7 @@ public:
         return 1.0;
     }
 
-    /* The third method returns the diffusion tensor D. Note that the diffusion tensor should 
+    /* The third method returns the diffusion tensor D. Note that the diffusion tensor should
      * be symmetric and positive definite for a physical, well-posed problem. */
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& rX)
     {
@@ -243,7 +243,7 @@ public:
 
 
 
-        /* Next we define the solver of the PDE. 
+        /* Next we define the solver of the PDE.
          * To solve {{{AbstractLinearEllipticPde}}} (which is the type of pde {{{MyPde}}} is),
          * we use a {{{SimpleLinearEllipticSolver}}}. The solver, again templated over
          * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh,

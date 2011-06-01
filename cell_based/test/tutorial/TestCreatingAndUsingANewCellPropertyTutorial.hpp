@@ -80,7 +80,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * concentrations of the vascular endothelial growth factor VEGF; for further
  * details, see for example Owen ''et al.'', J. Theor. Biol.
  * 226: 377-391 (2004).
- * 
+ *
  * Note that usually this code would be separated out into a separate declaration
  * in a .hpp file and definition in a .cpp file.
  */

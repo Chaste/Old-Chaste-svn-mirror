@@ -218,10 +218,10 @@ public:
         p_wnt_cell->InitialiseCellCycleModel();
 
         // These are the first three normal random with mean of usual G2 Duration (4hrs), s.d. 0.9 and this seed (0)
-		double SG2MDuration1 = p_cell_model->GetSDuration() + 5.00104 + p_cell_model->GetMDuration();
-		double SG2MDuration2 = p_cell_model->GetSDuration() + 3.68921 + p_cell_model->GetMDuration();
-		double SG2MDuration3 = p_cell_model->GetSDuration() + 4.54725 + p_cell_model->GetMDuration();
-		double g1_duration = 5.971;
+        double SG2MDuration1 = p_cell_model->GetSDuration() + 5.00104 + p_cell_model->GetMDuration();
+        double SG2MDuration2 = p_cell_model->GetSDuration() + 3.68921 + p_cell_model->GetMDuration();
+        double SG2MDuration3 = p_cell_model->GetSDuration() + 4.54725 + p_cell_model->GetMDuration();
+        double g1_duration = 5.971;
 
         for (unsigned i=0; i<num_steps/2; i++)
         {

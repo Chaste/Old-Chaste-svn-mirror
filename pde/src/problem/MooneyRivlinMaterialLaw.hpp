@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class MooneyRivlinMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
 {
-private :
+private:
 
     /** Parameter c1. */
     double mC1;
@@ -64,7 +64,7 @@ private :
     /** Parameter c2. */
     double mC2;
 
-public :
+public:
 
     /**
      * Get the first derivative dW/dI1.

@@ -49,7 +49,7 @@ public:
 
     /**
      * Default constructor calls base class.
-     * 
+     *
      * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());

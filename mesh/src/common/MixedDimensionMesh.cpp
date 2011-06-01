@@ -47,11 +47,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader)
 {
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ConstructFromMeshReader(rMeshReader);
-    
+
     // Add cable elements
     mNumCableElements = rMeshReader.GetNumCableElements();
     //this->mCableElements.reserve(mNumCableElements);
-    
+
     for (unsigned element_index=0; element_index < mNumCableElements; element_index++)
     {
         ElementData element_data = rMeshReader.GetNextCableElementData();
@@ -71,13 +71,13 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
                 //We deal with non-owned nodes in the next part
             }
         }
-        
-        //If we don't locally own either node, then we don't construct the cable      
+
+        //If we don't locally own either node, then we don't construct the cable
         if (node_owned)
-        {           
+        {
             std::vector<Node<SPACE_DIM>*> nodes;
             nodes.reserve(2u);
-    
+
             for (unsigned j=0; j<2; j++) // cables are always 1d
             {
                 //Note that if we own one node on a cable element then we are likely to own the other.
@@ -92,11 +92,11 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
                     NEVER_REACHED;
                 }
             }
-    
+
             Element<1u, SPACE_DIM>* p_element = new Element<1u,SPACE_DIM>(element_index, nodes);
             RegisterCableElement(element_index);
             this->mCableElements.push_back(p_element);
-    
+
             if (rMeshReader.GetNumCableElementAttributes() > 0)
             {
                 assert(rMeshReader.GetNumCableElementAttributes() == 1);
@@ -124,7 +124,7 @@ unsigned MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalCableElements() 
 {
    return mCableElements.size();
 }
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElement(unsigned globalElementIndex) const
 {

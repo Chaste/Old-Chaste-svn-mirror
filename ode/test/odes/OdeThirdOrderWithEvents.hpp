@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
   */
 class OdeThirdOrderWithEvents : public AbstractOdeSystem
 {
-public :
+public:
     OdeThirdOrderWithEvents()
             : AbstractOdeSystem(3) // 3 here is the number of unknowns
     {

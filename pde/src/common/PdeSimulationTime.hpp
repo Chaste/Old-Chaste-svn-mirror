@@ -52,13 +52,13 @@ public:
      * @param timestep  the current timestep
      */
     static void SetPdeTimeStep(double timestep);
-    
+
     /** Get the current PDE timestep */
     static double GetPdeTimeStep();
 
     /** Get 1/dt  */
     static double GetPdeTimeStepInverse();
-    
+
 private:
     /** The current time */
     static double mTime;

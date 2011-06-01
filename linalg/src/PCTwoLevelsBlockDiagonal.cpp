@@ -55,10 +55,10 @@ PCTwoLevelsBlockDiagonal::~PCTwoLevelsBlockDiagonal()
 
     VecDestroy(mPCContext.x22_subvector);
     VecDestroy(mPCContext.y22_subvector);
-    
+
     VecScatterDestroy(mPCContext.A11_scatter_ctx);
-    VecScatterDestroy(mPCContext.A22_B1_scatter_ctx);    
-    VecScatterDestroy(mPCContext.A22_B2_scatter_ctx);    
+    VecScatterDestroy(mPCContext.A22_B1_scatter_ctx);
+    VecScatterDestroy(mPCContext.A22_B2_scatter_ctx);
 }
 
 void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, std::vector<PetscInt>& rBathNodes)
@@ -83,18 +83,18 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
     }
 
-    // Allocate memory     
-    unsigned subvector_num_rows = num_rows/2;    
+    // Allocate memory
+    unsigned subvector_num_rows = num_rows/2;
     unsigned subvector_local_rows = num_local_rows/2;
-    
-    unsigned subvector_num_rows_tissue = subvector_num_rows - rBathNodes.size();    
+
+    unsigned subvector_num_rows_tissue = subvector_num_rows - rBathNodes.size();
     unsigned subvector_local_rows_tissue = subvector_num_rows_tissue; /// \todo: #1082 won't work in parallel
 
-    unsigned subvector_num_rows_bath = rBathNodes.size();    
+    unsigned subvector_num_rows_bath = rBathNodes.size();
     unsigned subvector_local_rows_bath = subvector_num_rows_bath; /// \todo: #1082 won't work in parallel
-    
+
     assert(PetscTools::IsSequential());
-    
+
     mPCContext.x1_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
     mPCContext.x21_subvector = PetscTools::CreateVec(subvector_num_rows_tissue, subvector_local_rows_tissue);
     mPCContext.x22_subvector = PetscTools::CreateVec(subvector_num_rows_bath, subvector_local_rows_bath);
@@ -106,24 +106,24 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
      * Define IS objects that will be used throughout the method.
      */
     IS A11_all_rows;
-    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_all_rows);     
-     
+    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_all_rows);
+
     IS A22_all_rows;
     PetscInt A22_size;
     VecGetSize(mPCContext.x1_subvector, &A22_size);
-    /// \todo: #1082 assert size(x1) = size(x21) + size(x22)        
+    /// \todo: #1082 assert size(x1) = size(x21) + size(x22)
     ISCreateStride(PETSC_COMM_WORLD, A22_size, 1, 2, &A22_all_rows);
-           
+
     IS A22_bath_rows;
     PetscInt* phi_e_bath_rows = new PetscInt[rBathNodes.size()];
     for (unsigned index=0; index<rBathNodes.size(); index++)
     {
         phi_e_bath_rows[index] = 2*rBathNodes[index] + 1;
     }
-    ISCreateGeneralWithArray(PETSC_COMM_WORLD, rBathNodes.size(), phi_e_bath_rows, &A22_bath_rows);        
-    
+    ISCreateGeneralWithArray(PETSC_COMM_WORLD, rBathNodes.size(), phi_e_bath_rows, &A22_bath_rows);
+
     IS A22_tissue_rows;
-    ISDifference(A22_all_rows, A22_bath_rows, &A22_tissue_rows);            
+    ISDifference(A22_all_rows, A22_bath_rows, &A22_tissue_rows);
 
     // Create scatter contexts
     {
@@ -133,95 +133,95 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
         /// \todo: #1082 legacy, no need to use the references
         IS& A11_rows=A11_all_rows;
         IS& A22_B1_rows=A22_tissue_rows;
-        IS& A22_B2_rows=A22_bath_rows;        
-        
-        IS all_vector;    
+        IS& A22_B2_rows=A22_bath_rows;
+
+        IS all_vector;
         ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 1, &all_vector);
-        
-        IS tissue_vector;    
+
+        IS tissue_vector;
         ISCreateStride(PETSC_COMM_WORLD, (num_rows/2)-rBathNodes.size(), 0, 1, &tissue_vector);
 
-        IS bath_vector;    
+        IS bath_vector;
         ISCreateStride(PETSC_COMM_WORLD, rBathNodes.size(), 0, 1, &bath_vector);
-        
-        VecScatterCreate(dummy_vec, A11_rows, mPCContext.x1_subvector, all_vector, &mPCContext.A11_scatter_ctx);    
+
+        VecScatterCreate(dummy_vec, A11_rows, mPCContext.x1_subvector, all_vector, &mPCContext.A11_scatter_ctx);
         VecScatterCreate(dummy_vec, A22_B1_rows, mPCContext.x21_subvector, tissue_vector, &mPCContext.A22_B1_scatter_ctx);
         VecScatterCreate(dummy_vec, A22_B2_rows, mPCContext.x22_subvector, bath_vector, &mPCContext.A22_B2_scatter_ctx);
-        
+
         ISDestroy(all_vector);
         ISDestroy(tissue_vector);
         ISDestroy(bath_vector);
-        
-        VecDestroy(dummy_vec);        
+
+        VecDestroy(dummy_vec);
     }
-            
-    // Get matrix sublock A11        
+
+    // Get matrix sublock A11
     {
-        // Work out local row range for subblock A11 (same as x1 or y1) 
+        // Work out local row range for subblock A11 (same as x1 or y1)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x1_subvector, &low, &high);
-        VecGetSize(mPCContext.x1_subvector, &global_size);        
-        assert(global_size == num_rows/2);       
-        
+        VecGetSize(mPCContext.x1_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS A11_local_rows;
         IS& A11_columns=A11_all_rows;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows); /// \todo: #1082 OK in parallel. Use as an example for the other two blocks
-    
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #endif
-    
+
         ISDestroy(A11_local_rows);
     }
 
     // Get matrix sublock A22_B1
     {
-//        // Work out local row range for subblock A22 (same as x2 or y2) 
+//        // Work out local row range for subblock A22 (same as x2 or y2)
 //        PetscInt low, high, global_size;
 //        VecGetOwnershipRange(mPCContext.x21_subvector, &low, &high);
-//        VecGetSize(mPCContext.x21_subvector, &global_size);        
-//        assert(global_size == (num_rows/2) - (PetscInt) rBathNodes.size());       
-        
+//        VecGetSize(mPCContext.x21_subvector, &global_size);
+//        assert(global_size == (num_rows/2) - (PetscInt) rBathNodes.size());
+
         assert(PetscTools::IsSequential());
         IS& A22_B1_local_rows = A22_tissue_rows; // wrong in parallel, need to give local rows
         IS& A22_B1_columns = A22_tissue_rows;
-                
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A22_B1_local_rows, A22_B1_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A22_B1_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A22_B1_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A22_B1_local_rows, A22_B1_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.A22_B1_matrix_subblock);
+        MatGetSubMatrix(system_matrix, A22_B1_local_rows, A22_B1_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.A22_B1_matrix_subblock);
 #endif
-    
+
     }
 
     // Get matrix sublock A22_B2
     {
-//        // Work out local row range for subblock A22 (same as x2 or y2) 
+//        // Work out local row range for subblock A22 (same as x2 or y2)
 //        PetscInt low, high, global_size;
 //        VecGetOwnershipRange(mPCContext.x21_subvector, &low, &high);
-//        VecGetSize(mPCContext.x21_subvector, &global_size);        
-//        assert(global_size == (num_rows/2) - (PetscInt) rBathNodes.size());       
-        
+//        VecGetSize(mPCContext.x21_subvector, &global_size);
+//        assert(global_size == (num_rows/2) - (PetscInt) rBathNodes.size());
+
         assert(PetscTools::IsSequential());
         IS& A22_B2_local_rows = A22_bath_rows; // wrong in parallel, need to give local rows
         IS& A22_B2_columns = A22_bath_rows;
-                
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A22_B2_local_rows, A22_B2_columns,
             MAT_INITIAL_MATRIX, &mPCContext.A22_B2_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A22_B2_local_rows, A22_B2_columns, PETSC_DECIDE, 
+        MatGetSubMatrix(system_matrix, A22_B2_local_rows, A22_B2_columns, PETSC_DECIDE,
             MAT_INITIAL_MATRIX, &mPCContext.A22_B2_matrix_subblock);
 #endif
-    
+
     }
-    
+
     ISDestroy(A11_all_rows);
     ISDestroy(A22_all_rows);
     ISDestroy(A22_bath_rows);
@@ -281,7 +281,7 @@ PetscErrorCode PCTwoLevelsBlockDiagonalApply(PC pc_object, Vec x, Vec y)
 {
   void* pc_context;
 
-  PCShellGetContext(pc_object, &pc_context);   
+  PCShellGetContext(pc_object, &pc_context);
 #else
 PetscErrorCode PCTwoLevelsBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {

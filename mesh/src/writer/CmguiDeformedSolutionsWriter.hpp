@@ -38,8 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  visualisation of the quadratic mesh (just vertices output)
  *  or full quadratic visualisation
  */
-typedef enum CmguiMeshWriteType_ 
-{ 
+typedef enum CmguiMeshWriteType_
+{
     WRITE_LINEAR_MESH = 0,
     WRITE_QUADRATIC_MESH
 } CmguiMeshWriteType;
@@ -68,14 +68,14 @@ private:
      */
     unsigned mFinalCounter;
 
-    /** 
-     *  Number of nodes to output - either mpQuadraticMesh->GetNumVertices() (linear visualisation) 
+    /**
+     *  Number of nodes to output - either mpQuadraticMesh->GetNumVertices() (linear visualisation)
      *  mpQuadraticMesh->GetNumNodes() (quadratic visualisation)
      */
-	unsigned mNumNodesToUse;
+    unsigned mNumNodesToUse;
 
-    /** 
-     *  Overloaded GetNumNodes(), returns either mpQuadraticMesh->GetNumVertices() for linear 
+    /**
+     *  Overloaded GetNumNodes(), returns either mpQuadraticMesh->GetNumVertices() for linear
      *  visualisation or mpQuadraticMesh->GetNumNodes() for quadratic visualisation
      */
     unsigned GetNumNodes()
@@ -117,7 +117,7 @@ public:
      *  Writes a small cmgui script called LoadSolutions.com, for loading the output that has been written.
      *  Assumes the output was solution_0.exnode .. solution_N.exnode, where N is the counter that was
      *  given in the last call to WriteDeformationPositions()
-     *  @param fieldBaseName If there is a field to visualise on top of the deforming mesh, give it's 
+     *  @param fieldBaseName If there is a field to visualise on top of the deforming mesh, give it's
      *    path (relative to the cmgui deformation directory), and filename prefix. Leave empty
      *    if no field to visualise.
      *    For example,

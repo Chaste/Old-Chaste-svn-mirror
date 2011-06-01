@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TwoDimOdeSystem : public AbstractOdeSystem
 {
-public :
+public:
     TwoDimOdeSystem() : AbstractOdeSystem(2)
     {
         mpSystemInfo = OdeSystemInformation<TwoDimOdeSystem>::Instance();

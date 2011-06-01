@@ -149,7 +149,7 @@ public:
 
     /** Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     unsigned GetNumFaces() const;
-    
+
     /** Returns the number of cable elements in the mesh */
     unsigned GetNumCableElements() const;
 
@@ -252,18 +252,18 @@ public:
 
     /**
      * Sets size of std:ifstream internal read buffer. Use it for tuning I/O.
-     * 
+     *
      * @param bufferSize The size of the read buffer in bytes.
      */
     void SetReadBufferSize(unsigned bufferSize);
 
     /**
      * Sets a node permutation to use when reading in node file.
-     * 
+     *
      * @param rPermutationVector Permutation vector
      */
     void SetNodePermutation(std::vector<unsigned>& rPermutationVector);
-    
+
 private:
 
     /** Open mesh files. */
@@ -280,7 +280,7 @@ private:
 
     /** Open node connectivity list file. */
     void OpenNclFile();
-    
+
     /** Open the cable elements definition file, if it exists. */
     void OpenCableElementsFile();
 
@@ -325,7 +325,7 @@ private:
      * @param rNodeIndices  The nodes we have read in.
      */
     void EnsureIndexingFromZero(std::vector<unsigned>& rNodeIndices);
-    
+
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_

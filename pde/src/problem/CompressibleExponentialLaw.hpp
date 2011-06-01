@@ -48,11 +48,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  SetChangeOfBasisMatrix() before ComputeStressAndStressDerivative(), with
  *  the matrix P = [fibre_vec, sheet_vec, normal_vec] if this is not the case.
  */
-
 template<unsigned DIM>
 class CompressibleExponentialLaw : public AbstractCompressibleMaterialLaw<DIM>
 {
-private :
+private:
+
     /** Parameter a. (kPa) */
     double mA;
 
@@ -64,7 +64,8 @@ private :
 
     /** identity matrix. */
     c_matrix<double,DIM,DIM> mIdentity;
-public :
+
+public:
 
     /** Constructor. */
     CompressibleExponentialLaw();
@@ -87,12 +88,12 @@ public :
      *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
-    void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>&  rC,
-                                          c_matrix<double,DIM,DIM >&  rInvC,
-                                          double                 pressure,
-                                          c_matrix<double,DIM,DIM>&  rT,
-                                          FourthOrderTensor<DIM,DIM,DIM,DIM>&  rDTdE,
-                                          bool                   computeDTdE);
+    void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
+                                          c_matrix<double,DIM,DIM >& rInvC,
+                                          double pressure,
+                                          c_matrix<double,DIM,DIM>& rT,
+                                          FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                          bool computeDTdE);
 
     /** Get method for the parameter a */
     double GetA()
@@ -112,7 +113,5 @@ public :
         return mCompressibilityParam;
     }
 };
-
-
 
 #endif /* COMPRESSIBLEEXPONENTIALLAW_HPP_ */

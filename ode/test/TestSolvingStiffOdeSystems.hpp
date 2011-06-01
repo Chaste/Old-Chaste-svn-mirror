@@ -47,7 +47,7 @@ public:
 
     /**
      *  Solve the Field-Noyes system.
-     *  This is a stiff ode so Runge-Kutta won't work - program hangs if
+     *  This is a stiff ODE so Runge-Kutta won't work - program hangs if
      *  end time > 0.01 and variables go out of bounds.
      *  Can be solved ok with backward Euler.
      */

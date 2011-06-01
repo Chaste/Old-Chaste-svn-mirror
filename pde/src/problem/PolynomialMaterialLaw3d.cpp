@@ -166,4 +166,3 @@ std::vector<std::vector<double> > PolynomialMaterialLaw3d::GetZeroedAlpha(unsign
 
     return alpha;
 }
-

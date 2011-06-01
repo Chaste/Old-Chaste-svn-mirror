@@ -32,21 +32,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractNonlinearAssemblerSolverHybrid.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 
-/** 
- *  Solver of nonlinear elliptic PDEs
+/**
+ * Solver of nonlinear elliptic PDEs.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class SimpleNonlinearEllipticSolver : public AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM,SPACE_DIM,1>
 {
 private:
+
     /** The PDE to be solved. */
     AbstractNonlinearEllipticPde<SPACE_DIM>* mpNonlinearEllipticPde;
-    
+
     /**
      * This method returns the matrix to be added to element stiffness matrix
-     * for a given gauss point. The arguments are the bases, bases gradients,
+     * for a given Gauss point. The arguments are the bases, bases gradients,
      * x and current solution computed at the Gauss point. The returned matrix
-     * will be multiplied by the gauss weight and jacobian determinent and
+     * will be multiplied by the Gauss weight and Jacobian determinant and
      * added to the element stiffness matrix (see AssembleOnElement()).
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
@@ -66,9 +67,9 @@ private:
 
     /**
      * This method returns the vector to be added to element stiffness vector
-     * for a given gauss point. The arguments are the bases,
+     * for a given Gauss point. The arguments are the bases,
      * x and current solution computed at the Gauss point. The returned vector
-     * will be multiplied by the gauss weight and jacobian determinent and
+     * will be multiplied by the Gauss weight and Jacobian determinant and
      * added to the element stiffness matrix (see AssembleOnElement()).
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
@@ -88,9 +89,9 @@ private:
 
     /**
      * This method returns the vector to be added to element stiffness vector
-     * for a given gauss point in BoundaryElement. The arguments are the bases,
+     * for a given Gauss point in BoundaryElement. The arguments are the bases,
      * x and current solution computed at the Gauss point. The returned vector
-     * will be multiplied by the gauss weight and jacobian determinent and
+     * will be multiplied by the Gauss weight and Jacobian determinant and
      * added to the element stiffness matrix (see AssembleOnElement()).
      *
      * @param rSurfaceElement the element which is being considered.
@@ -103,8 +104,9 @@ private:
         ChastePoint<SPACE_DIM>& rX);
 
 public:
+
     /**
-     * Constructor
+     * Constructor.
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
@@ -116,6 +118,5 @@ public:
                                   BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                   unsigned numQuadPoints=2);
 };
-
 
 #endif /*SIMPLENONLINEARELLIPTICSOLVER_HPP_*/

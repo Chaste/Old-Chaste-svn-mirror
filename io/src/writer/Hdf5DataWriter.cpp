@@ -178,8 +178,8 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
             H5Aread(attribute_id, H5T_NATIVE_UINT, &is_data_complete);
             mIsDataComplete = (is_data_complete == 1) ? true : false;
             H5Tclose(attribute_type);
-		    H5Sclose(attribute_space);
-		    H5Aclose(attribute_id);
+            H5Sclose(attribute_space);
+            H5Aclose(attribute_id);
         }
         if (mIsDataComplete)
         {
@@ -190,19 +190,19 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         else
         {
             // Read which nodes appear in the file (mIncompleteNodeIndices)
-		    attribute_id = H5Aopen_name(mDatasetId, "NodeMap");
-		    attribute_type  = H5Aget_type(attribute_id);
-		    attribute_space = H5Aget_space(attribute_id);
-		    // Get the dataset/dataspace dimensions
-		    unsigned num_node_indices = H5Sget_simple_extent_npoints(attribute_space);
-		    // Read data from hyperslab in the file into the hyperslab in memory
-		    mIncompleteNodeIndices.clear();
-		    mIncompleteNodeIndices.resize(num_node_indices);
-		    H5Aread(attribute_id, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
+            attribute_id = H5Aopen_name(mDatasetId, "NodeMap");
+            attribute_type  = H5Aget_type(attribute_id);
+            attribute_space = H5Aget_space(attribute_id);
+            // Get the dataset/dataspace dimensions
+            unsigned num_node_indices = H5Sget_simple_extent_npoints(attribute_space);
+            // Read data from hyperslab in the file into the hyperslab in memory
+            mIncompleteNodeIndices.clear();
+            mIncompleteNodeIndices.resize(num_node_indices);
+            H5Aread(attribute_id, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
             // Release ids
-		    H5Tclose(attribute_type);
-		    H5Sclose(attribute_space);
-		    H5Aclose(attribute_id);
+            H5Tclose(attribute_type);
+            H5Sclose(attribute_space);
+            H5Aclose(attribute_id);
             // Set up what data we can
             mNumberOwned = mrVectorFactory.GetLocalOwnership();
             ComputeIncompleteOffset();
@@ -225,7 +225,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
 Hdf5DataWriter::~Hdf5DataWriter()
 {
     Close();
-    
+
     if (mSinglePermutation)
     {
         MatDestroy(mSinglePermutation);
@@ -236,12 +236,12 @@ Hdf5DataWriter::~Hdf5DataWriter()
     }
     if (mSingleIncompleteOutputMatrix)
     {
-    	MatDestroy(mSingleIncompleteOutputMatrix);
+        MatDestroy(mSingleIncompleteOutputMatrix);
     }
     if (mDoubleIncompleteOutputMatrix)
-	{
-    	MatDestroy(mDoubleIncompleteOutputMatrix);
-	}
+    {
+        MatDestroy(mDoubleIncompleteOutputMatrix);
+    }
 }
 
 void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
@@ -310,15 +310,15 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
     {
         EXCEPTION("Vector size doesn't match nodes to output");
     }
-    
+
     DefineFixedDimension(vecSize);
 
     mFileFixedDimensionSize = vector_size;
     mIsDataComplete = false;
     mIncompleteNodeIndices = rNodesToOuput;
     mUseMatrixForIncompleteData = true;
-    ComputeIncompleteOffset();    
-    
+    ComputeIncompleteOffset();
+
     //Make sure we've not done it already
     assert(mSingleIncompleteOutputMatrix == NULL);
     assert(mDoubleIncompleteOutputMatrix == NULL);
@@ -332,7 +332,7 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
         MatSetValue(mSingleIncompleteOutputMatrix, row_index, row_index, 0.0, INSERT_VALUES);
         //Put one at (i,j)
         MatSetValue(mSingleIncompleteOutputMatrix, row_index, rNodesToOuput[row_index], 1.0, INSERT_VALUES);
-        
+
         unsigned bi_index=2*row_index;
         unsigned perm_index=2*rNodesToOuput[row_index];
         //Put zeroes on the diagonal
@@ -346,7 +346,7 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
     MatAssemblyBegin(mDoubleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mSingleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mDoubleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
-    
+
 //    MatView(mSingleIncompleteOutputMatrix, PETSC_VIEWER_STDOUT_WORLD);
 
 }
@@ -506,7 +506,7 @@ void Hdf5DataWriter::EndDefineMode()
 
         hsize_t chunk_dims[DATASET_DIMS] = {chunk_size, mDatasetDims[1], mDatasetDims[2]};
         cparms = H5Pcreate (H5P_DATASET_CREATE);
-        
+
         H5Pset_chunk( cparms, DATASET_DIMS, chunk_dims);
     }
 
@@ -619,7 +619,7 @@ void Hdf5DataWriter::EndDefineMode()
     hid_t provenance_space = H5Screate_simple(1, prov_columns, NULL);
     char* provenance_data = (char*) malloc(sizeof(char) * MAX_PROVENANCE_STRING_SIZE);
     assert( ChasteBuildInfo::GetProvenanceString().length() < MAX_PROVENANCE_STRING_SIZE);
-    
+
     strcpy(provenance_data,  ChasteBuildInfo::GetProvenanceString().c_str());
     hid_t prov_attr = H5Acreate(mDatasetId, "Chaste Provenance", long_string_type, provenance_space, H5P_DEFAULT);
 
@@ -650,29 +650,31 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
     // Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
-    
+
     Vec output_petsc_vector;
-    //Decide what to write 
+    // Decide what to write
     if (mSinglePermutation == NULL)
     {
-        //No permutation - just write
+        // No permutation - just write
         output_petsc_vector = petscVector;
     }
     else
     {
         assert(mIsDataComplete);
-        //Make a vector with the same pattern (doesn't copy the data)
+        // Make a vector with the same pattern (doesn't copy the data)
         VecDuplicate(petscVector, &output_petsc_vector);
-        //Apply the permutation matrix
+
+        // Apply the permutation matrix
         MatMult(mSinglePermutation, petscVector, output_petsc_vector);
     }
     // Define a dataset in memory for this process
     hid_t memspace=0;
-    if (mNumberOwned !=0)
+    if (mNumberOwned != 0)
     {
         hsize_t v_size[1] = {mNumberOwned};
         memspace = H5Screate_simple(1, v_size, NULL);
     }
+
     // Select hyperslab in the file
     hsize_t count[DATASET_DIMS] = {1, mNumberOwned, 1};
     hsize_t offset_dims[DATASET_DIMS] = {mCurrentTimeStep, mOffset, variableID};
@@ -695,12 +697,12 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         if (mUseMatrixForIncompleteData)
         {
-            //Make a vector of the required size
+            // Make a vector of the required size
             output_petsc_vector = PetscTools::CreateVec(mFileFixedDimensionSize, mNumberOwned);
-          
-            //Fill the vector by multiplying complete data by incomplete output matrix
+
+            // Fill the vector by multiplying complete data by incomplete output matrix
             MatMult(mSingleIncompleteOutputMatrix, petscVector, output_petsc_vector);
-            
+
             double* p_petsc_vector_incomplete;
             VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
             H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, p_petsc_vector_incomplete);
@@ -712,7 +714,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
             for (unsigned i=0; i<mNumberOwned; i++)
             {
                 local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo ];
-    
+
             }
             H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
         }
@@ -726,10 +728,10 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         H5Sclose(memspace);
     }
-    
+
     if (petscVector != output_petsc_vector)
     {
-        //Free local vector
+        // Free local vector
         VecDestroy(output_petsc_vector);
     }
 }
@@ -743,7 +745,7 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
 
     if (variableIDs.size() <= 1)
     {
-    	EXCEPTION("The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
+        EXCEPTION("The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
     }
 
     const int NUM_STRIPES=variableIDs.size();
@@ -753,10 +755,10 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
     // Currently the method only works with consecutive columns, can be extended if needed
     for (unsigned i = 1; i < variableIDs.size(); i++)
     {
-		if (variableIDs[i]-variableIDs[i-1] != 1)
-		{
-			EXCEPTION("Columns should be consecutive. Try reordering them.");
-		}
+        if (variableIDs[i]-variableIDs[i-1] != 1)
+        {
+            EXCEPTION("Columns should be consecutive. Try reordering them.");
+        }
     }
 
     int vector_size;
@@ -771,18 +773,19 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
     PossiblyExtend();
 
     Vec output_petsc_vector;
-    //Decide what to write 
+    // Decide what to write
     if (mDoublePermutation == NULL)
     {
-        //No permutation - just write
+        // No permutation - just write
         output_petsc_vector = petscVector;
     }
     else
     {
         assert(mIsDataComplete);
-        //Make a vector with the same pattern (doesn't copy the data)
+        // Make a vector with the same pattern (doesn't copy the data)
         VecDuplicate(petscVector, &output_petsc_vector);
-        //Apply the permutation matrix
+
+        // Apply the permutation matrix
         MatMult(mDoublePermutation, petscVector, output_petsc_vector);
     }
     // Define a dataset in memory for this process
@@ -815,39 +818,39 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
     }
     else
     {
-    	if(variableIDs.size() < 3) //incomplete data and striped vector is supported only for NUM_STRIPES=2...for the moment
-    	{
-			if (mUseMatrixForIncompleteData)
-			{
-				//Make a vector of the required size
-				output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize, 2*mNumberOwned);
+        if (variableIDs.size() < 3) // incomplete data and striped vector is supported only for NUM_STRIPES=2...for the moment
+        {
+            if (mUseMatrixForIncompleteData)
+            {
+                // Make a vector of the required size
+                output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize, 2*mNumberOwned);
 
-				//Fill the vector by multiplying complete data by incomplete output matrix
-				MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);
+                // Fill the vector by multiplying complete data by incomplete output matrix
+                MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);
 
-				double* p_petsc_vector_incomplete;
-				VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
+                double* p_petsc_vector_incomplete;
+                VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
 
-				H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector_incomplete);
-			}
-			else
-			{
-				// Make a local copy of the data you own
-				double local_data[mNumberOwned*NUM_STRIPES];
-				for (unsigned i=0; i<mNumberOwned; i++)
-				{
-					unsigned local_node_number = mIncompleteNodeIndices[mOffset+i] - mLo;
-					local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
-					local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
-				}
+                H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector_incomplete);
+            }
+            else
+            {
+                // Make a local copy of the data you own
+                double local_data[mNumberOwned*NUM_STRIPES];
+                for (unsigned i=0; i<mNumberOwned; i++)
+                {
+                    unsigned local_node_number = mIncompleteNodeIndices[mOffset+i] - mLo;
+                    local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
+                    local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
+                }
 
-				H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
-			}
-    	}
-    	else
-    	{
-    		EXCEPTION("The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
-    	}
+                H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
+            }
+        }
+        else
+        {
+            EXCEPTION("The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
+        }
     }
 
     VecRestoreArray(output_petsc_vector, &p_petsc_vector);
@@ -858,7 +861,7 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
         H5Sclose(memspace);
     }
     H5Pclose(property_list_id);
-    
+
     if (petscVector != output_petsc_vector)
     {
         //Free local vector
@@ -908,14 +911,14 @@ void Hdf5DataWriter::Close()
     {
         return; // Nothing to do...
     }
-    
+
     H5Dclose(mDatasetId);
     if (mIsUnlimitedDimensionSet)
     {
         H5Dclose(mTimeDatasetId);
     }
     H5Fclose(mFileId);
-    
+
     // Cope with being called twice (e.g. if a user calls Close then the destructor)
     mIsInDefineMode = true;
 }
@@ -950,7 +953,7 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
     mCurrentTimeStep++;
 
     /*
-     *  Extend the dataset
+     * Extend the dataset
      */
     // If the user provided an estimate for the length of the
     // unlimited dimension, allocate all that space.
@@ -966,8 +969,6 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
         mDatasetDims[0]++;
         mNeedExtend = true;
     }
-
-
 }
 
 void Hdf5DataWriter::PossiblyExtend()
@@ -1005,79 +1006,83 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     {
         EXCEPTION("Cannot define permutation when not in Define mode");
     }
-    
+
     if (rPermutation.empty())
     {
         return false;
     }
-    
-    if (rPermutation.size() != mFileFixedDimensionSize || 
+
+    if (rPermutation.size() != mFileFixedDimensionSize ||
         rPermutation.size() != mDataFixedDimensionSize)
     {
         EXCEPTION("Permutation doesn't match the expected problem size");
     }
-    //Permutation checker
+    // Permutation checker
     std::set<unsigned> permutation_pigeon_hole;
-    //Fill up the pigeon holes
-    bool identity_map=true;
+    // Fill up the pigeon holes
+    bool identity_map = true;
     for (unsigned i=0; i<mDataFixedDimensionSize; i++)
     {
         permutation_pigeon_hole.insert(rPermutation[i]);
         if (identity_map && i != rPermutation[i])
         {
-            identity_map=false;
+            identity_map = false;
         }
     }
     if (identity_map)
     {
-        //Do nothing
+        // Do nothing
         return false;
     }
-    /* Pigeon-hole principal says that each index appears exactly once
+    /*
+     * The pigeon-hole principle states that each index appears exactly once
      * so if any don't appear then either one appears twice or something out of
-     * scope has appeared. 
+     * scope has appeared.
      */
     for (unsigned i=0; i<mDataFixedDimensionSize; i++)
     {
         if (permutation_pigeon_hole.count(i) != 1u)
         {
-            EXCEPTION("Permutation vector doesn't contain a valid permutation");  
+            EXCEPTION("Permutation vector doesn't contain a valid permutation");
         }
     }
-    //Make sure we've not done it already
+    // Make sure we've not done it already
     assert(mSinglePermutation == NULL);
     assert(mDoublePermutation == NULL);
     PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize, 2, mHi - mLo, mHi - mLo);
     PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize, 4, 2*(mHi - mLo), 2*(mHi - mLo));
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
-    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
-    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
+    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
 #else
-    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
-    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
+    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES);
+    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES);
 #endif
-    //Only do local rows
+    // Only do local rows
     for (unsigned row_index=mLo; row_index<mHi; row_index++)
     {
-        //Put zero on the diagonal
+        // Put zero on the diagonal
         MatSetValue(mSinglePermutation, row_index, row_index, 0.0, INSERT_VALUES);
-        //Put one at (i,j)
+
+        // Put one at (i,j)
         MatSetValue(mSinglePermutation, row_index, rPermutation[row_index], 1.0, INSERT_VALUES);
-        
-        unsigned bi_index=2*row_index;
-        unsigned perm_index=2*rPermutation[row_index];
-        //Put zeroes on the diagonal
+
+        unsigned bi_index = 2*row_index;
+        unsigned perm_index = 2*rPermutation[row_index];
+
+        // Put zeroes on the diagonal
         MatSetValue(mDoublePermutation, bi_index, bi_index, 0.0, INSERT_VALUES);
         MatSetValue(mDoublePermutation, bi_index+1, bi_index+1, 0.0, INSERT_VALUES);
-        //Put ones at (i,j)
+
+        // Put ones at (i,j)
         MatSetValue(mDoublePermutation, bi_index, perm_index, 1.0, INSERT_VALUES);
         MatSetValue(mDoublePermutation, bi_index+1, perm_index+1, 1.0, INSERT_VALUES);
     }
     MatAssemblyBegin(mSinglePermutation, MAT_FINAL_ASSEMBLY);
     MatAssemblyBegin(mDoublePermutation, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mSinglePermutation, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mDoublePermutation, MAT_FINAL_ASSEMBLY);  
-    return true;  
+    MatAssemblyEnd(mDoublePermutation, MAT_FINAL_ASSEMBLY);
+    return true;
 }
 
 void Hdf5DataWriter::SetFixedChunkSize(unsigned chunkSize)
@@ -1087,4 +1092,3 @@ void Hdf5DataWriter::SetFixedChunkSize(unsigned chunkSize)
     mUseOptimalChunkSizeAlgorithm = false;
     mFixedChunkSize = chunkSize;
 }
-

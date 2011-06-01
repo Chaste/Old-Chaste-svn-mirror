@@ -73,7 +73,7 @@ public:
 
     /** Returns the number of faces in the mesh (also has synonym GetNumEdges()) */
     virtual unsigned GetNumFaces() const =0;
-    
+
     /** Returns the number of cable elements in the mesh */
     virtual unsigned GetNumCableElements() const;
 

@@ -363,7 +363,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->SolveNodeMapping(0), 0u);
         TS_ASSERT_EQUALS(p_mesh->SolveElementMapping(0), 0u);
         TS_ASSERT_EQUALS(p_mesh->SolveBoundaryElementMapping(0), 0u);
-        
+
         delete p_mesh;
     }
 
@@ -991,7 +991,7 @@ public:
             // Tidy up
             delete p_mesh_loaded;
         }
-        
+
         delete p_mesh;
     }
 

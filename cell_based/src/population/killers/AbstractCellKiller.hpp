@@ -98,7 +98,7 @@ public:
 
     /**
      * Outputs cell killer parameters to file
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *

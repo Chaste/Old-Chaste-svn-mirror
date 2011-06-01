@@ -98,7 +98,7 @@ public:
      * @returns the size of the nodes list
      */
     unsigned GetSize() const;
-    
+
 };
 
 // Declare identifier for the serializer
@@ -116,13 +116,13 @@ inline void save_construct_data(
 {
     const std::vector<Node<SPACE_DIM>* > node_list = t->rGetNodesList();
 
-    //archive the size first
+    // Archive the size first
     unsigned size = t->GetSize();
     ar & size;
 
-    //The ChastePoints have to be at unique addresses, otherwise Boost thinks that the first archive is sufficient
+    // The ChastePoints have to be at unique addresses, otherwise Boost thinks that the first archive is sufficient
     std::vector <ChastePoint<SPACE_DIM>* > point_list;
-    
+
     for (unsigned i = 0; i < node_list.size(); i++)
     {
         c_vector<double, SPACE_DIM> loc =  node_list[i]->rGetLocation();
@@ -131,7 +131,8 @@ inline void save_construct_data(
         unsigned index = node_list[i]->GetIndex();
         ar & index;
     }
-    //Clean memory
+
+    // Clean memory
     for (unsigned i = 0; i < point_list.size(); i++)
     {
         delete point_list[i];
@@ -146,13 +147,12 @@ template<class Archive, unsigned SPACE_DIM>
 inline void load_construct_data(
     Archive & ar, ChasteNodesList<SPACE_DIM> * t, const unsigned int file_version)
 {
-    //unarchive the size
+    // Unarchive the size first
     unsigned size;
     ar & size;
 
+    // Rebuild the node list based on the unarchived points and indices
     std::vector<Node<SPACE_DIM>* > node_list;
-
-    //rebuild the node list based on the unarchived points and indices
     for (unsigned i = 0; i < size; i++)
     {
         ChastePoint<SPACE_DIM>* p_point;
@@ -163,11 +163,10 @@ inline void load_construct_data(
         Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>( index, *(p_point));
         node_list.push_back(p_node);
 
-        delete p_point;//not needed any longer
+        delete p_point; // not needed any longer
     }
 
     ::new(t)ChasteNodesList<SPACE_DIM>(node_list, true);
-
 }
 }
 } // namespace ...

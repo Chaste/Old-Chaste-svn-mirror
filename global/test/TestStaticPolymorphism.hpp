@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Single class. Method() not virtual
 class SingleClass
 {
-public :
+public:
     int Method(int x)
     {
         return x-1;
@@ -59,7 +59,7 @@ public :
 
 class DynamicBaseclass
 {
-public :
+public:
     virtual int Method(int x)
     {
         return x-1;
@@ -81,7 +81,7 @@ public :
 
 class DynamicSubclass : public DynamicBaseclass
 {
-public :
+public:
     virtual int Method(int x)
     {
         return x+1;
@@ -94,7 +94,7 @@ public :
 
 class DynamicSubsubclass : public DynamicSubclass
 {
-public :
+public:
     virtual int Method(int x)
     {
         return x+2;
@@ -106,7 +106,7 @@ public :
 
 class DynamicSubsubsubclass : public DynamicSubsubclass
 {
-public :
+public:
     virtual int Method(int x)
     {
         return x+3;
@@ -120,7 +120,7 @@ public :
 template <class Derived>
 class StaticBaseclass
 {
-public :
+public:
     int Method(int x)
     {
         return x-1;
@@ -143,7 +143,7 @@ public :
 
 class StaticSubclass : public StaticBaseclass<StaticSubclass>
 {
-public :
+public:
     int Method(int x)
     {
         return x+1;

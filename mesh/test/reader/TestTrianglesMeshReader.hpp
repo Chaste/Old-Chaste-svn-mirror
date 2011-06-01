@@ -156,7 +156,7 @@ public:
         for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
         {
             ElementData data = mesh_reader.GetNextFaceData();
-            //Attributes are 0, 1, 2, or 3.
+            // Attributes are 0, 1, 2, or 3.
             TS_ASSERT_LESS_THAN(data.AttributeValue, 4u);
             if (data.AttributeValue == 0u)
             {
@@ -246,17 +246,17 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements_with_node_attributes");
 
-        TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 0u);//check vector is empty at the beginning
+        TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 0u); // Check vector is empty at the beginning
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();//read a node
 
-        //check coordinates
+        // Check coordinates
         TS_ASSERT_DELTA(first_node[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(first_node[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(first_node[2], 0.0, 1e-6);
 
-        //check attributes
+        // Check attributes
         TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 2u);
         TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[0], 25.2, 1e-6);
         TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[1],   16.3, 1e-6);
@@ -264,23 +264,23 @@ public:
         std::vector<double> second_node;
         second_node = mesh_reader.GetNextNode();//read another node
 
-        //check coordinates
+        // Check coordinates
         TS_ASSERT_DELTA(second_node[0], 0.2, 1e-6);
         TS_ASSERT_DELTA(second_node[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(second_node[2], 0.0, 1e-6);
 
-        //check attributes
-        TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 2u);//check that we remembered to clear it ( otherwise size would be 4 by now)
+        // Check attributes
+        TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 2u); // Check that we remembered to clear it ( otherwise size would be 4 by now)
         TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[0], 25.6, 1e-6);
         TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[1],   15.0, 1e-6);
 
-        //read a few other nodes in succession
+        // Read a few other nodes in succession
         std::vector<double> another_node;
         another_node = mesh_reader.GetNextNode();//3rd
         another_node = mesh_reader.GetNextNode();//4th
         another_node = mesh_reader.GetNextNode();//5th
 
-        //check the fifth node
+        // Check the fifth node
         TS_ASSERT_DELTA(another_node[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(another_node[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(another_node[2], 0.2, 1e-6);
@@ -733,9 +733,7 @@ public:
                 TS_ASSERT_EQUALS(permutation[original_mesh_global_index], permuted_mesh_global_index);
             }
         }
-
     }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_
-

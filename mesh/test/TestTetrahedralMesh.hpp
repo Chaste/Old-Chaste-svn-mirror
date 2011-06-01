@@ -216,13 +216,13 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 12u);
 
-        //check all nodes have 2 attributes
+        // Check all nodes have 2 attributes
         for (unsigned node_index = 0; node_index < mesh.GetNumNodes(); node_index++)
         {
             TS_ASSERT_EQUALS(mesh.GetNode(node_index)->rGetNodeAttributes().size(), 2u);
         }
 
-        //check some values
+        // Check some values
         unsigned probe_node_1 = 0u;
         unsigned probe_node_2 = 8u;
 
@@ -762,7 +762,7 @@ public:
 
         //mesh.SetElementOwnerships();
         mesh.GetDistributedVectorFactory(); //First touch should run SetElementOwnerships
-        
+
         bool unowned_element = false;
         for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)
         {
@@ -820,9 +820,11 @@ public:
 
         TS_ASSERT_DELTA(mesh.GetVolume(), width*height*depth, 1e-7);
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
-        //Each unit square on the surface is split into 2
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
-        //Assuming that each cube is split into 6 tetrahedra
+
+        // Each unit square on the surface is split into 2
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width));
+
+        // Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
 
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
@@ -1711,7 +1713,6 @@ public:
 
     void TestDeepCopy() throw (Exception)
     {
-
         TetrahedralMesh<3,3> copy_mesh;
 
         c_vector <double, 3> node3_location;
@@ -1733,7 +1734,7 @@ public:
             TS_ASSERT_DELTA(norm_2(mesh.GetNode(3)->rGetLocation()-node3_location), 0.0, 1e-15)
             TS_ASSERT_EQUALS(mesh.GetNode(11)->GetNumContainingElements(), 6u);
             TS_ASSERT_EQUALS(mesh.GetNode(11)->GetNumBoundaryElements(), 6u);
-            
+
             copy_mesh.ConstructFromMesh(mesh);
             //Original mesh goes out of scope here, so we'd like the copy not to be a shallow one.
         }
@@ -1753,56 +1754,56 @@ public:
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_800_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
-        std::vector<std::vector<unsigned> > nodes_to_send_per_process; 
-        std::vector<std::vector<unsigned> > nodes_to_receive_per_process; 
+
+        std::vector<std::vector<unsigned> > nodes_to_send_per_process;
+        std::vector<std::vector<unsigned> > nodes_to_receive_per_process;
         mesh.CalculateNodeExchange(nodes_to_send_per_process, nodes_to_receive_per_process);
-        
+
         TS_ASSERT_EQUALS(nodes_to_send_per_process.size(), PetscTools::GetNumProcs());
         TS_ASSERT_EQUALS(nodes_to_receive_per_process.size(), PetscTools::GetNumProcs());
         TS_ASSERT(nodes_to_receive_per_process[PetscTools::GetMyRank()].empty());
         TS_ASSERT(nodes_to_send_per_process[PetscTools::GetMyRank()].empty());
-        
+
         // Do some communication
-        
+
         //mesh.rGetDistributedVectorFactory()->rGetGlobalLows();
         for ( unsigned rank_offset = 1; rank_offset < PetscTools::GetNumProcs(); rank_offset++ )
         {
             unsigned send_to      = (PetscTools::GetMyRank() + rank_offset) % (PetscTools::GetNumProcs());
             unsigned receive_from = (PetscTools::GetMyRank() + PetscTools::GetNumProcs()- rank_offset ) % (PetscTools::GetNumProcs());
-                  
-            MPI_Send( &(nodes_to_send_per_process[send_to][0]), 
-                      nodes_to_send_per_process[send_to].size(), 
-                      MPI_UNSIGNED, 
-                      send_to, 
-                      0, 
+
+            MPI_Send( &(nodes_to_send_per_process[send_to][0]),
+                      nodes_to_send_per_process[send_to].size(),
+                      MPI_UNSIGNED,
+                      send_to,
+                      0,
                       PETSC_COMM_WORLD );
-                      
+
             unsigned received[nodes_to_receive_per_process[receive_from].size()];
             MPI_Status status;
 
             MPI_Recv( received,
-                      nodes_to_receive_per_process[receive_from].size(), 
-                      MPI_UNSIGNED, 
+                      nodes_to_receive_per_process[receive_from].size(),
+                      MPI_UNSIGNED,
                       receive_from,
                       0,
-                      PETSC_COMM_WORLD, 
+                      PETSC_COMM_WORLD,
                       &status );
-                      
+
             for ( unsigned i = 0; i < nodes_to_receive_per_process[receive_from].size(); i++ )
             {
                 TS_ASSERT_EQUALS( received[i], nodes_to_receive_per_process[receive_from][i] );
             }
         }
-        
+
 //      s  for (unsigned process = 0; process < PetscTools::GetNumProcs(); process++)
-//        {            
-//            PRINT_3_VARIABLES( process, 
+//        {
+//            PRINT_3_VARIABLES( process,
 //                               nodes_to_receive_per_process[process].size(),
 //                               nodes_to_send_per_process[process].size() );
 //        }
     }
-    
-    
+
+
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

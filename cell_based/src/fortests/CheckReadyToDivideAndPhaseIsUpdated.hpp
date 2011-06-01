@@ -49,10 +49,10 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
                                          double g1Duration,
                                          double g2Duration=DBL_MAX)
 {
-	if (g2Duration==DBL_MAX)
-	{
-		g2Duration = pModel->GetG2Duration();
-	}
+    if (g2Duration==DBL_MAX)
+    {
+        g2Duration = pModel->GetG2Duration();
+    }
 
 
     double age = pModel->GetAge();

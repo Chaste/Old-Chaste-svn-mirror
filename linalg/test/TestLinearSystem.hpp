@@ -57,7 +57,7 @@ public:
    void TestLinearSystem1()
     {
         TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20), "You must provide a rowPreallocation argument for a large sparse system");
-        
+
         const unsigned size_u = 3u;
         const int size = (int) size_u;
         LinearSystem ls(size_u);
@@ -123,7 +123,7 @@ public:
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
-        
+
         // Reset KSP stuff (this doesn't need to be done, but we're making sure we cover this method
         // (and check that it works))
         ls.ResetKspSolver();
@@ -215,11 +215,11 @@ public:
 
         int lo, hi;
         ls.GetOwnershipRange(lo, hi);
-        for(int row=2; row<5; row++)
+        for (int row=2; row<5; row++)
         {
             if (lo<=row && row<hi)
             {
-                for(int i=0; i<5; (i+1==row? i+=2 : i++)) // for i=0,1..,row-1,row+1,..,5
+                for (int i=0; i<5; (i+1==row? i+=2 : i++)) // for i=0,1..,row-1,row+1,..,5
                 {
                     TS_ASSERT_EQUALS(ls.GetMatrixElement(row,i), 0.0);
                 }
@@ -290,10 +290,10 @@ public:
         {
             for (int col=0; col<5; col++)
             {
-                if( (col>=2) || (row>=2) )
+                if ( (col>=2) || (row>=2) )
                 {
-                    // the altered values
-                    if(row!=col)
+                    // The altered values
+                    if (row != col)
                     {
                         TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0);
                     }
@@ -304,7 +304,7 @@ public:
                 }
                 else
                 {
-                    // unaltered values
+                    // Unaltered values
                     TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), row);
                 }
             }
@@ -448,7 +448,7 @@ public:
         }
 #endif
     }
-    
+
    void TestRemoveNullSpace()
     {
         LinearSystem ls(3);
@@ -481,7 +481,7 @@ public:
         TS_ASSERT_DELTA(replicated_wrong_solution[0], 0.0, 1e-8);
         TS_ASSERT_DELTA(replicated_wrong_solution[1], 1.0, 1e-8);
         TS_ASSERT_DELTA(replicated_wrong_solution[2], 1.0, 1e-8);
-        
+
         // Now remove the null space and we will hopefully get the right solution
         ls.RemoveNullSpace();
         Vec solution = ls.Solve();
@@ -490,12 +490,12 @@ public:
         TS_ASSERT_DELTA(replicated_solution[0], 1.0, 1e-8);
         TS_ASSERT_DELTA(replicated_solution[1], 1.0, 1e-8);
         TS_ASSERT_DELTA(replicated_solution[2], 1.0, 1e-8);
-        
+
         VecDestroy(one_zeros);
         VecDestroy(wrong_solution);
         VecDestroy(solution);
 
-    }    
+    }
 
     // Test the 3rd constructor
     void TestCreateWithPetscObjects()
@@ -986,7 +986,6 @@ public:
 
             MatDestroy(new_mat);
         }
-
     }
 
     void TestSaveAndLoadLinearSystem()
@@ -1115,25 +1114,24 @@ public:
             KSPGetPC(p_linear_system->mKspSolver, &prec);
             PCGetType(prec, &pc);
 
-            TS_ASSERT( strcmp(solver, "cg")==0 );
-            TS_ASSERT( strcmp(pc, "none")==0 );
+            TS_ASSERT(strcmp(solver, "cg") == 0);
+            TS_ASSERT(strcmp(pc, "none") == 0);
             delete p_linear_system;
         }
-
     }
 
     void TestConsecutiveSolvesDifferentPreconditioner()
     {
         unsigned num_nodes = 1331;
-        DistributedVectorFactory factory(num_nodes);        
-        Vec parallel_layout = factory.CreateVec(2);        
-        
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);
+
         Mat system_matrix;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
         Vec system_rhs;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
         VecDestroy(parallel_layout);
@@ -1189,21 +1187,21 @@ public:
     {
 
         unsigned num_nodes = 1331;
-        DistributedVectorFactory factory(num_nodes);        
-        Vec parallel_layout = factory.CreateVec(2);        
-        
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);
+
         Mat system_matrix;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
         Vec system_rhs;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
-        VecDestroy(parallel_layout);             
-        
+        VecDestroy(parallel_layout);
+
         unsigned num_it_same_mat=0, num_it_diff_mat=1;
-        
+
         {
             LinearSystem ls(system_rhs, system_matrix);
             ls.SetKspType("cg");
@@ -1218,7 +1216,7 @@ public:
          * Basic test, we pretend matrix for preconditioning assembly is different
          * from LHS but then we set LHS as preconditioning matrix. Number of iterations
          * should agree.
-         */ 
+         */
         {
             LinearSystem ls_diff_precond(system_rhs, system_matrix);
             ls_diff_precond.SetKspType("cg");
@@ -1235,11 +1233,11 @@ public:
             VecDestroy(solution);
         }
 
-        TS_ASSERT_EQUALS(num_it_diff_mat, num_it_same_mat);       
+        TS_ASSERT_EQUALS(num_it_diff_mat, num_it_same_mat);
 
         /*
          * Setting the identity matrix as a preconditioner is equivalent to no preconditioning
-         */ 
+         */
         {
             LinearSystem ls_diff_precond(system_rhs, system_matrix);
             ls_diff_precond.SetKspType("cg");
@@ -1261,23 +1259,23 @@ public:
 
         TS_ASSERT_EQUALS(num_it_diff_mat, 80u); // It takes 80 iterations if you run with ls.SetPcType("none");
         TS_ASSERT_LESS_THAN(num_it_same_mat, num_it_diff_mat);
-        
+
         VecDestroy(system_rhs);
         MatDestroy(system_matrix);
     }
 
     void TestFixedNumberOfIterations() throw (Exception)
-    {               
+    {
         unsigned num_nodes = 1331;
         DistributedVectorFactory factory(num_nodes);
-        Vec parallel_layout = factory.CreateVec(2);               
+        Vec parallel_layout = factory.CreateVec(2);
 
         Mat system_matrix;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
         Vec system_rhs;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
         LinearSystem ls = LinearSystem(system_rhs, system_matrix);
@@ -1295,9 +1293,9 @@ public:
 #else
         VecSet(guess, 0.0);
 #endif
-        
+
         /*
-         *  Use fixed number of iterations, updating the number of iterations to perform every other solve.
+         * Use fixed number of iterations, updating the number of iterations to perform every other solve.
          */
         TS_ASSERT_THROWS_NOTHING(ls.SetUseFixedNumberIterations(true, 2));
 
@@ -1310,7 +1308,6 @@ public:
         Vec difference;
         VecDuplicate(parallel_layout, &difference);
         PetscReal l_inf_norm;
-
 
         /*
          * Solve using previous solution as new guess. If we were checking convergence
@@ -1328,7 +1325,7 @@ public:
         VecDestroy(new_solution);
 
         /*
-         * Solve using previous solution as new guess takes 0 iterations as 
+         * Solve using previous solution as new guess takes 0 iterations as
          * it is performed with tolerance-based stop criteria.
          */
         new_solution = ls.Solve(solution);
@@ -1394,11 +1391,11 @@ public:
         Vec parallel_layout = factory.CreateVec(2);
 
         Mat system_matrix;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
         Vec system_rhs;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
         LinearSystem ls = LinearSystem(system_rhs, system_matrix);
@@ -1456,7 +1453,7 @@ public:
         VecDestroy(guess);
     }
 
-    // this test should be the last in the suite
+    // This test should be the last in the suite
     void TestSetFromOptions()
     {
         LinearSystem ls = LinearSystem(5);
@@ -1485,7 +1482,7 @@ public:
         TS_ASSERT( strcmp(solver,"gmres")==0 );
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
     }
-    // the above test should be last in the suite
+    // The above test should be last in the suite
 
 };
 #endif //_TESTLINEARSYSTEM_HPP_

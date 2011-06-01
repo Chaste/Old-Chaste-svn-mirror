@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestFourthOrderTensor : public CxxTest::TestSuite
 {
-public :
+public:
     void TestFourthOrderTensorAllSameDimensions() throw(Exception)
     {
         FourthOrderTensor<2,2,2,2> x;
@@ -270,11 +270,11 @@ public :
             }
         }
     }
-    
+
     void TestFourthOrderTensorDifferentDimensions1() throw (Exception)
     {
         FourthOrderTensor<2,3,1,1> X;
-        
+
         for (unsigned i=0; i<2; i++)
         {
             for (unsigned j=0; j<3; j++)
@@ -291,8 +291,8 @@ public :
 
         c_matrix<double,1,2> A;
         A(0,0) = 2;
-        A(0,1) = 3; 
-        
+        A(0,1) = 3;
+
         FourthOrderTensor<1,3,1,1> Y;
         Y.SetAsContractionOnFirstDimension<2>(A,X);
 
@@ -305,7 +305,7 @@ public :
     void TestFourthOrderTensorDifferentDimensions2() throw (Exception)
     {
         FourthOrderTensor<2,3,1,1> X;
-        
+
         for (unsigned i=0; i<2; i++)
         {
             for (unsigned j=0; j<3; j++)
@@ -322,9 +322,9 @@ public :
 
         c_matrix<double,1,3> A;
         A(0,0) = 2;
-        A(0,1) = 3; 
-        A(0,2) = 4; 
-        
+        A(0,1) = 3;
+        A(0,2) = 4;
+
         FourthOrderTensor<2,1,1,1> Y;
         Y.SetAsContractionOnSecondDimension<3>(A,X);
 
@@ -335,7 +335,7 @@ public :
     void TestFourthOrderTensorDifferentDimensions3() throw (Exception)
     {
         FourthOrderTensor<1,1,2,3> X;
-        
+
         for (unsigned i=0; i<1; i++)
         {
             for (unsigned j=0; j<1; j++)
@@ -352,8 +352,8 @@ public :
 
         c_matrix<double,1,2> A;
         A(0,0) = 2;
-        A(0,1) = 3; 
-        
+        A(0,1) = 3;
+
         FourthOrderTensor<1,1,1,3> Y;
         Y.SetAsContractionOnThirdDimension<2>(A,X);
 
@@ -366,7 +366,7 @@ public :
     void TestFourthOrderTensorDifferentDimensions4() throw (Exception)
     {
         FourthOrderTensor<1,1,2,3> X;
-        
+
         for (unsigned i=0; i<1; i++)
         {
             for (unsigned j=0; j<1; j++)
@@ -383,9 +383,9 @@ public :
 
         c_matrix<double,1,3> A;
         A(0,0) = 2;
-        A(0,1) = 3; 
-        A(0,2) = 4; 
-        
+        A(0,1) = 3;
+        A(0,2) = 4;
+
         FourthOrderTensor<1,1,2,1> Y;
         Y.SetAsContractionOnFourthDimension<3>(A,X);
 

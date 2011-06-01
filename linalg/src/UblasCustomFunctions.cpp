@@ -143,25 +143,24 @@ double SmallPow(double x, unsigned exponent)
                 return SmallPow(x, exponent-1)*x;
             }
         }
-
     }
 }
 
 bool Divides(double smallerNumber, double largerNumber)
 {
-    double remainder=fmod(largerNumber, smallerNumber);
-    //Is the remainder close to zero?
-    //Note that the comparison is scaled wrt to the larger of the numbers
+    double remainder = fmod(largerNumber, smallerNumber);
+    // Is the remainder close to zero?
+    // Note that the comparison is scaled wrt to the larger of the numbers
     if (remainder < DBL_EPSILON*largerNumber)
     {
         return true;
     }
-    //Is the remainder close to smallerNumber?
-    //Note that the comparison is scaled wrt to the larger of the numbers
+    // Is the remainder close to smallerNumber?
+    // Note that the comparison is scaled wrt to the larger of the numbers
     if (fabs(remainder-smallerNumber) < DBL_EPSILON*largerNumber)
     {
         return true;
     }
-    
+
     return false;
 }

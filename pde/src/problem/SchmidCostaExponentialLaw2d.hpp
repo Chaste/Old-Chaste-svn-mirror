@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
 {
-private :
+private:
 
     /** Parameter a. (kPa) */
     double mA;
@@ -61,7 +61,7 @@ private :
     /** 2D identity matrix. */
     c_matrix<double,2,2> mIdentity;
 
-public :
+public:
 
     /** Constructor. */
     SchmidCostaExponentialLaw2d();

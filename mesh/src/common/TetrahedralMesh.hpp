@@ -114,11 +114,11 @@ protected:
 
     /** Vector storing the determinant of the Jacobian matrix for each boundary element in the mesh. */
     std::vector<double> mBoundaryElementJacobianDeterminants;
-    
+
     /**
      * Export the mesh (currently only the nodes) to an external mesher
-     * This is determined at compile time when the MESHER_IO template is 
-     * instantiated to either 
+     * This is determined at compile time when the MESHER_IO template is
+     * instantiated to either
      *   - triangulateio (for triangle remesher in 2D)
      *   - tetgenio (for tetgen remesher in 3D)
      * Since conditional compilation is not allowed, care must be taken to only use
@@ -129,15 +129,15 @@ protected:
      *  Note that only nodes are exported and thus any late mesh is based on the convex hull
      * @param elementList is a pointer to either mesherInput.trianglelist or mesherInput.tetrahedronlist (used when we are not remeshing, but converting the form of an existing mesh)
      * Note that this should have been re-malloced and mesherInput.numberoftriangles or mesherInput.numberoftetrahedra should be set prior to the call when elementList is non-NULL
-     * 
+     *
      */
     template <class MESHER_IO>
     void ExportToMesher(NodeMap& map, MESHER_IO& mesherInput, int *elementList=NULL);
 
     /**
      * Import the mesh from an external mesher
-     * This is determined at compile time when the MESHER_IO template is 
-     * instantiated to either 
+     * This is determined at compile time when the MESHER_IO template is
+     * instantiated to either
      *   - triangulateio (for triangle remesher in 2D)
      *   - tetgenio (for tetgen remesher in 3D)
      * Since conditional compilation is not allowed, care must be taken to only use
@@ -148,7 +148,7 @@ protected:
      * @param numberOfFaces is a copy of either mesherOutput.edges or mesherOutput.numberoftrifaces
      * @param faceList is a pointer to either mesherOutput.edgelist or mesherOutput.trifacelist
      * @param edgeMarkerList is a pointer to either mesherOutput.edgemarkerlist or NULL
-     * 
+     *
      */
     template <class MESHER_IO>
     void ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList);
@@ -159,7 +159,7 @@ protected:
      * @param mesherIo is a triangulateio class
      */
     void InitialiseTriangulateIo(triangulateio& mesherIo);
-    
+
     /**
      * Convenience method to tidy up a triangleio data structure after use
      * @param mesherIo is a triangulateio class
@@ -392,9 +392,9 @@ public:
          * @param elemIndex  An element index
          */
         EdgeIterator(TetrahedralMesh& rMesh, unsigned elemIndex);
-        
-        
-        
+
+
+
 
     private:
         /** Keep track of what edges have been visited

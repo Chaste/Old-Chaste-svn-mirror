@@ -278,7 +278,6 @@ public:
                 TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index);
             }
         }
-
     }
 
     void TestRemeshWithMethod2D() throw (Exception)
@@ -508,51 +507,51 @@ public:
     void TestRawTetgenLibraryCall()
     {
         tetgen::tetgenio in, out;
-        
+
         in.numberofpointattributes = 0;
         in.numberofpoints = 8;
         in.pointlist = new REAL[in.numberofpoints * 3];//tetgenio's destructor will automatically free this.
         in.pointlist[0]  = 0;
         in.pointlist[1]  = 0;
         in.pointlist[2]  = 0;
-        
+
         in.pointlist[3]  = 1;
         in.pointlist[4]  = 0;
         in.pointlist[5]  = 0;
-        
+
         in.pointlist[6]  = 0;
         in.pointlist[7]  = 1;
         in.pointlist[8]  = 0;
-        
+
         in.pointlist[9]  = 0;
         in.pointlist[10]  = 0;
         in.pointlist[11]  = 1;
-        
+
         in.pointlist[12]  = 1;
         in.pointlist[13]  = 1;
         in.pointlist[14]  = 0;
-        
+
         in.pointlist[15]  = 1;
         in.pointlist[16]  = 0;
         in.pointlist[17]  = 1;
-        
+
         in.pointlist[18]  = 0;
         in.pointlist[19]  = 1;
         in.pointlist[20]  = 1;
-        
+
         in.pointlist[21]  = 1;
         in.pointlist[22]  = 1;
         in.pointlist[23]  = 1;
         tetgen::tetrahedralize((char*)"Q", &in, &out);
-        
-        TS_ASSERT_EQUALS(out.numberofpoints,         8); //As in original
+
+        TS_ASSERT_EQUALS(out.numberofpoints,         8); // As in original
         TS_ASSERT_EQUALS(out.numberofpointattributes,0);
-        TS_ASSERT_EQUALS(out.numberofcorners,        4); //Vertices per tet
+        TS_ASSERT_EQUALS(out.numberofcorners,        4); // Vertices per tet
         TS_ASSERT_EQUALS(out.numberofedges,          0);
-        TS_ASSERT_EQUALS(out.numberoftetrahedra,     6); //Elements
+        TS_ASSERT_EQUALS(out.numberoftetrahedra,     6); // Elements
         TS_ASSERT_EQUALS(out.numberofedges,          0);
-        TS_ASSERT_EQUALS(out.numberoftrifaces,      12); //2 triangles on each die face
-        
+        TS_ASSERT_EQUALS(out.numberoftrifaces,      12); // 2 triangles on each die face
+
     }
 
     void TestRemeshWithLibraryMethodSimple() throw (Exception)

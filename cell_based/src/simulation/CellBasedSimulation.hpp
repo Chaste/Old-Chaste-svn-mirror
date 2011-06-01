@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The CellBasedSimulation is constructed with a CellPopulation, which
  * updates the correspondence between each Cell and its spatial representation
- * and handles cell division (governed by the CellCycleModel associated 
+ * and handles cell division (governed by the CellCycleModel associated
  * with each cell). Once constructed, one or more Force laws may be passed
  * to the CellBasedSimulation object, to define the mechanical properties
  * of the CellPopulation. Similarly, one or more CellKillers may be passed
@@ -419,7 +419,7 @@ public:
 
     /**
      * Outputs simulation parameters to file
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *

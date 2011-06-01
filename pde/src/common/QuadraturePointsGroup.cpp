@@ -36,7 +36,7 @@ QuadraturePointsGroup<DIM>::QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMes
     mNumQuadPointsPerElement = rQuadRule.GetNumQuadPoints();
     data.resize(mNumElements*mNumQuadPointsPerElement, zero_vector<double>(DIM));
 
-    // loop over elements
+    // Loop over elements
     for (unsigned elem_index=0; elem_index<rMesh.GetNumElements(); elem_index++)
     {
         Element<DIM,DIM>& r_elem = *(rMesh.GetElement(elem_index));
@@ -48,14 +48,14 @@ QuadraturePointsGroup<DIM>::QuadraturePointsGroup(TetrahedralMesh<DIM,DIM>& rMes
 
             LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
 
-            // interpolate to calculate quad point
+            // Interpolate to calculate quadrature point
             c_vector<double,DIM> X = zero_vector<double>(DIM);
             for (unsigned node_index=0; node_index<DIM+1; node_index++)
             {
                 X += linear_phi(node_index)*rMesh.GetNode( r_elem.GetNodeGlobalIndex(node_index) )->rGetLocation();
             }
 
-            // save the quad point
+            // Save the quadrature point
             assert(elem_index<mNumElements);
             assert(quad_index<mNumQuadPointsPerElement);
             data[ elem_index*mNumQuadPointsPerElement + quad_index ] = X;

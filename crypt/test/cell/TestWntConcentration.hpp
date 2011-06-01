@@ -276,7 +276,7 @@ public:
         double a = p_wnt->GetCryptProjectionParameterA();
         double b = p_wnt->GetCryptProjectionParameterB();
         TS_ASSERT_DELTA(a, 0.5, 1e-12);
-		TS_ASSERT_DELTA(b, 2.0, 1e-12);
+        TS_ASSERT_DELTA(b, 2.0, 1e-12);
 
         while (cell_iter != crypt.End())
         {
@@ -428,7 +428,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-        	WntCellCycleModel* p_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
+            WntCellCycleModel* p_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
             if (crypt.GetLocationOfCellCentre(*cell_iter)[1] == 0.0)

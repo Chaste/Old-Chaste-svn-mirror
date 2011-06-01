@@ -42,8 +42,10 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
         FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
         bool                      computeDTdE)
 {
-    // this is covered, but gcov doesn't see this as being covered
-    // for some reason, maybe because of optimisations
+    /*
+     * This is covered, but gcov doesn't see this as being covered
+     * for some reason, maybe because of optimisations.
+     */
     #define COVERAGE_IGNORE
     assert((DIM==2) || (DIM==3));
     #undef COVERAGE_IGNORE
@@ -63,7 +65,6 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
     //    = 2 * w1 * delta_MN    +   2 * w2 * (I1 delta_MN - C_MN)  -  p * invC
     //
     //  (where w1 = dW/dI1, etc).
-
 
     rT = 2*w1*identity - pressure*rInvC;
     if (DIM==3)

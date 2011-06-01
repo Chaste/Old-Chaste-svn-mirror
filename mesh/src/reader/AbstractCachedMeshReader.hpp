@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 
 /**
- * Abstract mesh reader class, for readers which read and cache the entire 
+ * Abstract mesh reader class, for readers which read and cache the entire
  * mesh in internal storage, for the mesh to use for constructing itself.
  * Concrete readers which will read large, memory-intensive, meshes should
  * inherit from AbstractMeshReader, not this class.
@@ -84,7 +84,7 @@ public:
     unsigned GetNumElements() const; /**< Returns the number of elements in the mesh. */
     unsigned GetNumNodes() const;    /**< Returns the number of nodes in the mesh. */
     unsigned GetNumFaces() const;    /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
-    
+
     /**
      *  Returns the maximum node index. Used in testing to check that output nodes
      *  are always indexed from zero even if they are input indexed from one.

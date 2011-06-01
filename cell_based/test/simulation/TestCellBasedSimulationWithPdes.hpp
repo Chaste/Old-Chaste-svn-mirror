@@ -129,8 +129,8 @@ public:
             p_model->SetQuiescentConcentration(0.9);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
 
@@ -407,102 +407,102 @@ public:
 
     void TestWithPointwiseTwoSource() throw(Exception)
     {
-		EXIT_IF_PARALLEL; // defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
-		// Set up mesh
-		HoneycombMeshGenerator generator(5, 5, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        // Set up mesh
+        HoneycombMeshGenerator generator(5, 5, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Set up cells
-		std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        // Set up cells
+        std::vector<CellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
 
-		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-		{
-			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
-			p_model->SetDimension(2);
-			p_model->SetCellProliferativeType(STEM);
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+            p_model->SetDimension(2);
+            p_model->SetCellProliferativeType(STEM);
 
-			// Use non-default G1 durations
+            // Use non-default G1 durations
             p_model->SetStemCellG1Duration(8.0);
-	        p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
-			CellPtr p_cell(new Cell(p_state, p_model));
-			double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
-			p_cell->SetBirthTime(birth_time);
+            CellPtr p_cell(new Cell(p_state, p_model));
+            double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
+            p_cell->SetBirthTime(birth_time);
 
-			// Make the cell apoptotic if near the centre
-			double x = p_mesh->GetNode(i)->rGetLocation()[0];
-			double y = p_mesh->GetNode(i)->rGetLocation()[1];
-			double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
+            // Make the cell apoptotic if near the centre
+            double x = p_mesh->GetNode(i)->rGetLocation()[0];
+            double y = p_mesh->GetNode(i)->rGetLocation()[1];
+            double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
 
-			if (dist_from_centre < 1.5)
-			{
-				p_cell->AddCellProperty(p_apoptotic_state);
-			}
+            if (dist_from_centre < 1.5)
+            {
+                p_cell->AddCellProperty(p_apoptotic_state);
+            }
 
-			cells.push_back(p_cell);
-		}
+            cells.push_back(p_cell);
+        }
 
-		// Set up cell population
-		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-		cell_population.SetOutputCellPopulationVolumes(true); // record the spheroid radius and apoptotic radius
+        // Set up cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        cell_population.SetOutputCellPopulationVolumes(true); // record the spheroid radius and apoptotic radius
 
-		// Set up CellwiseData and associate it with the cell population
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 2);
-		p_data->SetCellPopulation(&cell_population);
-		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-		{
-			p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(), 0);
-			p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(), 1);
-		}
+        // Set up CellwiseData and associate it with the cell population
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 2);
+        p_data->SetCellPopulation(&cell_population);
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(), 0);
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(), 1);
+        }
 
-		// Set up first PDE
-		CellwiseSourcePde<2> pde(cell_population, -0.1);
+        // Set up first PDE
+        CellwiseSourcePde<2> pde(cell_population, -0.1);
         ConstBoundaryCondition<2> bc(1.0);
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
-		std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-		pde_and_bc_collection.push_back(&pde_and_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
-		// Set up second PDE
-		CellwiseSourcePde<2> pde2(cell_population, -0.8);
+        // Set up second PDE
+        CellwiseSourcePde<2> pde2(cell_population, -0.8);
         ConstBoundaryCondition<2> bc2(0.0);
         bool is_neumann_bc2 = true;
-		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, is_neumann_bc2);
-		pde_and_bc_collection.push_back(&pde_and_bc2);
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, is_neumann_bc2);
+        pde_and_bc_collection.push_back(&pde_and_bc2);
 
-		// Set up cell-based simulation
-		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-		simulator.SetOutputDirectory("CellBasedSimulationWithPointwiseSource");
-		simulator.SetEndTime(0.5);
+        // Set up cell-based simulation
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("CellBasedSimulationWithPointwiseSource");
+        simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
 
-		// Set up cell killer and pass into simulation
-		OxygenBasedCellKiller<2> killer(&cell_population);
-		simulator.AddCellKiller(&killer);
+        // Set up cell killer and pass into simulation
+        OxygenBasedCellKiller<2> killer(&cell_population);
+        simulator.AddCellKiller(&killer);
 
-		// Run cell-based simulation
-		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        // Run cell-based simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-		// A few hardcoded tests to check nothing has changed
-		std::vector<double> node_5_location = simulator.GetNodeLocation(5);
-		TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
-		TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),1), 0.0000, 1e-4);
-		TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),1),
-							p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),0));
+        // A few hardcoded tests to check nothing has changed
+        std::vector<double> node_5_location = simulator.GetNodeLocation(5);
+        TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),1), 0.0000, 1e-4);
+        TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),1),
+                            p_data->GetValue(simulator.rGetCellPopulation().GetCellUsingLocationIndex(5),0));
 
-		// Tidy up
-		CellwiseData<2>::Destroy();
-	}
+        // Tidy up
+        CellwiseData<2>::Destroy();
+    }
 
     void TestSpheroidStatistics() throw (Exception)
     {
@@ -637,8 +637,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
@@ -820,8 +820,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
@@ -943,8 +943,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
 
             CellPtr p_cell(new Cell(p_state, p_model));
@@ -1025,8 +1025,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
 
             CellPtr p_cell(new Cell(p_state, p_model));
@@ -1132,8 +1132,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             // Use non-default G1 durations
-			p_model->SetStemCellG1Duration(8.0);
-			p_model->SetTransitCellG1Duration(8.0);
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
@@ -1225,11 +1225,11 @@ public:
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Set some model parameters for the cell-cycle model
-		for (unsigned index=0; index < cells.size(); index++)
-		{
-			cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
-			cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
-		}
+        for (unsigned index=0; index < cells.size(); index++)
+        {
+            cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
+            cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
+        }
 
         // Set up cell population
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
@@ -1383,7 +1383,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
 
         // Create a force law and pass it to the simulation
@@ -1391,16 +1391,16 @@ public:
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
 
-		std::string output_directory = "TestCellBasedSimulationOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
-		out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_with_pde_results.parameters");
-		simulator.OutputSimulationParameters(parameter_file);
-		parameter_file->close();
+        std::string output_directory = "TestCellBasedSimulationOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+        out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_with_pde_results.parameters");
+        simulator.OutputSimulationParameters(parameter_file);
+        parameter_file->close();
 
-		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_with_pde_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_with_pde_results.parameters").c_str()), 0);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_with_pde_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_with_pde_results.parameters").c_str()), 0);
 
-		///\todo check output of simulator.OutputSimulationSetup();
+        ///\todo check output of simulator.OutputSimulationSetup();
     }
 };
 

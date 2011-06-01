@@ -51,8 +51,8 @@ public:
 
     void TestCellConstructor() throw(Exception)
     {
-    	// Set up SimulationTime
-    	SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Set up SimulationTime
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
 
         // Create a cell mutation state
@@ -77,8 +77,8 @@ public:
 
     void TestWithCellPropertyCollection() throw(Exception)
     {
-    	// Set up SimulationTime
-    	SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Set up SimulationTime
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(24, 3);
 
         // Create a cell mutation state

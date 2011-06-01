@@ -511,48 +511,48 @@ public:
 
     void TestIsElementOnBoundary()
     {
-		// Test with a square element in 2D
+        // Test with a square element in 2D
 
-		std::vector<Node<2>*> nodes;
-		nodes.push_back(new Node<2>(3, false, 0.0, 0.0));
-		nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
-		nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
-		nodes.push_back(new Node<2>(0, false, 0.0, 1.0));
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(3, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(0, false, 0.0, 1.0));
 
-		VertexElement<2,2> square_vertex_element(INDEX_IS_NOT_USED, nodes);
+        VertexElement<2,2> square_vertex_element(INDEX_IS_NOT_USED, nodes);
 
-		TS_ASSERT_EQUALS(square_vertex_element.IsElementOnBoundary(), false);
+        TS_ASSERT_EQUALS(square_vertex_element.IsElementOnBoundary(), false);
 
-		nodes[0]->SetAsBoundaryNode();
+        nodes[0]->SetAsBoundaryNode();
 
-		TS_ASSERT_EQUALS(square_vertex_element.IsElementOnBoundary(), true);
+        TS_ASSERT_EQUALS(square_vertex_element.IsElementOnBoundary(), true);
 
-		// Tidy up
-		for (unsigned i=0; i<nodes.size(); i++)
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
-		nodes.clear();
+        nodes.clear();
 
-		// Now test with a line element in 2D
+        // Now test with a line element in 2D
 
-		nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-		nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
 
-		VertexElement<1,2> line_vertex_element(INDEX_IS_NOT_USED, nodes);
+        VertexElement<1,2> line_vertex_element(INDEX_IS_NOT_USED, nodes);
 
-		TS_ASSERT_EQUALS(line_vertex_element.IsElementOnBoundary(), false);
+        TS_ASSERT_EQUALS(line_vertex_element.IsElementOnBoundary(), false);
 
-		nodes[0]->SetAsBoundaryNode();
+        nodes[0]->SetAsBoundaryNode();
 
-		TS_ASSERT_EQUALS(line_vertex_element.IsElementOnBoundary(), true);
+        TS_ASSERT_EQUALS(line_vertex_element.IsElementOnBoundary(), true);
 
-		// Tidy up
-		for (unsigned i=0; i<nodes.size(); i++)
-		{
-			delete nodes[i];
-		}
-	}
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
 
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/

@@ -509,7 +509,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        assert(i==this->mElements[i]->GetIndex()); // We need this to be true to be able to reindex the jacobian cache
+        assert(i==this->mElements[i]->GetIndex()); // We need this to be true to be able to reindex the Jacobian cache
         if (this->mElements[i]->IsDeleted())
         {
             delete this->mElements[i];
@@ -721,7 +721,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
-        
+
         this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
 
         //Tidy up triangle
@@ -737,7 +737,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
         // Library call
         tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
-        
+
         this->ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist, mesher_output.numberoftrifaces, mesher_output.trifacelist, NULL);
     }
 }

@@ -225,7 +225,7 @@ Vec PetscTools::CreateVec(std::vector<double> data)
 
 Vec PetscTools::CreateAndSetVec(int size, double value)
 {
-    assert(size>0);
+    assert(size > 0);
     Vec ret = CreateVec(size);
 
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
@@ -243,9 +243,9 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
                           int numLocalColumns,
                           bool ignoreOffProcEntries)
 {
-    assert(numRows>0);
-    assert(numColumns>0);
-    if((int) rowPreallocation>numColumns)
+    assert(numRows > 0);
+    assert(numColumns > 0);
+    if ((int) rowPreallocation>numColumns)
     {
         WARNING("Preallocation failure: requested number of nonzeros per row greater than number of columns");//+rowPreallocation+">"+numColumns);
         rowPreallocation=numColumns;
@@ -258,11 +258,10 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
 #endif
 
-
-    if(PetscTools::IsSequential())
+    if (PetscTools::IsSequential())
     {
         MatSetType(rMat, MATSEQAIJ);
-        if(rowPreallocation>0)
+        if (rowPreallocation > 0)
         {
             MatSeqAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL);
         }
@@ -270,7 +269,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     else
     {
         MatSetType(rMat, MATMPIAIJ);
-        if(rowPreallocation>0)
+        if (rowPreallocation > 0)
         {
             ///\todo #1216 Fix the 0.7 magic number
             MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.7), PETSC_NULL);
@@ -278,8 +277,6 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     }
 
     MatSetFromOptions(rMat);
-
-
 
     if (ignoreOffProcEntries)//&& IsParallel())
     {
@@ -354,7 +351,7 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
     if (rParallelLayout != NULL)
     {
         /*
-         *  The idea is to copy rMat into a matrix that has the appropriate
+         * The idea is to copy rMat into a matrix that has the appropriate
          * parallel layout. Inefficient...
          */
         PetscInt num_rows, num_local_rows;

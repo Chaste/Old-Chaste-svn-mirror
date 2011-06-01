@@ -324,11 +324,11 @@ public:
         /**
          * \todo FATAL ERROR on Lapack call
          * On some versions of Ubuntu this test (and a cardiac test) which use a Lapack
-         * call to calculate the Eigenvectors of a small matrix may SEGFAULT with a 
+         * call to calculate the Eigenvectors of a small matrix may SEGFAULT with a
          * fatal error.
          * This may be resolved by adding a suitable Atlas package e.g.
          * sudo apt-get install libatlas3gf-sse
-         */ 
+         */
         c_matrix<double, 3, 3> A;
         A(0,0) = 2.4;
         A(0,1) = 5;
@@ -352,7 +352,7 @@ public:
         double norm_of_eigenvector = norm_2(eigenvector);
         double delta = 1e-12;
         TS_ASSERT_DELTA(norm_of_eigenvector, 1.0, delta);
-        
+
         //Check Au=lambda.u
         c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);
 
@@ -360,7 +360,7 @@ public:
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);
     }
-    
+
     void TestSmallPow() throw(Exception)
     {
         for (unsigned i=0; i<10; i++)
@@ -372,7 +372,7 @@ public:
     }
 
     void TestDivides() throw(Exception)
-    {        
+    {
         TS_ASSERT_EQUALS( Divides(0.7, 0.1),  false);
         TS_ASSERT_EQUALS( Divides(0.07, 0.1),  false);
         TS_ASSERT_EQUALS( Divides(0.1, 0.1),  true);

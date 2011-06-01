@@ -76,7 +76,7 @@ public:
 
     /**
      * Impose the boundary condition on each node.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      */
@@ -86,7 +86,7 @@ public:
      * Pure method which should verify the boundary condition has been applied.
      * This is called after ImposeBoundaryCondition() to ensure the condition is
      * still satisfied.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -111,7 +111,7 @@ public:
 
     /**
      * Output cell population boundary condition parameters to file.
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *

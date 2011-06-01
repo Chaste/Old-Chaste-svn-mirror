@@ -63,7 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
-private :
+private:
 
     void MyTestGenericSolver(AbstractIvpOdeSolver& rSolver, double startTime, double endTime, double dt, double samplingTime)
     {
@@ -91,7 +91,7 @@ private :
 
         // Exact solution of Ode1 is y=t-t0
         TS_ASSERT_DELTA(testvalue, endTime-startTime, 0.01);
-        
+
         // For coverage of OdeSolution
         std::vector<double> var0 = solutions.GetVariableAtIndex(0);
         TS_ASSERT_DELTA(var0[last], testvalue, 1e-12);
@@ -190,10 +190,10 @@ public:
                                        "ode/test/data/Ode2_4.dat");
 
         TS_ASSERT(comparer.CompareFiles(1e-6));
-        //The info file should now contain the ode solver (EulerIvpOdeSolver) identifier 
+        //The info file should now contain the ODE solver (EulerIvpOdeSolver) identifier
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Ode2_4.info"
                  + "  ode/test/data/Ode2_4.info").c_str()), 0);
- 
+
     }
 
     void TestEulerSolver() throw (Exception)
@@ -234,7 +234,7 @@ public:
         Ode1 ode_system;
         rk2_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
-        
+
     }
 
     void TestRungeKutta4Solver()
@@ -270,7 +270,7 @@ public:
         ode.SetParameter(0, 5.0);
         euler_solver.SolveAndUpdateStateVariable(&ode, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode.rGetStateVariables()[0], 5.0, 1e-2);
-        
+
         // Test with a = 5 => y = 5t, for calculating derived quantities
         std::vector<double> inits = ode.GetInitialConditions();
         OdeSolution solution = euler_solver.Solve(&ode, inits, 0, 1, 0.01, 0.1);
@@ -288,7 +288,7 @@ public:
         }
 
         solution.CalculateDerivedQuantitiesAndParameters(&ode);
-        
+
         // Check that the new methods work correctly...
         std::vector<double> ys = solution.GetAnyVariable("y");
         std::vector<double> as = solution.GetAnyVariable("a");
@@ -386,7 +386,7 @@ public:
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*exp(2)*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4, exact_solution, global_error_rk4);
 
-        //The info files should now contain the ode solver identifiers 
+        //The info files should now contain the ODE solver identifiers
         solutions_rk2.WriteToFile("OdeSolution", "RungeKutta2", "time", 1, false, 4, true);
         solutions_rk4.WriteToFile("OdeSolution", "RungeKutta4", "time", 1, false, 4, true);
         solutions_euler.WriteToFile("OdeSolution", "Euler", "time", 1, false, 4, true);

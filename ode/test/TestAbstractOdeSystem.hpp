@@ -262,7 +262,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
             TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Archive specifies a parameter 'a' which does not appear in this class.");
-            // Mend the ode system info for the following tests.
+            // Mend the ODE system info for the following tests.
             p_mod_info->mParameterNames[0] = param_name;
         }
         { // Load with a parameter added
@@ -276,7 +276,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             AbstractOdeSystem* p_ode;
             TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Number of ODE parameters in archive does not match number in class.");
-            // Mend the ode system info for the following tests.
+            // Mend the ODE system info for the following tests.
             p_mod_info->mParameterNames.resize(1u);
         }
         { // Load with a parameter added, and the constructor providing a default
@@ -292,7 +292,7 @@ public:
             ParameterisedOde::fakeSecondParameter = true;
             input_arch >> p_ode;
             delete p_ode;
-            // Mend the ode system info for the following tests.
+            // Mend the ODE system info for the following tests.
             ParameterisedOde::fakeSecondParameter = false;
             p_mod_info->mParameterNames.resize(1u);
         }
@@ -303,7 +303,7 @@ public:
             AbstractOdeSystem* p_ode;
             input_arch >> p_ode;
             delete p_ode;
-            // Mend the ode system info for the following tests.
+            // Mend the ODE system info for the following tests.
             ParameterisedOde::noParameterDefaults = false;
         }
     }
@@ -402,7 +402,7 @@ public:
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
 
-        //Archive the ODE system
+        // Archive the ODE system
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";

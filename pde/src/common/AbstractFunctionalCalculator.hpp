@@ -127,7 +127,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
         LinearBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
 
-        // Location of the gauss point in the original element will be stored in x
+        // Location of the Gauss point in the original element will be stored in x
         ChastePoint<SPACE_DIM> x(0,0,0);
         c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
         c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
@@ -194,7 +194,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
         throw exception_in_integral;
     }
     PetscTools::ReplicateException(false);
-    
+
     double final_result;
     MPI_Allreduce(&local_result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
     return final_result;

@@ -218,7 +218,7 @@ public:
 
     /**
      * Get the current solution to the PDE problem.
-     * 
+     *
      * @param pdeIndex The index of the PDE in the vector mPdeAndBcCollection
      */
     Vec GetCurrentPdeSolution(unsigned pdeIndex);
@@ -245,7 +245,7 @@ public:
 
     /**
      * Outputs simulation parameters to file
-	 *
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *

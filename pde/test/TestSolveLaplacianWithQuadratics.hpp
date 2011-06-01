@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EllipticPdeWithLinearSource.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
 
-// Assemblers which use quadratic bases (ie the elasticity solvers) are outside the 
+// Assemblers which use quadratic bases (ie the elasticity solvers) are outside the
 // other assembler hierarchy. Therefore, to test the quadratic bases/structure we first wrote this
 // QuadraticLaplacianAssemblerSolver, and then used it when writing the elasticity assemblers.
 
@@ -107,7 +107,7 @@ private:
                 QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
             }
 
-            // Location of the gauss point in the original element will be stored in x
+            // Location of the Gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
             ChastePoint<DIM> x(0,0,0);
 

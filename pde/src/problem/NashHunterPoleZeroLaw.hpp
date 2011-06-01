@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef NASHHUNTERPOLEZEROLAW_HPP_
 #define NASHHUNTERPOLEZEROLAW_HPP_
 
@@ -43,14 +42,12 @@ class NashHunterPoleZeroLaw : public PoleZeroMaterialLaw<DIM>
 {
 friend class TestMaterialLaws;
 
-public :
+public:
 
     /**
      * Constructor.
      */
     NashHunterPoleZeroLaw();
 };
-
-
 
 #endif /*NASHHUNTERPOLEZEROLAW_HPP_*/

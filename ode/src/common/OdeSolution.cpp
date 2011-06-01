@@ -269,7 +269,7 @@ void OdeSolution::WriteToFile(std::string directoryName,
         }
     }
 
-    if(mSolverName!="")
+    if (mSolverName != "")
     {
         writer.SetCommentForInfoFile("ODE SOLVER: " + mSolverName);
     }

@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PoleZeroMaterialLaw.hpp"
 
-
 template<unsigned DIM>
 PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw()
 {
@@ -103,7 +102,6 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
 
     ComputeTransformedDeformationTensor(rC, rInvC, C_transformed, invC_transformed);
 
-
     // compute T*
 
     c_matrix<double,DIM,DIM> E = 0.5*(C_transformed - mIdentity);
@@ -120,7 +118,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 double k = mK[M][N];
 
                 //if this fails one of the strain values got too large for the law
-                if(e>=a)
+                if (e>=a)
                 {
                     EXCEPTION("E_{MN} >= a_{MN} - strain unacceptably large for model");
                 }
@@ -171,8 +169,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
         }
     }
 
-
-    // now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+    // Now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
     this->TransformStressAndStressDerivative(rT, rDTdE, computeDTdE);
 }
 
@@ -194,7 +191,6 @@ void PoleZeroMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
         }
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -33,86 +33,87 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractFeObjectAssembler.hpp"
 #include "AbstractLinearPdeSolver.hpp"
 
-
 /**
- *  A class which inherits from AbstractFeObjectAssembler and 
- *  implements a method SetupGivenLinearSystem(), which sets up
- *  the given linear system using the assembler part of this
- *  class, which can be called by SetUpLinearSystem() on a 
- *  concrete solver.
- * 
- *  See SimpleLinearEllipticSolver for an example.
- */ 
+ * A class which inherits from AbstractFeObjectAssembler and
+ * implements a method SetupGivenLinearSystem(), which sets up
+ * the given linear system using the assembler part of this
+ * class, which can be called by SetUpLinearSystem() on a
+ * concrete solver.
+ *
+ * See SimpleLinearEllipticSolver for an example.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
-class AbstractAssemblerSolverHybrid 
+class AbstractAssemblerSolverHybrid
    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>
-     
 {
-public :
-    /** Constructor
-     *  @param pMesh pointer to the mesh
-     *  @param pBoundaryConditions pointer to the boundary conditions. Can be NULL, to allow concrete assembler-solver
-     *         to, say, create standard boundary conditions its constructor, and then set it. If so, the concrete solver
-     *         must make sure it calls this->SetApplyNeummanBoundaryConditionsToVector(p_bcc);
-     *  @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
+public:
+
+    /**
+     * Constructor.
+     *
+     * @param pMesh pointer to the mesh
+     * @param pBoundaryConditions pointer to the boundary conditions. Can be NULL, to allow concrete assembler-solver
+     *        to, say, create standard boundary conditions its constructor, and then set it. If so, the concrete solver
+     *        must make sure it calls this->SetApplyNeummanBoundaryConditionsToVector(p_bcc);
+     * @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
      */
     AbstractAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
-                                  unsigned numQuadPoints = 2)
-        :  AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints)
+                                  unsigned numQuadPoints=2)
+        : AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints)
     {
-        if(pBoundaryConditions)
+        if (pBoundaryConditions)
         {
             this->SetApplyNeummanBoundaryConditionsToVector(pBoundaryConditions);
         }
     }
-    
+
     /**
-     *  Destructor
+     * Destructor.
      */
     virtual ~AbstractAssemblerSolverHybrid()
     {
     }
 
-    /** 
-     *  Implementation of AbstractLinearPdeSolver::SetupLinearSystem, using the assembler that this class
-     *  also inherits from. Concrete classes inheriting from both this class and
-     *  AbstractLinearPdeSolver can then have a one-line implementation of
-     *  AbstractLinearPdeSolver::SetupLinearSystem which calls this method.
-     * 
-     *  @param currentSolution The current solution which can be used in setting up
-     *   the linear system if needed (NULL if there isn't a current solution)
-     *  @param computeMatrix Whether to compute the LHS matrix of the linear system
-     *   (mainly for dynamic solves)
-     *  @param pLinearSystem  The linear system to set up.
+    /**
+     * Implementation of AbstractLinearPdeSolver::SetupLinearSystem, using the assembler that this class
+     * also inherits from. Concrete classes inheriting from both this class and
+     * AbstractLinearPdeSolver can then have a one-line implementation of
+     * AbstractLinearPdeSolver::SetupLinearSystem which calls this method.
+     *
+     * @param currentSolution The current solution which can be used in setting up
+     *  the linear system if needed (NULL if there isn't a current solution)
+     * @param computeMatrix Whether to compute the LHS matrix of the linear system
+     *  (mainly for dynamic solves)
+     * @param pLinearSystem  The linear system to set up.
      */
     void SetupGivenLinearSystem(Vec currentSolution, bool computeMatrix, LinearSystem* pLinearSystem);
-    
-    
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
 void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOLATION_LEVEL>::SetupGivenLinearSystem(Vec currentSolution, bool computeMatrix, LinearSystem* pLinearSystem)
 {
-    // the concrete class should have either passed in boundary conditions
-    // into this class' constructor, or passed in NULL and later called
-    // this->SetApplyNeummanBoundaryConditionsToVector(p_bcc) with some boundary
-    // conditions
-    assert(this->mpBoundaryConditions!=NULL);
+    /*
+     * The concrete class should have either passed in boundary conditions
+     * into this class's constructor, or passed in NULL and later called
+     * this->SetApplyNeummanBoundaryConditionsToVector(p_bcc) with some boundary
+     * conditions.
+     */
+    assert(this->mpBoundaryConditions != NULL);
 
     assert(pLinearSystem->rGetLhsMatrix() != NULL);
     assert(pLinearSystem->rGetRhsVector() != NULL);
 
-    // call methods on AbstractFeObjectAssembler
+    // Call methods on AbstractFeObjectAssembler
     this->SetMatrixToAssemble(pLinearSystem->rGetLhsMatrix());
     this->SetVectorToAssemble(pLinearSystem->rGetRhsVector(), true);
-    
-    if(currentSolution!=NULL)
+
+    if (currentSolution != NULL)
     {
         this->SetCurrentSolution(currentSolution);
     }
 
-    if(computeMatrix)
+    if (computeMatrix)
     {
         this->Assemble();
     }
@@ -123,13 +124,11 @@ void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOL
 
     pLinearSystem->AssembleRhsVector();
     pLinearSystem->AssembleIntermediateLhsMatrix();
-    
+
     this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*pLinearSystem, true);
 
     pLinearSystem->AssembleRhsVector();
     pLinearSystem->AssembleFinalLhsMatrix();
 }
-
-
 
 #endif /*ABSTRACTASSEMBLERSOLVERHYBRID_HPP_*/

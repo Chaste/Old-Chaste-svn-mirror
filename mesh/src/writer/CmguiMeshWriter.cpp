@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDirectory,
                                                         const std::string &rBaseName,
@@ -41,8 +42,8 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
 {
     this->mIndexFromZero = false;
     mGroupName = this->mBaseName;
-    
-    switch(ELEMENT_DIM)
+
+    switch (ELEMENT_DIM)
     {
         case 1:
         {
@@ -69,12 +70,12 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
         {
             NEVER_REACHED;
         }
-    }    
-    
+    }
+
 
     mNumNodesPerElement = ELEMENT_DIM+1;
     mReordering.resize(mNumNodesPerElement);
-    for(unsigned i=0; i<mNumNodesPerElement; i++)
+    for (unsigned i=0; i<mNumNodesPerElement; i++)
     {
         mReordering[i] = i;
     }
@@ -109,47 +110,47 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     //////////////////////////
     // Write the exlem file
     //////////////////////////
-    
+
     // If nobody defined region names we default to the same name as the file.
     if (mRegionNames.size() == 0)
     {
         mRegionNames.push_back(this->mBaseName);
     }
 
-    // Array with file descriptors for each of regions    
+    // Array with file descriptors for each of regions
     std::vector<boost::shared_ptr<std::ofstream> > p_elem_file;
-    
+
     p_elem_file.resize(mRegionNames.size());
-    
-    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)     
+
+    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)
     {
         std::string elem_file_name = mRegionNames[region_index] + ".exelem";
         out_stream p_tmp_file = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
         p_elem_file[region_index] = p_tmp_file;
-        
+
         // Write the elem header
-        
+
         //write provenance info
         std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
         *p_elem_file[region_index] << comment;
-    
+
         *p_elem_file[region_index] << "Group name: " << mGroupName << "\n";
         *p_elem_file[region_index] << mElementFileHeader;
-    
-    
-        //now we need to figure out how many additional fields we have
+
+        // Now we need to figure out how many additional fields we have
         unsigned number_of_fields = mAdditionalFieldNames.size();
         std::stringstream string_of_number_of_fields;
-        //we write the number of additional fields + 1 because the coordinates field gets written anyway
+
+        // We write the number of additional fields + 1 because the coordinates field gets written anyway...
         string_of_number_of_fields << number_of_fields+1;
-        //and write accordingly the total number of fields
+
+        // ...and write accordingly the total number of fields
         *p_elem_file[region_index] << " #Fields="<<string_of_number_of_fields.str()<<"\n";
-    
-        //first field (the coordinates field is fixed and alwys there)
+
+        // First field (the coordinates field is fixed and alwys there)
         *p_elem_file[region_index] << mCoordinatesFileHeader;
-    
-    
-        //now write the specification for each additional field
+
+        // Now write the specification for each additional field
         for (unsigned i = 0; i <  number_of_fields; i++)
         {
             //unsigned to string
@@ -160,15 +161,15 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         }
     }
 
-    // Write each elements's data        
+    // Write each elements's data
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
         ElementData elem =this->GetNextElement();
         std::vector<unsigned> current_element = elem.NodeIndices;
-        
+
         /// \todo: EXCEPTION maybe...
         assert(elem.AttributeValue < mRegionNames.size());
-           
+
         *p_elem_file[elem.AttributeValue] << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
         for (unsigned i=0; i<mNumNodesPerElement; i++)
         {
@@ -176,10 +177,10 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         }
 
         *p_elem_file[elem.AttributeValue] << "\n";
-            
+
     }
-    
-    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)     
+
+    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)
     {
         p_elem_file[region_index]->close();
     }
@@ -193,18 +194,17 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetRegionNames(std::vector<std::string>& rRegionNames)
-{    
+{
     mRegionNames = rRegionNames;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteNodeFileHeader(out_stream& rpNodeFile)
 {
-    //write provenance info
+    // Write provenance info
     std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
     *rpNodeFile << comment;
-    
+
     // Write the node header
     *rpNodeFile << "Group name: " << this->mGroupName << "\n";
     switch (SPACE_DIM)
@@ -239,7 +239,7 @@ bool CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CompareCmguiFiles(std::string& rPat
     compare_command += " ";
     compare_command += rPath2;
 
-    //Compare the new test file with one from the repository
+    // Compare the new test file with one from the repository
     if (system(compare_command.c_str()) == 0)
     {
         return true;

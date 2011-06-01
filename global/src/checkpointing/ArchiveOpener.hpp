@@ -64,7 +64,7 @@ public:
      * processes the main archive is a dummy, writing to /dev/null.
      *
      * @note Must be called collectively, i.e. by all processes!
-     * 
+     *
      * If writing, and rDirectory is relative to CHASTE_TEST_OUTPUT, it will be created if it
      * doesn't exist.
      *

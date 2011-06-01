@@ -56,13 +56,12 @@ public:
     void TestEvents() throw(Exception)
     {
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
-        //The first BeginEvent implicitly calls:
-        //AnEventHandler::BeginEvent(AnEventHandler::TEST3);
+        // The first BeginEvent implicitly calls:
+        // AnEventHandler::BeginEvent(AnEventHandler::TEST3);
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         AnEventHandler::MilliSleep(10);
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
-
 
         AnEventHandler::MilliSleep(10);
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
@@ -73,22 +72,22 @@ public:
 
         AnEventHandler::Report();
 
-        //No longer allowed to report twice
+        // No longer allowed to report twice
         TS_ASSERT_THROWS_THIS(AnEventHandler::Report(),"Asked to report on an event handler which is set to zero.");
     }
 
     void TestEventExceptions() throw(Exception)
     {
-        // should not be able to end an event that has not yet begun
+        // Should not be able to end an event that has not yet begun
         TS_ASSERT_THROWS_THIS(AnEventHandler::EndEvent(AnEventHandler::TEST1),
                 "Error: The event associated with the counter for \'Test1\' had not begun when EndEvent was called.");
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
 
-        // beginning an event already begun should print an error message,
-        // and disable the handler
+        // Beginning an event already begun should print an error message and disable the handler
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         TS_ASSERT(!AnEventHandler::IsEnabled());
+
         // Report should then throw
         TS_ASSERT_THROWS_THIS(AnEventHandler::Report(),
                 "Asked to report on a disabled event handler.  Check for contributory errors above.");
@@ -96,12 +95,13 @@ public:
 
     void TestReset()
     {
-        // clear up from previous test
+        // Clear up from previous test
         AnEventHandler::Reset();
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         AnEventHandler::Reset();
-        // one can now being these events again because the state of the event handler was reset.
+
+        // One can now being these events again because the state of the event handler was reset
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
     }
@@ -135,12 +135,12 @@ public:
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         AnEventHandler::MilliSleep(11);
-        dummy=0;//Separate the sleep from the end of the event
+        dummy = 0; // Separate the sleep from the end of the event
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
-        //Test in milliseconds (at least 10 and not too much)
+
+        // Test in milliseconds (at least 10 and not too much)
         TS_ASSERT_LESS_THAN_EQUALS(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2));
         TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 35.0);
-
     }
 
     void TestSilentlyCloseEvent()
@@ -175,6 +175,5 @@ public:
         AnEventHandler::Report();
     }
 };
-
 
 #endif /*TESTGENERICEVENTHANDLER_HPP_*/

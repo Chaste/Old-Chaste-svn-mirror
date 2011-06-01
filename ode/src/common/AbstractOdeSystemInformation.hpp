@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractOdeSystemInformation
 {
     friend class TestAbstractOdeSystem;
-    
+
 protected:
     /** Human-friendly name for the ODE system */
     std::string mSystemName;
@@ -72,10 +72,10 @@ protected:
 
     /** Parameter units */
     std::vector<std::string> mParameterUnits;
-    
+
     /** Derived quantity names */
     std::vector<std::string> mDerivedQuantityNames;
-    
+
     /** Derived quantity units */
     std::vector<std::string> mDerivedQuantityUnits;
 
@@ -106,7 +106,7 @@ public:
      * Virtual destructor since we have virtual methods.
      */
     virtual ~AbstractOdeSystemInformation();
-    
+
     /**
      * Get the name of this system of ODEs.
      */
@@ -121,7 +121,7 @@ public:
     void SetDefaultInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
-     * Set a single component of the default initial conditions for the ODE system. This method 
+     * Set a single component of the default initial conditions for the ODE system. This method
      * DOES NOT change the state variables of the ODE object on which it is called.
      *
      * @param index  the index of the state variable in the system
@@ -259,7 +259,7 @@ public:
      * Get the vector of derived quantity units.
      */
     const std::vector<std::string>& rGetDerivedQuantityUnits() const;
-    
+
     /**
      * Get the index of a derived quantity, given its name.
      *

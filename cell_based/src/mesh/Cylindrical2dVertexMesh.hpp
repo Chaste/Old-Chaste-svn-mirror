@@ -121,7 +121,7 @@ public:
 
     /**
      * Overridden GetWidth() method.
-     * 
+     *
      * Calculate the 'width' of any dimension of the mesh, taking periodicity
      * into account.
      *

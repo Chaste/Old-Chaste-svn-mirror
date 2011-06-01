@@ -76,9 +76,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
-        //archive & mSloughSides; // done in load_construct_data
-        //archive & mSloughLength; // done in load_construct_data
-        //archive & mSloughWidth; // done in load_construct_data
     }
 
 public:

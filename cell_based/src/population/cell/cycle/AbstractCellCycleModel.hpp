@@ -137,32 +137,32 @@ protected:
     double mMinimumGapDuration;
 
     /**
-	 * Duration of G1 phase for stem cells.
-	 * May be used as a mean duration for stochastic cell-cycle models.
-	 *
-	 */
-	double mStemCellG1Duration;
+     * Duration of G1 phase for stem cells.
+     * May be used as a mean duration for stochastic cell-cycle models.
+     *
+     */
+    double mStemCellG1Duration;
 
-	/**
-	 * Duration of G1 phase for transit cells.
-	 * May be used as a mean duration for stochastic cell-cycle models.
-	 */
-	double mTransitCellG1Duration;
+    /**
+     * Duration of G1 phase for transit cells.
+     * May be used as a mean duration for stochastic cell-cycle models.
+     */
+    double mTransitCellG1Duration;
 
-	/**
-	 * Duration of S phase for all cell types.
-	 */
-	double mSDuration;
+    /**
+     * Duration of S phase for all cell types.
+     */
+    double mSDuration;
 
-	/**
-	 * Duration of G2 phase for all cell types.
-	 */
-	double mG2Duration;
+    /**
+     * Duration of G2 phase for all cell types.
+     */
+    double mG2Duration;
 
-	/**
-	 * Duration of M phase for all cell types.
-	 */
-	double mMDuration;
+    /**
+     * Duration of M phase for all cell types.
+     */
+    double mMDuration;
 
 public:
 
@@ -307,19 +307,19 @@ public:
     virtual double GetG1Duration();
 
     /**
-	 * @return mStemCellG1Duration
-	 */
+     * @return mStemCellG1Duration
+     */
     double GetStemCellG1Duration();
 
     /**
-	 * @return mTransitCellG1Duration
-	 */
-	double GetTransitCellG1Duration();
+     * @return mTransitCellG1Duration
+     */
+    double GetTransitCellG1Duration();
 
-	/**
-	 * @return mSDuration + mG2Duration + mMDuration
-	 */
-	double GetSG2MDuration();
+    /**
+     * @return mSDuration + mG2Duration + mMDuration
+     */
+    double GetSG2MDuration();
 
     /**
      * @return the duration of the S phase of the cell cycle mSDuration
@@ -337,39 +337,39 @@ public:
     virtual double GetMDuration();
 
     /**
-	 * Set mStemCellG1Duration.
-	 * 
-	 * @param stemCellG1Duration  the new value of mStemCellG1Duration
-	 */
-	void SetStemCellG1Duration(double stemCellG1Duration);
+     * Set mStemCellG1Duration.
+     *
+     * @param stemCellG1Duration  the new value of mStemCellG1Duration
+     */
+    void SetStemCellG1Duration(double stemCellG1Duration);
 
-	/**
-	 * Set mTransitCellG1Duration.
-	 * 
+    /**
+     * Set mTransitCellG1Duration.
+     *
      * @param transitCellG1Duration  the new value of mTransitCellG1Duration
-	 */
-	void SetTransitCellG1Duration(double transitCellG1Duration);
+     */
+    void SetTransitCellG1Duration(double transitCellG1Duration);
 
-	/**
-	 * Set mSDuration.
-	 * 
+    /**
+     * Set mSDuration.
+     *
      * @param sDuration  the new value of mSDuration
-	 */
-	void SetSDuration(double sDuration);
+     */
+    void SetSDuration(double sDuration);
 
-	/**
-	 * Set mG2Duration.
-	 * 
+    /**
+     * Set mG2Duration.
+     *
      * @param g2Duration  the new value of mG2Duration
-	 */
-	void SetG2Duration(double g2Duration);
+     */
+    void SetG2Duration(double g2Duration);
 
-	/**
-	 * Set mMDuration.
-	 * 
-	 * @param mDuration  the new value of mMDuration
-	 */
-	void SetMDuration(double mDuration);
+    /**
+     * Set mMDuration.
+     *
+     * @param mDuration  the new value of mMDuration
+     */
+    void SetMDuration(double mDuration);
 
     /**
      * Return the typical cell cycle duration for a transit cell, in hours.

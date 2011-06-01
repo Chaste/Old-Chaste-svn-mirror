@@ -65,7 +65,7 @@ private:
 
     /** Parameters - these are currently assumed constant across all time */
     std::vector<double> mParameters;
-    
+
     /** The ODE solver used to create these results */
     std::string mSolverName;
 
@@ -151,7 +151,7 @@ public:
 
 
     /** Set the ODE solver used to create these results
-     *  @param solverName solver used 
+     *  @param solverName solver used
      */
     void SetSolverName(std::string solverName)
     {

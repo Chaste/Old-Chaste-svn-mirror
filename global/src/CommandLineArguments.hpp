@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A convenient holder for the command line arguments, with a couple of helper
- * methods for checking whether an option has been given or getting the 
+ * methods for checking whether an option has been given or getting the
  * value corresponding to a given option.
  *
  * The cxxtest harness will fill in the member variables when a test is
@@ -53,8 +53,8 @@ private:
 
     /** The single instance of the class. */
     static CommandLineArguments* mpInstance;
-    
-    /** 
+
+    /**
      *  Get the index for the given argument. Returns -1 if the argument is not found.
      *  @param argument The argument as a string. This should start with "-", for
      *    example "-my_arg" "-timestep" etc.

@@ -105,7 +105,7 @@ public:
      * were used, and if so what kind.
      */
     static const char* GetBuildInformation();
-    
+
     /**
      * Get the compiler type used to build (must be either 'intel' or 'gcc').
      */

@@ -45,12 +45,12 @@ private:
     /**
      * The index of the cell to kill
      */
-	unsigned mTargetIndex;
+    unsigned mTargetIndex;
 
-	/**
-	 * Variable to reack when the cell has been killed.
-	 * Once the cell has been called mBloodLust will stop the killer killing more cells.
-	 */
+    /**
+     * Variable to reack when the cell has been killed.
+     * Once the cell has been called mBloodLust will stop the killer killing more cells.
+     */
     bool mBloodLust;
 
     /** Needed for serialization. */
@@ -86,13 +86,13 @@ public:
     TargetedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, unsigned targetedIndex, bool bloodLust = true);
 
     /**
-	 * @return mTargetIndex.
-	 */
+     * @return mTargetIndex.
+     */
     unsigned GetTargetIndex() const;
 
     /**
-	 * @return mBloodLust.
-	 */
+     * @return mBloodLust.
+     */
     unsigned GetBloodLust() const;
 
     /**

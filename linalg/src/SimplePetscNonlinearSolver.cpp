@@ -49,14 +49,15 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
 {
     SNES snes;
 
-    // create the residual vector by copying the structure of the initial guess
+    // Create the residual vector by copying the structure of the initial guess
     Vec residual;
     VecDuplicate(initialGuess, &residual);
 
     Mat jacobian; //Jacobian Matrix
 
     PetscInt N; //number of elements
-    //get the size of the jacobian from the residual
+
+    // Get the size of the Jacobian from the residual
     VecGetSize(initialGuess,&N);
 
     PetscTools::SetupMat(jacobian, N, N, fill);

@@ -71,7 +71,7 @@ void AbstractCellCycleModelOdeSolver::SetSizeOfOdeSystem(unsigned sizeOfOdeSyste
 
 unsigned AbstractCellCycleModelOdeSolver::GetSizeOfOdeSystem()
 {
-    return mSizeOfOdeSystem;    
+    return mSizeOfOdeSystem;
 }
 
 void AbstractCellCycleModelOdeSolver::CheckForStoppingEvents()

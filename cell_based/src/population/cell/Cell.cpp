@@ -34,13 +34,13 @@ unsigned Cell::mMaxCellId = 0;
 /**
  * null_deleter means "doesn't delete" rather than "deletes nulls".
  *
- * Sometimes it is desirable to create a shared_ptr to an already existing object, so that the shared_ptr 
- * does not attempt to destroy the object when there are no more references left. As an example, the 
+ * Sometimes it is desirable to create a shared_ptr to an already existing object, so that the shared_ptr
+ * does not attempt to destroy the object when there are no more references left. As an example, the
  * factory function:
- * 
+ *
  * shared_ptr<X> createX();
  * in certain situations may need to return a pointer to a statically allocated X instance.
- * 
+ *
  * The solution is to use a custom deleter that does nothing:
  */
 struct null_deleter
@@ -98,7 +98,7 @@ Cell::Cell(boost::shared_ptr<AbstractCellProperty> pMutationState,
              property_iter != mCellPropertyCollection.End();
              ++property_iter)
         {
-        	(*property_iter)->IncrementCellCount();
+            (*property_iter)->IncrementCellCount();
         }
     }
 }
@@ -191,7 +191,7 @@ void Cell::AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rPrope
     // Note: if the cell already has the specified property, no action is taken
     if (!mCellPropertyCollection.HasProperty(rProperty))
     {
-    	mCellPropertyCollection.AddProperty(rProperty);
+        mCellPropertyCollection.AddProperty(rProperty);
         rProperty->IncrementCellCount();
     }
 }
@@ -264,7 +264,7 @@ bool Cell::IsDead()
     {
         if (SimulationTime::Instance()->GetTime() >= mDeathTime)
         {
-        	this->Kill();
+            this->Kill();
         }
     }
     return mIsDead;
@@ -272,7 +272,7 @@ bool Cell::IsDead()
 
 void Cell::Kill()
 {
-	// Decrement cell count for each cell property in mCellPropertyCollection
+    // Decrement cell count for each cell property in mCellPropertyCollection
     for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
          property_iter != mCellPropertyCollection.End();
          ++property_iter)

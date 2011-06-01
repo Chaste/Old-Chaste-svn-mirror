@@ -347,7 +347,7 @@ void ColumnDataWriter::CreateInfoFile(const std::string& rFileName)
     (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
     (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;
-    if(mCommentForInfoFile!="")
+    if (mCommentForInfoFile != "")
     {
         *p_info_file << mCommentForInfoFile << std::endl;
     }

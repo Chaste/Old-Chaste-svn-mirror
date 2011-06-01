@@ -265,8 +265,8 @@ bool VertexElement<ELEMENT_DIM, SPACE_DIM>::IsElementOnBoundary() const
     {
         if (this->GetNode(i)->IsBoundaryNode())
         {
-        	is_element_on_boundary = true;
-        	break;
+            is_element_on_boundary = true;
+            break;
         }
     }
     return is_element_on_boundary;
@@ -408,8 +408,8 @@ bool VertexElement<1, SPACE_DIM>::IsElementOnBoundary() const
     {
         if (this->GetNode(i)->IsBoundaryNode())
         {
-        	is_element_on_boundary = true;
-        	break;
+            is_element_on_boundary = true;
+            break;
         }
     }
     return is_element_on_boundary;

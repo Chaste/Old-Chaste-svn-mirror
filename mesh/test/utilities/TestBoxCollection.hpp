@@ -85,7 +85,7 @@ public:
         domain_size(1) = 20.15;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
-        
+
         box_collection.SetupAllLocalBoxes();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -144,7 +144,7 @@ public:
     {
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructRegularSlabMesh(0.5, 1.0);
- 
+
         double width = 0.4;
         c_vector<double, 2> domain_size;
         domain_size(0) = 0.0;
@@ -157,7 +157,7 @@ public:
         TS_ASSERT_EQUALS(box_collection.rGetBox(2).rGetElementsContained().size(), 0u);
         TS_ASSERT_EQUALS(*(box_collection.rGetBox(0).rGetElementsContained().begin()), mesh.GetElement(0));
     }
-    
+
 
     void TestSetupAllLocalBoxes2d() throw(Exception)
     {
@@ -174,7 +174,7 @@ public:
         assert(box_collection.GetNumBoxes()==12); // 4 * 3 boxes altogether
 
         box_collection.SetupAllLocalBoxes();
-        
+
         std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
 
         std::set<unsigned> correct_answer_0;
@@ -235,7 +235,7 @@ public:
         assert(box_collection.GetNumBoxes()==24); // 4 * 3 * 2 boxes altogether
 
         box_collection.SetupAllLocalBoxes();
-        
+
         std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
 
         std::set<unsigned> correct_answer_0;
@@ -299,7 +299,7 @@ public:
         correct_answer_19.insert(22);
         correct_answer_19.insert(23);
         TS_ASSERT_EQUALS(local_boxes_to_box_19, correct_answer_19);
-        
+
         std::set<unsigned> local_boxes_to_box_22 = box_collection.GetLocalBoxes(22);
         std::set<unsigned> correct_answer_22;
         correct_answer_22.insert(5);
@@ -315,7 +315,7 @@ public:
         correct_answer_22.insert(22);
         correct_answer_22.insert(23);
         TS_ASSERT_EQUALS(local_boxes_to_box_22, correct_answer_22);
-        
+
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ public:
         domain_size(1) = 7.0;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
-        
+
         box_collection.SetupLocalBoxesHalfOnly();
 
         for (unsigned i=0; i<nodes.size(); i++)

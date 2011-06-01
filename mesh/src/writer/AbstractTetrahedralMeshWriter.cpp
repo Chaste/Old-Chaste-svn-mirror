@@ -302,13 +302,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableElement()
 {
     assert(PetscTools::AmMaster());
-    
+
     // if we are writing from a mesh..
     if (mpMesh)
     {
         // Need to be using a MixedDimensionMesh or there will be no cable data
         assert(mpMixedMesh);
-    
+
         ElementData elem_data;
         elem_data.NodeIndices.resize(2);
 
@@ -411,70 +411,68 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             {
                 std::string node_connect_list_file_name = this->mBaseName + ".ncl";
                 out_stream p_ncl_file=out_stream(NULL);
-                
+
                 if (PetscTools::AmMaster())
                 {
                     assert(writing_process==0);
-                    //Open the file for the first time                    
+                    //Open the file for the first time
                     p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
-            
-                    // Write the ncl header            
+
+                    // Write the ncl header
                     *p_ncl_file << this->mNumNodes << "\t";
                     *p_ncl_file << max_elements_all << "\t";
                     *p_ncl_file << "\tBIN\n";
                 }
                 else
                 {
-                    //Append to the existing file
-                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name, std::ios::app);                    
+                    // Append to the existing file
+                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name, std::ios::app);
                 }
-                
+
                 // Write each node's data
                 unsigned default_marker = UINT_MAX;
-    
+
                 for (NodeIterType iter = mpMesh->GetNodeIteratorBegin();
                      iter != mpMesh->GetNodeIteratorEnd();
                      ++iter)
                 {
-                    //Get the containing element indices from the node's set and sort them
+                    // Get the containing element indices from the node's set and sort them
                     std::set<unsigned>& r_elem_set = iter->rGetContainingElementIndices();
-                    std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end()); 
+                    std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end());
                     std::sort(elem_vector.begin(), elem_vector.end());
-                    //Pad the vector with unsigned markers
+                    // Pad the vector with unsigned markers
                     for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
                     {
                         elem_vector.push_back(default_marker);
                     }
                     assert (elem_vector.size() == max_elements_all);
-                    //Write raw data out of std::vector into the file
+                    // Write raw data out of std::vector into the file
                     p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
                 }
-                
+
                 if (PetscTools::AmTopMost())
                 {
                     *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
                 }
-                
+
                 p_ncl_file->close();
             }
-            
+
             PetscTools::Barrier("AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh");
         }
-    }    
+    }
 
-
-    //Have we got a parallel mesh?
+    // Have we got a parallel mesh?
     ///\todo #1322 This should be const too
     mpDistributedMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
-    
-    //Have we got a MixedDimensionMesh?
+
+    // Have we got a MixedDimensionMesh?
     ///\todo #1322,  This should be const too
     mpMixedMesh = dynamic_cast<MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* >(this->mpMesh);
-    
 
     if (mpDistributedMesh != NULL)
     {
-        //It's a parallel mesh
+        // It's a parallel mesh
         WriteFilesUsingParallelMesh(keepOriginalElementIndexing);
         return;
     }
@@ -497,13 +495,13 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
 
     this->WriteFiles();
-    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingMesh"); //Paired with waiting Slave processes
+    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingMesh"); // Paired with waiting Slave processes
     delete mpIters->pNodeIter;
-    mpIters->pNodeIter=NULL;
+    mpIters->pNodeIter = NULL;
     delete mpIters->pElemIter;
-    mpIters->pElemIter=NULL;
+    mpIters->pElemIter = NULL;
     delete mpIters->pBoundaryElemIter;
-    mpIters->pBoundaryElemIter=NULL;
+    mpIters->pBoundaryElemIter = NULL;
 }
 
 
@@ -512,7 +510,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
 {
     if (keepOriginalElementIndexing)
     {
-        //Master goes on to write as usual
+        // Master goes on to write as usual
         if (PetscTools::AmMaster())
         {
             this->WriteFiles();
@@ -520,7 +518,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
         else
         {
             double raw_coords[SPACE_DIM];
-            //Slaves concentrate the Nodes
+            // Slaves concentrate the Nodes
             typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
             for (NodeIterType it = mpMesh->GetNodeIteratorBegin(); it != mpMesh->GetNodeIteratorEnd(); ++it)
             {
@@ -530,10 +528,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                 }
                 MPI_Send(raw_coords, SPACE_DIM, MPI_DOUBLE, 0, it->GetIndex(), PETSC_COMM_WORLD);//Nodes sent with positive tags
             }
-    
-            //Slaves concentrate the Elements for which they are owners
+
+            // Slaves concentrate the Elements for which they are owners
             // +1 allows for attribute value
-            unsigned raw_indices[mNodesPerElement+1]; //Assuming that we don't have parallel quadratic elements
+            unsigned raw_indices[mNodesPerElement+1]; // Assuming that we don't have parallel quadratic elements
             typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator ElementIterType;
             for (ElementIterType it = mpMesh->GetElementIteratorBegin(); it != mpMesh->GetElementIteratorEnd(); ++it)
             {
@@ -554,10 +552,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                 }
             }
 
-            //Slaves concentrate the Faces for which they are owners (not in 1-d)
+            // Slaves concentrate the Faces for which they are owners (not in 1-d)
             if (ELEMENT_DIM != 1)
             {
-                unsigned raw_face_indices[ELEMENT_DIM];//Assuming that we don't have parallel quadratic meshes
+                unsigned raw_face_indices[ELEMENT_DIM]; // Assuming that we don't have parallel quadratic meshes
                 typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator BoundaryElementIterType;
                 for (BoundaryElementIterType it = mpMesh->GetBoundaryElementIteratorBegin(); it != mpMesh->GetBoundaryElementIteratorEnd(); ++it)
                 {
@@ -575,8 +573,8 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                 }
             }
 
-            //Slaves concentrate the cable elements for which they are owners
-            if ( mpMixedMesh )
+            // Slaves concentrate the cable elements for which they are owners
+            if (mpMixedMesh)
             {
                 unsigned raw_cable_element_indices[3];
                 typedef typename MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>::CableElementIterator CableElementIterType;
@@ -603,43 +601,42 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
     {
         for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
         {
-            if(PetscTools::GetMyRank() == writing_process)
+            if (PetscTools::GetMyRank() == writing_process)
             {
                 if (PetscTools::AmMaster())
                 {
                     // Make sure headers are written first
-                    assert(PetscTools::GetMyRank() == 0);                   
+                    assert(PetscTools::GetMyRank() == 0);
                     CreateFilesWithHeaders();
-                }                
+                }
 
                 AppendLocalDataToFiles();
-                
+
                 if (PetscTools::AmTopMost())
                 {
                     // Make sure footers are written last
                     assert(PetscTools::GetMyRank() == PetscTools::GetNumProcs()-1);
                     WriteFilesFooter();
-                }        
+                }
             }
-            //Process i+1 waits for process i to close the file
+            // Process i+1 waits for process i to close the file
             PetscTools::Barrier();
-        }//Loop in writing_process
-                
-    }    
+        } // Loop in writing_process
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::CreateFilesWithHeaders()
 {
-    // If control reaches this line you haven't implemented the optimised 
+    // If control reaches this line you haven't implemented the optimised
     // parallel write for whichever visualiser you are writing for.
     NEVER_REACHED;
 }
-   
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
 {
-    // If control reaches this line you haven't implemented the optimised 
+    // If control reaches this line you haven't implemented the optimised
     // parallel write for whichever visualiser you are writing for.
     NEVER_REACHED;
 }
@@ -647,11 +644,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFil
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesFooter()
 {
-    // If control reaches this line you haven't implemented the optimised 
+    // If control reaches this line you haven't implemented the optimised
     // parallel write for whichever visualiser you are writing for.
     NEVER_REACHED;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

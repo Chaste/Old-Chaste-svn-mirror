@@ -41,7 +41,7 @@ public:
     {
         QuadraticMesh<2> mesh(0.1,1.0,1.0);
         mesh.Scale(1.0, 2.0); //historical reasons
-        
+
         std::vector<unsigned> indices
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 

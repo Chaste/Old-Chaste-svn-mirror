@@ -133,9 +133,9 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     CellBasedSimulationWithPdesAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
-	                                  AbstractLinearEllipticPde<DIM,DIM>* pPde,
-	                                  BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
-	                                  unsigned numQuadPoints=2);
+                                      AbstractLinearEllipticPde<DIM,DIM>* pPde,
+                                      BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
+                                      unsigned numQuadPoints=2);
 
     /**
      * Destructor.

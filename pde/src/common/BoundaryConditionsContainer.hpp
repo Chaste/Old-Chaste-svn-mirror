@@ -94,7 +94,7 @@ public:
     /**
      * Constructor calls base constuctor and allocates memory for the Neumann boundary
      * conditions lists.
-     * 
+     *
      * @param deleteConditions whether to delete BCs in destructor (defaults to true)
      */
     BoundaryConditionsContainer(bool deleteConditions=true);
@@ -324,14 +324,14 @@ private:
 
     /**
      * Load this container, but not its content.
-     * 
+     *
      * Objects loading a boundary conditions container should call LoadFromArchive
      * on the new object immediately after loading it from the archive.
-     * 
+     *
      * Note that boundary conditions should be saved to the ProcessSpecificArchive,
      * since if a DistributedTetrahedralMesh is used each process will only know a
      * portion of the mesh, and hence a portion of the boundary conditions.
-     * 
+     *
      * Extra care needs to be taken when migrating to ensure that boundary conditions
      * are loaded appropriately.  See BidomainProblem::LoadExtraArchiveForBidomain
      * and AbstractCardiacProblem::LoadExtraArchive for examples.
@@ -399,7 +399,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
     // Keep track of conditions that might need deleting
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> maybe_unused_bcs;
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> used_bcs;
-    
+
     // Load Dirichlet conditions
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -453,17 +453,17 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
             used_bcs.insert(it->second);
         }
     }
-    
+
     // Free any unused BCs
     for (typename std::set<const AbstractBoundaryCondition<SPACE_DIM>*>::iterator it=maybe_unused_bcs.begin();
          it != maybe_unused_bcs.end();
          ++it)
     {
-    	typename std::set<const AbstractBoundaryCondition<SPACE_DIM>*>::iterator used = used_bcs.find(*it);
-    	if (used == used_bcs.end())
-    	{
+        typename std::set<const AbstractBoundaryCondition<SPACE_DIM>*>::iterator used = used_bcs.find(*it);
+        if (used == used_bcs.end())
+        {
             delete (*it);
-    	}
+        }
     }
 }
 

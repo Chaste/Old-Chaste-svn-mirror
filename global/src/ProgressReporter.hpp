@@ -49,7 +49,7 @@ private:
     out_stream mpFile;        /**< Progress status file */
     unsigned mLastPercentage; /**< Last percentage that was written */
 
-public :
+public:
 
     /**
      * Constuctor saves times and opens output file ('progress_status.txt').

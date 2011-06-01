@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class VanDerPolOde : public AbstractOdeSystem
 {
-public :
+public:
     VanDerPolOde() : AbstractOdeSystem(2)  // 2 here is the number of unknowns
     {
         mpSystemInfo = OdeSystemInformation<VanDerPolOde>::Instance();

@@ -51,7 +51,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
             // Label this cell
             if (!cell_iter->HasCellProperty<CellLabel>());
             {
-            	cell_iter->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
+                cell_iter->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
             }
         }
     }

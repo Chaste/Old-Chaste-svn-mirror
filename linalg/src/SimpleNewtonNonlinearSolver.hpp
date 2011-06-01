@@ -39,14 +39,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver
 {
-private :
+private:
+
     double mLinearSolverRelativeTolerance;   /**< The linear solver relative tolerance. */
     double mTolerance;                       /**< The tolerance (set to 1e-5 in constructor). */
     bool mWriteStats;                        /**< Whether the solver writes details as it solves (set to false in constructor). */
 
     std::vector<double> mTestDampingValues;  /**< Vector of possible damping factors (set in the constructor). */
 
-public :
+public:
 
     /**
      * Constructor.
@@ -98,7 +99,7 @@ public :
      *  ComputeResidual and ComputeJacobian functions
      *
      * @param fill the expected maximum number of nonzeros in a row of the Jacobian matrix
-     * 
+     *
      * @return Returns a PETSc Vec of the solution.
      *
      * To be used in the form:

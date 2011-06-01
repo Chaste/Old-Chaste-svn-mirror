@@ -36,10 +36,10 @@ GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
      mMeinekeDivisionRestingSpringLength(0.5),
      mMeinekeSpringGrowthDuration(1.0)
 {
-	if (DIM == 1)
-	{
-		mMeinekeSpringStiffness = 30.0;
-	}
+    if (DIM == 1)
+    {
+        mMeinekeSpringStiffness = 30.0;
+    }
 }
 
 template<unsigned DIM>
@@ -252,12 +252,12 @@ void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringGrowthDuration(double sp
 template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t\t\t<MeinekeSpringStiffness>" << mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n";
-	*rParamsFile << "\t\t\t<MeinekeDivisionRestingSpringLength>" << mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n";
-	*rParamsFile << "\t\t\t<MeinekeSpringGrowthDuration>" << mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n";
+    *rParamsFile << "\t\t\t<MeinekeSpringStiffness>" << mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n";
+    *rParamsFile << "\t\t\t<MeinekeDivisionRestingSpringLength>" << mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n";
+    *rParamsFile << "\t\t\t<MeinekeSpringGrowthDuration>" << mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n";
 
-	// Call method on direct parent class
-	AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////

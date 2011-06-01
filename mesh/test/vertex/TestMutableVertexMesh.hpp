@@ -1504,7 +1504,7 @@ public:
             // Tidy up
             delete p_mesh_loaded;
         }
-        
+
         delete p_mesh;
     }
 

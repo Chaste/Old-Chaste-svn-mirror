@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class Ode4 : public AbstractOdeSystem
 {
-public :
+public:
     Ode4() : AbstractOdeSystem(1)  // 1 here is the number of unknowns
     {
         mpSystemInfo = OdeSystemInformation<Ode4>::Instance();

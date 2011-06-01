@@ -35,13 +35,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestGaussianQuadratureRule : public CxxTest::TestSuite
 {
-
-public :
+public:
 
     /**
      * Check points and weights are in the right ranges
      */
-
     void TestTheGaussianQuadratureRule()
     {
         // 0d

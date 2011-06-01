@@ -108,7 +108,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
 #endif
 
     PetscInt* rows = new PetscInt[rRows.size()];
-    for(unsigned i=0; i<rRows.size(); i++)
+    for (unsigned i=0; i<rRows.size(); i++)
     {
         rows[i] = rRows[i];
     }
@@ -118,13 +118,13 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
     MatZeroRows(matrix, is, &diagonalValue);
     ISDestroy(is);
     /*
-     * 
+     *
 [2]PETSC ERROR: MatMissingDiagonal_SeqAIJ() line 1011 in src/mat/impls/aij/seq/aij.c
 [2]PETSC ERROR: Petsc has generated inconsistent data!
 [2]PETSC ERROR: Matrix is missing diagonal number 15!
 [2]PETSC ERROR: MatILUFactorSymbolic_SeqAIJ() line 906 in src/mat/impls/aij/seq/aijfact.c
-     * 
-     * 
+     *
+     *
     //There appears to be a problem with MatZeroRows not setting diagonals correctly
     //While we are supporting PETSc 2.2, we have to do this the slow way
 
@@ -133,7 +133,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
     GetOwnershipRange(matrix, lo, hi);
     PetscInt size=GetSize(matrix);
     ///assert(rRows.size() == 1);
-    for(unsigned index=0; index<rRows.size(); index++)
+    for (unsigned index=0; index<rRows.size(); index++)
     {
         PetscInt row = rRows[index];
         if (row >= lo && row < hi)
@@ -158,7 +158,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
         //Everyone communicate after row is finished
         AssembleFinal(matrix);
     }
-    */     
+    */
 #else
     MatZeroRows(matrix, rRows.size(), rows, diagonalValue);
 #endif
@@ -178,7 +178,7 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
     // We do all the columns at once, before doing the zeroing, as otherwise
     // a MatAssemblyBegin() & MatAssemblyEnd() would have to be called
     // after every MatSetValues and before the below GetMatrixElement()
-    for(unsigned index=0; index<rRowColIndices.size(); index++)
+    for (unsigned index=0; index<rRowColIndices.size(); index++)
     {
         unsigned column = rRowColIndices[index];
 
@@ -194,7 +194,7 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
     }
 
     // Now zero each column in turn
-    for(unsigned index=0; index<rRowColIndices.size(); index++)
+    for (unsigned index=0; index<rRowColIndices.size(); index++)
     {
         // set those rows to be zero by calling MatSetValues
         unsigned size = p_nonzero_rows_per_column[index].size();
@@ -262,10 +262,10 @@ void PetscMatTools::Zero(Mat matrix)
     MatZeroEntries(matrix);
 }
 
-unsigned PetscMatTools::GetSize(Mat matrix) 
+unsigned PetscMatTools::GetSize(Mat matrix)
 {
     PetscInt rows, cols;
-    
+
     MatGetSize(matrix, &rows, &cols);
     assert(rows == cols);
     return (unsigned) rows;

@@ -66,7 +66,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 {
     std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-    
+
     //Write node file
     out_stream p_node_file = OpenNodeFile();
 
@@ -193,10 +193,10 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteMetaFile()
         std::string meta_file_name = this->mBaseName + ".cg_in";
         out_stream p_meta_file = this->mpOutputFileHandler->OpenOutputFile(meta_file_name);
 
-        *p_meta_file << "1\n" << "0\n";        
-        std::string face_file_name = this->mBaseName + ".tri";        
+        *p_meta_file << "1\n" << "0\n";
+        std::string face_file_name = this->mBaseName + ".tri";
         *p_meta_file << face_file_name <<"\n";
-        std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();           
+        std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
         *p_meta_file << comment;
         p_meta_file->close();
     }
@@ -275,11 +275,11 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::CreateFilesWithHeaders()
     // Write the element header
     unsigned num_elements = this->GetNumElements();
     *p_element_file << num_elements << "\n";
-    
+
     p_element_file->close();
 
     /*
-     * Face file 
+     * Face file
      */
     if (ELEMENT_DIM==3)
     {
@@ -296,14 +296,14 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::CreateFilesWithHeaders()
     }
 
 }
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
 {
-    out_stream p_node_file = OpenNodeFile(true);    
-    
+    out_stream p_node_file = OpenNodeFile(true);
+
     typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
-    
+
     for (NodeIterType iter = this->mpDistributedMesh->GetNodeIteratorBegin();
          iter != this->mpDistributedMesh->GetNodeIteratorEnd();
          ++iter)
@@ -325,7 +325,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
     }
     p_node_file->close();
 
-    out_stream p_element_file = OpenElementFile(true);    
+    out_stream p_element_file = OpenElementFile(true);
 
     typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator ElemIterType;
 
@@ -334,7 +334,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
          ++iter)
     {
         if ( this->mpDistributedMesh->CalculateDesignatedOwnershipOfElement(iter->GetIndex()))
-        {            
+        {
             for (unsigned i=0; i<this->mNodesPerElement; i++)
             {
                 if (this->mIndexFromZero)
@@ -346,25 +346,25 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
                     *p_element_file << iter->GetNodeGlobalIndex(i)+1 << "\t";
                 }
             }
-    
+
             *p_element_file << iter->GetRegion() << "\n";
         }
     }
-    p_element_file->close();   
+    p_element_file->close();
 
 
     if (ELEMENT_DIM == 3)
     {
-        out_stream p_face_file = OpenFaceFile(true);    
-    
+        out_stream p_face_file = OpenFaceFile(true);
+
         typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator BoundaryElemIterType;
-    
+
         for (BoundaryElemIterType iter = this->mpDistributedMesh->GetBoundaryElementIteratorBegin();
              iter != this->mpDistributedMesh->GetBoundaryElementIteratorEnd();
              ++iter)
         {
             if ( this->mpDistributedMesh->CalculateDesignatedOwnershipOfBoundaryElement((*iter)->GetIndex()))
-            {            
+            {
                 for (unsigned i=0; i<ELEMENT_DIM; i++)
                 {
                     if (this->mIndexFromZero)
@@ -376,19 +376,19 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::AppendLocalDataToFiles()
                         *p_face_file << (*iter)->GetNodeGlobalIndex(i)+1 << "\t";
                     }
                 }
-        
+
                 *p_face_file << (*iter)->GetRegion() << "\n";
             }
         }
         p_face_file->close();
-    }   
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesFooter()
 {
     std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-    
+
     out_stream p_node_file = OpenNodeFile(true);
     *p_node_file << comment;
     p_node_file->close();
@@ -402,7 +402,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesFooter()
         out_stream p_face_file = OpenFaceFile(true);
         *p_face_file << comment;
         p_face_file->close();
-    }            
+    }
 }
 
 

@@ -59,7 +59,7 @@ class AbstractIvpOdeSolver : public Identifiable
         archive & mStoppingTime;
     }
 
-protected :
+protected:
 
     /**
      * Boolean indicating whether the solver quit due to the ODEs
@@ -70,7 +70,7 @@ protected :
     /** If a stopping event occurred the time is stored here.  (Only valid when mStoppingEventOccurred==true) */
     double mStoppingTime;
 
-public :
+public:
 
     /**
      * Solves a system of ODEs using a specified one-step ODE solver and returns

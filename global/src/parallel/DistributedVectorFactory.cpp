@@ -99,7 +99,7 @@ DistributedVectorFactory::DistributedVectorFactory(DistributedVectorFactory* pOr
     //Normally called when mpOriginalFactory->GetNumProcs() != PetscTools::GetNumProcs()
     //so ignore mpOriginalFactory->GetLocalOwnership()
     Vec vec=PetscTools::CreateVec(mpOriginalFactory->GetProblemSize());
-    
+
     CalculateOwnership(vec);
     VecDestroy(vec);
 }
@@ -129,8 +129,8 @@ void DistributedVectorFactory::CheckForPetsc()
     PetscTruth petsc_is_initialised;
     PetscInitialized(&petsc_is_initialised);
 
-    //Tripping this assertion means that PETSc and MPI weren't intialised
-    //A unit test should include the global fixture:
+    // Tripping this assertion means that PETSc and MPI weren't intialised
+    // A unit test should include the global fixture:
     //#include "PetscSetupAndFinalize.hpp"
     assert(petsc_is_initialised);
     mPetscStatusKnown=true;
@@ -169,7 +169,7 @@ std::vector<unsigned> &DistributedVectorFactory::rGetGlobalLows()
         //Exchange data
         MPI_Allgather( &mLo, 1, MPI_UNSIGNED, &mGlobalLows[0], 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
       }
-    
+
     return  mGlobalLows;
 }
 // Serialization for Boost >= 1.36

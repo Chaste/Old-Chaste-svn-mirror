@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleLinearEllipticSolver.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)>SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>:: ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1>& rPhi,
@@ -40,7 +39,7 @@ c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)>SimpleLinearEllipticSolver
 {
     c_matrix<double, SPACE_DIM, SPACE_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
 
-    // if statement just saves computing phi*phi^T if it is to be multiplied by zero
+    // This if statement just saves computing phi*phi^T if it is to be multiplied by zero
     if (mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
     {
         return   prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
@@ -51,7 +50,6 @@ c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)>SimpleLinearEllipticSolver
         return   prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
     }
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
@@ -65,8 +63,6 @@ c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_
     return mpEllipticPde->ComputeConstantInUSourceTerm(rX) * rPhi;
 }
 
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, ELEMENT_DIM> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
             const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
@@ -77,8 +73,6 @@ c_vector<double, ELEMENT_DIM> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>:
     double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
     return rPhi * D_times_gradu_dot_n;
 }
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearEllipticSolver(
@@ -91,7 +85,6 @@ SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearEllipticSolver(
 {
     mpEllipticPde = pPde;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)

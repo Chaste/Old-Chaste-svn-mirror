@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -201,62 +201,62 @@ public:
     }
 
     /*
-	* This tests that the results files are correct (added because of #1130).
-	*/
-	void TestResultsFileForLongerCryptSimulation() throw(Exception)
-	{
-		// Set output directory
-		std::string output_directory = "TestResultsFileForLongerCryptSimulation";
+    * This tests that the results files are correct (added because of #1130).
+    */
+    void TestResultsFileForLongerCryptSimulation() throw(Exception)
+    {
+        // Set output directory
+        std::string output_directory = "TestResultsFileForLongerCryptSimulation";
 
-		// Create cylindrical mesh
+        // Create cylindrical mesh
         unsigned cells_across = 16;
         unsigned cells_up = 19;
         unsigned thickness_of_ghost_layer = 0;
         CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-		Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
-		double crypt_length = cells_up*(sqrt(3)/2);
+        double crypt_length = cells_up*(sqrt(3)/2);
 
-		// Get location indices corresponding to real cells in mesh
-		std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        // Get location indices corresponding to real cells in mesh
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-		// Set up each cell with a simple Wnt-based cell-cycle model
-		std::vector<CellPtr> cells;
-		CryptCellsGenerator<SimpleWntCellCycleModel> cell_generator;
-		cell_generator.Generate(cells, p_mesh, location_indices, true);
+        // Set up each cell with a simple Wnt-based cell-cycle model
+        std::vector<CellPtr> cells;
+        CryptCellsGenerator<SimpleWntCellCycleModel> cell_generator;
+        cell_generator.Generate(cells, p_mesh, location_indices, true);
 
-		// Set some model parameters for the cell-cycle model
-		for (unsigned index=0; index < cells.size(); index++)
-		{
-		   cells[index]->GetCellCycleModel()->SetSDuration(7.4);
-		   cells[index]->GetCellCycleModel()->SetG2Duration(1.4);
-		   cells[index]->GetCellCycleModel()->SetMDuration(0.72);
-		   cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(9.4);
-		   cells[index]->GetCellCycleModel()->SetStemCellG1Duration(9.4);
-		}
+        // Set some model parameters for the cell-cycle model
+        for (unsigned index=0; index < cells.size(); index++)
+        {
+           cells[index]->GetCellCycleModel()->SetSDuration(7.4);
+           cells[index]->GetCellCycleModel()->SetG2Duration(1.4);
+           cells[index]->GetCellCycleModel()->SetMDuration(0.72);
+           cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(9.4);
+           cells[index]->GetCellCycleModel()->SetStemCellG1Duration(9.4);
+        }
 
-		// Create cell population
-		MeshBasedCellPopulation<2> crypt(*p_mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-		// Set cell population to output cell types
-		crypt.SetOutputCellProliferativeTypes(true);
+        // Set cell population to output cell types
+        crypt.SetOutputCellProliferativeTypes(true);
 
-		// Set up instance of WntConcentration singleton and associate it with crypt
-		WntConcentration<2>::Instance()->SetType(LINEAR);
-		WntConcentration<2>::Instance()->SetCellPopulation(crypt);
-		WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+        // Set up instance of WntConcentration singleton and associate it with crypt
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-		// Create crypt simulation
-		CryptSimulation2d simulator(crypt);
+        // Create crypt simulation
+        CryptSimulation2d simulator(crypt);
 
-		// Set where to output simulation results
-		simulator.SetOutputDirectory(output_directory);
+        // Set where to output simulation results
+        simulator.SetOutputDirectory(output_directory);
 
-		// Set length of simulation
-		simulator.SetEndTime(20.0);
+        // Set length of simulation
+        simulator.SetEndTime(20.0);
 
-		// Only save results every tenth time step
-		simulator.SetSamplingTimestepMultiple(10);
+        // Only save results every tenth time step
+        simulator.SetSamplingTimestepMultiple(10);
 
 
         // Create a force law and pass it to the simulation
@@ -267,37 +267,37 @@ public:
         meineke_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
         simulator.AddForce(&meineke_force);
 
-		// Set up sloughing cell killer and pass in to simulation
-		AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);
-		simulator.AddCellKiller(p_cell_killer);
+        // Set up sloughing cell killer and pass in to simulation
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);
+        simulator.AddCellKiller(p_cell_killer);
 
-		// Unusual set-up here (corresponds to the Meineke crypt model parameters)
-		simulator.UseJiggledBottomCells();
+        // Unusual set-up here (corresponds to the Meineke crypt model parameters)
+        simulator.UseJiggledBottomCells();
 
-		// Run simulation
-		simulator.Solve();
+        // Run simulation
+        simulator.Solve();
 
-		// Test that results files are correct
-		OutputFileHandler handler(output_directory, false);
-		std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
+        // Test that results files are correct
+        OutputFileHandler handler(output_directory, false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-		NumericFileComparison comp_ele(results_dir + "/results.vizelements", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements");
-		TS_ASSERT(comp_ele.CompareFiles());
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements").c_str()), 0);
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements");
+        TS_ASSERT(comp_ele.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements").c_str()), 0);
 
-		NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.viznodes");
-		TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
 
-		NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizcelltypes");
-		TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.parameters crypt/test/data/TestResultsFileForLongerCryptSimulation/results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup crypt/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.parameters crypt/test/data/TestResultsFileForLongerCryptSimulation/results.parameters").c_str()), 0);
 
-		// Tidy up
-		delete p_cell_killer;
-		WntConcentration<2>::Destroy();
-	}
+        // Tidy up
+        delete p_cell_killer;
+        WntConcentration<2>::Destroy();
+    }
 };
 
 #endif /*TESTCRYPTSIMULATION2DNIGHTLY_HPP_*/

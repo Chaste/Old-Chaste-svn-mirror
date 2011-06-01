@@ -306,8 +306,8 @@ void NodeBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rP
 
     // Currently no specific parameters to output all come from parent classes
 
-	// Call method on direct parent class
-	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    // Call method on direct parent class
+    AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 template<unsigned DIM>

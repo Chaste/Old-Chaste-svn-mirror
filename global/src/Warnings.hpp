@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * or the WARNING macro.  This is to provide a mechanism for informing the user of
  * error which are less severe than those demanding exceptions or assertions. (Errors
  * which can be repaired immediately.)
- * 
+ *
  * Warnings can be polled with GetNumWarnings() and GetNextWarningMessage().
  * Warnings can be ignored and destroyed with QuietDestroy().
  * All warnings left at the close of the test suite (not the individual test), or
@@ -48,10 +48,10 @@ class Warnings
 {
 private:
     static Warnings* mpInstance; /**<  Pointer to the single instance. For use as singleton */
-    
+
     /** Container type for warnings */
     typedef std::deque<std::pair<std::string, std::string> > WarningsContainerType;
-    
+
     WarningsContainerType mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
 
 protected:
@@ -60,7 +60,7 @@ protected:
      * Use Instance() to access the Warnings singleton.
      */
     Warnings();
- 
+
 public:
     /**
      * Default destroyer (takes the place of a destructor, using the std::atexit directive).
@@ -69,7 +69,7 @@ public:
     static void NoisyDestroy();
 
     /**
-     * Public destroyer (takes the place of a destructor but is called by the user to make sure 
+     * Public destroyer (takes the place of a destructor but is called by the user to make sure
      * that no warnings appear)
      */
     static void QuietDestroy();
@@ -110,21 +110,21 @@ public:
 
 #define WARNING(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__)
 
-/** 
+/**
  *  Warn only the first time line is reached. Note: this does not base whether to not warn
  *  again on the message content, just on whether the line of code where this macro is placed
  *  has been reached. In other words:
- * 
- *  for(unsigned i=0; i<10; i++)
+ *
+ *  for (unsigned i=0; i<10; i++)
  *  {
  *     WARN_ONCE_ONLY("Don't make me angry");
  *  }
- *  
+ *
  *  will print once, whereas
- * 
+ *
  *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
  *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
- * 
+ *
  *  will warn twice.
  */
 #define WARN_ONCE_ONLY(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__, true)

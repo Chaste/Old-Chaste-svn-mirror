@@ -148,7 +148,7 @@ public:
         TS_ASSERT_EQUALS( next_element_data.NodeIndices[3] , 11u );
         TS_ASSERT_EQUALS( next_element_data.AttributeValue, 0u );
 
-        for(unsigned i=2; i<mesh_reader.GetNumElements(); i++)
+        for (unsigned i=2; i<mesh_reader.GetNumElements(); i++)
         {
             next_element_data = mesh_reader.GetNextElementData();
             TS_ASSERT_EQUALS(next_element_data.AttributeValue, 0u);
@@ -198,7 +198,7 @@ public:
         TS_ASSERT_EQUALS( next_face_data.NodeIndices[1] ,  8u );
         TS_ASSERT_EQUALS( next_face_data.NodeIndices[2] ,  0u );
 
-        for(unsigned face=2; face<mesh_reader.GetNumFaces(); face++)
+        for (unsigned face=2; face<mesh_reader.GetNumFaces(); face++)
         {
             next_face_data = mesh_reader.GetNextEdgeData();
         }
@@ -235,7 +235,7 @@ public:
     {
 #ifdef CHASTE_VTK
         GenericMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
-       
+
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 12U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 12U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 20U);
@@ -277,7 +277,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[2], 0.9925, 1e-4);
-        
+
         TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[0], 1.0969, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
@@ -300,7 +300,7 @@ public:
         mesh_reader.GetCellData( "Quality", quality);
         for (unsigned i = 0; i < 610; i+=60)
         {
-            
+
             TS_ASSERT_DELTA( quality[i], mesh.GetElement(i)->CalculateQuality(), 1e-4 );
 
         }
@@ -310,7 +310,7 @@ public:
         mesh_reader.GetCellData("Centroid", centroid);
         for (unsigned i = 0; i < 610; i+=60)
         {
-            
+
             for (unsigned j=0; j<3; j++)
             {
                 TS_ASSERT_DELTA( centroid[i][j], mesh.GetElement(i)->CalculateCentroid()[j], 1e-4 );
@@ -405,7 +405,7 @@ public:
             Node<3> *iterator_node = (it)->GetNode(1);
             TS_ASSERT_EQUALS(iterator_node, mesh_node);
         }
-       
+
 #endif // CHASTE_VTK
    }
 };

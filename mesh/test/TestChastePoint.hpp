@@ -152,7 +152,7 @@ public:
         TS_ASSERT_EQUALS(point[1], 20.0);
         TS_ASSERT_EQUALS(point[2], 30.0);
     }
-    
+
     void TestArchivingPoint()
     {
         OutputFileHandler handler("archive",false);

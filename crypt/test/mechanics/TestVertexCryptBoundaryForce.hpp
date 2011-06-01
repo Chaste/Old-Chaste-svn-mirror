@@ -47,82 +47,82 @@ public:
 
     void TestForceOutputParameters()
     {
-		std::string output_directory = "TestForcesOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
+        std::string output_directory = "TestForcesOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
 
-		// Test with VertexCryptBoundaryForce
-		VertexCryptBoundaryForce<2> boundary_force;
-		TS_ASSERT_EQUALS(boundary_force.GetIdentifier(), "VertexCryptBoundaryForce-2");
+        // Test with VertexCryptBoundaryForce
+        VertexCryptBoundaryForce<2> boundary_force;
+        TS_ASSERT_EQUALS(boundary_force.GetIdentifier(), "VertexCryptBoundaryForce-2");
 
-		out_stream boundary_force_parameter_file = output_file_handler.OpenOutputFile("boundary_results.parameters");
-		boundary_force.OutputForceParameters(boundary_force_parameter_file);
-		boundary_force_parameter_file->close();
+        out_stream boundary_force_parameter_file = output_file_handler.OpenOutputFile("boundary_results.parameters");
+        boundary_force.OutputForceParameters(boundary_force_parameter_file);
+        boundary_force_parameter_file->close();
 
-		std::string boundary_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + boundary_force_results_dir + "boundary_results.parameters crypt/test/data/TestForcesForCrypt/boundary_results.parameters").c_str()), 0);
+        std::string boundary_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + boundary_force_results_dir + "boundary_results.parameters crypt/test/data/TestForcesForCrypt/boundary_results.parameters").c_str()), 0);
 
     }
 
     void TestVertexCryptBoundaryForceMethods() throw (Exception)
-	{
-		// Create a simple 2D VertexMesh
-		HoneycombVertexMeshGenerator generator(5, 5, false, 0.1, 0.5);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+    {
+        // Create a simple 2D VertexMesh
+        HoneycombVertexMeshGenerator generator(5, 5, false, 0.1, 0.5);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Translate mesh so that some points are below y=0
-		p_mesh->Translate(0.0, -3.0);
+        // Translate mesh so that some points are below y=0
+        p_mesh->Translate(0.0, -3.0);
 
-		// Set up cells, one for each VertexElement. Give each cell
-		// a birth time of -elem_index, so its age is elem_index
-		std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-		{
-			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-			p_model->SetCellProliferativeType(DIFFERENTIATED);
+        // Set up cells, one for each VertexElement. Give each cell
+        // a birth time of -elem_index, so its age is elem_index
+        std::vector<CellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
+        {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
 
-			CellPtr p_cell(new Cell(p_state, p_model));
-			double birth_time = 0.0 - elem_index;
-			p_cell->SetBirthTime(birth_time);
-			cells.push_back(p_cell);
-		}
+            CellPtr p_cell(new Cell(p_state, p_model));
+            double birth_time = 0.0 - elem_index;
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
+        }
 
-		// Create cell population
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create a force system
-		VertexCryptBoundaryForce<2> force(100);
+        // Create a force system
+        VertexCryptBoundaryForce<2> force(100);
 
-		// Initialise a vector of new node forces
-		std::vector<c_vector<double, 2> > node_forces;
-		node_forces.reserve(cell_population.GetNumNodes());
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(cell_population.GetNumNodes());
 
-		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
-		{
-			node_forces.push_back(zero_vector<double>(2));
-		}
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
 
-		force.AddForceContribution(node_forces, cell_population);
+        force.AddForceContribution(node_forces, cell_population);
 
-		// Check forces are correct
-		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
-		{
-			TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
+        // Check forces are correct
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
 
-			double y = cell_population.GetNode(i)->rGetLocation()[1];
-			if (y >= 0.0)
-			{
-				// If y > 0, the force contribution should be zero...
-				TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
-			}
-			else
-			{
-				// ...otherwise, the force contribution should be quadratic in y
-				double expected_force = force.GetForceStrength()*y*y;
-				TS_ASSERT_DELTA(node_forces[i][1], expected_force, 1e-4);
-			}
-		}
-	}
+            double y = cell_population.GetNode(i)->rGetLocation()[1];
+            if (y >= 0.0)
+            {
+                // If y > 0, the force contribution should be zero...
+                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
+            }
+            else
+            {
+                // ...otherwise, the force contribution should be quadratic in y
+                double expected_force = force.GetForceStrength()*y*y;
+                TS_ASSERT_DELTA(node_forces[i][1], expected_force, 1e-4);
+            }
+        }
+    }
 
     void TestVertexCryptBoundaryForceForceWithNonVertexCellPopulation() throw (Exception)
     {
@@ -136,8 +136,8 @@ public:
             nodes.push_back(new Node<2>(i, true, x, y));
         }
         // Convert this to a NodesOnlyMesh
-		NodesOnlyMesh<2> mesh;
-		mesh.ConstructNodesWithoutMesh(nodes);
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
 
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;

@@ -59,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
  * as the first Chaste header file.
  */
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 
 /* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The next two header files define two different types of cell-cycle model.
  * In a {{{FixedDurationGenerationBasedCellCycleModel}}}, the duration of each phase
  * of the cell cycle is fixed. In a {{{WntCellCycleModel}}}, the duration of a cell's G1 phase
- * is determined by a system of nonlinear ODEs describing a cell's response to the local 
+ * is determined by a system of nonlinear ODEs describing a cell's response to the local
  * concentration of Wnt,
  * a secreted cell–cell signalling molecule that is known to play a key role in cell
  * proliferation in the crypt. In our crypt simulations, we impose a fixed gradient of
@@ -162,7 +162,7 @@ public:
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* 
+        /*
          * Now we have a mesh, a set of cells to go with it, and a vector of node indices
          * corresponding to real cells, we can create a {{{CellPopulation}}} object. In general,
          * this class associates a collection of cells with a set of nodes or a mesh.
@@ -268,7 +268,7 @@ public:
          * When using a {{{WntCellCycleModel}}}, we need a way of telling each cell what the Wnt concentration
          * is at its location. To do this, we set up a {{{WntConcentration}}} object. Like {{{SimulationTime}}},
          * {{{WntConcentration}}} is a singleton class, so when instantiated it is accessible from anywhere in
-         * the code (and in particular, all cells and cell-cycle models can access it). We need to say what 
+         * the code (and in particular, all cells and cell-cycle models can access it). We need to say what
          * the profile of the Wnt concentation should be up the crypt: here, we say it is {{{LINEAR}}} (linear
          * decreasing from 1 to 0 from the bottom of the crypt to the top). We also need to inform the
          * {{{WntConcentration}}} of the cell population and the height of the crypt.

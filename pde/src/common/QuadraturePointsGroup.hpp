@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class QuadraturePointsGroup
 {
-private :
+private:
 
     /** The quadrature points in physical space */
     std::vector<c_vector<double,DIM> > data;
@@ -55,7 +55,7 @@ private :
     /** Number of quad points per element in given rule */
     unsigned mNumQuadPointsPerElement;
 
-public :
+public:
 
     /**
      * Constructor takes in a mesh and a rule and computes and stores all

@@ -36,12 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class ToyCompressibleMaterialLaw : public AbstractIsotropicCompressibleMaterialLaw<DIM>
 {
-private :
+private:
+
     double mC1;
     double mC2;
     double mC3;
 
-public :
+public:
+
     double Get_dW_dI1(double I1, double I2, double I3)
     {
         return mC1;
@@ -94,7 +96,7 @@ public :
         mC1 = c1;
         mC2 = c2;
         mC3 = c3;
-        if(DIM==3 && fabs(c1+2*c2+c3)>1e-8)
+        if (DIM==3 && fabs(c1+2*c2+c3)>1e-8)
         {
             EXCEPTION("c1+2*c2+c3 should be equal to zero");
         }

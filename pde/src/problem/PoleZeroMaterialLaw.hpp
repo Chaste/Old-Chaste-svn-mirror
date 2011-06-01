@@ -64,7 +64,7 @@ class PoleZeroMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
 friend class TestMaterialLaws;
 
-private :
+private:
 
     /** Matrix of parameters k. */
     std::vector<std::vector<double> > mK;
@@ -78,7 +78,7 @@ private :
     /** Identity matrix. */
     c_matrix<double,DIM,DIM> mIdentity;
 
-protected :
+protected:
 
     /**
      * Protected default constructor doing nothing. Just saw inherited classes
@@ -98,7 +98,7 @@ protected :
                        std::vector<std::vector<double> > a,
                        std::vector<std::vector<double> > b);
 
-public :
+public:
 
     /**
      * Constructor, taking in parameters k_i, a_i, b_i as matrices.

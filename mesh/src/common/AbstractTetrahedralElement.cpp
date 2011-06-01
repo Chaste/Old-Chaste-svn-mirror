@@ -86,7 +86,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
             assert(det > 0.0);
         }
     }
-    else 
+    else
     {
         //This is not a full-dimensional element
         c_vector<double, SPACE_DIM> weighted_direction;
@@ -134,20 +134,21 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     RefreshJacobian(jacobian);
 
-    //At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem
-    //We assume that the rWeightedDirection vector and rJacobianDeterminant (length of vector)
-    //are the values from a previous call.
+    /*
+     * At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem.
+     * We assume that the rWeightedDirection vector and rJacobianDeterminant (length 
+     * of vector) are the values from a previous call.
+     */
 
-    //This code is only used when ELEMENT_DIM<SPACE_DIM
+    // This code is only used when ELEMENT_DIM<SPACE_DIM
     switch (ELEMENT_DIM)
     {
         case 0:
-            //See specialised template for ELEMENT_DIM==0
+            // See specialised template for ELEMENT_DIM==0
             NEVER_REACHED;
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D
-
             rWeightedDirection=matrix_column<c_matrix<double,SPACE_DIM,ELEMENT_DIM> >(jacobian, 0);
             break;
         case 2:

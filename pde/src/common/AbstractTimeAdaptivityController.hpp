@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Abstract class for defining rules for adaptive time-stepping.
- * 
+ *
  */
 class AbstractTimeAdaptivityController
 {
@@ -43,15 +43,15 @@ private:
     /** Maximum timestep to be used */
     double mMaximumTimeStep;
     /** Pure method to be implemented which returns the timestep based on the
-     *  current solution and current time. Doesn't need to be checked to be 
+     *  current solution and current time. Doesn't need to be checked to be
      *  between the minimum and maximum timesteps.
-     *  @param currentTime current time 
+     *  @param currentTime current time
      *  @param currentSolution current solution
      */
     virtual double ComputeTimeStep(double currentTime, Vec currentSolution)=0;
 
 public:
-    /** 
+    /**
      *  Constructor
      *  @param minimumTimeStep minimum timestep to be used
      *  @param maximumTimeStep maximum timestep to be used
@@ -64,30 +64,29 @@ public:
         assert(maximumTimeStep>0.0);
         assert(minimumTimeStep < maximumTimeStep);
     }
-    
+
     /** Destructor */
     virtual ~AbstractTimeAdaptivityController()
     {
     }
 
     /** Get the actual timestep to be used
-     *  @param currentTime current time 
+     *  @param currentTime current time
      *  @param currentSolution current solution
      */
     double GetNextTimeStep(double currentTime, Vec currentSolution)
     {
         double dt = ComputeTimeStep(currentTime, currentSolution);
-        if(dt < mMinimumTimeStep)
+        if (dt < mMinimumTimeStep)
         {
             dt = mMinimumTimeStep;
         }
-        if(dt > mMaximumTimeStep)
+        if (dt > mMaximumTimeStep)
         {
             dt = mMaximumTimeStep;
         }
         return dt;
     }
 };
-
 
 #endif /*ABSTRACTTIMEADAPTIVITYCONTROLLER_HPP_*/

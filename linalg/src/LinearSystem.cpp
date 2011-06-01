@@ -66,10 +66,10 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
-    assert(lhsVectorSize>0);
+    assert(lhsVectorSize > 0);
     if (mRowPreallocation == UINT_MAX)
     {
-        //Automatic preallocation if it's a small matrix
+        // Automatic preallocation if it's a small matrix
         if (lhsVectorSize<15)
         {
             mRowPreallocation=lhsVectorSize;
@@ -79,7 +79,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
             EXCEPTION("You must provide a rowPreallocation argument for a large sparse system");
         }
     }
-    
+
     mRhsVector=PetscTools::CreateVec(mSize);
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, mRowPreallocation, PETSC_DECIDE, PETSC_DECIDE);
 
@@ -120,7 +120,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mEigMax(DBL_MIN),
     mForceSpectrumReevaluation(false)
 {
-    assert(lhsVectorSize>0);
+    assert(lhsVectorSize > 0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
     mLhsMatrix = lhsMatrix;
     mRhsVector = rhsVector;
@@ -251,7 +251,7 @@ LinearSystem::~LinearSystem()
         MatDestroy(mLhsMatrix);
     }
 
-    if(mPrecondMatrixIsNotLhs)
+    if (mPrecondMatrixIsNotLhs)
     {
         MatDestroy(mPrecondMatrix);
     }
@@ -272,12 +272,12 @@ LinearSystem::~LinearSystem()
         VecDestroy(mDirichletBoundaryConditionsVector);
     }
 
-#if (PETSC_VERSION_MAJOR == 3)   
+#if (PETSC_VERSION_MAJOR == 3)
     if (mpConvergenceTestContext)
     {
         KSPDefaultConvergedDestroy(mpConvergenceTestContext);
     }
-#endif    
+#endif
 
 #ifdef TRACE_KSP
     if (PetscTools::AmMaster())
@@ -285,7 +285,7 @@ LinearSystem::~LinearSystem()
         if (mNumSolves > 0)
         {
             double ave_num_iterations = mTotalNumIterations/(double)mNumSolves;
-    
+
             std::cout << std::endl << "KSP iterations report:" << std::endl;
             std::cout << "mNumSolves" << "\t" << "mTotalNumIterations" << "\t" << "mMaxNumIterations" << "\t" << "mAveNumIterations" << std::endl;
             std::cout << mNumSolves << "\t" << mTotalNumIterations << "\t" << mMaxNumIterations << "\t" << ave_num_iterations << std::endl;
@@ -365,7 +365,7 @@ void LinearSystem::SetMatrixRow(PetscInt row, double value)
 
 Vec LinearSystem::GetMatrixRowDistributed(unsigned rowIndex)
 {
-	return PetscMatTools::GetMatrixRowDistributed(mLhsMatrix, rowIndex);
+    return PetscMatTools::GetMatrixRowDistributed(mLhsMatrix, rowIndex);
 }
 
 void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue)
@@ -437,7 +437,6 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
                 EXCEPTION("The null space is not orthogonal.");
             }
         }
-
     }
 
 #endif
@@ -510,11 +509,11 @@ Mat LinearSystem::GetLhsMatrix() const
 
 Mat& LinearSystem::rGetPrecondMatrix()
 {
-    if(!mPrecondMatrixIsNotLhs)
+    if (!mPrecondMatrixIsNotLhs)
     {
         EXCEPTION("LHS matrix used for preconditioner construction");
     }
-    
+
     return mPrecondMatrix;
 }
 
@@ -534,7 +533,7 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
     }
     else
     {
-// don't have a PetscMatTools method for setting options to false        
+// don't have a PetscMatTools method for setting options to false
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE);
         MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE);
@@ -597,7 +596,7 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
 {
     mPcType=pcType;
     mpBathNodes = pBathNodes;
-    
+
     if (mKspIsSetup)
     {
         if (mPcType == "blockdiagonal")
@@ -642,7 +641,7 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
                 TERMINATE("You must provide a list of bath nodes when using TwoLevelsBlockDiagonalPC");
             }
             mpTwoLevelsBlockDiagonalPC = new PCTwoLevelsBlockDiagonal(mKspSolver, *mpBathNodes);
-        }        
+        }
         else
         {
             PC prec;
@@ -750,7 +749,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 if (!mpBathNodes)
                 {
                     TERMINATE("You must provide a list of bath nodes when using TwoLevelsBlockDiagonalPC");
-                }                
+                }
                 mpTwoLevelsBlockDiagonalPC = new PCTwoLevelsBlockDiagonal(mKspSolver, *mpBathNodes);
 #ifdef TRACE_KSP
                 if (PetscTools::AmMaster())
@@ -760,7 +759,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
 
             }
-            else 
+            else
             {
                 PCSetType(prec, mPcType.c_str());
             }
@@ -782,11 +781,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetFromOptions(mKspSolver);
 
         /*
-         * Non-adaptive Chebyshev: the required spectrum approximation is computed just once 
-         * at the beginning of the simulation. This is done with two extra CG solves. 
+         * Non-adaptive Chebyshev: the required spectrum approximation is computed just once
+         * at the beginning of the simulation. This is done with two extra CG solves.
          */
-        if(mKspType == "chebychev" && !mUseFixedNumberIterations)        
-        {            
+        if (mKspType == "chebychev" && !mUseFixedNumberIterations)
+        {
 #ifdef TRACE_KSP
             Timer::Reset();
 #endif
@@ -794,7 +793,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetType(mKspSolver,"cg");
             KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
             KSPSetUp(mKspSolver);
-                            
+
             VecDuplicate(mRhsVector, &chebyshev_lhs_vector);
             if (lhsGuess)
             {
@@ -810,7 +809,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
 
             mEigMin = r_eig[0];
-	
+
             // Largest eigenvalue is approximated to machine precision
             KSPSetTolerances(mKspSolver, DBL_EPSILON, DBL_EPSILON, PETSC_DEFAULT, PETSC_DEFAULT);
             KSPSetUp(mKspSolver);
@@ -848,7 +847,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
             // Set Chebyshev solver and max/min eigenvalues
             assert(mKspType == "chebychev");
-            KSPSetType(mKspSolver, mKspType.c_str());            
+            KSPSetType(mKspSolver, mKspType.c_str());
             KSPChebychevSetEigenvalues(mKspSolver, mEigMax, mEigMin);
             KSPSetComputeEigenvalues(mKspSolver, PETSC_FALSE);
             if (mUseAbsoluteTolerance)
@@ -860,11 +859,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
             }
 
-	        delete[] r_eig;
-	        delete[] c_eig;
+            delete[] r_eig;
+            delete[] c_eig;
 
 #ifdef TRACE_KSP
-            if (PetscTools::AmMaster()) 
+            if (PetscTools::AmMaster())
             {
                 Timer::Print("Computing extremal eigenvalues");
             }
@@ -878,7 +877,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetUp(mKspSolver);
 
         if (chebyshev_lhs_vector)
-        {            
+        {
             VecDestroy(chebyshev_lhs_vector);
         }
 
@@ -968,7 +967,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
 
         // Current solve has to be done with tolerance-based stop criteria in order to record iterations taken
-        if(mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
+        if (mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
         {
 #if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))
             KSPSetNormType(mKspSolver, KSP_PRECONDITIONED_NORM);
@@ -980,11 +979,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             if (!mpConvergenceTestContext)
             {
                 KSPDefaultConvergedCreate(&mpConvergenceTestContext);
-            }            
-            KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, &mpConvergenceTestContext, PETSC_NULL); 
+            }
+            KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, &mpConvergenceTestContext, PETSC_NULL);
 #else
             KSPSetConvergenceTest(mKspSolver, KSPDefaultConverged, PETSC_NULL);
-#endif            
+#endif
 
             if (mUseAbsoluteTolerance)
             {
@@ -1007,8 +1006,8 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 KSPSetType(mKspSolver,"cg");
                 KSPSetComputeEigenvalues(mKspSolver, PETSC_TRUE);
             }
-            
-            KSPSetFromOptions(mKspSolver);            
+
+            KSPSetFromOptions(mKspSolver);
             KSPSetUp(mKspSolver);
         }
 
@@ -1023,7 +1022,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << " "; // don't add std::endl so we get Timer::Print output in the same line (better for grep-ing)
             Timer::Print("Solve");
         }
-        
+
         mTotalNumIterations += num_it;
         if ((unsigned) num_it > mMaxNumIterations)
         {
@@ -1044,12 +1043,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPEXCEPT(reason);
         }
 
-        if(mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
+        if (mUseFixedNumberIterations && (mNumSolves%mEvaluateNumItsEveryNSolves==0 || mForceSpectrumReevaluation))
         {
-            // Adaptive Chebyshev: reevaluate spectrum with cg            
+            // Adaptive Chebyshev: reevaluate spectrum with cg
             if (mKspType == "chebychev")
             {
-    	        PetscReal *r_eig = new PetscReal[mSize];
+                PetscReal *r_eig = new PetscReal[mSize];
                 PetscReal *c_eig = new PetscReal[mSize];
                 PetscInt eigs_computed;
                 KSPComputeEigenvalues(mKspSolver, mSize, r_eig, c_eig, &eigs_computed);
@@ -1058,7 +1057,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 /*
                  * Using max() covers a borderline case found in TestChasteBenchmarksForPreDiCT where there's a big
                  * gap in the spectrum between ~1.2 and ~2.5. Some reevaluations pick up 2.5 and others don't. If it
-                 * is not picked up, Chebyshev will diverge after 10 solves or so. 
+                 * is not picked up, Chebyshev will diverge after 10 solves or so.
                  */
                 mEigMax = std::max(mEigMax,r_eig[eigs_computed-1]);
 
@@ -1066,12 +1065,12 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 delete[] c_eig;
 
                 assert(mKspType == "chebychev");
-                KSPSetType(mKspSolver, mKspType.c_str());            
+                KSPSetType(mKspSolver, mKspType.c_str());
                 KSPChebychevSetEigenvalues(mKspSolver, mEigMax, mEigMin);
                 KSPSetComputeEigenvalues(mKspSolver, PETSC_FALSE);
             }
 
-#if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))            
+#if ((PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR <= 2))
             if (mKspType == "chebychev")
             {
                 // See #1695 for more details.
@@ -1081,21 +1080,21 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetNormType(mKspSolver, KSP_NO_NORM);
 #else
             KSPSetNormType(mKspSolver, KSP_NORM_NO);
-#endif                        
+#endif
 
 #if (PETSC_VERSION_MAJOR != 3)
             KSPSetConvergenceTest(mKspSolver, KSPSkipConverged, PETSC_NULL);
 #endif
 
             PetscInt num_it;
-            KSPGetIterationNumber(mKspSolver, &num_it);            
+            KSPGetIterationNumber(mKspSolver, &num_it);
             std::stringstream num_it_str;
             num_it_str << num_it;
             PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
 
             KSPSetFromOptions(mKspSolver);
             KSPSetUp(mKspSolver);
-            
+
             mForceSpectrumReevaluation=false;
         }
 
@@ -1116,7 +1115,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
 {
     mPrecondMatrixIsNotLhs = precondIsDifferent;
-    
+
     if (mPrecondMatrixIsNotLhs)
     {
         if (mRowPreallocation == UINT_MAX)
@@ -1133,8 +1132,8 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
             NEVER_REACHED;
         }
 
-        PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;                
-        PetscTools::SetupMat(mPrecondMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);        
+        PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
+        PetscTools::SetupMat(mPrecondMatrix, mSize, mSize, mRowPreallocation, local_size, local_size);
     }
 }
 
@@ -1154,16 +1153,16 @@ void LinearSystem::ResetKspSolver()
 
     mKspIsSetup = false;
     mForceSpectrumReevaluation = true;
-    
+
     /*
-     *  Reset max number of iterations. This option is stored in the configuration database and 
+     *  Reset max number of iterations. This option is stored in the configuration database and
      * explicitely read in with KSPSetFromOptions() everytime a KSP object is created. Therefore,
      * destroying the KSP object will not ensure that it is set back to default.
      */
     /// \todo #1695 Store this number in a member variable.
     std::stringstream num_it_str;
     num_it_str << 1000;
-    PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());    
+    PetscOptionsSetValue("-ksp_max_it", num_it_str.str().c_str());
 }
 
 // Serialization for Boost >= 1.36

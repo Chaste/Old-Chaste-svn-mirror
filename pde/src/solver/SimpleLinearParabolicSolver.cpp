@@ -67,7 +67,6 @@ c_vector<double, ELEMENT_DIM>SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>:
     return rPhi * D_times_gradu_dot_n;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearParabolicSolver(
                             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
@@ -80,7 +79,6 @@ SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearParabolicSolver(
     mpParabolicPde = pPde;
     this->mMatrixIsConstant = true;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation

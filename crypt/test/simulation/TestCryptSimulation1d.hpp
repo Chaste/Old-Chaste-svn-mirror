@@ -201,9 +201,9 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
 
-        	CellProliferativeType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -355,8 +355,8 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
-        	CellProliferativeType cell_type;
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -451,7 +451,7 @@ public:
             p_model->SetMDuration(0.01);
 
 
-        	CellProliferativeType cell_type;
+            CellProliferativeType cell_type;
             double birth_time;
             if (i == 0)
             {
@@ -557,7 +557,7 @@ public:
             p_model->SetGeneration(generation);
 
             // The stem cell cycle time must still be 24 h, otherwise this test may not pass
-			//TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);//These lines may trip up the Intel compiler with heavy optimization - don't know why?
+            //TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);//These lines may trip up the Intel compiler with heavy optimization - don't know why?
             //TS_ASSERT_DELTA(p_model->GetTransitCellG1Duration(), 2.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
 
@@ -744,9 +744,9 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
 
-        	CellProliferativeType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -894,7 +894,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
 
             CellProliferativeType cell_type;
             unsigned generation;
@@ -952,16 +952,16 @@ public:
         ///\todo uncomment see #1453
         //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation1d");
 
-		std::string output_directory = "TestCryptSimulation1dOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
-		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_1d_results.parameters");
-		simulator.OutputSimulationParameters(parameter_file);
-		parameter_file->close();
+        std::string output_directory = "TestCryptSimulation1dOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+        out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_1d_results.parameters");
+        simulator.OutputSimulationParameters(parameter_file);
+        parameter_file->close();
 
-		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_1d_results.parameters  crypt/test/data/TestCryptSimulationOutputParameters/crypt_sim_1d_results.parameters").c_str()), 0);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_1d_results.parameters  crypt/test/data/TestCryptSimulationOutputParameters/crypt_sim_1d_results.parameters").c_str()), 0);
 
-		///\todo check output of simulator.OutputSimulationSetup();
+        ///\todo check output of simulator.OutputSimulationSetup();
     }
 };
 

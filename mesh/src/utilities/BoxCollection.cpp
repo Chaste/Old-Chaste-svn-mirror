@@ -171,7 +171,7 @@ unsigned BoxCollection<DIM>::CalculateContainingBox(c_vector<double, DIM>& rLoca
     // The node must lie inside the boundary of the box collection
     for (unsigned i=0; i<DIM; i++)
     {
-        if( (rLocation[i] < mDomainSize(2*i)) || (rLocation[i] > mDomainSize(2*i+1)) )
+        if ( (rLocation[i] < mDomainSize(2*i)) || (rLocation[i] > mDomainSize(2*i+1)) )
         {
             EXCEPTION("The point provided in outside all of the boxes");
         }
@@ -392,17 +392,17 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
                 std::set<unsigned> local_boxes;
 
                 local_boxes.insert(i);
-             
-                // add the two neighbours   
-                if(i!=0)
+
+                // add the two neighbours
+                if (i!=0)
                 {
                     local_boxes.insert(i-1);
                 }
-                if(i+1 != mNumBoxesEachDirection(0))
+                if (i+1 != mNumBoxesEachDirection(0))
                 {
                     local_boxes.insert(i+1);
                 }
-                
+
                 mLocalBoxes.push_back(local_boxes);
             }
             break;
@@ -410,7 +410,7 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
         case 2:
         {
             mLocalBoxes.clear();
-            
+
             unsigned M = mNumBoxesEachDirection(0);
             unsigned N = mNumBoxesEachDirection(1);
 
@@ -418,8 +418,8 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
             std::vector<bool> is_xmax(N*M); // far right
             std::vector<bool> is_ymin(N*M); // bottom
             std::vector<bool> is_ymax(N*M); // top
-            
-            for(unsigned i=0; i<M*N; i++)
+
+            for (unsigned i=0; i<M*N; i++)
             {
                 is_xmin[i] = (i%M==0);
                 is_xmax[i] = ((i+1)%M==0);
@@ -432,49 +432,49 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
                 std::set<unsigned> local_boxes;
 
                 local_boxes.insert(i);
-                
+
                 // add the box to the left
-                if(!is_xmin[i])
+                if (!is_xmin[i])
                 {
                     local_boxes.insert(i-1);
                 }
-        
+
                 // add the box to the right
-                if(!is_xmax[i])
+                if (!is_xmax[i])
                 {
                     local_boxes.insert(i+1);
                 }
-                
+
                 // add the one below
-                if(!is_ymin[i])
+                if (!is_ymin[i])
                 {
                     local_boxes.insert(i-M);
                 }
-                
+
                 // add the one above
-                if(!is_ymax[i])
+                if (!is_ymax[i])
                 {
                     local_boxes.insert(i+M);
                 }
-                
+
                 // add the four corner boxes
-        
-                if( (!is_xmin[i]) && (!is_ymin[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymin[i]) )
                 {
                     local_boxes.insert(i-1-M);
                 }
-        
-                if( (!is_xmin[i]) && (!is_ymax[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymax[i]) )
                 {
                     local_boxes.insert(i-1+M);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymin[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymin[i]) )
                 {
                     local_boxes.insert(i+1-M);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymax[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymax[i]) )
                 {
                     local_boxes.insert(i+1+M);
                 }
@@ -486,7 +486,7 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
         case 3:
         {
             mLocalBoxes.clear();
-            
+
             unsigned M = mNumBoxesEachDirection(0);
             unsigned N = mNumBoxesEachDirection(1);
             unsigned P = mNumBoxesEachDirection(2);
@@ -497,8 +497,8 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
             std::vector<bool> is_ymax(N*M*P); // furthest
             std::vector<bool> is_zmin(N*M*P); // bottom layer
             std::vector<bool> is_zmax(N*M*P); // top layer
-    
-            for(unsigned i=0; i<M*N*P; i++)
+
+            for (unsigned i=0; i<M*N*P; i++)
             {
                 is_xmin[i] = (i%M==0);
                 is_xmax[i] = ((i+1)%M==0);
@@ -514,147 +514,147 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
 
                 // add itself as a local box
                 local_boxes.insert(i);
-                
+
                 // now add all 26 other neighbours.....
-                
+
                 // add the box left
-                if(!is_xmin[i])
+                if (!is_xmin[i])
                 {
                     local_boxes.insert(i-1);
-                    
+
                     // plus some others towards the left
-                    if(!is_ymin[i])
+                    if (!is_ymin[i])
                     {
                         local_boxes.insert(i-1-M);
                     }
-        
-                    if(!is_ymax[i])
+
+                    if (!is_ymax[i])
                     {
                         local_boxes.insert(i-1+M);
                     }
-        
-                    if(!is_zmin[i])
+
+                    if (!is_zmin[i])
                     {
                         local_boxes.insert(i-1-M*N);
                     }
-        
-                    if(!is_zmax[i])
+
+                    if (!is_zmax[i])
                     {
                         local_boxes.insert(i-1+M*N);
                     }
                 }
-        
+
                 // add the box to the right
-                if(!is_xmax[i])
+                if (!is_xmax[i])
                 {
                     local_boxes.insert(i+1);
 
                     // plus some others towards the right
-                    if(!is_ymin[i])
+                    if (!is_ymin[i])
                     {
                         local_boxes.insert(i+1-M);
                     }
-        
-                    if(!is_ymax[i])
+
+                    if (!is_ymax[i])
                     {
                         local_boxes.insert(i+1+M);
                     }
-        
-                    if(!is_zmin[i])
+
+                    if (!is_zmin[i])
                     {
                         local_boxes.insert(i+1-M*N);
                     }
-        
-                    if(!is_zmax[i])
+
+                    if (!is_zmax[i])
                     {
                         local_boxes.insert(i+1+M*N);
                     }
                 }
-                
+
                 // add the boxes next along the y axis
-                if(!is_ymin[i])
+                if (!is_ymin[i])
                 {
                     local_boxes.insert(i-M);
-                    
+
                     // and more in this plane
-                    if(!is_zmin[i])
+                    if (!is_zmin[i])
                     {
                         local_boxes.insert(i-M-M*N);
                     }
-        
-                    if(!is_zmax[i])
+
+                    if (!is_zmax[i])
                     {
                         local_boxes.insert(i-M+M*N);
                     }
                 }
-                
+
                 // add the boxes next along the y axis
-                if(!is_ymax[i])
+                if (!is_ymax[i])
                 {
                     local_boxes.insert(i+M);
-        
+
                     // and more in this plane
-                    if(!is_zmin[i])
+                    if (!is_zmin[i])
                     {
                         local_boxes.insert(i+M-M*N);
                     }
-        
-                    if(!is_zmax[i])
+
+                    if (!is_zmax[i])
                     {
                         local_boxes.insert(i+M+M*N);
                     }
                 }
-                
+
                 // add the box directly above
-                if(!is_zmin[i])
+                if (!is_zmin[i])
                 {
                     local_boxes.insert(i-N*M);
-                }            
-                
+                }
+
                 // add the box directly below
-                if(!is_zmax[i])
+                if (!is_zmax[i])
                 {
                     local_boxes.insert(i+N*M);
                 }
-        
+
                 // finally, the 8 corners are left
-        
-                if( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
                 {
                     local_boxes.insert(i-1-M-M*N);
                 }
-        
-                if( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
                 {
                     local_boxes.insert(i-1-M+M*N);
                 }
-        
-                if( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
                 {
                     local_boxes.insert(i-1+M-M*N);
                 }
-        
-                if( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
+
+                if ( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
                 {
                     local_boxes.insert(i-1+M+M*N);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
                 {
                     local_boxes.insert(i+1-M-M*N);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
                 {
                     local_boxes.insert(i+1-M+M*N);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
                 {
                     local_boxes.insert(i+1+M-M*N);
                 }
-        
-                if( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
+
+                if ( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
                 {
                     local_boxes.insert(i+1+M+M*N);
                 }
@@ -667,10 +667,6 @@ void BoxCollection<DIM>::SetupAllLocalBoxes()
             NEVER_REACHED;
     }
 }
-
-
-
-
 
 template<unsigned DIM>
 std::set<unsigned> BoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)

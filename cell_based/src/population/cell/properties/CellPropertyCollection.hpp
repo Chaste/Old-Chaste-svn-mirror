@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Cell property collection class.
- * 
+ *
  * Contains methods for accessing and interrogating a set of cell properties.
  */
 class CellPropertyCollection
@@ -172,34 +172,34 @@ public:
      * @param rProp  the property to remove
      */
     void RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
-    
+
     /**
      * Get the size of this container.
      */
     unsigned GetSize() const;
-    
+
     /**
      * An iterator type over this collection.
      * Don't rely on the particular implementation of the iterator.
      */
     typedef CollectionType::iterator Iterator;
-    
+
     /**
-     * Get an Iterator to the start of this collection. 
+     * Get an Iterator to the start of this collection.
      */
     Iterator Begin();
-    
+
     /**
-     * Get an Iterator to one past the end of this collection. 
+     * Get an Iterator to one past the end of this collection.
      */
     Iterator End();
-    
+
     /**
      * If this collection contains a single property, then return it.
      * Otherwise, throws an exception.
      */
     boost::shared_ptr<AbstractCellProperty> GetProperty() const;
-    
+
     /**
      * Get a sub-collection containing all our properties that are instances
      * of the given class.
@@ -217,7 +217,7 @@ public:
         }
         return result;
     }
-    
+
     /**
      * Get a sub-collection containing all our properties that are instances
      * of the given class or any of its subclasses.

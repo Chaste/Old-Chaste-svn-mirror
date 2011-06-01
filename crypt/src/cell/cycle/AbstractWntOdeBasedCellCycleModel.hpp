@@ -71,7 +71,7 @@ protected:
      * Get the Wnt level experienced by the cell.
      */
     double GetWntLevel();
-    
+
     /**
      * Call base class UpdateCellCyclePhase, then UpdateCellProliferativeType.
      */
@@ -81,7 +81,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());

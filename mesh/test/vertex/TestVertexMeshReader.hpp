@@ -239,10 +239,10 @@ public:
 
         // Test the first face has the correct index and owns the correct nodes
         ElementData face_0 = faces[0];
-        TS_ASSERT_EQUALS(face_0.NodeIndices.size(), 3u); 
-        TS_ASSERT_EQUALS(face_0.NodeIndices[0], 3u); 
-        TS_ASSERT_EQUALS(face_0.NodeIndices[1], 0u); 
-        TS_ASSERT_EQUALS(face_0.NodeIndices[2], 2u); 
+        TS_ASSERT_EQUALS(face_0.NodeIndices.size(), 3u);
+        TS_ASSERT_EQUALS(face_0.NodeIndices[0], 3u);
+        TS_ASSERT_EQUALS(face_0.NodeIndices[1], 0u);
+        TS_ASSERT_EQUALS(face_0.NodeIndices[2], 2u);
 
         // Test an exception is thrown if we try to access the next element
         TS_ASSERT_THROWS_THIS(node_indices = mesh_reader2.GetNextElementDataWithFaces().NodeIndices,

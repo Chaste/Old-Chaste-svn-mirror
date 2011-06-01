@@ -28,5 +28,5 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 
 const char* HeartEventHandler::EventName[] =  { "InMesh", "Init", "AssSys", "Ode",
-                                           "Comms", "AssRhs", "NeuBCs", "DirBCs", 
+                                           "Comms", "AssRhs", "NeuBCs", "DirBCs",
                                            "Ksp", "Output", "PostProc", "User1", "Total" };

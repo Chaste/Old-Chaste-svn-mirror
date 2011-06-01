@@ -56,11 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * == The test ==
  *
  * EMPTYLINE
- * 
+ *
  * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-#include "CheckpointArchiveTypes.hpp" 
+#include "CheckpointArchiveTypes.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered each of these header files in previous cell-based
@@ -91,7 +91,7 @@ public:
      * In the first test, we run a simple cell-based simulation, in which we use
      * a honeycomb mesh with ghost nodes, and give each cell a stochastic cell-cycle model.
      */
-	void Test2DMonolayerSimulationForVisualizing() throw (Exception)
+    void Test2DMonolayerSimulationForVisualizing() throw (Exception)
     {
         /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -157,84 +157,84 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
-	/*
-	* EMPTYLINE
-	*
-	* To visualize the results, we must first open Paraview. We open the folder containing our test output using the 'file' menu at
-	* the top. The output will be located in {{{/tmp/$USER/testoutput/Test2DMonolayerSimulationForVisualizing/results_from_time_0}}}.
-	* There will be a .vtu file generated for every timestep, which must all be opened at once to view the simulation. To do this,
-	* simply select {{{results_..vtu}}}. We should now see {{{results_*}}} in the pipeline browser. We click {{{Apply}}} in the properties tab
-	* of the object inspector, and we should now see a visualization in the right hand window.
-	*
-	* At this stage, it will be necessary to refine how we wish to view this particular visualisation. The viewing styles can be edited using
-	* the display tab of the object inspector. In particular, under {{{Style}}}, the representation drop down menu allows us to view
-	* the cells as a surface with edges, or as simply a wireframe. It is advisable at this point to familiarize ourselves with the different
-	* viewing options, colour and size settings.
-	*
-	* At this stage, the viewer is showing all cells in the simulation, including the ghost nodes. In order to view only real cells, we must
-	* apply a threshold. This is achieved using the threshold button on the third toolbar (the icon is a cube with a green 'T' inside). Once you
-	* click the threshold button, you will see a new threshold appear below your results in the pipeline browser. Go to the properties tab and
-	* reset the lower threshold to be less than 0, and the upper threshold to be between 0 and 1, ensuring that the 'Non-ghosts' option is
-	* selected in the 'Scalars' drop down menu. Once we have edited this, we click apply (we may need to click it twice), and the visualisation on the
-	* right window will have changed to eliminate ghost nodes.
-	*
-	* To view the simulation, simply use the animation buttons located on the top toolbar. We can also save a screenshot, or an animation, using
-	* the appropriate options from the file menu. Next to the threshold button are two other useful options, 'slice' and 'clip', but these will
-	* only be applicable for 3D visualisations.
-	*
-	* EMPTYLINE
-	*
-	* == Test 2 - a basic vertex-based simulation ==
-	*
-	* EMPTYLINE
-	*
-	* Here, we run a simple vertex-based simulation, in which we create a monolayer
-	* of cells using a mutable vertex mesh. Each cell is assigned a fixed cell-cycle model.
-	*/
-	void TestMonolayerFixedCellCycle() throw(Exception)
-	{
-		/* First re-initialize time to zero. */
-		SimulationTime::Instance()->SetStartTime(0.0);
+    /*
+    * EMPTYLINE
+    *
+    * To visualize the results, we must first open Paraview. We open the folder containing our test output using the 'file' menu at
+    * the top. The output will be located in {{{/tmp/$USER/testoutput/Test2DMonolayerSimulationForVisualizing/results_from_time_0}}}.
+    * There will be a .vtu file generated for every timestep, which must all be opened at once to view the simulation. To do this,
+    * simply select {{{results_..vtu}}}. We should now see {{{results_*}}} in the pipeline browser. We click {{{Apply}}} in the properties tab
+    * of the object inspector, and we should now see a visualization in the right hand window.
+    *
+    * At this stage, it will be necessary to refine how we wish to view this particular visualisation. The viewing styles can be edited using
+    * the display tab of the object inspector. In particular, under {{{Style}}}, the representation drop down menu allows us to view
+    * the cells as a surface with edges, or as simply a wireframe. It is advisable at this point to familiarize ourselves with the different
+    * viewing options, colour and size settings.
+    *
+    * At this stage, the viewer is showing all cells in the simulation, including the ghost nodes. In order to view only real cells, we must
+    * apply a threshold. This is achieved using the threshold button on the third toolbar (the icon is a cube with a green 'T' inside). Once you
+    * click the threshold button, you will see a new threshold appear below your results in the pipeline browser. Go to the properties tab and
+    * reset the lower threshold to be less than 0, and the upper threshold to be between 0 and 1, ensuring that the 'Non-ghosts' option is
+    * selected in the 'Scalars' drop down menu. Once we have edited this, we click apply (we may need to click it twice), and the visualisation on the
+    * right window will have changed to eliminate ghost nodes.
+    *
+    * To view the simulation, simply use the animation buttons located on the top toolbar. We can also save a screenshot, or an animation, using
+    * the appropriate options from the file menu. Next to the threshold button are two other useful options, 'slice' and 'clip', but these will
+    * only be applicable for 3D visualisations.
+    *
+    * EMPTYLINE
+    *
+    * == Test 2 - a basic vertex-based simulation ==
+    *
+    * EMPTYLINE
+    *
+    * Here, we run a simple vertex-based simulation, in which we create a monolayer
+    * of cells using a mutable vertex mesh. Each cell is assigned a fixed cell-cycle model.
+    */
+    void TestMonolayerFixedCellCycle() throw(Exception)
+    {
+        /* First re-initialize time to zero. */
+        SimulationTime::Instance()->SetStartTime(0.0);
 
         /* In this test, we create a vertex-based cell population in which cells are defined
          * by their vertices, and cell proliferation is governed by a fixed generation-based
          * cell-cycle model (with differentiation after a default number of generations).
          */
-		HoneycombVertexMeshGenerator generator(6, 9);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        HoneycombVertexMeshGenerator generator(6, 9);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We then pass in the cell population into a {{{CellBasedSimulation}}},
          * and set the output directory and end time. */
-		CellBasedSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
-		simulator.SetEndTime(1.0);
+        CellBasedSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
+        simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
-		NagaiHondaForce<2> nagai_honda_force;
-		simulator.AddForce(&nagai_honda_force);
+        NagaiHondaForce<2> nagai_honda_force;
+        simulator.AddForce(&nagai_honda_force);
 
-		/* To run the simulation, we call {{{Solve()}}}. */
-		simulator.Solve();
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
 
-		/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-		* If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-		* at the beginning of the next test in this file, an assertion will be triggered.
-		*/
-		SimulationTime::Destroy();
-	}
-	/*
-	* EMPTYLINE
-	*
-	* To visualize the results, we follow the instructions above for the first simulation, ensuring that we open the
-	* test output from the new folder, {{{Test2DVertexMonolayerSimulationForVisualizing}}}.
-	*
-	*/
+        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+        * at the beginning of the next test in this file, an assertion will be triggered.
+        */
+        SimulationTime::Destroy();
+    }
+    /*
+    * EMPTYLINE
+    *
+    * To visualize the results, we follow the instructions above for the first simulation, ensuring that we open the
+    * test output from the new folder, {{{Test2DVertexMonolayerSimulationForVisualizing}}}.
+    *
+    */
 };
 
 #endif /* TESTVISUALIZINGWITHPARAVIEWTUTORIAL_HPP_ */

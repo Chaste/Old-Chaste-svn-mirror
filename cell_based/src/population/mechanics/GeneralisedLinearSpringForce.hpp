@@ -183,11 +183,11 @@ public:
     void SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength);
 
     /**
-	 * Set mMeinekeSpringGrowthDuration.
-	 *
-	 * @param springGrowthDuration the new value of mMeinekeSpringGrowthDuration
-	 */
-	void SetMeinekeSpringGrowthDuration(double springGrowthDuration);
+     * Set mMeinekeSpringGrowthDuration.
+     *
+     * @param springGrowthDuration the new value of mMeinekeSpringGrowthDuration
+     */
+    void SetMeinekeSpringGrowthDuration(double springGrowthDuration);
 
     /**
      * Overridden OutputForceParameters() method.

@@ -248,7 +248,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
-        
+
         //Test for connectivity
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "/1dMeshIn2dSpace.ncl mesh/test/data/1dMeshIn2dSpace.ncl").c_str()), 0);
     }
@@ -519,8 +519,8 @@ public:
         QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
         mesh.Scale(1.0, 2.0); // historical reasons
 
-        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", 
-                                                "solution", 
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter",
+                                                "solution",
                                                 mesh,
                                                 WRITE_LINEAR_MESH);
 
@@ -529,7 +529,7 @@ public:
 
         // set up a deformed positions vector
         std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
@@ -538,7 +538,7 @@ public:
         writer.WriteDeformationPositions(deformed_positions, 1);
 
         // ..and again
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 4*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 6*mesh.GetNode(i)->rGetLocation()[1];
@@ -577,49 +577,48 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
 
-        //coverage
+        // Coverage
         writer.WriteCmguiScript("myfield");
     }
-
 
     void TestCmguiDeformedSolutionsWriter2dQuadraticViz() throw(Exception)
     {
         QuadraticMesh<2> mesh(0.5, 1.0, 2.0);
-        
-        // displace the internal nodes so you can see if quadratically visualised or not
-        for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
+
+        // Displace the internal nodes so you can see if quadratically visualised or not
+        for (unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
         {
             mesh.GetNode(i)->rGetModifiableLocation()[0] += 0.02;
             mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.02;
         }
 
-        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriterQuadViz", 
-                                                "solution_2d_quadviz", 
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriterQuadViz",
+                                                "solution_2d_quadviz",
                                                 mesh,
                                                 WRITE_QUADRATIC_MESH);
 
-        // writes solution_0.exnode and solution_0.exelem using the mesh
+        // Writes solution_0.exnode and solution_0.exelem using the mesh
         writer.WriteInitialMesh();
 
-        // set up a deformed positions vector
+        // Set up a deformed positions vector
         std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
         }
-        // write solution_1.exnode
+        // Write solution_1.exnode
         writer.WriteDeformationPositions(deformed_positions, 1);
 
         // ..and again
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 4*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 6*mesh.GetNode(i)->rGetLocation()[1];
         }
-        // write solution_1.exnode
+        // Write solution_1.exnode
         writer.WriteDeformationPositions(deformed_positions, 2);
-        // write LoadSolutions.com
+        // Write LoadSolutions.com
         writer.WriteCmguiScript();
 
         deformed_positions.push_back(zero_vector<double>(2));
@@ -650,38 +649,38 @@ public:
         TS_ASSERT(comparison_result);
     }
 
-
     void TestCmguiDeformedSolutionsWriter3dQuadraticViz() throw(Exception)
     {
         QuadraticMesh<3> mesh(0.5, 1.0, 2.0, 3.0);
-        // displace the internal nodes so you can see if quadratically visualised or not
-        for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
+
+        // Displace the internal nodes so you can see if quadratically visualised or not
+        for (unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
         {
             mesh.GetNode(i)->rGetModifiableLocation()[0] += 0.02;
             mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.02;
             mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.03;
         }
 
-        CmguiDeformedSolutionsWriter<3> writer("TestCmguiDeformedSolutionsWriterQuadViz3d", 
-                                                "solution_3d_quadviz", 
+        CmguiDeformedSolutionsWriter<3> writer("TestCmguiDeformedSolutionsWriterQuadViz3d",
+                                                "solution_3d_quadviz",
                                                 mesh,
                                                 WRITE_QUADRATIC_MESH);
 
-        // writes solution_0.exnode and solution_0.exelem using the mesh
+        // Writes solution_0.exnode and solution_0.exelem using the mesh
         writer.WriteInitialMesh();
 
-        // set up a deformed positions vector
+        // Set up a deformed positions vector
         std::vector<c_vector<double,3> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(3));
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
             deformed_positions[i](2) = 0.5*mesh.GetNode(i)->rGetLocation()[2];
         }
-        // write solution_1.exnode
+        // Write solution_1.exnode
         writer.WriteDeformationPositions(deformed_positions, 1);
 
-        // write LoadSolutions.com
+        // Write LoadSolutions.com
         writer.WriteCmguiScript();
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriterQuadViz3d";
@@ -703,13 +702,12 @@ public:
         TS_ASSERT(comparison_result);
     }
 
-
     void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
     {
         QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
         mesh.Scale(1.0, 2.0); // historical reasons
-        
-        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", 
+
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput",
                                                "solution",
                                                mesh,
                                                WRITE_LINEAR_MESH);

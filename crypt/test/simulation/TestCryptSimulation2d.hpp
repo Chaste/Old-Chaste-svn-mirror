@@ -232,13 +232,13 @@ public:
        unsigned num_cells = crypt.GetNumRealCells();
 
        std::vector<bool> ghost_node_indices_before = crypt.rGetGhostNodes();
-	   unsigned num_ghosts_before = 0;
-	   for (unsigned i=0; i<ghost_node_indices_before.size(); i++)
-	   {
-		   if (ghost_node_indices_before[i])
-		   {
-		       num_ghosts_before++;
-	       }
+       unsigned num_ghosts_before = 0;
+       for (unsigned i=0; i<ghost_node_indices_before.size(); i++)
+       {
+           if (ghost_node_indices_before[i])
+           {
+               num_ghosts_before++;
+           }
        }
 
        // Just enough time to kill off the cells (and watch ghost mesh use force laws)
@@ -1719,47 +1719,47 @@ public:
     }
 
     void TestCryptSimulation2DParameterOutput() throw (Exception)
-	{
-		// Create mesh
-		unsigned cells_across = 6;
-		unsigned cells_up = 12;
-		double crypt_width = 5.0;
-		unsigned thickness_of_ghost_layer = 0;
+    {
+        // Create mesh
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 0;
 
-		CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
-		Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
-		// Get location indices corresponding to real cells
-		std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        // Get location indices corresponding to real cells
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-		// Create cells
-		std::vector<CellPtr> cells;
-		CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
-		cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
+        // Create cells
+        std::vector<CellPtr> cells;
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
-		// Create cell population
-		MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
-		crypt.SetOutputCellMutationStates(true);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        crypt.SetOutputCellMutationStates(true);
 
-		// Create crypt simulation from cell population
-		CryptSimulation2d simulator(crypt);
+        // Create crypt simulation from cell population
+        CryptSimulation2d simulator(crypt);
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
         ///\todo #1453 add an killer and test the output is correct
-		std::string output_directory = "TestCryptSimulation2dOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
-		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_2d_results.parameters");
-		simulator.OutputSimulationParameters(parameter_file);
-		parameter_file->close();
+        std::string output_directory = "TestCryptSimulation2dOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
+        out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_2d_results.parameters");
+        simulator.OutputSimulationParameters(parameter_file);
+        parameter_file->close();
 
-		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters  crypt/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters  crypt/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
 
-		///\todo check output of simulator.OutputSimulationSetup();
-	}
+        ///\todo check output of simulator.OutputSimulationSetup();
+    }
 
 
     void TestAncestorCryptSimulations() throw (Exception)

@@ -69,9 +69,9 @@ PCBlockDiagonal::~PCBlockDiagonal()
 
     VecDestroy(mPCContext.x2_subvector);
     VecDestroy(mPCContext.y2_subvector);
-    
+
     VecScatterDestroy(mPCContext.A11_scatter_ctx);
-    VecScatterDestroy(mPCContext.A22_scatter_ctx);    
+    VecScatterDestroy(mPCContext.A22_scatter_ctx);
 }
 
 void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
@@ -96,8 +96,8 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
     }
 
-    // Allocate memory     
-    unsigned subvector_num_rows = num_rows/2;    
+    // Allocate memory
+    unsigned subvector_num_rows = num_rows/2;
     unsigned subvector_local_rows = num_local_rows/2;
     mPCContext.x1_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
     mPCContext.x2_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
@@ -111,56 +111,56 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 
         PetscVecTools::SetupInterleavedVectorScatterGather(dummy_vec, mPCContext.A11_scatter_ctx, mPCContext.A22_scatter_ctx);
 
-        VecDestroy(dummy_vec);        
+        VecDestroy(dummy_vec);
     }
-            
-    // Get matrix sublock A11        
+
+    // Get matrix sublock A11
     {
-        // Work out local row range for subblock A11 (same as x1 or y1) 
+        // Work out local row range for subblock A11 (same as x1 or y1)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x1_subvector, &low, &high);
-        VecGetSize(mPCContext.x1_subvector, &global_size);        
-        assert(global_size == num_rows/2);       
-        
+        VecGetSize(mPCContext.x1_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS A11_local_rows;
         IS A11_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
-    
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #endif
 
-    
+
         ISDestroy(A11_local_rows);
         ISDestroy(A11_columns);
     }
 
     // Get matrix sublock A22
     {
-        // Work out local row range for subblock A22 (same as x2 or y2) 
+        // Work out local row range for subblock A22 (same as x2 or y2)
         PetscInt low, high, global_size;
         VecGetOwnershipRange(mPCContext.x2_subvector, &low, &high);
-        VecGetSize(mPCContext.x2_subvector, &global_size);        
-        assert(global_size == num_rows/2);       
-        
+        VecGetSize(mPCContext.x2_subvector, &global_size);
+        assert(global_size == num_rows/2);
+
         IS A22_local_rows;
         IS A22_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &A22_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
-    
+
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
         MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
-			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+            MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #else
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, 
-			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE,
+            MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #endif
-    
+
         ISDestroy(A22_local_rows);
         ISDestroy(A22_columns);
     }
@@ -229,31 +229,31 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     /* Block Jacobi with AMG at each block */
     //     PCSetType(mPCContext.PC_amg_A22, PCBJACOBI);
-    
+
     //     PetscOptionsSetValue("-sub_pc_type", "hypre");
-    
+
     //     PetscOptionsSetValue("-sub_pc_hypre_type", "boomeramg");
     //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_max_iter", "1");
     //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_strong_threshold", "0.0");
-    
+
     //     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
     //     PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
     //     PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
 
     /* Additive Schwarz with AMG at each block */
 //     PCSetType(mPCContext.PC_amg_A22, PCASM);
-    
+
 //     PetscOptionsSetValue("-pc_asm_type", "basic");
 //     PetscOptionsSetValue("-pc_asm_overlap", "1");
 
-//     PetscOptionsSetValue("-sub_ksp_type", "preonly");    
+//     PetscOptionsSetValue("-sub_ksp_type", "preonly");
 
 //     PetscOptionsSetValue("-sub_pc_type", "hypre");
-    
+
 //     PetscOptionsSetValue("-sub_pc_hypre_type", "boomeramg");
 //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_max_iter", "1");
 //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_strong_threshold", "0.0");
- 
+
 
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A22);
@@ -265,7 +265,7 @@ PetscErrorCode PCBlockDiagonalApply(PC pc_object, Vec x, Vec y)
 {
   void* pc_context;
 
-  PCShellGetContext(pc_object, &pc_context);   
+  PCShellGetContext(pc_object, &pc_context);
 #else
 PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {

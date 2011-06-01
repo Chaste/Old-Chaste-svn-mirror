@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractIncompressibleMaterialLaw : public AbstractMaterialLaw<DIM>
 {
-public :
+public:
     /** Constructor */
     AbstractIncompressibleMaterialLaw()
         : AbstractMaterialLaw<DIM>()

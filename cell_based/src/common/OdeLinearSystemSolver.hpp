@@ -31,65 +31,65 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 
 /**
- * Solve large systems of ODEs of the form 
- * 
+ * Solve large systems of ODEs of the form
+ *
  * M dr/dt = f(t,r),
- * 
+ *
  * where M is a matrix, typically large and sparse, and r and f are vectors.
- * 
+ *
  * This differs from the OdeSolver classes in the ode component, which are for
  * systems of the form dr/dt = f(t,r) and for small numbers of unknowns.
- * 
+ *
  * The solver uses forward euler to dicretise as M r^{n+1} = M r^{n} + dt f
  * and solves this linear system.
- * 
- * The calling code is responsible with setting up M and f each timestep.  
+ *
+ * The calling code is responsible with setting up M and f each timestep.
  */
 class OdeLinearSystemSolver
 {
 private:
-        
+
     /** Timestep for solver. */
     double mTimeStep;
-    
+
     /** The LHS matrix and the force vector. Solve() is called on this. */
     LinearSystem mLinearSystem;
-    
+
     /** Force vector (f in M dr/dt = f). */
-    Vec mForceVector; 
+    Vec mForceVector;
 
     /** Solution at current timestep. */
     Vec mCurrentSolution;
-        
+
 public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param systemSize size of the ODE system
      * @param timeStep the time step used to integrate the ODE system
      */
     OdeLinearSystemSolver(unsigned systemSize, double timeStep);
-    
+
     /** Destructor. */
     ~OdeLinearSystemSolver();
-       
-    /** Get the timestep for the solver. */       
+
+    /** Get the timestep for the solver. */
     double GetTimeStep();
-    
+
     /** Get the matrix. */
     Mat& rGetLhsMatrix();
-    
+
     /** Get the force vector. */
     Vec& rGetForceVector();
-    
+
     /**
      * Set the initial conditions.
-     *  
+     *
      * @param initialConditionsVector the initial condition
      */
     void SetInitialConditionVector(Vec initialConditionsVector);
-    
+
     /** Solve the ODE system over one time step. */
     Vec SolveOneTimeStep();
 };

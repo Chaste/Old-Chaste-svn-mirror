@@ -241,15 +241,15 @@ public:
                 new ConstBoundaryCondition<3>(-1);
             bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
         }
-    
+
         //////////////////////////
         // 2010 AD code from here
         //////////////////////////
-        
+
         // apply dirichlet bcs to matrix but not rhs vector
         bcc3.ApplyDirichletToLinearProblem(some_system, true, false);
         ReplicatableVector vec_repl(some_system.GetRhsVector());
-        for(unsigned i=0; i<(unsigned)SIZE; i++)
+        for (unsigned i=0; i<(unsigned)SIZE; i++)
         {
             TS_ASSERT_EQUALS(vec_repl[i], 2.0);
         }
@@ -260,7 +260,7 @@ public:
         some_system.AssembleFinalLinearSystem();
 
         //////////////////////////
-        // 2007 AD code from here 
+        // 2007 AD code from here
         //////////////////////////
 
 
@@ -901,9 +901,7 @@ public:
 
             delete p_bcc;
         }
-
     }
-
 };
 
 #endif //_TESTBOUNDARYCONDITIONCONTAINER_HPP_

@@ -62,7 +62,7 @@ private:
     }
 
 protected:
-    
+
     /**
      * Timestep to use when solving the ODE system.
      * For some adaptive solvers (e.g. CVODE) this is the maximum step to use.
@@ -90,7 +90,7 @@ protected:
     /**
      * Adjust any ODE parameters needed before solving until currentTime.
      * Defaults to do nothing.
-     * 
+     *
      * @param currentTime  the time up to which the system will be solved.
      */
     virtual void AdjustOdeParameters(double currentTime);
@@ -99,7 +99,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
      * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
@@ -118,7 +118,7 @@ public:
 
     /**
      * Set mpOdeSystem. Used in CreateCellCycleModel().
-     * 
+     *
      * @param pOdeSystem the ODE system
      */
     void SetOdeSystem(AbstractOdeSystem* pOdeSystem);
@@ -130,7 +130,7 @@ public:
 
     /**
      * Set mLastTime.
-     * 
+     *
      * @param lastTime the new value of mLastTime
      */
     void SetLastTime(double lastTime);
@@ -144,7 +144,7 @@ public:
     /**
      * Set the time step to use to solve the ODE system.
      * For some adaptive solvers (e.g. CVODE) this is the maximum step to use.
-     * 
+     *
      * @param timeStep  time step to use
      */
     void SetDt(double timeStep);
