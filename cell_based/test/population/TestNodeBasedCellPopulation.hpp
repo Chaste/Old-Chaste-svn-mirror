@@ -611,7 +611,7 @@ public:
 
         TS_ASSERT_THROWS_THIS(node_based_cell_population.SetOutputCellVolumes(true),
                               "This method currently not implemented for a NodeBasedCellPopulation");
-       
+
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.CreateOutputFiles(output_directory, false));
 
         node_based_cell_population.WriteResultsToFiles();
@@ -650,17 +650,17 @@ public:
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.WriteResultsToFiles());
 
         //Test that the cell population parameters are output correctly
-		out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
+        out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
-		// Write cell population parameters to file
-		node_based_cell_population.OutputCellPopulationParameters(parameter_file);
-		parameter_file->close();
+        // Write cell population parameters to file
+        node_based_cell_population.OutputCellPopulationParameters(parameter_file);
+        parameter_file->close();
 
-		// Compare output with saved files of what they should look like
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestNodeBasedCellPopulationWriters/results.parameters").c_str()), 0);
+        // Compare output with saved files of what they should look like
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters         cell_based/test/data/TestNodeBasedCellPopulationWriters/results.parameters").c_str()), 0);
 
-		// Tidy up
-		CellwiseData<2>::Destroy();
+        // Tidy up
+        CellwiseData<2>::Destroy();
     }
 
     void TestWritingCellCyclePhases()
@@ -829,7 +829,7 @@ public:
             TS_ASSERT_DELTA(p_cell_population->GetNode(4)->rGetLocation()[0], 0.5, 1e-9);
             TS_ASSERT_DELTA(p_cell_population->GetNode(4)->rGetLocation()[1], 0.5, 1e-9);
 
-            ///\todo Correct archiving of node boundaryness (#1762)
+            ///\todo Correct archiving of node boundaryness (#1762/#1784)
 //            TS_ASSERT_EQUALS(p_cell_population->GetNode(0)->IsBoundaryNode(), true);
 //            TS_ASSERT_EQUALS(p_cell_population->GetNode(1)->IsBoundaryNode(), true);
 //            TS_ASSERT_EQUALS(p_cell_population->GetNode(2)->IsBoundaryNode(), true);
