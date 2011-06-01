@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef HEATEQUATIONFORCOUPLEDODESYSTEM_HPP_
-#define HEATEQUATIONFORCOUPLEDODESYSTEM_HPP_
+#ifndef HEATEQUATIONWITHSOURCEFORCOUPLEDODESYSTEM_HPP_
+#define HEATEQUATIONWITHSOURCEFORCOUPLEDODESYSTEM_HPP_
 
 #include "AbstractLinearParabolicPdeSystemForCoupledOdeSystem.hpp"
 #include "ChastePoint.hpp"
@@ -35,38 +35,38 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A PDE system defining the heat equation
  *
- * u_t = div (grad u),
+ * u_t = del^2 u + v,
  *
- * that 'couples' with (although in this case, is actually independent of) the single ODE
+ * that couples with the single ODE
  *
- * dv/dt = a*u, v(0) = 1,
+ * dv/dt = a*v, v(0) = 1,
  *
- * which is defined in the separate class OdeSystemForCoupledHeatEquation.
+ * which is defined in the separate class OdeSystemForCoupledHeatEquationWithSource.
  */
 template<unsigned SPACE_DIM>
-class HeatEquationForCoupledOdeSystem : public AbstractLinearParabolicPdeSystemForCoupledOdeSystem<SPACE_DIM, SPACE_DIM, 1>
+class HeatEquationWithSourceForCoupledOdeSystem : public AbstractLinearParabolicPdeSystemForCoupledOdeSystem<SPACE_DIM, SPACE_DIM, 1>
 {
 public:
 
-    HeatEquationForCoupledOdeSystem()
+    HeatEquationWithSourceForCoupledOdeSystem()
         : AbstractLinearParabolicPdeSystemForCoupledOdeSystem<SPACE_DIM, SPACE_DIM, 1>()
     {
     }
 
-    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& rX, unsigned pdeIndex)
+    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& rX, unsigned index)
     {
         return 1.0;
     }
 
-    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1> u, std::vector<double> odeSolution, unsigned pdeIndex)
+    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1> u, std::vector<double> v, unsigned index)
     {
-        return 0.0;
+        return v[0];
     }
 
-    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, unsigned pdeIndex, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, unsigned index, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)
     {
         return identity_matrix<double>(SPACE_DIM);
     }
 };
 
-#endif /*HEATEQUATIONFORCOUPLEDODESYSTEM_HPP_*/
+#endif /*HEATEQUATIONWITHSOURCEFORCOUPLEDODESYSTEM_HPP_*/

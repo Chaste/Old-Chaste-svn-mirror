@@ -10,6 +10,7 @@ TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestLinearParabolicPdeSystemForCoupledOdeSystem.hpp
+TestLinearParabolicPdeSystemWithCoupledOdeSystemSolver.hpp
 TestMaterialLaws.hpp
 TestNonlinearElasticitySolver.hpp
 TestNonlinearElasticityTools.hpp

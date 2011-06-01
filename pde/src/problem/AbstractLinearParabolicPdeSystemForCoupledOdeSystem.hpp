@@ -39,16 +39,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * AbstractLinearParabolicPdeSystem class.
  *
  * A system of parabolic PDEs, which may be coupled via their source terms:
- * 
+ *
  * d/dt (u_i) = div (D(x) grad (u_i)) + f_i (x, u_1, ..., u_p, v_1, ..., v_q),  i=1,...,p.
- * 
+ *
  * Here p denotes the size of the PDE system and each source term f_i may be nonlinear.
  * The variables v_1, ..., v_q are assumed to satisfy a coupled ODE system of the form
- * 
+ *
  * d/dt (v_j) = g_j(x, u_1, ..., u_p, v_1, ..., v_q),  j=1,...,q.
- * 
+ *
  * Such systems may be solved using LinearParabolicPdeSystemWithCoupledOdeSystemSolver.
- * 
+ *
  * \todo check that the ODE solution vector is of the correct size, and the PDE index
  * is within the correct range, throughout (#1777)
  */
