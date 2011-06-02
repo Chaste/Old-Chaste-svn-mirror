@@ -46,9 +46,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class OdeSystemForCoupledHeatEquation : public AbstractOdeSystemForCoupledPdeSystem
 {
 private:
+
+    /** A parameter for use in the ODE system. */
     double mA;
+
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param a the value of the parameter mA
+     */
     OdeSystemForCoupledHeatEquation(double a)
         : AbstractOdeSystemForCoupledPdeSystem(1,1),
           mA(a)
@@ -57,6 +65,13 @@ public:
         ResetToInitialConditions();
     }
 
+    /**
+     * Method to evaluate the derivatives of the system.
+     *
+     * @param time  the current time
+     * @param rY  the current values of the state variables
+     * @param rDY  storage for the derivatives of the system; will be filled in on return
+     */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         assert(mPdeSolutionSize == 1);

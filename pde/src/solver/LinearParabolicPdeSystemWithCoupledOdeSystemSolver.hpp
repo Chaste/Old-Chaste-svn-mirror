@@ -196,7 +196,7 @@ public:
      * Overridden PrepareForSetupLinearSystem() method.
      * Pass the current solution to the PDE system to the ODE system and solve it over the next timestep.
      *
-     * @param currentPDESolution the solution to the PDE system at the current time
+     * @param currentPdeSolution the solution to the PDE system at the current time
      */
     void PrepareForSetupLinearSystem(Vec currentPdeSolution);
 
@@ -210,7 +210,7 @@ public:
     /**
      * Set mSamplingTimeStep.
      *
-     * @param samplingTimestep the sampling timestep to use
+     * @param samplingTimeStep the sampling timestep to use
      */
     void SetSamplingTimeStep(double samplingTimeStep);
 
