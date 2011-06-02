@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractOdeSystemInformation.hpp"
+#include "VectorHelperFunctions.hpp"
 
 /**
  * This class contains the state variable and parameter vectors for an ODE system,
@@ -48,6 +49,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<typename VECTOR>
 class AbstractParameterisedSystem
 {
+private:
+    /**
+     * Helper method to construct a string containing a dump of the vector
+     *
+     * @param message  a string to prefix (e.g. an error or the name of the vector)
+     * @param Y  a vector
+     * @return  a string containing the contents of the vector.
+     */
+    std::string GetStateMessage(const std::string& message, VECTOR Y);
+
 protected:
     /** The number of state variables in the system. */
     unsigned mNumberOfStateVariables;
@@ -65,6 +76,26 @@ protected:
      * of a suitable class.  See for example the OdeSystemInformation class.
      */
     boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
+
+    /**
+     * Used to include extra debugging information in exception messages.
+     * For example,
+     *      EXCEPTION(DumpState("Gating variable out of range"));
+     *
+     * @param rMessage  the exception message
+     */
+    std::string DumpState(const std::string& rMessage);
+
+    /**
+     * Used to include extra debugging information in exception messages.
+     * For example,
+     *      EXCEPTION(DumpState("Gating variable out of range", state_variables));
+     *
+     * @param rMessage  the exception message
+     * @param Y  the values of the state variables
+     */
+    std::string DumpState(const std::string& rMessage,
+                          VECTOR Y);
 
 public:
     /**
@@ -483,5 +514,7 @@ public:
      */
     double GetAttribute(const std::string& rName) const;
 };
+
+
 
 #endif /*ABSTRACTPARAMETERISEDSYSTEM_HPP_*/

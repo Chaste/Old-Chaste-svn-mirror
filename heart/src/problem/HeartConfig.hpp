@@ -1097,21 +1097,20 @@ public:
      * @param rUpstrokeTimeMaps  is the list of thresholds (mV) with respect to which the upstroke time maps are calculated.
      *     The threshold is used for determining when an action potential occurs.
      */
-    void SetUpstrokeTimeMaps (std::vector<double>& rUpstrokeTimeMaps);
+    void SetUpstrokeTimeMaps(std::vector<double>& rUpstrokeTimeMaps);
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
      *  @param rMaxUpstrokeVelocityMaps is the list of thresholds (mV) with respect to which the upstroke velocity maps are calculated.
      *     The threshold is used for determining when an action potential occurs.
      */
-    void SetMaxUpstrokeVelocityMaps (std::vector<double>& rMaxUpstrokeVelocityMaps);
+    void SetMaxUpstrokeVelocityMaps(std::vector<double>& rMaxUpstrokeVelocityMaps);
 
     /** Set the parameters of the conduction velocity map requested
      *
      *  @param rConductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
-    void SetConductionVelocityMaps (std::vector<unsigned>& rConductionVelocityMaps);
-
+    void SetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps);
 
     /**
      * Sets the requested nodes for extrapolation of the time trace.
@@ -1119,7 +1118,7 @@ public:
      *
      * @param requestedNodes the node indices (in the unpermuted mesh) where we want the plot over time
      */
-    void SetRequestedNodalTimeTraces (std::vector<unsigned>& requestedNodes);
+    void SetRequestedNodalTimeTraces(std::vector<unsigned>& requestedNodes);
 
     /** Set the parameters for pseudo-ECG calculation.
      *

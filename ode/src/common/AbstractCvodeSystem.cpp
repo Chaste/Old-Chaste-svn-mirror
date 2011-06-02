@@ -26,36 +26,49 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractOdeSystem.hpp"
+#include <sstream>
+#include <cassert>
+
+#include "AbstractCvodeSystem.hpp"
 #include "Exception.hpp"
 
-AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
-    : AbstractParameterisedSystem<std::vector<double> >(numberOfStateVariables),
+AbstractCvodeSystem::AbstractCvodeSystem(unsigned numberOfStateVariables)
+    : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mUseAnalyticJacobian(false)
 {
 }
 
-AbstractOdeSystem::~AbstractOdeSystem()
+AbstractCvodeSystem::~AbstractCvodeSystem()
 {
 }
 
-bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
-{
-    return false;
-}
+//
+//double AbstractCvodeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
+//{
+//    bool stop = CalculateStoppingEvent(time, rY);
+//    return stop ? 0.0 : 1.0;
+//}
+//
+//bool AbstractCvodeSystem::GetUseAnalyticJacobian()
+//{
+//    return mUseAnalyticJacobian;
+//}
 
-double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
-{
-    bool stop = CalculateStoppingEvent(time, rY);
-    return stop ? 0.0 : 1.0;
-}
+//
+//std::string AbstractCvodeSystem::DumpState(const std::string& message,
+//                                           N_Vector Y)
+//{
+//    std::stringstream res;
+//    res << message << "\nState:\n";
+//    if (Y == NULL)
+//    {
+//        Y = mStateVariables;
+//    }
+//    for (int i=0; i<NV_LENGTH_S(Y); i++)
+//    {
+//        res << "\t" << rGetStateVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
+//    }
+//    return res.str();
+//}
 
-bool AbstractOdeSystem::GetUseAnalyticJacobian()
-{
-    return mUseAnalyticJacobian;
-}
 
-const std::vector<double>& AbstractOdeSystem::rGetConstStateVariables() const
-{
-    return mStateVariables;
-}

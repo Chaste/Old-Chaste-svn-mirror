@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Callback function provided to CVODE to allow it to 'call' C++ member functions
- * (in particular, AbstractCvodeCell::EvaluateRhs).
+ * (in particular, AbstractCvodeCell::EvaluateYDerivatives).
  *
  * @param t  current time
  * @param y  state variable vector
@@ -59,7 +59,7 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
     AbstractCvodeCell* pCell = (AbstractCvodeCell*) pData;
     try
     {
-        pCell->EvaluateRhs(t, y, ydot);
+        pCell->EvaluateYDerivatives(t, y, ydot);
     }
     catch (const Exception &e)
     {
@@ -76,7 +76,7 @@ AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* 
                                      unsigned voltageIndex,
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : AbstractCardiacCellInterface(boost::shared_ptr<AbstractIvpOdeSolver>(), voltageIndex, pIntracellularStimulus),
-      AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
+      AbstractCvodeSystem(numberOfStateVariables),
       mpCvodeMem(NULL),
       mMaxSteps(0),
       mMaxDt(DOUBLE_UNSET)
@@ -324,22 +324,6 @@ std::vector<double> AbstractCvodeCell::MakeStdVec(N_Vector v)
     return sv;
 }
 
-
-std::string AbstractCvodeCell::DumpState(const std::string& message,
-                                         N_Vector Y)
-{
-    std::stringstream res;
-    res << message << "\nState:\n";
-    if (Y == NULL)
-    {
-        Y = mStateVariables;
-    }
-    for (int i=0; i<NV_LENGTH_S(Y); i++)
-    {
-        res << "\t" << rGetStateVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
-    }
-    return res.str();
-}
 
 
 #endif // CHASTE_CVODE

@@ -69,7 +69,7 @@ public :
         mNice = true;
     }
 
-    void EvaluateRhs(double time, N_Vector y, N_Vector ydot)
+    void EvaluateYDerivatives(double time, N_Vector y, N_Vector ydot)
     {
         NV_Ith_S(ydot, 0) = NV_Ith_S(y, 1);
         NV_Ith_S(ydot, 1) = -NV_Ith_S(y, 0);

@@ -172,17 +172,6 @@ protected:
     /** Whether to use an analytic Jacobian. */
     bool mUseAnalyticJacobian;
 
-    /**
-     * Used to include extra debugging information in exception messages.
-     * For example,
-     *      EXCEPTION(DumpState("Gating variable out of range"));
-     *
-     * @param rMessage  the exception message
-     * @param Y  the values of the state variables (optional input argument)
-     */
-    std::string DumpState(const std::string& rMessage,
-                          std::vector<double> Y = std::vector<double>());
-
 public:
 
     /**

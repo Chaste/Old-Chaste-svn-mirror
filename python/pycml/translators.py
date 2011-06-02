@@ -2813,11 +2813,11 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         """Output the mathematics in this model.
         
         Two methods are needed:
-         * EvaluateRhs computes the RHS of the ODE system
+         * EvaluateYDerivatives computes the RHS of the ODE system
          * GetIIonic returns the total ionic current
         """
         self.output_get_i_ionic()
-        self.output_evaluate_y_derivatives(method_name='EvaluateRhs')
+        self.output_evaluate_y_derivatives(method_name='EvaluateYDerivatives')
         self.output_derived_quantities()
     
     def output_bottom_boilerplate(self):

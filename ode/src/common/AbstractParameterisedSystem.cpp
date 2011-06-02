@@ -26,17 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <sstream>
 #include <cassert>
 
 #include "AbstractParameterisedSystem.hpp"
 
 #include "Exception.hpp"
 #include "VectorHelperFunctions.hpp"
-
-#ifdef CHASTE_CVODE
-// CVODE headers
-#include <nvector/nvector_serial.h>
-#endif
 
 template<typename VECTOR>
 AbstractParameterisedSystem<VECTOR>::AbstractParameterisedSystem(unsigned numberOfStateVariables)
@@ -64,6 +60,32 @@ std::string AbstractParameterisedSystem<VECTOR>::GetSystemName() const
 {
     assert(mpSystemInfo);
     return mpSystemInfo->GetSystemName();
+}
+
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::DumpState(const std::string& message)
+{
+    return GetStateMessage(message, mStateVariables);
+}
+
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::DumpState(const std::string& message,
+                                                           VECTOR Y)
+{
+    return GetStateMessage(message, Y);
+}
+
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::GetStateMessage(const std::string& message, VECTOR Y)
+{
+    std::stringstream res;
+    res << message << "\nState:\n";
+    assert(rGetStateVariableNames().size()==GetVectorSize(Y));
+    for (unsigned i=0; i<GetVectorSize(Y); i++)
+    {
+        res << "\t" << rGetStateVariableNames()[i] << ":" << GetVectorComponent(Y, i) << "\n";
+    }
+    return res.str();
 }
 
 //

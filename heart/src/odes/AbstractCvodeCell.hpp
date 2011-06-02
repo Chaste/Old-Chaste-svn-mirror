@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractIvpOdeSolver.hpp"
-#include "AbstractParameterisedSystem.hpp"
+#include "AbstractCvodeSystem.hpp"
 #include "AbstractCardiacCellInterface.hpp"
 
 // CVODE headers
@@ -66,7 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * \todo #889 Integrate this better into the main hierarchy?
  */
-class AbstractCvodeCell : public AbstractCardiacCellInterface, public AbstractParameterisedSystem<N_Vector>
+class AbstractCvodeCell : public AbstractCardiacCellInterface, public AbstractCvodeSystem
 {
 protected:
     /** Relative tolerance for solver. */
@@ -87,16 +87,6 @@ protected:
 
     /** The maximum timestep to use. */
     double mMaxDt;
-
-    /**
-     * Used to include extra debugging information in exception messages, e.g.
-     *  EXCEPTION(DumpState("Gating variable out of range"));
-     *
-     * @param rMessage  explanatory message to include in exception
-     * @param Y  current state variable values (defaults to using #mStateVariables)
-     */
-    std::string DumpState(const std::string& rMessage,
-                          N_Vector Y = NULL);
 
     /**
      * @b Must be called by concrete subclass constructors to initialise the state
@@ -144,9 +134,9 @@ public:
      * @param y  the values of the state variables at time t
      * @param ydot  to be filled in with the derivatives of the state variables
      */
-    virtual void EvaluateRhs(realtype t,
-                             N_Vector y,
-                             N_Vector ydot)=0;
+    virtual void EvaluateYDerivatives(realtype t,
+                                      N_Vector y,
+                                      N_Vector ydot)=0;
 
     //
     // Solver methods
