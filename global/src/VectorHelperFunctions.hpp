@@ -94,17 +94,6 @@ template<typename VECTOR>
 inline void InitialiseEmptyVector(VECTOR& rVec);
 
 /**
- * Helper function to return an empty vector of the correct type
- *
- * This isn't a member so that we can specialise it without having to
- * specialise the whole class.
- *
- * @param rVec  an empty vector
- */
-template<typename VECTOR>
-inline VECTOR GetEmptyVector();
-
-/**
  * If the given vector is empty, set it to have a particular size, allocating memory if necessary.
  * It is a no-op if the vector is non-empty.
  *
@@ -214,15 +203,6 @@ inline void InitialiseEmptyVector(std::vector<double>& rVec)
 
 /**
  * Specialisation for std::vector<double>.
- */
-template<>
-inline std::vector<double> GetEmptyVector()
-{
-    return std::vector<double>();
-}
-
-/**
- * Specialisation for std::vector<double>.
  * @param rVec
  * @param size
  */
@@ -327,15 +307,6 @@ template<>
 inline void InitialiseEmptyVector(N_Vector& rVec)
 {
     rVec = NULL;
-}
-
-/**
- * Specialisation for CVODE's N_Vector type.
- */
-template<>
-inline N_Vector GetEmptyVector()
-{
-    return NULL;
 }
 
 /**
