@@ -85,7 +85,7 @@ public:
         TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
 
         // Set end time and timestep
-        double t_end = 0.5;
+        double t_end = 0.1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.001);
 
@@ -152,7 +152,7 @@ public:
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<2,2,1> solver(&mesh, &pde, &bcc, ode_systems);
 
         // Set end time and timestep
-        double t_end = 0.5;
+        double t_end = 0.1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.001);
 
@@ -231,7 +231,7 @@ public:
         solver.SetOutputDirectory("TestHeatEquationForCoupledOdeSystemIn2dWithZeroDirichletWithOutput");
 
         // Set end time and timestep
-        double t_end = 1.0;
+        double t_end = 0.5;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
 
