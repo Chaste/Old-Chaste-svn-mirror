@@ -47,7 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadXmlFile(
     const std::string& rFileName,
-    const ::xsd::cxx::tree::properties<char>& rProps)
+    const ::xsd::cxx::tree::properties<char>& rProps,
+    bool validate)
 {
     xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc;
     try
@@ -57,7 +58,7 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadXmlFile(
         // Set up an error handler
         ::xsd::cxx::tree::error_handler<char> error_handler;
         // Parse XML to DOM
-        p_doc = XmlTools::ReadFileToDomDocument(rFileName, error_handler, rProps);
+        p_doc = XmlTools::ReadFileToDomDocument(rFileName, error_handler, rProps, validate);
         // Any errors?
         error_handler.throw_if_failed< ::xsd::cxx::tree::parsing<char> >();
     }
@@ -119,7 +120,8 @@ XmlTools::Finalizer::~Finalizer()
 xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocument(
         const std::string& rFileName,
         ::xsd::cxx::xml::error_handler<char>& rErrorHandler,
-        const ::xsd::cxx::tree::properties<char>& rProps)
+        const ::xsd::cxx::tree::properties<char>& rProps,
+        bool validate)
 {
     using namespace xercesc;
     namespace xml = xsd::cxx::xml;
@@ -152,24 +154,36 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocume
     p_conf->setParameter(XMLUni::fgDOMElementContentWhitespace, false);
 
     // Enable validation.
-    p_conf->setParameter(XMLUni::fgDOMValidate, true);
-    p_conf->setParameter(XMLUni::fgXercesSchema, true);
-    p_conf->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
-    // Code taken from xsd/cxx/xml/dom/parsing-source.txx
-    if (!rProps.schema_location().empty())
+    if (validate)
     {
-        xml::string locn(rProps.schema_location());
-        const void* p_locn(locn.c_str());
-        p_conf->setParameter(XMLUni::fgXercesSchemaExternalSchemaLocation,
-                             const_cast<void*>(p_locn));
-    }
-    if (!rProps.no_namespace_schema_location().empty())
-    {
-        xml::string locn(rProps.no_namespace_schema_location());
-        const void* p_locn(locn.c_str());
+        p_conf->setParameter(XMLUni::fgDOMValidate, true);
+        p_conf->setParameter(XMLUni::fgXercesSchema, true);
+        p_conf->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
+        // Code taken from xsd/cxx/xml/dom/parsing-source.txx
+        if (!rProps.schema_location().empty())
+        {
+            xml::string locn(rProps.schema_location());
+            const void* p_locn(locn.c_str());
+            p_conf->setParameter(XMLUni::fgXercesSchemaExternalSchemaLocation,
+                                 const_cast<void*>(p_locn));
+        }
+        if (!rProps.no_namespace_schema_location().empty())
+        {
+            xml::string locn(rProps.no_namespace_schema_location());
+            const void* p_locn(locn.c_str());
 
-        p_conf->setParameter(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
-                             const_cast<void*>(p_locn));
+            p_conf->setParameter(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
+                                 const_cast<void*>(p_locn));
+        }
+    }
+    else
+    {
+        // This branch is only used by projects
+#define COVERAGE_IGNORE
+        p_conf->setParameter(XMLUni::fgDOMValidate, false);
+        p_conf->setParameter(XMLUni::fgXercesSchema, false);
+        p_conf->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
+#undef COVERAGE_IGNORE
     }
 
     // We will release the DOM document ourselves.
@@ -188,27 +202,39 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocume
     p_parser->setFeature(XMLUni::fgDOMEntities, false);
     p_parser->setFeature(XMLUni::fgDOMNamespaces, true);
     p_parser->setFeature(XMLUni::fgDOMWhitespaceInElementContent, false);
-    p_parser->setFeature(XMLUni::fgDOMValidation, true);
-    p_parser->setFeature(XMLUni::fgXercesSchema, true);
-    p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
     p_parser->setFeature(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
     // Code taken from xsd/cxx/xml/dom/parsing-source.txx
-    if (!rProps.schema_location().empty())
+    if (validate)
     {
-        xml::string locn(rProps.schema_location());
-        const void* p_locn(locn.c_str());
-        p_parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation,
-                              const_cast<void*>(p_locn));
+        p_parser->setFeature(XMLUni::fgDOMValidation, true);
+        p_parser->setFeature(XMLUni::fgXercesSchema, true);
+        p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+        if (!rProps.schema_location().empty())
+        {
+            xml::string locn(rProps.schema_location());
+            const void* p_locn(locn.c_str());
+            p_parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation,
+                                  const_cast<void*>(p_locn));
+        }
+
+        if (!rProps.no_namespace_schema_location().empty())
+        {
+            xml::string locn(rProps.no_namespace_schema_location());
+            const void* p_locn(locn.c_str());
+
+            p_parser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
+                                  const_cast<void*>(p_locn));
+        }
     }
-
-    if (!rProps.no_namespace_schema_location().empty())
+    else
     {
-        xml::string locn(rProps.no_namespace_schema_location());
-        const void* p_locn(locn.c_str());
-
-        p_parser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
-                              const_cast<void*>(p_locn));
+        // This branch is only used by projects
+#define COVERAGE_IGNORE
+        p_parser->setFeature(XMLUni::fgDOMValidation, false);
+        p_parser->setFeature(XMLUni::fgXercesSchema, false);
+        p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+#undef COVERAGE_IGNORE
     }
 
     xml::dom::bits::error_handler_proxy<char> ehp(rErrorHandler);

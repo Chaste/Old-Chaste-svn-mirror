@@ -67,10 +67,12 @@ public:
      *
      * @param rFileName  the file to read
      * @param rProps  properties that specify fixed schema locations, if wanted
+     * @param validate  whether to perform schema validation
      */
     static xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadXmlFile(
         const std::string& rFileName,
-        const ::xsd::cxx::tree::properties<char>& rProps);
+        const ::xsd::cxx::tree::properties<char>& rProps,
+        bool validate=true);
 
     /**
      * Must be called after you have finished working with a document returned by the ReadXmlFile methods.
@@ -113,11 +115,13 @@ public:
      * @param rFileName  the file to read
      * @param rErrorHandler  handler for any parsing errors
      * @param rProps  properties that specify fixed schema locations, if wanted
+     * @param validate  whether to perform schema validation
      */
     static xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(
         const std::string& rFileName,
         ::xsd::cxx::xml::error_handler<char>& rErrorHandler,
-        const ::xsd::cxx::tree::properties<char>& rProps);
+        const ::xsd::cxx::tree::properties<char>& rProps,
+        bool validate=true);
 
     /**
      * Display key info about an XML node for debugging.
