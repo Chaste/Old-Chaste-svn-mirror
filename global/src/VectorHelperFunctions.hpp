@@ -400,6 +400,20 @@ inline void CopyFromStdVector(const std::vector<double>& rSrc, N_Vector& rDest)
         p_dest[i] = rSrc[i];
     }
 }
+
+/**
+ * Make a standard vector from an N_Vector
+ *
+ * @param v  A CVODE N_Vector to copy the entries from
+ * @return a std::vector of the entries of the N_Vector.
+ */
+inline std::vector<double> MakeStdVec(N_Vector v)
+{
+    std::vector<double> sv;
+    CopyToStdVector(v, sv);
+    return sv;
+}
+
 #endif // CHASTE_CVODE
 
 //

@@ -1,4 +1,5 @@
 TestAbstractIvpOdeSolver.hpp
+TestAbstractCvodeSystem.hpp
 TestAbstractOdeSystem.hpp
 TestAbstractAnalyticJacobian.hpp
 TestBackwardEulerIvpOdeSolver.hpp

@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractOdeSystemInformation.hpp"
-#include "VectorHelperFunctions.hpp"
 
 /**
  * This class contains the state variable and parameter vectors for an ODE system,
@@ -49,6 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<typename VECTOR>
 class AbstractParameterisedSystem
 {
+friend class TestAbstractCvodeSystem;
+
 private:
     /**
      * Helper method to construct a string containing a dump of the vector

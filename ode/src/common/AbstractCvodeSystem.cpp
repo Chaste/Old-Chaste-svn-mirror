@@ -26,16 +26,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifdef CHASTE_CVODE
+
 #include <sstream>
 #include <cassert>
 
 #include "AbstractCvodeSystem.hpp"
 #include "Exception.hpp"
+#include "VectorHelperFunctions.hpp"
 
 AbstractCvodeSystem::AbstractCvodeSystem(unsigned numberOfStateVariables)
     : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mUseAnalyticJacobian(false)
 {
+}
+
+void AbstractCvodeSystem::Init()
+{
+    DeleteVector(mStateVariables);
+    mStateVariables = GetInitialConditions();
+    DeleteVector(mParameters);
+    mParameters = N_VNew_Serial(rGetParameterNames().size());
+    for (int i=0; i<NV_LENGTH_S(mParameters); i++)
+    {
+        NV_Ith_S(mParameters, i) = 0.0;
+    }
 }
 
 AbstractCvodeSystem::~AbstractCvodeSystem()
@@ -71,4 +86,4 @@ AbstractCvodeSystem::~AbstractCvodeSystem()
 //    return res.str();
 //}
 
-
+#endif // CHASTE_CVODE

@@ -70,7 +70,6 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
     return 0;
 }
 
-
 AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
                                      unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
@@ -90,20 +89,6 @@ AbstractCvodeCell::~AbstractCvodeCell()
     DeleteVector(mStateVariables);
     DeleteVector(mParameters);
 }
-
-
-void AbstractCvodeCell::Init()
-{
-    DeleteVector(mStateVariables);
-    mStateVariables = GetInitialConditions();
-    DeleteVector(mParameters);
-    mParameters = N_VNew_Serial(rGetParameterNames().size());
-    for (int i=0; i<NV_LENGTH_S(mParameters); i++)
-    {
-        NV_Ith_S(mParameters, i) = 0.0;
-    }
-}
-
 
 double AbstractCvodeCell::GetVoltage()
 {
@@ -314,14 +299,6 @@ void AbstractCvodeCell::CvodeError(int flag, const char * msg)
     free(p_flag_name);
     std::cerr << err.str() << std::endl << std::flush;
     EXCEPTION(err.str());
-}
-
-
-std::vector<double> AbstractCvodeCell::MakeStdVec(N_Vector v)
-{
-    std::vector<double> sv;
-    CopyToStdVector(v, sv);
-    return sv;
 }
 
 

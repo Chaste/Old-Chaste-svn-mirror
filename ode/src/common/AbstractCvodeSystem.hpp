@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifdef CHASTE_CVODE
 #ifndef _ABSTRACTCVODESYSTEM_HPP_
 #define _ABSTRACTCVODESYSTEM_HPP_
 
@@ -33,12 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <algorithm>
 
-
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
-#include "ClassIsAbstract.hpp"
+//#include "ChasteSerialization.hpp"
+//#include <boost/serialization/split_member.hpp>
+//#include <boost/serialization/vector.hpp>
+//#include <boost/serialization/version.hpp>
+//#include "ClassIsAbstract.hpp"
 
 #include "AbstractParameterisedSystem.hpp"
 #include "Exception.hpp"
@@ -80,6 +80,12 @@ protected:
 
     /** Whether to use an analytic Jacobian. */
     bool mUseAnalyticJacobian;
+
+    /**
+     * @b Must be called by concrete subclass constructors to initialise the state
+     * variables, after setting #mpSystemInfo.
+     */
+    void Init();
 
 public:
 
@@ -137,3 +143,6 @@ public:
 //CLASS_IS_ABSTRACT(AbstractCvodeSystem)
 
 #endif //_ABSTRACTCVODESYSTEM_HPP_
+#endif // CHASTE_CVODE
+
+

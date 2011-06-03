@@ -88,12 +88,6 @@ protected:
     /** The maximum timestep to use. */
     double mMaxDt;
 
-    /**
-     * @b Must be called by concrete subclass constructors to initialise the state
-     * variables, after setting #mpSystemInfo.
-     */
-    void Init();
-
 public:
     /**
      * Create a new cardiac cell.
@@ -290,12 +284,6 @@ private:
      */
     void CvodeError(int flag, const char * msg);
 
-    /**
-     * Copy an N_Vector into a std::vector<double>
-     *
-     * @param v  vector to copy
-     */
-    std::vector<double> MakeStdVec(N_Vector v);
 };
 
 
