@@ -58,6 +58,9 @@ public:
 
         ode1.EvaluateYDerivatives(1.0, y, dy);
         TS_ASSERT_DELTA(GetVectorComponent(dy,0), 1.0, tol);
+
+        DeleteVector(y);
+        DeleteVector(dy);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
@@ -78,6 +81,8 @@ public:
                 "Index is greater than the number of state variables.");
         TS_ASSERT_THROWS_THIS(ode.SetStateVariables(v),
                 "The size of the passed in vector must be that of the number of state variables.");
+
+        DeleteVector(v);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
@@ -253,10 +258,16 @@ public:
         TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 0.0, &derived), 2*a, 1e-4);
         a = 1.0;
         ode.SetParameter(0, a);
-        derived = ode.ComputeDerivedQuantities(0.0, ode.GetInitialConditions());
+        DeleteVector(derived); // Have to wipe contents from memory before assigning new ones...
+
+        N_Vector ics = ode.GetInitialConditions();
+        derived = ode.ComputeDerivedQuantities(0.0, ics);
         TS_ASSERT_DELTA(GetVectorComponent(derived,0), 2*a, 1e-4);
         double y = 10.0;
         ode.SetStateVariable(0, y);
+        DeleteVector(derived); // Have to wipe contents from memory before assigning new ones...
+        DeleteVector(ics);
+
         derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
         TS_ASSERT_DELTA(GetVectorComponent(derived,0), 2*a+y, 1e-4);
         TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 1.0/* ignored for this ODE */), 2*a+y, 1e-4);
@@ -271,6 +282,8 @@ public:
         N_Vector doesnt_matter;
         TS_ASSERT_THROWS_THIS(ode2.ComputeDerivedQuantities(0.0, doesnt_matter),
                               "This ODE system does not define derived quantities.");
+
+        DeleteVector(derived);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
@@ -295,6 +308,8 @@ public:
 
         state = ode_system.DumpState("Test 2.", rY);
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tVariable_1:0\n\tVariable_2:1\n");
+
+        DeleteVector(rY);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE

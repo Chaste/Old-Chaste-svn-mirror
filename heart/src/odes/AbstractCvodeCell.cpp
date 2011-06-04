@@ -86,8 +86,6 @@ AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* 
 
 AbstractCvodeCell::~AbstractCvodeCell()
 {
-    DeleteVector(mStateVariables);
-    DeleteVector(mParameters);
 }
 
 double AbstractCvodeCell::GetVoltage()

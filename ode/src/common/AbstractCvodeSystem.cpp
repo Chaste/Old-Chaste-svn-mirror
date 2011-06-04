@@ -55,6 +55,8 @@ void AbstractCvodeSystem::Init()
 
 AbstractCvodeSystem::~AbstractCvodeSystem()
 {
+    DeleteVector(mStateVariables);
+    DeleteVector(mParameters);
 }
 
 //
