@@ -210,20 +210,20 @@ public:
     {
     }
 
-    /**
-     *  Empty method which can be over-ridden in concrete cell class which should
-     *  go through the current state vector and go range checking on the values
-     *  (eg check that concentrations are positive and gating variables are between
-     *  zero and one). This method is called in the ComputeExceptVoltage method.
-     */
-    virtual void VerifyStateVariables()
-    {
 //// This code is for the future, but commented out at the moment due to the memory increase
 //// it will introduce. See #794.
 ////
 //// DOXYGEN DESCRIPTION NEEDS CHANGING ONCE THIS IS BROUGHT IN
 ////
 ////
+//    /**
+//     *  Empty method which can be over-ridden in concrete cell class which should
+//     *  go through the current state vector and go range checking on the values
+//     *  (eg check that concentrations are positive and gating variables are between
+//     *  zero and one). This method is called in the ComputeExceptVoltage method.
+//     */
+//    virtual void VerifyStateVariables()
+//    {
 //        for(std::set<unsigned>::iterator iter = mGatingVariableIndices.begin();
 //            iter != mGatingVariableIndices.end();
 //            ++iter)
@@ -254,7 +254,7 @@ public:
 //                EXCEPTION(DumpState(error.str()));
 //            }
 //        }
-    }
+//    }
 
 
 

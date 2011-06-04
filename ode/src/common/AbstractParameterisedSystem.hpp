@@ -514,6 +514,20 @@ public:
      * @param rName  the attribute name.
      */
     double GetAttribute(const std::string& rName) const;
+
+    /**
+     *  Empty method which can be over-ridden and used in solvers to
+     *  go through the current state vector and go range checking on the values
+     *  (eg check that concentrations are positive and probabilities are between
+     *  zero and one).
+     *
+     *  This method is overridden with a currently commented out
+     *  method in AbstractCardiacCell which would be called by the
+     *  ComputeExceptVoltage method (in heart).
+     *
+     *  This method is called by the AbstractCvodeSystem::Solve() method (in ode).
+     */
+    virtual void VerifyStateVariables(){};
 };
 
 

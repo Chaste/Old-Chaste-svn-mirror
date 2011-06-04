@@ -38,6 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cvode1.hpp"
 #include "ParameterisedCvode.hpp"
 #include "TwoDimCvodeSystem.hpp"
+#include "CvodeFirstOrder.hpp"
+
+#include "OdeSolution.hpp"
 #include "VectorHelperFunctions.hpp"
 
 double tol = 1e-6;
@@ -310,6 +313,32 @@ public:
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tVariable_1:0\n\tVariable_2:1\n");
 
         DeleteVector(rY);
+#else
+        std::cout << "Cvode is not enabled.\n";
+#endif // CHASTE_CVODE
+    }
+
+    void TestSimpleSolveUsingCvode() throw (Exception)
+    {
+#ifdef CHASTE_CVODE
+        CvodeFirstOrder ode_system;
+
+        double h_value = 0.01;
+        ode_system.SetMaxSteps(1000);
+
+        // Get sampled output
+        OdeSolution solutions = ode_system.Solve(0.0, 2.0, h_value, 0.1);
+
+        int last = solutions.GetNumberOfTimeSteps();
+        double testvalue = solutions.rGetSolutions()[last][0];
+
+        // The tests
+        double exact_solution = exp(2);
+
+        /// \todo: #890 Work out what the global error should be bounded by
+        double global_error = 1e-3;
+
+        TS_ASSERT_DELTA(testvalue, exact_solution, global_error);
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE

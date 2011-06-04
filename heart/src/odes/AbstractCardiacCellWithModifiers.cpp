@@ -59,14 +59,7 @@ boost::shared_ptr<AbstractModifier> AbstractCardiacCellWithModifiers<CARDIAC_CEL
 template<class CARDIAC_CELL>
 bool AbstractCardiacCellWithModifiers<CARDIAC_CELL>::HasModifier(const std::string& rModifierName) const
 {
-    if (mModifiersMap.find(rModifierName) == mModifiersMap.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !(mModifiersMap.find(rModifierName) == mModifiersMap.end());
 }
 
 template<class CARDIAC_CELL>

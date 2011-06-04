@@ -34,20 +34,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <algorithm>
 
+// This is only needed to prevent compilation errors on PETSc 2.2/Boost 1.33.1 combo
+#include "UblasVectorInclude.hpp"
+
+// Chaste includes
+#include "OdeSolution.hpp"
+#include "AbstractParameterisedSystem.hpp"
+#include "Exception.hpp"
+
+// Serialiazation
 //#include "ChasteSerialization.hpp"
 //#include <boost/serialization/split_member.hpp>
 //#include <boost/serialization/vector.hpp>
 //#include <boost/serialization/version.hpp>
 //#include "ClassIsAbstract.hpp"
 
-#include "AbstractParameterisedSystem.hpp"
-#include "Exception.hpp"
-
 // CVODE headers
 #include <nvector/nvector_serial.h>
 
 /**
- * Abstract OdeSystem class for Cvode systems (NVector instead of std::vector)
+ * Abstract OdeSystem class for Cvode systems (N_Vector instead of std::vector)
  *
  * Sets up variables and functions for a general CVODE system.
  *
@@ -75,11 +81,52 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractCvodeSystem : public AbstractParameterisedSystem<N_Vector>
 {
+private:
+    /**
+     * Set up the CVODE data structures needed to solve the given system.
+     *
+     * @param initialConditions  initial conditions
+     * @param tStart  start time of simulation
+     * @param maxDt  maximum time step to take
+     */
+    void SetupCvode(N_Vector initialConditions,
+                    realtype tStart,
+                    realtype maxDt);
+
+    /** Free CVODE memory after a solve. */
+    void FreeCvodeMemory();
+
+    /**
+     * Report an error from CVODE.
+     *
+     * @param flag  CVODE error code
+     * @param msg  Our description of the error
+     */
+    void CvodeError(int flag, const char * msg);
+
 
 protected:
 
     /** Whether to use an analytic Jacobian. */
     bool mUseAnalyticJacobian;
+
+    /** Relative tolerance for solver. */
+    double mRelTol;
+
+    /** Absolute tolerance for solver. */
+    double mAbsTol;
+
+    /** CVODE's internal data. */
+    void* mpCvodeMem;
+
+    /**
+     * The maximum number of steps to be taken by the solver
+     * in its attempt to reach the next output time.
+     */
+    long int mMaxSteps;
+
+    /** The size of the previous timestep. */
+    double mLastInternalStepSize;
 
     /**
      * @b Must be called by concrete subclass constructors to initialise the state
@@ -111,6 +158,83 @@ public:
     virtual void EvaluateYDerivatives(realtype time,
                                       N_Vector y,
                                       N_Vector ydot)=0;
+
+    /**
+     * Simulate the cell, returning a sampling of the state variables.
+     *
+     * Uses the current values of the state variables at initial conditions.
+     * If the state variables have not been set (either by a prior solve, or
+     * a call to SetStateVariables) the initial conditions (given by
+     * GetInitialConditions) will be used.
+     *
+     * The final values of the state variables will also be stored in this object.
+     *
+     * @param tStart  start time of simulation
+     * @param tEnd  end time of simulation
+     * @param maxDt  maximum time step to be taken by the adaptive solver
+     *   (set this appropriately to avoid missing a stimulus)
+     * @param tSamp  sampling interval at which to store results
+     */
+    OdeSolution Solve(realtype tStart,
+                      realtype tEnd,
+                      realtype maxDt,
+                      realtype tSamp);
+
+    /**
+     * Simulate the cell, updating its internal state variables.
+     *
+     * Uses the current values of the state variables at initial conditions.
+     * If the state variables have not been set (either by a prior solve, or
+     * a call to SetStateVariables) the initial conditions (given by
+     * GetInitialConditions) will be used.
+     *
+     * @param tStart  start time of simulation
+     * @param tEnd  end time of simulation
+     * @param maxDt  maximum time step to be taken by the adaptive solver
+     *   (set this appropriately to avoid missing a stimulus)
+     */
+    void Solve(realtype tStart,
+               realtype tEnd,
+               realtype maxDt);
+
+    /**
+     * Change the maximum number of steps to be taken by the solver
+     * in its attempt to reach the next output time.  Default is 500 (set by CVODE).
+     *
+     * @param numSteps new maximum
+     */
+    void SetMaxSteps(long int numSteps);
+
+    /**
+     * Get the maximum number of steps to be taken by the solver
+     * in its attempt to reach the next output time.
+     */
+    long int GetMaxSteps();
+
+    /**
+     * Set relative and absolute tolerances; both scalars.
+     * If no parameters are given, tolerances will be reset to default values.
+     *
+     * @param relTol  the relative tolerance for the solver (defaults to 1e-5)
+     * @param absTol  the absolute tolerance for the solver (defaults to 1e-7)
+     */
+    void SetTolerances(double relTol=1e-5, double absTol=1e-7);
+
+    /**
+     * Get the relative tolerance.
+     */
+    double GetRelativeTolerance();
+
+    /**
+     * Get the absolute tolerance.
+     */
+    double GetAbsoluteTolerance();
+
+    /**
+     * Get the last step size used internally by CVODE in the last Solve call.
+     */
+    double GetLastStepSize();
+
 
 //    /**
 //     * An alternative approach to stopping events; currently only useful with CVODE.

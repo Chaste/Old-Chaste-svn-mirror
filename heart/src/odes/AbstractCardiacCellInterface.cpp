@@ -128,3 +128,10 @@ const boost::shared_ptr<AbstractIvpOdeSolver> AbstractCardiacCellInterface::GetS
 {
     return mpOdeSolver;
 }
+
+void AbstractCardiacCellInterface::SetVoltageDerivativeToZero(bool clamp)
+{
+    mSetVoltageDerivativeToZero = clamp;
+}
+
+
