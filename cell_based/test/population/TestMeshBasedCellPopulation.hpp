@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "Debug.hpp"
 
 class TestMeshBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -90,7 +91,7 @@ private:
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
-            counter++;
+            counter++;          
         }
 
         TS_ASSERT_EQUALS(counter, cell_population.GetNumRealCells());
@@ -845,7 +846,7 @@ public:
                  ++cell_iter)
             {
                 cell_iter->ReadyToDivide();
-                cell_locations.push_back(p_cell_population->GetLocationOfCellCentre(*cell_iter));
+                cell_locations.push_back(p_cell_population->GetLocationOfCellCentre(*cell_iter));             
             }
 
             std::pair<CellPtr,CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
@@ -895,6 +896,12 @@ public:
                 TS_ASSERT_DELTA(p_cell_population->GetLocationOfCellCentre(*cell_iter)[1], cell_locations[counter][1], 1e-9);
                 counter++;
             }
+
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(0)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(1)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(2)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(3)->IsBoundaryNode(), true);
+            TS_ASSERT_EQUALS(p_cell_population->GetNode(4)->IsBoundaryNode(), false);
 
             // Check the marked spring
             std::pair<CellPtr,CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));

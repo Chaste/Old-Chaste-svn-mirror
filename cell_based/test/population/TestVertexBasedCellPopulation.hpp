@@ -951,7 +951,9 @@ public:
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
 
                 TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
-
+                TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), true);
+                TS_ASSERT_EQUALS(p_node2->IsBoundaryNode(), true);
+            
                 for (unsigned dimension=0; dimension<2; dimension++)
                 {
                     TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-4);
