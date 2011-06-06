@@ -602,11 +602,10 @@ public:
         TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<1>* >(&(simulator.rGetCellPopulation())))->rGetMesh().GetNumElements(), initial_num_elements + 1);
     }
 
-    ///\todo fix code to make test pass; maybe need to move to nightly test or something (#1670)
-    void DoNotTestMeshBasedMonolayer() throw(Exception)
+    void TestMeshBasedMonolayer() throw(Exception)
     {
         // Create a large 2D mesh
-        HoneycombMeshGenerator generator(50, 20, 0, false);
+        HoneycombMeshGenerator generator(50, 20, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create some cells
@@ -628,7 +627,8 @@ public:
         simulator.AddForce(&linear_force);
 
         // Run the simulation and test that no exceptions are thrown
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),
+            "Simulation has produced an element with zero area.  Please re-run with a cutoff on your forces");
     }
 };
 

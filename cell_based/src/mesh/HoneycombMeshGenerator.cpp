@@ -40,6 +40,9 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     // The getpid code below won't work in parallel
     assert(PetscTools::IsSequential());
 
+    // An older version of the constructor might allow the wrong argument through to the scale factor
+    assert(scaleFactor > 0.0);
+    
     // Get a unique mesh filename
     std::stringstream pid;
     pid << getpid();

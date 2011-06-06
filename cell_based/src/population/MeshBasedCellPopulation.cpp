@@ -247,8 +247,14 @@ template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
 {
     NodeMap map(mrMesh.GetNumAllNodes());
-    mrMesh.ReMesh(map);
-
+    try
+    {
+        mrMesh.ReMesh(map);
+    }
+    catch (Exception &e)
+    {
+        EXCEPTION("Simulation has produced an element with zero area.  Please re-run with a cutoff on your forces");
+    }
     if (!map.IsIdentityMap())
     {
         UpdateGhostNodesAfterReMesh(map);

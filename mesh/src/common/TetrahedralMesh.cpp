@@ -1068,12 +1068,14 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
         }
         catch (Exception &e)
         {
+            
+            if(SPACE_DIM == 2)
+            {
+                throw e; //Triangle has produced a zero-area element (due to very long edges)
+            }
+            
+            //when (SPACE_DIM == 3);
             //Tetgen is feeding us lies
-            assert(SPACE_DIM == 3);
-
-            // #1670: To run large MeshBased Simulations comment out the line above
-            // To find out the error message uncomment this:
-            //std::cout<<e.GetMessage() << std::endl;
         }
     }
 
