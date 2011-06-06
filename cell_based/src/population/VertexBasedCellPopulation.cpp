@@ -436,12 +436,6 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
     }
     *mpVizElementsFile << "\n";
 
-
-    if (this->mOutputCellVolumes)
-    {
-        WriteCellVolumeResultsToFile();
-    }
-
 }
 
 template<unsigned DIM>
