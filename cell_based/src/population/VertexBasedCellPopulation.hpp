@@ -71,9 +71,6 @@ private:
     /** Results file for locations of T3Swaps. */
     out_stream mpT3SwapLocationsFile;
 
-    /** Results file for cell volume (in 3D) or area (in 2D) data. */
-    out_stream mpCellVolumesFile;
-
     /**
      * Overridden WriteVtkResultsToFile() method.
      */

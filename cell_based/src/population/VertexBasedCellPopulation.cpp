@@ -450,7 +450,7 @@ void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     assert(DIM==2);
 
      // Write time to file
-    *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
+    *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
 
     // Loop over cells and find associated elements so in the same order as the cells in output files
     for (std::list<CellPtr>::iterator cell_iter = this->mCells.begin();
@@ -471,25 +471,25 @@ void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
         if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
         {
             // Write element index to file
-            *mpCellVolumesFile << elem_index << " ";
+            *(this->mpCellVolumesFile) << elem_index << " ";
 
             // Write cell ID to file
             unsigned cell_index = (*cell_iter)->GetCellId();
-            *mpCellVolumesFile << cell_index << " ";
+            *(this->mpCellVolumesFile) << cell_index << " ";
 
             // Write location of element centroid to file
             c_vector<double, DIM> centre_location = GetLocationOfCellCentre(*cell_iter);
             for (unsigned i=0; i<DIM; i++)
             {
-                *mpCellVolumesFile << centre_location[i] << " ";
+                *(this->mpCellVolumesFile) << centre_location[i] << " ";
             }
 
             // Write cell volume (in 3D) or area (in 2D) to file
             double cell_volume = mrMesh.GetVolumeOfElement(elem_index);
-            *mpCellVolumesFile << cell_volume << " ";
+            *(this->mpCellVolumesFile) << cell_volume << " ";
         }
     }
-    *mpCellVolumesFile << "\n";
+    *(this->mpCellVolumesFile) << "\n";
 }
 
 
@@ -631,11 +631,6 @@ void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirec
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
     mpT1SwapLocationsFile = output_file_handler.OpenOutputFile("T1SwapLocations.dat");
     mpT3SwapLocationsFile = output_file_handler.OpenOutputFile("T3SwapLocations.dat");
-
-    if (this->mOutputCellVolumes)
-    {
-        mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
-    }
 }
 
 template<unsigned DIM>
@@ -645,13 +640,7 @@ void VertexBasedCellPopulation<DIM>::CloseOutputFiles()
     mpVizElementsFile->close();
     mpT1SwapLocationsFile->close();
     mpT3SwapLocationsFile->close();
-
-    if (this->mOutputCellVolumes)
-    {
-        mpCellVolumesFile->close();
-    }
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::GenerateCellResultsAndWriteToFiles()

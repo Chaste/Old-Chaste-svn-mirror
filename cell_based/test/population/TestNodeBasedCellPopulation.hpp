@@ -581,6 +581,9 @@ public:
         node_based_cell_population.GetCellUsingLocationIndex(4)->AddCellProperty(p_apoptotic_state);
         node_based_cell_population.SetCellAncestorsToLocationIndices();
 
+        node_based_cell_population.rGetMesh().SetCellRadius(0, 3.0);
+        node_based_cell_population.rGetMesh().SetCellRadius(1, 2.0);
+
         TS_ASSERT_EQUALS(node_based_cell_population.GetOutputCellIdData(), false);
         node_based_cell_population.SetOutputCellIdData(true);
         TS_ASSERT_EQUALS(node_based_cell_population.GetOutputCellIdData(), true);
@@ -608,9 +611,7 @@ public:
         node_based_cell_population.SetOutputCellCyclePhases(true);
         node_based_cell_population.SetOutputCellAncestors(true);
         node_based_cell_population.SetOutputCellAges(true);
-
-        TS_ASSERT_THROWS_THIS(node_based_cell_population.SetOutputCellVolumes(true),
-                              "This method currently not implemented for a NodeBasedCellPopulation");
+        node_based_cell_population.SetOutputCellVolumes(true);
 
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.CreateOutputFiles(output_directory, false));
 
@@ -626,6 +627,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cell_based/test/data/TestNodeBasedCellPopulationWriters/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters/cellages.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestNodeBasedCellPopulationWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_cell_population.GetCellMutationStateCount();
@@ -662,7 +664,7 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
-
+    
     void TestWritingCellCyclePhases()
     {
         // Set up SimulationTime (needed if VTK is used)

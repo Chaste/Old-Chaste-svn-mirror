@@ -387,10 +387,6 @@ void MeshBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirecto
     {
         mpCellPopulationVolumesFile = output_file_handler.OpenOutputFile("cellpopulationareas.dat");
     }
-    if (this->mOutputCellVolumes)
-    {
-        mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
-    }
 }
 
 template<unsigned DIM>
@@ -407,10 +403,6 @@ void MeshBasedCellPopulation<DIM>::CloseOutputFiles()
     if (mOutputCellPopulationVolumes)
     {
         mpCellPopulationVolumesFile->close();
-    }
-    if (this->mOutputCellVolumes)
-    {
-        mpCellVolumesFile->close();
     }
 }
 
@@ -466,10 +458,6 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
         if (mOutputCellPopulationVolumes)
         {
             WriteCellPopulationVolumeResultsToFile();
-        }
-        if (this->mOutputCellVolumes)
-        {
-            WriteCellVolumeResultsToFile();
         }
     }
 }
@@ -785,48 +773,51 @@ void MeshBasedCellPopulation<DIM>::WriteCellPopulationVolumeResultsToFile()
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
 {
-    assert(DIM==2 || DIM==3);
-
-     // Write time to file
-    *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
-
-    // Loop over elements of mpVoronoiTessellation
-    for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
-         elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
-         ++elem_iter)
-    {
-        // Get index of this element in mpVoronoiTessellation
-        unsigned elem_index = elem_iter->GetIndex();
-
-        // Get the index of the corresponding node in mrMesh
-        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
-
-        // Discount ghost nodes
-        if (!this->IsGhostNode(node_index))
+    if (mpVoronoiTessellation != NULL)
+    {    
+        assert(DIM==2 || DIM==3);
+    
+        // Write time to file
+        *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
+    
+        // Loop over elements of mpVoronoiTessellation
+        for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
+             elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
+             ++elem_iter)
         {
-            // Write node index to file
-            *mpCellVolumesFile << node_index << " ";
-
-            // Get the cell corresponding to this node
-            CellPtr p_cell =  this->mLocationCellMap[node_index];
-
-            // Write cell ID to file
-            unsigned cell_index = p_cell->GetCellId();
-            *mpCellVolumesFile << cell_index << " ";
-
-            // Write node location to file
-            c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
-            for (unsigned i=0; i<DIM; i++)
+            // Get index of this element in mpVoronoiTessellation
+            unsigned elem_index = elem_iter->GetIndex();
+    
+            // Get the index of the corresponding node in mrMesh
+            unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+    
+            // Discount ghost nodes
+            if (!this->IsGhostNode(node_index))
             {
-                *mpCellVolumesFile << node_location[i] << " ";
+                // Write node index to file
+                *(this->mpCellVolumesFile) << node_index << " ";
+    
+                // Get the cell corresponding to this node
+                CellPtr p_cell =  this->mLocationCellMap[node_index];
+    
+                // Write cell ID to file
+                unsigned cell_index = p_cell->GetCellId();
+                *(this->mpCellVolumesFile) << cell_index << " ";
+    
+                // Write node location to file
+                c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
+                for (unsigned i=0; i<DIM; i++)
+                {
+                    *(this->mpCellVolumesFile) << node_location[i] << " ";
+                }
+    
+                // Write cell volume (in 3D) or area (in 2D) to file
+                double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                *(this->mpCellVolumesFile) << cell_volume << " ";
             }
-
-            // Write cell volume (in 3D) or area (in 2D) to file
-            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-            *mpCellVolumesFile << cell_volume << " ";
         }
+        *(this->mpCellVolumesFile) << "\n";
     }
-    *mpCellVolumesFile << "\n";
 }
 
 template<unsigned DIM>

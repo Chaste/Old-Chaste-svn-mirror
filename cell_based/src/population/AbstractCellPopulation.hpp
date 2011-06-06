@@ -138,6 +138,9 @@ protected:
 
     /** Results file for logged cell data. */
     out_stream mpCellIdFile;
+        
+    /** Results file for cell volume (in 3D) or area (in 2D) data. */
+    out_stream mpCellVolumesFile;
 
     /** Results file for boundary nodes. */
     out_stream mpVizBoundaryNodesFile;
@@ -514,6 +517,13 @@ public:
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
+     * Write the current volume of each cell to file.      
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     */
+    virtual void WriteCellVolumeResultsToFile()=0;
+
+    /**
      * Write the current state of each cell to output files.
 
      * @param rCellProliferativeTypeCounter cell type counter
@@ -661,7 +671,7 @@ public:
      *
      * @param outputCellVolumes the new value of mOutputCellVolumes
      */
-    virtual void SetOutputCellVolumes(bool outputCellVolumes);
+    void SetOutputCellVolumes(bool outputCellVolumes);
 
     /**
      * Iterator class allows one to iterate over cells in the cell population.

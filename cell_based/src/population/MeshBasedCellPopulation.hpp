@@ -133,9 +133,6 @@ protected:
     /** Results file for cell population volume (in 3D) or area (in 2D) data. */
     out_stream mpCellPopulationVolumesFile;
 
-    /** Results file for cell volume (in 3D) or area (in 2D) data. */
-    out_stream mpCellVolumesFile;
-
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 
@@ -343,12 +340,10 @@ public:
      */
     void WriteCellPopulationVolumeResultsToFile();
 
-    /**
-     * Write the current index and location of each non-ghost node in mrMesh, as well as the ID and
-     * (using mpVoronoiTessellation) the area (in 2D) or volume (in 3D) of its corresponding
-     * cell, to mpCellVolumesFile.
+    /** 
+     * Overridden WriteCellVolumeResultsToFile() method.
      */
-    void WriteCellVolumeResultsToFile();
+    void WriteCellVolumeResultsToFile();    
 
     /**
      * Create a Voronoi tessellation of the mesh.

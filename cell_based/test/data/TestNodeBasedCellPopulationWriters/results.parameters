@@ -9,4 +9,4 @@
 		<OutputCellVariables>0</OutputCellVariables> 
 		<OutputCellCyclePhases>1</OutputCellCyclePhases> 
 		<OutputCellAges>1</OutputCellAges> 
-		<OutputCellVolumes>0</OutputCellVolumes> 
+		<OutputCellVolumes>1</OutputCellVolumes> 

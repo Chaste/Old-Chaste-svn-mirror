@@ -336,6 +336,56 @@ double NodeBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
 }
 
 template<unsigned DIM>
+void NodeBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
+{
+    assert(DIM==2 || DIM==3);
+
+    // Write time to file
+    *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
+
+    // Loop over cells
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin(); 
+         cell_iter!=this->End(); ++cell_iter)
+    {
+        // Get the index of the corresponding node in mrMesh
+        unsigned node_index = this->GetLocationIndexUsingCell(*cell_iter);
+
+        // Get cell radius
+        double cell_radius = mrMesh.GetCellRadius(node_index);
+
+        // Get cell volume from radius
+        double cell_volume;
+        
+        if (DIM == 2)
+        {
+            cell_volume = M_PI*cell_radius*cell_radius;
+        }
+        else if (DIM == 3)
+        {
+            cell_volume = (4.0/3.0)*M_PI*cell_radius*cell_radius*cell_radius;
+        }
+           
+        // Write node index to file
+        *(this->mpCellVolumesFile) << node_index << " ";
+
+        // Write cell ID to file
+        unsigned cell_index = cell_iter->GetCellId();
+        *(this->mpCellVolumesFile) << cell_index << " ";
+
+        // Write node location to file
+        c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
+        for (unsigned i=0; i<DIM; i++)
+        {
+            *(this->mpCellVolumesFile) << node_location[i] << " ";
+        }
+
+        // Write cell volume (in 3D) or area (in 2D) to file
+        *(this->mpCellVolumesFile) << cell_volume << " ";
+    }
+    *(this->mpCellVolumesFile) << "\n";
+}
+
+template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
@@ -349,8 +399,9 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     std::vector<double> cell_mutation_states(num_nodes);
     std::vector<double> cell_ages(num_nodes);
     std::vector<double> cell_cycle_phases(num_nodes);
+    std::vector<double> cell_radii(num_nodes);
     std::vector<std::vector<double> > cellwise_data;
-
+    
     if (CellwiseData<DIM>::Instance()->IsSetUp())
     {
         CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
@@ -394,7 +445,12 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
         {
             double cycle_phase = cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase();
             cell_cycle_phases[node_index] = cycle_phase;
-        }
+        }        
+        if (this->mOutputCellVolumes)
+        {
+            double cell_radius = mrMesh.GetCellRadius(node_index);    
+            cell_radii[node_index] = cell_radius;
+        }         
         if (CellwiseData<DIM>::Instance()->IsSetUp())
         {
             CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
@@ -426,6 +482,10 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     {
         mesh_writer.AddPointData("Cycle phases", cell_cycle_phases);
     }
+    if (this->mOutputCellVolumes)
+    {
+        mesh_writer.AddPointData("Cell radii", cell_radii);
+    }
     if (CellwiseData<DIM>::Instance()->IsSetUp())
     {
         for (unsigned var=0; var<cellwise_data.size(); var++)
@@ -445,15 +505,6 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
     *(this->mpVtkMetaFile) << ".vtu\"/>\n";
 #endif //CHASTE_VTK
-}
-
-template<unsigned DIM>
-void NodeBasedCellPopulation<DIM>::SetOutputCellVolumes(bool outputCellVolumes)
-{
-    if (outputCellVolumes)
-    {
-        EXCEPTION("This method currently not implemented for a NodeBasedCellPopulation");
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

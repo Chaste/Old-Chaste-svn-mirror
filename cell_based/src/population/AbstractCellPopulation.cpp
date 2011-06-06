@@ -303,6 +303,10 @@ void AbstractCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirector
     {
         mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
     }
+    if (this->mOutputCellVolumes)
+    {
+        mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
+    }
 
     mDirPath = rDirectory;
 #ifdef CHASTE_VTK
@@ -347,6 +351,10 @@ void AbstractCellPopulation<DIM>::CloseOutputFiles()
     if (mOutputCellIdData)
     {
         mpCellIdFile->close();
+    }
+    if (this->mOutputCellVolumes)
+    {
+        mpCellVolumesFile->close();
     }
 #ifdef CHASTE_VTK
     *mpVtkMetaFile << "    </Collection>\n";
@@ -601,6 +609,10 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
     if (mOutputCellAges)
     {
         *mpCellAgesFile << time << "\t";
+    }
+    if (this->mOutputCellVolumes)
+    {
+        WriteCellVolumeResultsToFile();
     }
 
     GenerateCellResultsAndWriteToFiles();

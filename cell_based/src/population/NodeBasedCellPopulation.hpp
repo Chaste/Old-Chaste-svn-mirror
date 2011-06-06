@@ -65,7 +65,7 @@ private:
     /** Vector of maximal spatial positions in each dimension. */
     c_vector<double, DIM> mMaxSpatialPositions;
 
-    /** Node pairs for force calculations */
+    /** Node pairs for force calculations. */
     std::set< std::pair<Node<DIM>*, Node<DIM>* > > mNodePairs;
 
     /** Whether to delete the nodes-only mesh (taken in one of the constructors, defaults to false). */
@@ -132,6 +132,11 @@ private:
      * Loops over nodes and sets mMinSpatialPositions and mMaxSpatialPositions
      */
     void FindMaxAndMin();
+
+    /** 
+     * Overridden WriteCellVolumeResultsToFile() method.
+     */
+    void WriteCellVolumeResultsToFile();    
 
     /**
      * Overridden WriteVtkResultsToFile() method.
@@ -265,17 +270,6 @@ public:
      * @return The maximum distance between any nodes in this dimension.
      */
     double GetWidth(const unsigned& rDimension);
-
-    /**
-     * Overridden SetOutputCellVolumes() method.
-     *
-     * Currently there is no facility for computing the volume associated
-     * with each cell in a NodeBasedCellPopulation, so if this method is
-     * called with outputCellVolumes = true, an exception is thrown.
-     *
-     * @param outputCellVolumes the new value of mOutputCellVolumes
-     */
-    void SetOutputCellVolumes(bool outputCellVolumes);
 };
 
 #include "SerializationExportWrapper.hpp"
