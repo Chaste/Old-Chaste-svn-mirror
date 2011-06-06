@@ -447,8 +447,8 @@ void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
 
     // Loop over cells and find associated elements so in the same order as the cells in output files
-    for (std::list<CellPtr>::iterator cell_iter = this->mCells.begin();
-         cell_iter != this->mCells.end();
+     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
          ++cell_iter)
     {
         unsigned elem_index = this->GetLocationIndexUsingCell(*cell_iter);

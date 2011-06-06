@@ -40,10 +40,9 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
     for (unsigned i=0; i<rNodes.size(); i++)
     {
         assert(!rNodes[i]->IsDeleted());
-        bool boundary = rNodes[i]->IsBoundaryNode();
         c_vector<double, SPACE_DIM> location = rNodes[i]->rGetLocation();
 
-        Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, boundary);
+        Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location);
         this->mNodes.push_back(p_node_copy);
         mCellRadii.push_back(1.0);
     }
