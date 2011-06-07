@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef AVERAGEDSOURCEPDE_HPP_
 #define AVERAGEDSOURCEPDE_HPP_
 
-#include "MeshBasedCellPopulation.hpp"
+#include "AbstractCellPopulation.hpp"
+#include "TetrahedralMesh.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
 
@@ -42,7 +43,7 @@ class AveragedSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 private:
 
     /** The cell population member. */
-    MeshBasedCellPopulation<DIM>& mrCellPopulation;
+    AbstractCellPopulation<DIM>& mrCellPopulation;
 
     /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
@@ -58,7 +59,7 @@ public:
      * @param rCellPopulation reference to the cell population
      * @param coefficient the coefficient of consumption of nutrient by cells
      */
-    AveragedSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient);
+    AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient);
 
     /**
      * Set up the source terms.

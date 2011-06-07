@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellBasedSimulationWithPdes.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "NodeBasedCellPopulation.hpp"
 #include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -53,7 +54,8 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
       mpCoarsePdeMesh(NULL)
 {
     // We must be using a mesh-based cell population
-    assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL);
+    // assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL);
+	assert((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) || (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL));
 
     // We must not have any ghost nodes
     assert(dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(&(this->mrCellPopulation)) == NULL);
@@ -101,6 +103,11 @@ void CellBasedSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::SetupSolve()
 {
+	// If we're using a NodeBasedCellPopulation - assert that we have a CoarsePdeMesh to solve it on
+	if((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) && mpCoarsePdeMesh==NULL)
+	{
+		EXCEPTION("Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
+	}
     if (mpCoarsePdeMesh != NULL)
     {
         InitialiseCoarsePdeMesh();

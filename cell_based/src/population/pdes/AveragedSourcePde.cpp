@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
-AveragedSourcePde<DIM>::AveragedSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient)
+AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient)
     : mrCellPopulation(rCellPopulation),
       mCoefficient(coefficient)
 {
