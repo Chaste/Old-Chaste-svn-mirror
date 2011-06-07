@@ -542,7 +542,7 @@ public:
         TS_ASSERT_DELTA(width_y, 1.0, 1e-6);
     }
 
-    void TestNodeBasedCellPopulationOutputWriters()
+    void TestNodeBasedCellPopulationOutputWriters2d()
     {
         // Set up SimulationTime (needed if VTK is used)
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
@@ -603,7 +603,7 @@ public:
         }
 
         // Test set methods
-        std::string output_directory = "TestNodeBasedCellPopulationWriters";
+        std::string output_directory = "TestNodeBasedCellPopulationWriters2d";
         OutputFileHandler output_file_handler(output_directory, false);
 
         node_based_cell_population.SetOutputCellMutationStates(true);
@@ -622,12 +622,12 @@ public:
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cell_based/test/data/TestNodeBasedCellPopulationWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cell_based/test/data/TestNodeBasedCellPopulationWriters/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cell_based/test/data/TestNodeBasedCellPopulationWriters/results.vizancestors").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters/cellmutationstates.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters/cellages.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestNodeBasedCellPopulationWriters/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cell_based/test/data/TestNodeBasedCellPopulationWriters2d/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cell_based/test/data/TestNodeBasedCellPopulationWriters2d/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cell_based/test/data/TestNodeBasedCellPopulationWriters2d/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters2d/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters2d/cellages.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestNodeBasedCellPopulationWriters2d/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_cell_population.GetCellMutationStateCount();
@@ -651,7 +651,7 @@ public:
         // For coverage
         TS_ASSERT_THROWS_NOTHING(node_based_cell_population.WriteResultsToFiles());
 
-        //Test that the cell population parameters are output correctly
+        // Test that the cell population parameters are output correctly
         out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
         // Write cell population parameters to file
@@ -659,12 +659,64 @@ public:
         parameter_file->close();
 
         // Compare output with saved files of what they should look like
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters         cell_based/test/data/TestNodeBasedCellPopulationWriters/results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters         cell_based/test/data/TestNodeBasedCellPopulationWriters2d/results.parameters").c_str()), 0);
 
         // Tidy up
         CellwiseData<2>::Destroy();
     }
     
+    void TestNodeBasedCellPopulationOutputWriters3d()
+    {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+        // Create a simple mesh
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TetrahedralMesh<3,3> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<3> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create a cell population
+        NodeBasedCellPopulation<3> cell_population(mesh, cells);
+
+        TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "NodeBasedCellPopulation-3");
+
+        // Test set methods
+        std::string output_directory = "TestNodeBasedCellPopulationWriters3d";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        cell_population.SetOutputCellVolumes(true);
+        cell_population.SetOutputCellAncestors(true);
+        cell_population.SetOutputCellMutationStates(true);
+        cell_population.SetOutputCellProliferativeTypes(true);
+        cell_population.SetOutputCellAges(true);
+        cell_population.SetOutputCellCyclePhases(true);
+
+        TS_ASSERT_THROWS_NOTHING(cell_population.CreateOutputFiles(output_directory, false));
+
+        cell_population.WriteResultsToFiles();
+
+        TS_ASSERT_THROWS_NOTHING(cell_population.CloseOutputFiles());
+
+        // Compare output with saved files of what they should look like
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cell_based/test/data/TestNodeBasedCellPopulationWriters3d/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cell_based/test/data/TestNodeBasedCellPopulationWriters3d/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cell_based/test/data/TestNodeBasedCellPopulationWriters3d/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters3d/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedCellPopulationWriters3d/cellages.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestNodeBasedCellPopulationWriters3d/cellareas.dat").c_str()), 0);
+    }
+
     void TestWritingCellCyclePhases()
     {
         // Set up SimulationTime (needed if VTK is used)
