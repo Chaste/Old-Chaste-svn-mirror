@@ -47,7 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
-#include "Debug.hpp"
 
 class TestMeshBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -91,12 +90,11 @@ private:
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
-            counter++;          
+            counter++;
         }
 
         TS_ASSERT_EQUALS(counter, cell_population.GetNumRealCells());
     }
-
 
 public:
 
@@ -846,7 +844,7 @@ public:
                  ++cell_iter)
             {
                 cell_iter->ReadyToDivide();
-                cell_locations.push_back(p_cell_population->GetLocationOfCellCentre(*cell_iter));             
+                cell_locations.push_back(p_cell_population->GetLocationOfCellCentre(*cell_iter));
             }
 
             std::pair<CellPtr,CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
