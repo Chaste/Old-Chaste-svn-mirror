@@ -33,13 +33,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractFeCableObjectAssembler.hpp"
 #include "MixedDimensionMesh.hpp"
+#include "PetscMatTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscVecTools.hpp"
 #include "ReplicatableVector.hpp"
 #include "TrianglesMeshReader.hpp"
 
 template<unsigned DIM>
-class BasicCableVectorAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>
+class BasicCableAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,true,true,NORMAL>
 {
 private:
     double mCoefficient;
@@ -54,10 +55,22 @@ private:
     {
         return -mCoefficient*rPhi;
     }
+    
+    c_matrix<double,1*2,1*2> ComputeCableMatrixTerm(
+        c_vector<double, 2>& rPhi,
+        c_matrix<double, DIM, 2>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double, 1, DIM>& rGradU,
+        Element<1,DIM>* pElement)
+    {
+        c_matrix<double, 2, 2> mass_matrix = outer_prod(rPhi, rPhi);
+        return mCoefficient*mass_matrix;
+    }
 
 public:
-    BasicCableVectorAssembler(MixedDimensionMesh<DIM,DIM>* pMesh, double coefficient)
-        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh),
+    BasicCableAssembler(MixedDimensionMesh<DIM,DIM>* pMesh, double coefficient)
+        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh),
           mCoefficient(coefficient)
     {
     }
@@ -67,20 +80,30 @@ public:
 class TestAbstractFeCableObjectAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestBasicVectorAssemblers() throw(Exception)
+    void TestBasicCableAssemblers() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader); 
-              
+        
+        double h = 0.01; //All cable elements in the mesh are of this length
+        
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes());
 
-        BasicCableVectorAssembler<2> assembler(&mesh, 2.0);
+        Mat mat;
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 2);
 
-        assembler.SetVectorToAssemble(vec,true);
-        assembler.Assemble();
+        double coefficient = 2.0;
+        BasicCableAssembler<2> basic_cable_assembler(&mesh, coefficient);
 
+        basic_cable_assembler.SetMatrixToAssemble(mat);
+        basic_cable_assembler.SetVectorToAssemble(vec,true);
+        basic_cable_assembler.Assemble();
+
+        PetscMatTools::AssembleFinal(mat);
         PetscVecTools::Assemble(vec);
 
         /*
@@ -98,23 +121,66 @@ public:
          *
          */
 
+        //Test vector assembly
         ReplicatableVector vec_repl(vec);
         for (unsigned i = 0; i < 55; ++i)
         {
             TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4); 
         }
-        TS_ASSERT_DELTA(vec_repl[55], -0.01, 1e-4);
+        TS_ASSERT_DELTA(vec_repl[55], -h*coefficient*0.5, 1e-4);
         for (unsigned i=56; i<65; i++)
         {
-            TS_ASSERT_DELTA(vec_repl[i], -0.02, 1e-4);
+            TS_ASSERT_DELTA(vec_repl[i], -h*coefficient, 1e-4);
         }
-        TS_ASSERT_DELTA(vec_repl[65], -0.01, 1e-4);
+        TS_ASSERT_DELTA(vec_repl[65], -h*coefficient*0.5, 1e-4);
         for (unsigned i = 66; i < mesh.GetNumNodes(); ++i)
         {
             TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4); 
         }
         
         VecDestroy(vec);
+        
+        //Test matrix assembly
+        int lo, hi;
+        MatGetOwnershipRange(mat, &lo, &hi);
+        for (unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            //Central cable nodes
+            if( i > 55 && i < 65)
+            {
+                double value = PetscMatTools::GetElement(mat,i,i);
+                TS_ASSERT_DELTA(value, (2.0/3.0)*h*coefficient, 1e-4);
+                
+                value = PetscMatTools::GetElement(mat,i,i-1);
+                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
+                
+                value = PetscMatTools::GetElement(mat,i,i+1);
+                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
+            }
+            else if( i == 55)
+            {
+                double value = PetscMatTools::GetElement(mat,i,i);
+                TS_ASSERT_DELTA(value, (1.0/3.0)*h*coefficient, 1e-4);
+                
+                value = PetscMatTools::GetElement(mat,i,i+1);
+                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
+            }
+            else if( i == 65 )
+            {
+                double value = PetscMatTools::GetElement(mat,i,i);
+                TS_ASSERT_DELTA(value, (1.0/3.0)*h*coefficient, 1e-4);
+                
+                value = PetscMatTools::GetElement(mat,i,i-1);
+                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);                
+            }
+            else 
+            {
+                double value = PetscMatTools::GetElement(mat,i,i);
+                TS_ASSERT_DELTA(value, 0.0, 1e-4);
+            }
+        }
+
+        MatDestroy(mat);
     }
 };
 
