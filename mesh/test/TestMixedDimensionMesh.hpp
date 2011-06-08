@@ -329,6 +329,33 @@ public:
         //Compare the binary written from the reader to the binary written from the mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/CableMeshBinary.cable " + results_dir + "/CableMeshBinaryFromMesh.cable").c_str()), 0);
     }
+    
+
+/// This test shows how both processes own an element (ie an error to be fixed) when     
+    void failingTestStuffThatIsFailingInParallel() throw(Exception)
+    {
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        
+        for (MixedDimensionMesh<1,2>::CableElementIterator iter = mesh.GetCableElementIteratorBegin();
+             iter != mesh.GetCableElementIteratorEnd();
+             ++iter)
+        {
+            Element<1,2>& r_element = *(*iter);
+
+            // shows that process 0 and 1 both own element 4            
+            if(r_element.GetOwnership() == true)
+            {
+                std::cout << "Process " << PetscTools::GetMyRank() << " owns element " << r_element.GetIndex() << "\n";
+            }
+        }
+        
+        // remove when above is fixed
+        TS_FAIL("fix me");
+    }
 };
 
 #endif /*TESTMIXEDDIMENSIONMESH_HPP_*/
