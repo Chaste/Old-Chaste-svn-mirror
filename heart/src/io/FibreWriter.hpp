@@ -50,6 +50,16 @@ private:
 
     std::string mBaseName; /**< Base name for the input files */
     bool mFileIsBinary;  /**< Whether all data is to be written as binary*/
+    
+    /**
+     * Open a fibre file for writing and write the header line.
+     * 
+     * @param rFileName The path and name of the file to create
+     * @param numItems The number of items (~ number of elements) 
+     * @return an outstream pointer to the open file.
+     */
+    out_stream OpenFileAndWriteHeader(const std::string& rFileName, unsigned numItems);
+    
 public:
     /**
      * Create a new FibreWriter.
@@ -63,7 +73,7 @@ public:
                 const bool clearOutputDir=true);
     
     /**
-     *  Destructor closes file.
+     *  Destructor 
      */
     ~FibreWriter();
     
@@ -73,6 +83,15 @@ public:
       */
      void WriteAllAxi(const std::vector< c_vector<double, DIM> >& fibres);
     
+     /**
+      * Writes all orthonormal tensors to the file.
+      * @param fibres a vector of longitudial fibre direction vectors  
+      * @param second a vector of transverse vectors (orthogonal to fibres) 
+      * @param third a vector of normal vectors (orthogonal to others) 
+      */
+     void WriteAllOrtho(const std::vector< c_vector<double, DIM> >& fibres,
+                        const std::vector< c_vector<double, DIM> >& second,
+                        const std::vector< c_vector<double, DIM> >& third);
     /**
      * Switch to write binary fibre file
      *

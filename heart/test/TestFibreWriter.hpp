@@ -57,7 +57,7 @@ public:
         fibre_writer.WriteAllAxi(fibre_vector);
         
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
-        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2.axi heart/test/data/fibre_tests/SimpleAxisymmetric2.axi").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2.axi heart/test/data/fibre_tests/SimpleAxisymmetric2.axi").c_str()), 0);
         
     }
     void TestAxiWriterBinary()
@@ -75,7 +75,46 @@ public:
         fibre_writer.WriteAllAxi(fibre_vector);
         
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
-        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2Bin.axi heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2Bin.axi heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi").c_str()), 0);
+    }
+    
+    void TestOrthoWriterAscii() throw (Exception)
+    {
+        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
+        
+        FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file_finder, ORTHO);
+        std::vector< c_vector<double, 3> > fibres;
+        std::vector< c_vector<double, 3> > second;
+        std::vector< c_vector<double, 3> > third;
+        fibre_reader.GetAllOrtho(fibres, second, third);
+          
+        //Write ascii file
+        FibreWriter<3> fibre_writer("TestFibreWriter", "Orthotropic3D", false);
+        fibre_writer.WriteAllOrtho(fibres, second, third);
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_dir + "/Orthotropic3D.ortho heart/test/data/fibre_tests/Orthotropic3D.ortho").c_str()), 0);
+    }
+    
+    void TestOrthoWriterBinary() throw (Exception)
+    {
+        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
+        
+        FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file_finder, ORTHO);
+        std::vector< c_vector<double, 3> > fibres;
+        std::vector< c_vector<double, 3> > second;
+        std::vector< c_vector<double, 3> > third;
+        fibre_reader.GetAllOrtho(fibres, second, third);
+          
+        //Write ascii file
+        FibreWriter<3> fibre_writer("TestFibreWriter", "Orthotropic3DBin", false);
+        fibre_writer.SetWriteFileAsBinary();
+        fibre_writer.WriteAllOrtho(fibres, second, third);
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/Orthotropic3DBin.ortho heart/test/data/fibre_tests/Orthotropic3DBin.ortho").c_str()), 0);      
     }
 };
 

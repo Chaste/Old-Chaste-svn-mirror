@@ -36,7 +36,7 @@ FibreWriter<DIM>::FibreWriter(const std::string& rDirectory,
     : mBaseName(rBaseName),
       mFileIsBinary(false)               
 {
-    mpOutputFileHandler= new OutputFileHandler(rDirectory, clearOutputDir); 
+    mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir); 
 }
 
 template<unsigned DIM>
@@ -49,20 +49,8 @@ template<unsigned DIM>
 void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& fibres)
 {
     // Write axi file
-    std::string axi_file_name = this->mBaseName + ".axi";
-    out_stream p_axi_file = this->mpOutputFileHandler->OpenOutputFile(axi_file_name);
+    out_stream p_axi_file = OpenFileAndWriteHeader(this->mBaseName + ".axi", fibres.size());
   
-    //Header line says how many fibres are coming...
-    *p_axi_file << fibres.size();
-    //... and whether the fibres are binary
-    if (this->mFileIsBinary)
-    {
-        *p_axi_file << "\tBIN\n";
-    }
-    else
-    {
-        *p_axi_file << "\n";
-    }
     //Now give the fibre directions
     for (unsigned i=0; i<fibres.size();i++ )
     {
@@ -81,6 +69,61 @@ void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& f
     }
     *p_axi_file << "#\n# " <<  ChasteBuildInfo::GetProvenanceString();
     p_axi_file->close();
+}
+
+template<unsigned DIM>
+void FibreWriter<DIM>::WriteAllOrtho(const std::vector< c_vector<double, DIM> >& fibres,
+                                     const std::vector< c_vector<double, DIM> >& second,
+                                     const std::vector< c_vector<double, DIM> >& third)
+{
+    assert(fibres.size() == second.size());
+    assert(second.size() == third.size());
+    // Write ortho file
+    out_stream p_file = OpenFileAndWriteHeader(this->mBaseName + ".ortho", fibres.size());
+    
+    //Now give the fibre directions
+    for (unsigned i=0; i<fibres.size();i++ )
+    {
+        if (this->mFileIsBinary)
+        {
+            ///The binary file is row-major while the ascii file is column-major
+            p_file->write((char*)&fibres[i][0], DIM*sizeof(double));
+            p_file->write((char*)&second[i][0], DIM*sizeof(double));
+            p_file->write((char*)&third[i][0], DIM*sizeof(double));
+        }
+        else
+        {
+            ///\todo #1768 Transpose issue?
+            for(unsigned j=0; j<DIM; j++)
+            {
+                *p_file << fibres[i][j] << "\t";
+                *p_file << second[i][j] << "\t";
+                *p_file << third[i][j] << "\t";
+            }
+            *p_file <<"\n";
+        }
+    }
+    *p_file << "#\n# " <<  ChasteBuildInfo::GetProvenanceString();
+    p_file->close();
+}
+
+template<unsigned DIM>
+out_stream FibreWriter<DIM>::OpenFileAndWriteHeader(const std::string& rFileName, unsigned numItems)
+{
+    out_stream p_fibre_file = this->mpOutputFileHandler->OpenOutputFile(rFileName);
+  
+    //Header line says how many fibres are coming...
+    *p_fibre_file << numItems;
+    //... and whether the fibres are binary
+    if (this->mFileIsBinary)
+    {
+        *p_fibre_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_fibre_file << "\n";
+    }
+    return p_fibre_file;
 }
 
 

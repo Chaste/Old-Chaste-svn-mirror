@@ -221,7 +221,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(fibre_reader7.GetNextFibreVector(fibre_vector), "A line is incomplete in");
     }
     
-    void TestBinaryFileReader() throw (Exception)
+    void TestAxiBinaryFileReader() throw (Exception)
     {
         // Read in a binary fibres file.
         FileFinder file_finder_bin("heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi", RelativeTo::ChasteSourceRoot);
@@ -242,9 +242,41 @@ public:
             {
                 TS_ASSERT_DELTA(fibre_vector_bin[i][j], fibre_vector[i][j], 1e-9);
             }
-        }
+        }        
+    }
+
+    void TestOrthoBinaryFileReader() throw (Exception)
+    {
+        // Read in a binary fibres file.
+        FileFinder file_finder_bin("heart/test/data/fibre_tests/Orthotropic3DBin.ortho", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader_bin(file_finder_bin, ORTHO);
+        std::vector< c_vector<double, 3> > fibre_vector_bin;
+        std::vector< c_vector<double, 3> > second_vector_bin;
+        std::vector< c_vector<double, 3> > third_vector_bin;
+        fibre_reader_bin.GetAllOrtho(fibre_vector_bin, second_vector_bin, third_vector_bin);
         
+        // Read in the equivalent ascii fibres file.
+        FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file_finder, ORTHO);
+        std::vector< c_vector<double, 3> > fibre_vector;
+        std::vector< c_vector<double, 3> > second_vector;
+        std::vector< c_vector<double, 3> > third_vector;
+        fibre_reader.GetAllOrtho(fibre_vector, second_vector, third_vector);
         
+        TS_ASSERT_EQUALS(fibre_vector_bin.size(),  fibre_vector.size());
+        TS_ASSERT_EQUALS(second_vector_bin.size(), fibre_vector.size());
+        TS_ASSERT_EQUALS(third_vector_bin.size(),  fibre_vector.size());
+        TS_ASSERT_EQUALS(second_vector.size(),     fibre_vector.size());
+        TS_ASSERT_EQUALS(third_vector.size(),      fibre_vector.size());
+        for (unsigned i=0; i<fibre_vector.size(); i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(fibre_vector_bin[i][j], fibre_vector[i][j], 1e-9);
+                TS_ASSERT_DELTA(second_vector_bin[i][j], second_vector[i][j], 1e-9);
+                TS_ASSERT_DELTA(third_vector_bin[i][j], third_vector[i][j], 1e-9);
+            }
+        }        
     }
 };
 

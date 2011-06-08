@@ -92,8 +92,9 @@ void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_d
     }   
     for (unsigned i=0; i<mNumLinesOfData; i++)
     {
+        ///\todo #1768 Transpose issue?
         c_matrix<double, DIM, DIM> temp_matrix;
-        GetNextFibreSheetAndNormalMatrix(temp_matrix, false);
+        GetNextFibreSheetAndNormalMatrix(temp_matrix, true);
         matrix_row<c_matrix<double, DIM, DIM> > row0(temp_matrix, 0);
         first_direction.push_back(row0);
         if (DIM>=2)
@@ -121,9 +122,8 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
     if (mFileIsBinary)
     {
         //Take mNumItemsPerLine from the ifstream
-        //rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
-        ///\todo #1768 Ortho binary reader
-        //NEVER_REACHED;
+        ///The binary file is row-major while the ascii file is column-major
+        mDataFile.read((char*)&(rFibreMatrix(0,0)), mNumItemsPerLine*sizeof(double));
     }
     else
     {
@@ -135,16 +135,17 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
                           << " - each line should contain " << DIM*DIM << " entries";
             EXCEPTION(string_stream.str());
         }
+        for(unsigned i=0; i<DIM; i++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                ///\todo #1768 Transpose issue?
+                rFibreMatrix(j,i) = mTokens[DIM*i + j];
+            }
+        }
     }
         
 
-    for(unsigned i=0; i<DIM; i++)
-    {
-        for(unsigned j=0; j<DIM; j++)
-        {
-            rFibreMatrix(j,i) = mTokens[DIM*i + j];
-        }
-    }
 
     if(checkOrthogonality)
     {
@@ -242,7 +243,7 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
     std::string::iterator iter = line.end();
     iter--;
     unsigned nchars2delete = 0;
-    while(*iter == ' ')
+    while(*iter == ' ' || *iter == '\t')
     {
         nchars2delete++;
         iter--;
