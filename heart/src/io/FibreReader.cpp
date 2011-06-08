@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, FibreFileType fibreFileType)
+   : mFileIsBinary(false) // overwritten by ReadNumLinesOfDataFromFile() if applicable.
 {
     if (fibreFileType == AXISYM)
     {
@@ -117,14 +118,25 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
         EXCEPTION("Use GetNextFibreVector when reading axisymmetric fibres");
     }
 
-    unsigned num_entries = GetTokensAtNextLine();
-    if(num_entries < mNumItemsPerLine)
+    if (mFileIsBinary)
     {
-        std::stringstream string_stream;
-        string_stream << "A line is incomplete in " << mFilePath
-                      << " - each line should contain " << DIM*DIM << " entries";
-        EXCEPTION(string_stream.str());
+        //Take mNumItemsPerLine from the ifstream
+        //rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
+        ///\todo #1768 Ortho binary reader
+        //NEVER_REACHED;
     }
+    else
+    {
+        unsigned num_entries = GetTokensAtNextLine();
+        if(num_entries < mNumItemsPerLine)
+        {
+            std::stringstream string_stream;
+            string_stream << "A line is incomplete in " << mFilePath
+                          << " - each line should contain " << DIM*DIM << " entries";
+            EXCEPTION(string_stream.str());
+        }
+    }
+        
 
     for(unsigned i=0; i<DIM; i++)
     {
@@ -166,19 +178,27 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
         EXCEPTION("Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres");
     }
 
-    unsigned num_entries = GetTokensAtNextLine();
-    if(num_entries < mNumItemsPerLine)
+    if (mFileIsBinary)
     {
-        std::stringstream string_stream;
-        string_stream << "A line is incomplete in " << mFilePath
-                      << " - each line should contain " << DIM << " entries";
-        EXCEPTION(string_stream.str());
+        //Take mNumItemsPerLine from the ifstream
+        mDataFile.read((char*)&rFibreVector[0], mNumItemsPerLine*sizeof(double));
+    }
+    else
+    {
+        unsigned num_entries = GetTokensAtNextLine();
+        if(num_entries < mNumItemsPerLine)
+        {
+            std::stringstream string_stream;
+            string_stream << "A line is incomplete in " << mFilePath
+                          << " - each line should contain " << DIM << " entries";
+            EXCEPTION(string_stream.str());
+        }
+        for(unsigned i=0; i<DIM; i++)
+        {
+            rFibreVector(i) = mTokens[i];
+        }
     }
 
-    for(unsigned i=0; i<DIM; i++)
-    {
-        rFibreVector(i) = mTokens[i];
-    }
     
     if(checkNormalised && fabs(norm_2(rFibreVector)-1)>1e-4)
     {
@@ -250,13 +270,34 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
 template<unsigned DIM>
 void FibreReader<DIM>::ReadNumLinesOfDataFromFile()
 {
-    if (GetTokensAtNextLine() != 1)
+    std::string raw_line;
+    bool blank_line = false;
+    do
+    {
+        getline(mDataFile, raw_line);
+        //Strip comments following a hash
+        raw_line = raw_line.substr(0, raw_line.find('#'));
+        //Check for blank line
+        blank_line = (raw_line.find_first_not_of(" \t",0) == std::string::npos);
+    }
+    while (blank_line);
+    
+    std::stringstream header_line(raw_line);
+    
+    header_line >> mNumLinesOfData;
+    
+    std::string extras;   
+    header_line >> extras;
+    
+    if (extras=="BIN")
+    {
+        mFileIsBinary = true;
+    }
+    else if (extras!="")
     {
         mDataFile.close();
-        EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of lines of data in the file (and nothing else)");
+        EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of lines of data in the file (and possibly a BIN tag) at most");
     }
-
-    mNumLinesOfData = (unsigned) mTokens[0];
 }
 
 

@@ -136,7 +136,7 @@ public:
             ortho_tensors.SetFibreOrientationFile(file);
             TS_ASSERT_THROWS_THIS(ortho_tensors.Init(&mesh),
                     "First (non comment) line of the fibre orientation file should contain the number "
-                    "of lines of data in the file (and nothing else)"); // wrong file format
+                    "of lines of data in the file (and possibly a BIN tag) at most"); // wrong file format
         }
 
         {

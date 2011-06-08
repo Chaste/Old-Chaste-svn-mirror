@@ -220,6 +220,32 @@ public:
         FibreReader<2> fibre_reader7(finder7, AXISYM);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader7.GetNextFibreVector(fibre_vector), "A line is incomplete in");
     }
+    
+    void TestBinaryFileReader() throw (Exception)
+    {
+        // Read in a binary fibres file.
+        FileFinder file_finder_bin("heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader_bin(file_finder_bin, AXISYM);
+        std::vector< c_vector<double, 3> > fibre_vector_bin;
+        fibre_reader_bin.GetAllAxi(fibre_vector_bin);
+        
+        // Read in the equivalent ascii fibres file.
+        FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file_finder, AXISYM);
+        std::vector< c_vector<double, 3> > fibre_vector;
+        fibre_reader.GetAllAxi(fibre_vector);
+        
+        TS_ASSERT_EQUALS(fibre_vector_bin.size(), fibre_vector.size());
+        for (unsigned i=0; i<fibre_vector_bin.size(); i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(fibre_vector_bin[i][j], fibre_vector[i][j], 1e-9);
+            }
+        }
+        
+        
+    }
 };
 
 

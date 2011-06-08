@@ -46,30 +46,38 @@ FibreWriter<DIM>::~FibreWriter()
 }
 
 template<unsigned DIM>
-void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& direction)
+void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& fibres)
 {
     // Write axi file
     std::string axi_file_name = this->mBaseName + ".axi";
     out_stream p_axi_file = this->mpOutputFileHandler->OpenOutputFile(axi_file_name);
   
-// \todo #1768 - Make binary writing work  
-//    if (this->mFileIsBinary)
-//    {
-//        *p_axi_file << "\tBIN\n";
-//    }
-//    else
-//    {
-//        *p_axi_file << "\n";
-//    }
-    
-    *p_axi_file << direction.size() << std::endl;
-    for (unsigned i=0; i<direction.size();i++ )
+    //Header line says how many fibres are coming...
+    *p_axi_file << fibres.size();
+    //... and whether the fibres are binary
+    if (this->mFileIsBinary)
     {
-        for(unsigned j=0; j<DIM; j++)
+        *p_axi_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_axi_file << "\n";
+    }
+    //Now give the fibre directions
+    for (unsigned i=0; i<fibres.size();i++ )
+    {
+        if (this->mFileIsBinary)
         {
-            *p_axi_file << direction[i](j) << "\t";
+            p_axi_file->write((char*)&fibres[i][0], DIM*sizeof(double));
         }
-        *p_axi_file <<"\n";
+        else
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                *p_axi_file << fibres[i][j] << "\t";
+            }
+            *p_axi_file <<"\n";
+        }
     }
     *p_axi_file << "#\n# " <<  ChasteBuildInfo::GetProvenanceString();
     p_axi_file->close();

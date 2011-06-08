@@ -62,6 +62,8 @@ private:
 
     /** Number of lines of data in the file, read from the first line of the file */
     unsigned mNumLinesOfData;
+    
+    bool mFileIsBinary;  /**< Whether the data file has binary entries*/
 
     /** How many items we expect to find per line: DIM for axisymmetric, DIM*DIM for orthotropic */
     unsigned mNumItemsPerLine;

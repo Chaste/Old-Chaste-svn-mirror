@@ -43,26 +43,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestFibreWriter : public CxxTest::TestSuite
 {
 public:
-    void TestAxiWriter()
+    void TestAxiWriterAscii()
     {
-        EXIT_IF_PARALLEL;
+        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
         
-        FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric.axi", RelativeTo::ChasteSourceRoot);
+        FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, AXISYM);
-
         std::vector< c_vector<double, 3> > fibre_vector;
         fibre_reader.GetAllAxi(fibre_vector);
         
         //Write ascii file
-        FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric", false);
+        FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric2", true);
         fibre_writer.WriteAllAxi(fibre_vector);
         
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
-        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric.axi heart/test/data/fibre_tests/SimpleAxisymmetric.axi").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2.axi heart/test/data/fibre_tests/SimpleAxisymmetric2.axi").c_str()), 0);
+        
+    }
+    void TestAxiWriterBinary()
+    {
+        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
+        
+        FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader(file_finder, AXISYM);
+        std::vector< c_vector<double, 3> > fibre_vector;
+        fibre_reader.GetAllAxi(fibre_vector);
         
         //Write binary file
+        FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric2Bin", false);
         fibre_writer.SetWriteFileAsBinary();
-        // \todo #1768 - Implement binary writing and test
+        fibre_writer.WriteAllAxi(fibre_vector);
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
+        TS_ASSERT_EQUALS(system(("diff -aw -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2Bin.axi heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi").c_str()), 0);
     }
 };
 
