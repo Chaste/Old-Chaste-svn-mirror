@@ -56,10 +56,6 @@ const double DOUBLE_UNSET=DBL_MAX;
  */
 class Exception
 {
-private:
-    std::string mMessage; /**< Full exception message - includes file and line number. */
-    std::string mShortMessage; /**< Short exception message - just text of the exception. */
-
 public:
     /**
      * Construct an exception with a message string.
@@ -105,6 +101,22 @@ public:
      * @param expected  some expected substring of #mShortMessage
      */
     std::string CheckShortMessageContains(std::string expected) const;
+
+protected:
+    /**
+     * Allow subclasses to reset the exception message after construction of the base class,
+     * if desired.
+     *
+     * @param rMessage  the message
+     * @param rFilename  which source file threw the exception
+     * @param lineNumber  which line number of the source file threw the exception
+     */
+    void SetMessage(const std::string& rMessage,
+                    const std::string& rFilename, unsigned lineNumber);
+
+private:
+    std::string mMessage; /**< Full exception message - includes file and line number. */
+    std::string mShortMessage; /**< Short exception message - just text of the exception. */
 };
 
 /**
