@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+
 class TestMixedDimensionMesh : public CxxTest::TestSuite
 {
 public:
@@ -345,6 +346,22 @@ public:
              ++iter)
         {
             Element<1,2>& r_element = *(*iter);
+//            
+//            c_matrix<double, 2, 1> jacobian;
+//            c_matrix<double, 1, 2> inverse_jacobian;
+//            double jacobian_determinant;
+//
+//            r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
+//            
+//            TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
+//            TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
+//            TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
+//            TS_ASSERT_DELTA(inverse_jacobian(0,1), 0.0, 1e-6);
+//            TS_ASSERT_DELTA(jacobian_determinant, 0.01, 1e-6);
+
+            // y value of all the cable nodes should be 0.05
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(0,1), 0.05, 1e-6);
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(1,1), 0.05, 1e-6);
 
             // shows that process 0 and 1 both own element 4            
             if(r_element.GetOwnership() == true)
