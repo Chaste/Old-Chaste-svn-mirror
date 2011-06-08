@@ -1,5 +1,5 @@
 Test1D3DLinearEllipticSolver.hpp
-TestAbstractFeCableObjectAssembler
+TestAbstractFeCableObjectAssembler.hpp
 TestAbstractFeObjectAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
