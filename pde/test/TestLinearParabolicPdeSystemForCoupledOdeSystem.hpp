@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Test suite for the TestSimpleLinearParabolicSystemForCoupledOdeSystem class.
  */
-
 #include <cxxtest/TestSuite.h>
 #include "HeatEquationForCoupledOdeSystem.hpp"
 

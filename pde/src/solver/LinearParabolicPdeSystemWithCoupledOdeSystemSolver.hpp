@@ -362,27 +362,14 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         }
         preallocation *= PROBLEM_DIM;
 
-        if (initialSolution == NULL)
-        {
-            std::cout << "blah" << std::endl;
-            // Static problem, create linear system
-            // The following ensures all the unknowns for a particular node
-            // are on the same processor
-            Vec template_vec = mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
-
-            this->mpLinearSystem = new LinearSystem(template_vec, preallocation);
-
-            VecDestroy(template_vec);
-        }
-        else
-        {
-            // Use the currrent solution (ie the initial solution)
-            // as the template in the alternative constructor of
-            // LinearSystem. This is to avoid problems with VecScatter.
-            this->mpLinearSystem = new LinearSystem(initialSolution, preallocation);
-        }
+        /*
+         * Use the currrent solution (ie the initial solution) as the
+         * template in the alternative constructor of LinearSystem.
+         * This is to avoid problems with VecScatter.
+         */
+        this->mpLinearSystem = new LinearSystem(initialSolution, preallocation);
     }
-//        AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::InitialiseForSolve(initialSolution);
+
     assert(this->mpLinearSystem);
     this->mpLinearSystem->SetMatrixIsSymmetric(true);
     this->mpLinearSystem->SetKspType("cg");
