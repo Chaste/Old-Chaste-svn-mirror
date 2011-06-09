@@ -37,9 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include <cstring>
 
-
 /*
- *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
+ * Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
  * different compared to a real cardiac simulation. Do not take conclusions about preconditioner performance
  * based on these tests only.
  */
@@ -50,7 +49,7 @@ public:
     void TestBasicFunctionality() throw (Exception)
     {
         /*
-         *  We need to make sure here that the matrix is loaded with the appropriate parallel layout. Petsc's
+         * We need to make sure here that the matrix is loaded with the appropriate parallel layout. Petsc's
          * default puts 1331 rows in each processor. This wouldn't be possible in a real bidomain simulation
          * because implies that equations V_665 an Phi_e_665 are solved in different processors.
          */
@@ -138,11 +137,11 @@ public:
         Timer::Reset();
         {
             Mat system_matrix;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
             Vec system_rhs;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTNONLINEARHEATEQUATIONPDE_HPP_
 #define _TESTNONLINEARHEATEQUATIONPDE_HPP_
 
@@ -34,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNonlinearEquationPde : public CxxTest::TestSuite
 {
 public:
+
     void TestNonlinearEquationPdeMethod()
     {
         ChastePoint<1> zero1(0);
@@ -49,7 +51,7 @@ public:
         TS_ASSERT_DELTA(heat_equation2.ComputeNonlinearSourceTerm(zero2,u),0.0,1e-12);
         TS_ASSERT_DELTA(heat_equation3.ComputeNonlinearSourceTerm(zero3,u),0.0,1e-12);
 
-        // diffusion matrices should be equal to identity * u;
+        // Diffusion matrices should be equal to identity * u;
         c_matrix<double, 1, 1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1,u);
         c_matrix<double, 2, 2> diff2 = heat_equation2.ComputeDiffusionTerm(zero2,u);
         c_matrix<double, 3, 3> diff3 = heat_equation3.ComputeDiffusionTerm(zero3,u);
@@ -68,6 +70,5 @@ public:
         TS_ASSERT_DELTA(diff3(1,2),0,1e-12);
     }
 };
-
 
 #endif //_TESTNONLINEARHEATEQUATIONPDE_HPP_

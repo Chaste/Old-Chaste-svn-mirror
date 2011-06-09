@@ -37,13 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ChasteBuildInfo
 {
 public:
+
     /**
      * @return The path to the root directory of the Chaste source tree.
      */
     static const char* GetRootDir();
 
     /**
-     * Get a string representation of the current Chaste version.  This combines the
+     * Get a string representation of the current Chaste version. This combines the
      * information from GetMajorReleaseNumber, GetMinorReleaseNumber, and GetRevisionNumber.
      */
     static std::string GetVersionString();

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef OUTPUTFILEHANDLER_HPP_
 #define OUTPUTFILEHANDLER_HPP_
 
@@ -37,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class FileFinder; // Avoid circular includes
 
-/** Type of our output streams; a managed pointer to an std::ofstream */
+/** Type of our output streams; a managed pointer to an std::ofstream. */
 typedef std::auto_ptr<std::ofstream> out_stream;
 
 /**
@@ -48,6 +47,7 @@ typedef std::auto_ptr<std::ofstream> out_stream;
 class OutputFileHandler
 {
 private:
+
     std::string mDirectory; ///< The directory to store output files in (always ends in "/")
 
     /**
@@ -75,6 +75,7 @@ private:
     std::string MakeFoldersAndReturnFullPath(const std::string& rDirectory) const;
 
 public:
+
     /**
      * Create an OutputFileHandler that will create output files in the given directory.
      * The directory name should be relative to the place where Chaste test output is
@@ -92,15 +93,15 @@ public:
                       bool cleanOutputDirectory = true);
 
     /**
-     *  Static method for getting the test output directory (the directory where
-     *  chaste stores test output).  This is set from the environment variable
-     *  CHASTE_TEST_OUTPUT, and defaults to "./testoutput" if it is not set.
+     * Static method for getting the test output directory (the directory where
+     * chaste stores test output).  This is set from the environment variable
+     * CHASTE_TEST_OUTPUT, and defaults to "./testoutput" if it is not set.
      *
-     *  Attempts to return an absolute path, but may get confused by odd setups.
-     *  Eventually we'll move to using boost::filesystem, which would be more robust.
+     * Attempts to return an absolute path, but may get confused by odd setups.
+     * Eventually we'll move to using boost::filesystem, which would be more robust.
      *
-     *  Static so an output file handler does not have to be created if the test output
-     *  directory is wanted for, say, reading a file.
+     * Static so an output file handler does not have to be created if the test output
+     * directory is wanted for, say, reading a file.
      */
     static std::string GetChasteTestOutputDirectory();
 
@@ -126,7 +127,6 @@ public:
      */
     out_stream OpenOutputFile(const std::string& rFileName,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc) const;
-
 
     /**
      * This just calls the other OpenOutputFile after concatenating the first three arguments

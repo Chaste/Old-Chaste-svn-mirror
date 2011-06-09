@@ -56,6 +56,7 @@ class ArchiveOpener
 private:
     friend class TestArchivingHelperClasses;
 public:
+
     /**
      * Open the archives for this process, either for reading or writing depending on the
      * template parameter Archive.
@@ -89,17 +90,22 @@ public:
      */
     Archive* GetCommonArchive()
     {
-        assert(mpCommonArchive!=NULL);
+        assert(mpCommonArchive != NULL);
         return mpCommonArchive;
     }
+
 private:
-    /** The file stream for the main archive */
+
+    /** The file stream for the main archive. */
     Stream* mpCommonStream;
-    /** The file stream for the secondary archive */
+
+    /** The file stream for the secondary archive. */
     Stream* mpPrivateStream;
-    /** The main archive */
+
+    /** The main archive. */
     Archive* mpCommonArchive;
-    /** The secondary archive */
+
+    /** The secondary archive. */
     Archive* mpPrivateArchive;
 };
 

@@ -89,7 +89,6 @@ ReplicatableVector::~ReplicatableVector()
     RemovePetscContext();
 }
 
-
 // Vector interface methods
 
 unsigned ReplicatableVector::GetSize()
@@ -125,7 +124,6 @@ double& ReplicatableVector::operator[](unsigned index)
     return mpData[index];
 }
 
-
 // The workhorse methods
 
 void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
@@ -146,7 +144,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     // If the size has changed then we'll need to make a new context
     PetscInt isize;
     VecGetSize(vec, &isize);
-    unsigned size=isize;
+    unsigned size = isize;
 
     if (this->GetSize() != size)
     {

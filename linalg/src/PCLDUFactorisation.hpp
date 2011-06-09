@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef PCLDUFACTORISATION_HPP_
 #define PCLDUFACTORISATION_HPP_
 
@@ -38,14 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- *  PETSc will return the control to this function everytime it needs to precondition a vector (i.e. y = inv(M)*x)
+ * PETSc will return the control to this function everytime it needs to precondition a vector (i.e. y = inv(M)*x)
  *
- *  This function needs to be declared global, since I (migb) haven't found a way of defining it inside a class and
- *  be able of passing it by reference.
+ * This function needs to be declared global, since I (migb) haven't found a way of defining it inside a class and
+ * be able of passing it by reference.
  *
- *  @param pc_context preconditioner context struct. Stores preconditioner state (i.e. PC, Mat, and Vec objects used)
- *  @param x unpreconditioned residual.
- *  @param y preconditioned residual. y = inv(M)*x
+ * @param pc_context preconditioner context struct. Stores preconditioner state (i.e. PC, Mat, and Vec objects used)
+ * @param x unpreconditioned residual.
+ * @param y preconditioned residual. y = inv(M)*x
  */
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
 PetscErrorCode PCLDUFactorisationApply(PC pc_object, Vec x, Vec y);
@@ -54,26 +53,27 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y);
 #endif
 
 /**
- *  This class defines a PETSc-compliant purpose-built preconditioner.
+ * This class defines a PETSc-compliant purpose-built preconditioner.
  *
- *  Let A be a matrix arising in the FEM discretisation of the bidomain equations with the following block structure:
+ * Let A be a matrix arising in the FEM discretisation of the bidomain
+ * equations with the following block structure:
  *
  *                 A = (A11  B')
  *                     (B  A22)
  *
- *  Let A=LDU be the following matrix factorisation
+ * Let A=LDU be the following matrix factorisation
  *
  *                 LDU = (I      0)(A11 0)(I inv(A11)B')
  *                       (B*A11' I)(0  S)(0          I)
  *
- *  with I the identity matrix and S=A22-B*inv(A11)*B'
+ * with I the identity matrix and S=A22-B*inv(A11)*B'
  *
- *  Let inv(A) be a preconditioner
+ * Let inv(A) be a preconditioner
  *
  *                 inv(A) = inv(U)inv(D)inv(L) = (I -inv(A11)B')(inv(A11)      0)(I           0)
  *                                               (0           I)(0       inv(S))(-B*inv(A11) I)
  *
- *  This class implements an approximation of inv(A) where S=A22
+ * This class implements an approximation of inv(A) where S=A22
  *
  *                 inv(P) ~ inv(A)
  *
@@ -83,27 +83,30 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y);
  *                 inv(P) = (inv(A11)  -inv(A11)B'inv(S=A22))(I             0)
  *                          (0                    inv(S=A22))(-B*inv(A11)   I)
  *
- *  In order to compute [y1 y2]' = inv(P)[x1 x2]' we do
+ * In order to compute [y1 y2]' = inv(P)[x1 x2]' we do
  *
  *                 z  = inv(A11)*x1
  *                 y2 = inv(A22)*(x2 - B*z)
  *                 y1 = z - inv(A11)(B*y2)
  *
- *  The inverses are approximate with one cycle of AMG.
+ * The inverses are approximate with one cycle of AMG.
  *
- *  Note: This class requires PETSc to be build including HYPRE library. If it's not available, it will throw the following error:
+ * Note: This class requires PETSc to be build including HYPRE library. 
+ * If it's not available, it will throw the following error:
  *
  *     [0]PETSC ERROR: --------------------- Error Message ------------------------------------
  *     [0]PETSC ERROR: Unknown type. Check for miss-spelling or missing external package needed for type!
  *     [0]PETSC ERROR: Unable to find requested PC type hypre!
  *
- *        and will approximate the inverse of the subblocks with PETSc's default preconditioner (bjacobi at the time of writing this).
+ * and will approximate the inverse of the subblocks with PETSc's default
+ * preconditioner (bjacobi at the time of writing this).
  */
 class PCLDUFactorisation
 {
 public:
+
     /**
-     *  This struct defines the state of the preconditioner (initialised data and objects to be reused)
+     * This struct defines the state of the preconditioner (initialised data and objects to be reused).
      */
     typedef struct{
         Mat A11_matrix_subblock; /**< Mat object that stores the A11 subblock.*/
@@ -135,25 +138,27 @@ public:
 public:
 
     /**
-     *  Constructor
+     * Constructor.
      *
-     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
+     * @param rKspObject KSP object where we want to install the block diagonal preconditioner.
      */
     PCLDUFactorisation(KSP& rKspObject);
 
     ~PCLDUFactorisation();
 
 private:
+
     /**
-     *  Creates all the state data required by the preconditioner
+     * Creates all the state data required by the preconditioner.
      *
-     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
+     * @param rKspObject KSP object where we want to install the block diagonal preconditioner.
      */
     void PCLDUFactorisationCreate(KSP& rKspObject);
 
     /**
-     *  Setups preconditioner
+     * Setups preconditioner.
      */
     void PCLDUFactorisationSetUp();
 };
+
 #endif /*PCLDUFACTORISATION_HPP_*/

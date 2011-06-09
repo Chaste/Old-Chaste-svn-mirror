@@ -52,12 +52,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /** For use in tests that should ONLY be run in parallel. */
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
 
-
 #ifndef NDEBUG
 // Uncomment this to trace calls to PetscTools::Barrier
 //#define DEBUG_BARRIERS
 #endif
-
 
 /**
  * A helper class of static methods.
@@ -65,6 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PetscTools
 {
 private:
+
     /** Whether PETSc has been initialised. */
     static bool mPetscIsInitialised;
 
@@ -72,14 +71,14 @@ private:
     static unsigned mNumProcessors;
 
 #ifdef DEBUG_BARRIERS
-    /** Used to debug number of barriers */
+    /** Used to debug number of barriers. */
     static unsigned mNumBarriers;
 #endif
 
     /** Which processors we are. */
     static unsigned mRank;
 
-    /** Private method makes sure that (if this is the first use within a test) then PETSc has been probed */
+    /** Private method makes sure that (if this is the first use within a test) then PETSc has been probed. */
     static inline void CheckCache()
     {
         if (mNumProcessors == 0)
@@ -91,7 +90,7 @@ private:
 public:
 
     /**
-     * As a convention, we consider processor 0 the master process
+     * As a convention, we consider processor 0 the master process.
      */
     static const unsigned MASTER_RANK=0;
 
@@ -112,7 +111,7 @@ public:
     static bool IsParallel();
 
     /**
-     *  Returns total number of processors
+     * Returns total number of processors.
      */
     static unsigned GetNumProcs();
 
@@ -162,7 +161,6 @@ public:
      * @param size  the size of the vector
      * @param localSize  the local number of items owned by this process
      * @param ignoreOffProcEntries whether to ignore entries destined to be stored on a separate processor when assembling (eliminates global reductions).
-     *
      */
     static Vec CreateVec(int size, int localSize=PETSC_DECIDE, bool ignoreOffProcEntries = true);
 
@@ -263,7 +261,6 @@ public:
      * @param lineNumber  which line number of the source file produced the termination error
      */
     static void Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber);
-
 };
 
 /**

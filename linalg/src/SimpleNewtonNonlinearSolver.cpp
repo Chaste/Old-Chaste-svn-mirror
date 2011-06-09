@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "SimpleNewtonNonlinearSolver.hpp"
 #include <iostream>
 #include <cassert>
@@ -83,10 +82,10 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     {
         counter++;
 
-        // store the old norm to check with the new later
+        // Store the old norm to check with the new later
         old_scaled_residual_norm = scaled_residual_norm;
 
-        // compute Jacobian and solve J dx = f for the (negative) update dx, (J the jacobian, f the residual)
+        // Compute Jacobian and solve J dx = f for the (negative) update dx, (J the jacobian, f the residual)
         (*pComputeJacobian)(NULL, current_solution, &(linear_system.rGetLhsMatrix()), NULL, NULL, pContext);
 
         Vec negative_update = linear_system.Solve();
@@ -96,16 +95,15 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         VecDuplicate(initialGuess, &test_vec);
 
         double best_damping_factor = 1.0;
-        double best_scaled_residual = 1e20; //large
+        double best_scaled_residual = 1e20; // large
 
-        // loop over all the possible damping value and determine which gives
-        // smallest residual
+        // Loop over all the possible damping value and determine which gives smallest residual
         for (unsigned i=0; i<mTestDampingValues.size(); i++)
         {
-            //note: WAXPY calls VecWAXPY(w,a,x,y) which computes w = ax+y
+            // Note: WAXPY calls VecWAXPY(w,a,x,y) which computes w = ax+y
             PetscVecTools::WAXPY(test_vec,-mTestDampingValues[i],negative_update,current_solution);
 
-            // compute new residual
+            // Compute new residual
             linear_system.ZeroLinearSystem();
             (*pComputeResidual)(NULL, test_vec, linear_system.rGetRhsVector(), pContext);
             VecNorm(linear_system.rGetRhsVector(), NORM_2, &residual_norm);
@@ -119,13 +117,13 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         }
         VecDestroy(test_vec);
 
-        // check the smallest residual was actually smaller than the
-        // previous. If not, quit.
+        // Check the smallest residual was actually smaller than the previous; if not, quit
         if (best_scaled_residual > old_scaled_residual_norm)
         {
             // Free memory
             VecDestroy(current_solution);
             VecDestroy(negative_update);
+
             // Raise error
             std::stringstream error_message;
             error_message << "Iteration " << counter << ", unable to find damping factor such that residual decreases in update direction";
@@ -137,13 +135,12 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
             std::cout << "    Best damping factor = " << best_damping_factor << "\n";
         }
 
-
-        // update solution: current_guess = current_solution - best_damping_factor*negative_update
+        // Update solution: current_guess = current_solution - best_damping_factor*negative_update
         PetscVecTools::AddScaledVector(current_solution, negative_update, -best_damping_factor);
         scaled_residual_norm = best_scaled_residual;
         VecDestroy(negative_update);
 
-        // compute best residual vector again and store in linear_system for next Solve()
+        // Compute best residual vector again and store in linear_system for next Solve()
         linear_system.ZeroLinearSystem();
         (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
 
@@ -161,10 +158,8 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     return current_solution;
 }
 
-
 void SimpleNewtonNonlinearSolver::SetTolerance(double tolerance)
 {
     assert(tolerance > 0);
     mTolerance = tolerance;
 }
-

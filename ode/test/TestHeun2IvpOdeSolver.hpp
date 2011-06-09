@@ -284,7 +284,7 @@ public:
         TS_ASSERT_DELTA(testvalue_heun, exact_solution, global_error_heun);
     }
 
-    //Test the order of the method by comparing two solutions using dt/2 for the second.
+    // Test the order of the method by comparing two solutions using dt/2 for the second.
     void TestOrderOnSimpleSystem()
     {
         OdeFirstOrder ode_system1, ode_system2;
@@ -296,27 +296,28 @@ public:
 
         std::vector<double> state_variables1 = ode_system1.GetInitialConditions();
 
-        //Solution with ordinary time step
+        // Solution with ordinary time step
         solutions_heun1 = heun_solver1.Solve(&ode_system1, state_variables1, 0.0, 2.0, h_value1, h_value1);
         unsigned last1 = solutions_heun1.GetNumberOfTimeSteps();
         double testvalue_heun1 = solutions_heun1.rGetSolutions()[last1][0];
 
         std::vector<double> state_variables2 = ode_system2.GetInitialConditions();
-        //Solution with halved time step
+
+        // Solution with halved time step
         solutions_heun2 = heun_solver2.Solve(&ode_system2, state_variables2, 0.0, 2.0, h_value2, h_value1);
         unsigned last2 = solutions_heun2.GetNumberOfTimeSteps();
         double testvalue_heun2 = solutions_heun2.rGetSolutions()[last2][0];
 
         double heun_order = 2;
 
-        //Test that the error is going down by a factor of 2^order
+        // Test that the error is going down by a factor of 2^order
         double exact_solution = exp(2.0);
         double error1 = testvalue_heun1 - exact_solution;
         double error2 = testvalue_heun2 - exact_solution;
         TS_ASSERT_DELTA(error1/error2, pow(2,heun_order), 1e-1);
     }
 
-    //Test the order of the method by comparing two solutions using dt/2 for the second.
+    // Test the order of the method by comparing two solutions using dt/2 for the second.
     void TestOrderOnMediumSystem()
     {
         OdeSecondOrder ode_system1, ode_system2;
@@ -328,27 +329,27 @@ public:
 
         std::vector<double> state_variables1 = ode_system1.GetInitialConditions();
 
-        //Solution with ordinary time step
+        // Solution with ordinary time step
         solutions_heun1 = heun_solver1.Solve(&ode_system1, state_variables1, 0.0, 2.0, h_value1, h_value1);
         unsigned last1 = solutions_heun1.GetNumberOfTimeSteps();
         double testvalue_heun1 = solutions_heun1.rGetSolutions()[last1][0];
 
         std::vector<double> state_variables2 = ode_system2.GetInitialConditions();
-        //Solution with halved time step
+        // Solution with halved time step
         solutions_heun2 = heun_solver2.Solve(&ode_system2, state_variables2, 0.0, 2.0, h_value2, h_value1);
         unsigned last2 = solutions_heun2.GetNumberOfTimeSteps();
         double testvalue_heun2 = solutions_heun2.rGetSolutions()[last2][0];
 
         unsigned heun_order = 2;
 
-        //Test that the error is going down by a factor of 2^order
+        // Test that the error is going down by a factor of 2^order
         double exact_solution = sin(2.0);
         double error1 = testvalue_heun1 - exact_solution;
         double error2 = testvalue_heun2 - exact_solution;
         TS_ASSERT_DELTA(error1/error2, pow(2,heun_order), 1e-1);
     }
 
-    //Test the order of the method by comparing two solutions using dt/2 for the second.
+    // Test the order of the method by comparing two solutions using dt/2 for the second.
     void TestOrderOnHardSystem()
     {
         OdeThirdOrder ode_system1, ode_system2;
@@ -360,20 +361,21 @@ public:
 
         std::vector<double> state_variables1 = ode_system1.GetInitialConditions();
 
-        //Solution with ordinary time step
+        // Solution with ordinary time step
         solutions_heun1 = heun_solver1.Solve(&ode_system1, state_variables1, 0.0, 2.0, h_value1, h_value1);
         unsigned last1 = solutions_heun1.GetNumberOfTimeSteps();
         double testvalue_heun1 = solutions_heun1.rGetSolutions()[last1][0];
 
         std::vector<double> state_variables2 = ode_system2.GetInitialConditions();
-        //Solution with halved time step
+
+        // Solution with halved time step
         solutions_heun2 = heun_solver2.Solve(&ode_system2, state_variables2, 0.0, 2.0, h_value2, h_value1);
         unsigned last2 = solutions_heun2.GetNumberOfTimeSteps();
         double testvalue_heun2 = solutions_heun2.rGetSolutions()[last2][0];
 
         unsigned heun_order = 2;
 
-        //Test that the error is going down by a factor of 2^order
+        // Test that the error is going down by a factor of 2^order
         double exact_solution = -sin(2.0);
         double error1 = testvalue_heun1 - exact_solution;
         double error2 = testvalue_heun2 - exact_solution;

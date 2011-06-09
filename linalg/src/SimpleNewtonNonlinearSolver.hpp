@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef SIMPLENEWTONNONLINEARSOLVER_HPP_
 #define SIMPLENEWTONNONLINEARSOLVER_HPP_
 
@@ -62,7 +61,7 @@ public:
     virtual ~SimpleNewtonNonlinearSolver();
 
     /**
-     * Solve()
+     * Solve().
      *
      * Solve a nonlinear system using Newton's method with damping. Newton's algorithm
      * is

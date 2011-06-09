@@ -33,14 +33,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FineCoarseMeshPair.hpp"
 #include "QuadraturePointsGroup.hpp"
 
-
 class TestFineCoarseMeshPair : public CxxTest::TestSuite
 {
 public:
-    // simple test where the whole of the coarse mesh is in one fine element
+
+    // Simple test where the whole of the coarse mesh is in one fine element
     void TestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
     {
-        // the following checks this hasn't been accidentally committed.
+        // The following checks this hasn't been accidentally committed
         #ifdef FINECOARSEMESHPAIR_VERBOSE
         TS_FAIL("#define FINECOARSEMESHPAIR_VERBOSE has been uncommented");
         #endif
@@ -58,11 +58,11 @@ public:
         GaussianQuadratureRule<2> quad_rule(3);
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
 
-        // all coarse quadrature points should have been found in the fine mesh
+        // All coarse quadrature points should have been found in the fine mesh
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
 
-        // check the elements and weights have been set up correctly
+        // Check the elements and weights have been set up correctly
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 18u);
 
         for (unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
@@ -74,9 +74,12 @@ public:
         {
             TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
 
-            // All the weights should be between 0 and 1 as no coarse nodes are
-            // Note weights = (1-psi_x-psi_y, psi_x, psi_y), where psi is the position of the
-            // point in that element when transformed to the canonical element
+            /*
+             * All the weights should be between 0 and 1 as no coarse nodes are.
+             * Note weights = (1-psi_x-psi_y, psi_x, psi_y), where psi is the
+             * position of the point in that element when transformed to the
+             * canonical element.
+             */
             for (unsigned j=0; j<3; j++)
             {
                 TS_ASSERT_LESS_THAN(-1e14, mesh_pair.rGetElementsAndWeights()[i].Weights(j));
@@ -90,11 +93,11 @@ public:
 
     void TestWithCoarseContainedInFine() throw(Exception)
     {
-        // fine mesh is has h=0.1, on unit cube (so 6000 elements)
+        // Fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
-        // coarse mesh is has h=1 on unit cube (so 6 elements)
+        // Coarse mesh is has h=1 on unit cube (so 6 elements)
         QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1.0);
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
@@ -122,14 +125,14 @@ public:
         GaussianQuadratureRule<3> quad_rule(3);
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
 
-        // all coarse quadrature points should have been found in the fine mesh
+        // All coarse quadrature points should have been found in the fine mesh
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
 
-        // check the elements and weights have been set up correctly
+        // Check the elements and weights have been set up correctly
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 6*3*3*3u);
 
-        // some hardcoded values, just to check element_nums not all zero
+        // Some hardcoded values, just to check element_nums not all zero
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[0].ElementNum, 4846u);
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[10].ElementNum, 3149u);
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[20].ElementNum, 1209u);
@@ -138,10 +141,13 @@ public:
         {
             TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
 
-            // as all the quadrature points should have been found in the fine mesh, all the weights
-            // should be between 0 and 1.
-            // Note weights = (1-psi_x-psi_y-psi_z, psi_x, psi_y, psi_z), where psi is the position of the
-            // point in that element when transformed to the canonical element
+            /*
+             * As all the quadrature points should have been found in the fine mesh,
+             * all the weights should be between 0 and 1.
+             * Note weights = (1-psi_x-psi_y-psi_z, psi_x, psi_y, psi_z), where psi
+             * is the position of the point in that element when transformed to the
+             * canonical element.
+             */
             for (unsigned j=0; j<4; j++)
             {
                 TS_ASSERT_LESS_THAN(-1e14, mesh_pair.rGetElementsAndWeights()[i].Weights(j));
@@ -159,11 +165,11 @@ public:
 
     void TestWithCoarseSlightlyOutsideFine() throw(Exception)
     {
-        // fine mesh is has h=0.1, on unit cube (so 6000 elements)
+        // Fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0,1.0,1.0);
 
-        // coarse mesh is slightly bigger than in previous test
+        // Coarse mesh is slightly bigger than in previous test
         QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1.0); // xmax > 1.0
         coarse_mesh.Scale(1.03, 1.0, 1.0);
 
@@ -172,7 +178,8 @@ public:
         //TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
 
         GaussianQuadratureRule<3> quad_rule(3);
-        // need to call SetUpBoxesOnFineMesh first
+
+        // Need to call SetUpBoxesOnFineMesh first
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true), "Call");
 
         mesh_pair.SetUpBoxesOnFineMesh(0.3);
@@ -197,8 +204,11 @@ public:
             //}
         }
 
-        // for each quadrature point that was not found in the fine mesh, check that it's x-value is greater
-        // than one - this is the only way it could be outside the fine mesh
+        /*
+         * For each quadrature point that was not found in the fine mesh, check
+         * that its x-value is greater than one - this is the only way it could
+         * be outside the fine mesh.
+         */
         QuadraturePointsGroup<3> quad_point_posns(coarse_mesh, quad_rule);
         for (unsigned i=0; i<mesh_pair.mNotInMesh.size(); i++)
         {
@@ -206,14 +216,13 @@ public:
             TS_ASSERT_LESS_THAN(1.0, x);
         }
 
-
         mesh_pair.PrintStatistics();
 
         TS_ASSERT_EQUALS( Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::Instance()->QuietDestroy();
     }
 
-////bring back this functionality if needed
+////Bring back this functionality if needed
 //    void dontTestWithIdenticalMeshes() throw(Exception)
 //    {
 //        TrianglesMeshReader<1,1> reader1("mesh/test/data/1D_0_to_1_10_elements");
@@ -246,37 +255,44 @@ public:
 
         mesh_pair.SetUpBoxesOnFineMesh();
 
-        // With this mesh the proposed width - the width that would correspond to 20 boxes
-        // in the x-direction is:
-        //   Proposed width = 0.0552632
-        // but
-        //   max_edge_length = 0.141421
-        // and we want width > max_edge_length, so end up with
-        //   box width = 0.155563
-        // (1.1 times max edge length)
+        /*
+         * With this mesh the proposed width - the width that would correspond to 20 boxes
+         * in the x-direction is:
+         *   Proposed width = 0.0552632
+         * but
+         *   max_edge_length = 0.141421
+         * and we want width > max_edge_length, so end up with
+         *   box width = 0.155563
+         * (1.1 times max edge length)
+         */
         TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 64u);
 
-        // now use a mesh with a smaller edge length
+        // Now use a mesh with a smaller edge length
         TetrahedralMesh<2,2> fine_mesh2;
         fine_mesh2.ConstructRegularSlabMesh(0.01, 1.0,1.0);
 
-        // Can use smaller boxes
-        //  Proposed width = 0.0552632
-        //  max_edge_length = 0.0141421
-        //  box width = 0.0552632
+        /*
+         * Can use smaller boxes
+         *  Proposed width = 0.0552632
+         *  max_edge_length = 0.0141421
+         *  box width = 0.0552632
+         */
         FineCoarseMeshPair<2> mesh_pair2(fine_mesh2,coarse_mesh);
         mesh_pair2.SetUpBoxesOnFineMesh();
         TS_ASSERT_EQUALS(mesh_pair2.mpFineMeshBoxCollection->GetNumBoxes(), 20*20u);
     }
 
-    // Test when calling ComputeFineElementsAndWeightsForCoarseQuadPoints() in non-safe mode,
-    // but using the default value of box width.
-    // It is difficult to get the class to run incorrectly (ie fail without an assertion failing)
-    // in non-safe mode (ie we can't just specify boxes that are too small), so we just test we
-    // get the same results as in safe mode.
+    /*
+     * Test when calling ComputeFineElementsAndWeightsForCoarseQuadPoints()
+     * in non-safe mode, but using the default value of box width. It is
+     * difficult to get the class to run incorrectly (ie fail without an
+     * assertion failing) in non-safe mode (ie we can't just specify boxes
+     * that are too small), so we just test we get the same results as in
+     * safe mode.
+     */
     void TestNonSafeMode() throw(Exception)
     {
-        // fine mesh is has h=0.1, on unit cube (so 6000 elements)
+        // Fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
@@ -286,11 +302,13 @@ public:
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
         GaussianQuadratureRule<3> quad_rule(3);
 
-        // call SetUpBoxesOnFineMesh() without providing a width
+        // Call SetUpBoxesOnFineMesh() without providing a width
         mesh_pair.SetUpBoxesOnFineMesh();
 
-        // whereas before 4 by 4 by 4 boxes were explicitly chosen, here it has been determined
-        // that 6 by 6 by 6 are needed
+        /*
+         * Whereas before 4 by 4 by 4 boxes were explicitly chosen, here it
+         * has been determined that 6 by 6 by 6 are needed.
+         */
         TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 6*6*6u);
 
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, false /* non-safe mode*/);
@@ -304,8 +322,11 @@ public:
             TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
         }
 
-        // for each quadrature point that was not found in the fine mesh, check that it's x-value is greater
-        // than one - this is the only way it could be outside the fine mesh
+        /*
+         * For each quadrature point that was not found in the fine mesh, check
+         * that its x-value is greater than one - this is the only way it could
+         * be outside the fine mesh.
+         */
         QuadraturePointsGroup<3> quad_point_posns(coarse_mesh, quad_rule);
         for (unsigned i=0; i<mesh_pair.mNotInMesh.size(); i++)
         {
@@ -319,7 +340,7 @@ public:
         Warnings::Instance()->QuietDestroy();
     }
 
-    // covers some bits that aren't covered in the tests above,
+    // Covers some bits that aren't covered in the tests above,
     void TestOtherCoverage() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
@@ -327,9 +348,12 @@ public:
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0);
 
-        // rotate the mesh by 45 degrees, makes it possible (since boxes no longer lined up with elements)
-        // for the containing element of a quad point to be in a *local* box, ie not an element
-        // contained in the box containing this point
+        /*
+         * Rotate the mesh by 45 degrees, makes it possible (since boxes no
+         * longer lined up with elements) for the containing element of a
+         * quad point to be in a *local* box, ie not an element contained
+         * in the box containing this point.
+         */
         c_matrix<double,2,2> rotation_mat;
         rotation_mat(0,0) = 1.0/sqrt(2);
         rotation_mat(1,0) = -1.0/sqrt(2);
@@ -346,14 +370,15 @@ public:
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
 
-        // repeat again with smaller boxes, covers the bit requiring the whole mesh to be searched to
-        // find an element for a particular quad point
+        /*
+         * Repeat again with smaller boxes, covers the bit requiring the whole
+         * mesh to be searched to find an element for a particular quad point.
+         */
         FineCoarseMeshPair<2> mesh_pair2(fine_mesh,coarse_mesh);
         mesh_pair2.SetUpBoxesOnFineMesh(0.01);
         mesh_pair2.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
     }
-
 
     void TestComputeCoarseElementsForFineNodes() throw(Exception)
     {
@@ -388,12 +413,12 @@ public:
             }
         }
 
-
-        // translate the fine mesh in the (-1, -1) direction --> all
-        // fine nodes nearest to (not contained in) element 0. We have to
-        // make the fine mesh tiny and then translate a small amount so
-        // that it is still in the box collection for the coarse (normally the
-        // two meshes should overlap)
+        /*
+         * Translate the fine mesh in the (-1, -1) direction --> all fine nodes
+         * nearest to (not contained in) element 0. We have to make the fine mesh
+         * tiny and then translate a small amount so that it is still in the box
+         * collection for the coarse (normally the two meshes should overlap).
+         */
         fine_mesh.Scale(1e-2, 1e-2);
         fine_mesh.Translate(-1.1e-2, -1.1e-2);
         mesh_pair.ComputeCoarseElementsForFineNodes(true);
@@ -402,8 +427,7 @@ public:
             TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
         }
 
-
-        // call again with safeMode=false this time (same results, faster)
+        // Call again with safeMode=false this time (same results, faster)
         mesh_pair.rGetCoarseElementsForFineNodes()[0] = 189342958;
         mesh_pair.ComputeCoarseElementsForFineNodes(false);
         for (unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
@@ -411,19 +435,17 @@ public:
             TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
         }
 
-        // coverage:
+        // Coverage:
         //  call again
         mesh_pair.SetUpBoxesOnCoarseMesh();
         //  delete
         mesh_pair.DeleteCoarseBoxCollection();
     }
 
-
     void TestComputeCoarseElementsForFineElementCentroids() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0);
-
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0); // 2 triangular elements
 
@@ -449,7 +471,7 @@ public:
             }
         }
 
-        // coverage
+        // Coverage
         mesh_pair.DeleteCoarseBoxCollection();
         mesh_pair.SetUpBoxesOnCoarseMesh(0.8); // force a point to be found in a neighbouring box
         mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
@@ -461,12 +483,12 @@ public:
         mesh_pair.DeleteCoarseBoxCollection();
         mesh_pair.SetUpBoxesOnCoarseMesh(); // back to default
 
-
-        // translate the fine mesh in the (-1, -1) direction --> all
-        // fine elements nearest to (not contained in) element 0. We have to
-        // make the fine mesh tiny and then translate a small amount so
-        // that it is still in the box collection for the coarse (normally the
-        // two meshes should overlap)
+        /*
+         * Translate the fine mesh in the (-1, -1) direction --> all fine elements
+         * nearest to (not contained in) element 0. We have to make the fine mesh
+         * tiny and then translate a small amount so that it is still in the box
+         * collection for the coarse (normally the two meshes should overlap).
+         */
         fine_mesh.Scale(1e-2, 1e-2);
         fine_mesh.Translate(-1.1e-2, -1.1e-2);
         mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
@@ -488,20 +510,20 @@ public:
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
 
-         // need to call SetUpBoxesOnFineMesh first
+        // Need to call SetUpBoxesOnFineMesh first
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(true), "Call");
 
         mesh_pair.SetUpBoxesOnFineMesh();
         mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(true);
 
-        // all coarse quadrature points should have been found in the fine mesh
+        // All coarse quadrature points should have been found in the fine mesh
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
 
-        // check the elements and weights have been set up correctly
+        // Check the elements and weights have been set up correctly
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 9u);
 
-        // check the first four nodes against what they should be
+        // Check the first four nodes against what they should be
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[0].ElementNum, 1u);
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[1].ElementNum, 1u);
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[2].ElementNum, 0u);

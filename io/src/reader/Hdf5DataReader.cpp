@@ -25,12 +25,12 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "Hdf5DataReader.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 
 #include <cassert>
-
 
 Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
                                const std::string& rBaseName,

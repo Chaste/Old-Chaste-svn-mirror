@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSOLVELAPLACIANWITHQUADRATICS_HPP_
 #define TESTSOLVELAPLACIANWITHQUADRATICS_HPP_
-
 
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
@@ -46,10 +46,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EllipticPdeWithLinearSource.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
 
-// Assemblers which use quadratic bases (ie the elasticity solvers) are outside the
-// other assembler hierarchy. Therefore, to test the quadratic bases/structure we first wrote this
-// QuadraticLaplacianAssemblerSolver, and then used it when writing the elasticity assemblers.
-
+/*
+ * Assemblers which use quadratic bases (ie the elasticity solvers) are outside the
+ * other assembler hierarchy. Therefore, to test the quadratic bases/structure we
+ * first wrote this QuadraticLaplacianAssemblerSolver, and then used it when writing
+ * the elasticity assemblers.
+ */
 template<unsigned DIM>
 class QuadraticLaplacianAssemblerSolver
 {
@@ -91,11 +93,11 @@ private:
             rBElem.clear();
         }
 
-        // allocate memory for the basis functions values and derivative values
+        // Allocate memory for the basis functions values and derivative values
         c_vector<double, NUM_BASES_PER_ELEMENT> phi;
         c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> grad_phi;
 
-        // loop over Gauss points
+        // Loop over Gauss points
         for (unsigned quad_index=0; quad_index < mpQuadRule->GetNumQuadPoints(); quad_index++)
         {
             const ChastePoint<DIM>& quad_point = mpQuadRule->rGetQuadPoint(quad_index);
@@ -115,14 +117,11 @@ private:
             c_matrix<double,1,DIM> grad_u = zero_matrix<double>(1,DIM);
             double wJ = jacobian_determinant * mpQuadRule->GetWeight(quad_index);
 
-            ////////////////////////////////////////////////////////////
-            // create rAElem and rBElem
-            ////////////////////////////////////////////////////////////
+            // Create rAElem and rBElem
             if (assembleMatrix)
             {
                 noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             }
-
             if (assembleVector)
             {
                 noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
@@ -172,10 +171,7 @@ private:
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
         c_vector<double, STENCIL_SIZE> b_elem;
 
-        ////////////////////////////////////////////////////////
-        // loop over elements
-        ////////////////////////////////////////////////////////
-
+        // Loop over elements
         for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
              iter != mpQuadMesh->GetElementIteratorEnd();
              ++iter)
@@ -230,7 +226,6 @@ private:
         }
     }
 
-
 public:
     QuadraticLaplacianAssemblerSolver(QuadraticMesh<DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
@@ -255,7 +250,6 @@ public:
         delete mpQuadRule;
     }
 
-
     Vec Solve()
     {
         AssembleSystem(true, true);
@@ -268,9 +262,6 @@ public:
         mConstant = constant;
     }
 };
-
-
-
 
 class TestSolveLaplacianWithQuadratics : public CxxTest::TestSuite
 {
@@ -302,7 +293,6 @@ public:
 
         VecDestroy(solution);
     }
-
 
     void TestSolveLaplacianWithQuadratics2d() throw (Exception)
     {
@@ -336,10 +326,11 @@ public:
         Vec solution_lin = solver_lin.Solve();
         ReplicatableVector sol_lin_repl(solution_lin);
 
-
-        // compare results - the following assumes the vertex nodes in the
-        // quad mesh are nodes 0-63, i.e. they come before all the internal
-        // nodes
+        /*
+         * Compare results - the following assumes the vertex nodes in the
+         * quad mesh are nodes 0-63, i.e. they come before all the internal
+         * nodes.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double u_1 = sol_lin_repl[i];
@@ -360,10 +351,9 @@ public:
         VecDestroy(solution_quads);
     }
 
-
     void TestSolveLaplacianWithQuadratics3d() throw (Exception)
     {
-        // Solve using quadratics..
+        // Solve using quadratics
         QuadraticMesh<3> quad_mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/cube_1626_elements_quadratic",2,1,false);
         quad_mesh.ConstructFromMeshReader(mesh_reader1);
@@ -414,6 +404,6 @@ public:
         VecDestroy(solution_lin);
         VecDestroy(solution_quads);
     }
-
 };
+
 #endif /*TESTSOLVELAPLACIANWITHQUADRATICS_HPP_*/

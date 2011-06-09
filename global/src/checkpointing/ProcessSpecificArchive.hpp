@@ -61,10 +61,12 @@ template <class Archive>
 class ProcessSpecificArchive
 {
 private:
+
     /** The secondary archive for this process. */
     static Archive* mpArchive;
 
 public:
+
     /** Retrieve the stored secondary archive for this process. */
     static Archive* Get(void)
     {

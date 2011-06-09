@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTRANDOMNUMBERGENERATOR_HPP_
 #define TESTRANDOMNUMBERGENERATOR_HPP_
 #include <cxxtest/TestSuite.h>
@@ -41,17 +40,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestRandomNumberGenerator : public CxxTest::TestSuite
 {
 public:
+
     double ran1;
 
     void TestRandomNumbers()
     {
         srandom(0);
-        ran1=(double)random()/RAND_MAX;
+        ran1 = (double)random()/RAND_MAX;
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-        double ran2=p_gen->ranf();
-        TS_ASSERT_DELTA(ran1,ran2,1e-7);
+        double ran2 = p_gen->ranf();
+        TS_ASSERT_DELTA(ran1, ran2, 1e-7);
 
         RandomNumberGenerator::Destroy();
     }
@@ -59,27 +59,25 @@ public:
     void TestNewMethodSeed()
     {
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        double ran2=p_gen->ranf();
-        TS_ASSERT_DELTA(ran1,ran2,1e-7);
+        double ran2 = p_gen->ranf();
+        TS_ASSERT_DELTA(ran1, ran2, 1e-7);
 
         RandomNumberGenerator::Destroy();
-
     }
 
     void TestDifferentRandomSeed()
     {
         srandom(36);
-        ran1=(double)random()/RAND_MAX;
+        ran1 = (double)random()/RAND_MAX;
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(36);
 
 
-        double ran2=p_gen->ranf();
-        TS_ASSERT_DELTA(ran1,ran2,1e-7);
+        double ran2 = p_gen->ranf();
+        TS_ASSERT_DELTA(ran1, ran2, 1e-7);
 
         RandomNumberGenerator::Destroy();
-
     }
 
     void TestArchiveRandomNumberGenerator()
@@ -91,9 +89,10 @@ public:
         std::vector<double> generated_numbers;
 
         // Create and archive random number generator
-        {    // Save random number generator
+        {
+            // Save random number generator
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(7); // This gives us full coverage...
+            p_gen->Reseed(7); // This gives us full coverage
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -118,9 +117,11 @@ public:
                 generated_numbers.push_back(random);
             }
 
-            // record some numbers from the normal distribution too.
-            // We generate quite a few for coverage of the three cases
-            // in RandomNumberGenerator::StandardNormalRandomDeviate().
+            /*
+             * Rcord some numbers from the normal distribution too.
+             * We generate quite a few for coverage of the three cases
+             * in RandomNumberGenerator::StandardNormalRandomDeviate().
+             */
             for (unsigned i=0; i<10; i++)
             {
                 double random = p_gen->NormalRandomDeviate(0.5, 0.1);
@@ -133,8 +134,8 @@ public:
         // Restore
         {
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(25);    // any old seed.
-            for (unsigned i=0; i<7; i++)    // generate some numbers
+            p_gen->Reseed(25); // any old seed
+            for (unsigned i=0; i<7; i++) // generate some numbers
             {
                 p_gen->ranf();
             }
@@ -143,8 +144,10 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_gen;
 
-            // Random Number generator restored.
-            // check it generates the same numbers as the one we saved.
+            /*
+             * Random Number generator restored.
+             * Check it generates the same numbers as the one we saved.
+             */
             for (unsigned i=0; i<generated_numbers.size(); i++)
             {
                 double random;
@@ -206,17 +209,18 @@ public:
         {
             for (unsigned j=0; j<5; j++)
             {
-                // prob of i going to position j
+                // Probability of i going to position j
                 double prob = (double)results(i,j)/num_trials;
 
-                // This test could fail with very low probability (just rerun)
-                // We accept 0.19 to 0.21,
-                // (note, usually in 0.199 to 0.201 with million trials (we use 10^5 trials))
+                /*
+                 * This test could fail with very low probability (just rerun).
+                 * We accept 0.19 to 0.21 (note, usually in 0.199 to 0.201 with
+                 * a million trials (we use 10^5 trials))
+                 */
                 TS_ASSERT_DELTA(prob, 0.2, 1e-2);
             }
         }
     }
-
 };
 
 #endif /*TESTRANDOMNUMBERGENERATOR_HPP_*/

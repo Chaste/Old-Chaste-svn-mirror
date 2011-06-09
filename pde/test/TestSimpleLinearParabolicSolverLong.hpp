@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTSIMPLELINEARPARABOLICSOLVERLONG_HPP_
 #define _TESTSIMPLELINEARPARABOLICSOLVERLONG_HPP_
 
@@ -55,7 +56,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeatEquationWithSourceTerm.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
-
 
 class TestSimpleLinearParabolicSolverLong : public CxxTest::TestSuite
 {
@@ -126,7 +126,7 @@ public:
         // Solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
+        // Initial condition u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -135,7 +135,6 @@ public:
             init_cond[i] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
 
         double t_end = 0.1;
         solver.SetTimes(0, t_end);
@@ -146,8 +145,7 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        // check result
-        // Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
+        // Check solution is u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -164,8 +162,7 @@ public:
      * Simple Parabolic PDE u' = del squared u
      *
      * With u = 0 on the boundaries of the unit cube. Subject to the initial
-     * condition u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z)
-     *
+     * condition u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z).
      */
     void TestSimpleLinearParabolicSolver3DZeroDirich()
     {
@@ -184,9 +181,10 @@ public:
         // Solver
         SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        // initial condition;
-        // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
-        // eigenfunction of the heat equation.
+        /*
+         * Choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as
+         * this is an eigenfunction of the heat equation.
+         */
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -197,7 +195,6 @@ public:
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
 
-
         double t_end = 0.1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.001);
@@ -207,8 +204,7 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        // check result
-        // Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
+        // Check solution is u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -259,7 +255,7 @@ public:
         // Solver
         SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
+        // Initial condition u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2)
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
 
         double* p_initial_condition;
@@ -280,7 +276,6 @@ public:
         double t_end = 0.1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
-
 
         solver.SetInitialCondition(initial_condition);
         Vec result = solver.Solve();
@@ -304,7 +299,6 @@ public:
         VecDestroy(result);
     }
 
-
     /**
      * Simple Parabolic PDE u' = del squared u
      *
@@ -313,7 +307,6 @@ public:
      *
      * Subject to the initial condition
      * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) + x
-     *
      */
     void TestSimpleLinearParabolicSolver3DNeumannOnCoarseMesh()
     {
@@ -369,7 +362,7 @@ public:
         // Solver
         SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+        // Initial condition u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
 
         double* p_initial_condition;

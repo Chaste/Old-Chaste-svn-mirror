@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTUBLASCUSTOMFUNCTIONS_HPP_
 #define TESTUBLASCUSTOMFUNCTIONS_HPP_
 
@@ -46,7 +45,7 @@ public:
         using namespace boost::numeric::ublas;
         c_matrix<double, 1, 1> C;
         double OneOneDeterminant;
-        C(0,0)=5.6;
+        C(0,0) = 5.6;
         OneOneDeterminant = Determinant(C);
         TS_ASSERT_DELTA( OneOneDeterminant, 5.6, 0.0000000001);
 
@@ -102,7 +101,7 @@ public:
 
         c_matrix<double, 1, 1> C;
         double OneOneDeterminant;
-        C(0,0)=5.6;
+        C(0,0) = 5.6;
         OneOneDeterminant = Determinant(C);
         TS_ASSERT_DELTA( OneOneDeterminant,
                          C(0,0)*SubDeterminant(C,0,0),
@@ -184,9 +183,9 @@ public:
         invAMatlab(2,1) = 54.00;
         invAMatlab(2,2) = -53.00;
         invA = Inverse(A);
-        for ( int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            for ( int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
                 TS_ASSERT_DELTA( invA(i,j), invAMatlab(i,j), 0.0000000001);
             }
@@ -203,9 +202,9 @@ public:
         invBMatlab(0,1) = 0.4717;
         invBMatlab(1,0) = 0.4717;
         invBMatlab(1,1) = -0.2264;
-        for ( int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
-            for ( int j = 0; j < 2; j++)
+            for (int j = 0; j < 2; j++)
             {
                 TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
             }
@@ -261,7 +260,7 @@ public:
 
         TS_ASSERT_DELTA(SecondInvariant(b), Determinant(b), 1e-12);
 
-        // symmetric 3 by 3 matrix.
+        // Symmetric 3 by 3 matrix.
         c_matrix<double, 3,3> c;
         c(0,0) = 13.03;
         c(1,0) = 1.3;
@@ -307,16 +306,16 @@ public:
     void TestCreate_c_vector()
     {
         c_vector<double, 1> v1 = Create_c_vector(1);
-        TS_ASSERT_EQUALS( v1[0], 1);
+        TS_ASSERT_EQUALS(v1[0], 1);
 
         c_vector<double, 2> v2 = Create_c_vector(1,2);
-        TS_ASSERT_EQUALS( v2[0], 1);
-        TS_ASSERT_EQUALS( v2[1], 2);
+        TS_ASSERT_EQUALS(v2[0], 1);
+        TS_ASSERT_EQUALS(v2[1], 2);
 
         c_vector<double, 3> v3 = Create_c_vector(1,2,3);
-        TS_ASSERT_EQUALS( v3[0], 1);
-        TS_ASSERT_EQUALS( v3[1], 2);
-        TS_ASSERT_EQUALS( v3[2], 3);
+        TS_ASSERT_EQUALS(v3[0], 1);
+        TS_ASSERT_EQUALS(v3[1], 2);
+        TS_ASSERT_EQUALS(v3[2], 3);
     }
 
     void TestEigenVectorValueCalculation() throw(Exception)
@@ -346,14 +345,16 @@ public:
 
         eigenvector = CalculateEigenvectorForSmallestNonzeroEigenvalue(A);
 
-        //It's important that eigenvector is non-zero.  If eigenvector has been
-        //zero-initialised and CalculateEigenvectorForSmallestNonzeroEigenvalue does
-        //*nothing* then Au=lambda.u for any lambda.
+        /*
+         * It's important that eigenvector is non-zero. If eigenvector has been
+         * zero-initialised and CalculateEigenvectorForSmallestNonzeroEigenvalue
+         * does *nothing* then Au=lambda.u for any lambda.
+         */
         double norm_of_eigenvector = norm_2(eigenvector);
         double delta = 1e-12;
         TS_ASSERT_DELTA(norm_of_eigenvector, 1.0, delta);
 
-        //Check Au=lambda.u
+        // Check Au=lambda.u
         c_vector<double, 3> a_times_eigenvector = prod(A, eigenvector);
 
         TS_ASSERT_DELTA( a_times_eigenvector[0], smallest_eigenvalue*eigenvector[0], delta);
@@ -383,8 +384,6 @@ public:
         TS_ASSERT_EQUALS( Divides(0.01, 10.0),  true);
         TS_ASSERT_EQUALS( Divides(0.01, 100.01),  true);
     }
-
-
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TIMESTEPPER_HPP_
 #define TIMESTEPPER_HPP_
 
@@ -40,7 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class TimeStepper
 {
+    friend class TestTimeStepper;
 public:
+
     /**
      * Create a new time stepper over some simulation interval.
      * Time units are not specified, but all parameters should have consistent units.
@@ -62,12 +63,12 @@ public:
     void AdvanceOneTimeStep();
 
     /**
-     * Get the time
+     * Get the time.
      */
     double GetTime() const;
 
     /**
-     * Get the value time will take at the next step
+     * Get the value time will take at the next step.
      */
     double GetNextTime() const;
 
@@ -78,12 +79,12 @@ public:
     double GetNextTimeStep();
 
     /**
-     * True when GetTime == endTime
+     * True when GetTime == endTime.
      */
     bool IsTimeAtEnd() const;
 
     /**
-     * Estimate number of time steps remaining, which may be an overestimate
+     * Estimate number of time steps remaining, which may be an overestimate.
      * Used to reserve memory for writing intermediate solutions.
      */
     unsigned EstimateTimeSteps() const;
@@ -104,7 +105,6 @@ public:
     void ResetTimeStep(double dt);
 
 private:
-    friend class TestTimeStepper;
 
     /** The start time. */
     double mStart;

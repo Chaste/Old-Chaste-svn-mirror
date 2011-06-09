@@ -30,13 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
-
 SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
                                    const std::string& rFileName,
                                    const std::vector<std::vector<double> >& rData,
                                    bool cleanDirectory)
 {
-    if (rData.size()==0)
+    if (rData.size() == 0)
     {
         EXCEPTION("Data vector is empty");
     }

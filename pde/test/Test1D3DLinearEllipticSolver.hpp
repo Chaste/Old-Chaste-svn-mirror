@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
 #define _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
 
@@ -38,8 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "TrianglesMeshReader.hpp"
 
-// These are need for the nD problems in mD space (n!=m), as those
-// particular cases are not explicitly instantiated
+/*
+ * These are need for the nD problems in mD space (n!=m), as those
+ * particular cases are not explicitly instantiated.
+ */
 #include "AbstractBoundaryConditionsContainerImplementation.hpp"
 #include "BoundaryConditionsContainerImplementation.hpp"
 

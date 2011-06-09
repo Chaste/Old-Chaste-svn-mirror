@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTHDF5DATAWRITER_HPP_
 #define TESTHDF5DATAWRITER_HPP_
 
@@ -119,7 +120,8 @@ public:
         hid_t char_type = H5Tcopy(H5T_C_S1);
         // H5Tset_strpad(char_type, H5T_STR_NULLPAD);
         H5Tset_size(char_type, 21 );
-        hid_t attr = H5Acreate(dset_id, "Name", char_type, colspace, H5P_DEFAULT  );
+        hid_t attr = H5Acreate(dset_id, "Name", char_type, colspace, H5P_DEFAULT);
+
         // Write to the attribute
         status = H5Awrite(attr, char_type, col_data);
 
@@ -385,7 +387,6 @@ public:
         VecDestroy(petsc_data_2);
     }
 
-
     void TestHdf5DataWriterFullFormatIncomplete() throw(Exception)
     {
         int number_nodes = 100;
@@ -459,11 +460,9 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
                                                 "io/test/data", "hdf5_test_full_format_incomplete", false));
 
-        //Test whether one with big-endian datatypes looks the same:
+        // Test whether one with big-endian datatypes looks the same:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
                                                 "io/test/data", "hdf5_test_full_format_incomplete_bigendian", false));
-
-
 
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
@@ -681,9 +680,7 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped_3vars", true,
                                                 "io/test/data", "hdf5_test_full_format_striped_3vars", false));
         VecDestroy(petsc_data);
-
     }
-
 
     void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
     {
@@ -847,7 +844,8 @@ public:
     }
 
     /**
-     * Tests copied (with some minor modifications) from TestColumnDataReaderWriter: to be refactored at some point
+     * Tests copied (with some minor modifications) from TestColumnDataReaderWriter:
+     * to be refactored at some point.
      */
     void TestDefineThings()
     {
@@ -931,7 +929,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
 
-        //In Hdf5 a fixed dimension should be defined always
+        // In Hdf5 a fixed dimension should be defined always
         TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(),
                 "Cannot end define mode. One fixed dimension should be defined.");
 
@@ -1083,16 +1081,16 @@ public:
 
     /**
      * Test the functionality for adding further data to an existing file.
-     *
      */
     void TestFailCreateFile(void)
     {
-        //This test causes memory leak within MPIO
+        // This test causes memory leak within MPIO
         int number_nodes = 100;
         DistributedVectorFactory factory(number_nodes);
 
         OutputFileHandler handler("hdf5", false);
-        //Create file and remove permission to overwrite file
+
+        // Create file and remove permission to overwrite file
         system(("touch "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
         system(("chmod u-w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
 
@@ -1102,7 +1100,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(writer.EndDefineMode(),  "Hdf5DataWriter could not create");
         writer.Close();
 
-        //Re-instate permission to overwrite file
+        // Re-instate permission to overwrite file
         system(("chmod u+w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
     }
 
@@ -1169,7 +1167,7 @@ public:
             writer.AdvanceAlongUnlimitedDimension();
         }
 
-        // Close & test
+        // Close and test
         writer.Close();
         VecDestroy(node_petsc);
         VecDestroy(ik_petsc);
@@ -1181,7 +1179,6 @@ public:
         TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false, true),
                               "Unable to extend an incomplete data file at present.");
     }
-
 
     void TestPermutation()
     {
@@ -1215,13 +1212,13 @@ public:
             identity_perm.push_back(index);
         }
 
-        //Make the permutation incorrect
+        // Make the permutation incorrect
         TS_ASSERT_EQUALS(rotation_perm[0], 3u);
         rotation_perm[0]=0;
 
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Permutation vector doesn't contain a valid permutation");
 
-        //Correct the mistake imposed above
+        // Correct the mistake imposed above
         rotation_perm[0]=3;
 
         TS_ASSERT_EQUALS(writer.ApplyPermutation(identity_perm), false); //Does nothing
@@ -1230,7 +1227,8 @@ public:
         TS_ASSERT(writer.ApplyPermutation(rotation_perm));
 
         writer.EndDefineMode();
-        //Can't apply permutation after define mode
+
+        // Can't apply permutation after define mode
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Cannot define permutation when not in Define mode");
 
         Vec petsc_data_short = factory.CreateVec();
@@ -1267,7 +1265,6 @@ public:
                                                 "io/test/data", "hdf5_unpermuted", false));
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_permuted", true,
                                                 "io/test/data", "hdf5_permuted", false));
-
     }
 
     void TestHdf5DataWriterFullFormatIncompleteUsingMatrix() throw(Exception)
@@ -1325,7 +1322,6 @@ public:
         }
 
         writer.Close();
-
 
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete_using_matrix", true,
                                                 "io/test/data", "hdf5_test_full_format_incomplete", false));
@@ -1396,9 +1392,11 @@ public:
 
     void TestHdf5BigFiles() throw(Exception)
     {
-        // With a chunk size of 100 the chunk size in bytes will be 2^32*100/99 > 4GB
-        // which would result in an error in HDF5 1.8.x, and bad files
-        // in previous versions - Hdf5DataWriter checks for this and throws an Exception
+        /*
+         * With a chunk size of 100 the chunk size in bytes will be 2^32*100/99 > 4GB
+         * which would result in an error in HDF5 1.8.x, and bad files in previous
+         * versions - Hdf5DataWriter checks for this and throws an Exception.
+         */
         int number_nodes = 43383508; // 2^32/99
 
         DistributedVectorFactory vec_factory(number_nodes);
@@ -1414,4 +1412,5 @@ public:
         writer.Close();
     }
 };
+
 #endif /*TESTHDF5DATAWRITER_HPP_*/

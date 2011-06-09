@@ -524,7 +524,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRegularSlabMesh(d
             this->ConstructLinearMesh(num_elem_x);
             break;
         case 2:
-            this->ConstructRectangularMesh(num_elem_x, num_elem_y, true);//Stagger=true
+            this->ConstructRectangularMesh(num_elem_x, num_elem_y, true); // Stagger=true
             break;
         default:
         case 3:
@@ -536,35 +536,35 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRegularSlabMesh(d
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex )
 {
-        //This may throw in the distributed parallel case
-        unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0);
+    // This may throw in the distributed parallel case
+    unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0);
 
-        //if it is in my range
-        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+    // if it is in my range
+    if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex )
 {
-        //This may throw in the distributed parallel case
-        unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0);
+    // This may throw in the distributed parallel case
+    unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0);
 
-        //if it is in my range
-        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+    // if it is in my range
+    if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -644,14 +644,14 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMesh(Abstract
 
     for (unsigned i=0; i<rOtherMesh.GetNumElements(); i++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_elem =  rOtherMesh.GetElement(i);
+        Element<ELEMENT_DIM, SPACE_DIM>* p_elem = rOtherMesh.GetElement(i);
         assert(!p_elem->IsDeleted());
         std::vector<Node<SPACE_DIM>*> nodes_for_element;
         for (unsigned j=0; j<p_elem->GetNumNodes(); j++)
         {
             nodes_for_element.push_back(this->mNodes[ p_elem->GetNodeGlobalIndex(j) ]);
         }
-        Element<ELEMENT_DIM, SPACE_DIM>* p_elem_copy=new Element<ELEMENT_DIM, SPACE_DIM>(i, nodes_for_element);
+        Element<ELEMENT_DIM, SPACE_DIM>* p_elem_copy = new Element<ELEMENT_DIM, SPACE_DIM>(i, nodes_for_element);
         p_elem_copy->RegisterWithNodes();
         this->mElements.push_back(p_elem_copy);
     }
@@ -665,7 +665,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMesh(Abstract
         {
             nodes_for_element.push_back(this->mNodes[ p_b_elem->GetNodeGlobalIndex(j) ]);
         }
-        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_elem_copy=new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(i, nodes_for_element);
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_elem_copy = new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(i, nodes_for_element);
         p_b_elem_copy->RegisterWithNodes();
         this->mBoundaryElements.push_back(p_b_elem_copy);
     }

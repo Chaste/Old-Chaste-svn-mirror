@@ -104,7 +104,7 @@ template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::SetupSolve()
 {
 	// If we're using a NodeBasedCellPopulation - assert that we have a CoarsePdeMesh to solve it on
-	if((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) && mpCoarsePdeMesh==NULL)
+	if ((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) && mpCoarsePdeMesh==NULL)
 	{
 		EXCEPTION("Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
 	}

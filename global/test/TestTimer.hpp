@@ -26,28 +26,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTTIMER_HPP_
 #define _TESTTIMER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "Timer.hpp"
 
-
 class TestTimer : public CxxTest::TestSuite
 {
 public:
-    // can't really test the timer, this is just for coverage and to illustrate usage.
+
+    // Can't really test the timer, this is just for coverage and to illustrate usage
     void TestIt()
     {
         Timer::Reset();
 
-        // Rum simulation which shows **** cures cancer
-
+        // Run simulation which shows **** cures cancer
         Timer::PrintAndReset("Cure cancer");
 
-        // Rum simulation which shows **** cures heart disease
-
+        // Run simulation which shows **** cures heart disease
         Timer::Print("Cure heart disease");
     }
 };

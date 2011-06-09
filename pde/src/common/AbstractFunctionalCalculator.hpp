@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef ABSTRACTFUNCTIONALCALCULATOR_HPP_
 #define ABSTRACTFUNCTIONALCALCULATOR_HPP_
 
@@ -34,18 +35,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 
-
 /**
- *  This is an abstract class for computing user-defined integral-based
- *  functionals of a solution on the mesh. The user needs to define
- *  GetIntegrand() in the concrete class, and this class can then be used
- *  to compute the integral of f(x,u,grad_u) over the mesh, where x is
- *  position, u is the solution at x (possibly with multiple components, for
- *  which PROBLEM_DIM>1), grad_u the gradient of u and f the integrand as
- *  defined in the concrete class.
+ * This is an abstract class for computing user-defined integral-based
+ * functionals of a solution on the mesh. The user needs to define
+ * GetIntegrand() in the concrete class, and this class can then be used
+ * to compute the integral of f(x,u,grad_u) over the mesh, where x is
+ * position, u is the solution at x (possibly with multiple components, for
+ * which PROBLEM_DIM>1), grad_u the gradient of u and f the integrand as
+ * defined in the concrete class.
  *
- *  Note linear basis functions and 2 quad points per dimension are currently
- *  hardcoded.
+ * Note linear basis functions and 2 quad points per dimension are currently
+ * hardcoded.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractFunctionalCalculator
@@ -95,11 +95,9 @@ public:
     double CalculateOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement);
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::CalculateOnElement(Element<ELEMENT_DIM, SPACE_DIM>& rElement)

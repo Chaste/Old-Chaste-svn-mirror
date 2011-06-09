@@ -25,33 +25,32 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef SIMPLEDATAWRITER_HPP_
 #define SIMPLEDATAWRITER_HPP_
 
 #include <string>
 #include <vector>
 
-
 /**
- *  A basic data writer that is easier to use than ColumnDataWriter but has less
- *  functionality. NOTE: this is not an efficient writer.
+ * A basic data writer that is easier to use than ColumnDataWriter but has less
+ * functionality. NOTE: this is not an efficient writer.
  *
- *  This class does not writer header lines so is ideal for immediately reading
- *  with MATLAB or Gnuplot.
+ * This class does not writer header lines so is ideal for immediately reading
+ * with MATLAB or Gnuplot.
  */
 class SimpleDataWriter
 {
-
 public:
 
     /**
-     *  Write the provided data out to the given file in columns
+     * Write the provided data out to the given file in columns
      *
-     *  @param rDirectory The directory, relative to TEST_OUTPUT
-     *  @param rFileName  The full file name (no format will be apended)
-     *  @param rData     The data. data[0] will written as the first column, data[1] the
-     *                   second, and so on. An exception is thrown if they are not the same size
-     *  @param cleanDirectory Whether to clean the directory (defaults to true)
+     * @param rDirectory The directory, relative to TEST_OUTPUT
+     * @param rFileName  The full file name (no format will be apended)
+     * @param rData     The data. data[0] will written as the first column, data[1] the
+     *                  second, and so on. An exception is thrown if they are not the same size
+     * @param cleanDirectory Whether to clean the directory (defaults to true)
      */
     SimpleDataWriter(const std::string& rDirectory,
                      const std::string& rFileName,
@@ -59,14 +58,14 @@ public:
                      bool cleanDirectory=true);
 
     /**
-     *  Write the provided data out to the given file in 2 columns
+     * Write the provided data out to the given file in 2 columns
      *
-     *  @param rDirectory The directory, relative to TEST_OUTPUT
-     *  @param rFileName  The full file name (no format will be apended)
-     *  @param rT        The first column of data
-     *  @param rX        The second column of data. An exception is thrown if the size
+     * @param rDirectory The directory, relative to TEST_OUTPUT
+     * @param rFileName  The full file name (no format will be apended)
+     * @param rT        The first column of data
+     * @param rX        The second column of data. An exception is thrown if the size
      *             of x is not the same as the size of t.
-     *  @param cleanDirectory Whether to clean the directory (defaults to true)
+     * @param cleanDirectory Whether to clean the directory (defaults to true)
      */
     SimpleDataWriter(const std::string& rDirectory,
                      const std::string& rFileName,
@@ -75,17 +74,17 @@ public:
                      bool cleanDirectory=true);
 
     /**
-     *  Write the provided data out to the given file in one column
+     * Write the provided data out to the given file in one column
      *
-     *  @param rDirectory The directory, relative to TEST_OUTPUT
-     *  @param rFileName  The full file name (no format will be apended)
-     *  @param rData      A std::vec of data
-     *  @param cleanDirectory Whether to clean the directory (defaults to true)
+     * @param rDirectory The directory, relative to TEST_OUTPUT
+     * @param rFileName  The full file name (no format will be apended)
+     * @param rData      A std::vec of data
+     * @param cleanDirectory Whether to clean the directory (defaults to true)
      */
     SimpleDataWriter(const std::string& rDirectory,
                      const std::string& rFileName,
                      const std::vector<double>& rData,
                      bool cleanDirectory=true);
-
 };
+
 #endif /*SIMPLEDATAWRITER_HPP_*/

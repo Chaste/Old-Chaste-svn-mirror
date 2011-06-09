@@ -62,5 +62,4 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #define ASSIGN_PTR(NAME, TYPE, ARGS) NAME.reset(new TYPE ARGS)
 
-
 #endif // SMARTPOINTERS_HPP_

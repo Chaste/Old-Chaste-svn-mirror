@@ -59,7 +59,6 @@ BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditio
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditionsContainer()
 {
-
     // Keep track of what boundary condition objects we've deleted
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
     for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -94,15 +93,15 @@ BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~BoundaryConditi
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddDirichletBoundaryCondition( const Node<SPACE_DIM> *  pBoundaryNode,
-                                        const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition,
+void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddDirichletBoundaryCondition(const Node<SPACE_DIM>* pBoundaryNode,
+                                        const AbstractBoundaryCondition<SPACE_DIM>* pBoundaryCondition,
                                         unsigned indexOfUnknown,
                                         bool checkIfBoundaryNode)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
     if (checkIfBoundaryNode)
     {
-        assert( pBoundaryNode->IsBoundaryNode());
+        assert(pBoundaryNode->IsBoundaryNode());
     }
 
     (*(this->mpDirichletMap[indexOfUnknown]))[pBoundaryNode] = pBoundaryCondition;
@@ -115,8 +114,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannB
 {
     assert(indexOfUnknown < PROBLEM_DIM);
 
-    // If this condition is constant, we can test whether it is zero.
-    // Otherwise we assume that this could be a non-zero boundary condition.
+    /*
+     * If this condition is constant, we can test whether it is zero.
+     * Otherwise we assume that this could be a non-zero boundary condition.
+     */
     const ConstBoundaryCondition<SPACE_DIM>* p_const_cond = dynamic_cast<const ConstBoundaryCondition<SPACE_DIM>*>(pBoundaryCondition);
     if (p_const_cond)
     {
@@ -138,10 +139,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannB
         }
         else
         {
-            // if can't find pBoundaryElement in map[unknown]
+            // If can't find pBoundaryElement in map[unknown]
             if ( mpNeumannMap[unknown]->find(pBoundaryElement)==mpNeumannMap[unknown]->end() )
             {
-                // add zero bc to other unknowns (so all maps are in sync)
+                // Add zero bc to other unknowns (so all maps are in sync)
                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
             }
         }
@@ -161,11 +162,11 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConst
                                                unsigned indexOfUnknown)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
-    //In applying a condition to the boundary, we need to be sure that the boundary exists
+
+    // In applying a condition to the boundary, we need to be sure that the boundary exists
     assert(pMesh->GetNumBoundaryNodes() > 0);
 
-    ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
-        new ConstBoundaryCondition<SPACE_DIM>( value );
+    ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(value);
 
     typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
     iter = pMesh->GetBoundaryNodeIteratorBegin();
@@ -181,10 +182,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroN
                                          unsigned indexOfUnknown)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
-    //In applying a condition to the boundary, we need to be sure that the boundary exists
+
+    // In applying a condition to the boundary, we need to be sure that the boundary exists
     assert(pMesh->GetNumBoundaryElements() > 0);
-    ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
-        new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
+    ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
 
     typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator iter;
     iter = pMesh->GetBoundaryElementIteratorBegin();
@@ -196,6 +197,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroN
 
     mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = false;
 }
+
 /**
  * Modifies a linear system to incorporate Dirichlet boundary conditions
  *
@@ -247,13 +249,19 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 
         if (matrix_is_symmetric)
         {
-            //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so
-            //that they can be reapplied at each time step.
-            //Make a new vector to store the Dirichlet offsets in
+            /*
+             * Modifications to the RHS are stored in the Dirichlet boundary
+             * conditions vector. This is done so that they can be reapplied
+             * at each time step.
+             * Make a new vector to store the Dirichlet offsets in.
+             */
             VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
             PetscVecTools::Zero(rLinearSystem.rGetDirichletBoundaryConditionsVector());
-            // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
-            // in assembled state. Otherwise we can defer it.
+            /*
+             * If the matrix is symmetric, calls to GetMatrixRowDistributed()
+             * require the matrix to be in assembled state. Otherwise we can
+             * defer it.
+             */
             rLinearSystem.AssembleFinalLinearSystem();
         }
 
@@ -287,6 +295,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 this->mDirichIterator++;
             }
         }
+
         // And replicate
         dirichlet_conditions.Replicate(lo, hi);
 
@@ -308,28 +317,35 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 unsigned col = rows_to_zero[i];
                 double minus_value = -dirichlet_conditions[col];
 
-                // Get a vector which will store the column of the matrix (column d, where d is
-                // the index of the row (and column) to be altered for the boundary condition.
-                // Since the matrix is symmetric when get row number "col" and treat it as a column.
-                // PETSc uses compressed row format and therefore getting rows is far more efficient
-                // than getting columns.
+                /*
+                 * Get a vector which will store the column of the matrix (column d,
+                 * where d is the index of the row (and column) to be altered for the
+                 * boundary condition. Since the matrix is symmetric when get row
+                 * number "col" and treat it as a column. PETSc uses compressed row
+                 * format and therefore getting rows is far more efficient than getting
+                 * columns.
+                 */
                 Vec matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
 
                 // Zero the correct entry of the column
                 PetscVecTools::SetElement(matrix_col, col, 0.0);
 
-                // Set up the RHS Dirichlet boundary conditions vector
-                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
-                //   -value*[0 a_21 a_31 .. a_N1]
-                // and will be added to the RHS.
+                /*
+                 * Set up the RHS Dirichlet boundary conditions vector.
+                 * Assuming one boundary at the zeroth node (x_0 = value), this is equal to
+                 *   -value*[0 a_21 a_31 .. a_N1]
+                 * and will be added to the RHS.
+                 */
                 PetscVecTools::AddScaledVector(rLinearSystem.rGetDirichletBoundaryConditionsVector(), matrix_col, minus_value);
                 VecDestroy(matrix_col);
             }
         }
 
-        // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the
-        // boundary conditions in a way the symmetry isn't lost (rows and columns). If not only the row is
-        // zeroed.
+        /*
+         * Now zero the appropriate rows and columns of the matrix. If the matrix
+         * is symmetric we apply the boundary conditions in a way the symmetry isn't
+         * lost (rows and columns). If not only the row is zeroed.
+         */
         if (matrix_is_symmetric)
         {
             rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(rows_to_zero, 1.0);
@@ -348,8 +364,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             PetscVecTools::AddScaledVector(rLinearSystem.rGetRhsVector(), rLinearSystem.rGetDirichletBoundaryConditionsVector(), 1.0);
         }
 
-        // Apply the actual boundary condition to the RHS, note this must be done after the modification to the
-        // RHS vector.
+        /*
+         * Apply the actual boundary condition to the RHS, note this must be
+         * done after the modification to the RHS vector.
+         */
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
@@ -431,7 +449,6 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     PetscMatTools::AssembleFinal(jacobian);
     PetscMatTools::ZeroRowsWithValueOnDiagonal(jacobian, rows_to_zero, 1.0);
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)

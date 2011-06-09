@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef HEARTEVENTHANDLER_HPP_
 #define HEARTEVENTHANDLER_HPP_
 

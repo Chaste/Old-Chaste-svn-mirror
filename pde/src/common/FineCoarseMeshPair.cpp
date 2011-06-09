@@ -378,6 +378,7 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes(bool safeMode)
         #endif
 
         ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
+
         // Get the box this point is in
         unsigned box_for_this_point = mpCoarseMeshBoxCollection->CalculateContainingBox(mrFineMesh.GetNode(i)->rGetModifiableLocation());
 

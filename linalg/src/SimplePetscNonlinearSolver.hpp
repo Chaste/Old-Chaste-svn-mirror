@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _SIMPLENONLINEARSOLVER_HPP_
 #define _SIMPLENONLINEARSOLVER_HPP_
 
@@ -79,7 +78,6 @@ public:
               Vec initialGuess,
               unsigned fill,
               void* pContext);
-
 };
 
 #endif // _SIMPLENONLINEARSOLVER_HPP_

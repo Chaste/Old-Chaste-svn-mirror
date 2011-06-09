@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTFOURTHORDERTENSOR_HPP_
 #define TESTFOURTHORDERTENSOR_HPP_
 
@@ -36,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestFourthOrderTensor : public CxxTest::TestSuite
 {
 public:
+
     void TestFourthOrderTensorAllSameDimensions() throw(Exception)
     {
         FourthOrderTensor<2,2,2,2> x;
@@ -68,7 +68,6 @@ public:
                 }
             }
         }
-
 
         FourthOrderTensor<3,3,3,3> y;
 
@@ -118,7 +117,6 @@ public:
         }
     }
 
-
     void TestSetAsContractionOnFirstDimensionSameDimensions() throw(Exception)
     {
         FourthOrderTensor<3,3,3,3> X;
@@ -155,7 +153,6 @@ public:
             }
         }
     }
-
 
     void TestSetAsContractionOnSecondDimensionSameDimensions() throw(Exception)
     {
@@ -301,7 +298,6 @@ public:
         TS_ASSERT_DELTA( Y(0,2,0,0), 0.0,    1e-8);
     }
 
-
     void TestFourthOrderTensorDifferentDimensions2() throw (Exception)
     {
         FourthOrderTensor<2,3,1,1> X;
@@ -362,7 +358,6 @@ public:
         TS_ASSERT_DELTA( Y(0,0,0,2), 0.0,    1e-8);
     }
 
-
     void TestFourthOrderTensorDifferentDimensions4() throw (Exception)
     {
         FourthOrderTensor<1,1,2,3> X;
@@ -393,4 +388,5 @@ public:
         TS_ASSERT_DELTA( Y(0,0,1,0), A(0,1), 1e-8);
     }
 };
+
 #endif /*TESTFOURTHORDERTENSOR_HPP_*/

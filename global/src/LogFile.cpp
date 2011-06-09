@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "LogFile.hpp"
 #include "Exception.hpp"
 
@@ -42,7 +41,6 @@ LogFile::LogFile()
       mPrecision(6)
 {
 }
-
 
 LogFile* LogFile::Instance()
 {
@@ -65,7 +63,6 @@ unsigned LogFile::Level()
     }
 }
 
-
 void LogFile::Set(unsigned level, const std::string& rDirectory, const std::string& rFileName)
 {
     if (level > mMaxLoggingLevel)
@@ -87,14 +84,13 @@ void LogFile::Set(unsigned level, const std::string& rDirectory, const std::stri
     mpOutStream = handler.OpenOutputFile(rFileName);
     mFileSet = true;
 
-    // write header in the log file..?
+    // Write header in the log file..?
 }
 
 unsigned LogFile::MaxLoggingLevel()
 {
     return mMaxLoggingLevel;
 }
-
 
 void LogFile::Close()
 {
@@ -128,7 +124,6 @@ bool LogFile::IsFileSet()
 {
     return mFileSet;
 }
-
 
 void LogFile::SetPrecision(unsigned precision)
 {

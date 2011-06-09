@@ -35,11 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputDirectoryFifoQueue.hpp"
 #include "PetscTools.hpp"
 
-
 class TestOutputDirectoryFifoQueue : public CxxTest::TestSuite
 {
-
 public:
+
     void TestQueueCreatesDirectories() throw (Exception)
     {
         // Remove directory in case it was there from previous executions.
@@ -58,7 +57,6 @@ public:
 
         fifo_queue.CreateNextDir("0.2");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.2");
-
     }
 
     void TestQueueRemovesAndCreatesDirectories() throw (Exception)
@@ -93,8 +91,6 @@ public:
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.3");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.4");
     }
-
-
 };
 
 #endif /*TESTOUTPUTDIRECTORYFIFOQUEUE_HPP_*/

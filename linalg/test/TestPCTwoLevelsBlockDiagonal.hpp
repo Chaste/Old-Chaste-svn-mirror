@@ -37,9 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include <cstring>
 
-
 /*
- *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
+ * Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
  * different compared to a real cardiac simulation. Do not take conclusions about preconditioner performance
  * based on these tests only.
  */
@@ -209,6 +208,7 @@ public:
 
         {
             Mat system_matrix;
+
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/PP_system_with_bath.mat", parallel_layout);
 
@@ -242,7 +242,7 @@ public:
     }
 
     /*
-     *  Use this test to generate a matrix and vector coming from a PP simulation with bath and to
+     * Use this test to generate a matrix and vector coming from a PP simulation with bath and to
      * work out the indices of the nodes in the bath.
      *
      *  In order to get it to work you need to comment out the following lines:
@@ -254,11 +254,11 @@ public:
      * destroy the cardiac solver and the end of Solve(). Otherwise you will get a segfault when
      * trying to get the linear system out of the solver object.
      *
-     *  Add the following includes as well:
+     * Add the following includes as well:
      *
-     *    #include "BidomainParaParaProblem.hpp"
-     *    #include "LuoRudy1991BackwardEuler.hpp"
-     *    #include "SimpleBathProblemSetup.hpp"
+     *   #include "BidomainParaParaProblem.hpp"
+     *   #include "LuoRudy1991BackwardEuler.hpp"
+     *   #include "SimpleBathProblemSetup.hpp"
      *
      */
 //    void TestWriteOutPPWithBathLinearSystem()

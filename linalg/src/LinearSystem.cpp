@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Warnings.hpp"
 #include <algorithm>
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +79,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
         }
     }
 
-    mRhsVector=PetscTools::CreateVec(mSize);
+    mRhsVector = PetscTools::CreateVec(mSize);
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, mRowPreallocation, PETSC_DECIDE, PETSC_DECIDE);
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
@@ -220,8 +219,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
         MatGetInfo(mLhsMatrix, MAT_GLOBAL_MAX, &matrix_info);
 
         /*
-         *  Assuming that mLhsMatrix was created with PetscTools::SetupMat, the value
-         *  below should be equivalent to what was used as preallocation in that call.
+         * Assuming that mLhsMatrix was created with PetscTools::SetupMat, the value
+         * below should be equivalent to what was used as preallocation in that call.
          */
         mRowPreallocation = (unsigned) matrix_info.nz_allocated / mSize;
     }
@@ -292,9 +291,7 @@ LinearSystem::~LinearSystem()
         }
     }
 #endif
-
 }
-
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
 {
@@ -372,7 +369,6 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
 {
     PetscMatTools::ZeroRowsWithValueOnDiagonal(mLhsMatrix, rRows, diagonalValue);
 }
-
 
 void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue)
 {
@@ -459,7 +455,6 @@ void LinearSystem::RemoveNullSpace()
     }
 }
 
-
 void LinearSystem::GetOwnershipRange(PetscInt& lo, PetscInt& hi)
 {
     lo = mOwnershipRangeLo;
@@ -485,7 +480,6 @@ unsigned LinearSystem::GetNumIterations() const
 
     return (unsigned) num_its;
 }
-
 
 Vec& LinearSystem::rGetRhsVector()
 {
@@ -559,13 +553,13 @@ bool LinearSystem::IsMatrixSymmetric()
 
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
 {
-    mMatrixIsConstant=matrixIsConstant;
+    mMatrixIsConstant = matrixIsConstant;
 }
 
 void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 {
-    mTolerance=relativeTolerance;
-    mUseAbsoluteTolerance=false;
+    mTolerance = relativeTolerance;
+    mUseAbsoluteTolerance = false;
     if (mKspIsSetup)
     {
         KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
@@ -574,8 +568,8 @@ void LinearSystem::SetRelativeTolerance(double relativeTolerance)
 
 void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
 {
-    mTolerance=absoluteTolerance;
-    mUseAbsoluteTolerance=true;
+    mTolerance = absoluteTolerance;
+    mUseAbsoluteTolerance = true;
     if (mKspIsSetup)
     {
         KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
@@ -594,7 +588,7 @@ void LinearSystem::SetKspType(const char *kspType)
 
 void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<PetscInt> > pBathNodes)
 {
-    mPcType=pcType;
+    mPcType = pcType;
     mpBathNodes = pBathNodes;
 
     if (mKspIsSetup)
@@ -654,11 +648,13 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
 
 Vec LinearSystem::Solve(Vec lhsGuess)
 {
-    /* The following lines are very useful for debugging
+    /*
+     * The following lines are very useful for debugging:
      *    MatView(mLhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
      *    VecView(mRhsVector,    PETSC_VIEWER_STDOUT_WORLD);
      */
-    //Double check that the non-zero pattern hasn't changed
+
+    // Double check that the non-zero pattern hasn't changed
     MatInfo mat_info;
     MatGetInfo(mLhsMatrix, MAT_GLOBAL_SUM, &mat_info);
 
@@ -673,10 +669,15 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         PC prec; //Type of pre-conditioner
 
         KSPCreate(PETSC_COMM_WORLD, &mKspSolver);
-        //See
-        //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
-        //The preconditioner flag (last argument) in the following calls says
-        //how to reuse the preconditioner on subsequent iterations
+
+        /*
+         * See
+         *
+         * http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
+         *
+         * The preconditioner flag (last argument) in the following calls says
+         * how to reuse the preconditioner on subsequent iterations.
+         */
 
         MatStructure preconditioner_over_successive_calls;
 
@@ -709,10 +710,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         }
 
-        // set ksp and pc types
+        // Set ksp and pc types
         KSPSetType(mKspSolver, mKspType.c_str());
         KSPGetPC(mKspSolver, &prec);
-
 
         // Turn off pre-conditioning if the system size is very small
         if (mSize <= 4)
@@ -773,8 +773,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
         if (lhsGuess)
         {
-            //Assume that the user of this method will always be kind enough
-            //to give us a reasonable guess.
+            // Assume that the user of this method will always be kind enough to give us a reasonable guess.
             KSPSetInitialGuessNonzero(mKspSolver,PETSC_TRUE);
         }
 
@@ -825,7 +824,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
 #ifdef TRACE_KSP
             /*
-             *  Under certain circumstances (see Golub&Overton 1988), underestimating
+             * Under certain circumstances (see Golub&Overton 1988), underestimating
              * the spectrum of the preconditioned operator improves convergence rate.
              * See publication for a discussion and for definition of alpha and sigma_one.
              */
@@ -912,13 +911,13 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     // Create solution vector
     ///\todo Should it be compulsory for the caller to supply this and manage the memory?
     Vec lhs_vector;
-    VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
+    VecDuplicate(mRhsVector, &lhs_vector); // Sets the same size (doesn't copy)
     if (lhsGuess)
     {
         VecCopy(lhsGuess, lhs_vector);
     }
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
-//    //Double check that the mRhsVector contains sensible values
+//    // Double check that the mRhsVector contains sensible values
 //    double* p_rhs,* p_guess;
 //    VecGetArray(mRhsVector, &p_rhs);
 //    VecGetArray(lhsGuess, &p_guess);
@@ -1111,7 +1110,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     return lhs_vector;
 }
 
-
 void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
 {
     mPrecondMatrixIsNotLhs = precondIsDifferent;
@@ -1121,13 +1119,13 @@ void LinearSystem::SetPrecondMatrixIsDifferentFromLhs(bool precondIsDifferent)
         if (mRowPreallocation == UINT_MAX)
         {
             /*
-             *  At the time of writing, this line will be reached if the constructor
-             *  with signature LinearSystem(Vec residualVector, Mat jacobianMatrix) is
-             *  called with jacobianMatrix=NULL and preconditioning matrix different
-             *  from lhs is used.
+             * At the time of writing, this line will be reached if the constructor
+             * with signature LinearSystem(Vec residualVector, Mat jacobianMatrix) is
+             * called with jacobianMatrix=NULL and preconditioning matrix different
+             * from lhs is used.
              *
-             *  If this combination is ever required you will need to work out
-             *  matrix allocation (mRowPreallocation) here.
+             * If this combination is ever required you will need to work out
+             * matrix allocation (mRowPreallocation) here.
              */
             NEVER_REACHED;
         }
@@ -1155,7 +1153,7 @@ void LinearSystem::ResetKspSolver()
     mForceSpectrumReevaluation = true;
 
     /*
-     *  Reset max number of iterations. This option is stored in the configuration database and
+     * Reset max number of iterations. This option is stored in the configuration database and
      * explicitely read in with KSPSetFromOptions() everytime a KSP object is created. Therefore,
      * destroying the KSP object will not ensure that it is set back to default.
      */

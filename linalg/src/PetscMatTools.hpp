@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _PETSCMATTOOLS_HPP_
 #define _PETSCMATTOOLS_HPP_
 
@@ -242,7 +241,6 @@ public:
                          ADD_VALUES);
         }
     }
-
 };
 
 #endif //_PETSCMATTOOLS_HPP_

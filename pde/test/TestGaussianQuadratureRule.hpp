@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTGAUSSIANQUADRATURERULE_HPP_
 #define _TESTGAUSSIANQUADRATURERULE_HPP_
 
@@ -38,7 +39,7 @@ class TestGaussianQuadratureRule : public CxxTest::TestSuite
 public:
 
     /**
-     * Check points and weights are in the right ranges
+     * Check points and weights are in the right ranges.
      */
     void TestTheGaussianQuadratureRule()
     {
@@ -115,7 +116,6 @@ public:
 
     /**
      * Test by integrating polynomials of the form x^n.
-     *
      * 1d case.
      */
     void TestGaussianQuadratureRuleIntegralOneD()
@@ -126,7 +126,6 @@ public:
 
             for (int poly_degree=0; poly_degree<2*num_quad_points; poly_degree++)
             {
-
                 std::vector<Node<1>*> nodes2;
                 nodes2.push_back(new Node<1>(0, false, 1.0));
                 nodes2.push_back(new Node<1>(1, false, 3.0));

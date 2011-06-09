@@ -26,9 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "UblasCustomFunctions.hpp"
-
 
 c_vector<double, 1> Create_c_vector(double x)
 {
@@ -72,7 +70,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
     c_matrix<double, 3, 3> a_transpose;
     noalias(a_transpose) = trans(rA);
 
-    //PETSc alias for dgeev or dgeev_
+    // PETSc alias for dgeev or dgeev_
     LAPACKgeev_(&dont_compute_left_evectors, &compute_right_evectors,
            &matrix_size, a_transpose.data(),&matrix_ld,
            eigenvalues_real_part.data(), eigenvalues_imaginary_part.data(),
@@ -82,7 +80,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
            &info);
     assert(info==0);
 
-    // if this fails a complex eigenvalue was found
+    // If this fails a complex eigenvalue was found
     assert(norm_2(eigenvalues_imaginary_part) < DBL_EPSILON);
 
     unsigned index_of_smallest=UINT_MAX;
@@ -134,12 +132,12 @@ double SmallPow(double x, unsigned exponent)
         {
             if (exponent % 2 == 0)
             {
-                //Even power
+                // Even power
                 double partial_answer=SmallPow(x, exponent/2);
                 return partial_answer*partial_answer;
             }
             else
-            {   //Odd power
+            {   // Odd power
                 return SmallPow(x, exponent-1)*x;
             }
         }
@@ -149,14 +147,18 @@ double SmallPow(double x, unsigned exponent)
 bool Divides(double smallerNumber, double largerNumber)
 {
     double remainder = fmod(largerNumber, smallerNumber);
-    // Is the remainder close to zero?
-    // Note that the comparison is scaled wrt to the larger of the numbers
+    /*
+     * Is the remainder close to zero? Note that the comparison is scaled
+     * with respect to the larger of the numbers.
+     */
     if (remainder < DBL_EPSILON*largerNumber)
     {
         return true;
     }
-    // Is the remainder close to smallerNumber?
-    // Note that the comparison is scaled wrt to the larger of the numbers
+    /*
+     * Is the remainder close to smallerNumber? Note that the comparison
+     * is scaled with respect to the larger of the numbers.
+     */
     if (fabs(remainder-smallerNumber) < DBL_EPSILON*largerNumber)
     {
         return true;

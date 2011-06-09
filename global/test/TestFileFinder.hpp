@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestFileFinder : public CxxTest::TestSuite
 {
 public:
+
     void TestFileFinderOpening() throw(Exception)
     {
         {
@@ -47,6 +48,7 @@ public:
             TS_ASSERT(file_finder.Exists());
             TS_ASSERT(file_finder.IsFile());
             TS_ASSERT(!file_finder.IsDir());
+
             // Check the path is as expected
             std::string abs_path = ChasteBuildRootDir() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
@@ -56,6 +58,7 @@ public:
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT(file_finder2.IsFile());
             TS_ASSERT(!file_finder2.IsDir());
+
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
 
@@ -64,6 +67,7 @@ public:
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT(file_finder2.IsFile());
             TS_ASSERT(!file_finder2.IsDir());
+
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
 
@@ -80,9 +84,11 @@ public:
             TS_ASSERT(!file_finder.Exists());
             TS_ASSERT(!file_finder.IsFile());
             TS_ASSERT(!file_finder.IsDir());
+
             // Check the path is as expected
             std::string abs_path = handler.GetOutputDirectoryFullPath() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
+
             // Create the file
             out_stream fp = handler.OpenOutputFile(file_name);
             fp->close();
@@ -102,8 +108,10 @@ public:
     void TestNewer()
     {
         FileFinder file("global/src/FileFinder.hpp", RelativeTo::ChasteSourceRoot);
+
         // A file can't be newer than itself
         TS_ASSERT(!file.IsNewerThan(file));
+
         // A newly created file better be newer than ourself!
         OutputFileHandler handler("TestFileFinder");
         out_stream fp = handler.OpenOutputFile("new_file");
@@ -174,5 +182,3 @@ public:
 };
 
 #endif /*TESTFILEFINDER_HPP_*/
-
-

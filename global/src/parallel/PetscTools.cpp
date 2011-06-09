@@ -26,14 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 #include "Warnings.hpp"
 #include <iostream>
 #include <sstream>
 #include <cassert>
-#include <cstring> //For strcmp etc. Needed in gcc-4.3
+#include <cstring> // For strcmp etc. Needed in gcc-4.3
 
 bool PetscTools::mPetscIsInitialised = false;
 unsigned PetscTools::mNumProcessors = 0;
@@ -75,9 +74,7 @@ void PetscTools::ResetCache()
 #endif
 }
 
-//
 // Information methods
-//
 
 bool PetscTools::IsSequential()
 {
@@ -115,9 +112,7 @@ bool PetscTools::AmTopMost()
     return (mRank == mNumProcessors - 1);
 }
 
-//
 // Little utility methods
-//
 
 void PetscTools::Barrier(const std::string callerId)
 {
@@ -144,7 +139,6 @@ void PetscTools::BeginRoundRobin()
     }
 }
 
-
 void PetscTools::EndRoundRobin()
 {
     const unsigned num_procs = GetNumProcs();
@@ -153,7 +147,6 @@ void PetscTools::EndRoundRobin()
         Barrier("PetscTools::RoundRobin");
     }
 }
-
 
 #ifndef SPECIAL_SERIAL
 
@@ -179,16 +172,14 @@ void PetscTools::ReplicateException(bool flag)
     }
 }
 
-//
-// Vector & Matrix creation routines
-//
+// Vector & matrix creation routines
 
 Vec PetscTools::CreateVec(int size, int localSize, bool ignoreOffProcEntries)
 {
-    assert(size>=0); //There is one test where we create a zero-sized vector
+    assert(size >= 0); // There is one test where we create a zero-sized vector
     Vec ret;
     VecCreate(PETSC_COMM_WORLD, &ret);
-    VecSetSizes(ret, localSize, size); //localSize usually defaults to PETSC_DECIDE
+    VecSetSizes(ret, localSize, size); // localSize usually defaults to PETSC_DECIDE
     VecSetFromOptions(ret);
 
     if (ignoreOffProcEntries)
@@ -248,7 +239,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     if ((int) rowPreallocation>numColumns)
     {
         WARNING("Preallocation failure: requested number of nonzeros per row greater than number of columns");//+rowPreallocation+">"+numColumns);
-        rowPreallocation=numColumns;
+        rowPreallocation = numColumns;
     }
 
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
@@ -296,7 +287,6 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     }
 }
 
-
 void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
@@ -306,8 +296,7 @@ void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFile
     PetscFileMode type = FILE_MODE_WRITE;
 #endif
 
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          type, &view);
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(), type, &view);
     MatView(rMat, view);
     PetscViewerDestroy(view);
 }
@@ -321,8 +310,7 @@ void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFile
     PetscFileMode type = FILE_MODE_WRITE;
 #endif
 
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
-                          type, &view);
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(), type, &view);
     VecView(rVec, view);
     PetscViewerDestroy(view);
 }
@@ -330,7 +318,7 @@ void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFile
 void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout)
 {
     /*
-     *  PETSc (as of 3.1) doesn't provide any method for loading a Mat object with a user-defined parallel
+     * PETSc (as of 3.1) doesn't provide any method for loading a Mat object with a user-defined parallel
      * layout, i.e. there's no equivalent to VecLoadIntoVector for Mat's.
      *
      * It seems to be in their future plans though: http://lists.mcs.anl.gov/pipermail/petsc-users/2010-March/006062.html
@@ -367,7 +355,6 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 
         MatDestroy(rMat);
         rMat = temp_mat;
-
     }
 }
 
@@ -403,8 +390,10 @@ void PetscTools::Terminate(const std::string& rMessage, const std::string& rFile
     error_message<<"\nChaste termination: " << rFilename << ":" << lineNumber  << ": " << rMessage<<"\n";
     std::cerr<<error_message.str();
 
-    //double check for PETSc.  We could use mPetscIsInitialised, but only if we are certain that the
-    //PetscTools class has been used previously.
+    /*
+     * Double check for PETSc. We could use mPetscIsInitialised, but only if we
+     * are certain that the PetscTools class has been used previously.
+     */
     PetscTruth is_there;
     PetscInitialized(&is_there);
     if (is_there)
@@ -416,4 +405,5 @@ void PetscTools::Terminate(const std::string& rMessage, const std::string& rFile
         exit(EXIT_FAILURE);
     }
 }
-#undef COVERAGE_IGNORE //Termination NEVER EVER happens under normal testing conditions.
+
+#undef COVERAGE_IGNORE // Termination NEVER EVER happens under normal testing conditions

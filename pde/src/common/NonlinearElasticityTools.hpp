@@ -38,6 +38,7 @@ template<unsigned DIM>
 class NonlinearElasticityTools
 {
 public:
+
     /**
      * Collect all the nodes which satisfy x[k] = c, for given k and c, in order
      * to be set as fixed (or displacement boundary condition) nodes. Note that

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTHDF5READER_HPP_
 #define TESTHDF5READER_HPP_
 
@@ -469,7 +470,6 @@ public:
         VecDestroy(data_too_big);
         reader.Close();
     }
-
 
     void TestIncompleteData() throw (Exception)
     {

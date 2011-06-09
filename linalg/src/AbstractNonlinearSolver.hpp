@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _ABSTRACTNONLINEARSOLVER_HPP_
 #define _ABSTRACTNONLINEARSOLVER_HPP_
 
@@ -39,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class AbstractNonlinearSolver
 {
-
 public:
 
     /**
@@ -72,6 +70,7 @@ public:
                       Vec initialGuess,
                       unsigned fill,
                       void* pContext)=0;
+
     /**
      * Destructor.
      */

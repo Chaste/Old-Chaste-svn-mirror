@@ -63,7 +63,6 @@ struct version<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
 #include <boost/version.hpp>
 #include <boost/serialization/version.hpp>
 
-
 #if BOOST_VERSION >= 104400
 
 /**

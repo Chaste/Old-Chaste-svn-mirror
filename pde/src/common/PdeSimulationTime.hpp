@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef PDESIMULATIONTIME_HPP_
 #define PDESIMULATIONTIME_HPP_
 
@@ -38,33 +39,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PdeSimulationTime
 {
 public:
+
     /**
-     * Set the current time
+     * Set the current time.
+     *
      * @param time  the current time
      */
     static void SetTime(double time);
 
-    /** Get the current time */
+    /** Get the current time. */
     static double GetTime();
 
     /**
-     * Set the current PDE timestep
+     * Set the current PDE timestep.
+     *
      * @param timestep  the current timestep
      */
     static void SetPdeTimeStep(double timestep);
 
-    /** Get the current PDE timestep */
+    /** Get the current PDE timestep. */
     static double GetPdeTimeStep();
 
-    /** Get 1/dt  */
+    /** Get 1/dt. */
     static double GetPdeTimeStepInverse();
 
 private:
-    /** The current time */
+
+    /** The current time. */
     static double mTime;
-    /** The timestep used in the PDE solve */
+
+    /** The timestep used in the PDE solve. */
     static double mPdeTimeStep;
-    /** 1/dt */
+
+    /** 1/dt. */
     static double mPdeTimeStepInverse;
 };
 

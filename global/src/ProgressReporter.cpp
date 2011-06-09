@@ -39,10 +39,10 @@ ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime
 {
     assert(startTime < endTime);
 
-    // note we make sure we don't delete anything in the output directory
+    // Note we make sure we don't delete anything in the output directory
     OutputFileHandler handler(outputDirectory, false);
 
-    // open the file on the master process only
+    // Open the file on the master process only
     if ( PetscTools::AmMaster() )
     {
         mpFile = handler.OpenOutputFile("progress_status.txt");

@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 
-
 std::string ArchiveLocationInfo::mDirAbsPath = "";
 std::string ArchiveLocationInfo::mMeshFilename = "mesh";
 
@@ -95,7 +94,7 @@ std::string ArchiveLocationInfo::GetProcessUniqueFilePath(
 void ArchiveLocationInfo::SetArchiveDirectory(const FileFinder& rDirectory)
 {
     mDirAbsPath = rDirectory.GetAbsolutePath();
-    if (! ( *(mDirAbsPath.end()-1) == '/'))
+    if (!(*(mDirAbsPath.end()-1) == '/'))
     {
         mDirAbsPath = mDirAbsPath + "/";
     }
@@ -104,6 +103,7 @@ void ArchiveLocationInfo::SetArchiveDirectory(const FileFinder& rDirectory)
 std::string ArchiveLocationInfo::GetArchiveRelativePath()
 {
     std::string chaste_output = OutputFileHandler::GetChasteTestOutputDirectory();
+
     // Find occurrence of CHASTE_TEST_OUTPUT in string
     std::string::size_type pos = mDirAbsPath.find(chaste_output, 0);
     if (pos == 0)
@@ -122,4 +122,3 @@ bool ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput()
     std::string::size_type pos = mDirAbsPath.find(chaste_output, 0);
     return (pos == 0);
 }
-

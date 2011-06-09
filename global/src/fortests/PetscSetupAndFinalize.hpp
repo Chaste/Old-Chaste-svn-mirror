@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _PETSCSETUPANDFINALIZE_HPP_
 #define _PETSCSETUPANDFINALIZE_HPP_
 
@@ -75,6 +74,7 @@ void FpeSignalToAbort(int sig_num, siginfo_t* info, void* context )
 class PetscSetup : public CxxTest::GlobalFixture
 {
 public:
+
     /** Standard setup method for PETSc. */
     bool setUpWorld()
     {
@@ -86,7 +86,7 @@ public:
         PETSCEXCEPT(PetscInitialize(p_args->p_argc, p_args->p_argv,
                                     PETSC_NULL, PETSC_NULL) );
 
-        // Check that the working directory is correct, or many tests will fail.
+        // Check that the working directory is correct, or many tests will fail
         std::string cwd = GetCurrentWorkingDirectory() + "/";
         if (strcmp(cwd.c_str(), ChasteBuildRootDir()) != 0)
         {
@@ -99,9 +99,9 @@ public:
         }
 
 #ifdef TEST_FOR_FPE
-        //Give all PETSc enabled tests the ability to trap for divide-by-zero
+        // Give all PETSc enabled tests the ability to trap for divide-by-zero
         feenableexcept(FE_DIVBYZERO | FE_INVALID );
-        //Catch all SIGFPE signals and convert them to exceptions (before PETSc gets to them).
+        // Catch all SIGFPE signals and convert them to exceptions (before PETSc gets to them)
         struct sigaction sa;
         sa.sa_sigaction = FpeSignalToAbort;
         sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
@@ -113,13 +113,11 @@ public:
     /** Clean up PETSc after running all tests. */
     bool tearDownWorld()
     {
-        //std::cout << "Finalizing..." << std::endl;
         PETSCEXCEPT(PetscFinalize());
         return true;
     }
 };
 
 static PetscSetup thisSetup;
-
 
 #endif //_PETSCSETUPANDFINALIZE_HPP_

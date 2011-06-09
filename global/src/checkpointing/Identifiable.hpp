@@ -52,6 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Identifiable
 {
 public:
+
     /**
      * Virtual destructor to make this class polymorphic.
      */
@@ -71,6 +72,7 @@ public:
     std::string GetIdentifier() const;
 
 private:
+
     /**
      * Templated classes get Boost Serialization export keys that look like
      * "pack<void (NameOfDerivedType< DIM >)>::type".

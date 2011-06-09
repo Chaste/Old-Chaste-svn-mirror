@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /// gcov doesn't like this file...
 #define COVERAGE_IGNORE
 
-
 /**
  * @file
  *
@@ -68,9 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * singleton class instantiation).
  */
 
-
 #include <boost/version.hpp>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Make sure includes happen in the correct place.  This has to go before
@@ -101,7 +98,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif
 // Done includes
 
-
 ////////////////////////////////////////////////////////////////////////////////
 #if BOOST_VERSION >= 104100 && defined(CHASTE_SERIALIZATION_CPP)
 // .cpp file needs to use BOOST_CLASS_EXPORT_IMPLEMENT, so we need
@@ -127,7 +123,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #endif // BOOST_VERSION >= 104100 && defined(CHASTE_SERIALIZATION_CPP)
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SERIALIZATIONEXPORTWRAPPER_HPP_
@@ -138,7 +133,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
-
 
 // Handle broken BOOST_CLASS_EXPORT in Boost 1.36 & 1.37
 #if BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
@@ -198,7 +192,6 @@ namespace                                                                       
 #define CHASTE_CLASS_EXPORT_INTERNAL(T)       \
    BOOST_CLASS_EXPORT_KEY(T)
 
-
 #else // BOOST_VERSION < 103600 || (BOOST_VERSION >= 103800 && BOOST_VERSION < 104100)
 //Do exactly as we did before (so that archives created with 1.33 don't have to be re-generated)
 
@@ -219,8 +212,6 @@ namespace                                                                       
 
 #endif // BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
 
-
-
 template<class> struct pack;
 /**
  * Argument pack for macros.  Used to give a type for templated classes when exporting.
@@ -231,7 +222,6 @@ template<class> struct pack;
 template<class T> struct pack<void (T)> {
     typedef T type; /**< Type definition. */
 };
-
 
 /**
  * Defines the export key for a class templated over 1 parameter.
@@ -284,12 +274,9 @@ template<class T> struct pack<void (T)> {
  */
 #define CHASTE_PACK_3(CLASS, P1, P2, P3) pack<void (CLASS< P1,P2,P3 >)>::type
 
-
-
 // End of include guard - code below here is executed in both .hpp and .cpp
 #endif // SERIALIZATIONEXPORTWRAPPER_HPP_
 ////////////////////////////////////////////////////////////////////////////////
-
 
 // Since CHASTE_CLASS_EXPORT_TEMPLATED and CHASTE_CLASS_EXPORT_INTERNAL are re-defined for the .cpp file
 // in some Boost versions, the following macros will also need re-defining.
@@ -360,8 +347,6 @@ template<class T> struct pack<void (T)> {
     EXPORT_TEMPLATE_CLASS1(CLASS, 2) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 3)
 
-
-
 // Now define the macros that users actually call.
 // Again this goes outside the include guard, so it is seen by both .hpp and .cpp files.
 
@@ -376,7 +361,6 @@ template<class T> struct pack<void (T)> {
 #undef EXPORT_TEMPLATE_CLASS2
 #undef EXPORT_TEMPLATE_CLASS3
 #endif // CHASTE_SERIALIZATION_CPP
-
 
 #if (BOOST_VERSION < 103600  && ! defined(CHASTE_SERIALIZATION_CPP)) || \
     (BOOST_VERSION >= 103600 && defined(CHASTE_SERIALIZATION_CPP)) || \
@@ -465,7 +449,5 @@ template<class T> struct pack<void (T)> {
 
 #endif // Long if!
 #endif // !defined(CHASTE_CLASS_EXPORT) || defined(CHASTE_SERIALIZATION_CPP)
-
-
 
 #undef COVERAGE_IGNORE

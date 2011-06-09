@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTABSTRACTFUNCTIONALCALCULATOR_HPP_
 #define TESTABSTRACTFUNCTIONALCALCULATOR_HPP_
 
@@ -38,8 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"
 
-// Returns 1.0 everywhere so that the total integral over the mesh of
-// this integrand is just the volume of the mesh. For testing.
+/*
+ * Returns 1.0 everywhere so that the total integral over the mesh of
+ * this integrand is just the volume of the mesh. For testing.
+ */
 template<unsigned DIM>
 class VolumeCalculator : public AbstractFunctionalCalculator<DIM,DIM,1>
 {
@@ -76,6 +79,7 @@ class ExampleFunctionalTwo : public AbstractFunctionalCalculator<2,2,2>
 class TestAbstractFunctionalCalculator : public CxxTest::TestSuite
 {
 public:
+
     void TestWithVolumeCalculator()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
@@ -152,6 +156,7 @@ public:
 
         VecDestroy(petsc_vec);
     }
+
     void TestWithExampleFunctionalsNonDistributed()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
@@ -204,7 +209,6 @@ public:
 
         VecDestroy(petsc_vec);
     }
-
 };
 
 #endif /*TESTABSTRACTFUNCTIONALCALCULATOR_HPP_*/

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
 #include <cmath>
@@ -59,8 +58,8 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
             }
         }
 
-        double test_value=(additionalTimes[i]-startTime)/mDt;
-        if (fabs(floor(test_value+0.5)-test_value)>1e-12)
+        double test_value = (additionalTimes[i]-startTime)/mDt;
+        if (fabs(floor(test_value+0.5)-test_value) > 1e-12)
         {
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
@@ -68,7 +67,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
 
     mNextTime = CalculateNextTime();
 
-    // if enforceConstantTimeStep check whether the times are such that we won't have a variable dt
+    // If enforceConstantTimeStep check whether the times are such that we won't have a variable dt
     if (enforceConstantTimeStep)
     {
         if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )
@@ -129,7 +128,7 @@ double TimeStepper::GetNextTimeStep()
         dt = mEnd - mTime;
     }
 
-    // if the next time or the current time is one of the additional times, the timestep will not be mDt
+    // If the next time or the current time is one of the additional times, the timestep will not be mDt
     if ((mAdditionalTimesReached > 0)  &&
         ( (mNextTime == mAdditionalTimes[mAdditionalTimesReached-1]) || (mTime == mAdditionalTimes[mAdditionalTimesReached-1]) ) )
     {

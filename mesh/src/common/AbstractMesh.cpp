@@ -119,7 +119,7 @@ DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVe
         mpDistributedVectorFactory = new DistributedVectorFactory(GetNumNodes());
         if (PetscTools::IsParallel())
         {
-            SetElementOwnerships();  //So any parallel implementation with shared mesh has owners set
+            SetElementOwnerships(); // So any parallel implementation with shared mesh has owners set
         }
     }
     return mpDistributedVectorFactory;
@@ -207,19 +207,21 @@ double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ChasteCuboid<SPACE_DIM> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundingBox() const
 {
-    //Set min to DBL_MAX etc.
+    // Set min to DBL_MAX etc.
     c_vector<double, SPACE_DIM> minimum_point = scalar_vector<double>(SPACE_DIM, DBL_MAX);
-    //Set max to -DBL_MAX etc.
+
+    // Set max to -DBL_MAX etc.
     c_vector<double, SPACE_DIM> maximum_point=-minimum_point;
 
-    //Iterate through nodes
+    // Iterate through nodes
     /// \todo #1322 use a const version of NodeIterator here
     for (unsigned i=0; i<mNodes.size(); i++)
     {
         if (!mNodes[i]->IsDeleted())
         {
             c_vector<double, SPACE_DIM> position  = mNodes[i]->rGetLocation();
-            //Update max/min
+
+            // Update max/min
             for (unsigned i=0; i<SPACE_DIM; i++)
             {
                 if (position[i] < minimum_point[i])

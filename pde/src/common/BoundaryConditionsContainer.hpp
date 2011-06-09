@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _BOUNDARYCONDITIONSCONTAINER_HPP_
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
@@ -44,9 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "DistributedVectorFactory.hpp"
 
-
 /**
- * Boundary Conditions Container
+ * Boundary Conditions Container.
  *
  * This class contains a list of nodes on the Dirichlet boundary and associated Dirichlet
  * boundary conditions, and a list of surface elements on the Neumann boundary and associated
@@ -310,6 +310,7 @@ public:
     void MergeFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
 private:
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
 
@@ -345,9 +346,7 @@ private:
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 };
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 template<class Archive>
@@ -355,6 +354,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::save(
         Archive & archive, const unsigned int version) const
 {
     typedef typename std::map<unsigned, const AbstractBoundaryCondition<SPACE_DIM> *> archive_map_type;
+
     // Save Dirichlet conditions
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -387,7 +387,6 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::save(
     }
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 template<class Archive>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromArchive(
@@ -396,6 +395,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
     mLoadedFromArchive = true;
 
     typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
+
     // Keep track of conditions that might need deleting
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> maybe_unused_bcs;
     std::set<const AbstractBoundaryCondition<SPACE_DIM>*> used_bcs;

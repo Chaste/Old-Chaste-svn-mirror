@@ -26,10 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTPETSCEVENTS_HPP_
 #define TESTPETSCEVENTS_HPP_
-
 
 #include "PetscSetupAndFinalize.hpp"
 #include <petsc.h>
@@ -72,6 +70,5 @@ public:
     // this test should be run on the command line with -log_summary
     // to check that a summary is given
 };
-
 
 #endif /*TESTPETSCEVENTS_HPP_*/

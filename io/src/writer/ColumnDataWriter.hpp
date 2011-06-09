@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
 
-
 /**
  * A concrete column data writer class.  Writes grid-formatted data in
  * space separated column form.  Each file has a header row with names
@@ -126,6 +125,7 @@ protected:
     void DoAdvanceAlongUnlimitedDimension();
 
 public:
+
     /**
      * Constructor.
      *
@@ -181,17 +181,16 @@ public:
     int DefineVariable(const std::string& rVariableName,
                        const std::string& rVariableUnits);
 
-
     /**
      * Set a comment to be written in the info file (optional).
      * This needs to be called before EndDefineMode().
+     *
      * @param comment  the comment
      */
     void SetCommentForInfoFile(std::string comment)
     {
         mCommentForInfoFile = comment;
     }
-
 
     /**
      * End the define mode of the DataWriter.

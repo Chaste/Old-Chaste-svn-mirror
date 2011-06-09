@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTARCHIVINGHELPERCLASSES_HPP_
 #define TESTARCHIVINGHELPERCLASSES_HPP_
 
@@ -70,7 +69,8 @@ public:
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
                          OutputFileHandler::GetChasteTestOutputDirectory() + "archive_dir/");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "mesh_name");
-        // with absolute path...
+
+        // With absolute path...
         ArchiveLocationInfo::SetMeshPathname(ArchiveLocationInfo::GetArchiveDirectory(), "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
                          OutputFileHandler::GetChasteTestOutputDirectory() + "archive_dir/");
@@ -121,6 +121,7 @@ public:
         std::string arch_path = ArchiveLocationInfo::GetProcessUniqueFilePath("test.arch");
         std::ofstream ofs(arch_path.c_str());
         boost::archive::text_oarchive* p_arch = new boost::archive::text_oarchive(ofs);
+
         // Test the ProcessSpecificArchive Get and Set methods with this
         ProcessSpecificArchive<boost::archive::text_oarchive>::Set(p_arch);
         TS_ASSERT(ProcessSpecificArchive<boost::archive::text_oarchive>::Get()==p_arch);
@@ -129,6 +130,7 @@ public:
         // Set up an input archive pointer
         std::ifstream ifs(arch_path.c_str());
         boost::archive::text_iarchive* p_arch2 = new boost::archive::text_iarchive(ifs);
+
         // Test the ProcessSpecificArchive Get and Set methods with this
         ProcessSpecificArchive<boost::archive::text_iarchive>::Set(p_arch2);
         TS_ASSERT(ProcessSpecificArchive<boost::archive::text_iarchive>::Get()==p_arch2);
@@ -143,7 +145,7 @@ public:
 
     void TestArchiveOpenerReadAndWrite() throw(Exception)
     {
-        //Should this test fail with an exception involving
+        // Should this test fail with an exception involving
         // apps/texttest/chaste/resume_bidomain/save_bidomain
         // then look at TestCardiacSimulationArchiver
         mArchiveDir = "archiving_helpers";
@@ -182,7 +184,7 @@ public:
             TS_ASSERT_EQUALS(test_int2, test_int);
         }
 
-        // Cover the case of an archive in the chaste folder (i.e. a path relative to the working directory).
+        // Cover the case of an archive in the chaste folder (i.e. a path relative to the working directory)
         if (PetscTools::IsSequential())
         {
             // Make sure the file is not there before we do this
@@ -191,14 +193,16 @@ public:
             {
                 EXCEPTION("Unexpected file found; bailing out!");
             }
-            { // Write
+            {
+                // Write
                 FileFinder testoutput_dir("testoutput", RelativeTo::ChasteSourceRoot);
                 OutputArchiveOpener archive_opener_relative(testoutput_dir, "archive_opener.arch");
             }
             // Remove the file
             EXPECT0(system, "rm -f testoutput/archive_opener.arch*");
 
-            { // Read
+            {
+                // Read
                 FileFinder save_bidomain_dir("apps/texttest/chaste/resume_bidomain/save_bidomain", RelativeTo::ChasteSourceRoot);
                 InputArchiveOpener archive_opener_relative(save_bidomain_dir, "archive.arch");
             }
@@ -207,7 +211,7 @@ public:
         PetscTools::Barrier(); // Make sure all processes have finished this test before proceeding
     }
 
-    // This test relies on TestArchiveOpenerReadAndWrite succeeding.
+    // This test relies on TestArchiveOpenerReadAndWrite succeeding
     void TestArchiveOpenerExceptions() throw(Exception)
     {
         OutputFileHandler handler(mArchiveDir, false);
@@ -232,18 +236,21 @@ public:
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load main archive file: ");
 
-        // Remove write permissions on the archive dir.
+        // Remove write permissions on the archive dir
         if (PetscTools::AmMaster())
         {
             chmod(handler.GetOutputDirectoryFullPath().c_str(), 0444);
         }
         PetscTools::Barrier("TestArchiveOpenerExceptions-3");
-        // Now neither the master nor the slaves can write to their output files
-        // This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they
-        // all throw an error first.
-        //
-        // If this test starts hanging it is because these TS_ASSERT_THROWS_CONTAINS
-        //  are not being thrown (rather than a real parallel calling problem).
+
+        /*
+         * Now neither the master nor the slaves can write to their output files.
+         * This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they
+         * all throw an error first.
+         * 
+         * If this test starts hanging it is because these TS_ASSERT_THROWS_CONTAINS
+         * are not being thrown (rather than a real parallel calling problem).
+         */
         if (PetscTools::AmMaster())
         {
             TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir_finder, archive_base_name),
@@ -256,7 +263,8 @@ public:
         }
         PetscTools::Barrier("TestArchiveOpenerExceptions-4");
         if (PetscTools::AmMaster())
-        {   // Restore permissions on the folder before allowing processes to continue.
+        {
+            // Restore permissions on the folder before allowing processes to continue.
             chmod(handler.GetOutputDirectoryFullPath().c_str(), 0755);
         }
         PetscTools::Barrier("TestArchiveOpenerExceptions-5");
@@ -340,6 +348,5 @@ public:
 #endif
     }
 };
-
 
 #endif /*TESTARCHIVINGHELPERCLASSES_HPP_*/

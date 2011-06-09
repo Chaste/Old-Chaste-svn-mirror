@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef ELLIPTICPDEWITHRADIALLINEARSOURCE_HPP_
 #define ELLIPTICPDEWITHRADIALLINEARSOURCE_HPP_
-
 
 /**
  * The pde u_xx+u_yy - (x^2+y^2)u = 0, just for one particular test. This has the solution

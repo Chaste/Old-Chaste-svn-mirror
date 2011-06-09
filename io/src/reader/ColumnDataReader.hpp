@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _COLUMNDATAREADER_HPP_
 #define _COLUMNDATAREADER_HPP_
 
@@ -54,7 +55,6 @@ private:
     std::vector<double> mValues;                          /**< Vector to hold values for a variable.*/
     unsigned mFieldWidth;                                 /**< Width of each column in the text file (excludes column headers). Determined from the first data entry*/
     static const int SPACING = 2;                         /**< Space between columns (includes minus sign) */
-
 
     /**
      * Push back an entry from the data file into #mValues.
@@ -154,6 +154,6 @@ public:
      *  Get the field width (the number of characters (excl. preceding '+' or '-') printed for each data entry in the file).
      */
     unsigned GetFieldWidth();
-
 };
+
 #endif //_COLUMNDATAREADER_HPP_

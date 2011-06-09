@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _EXAMPLE2DNONLINEARELLIPTICPDE_HPP_
 #define _EXAMPLE2DNONLINEARELLIPTICPDE_HPP_
 
@@ -33,11 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A relatively simple PDE for testing the nonlinear elliptic assembler in 2D.
  */
-
 class Example2DNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
-
 public:
+
     double ComputeLinearSourceTerm(const ChastePoint<2>& p)
     {
         double x = p[0];

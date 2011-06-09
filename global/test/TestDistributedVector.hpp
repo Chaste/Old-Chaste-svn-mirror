@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTDISTRIBUTEDVECTOR_HPP_
 #define TESTDISTRIBUTEDVECTOR_HPP_
 
@@ -51,10 +50,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestDistributedVector : public CxxTest::TestSuite
 {
 public:
+
     void TestDistributedVectorFactory()
     {
         unsigned num_procs = PetscTools::GetNumProcs();
-        unsigned total=100;
+        unsigned total = 100;
         DistributedVectorFactory factory(total);
         PetscInt petsc_lo, petsc_hi;
         unsigned expected_local_size = (total/num_procs);
@@ -66,14 +66,17 @@ public:
         unsigned local_size = petsc_hi - petsc_lo;
         if (expected_local_size != local_size)
         {
-            //This test is not robust.  PETSc has been known to split a 100 elements among 7 processors like this
-            // 0  1  2  3  4  5  6  7
-            //15 15 14 14 14 14 14 14
+            /*
+             * This test is not robust. PETSc has been known to split 100 elements among 7 processors like this
+             * 0  1  2  3  4  5  6  7
+             * 15 15 14 14 14 14 14 14
+             */
             //TS_ASSERT_EQUALS(local_size, max_expected_local_size);
-            //This test will fail if there are fewer elements in the vector than the number of processors
+
+            // This test will fail if there are fewer elements in the vector than the number of processors
             TS_ASSERT_LESS_THAN_EQUALS(local_size, max_expected_local_size);
         }
-        //Test that we can construct a factory from a given vector
+        // Test that we can construct a factory from a given vector
         DistributedVectorFactory factory2(petsc_vec);
         Vec petsc_vec2;
         petsc_vec2 = factory2.CreateVec();
@@ -87,11 +90,9 @@ public:
         TS_ASSERT_EQUALS((unsigned)(petsc_hi), factory2.GetHigh());
         TS_ASSERT_EQUALS((unsigned)(petsc_lo), factory2.GetLow());
 
-
-        //Uneven test (as above).
-        //Calculate total number of elements in the vector
+        // Uneven test (as above): calculate total number of elements in the vector
         unsigned total_elements = (num_procs+1)*num_procs/2;
-        unsigned my_rank=PetscTools::GetMyRank();
+        unsigned my_rank = PetscTools::GetMyRank();
 
         DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
 
@@ -123,7 +124,7 @@ public:
     {
         unsigned num_procs = PetscTools::GetNumProcs();
         unsigned total_elements = (num_procs+1)*num_procs/2;
-        unsigned my_rank=PetscTools::GetMyRank();
+        unsigned my_rank = PetscTools::GetMyRank();
 
         DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
         DistributedVectorFactory even_factory(total_elements);
@@ -236,12 +237,13 @@ public:
 
     void TestWrite()
     {
-        //WRITE VECTOR
-        // create a 10 element petsc vector
+        // WRITE VECTOR
+
+        // Create a 10 element petsc vector
         DistributedVectorFactory factory(10);
-        Vec striped=factory.CreateVec(2);
-        Vec chunked=factory.CreateVec(2);
-        Vec petsc_vec=factory.CreateVec();
+        Vec striped = factory.CreateVec(2);
+        Vec chunked = factory.CreateVec(2);
+        Vec petsc_vec = factory.CreateVec();
 
         DistributedVector distributed_vector = factory.CreateDistributedVector(petsc_vec);
         DistributedVector distributed_vector_striped = factory.CreateDistributedVector(striped);
@@ -250,7 +252,8 @@ public:
         DistributedVector::Stripe quadratic(distributed_vector_striped, 1);
         DistributedVector::Chunk linear_chunk(distributed_vector_chunked, 0);
         DistributedVector::Chunk quadratic_chunk(distributed_vector_chunked, 1);
-        // write some values
+
+        // Write some values
         for (DistributedVector::Iterator index = distributed_vector.Begin();
              index!= distributed_vector.End();
              ++index)
@@ -266,13 +269,15 @@ public:
         distributed_vector_striped.Restore();
         distributed_vector_chunked.Restore();
 
-        //READ VECTOR
-        // calculate my range
+        // READ VECTOR
+
+        // Calculate my range
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(petsc_vec,&petsc_lo,&petsc_hi);
-        unsigned lo=(unsigned)petsc_lo;
-        unsigned hi=(unsigned)petsc_hi;
-        // read some values
+        unsigned lo = (unsigned)petsc_lo;
+        unsigned hi = (unsigned)petsc_hi;
+
+        // Read some values
         double* p_striped;
         VecGetArray(striped, &p_striped);
         double* p_chunked;
@@ -296,7 +301,7 @@ public:
             TS_ASSERT_EQUALS(quadratic_chunk[global_index], global_index+1);
         }
 
-        //Read item 2 from the distributed vectors (for coverage)
+        // Read item 2 from the distributed vectors (for coverage)
         if (lo<=2 && 2<hi)
         {
             TS_ASSERT(distributed_vector.IsGlobalIndexLocal(2));
@@ -327,7 +332,7 @@ public:
         unsigned my_rank = PetscTools::GetMyRank();
         unsigned num_procs = PetscTools::GetNumProcs();
 
-        //Calculate total number of elements in the vector
+        // Calculate total number of elements in the vector
         unsigned total_elements = (num_procs+1)*num_procs/2;
 
         DistributedVectorFactory factory(total_elements, my_rank+1);
@@ -342,7 +347,7 @@ public:
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
 
-        //Test that we are able to share the global low values
+        // Test that we are able to share the global low values
         std::vector<unsigned> global_lows = factory.rGetGlobalLows();
         TS_ASSERT_EQUALS(global_lows.size(), num_procs);
         for (unsigned proc_index=0; proc_index<num_procs; proc_index++)
@@ -400,7 +405,7 @@ public:
             delete p_new_factory;
         }
 
-        //Restore from a single process archive
+        // Restore from a single process archive
         {
             std::ifstream ifs("global/test/data/distributed_vector_factory.arch", std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -425,7 +430,7 @@ public:
             }
             else
             {
-                //Should not read this archive
+                // Should not read this archive
                 TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory,
                         "This archive was written for a different number of processors");
             }

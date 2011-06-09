@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTLINEARSYSTEM_HPP_
 #define _TESTLINEARSYSTEM_HPP_
 
@@ -54,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
+
    void TestLinearSystem1()
     {
         TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20), "You must provide a rowPreallocation argument for a large sparse system");
@@ -80,7 +80,7 @@ public:
         ls.SetRhsVectorElement(1, 3200000.0);
         ls.SetRhsVectorElement(2, 5000000.0);
 
-        // for coverage
+        // For coverage
         ls.DisplayMatrix();
         ls.DisplayRhs();
 
@@ -102,7 +102,7 @@ public:
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
 
-        //SetRelativeTolerance
+        // SetRelativeTolerance
         ls.SetRelativeTolerance(1e-2);
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
 
@@ -124,18 +124,19 @@ public:
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
 
-        // Reset KSP stuff (this doesn't need to be done, but we're making sure we cover this method
-        // (and check that it works))
+        /*
+         * Reset KSP stuff. This doesn't need to be done, but we're making sure
+         * we cover this method (and check that it works).
+         */
         ls.ResetKspSolver();
 
-        //SetAbsoluteTolerance
+        // SetAbsoluteTolerance
         ls.SetAbsoluteTolerance(1e-8);
         solution_vector = ls.Solve();
         KSPGetConvergedReason(ls.mKspSolver, &reason);
         TS_ASSERT_EQUALS(reason, KSP_CONVERGED_ATOL);
 
-        //Check that it converged for the right reason
-
+        // Check that it converged for the right reason
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
@@ -186,9 +187,8 @@ public:
 
         ls.SetMatrixRow(2, 125.0);
 
-        //Note: this method is collective.  All processes MUST do it together.
+        // Note: this method is collective. All processes MUST do it together.
         ls.AssembleFinalLinearSystem();
-
 
         if (lo <=2 && 2<hi)
         {
@@ -575,7 +575,6 @@ public:
     {
         LinearSystem ls(3);
 
-
         for (int row=0; row<3; row++)
         {
             for (int col=0; col<3; col++)
@@ -589,16 +588,15 @@ public:
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
 
-        //Set the correct answer for the intial guess
+        // Set the correct answer for the intial guess
         Vec good_guess=PetscTools::CreateVec(3);
         PetscVecTools::SetElement(good_guess, 0, 1.0);
         PetscVecTools::SetElement(good_guess, 1, 2.0);
         PetscVecTools::SetElement(good_guess, 2, 3.0);
 
-
         Vec solution_vector;
         solution_vector = ls.Solve(good_guess);
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
@@ -609,12 +607,12 @@ public:
             if (lo<=global_index && global_index<hi)
             {
                 TS_ASSERT_EQUALS(p_solution_elements_array[local_index], global_index+1.0);
-                //Zero tolerance
+                // Zero tolerance
             }
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
 
-        //Set the a bad intial guess
+        // Set the a bad intial guess
         Vec bad_guess;
         VecDuplicate(good_guess, &bad_guess);
         PetscScalar too_big = 1e5;
@@ -628,12 +626,10 @@ public:
         VecDestroy(solution_vector);
         VecDestroy(good_guess);
         VecDestroy(bad_guess);
-
     }
 
     void TestAddMultipleValues()
     {
-
         LinearSystem syst = LinearSystem(3);
 
         c_matrix<double, 2, 2> small_matrix;
@@ -682,7 +678,6 @@ public:
             TS_ASSERT_EQUALS(syst.GetRhsVectorElement(2), -2);
         }
     }
-
 
     void TestSymmetricMatrix()
     {
@@ -747,15 +742,14 @@ public:
         }
         ls.AssembleFinalLinearSystem();
 
-        // arbitrary
+        // Arbitrary
         ls.SetRhsVectorElement(0, 14.0);
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
 
-        // solving should be fine
+        // Solving should be fine
         Vec solution_vector;
         solution_vector = ls.Solve();
-
 
         LinearSystem ls2 = LinearSystem(3);
         ls2.SetMatrixIsSymmetric();
@@ -769,11 +763,11 @@ public:
         }
         ls2.AssembleFinalLinearSystem();
 
-        // what happens when we solve?
+        // What happens when we solve?
         Vec solution_vector2;
         solution_vector2 = ls2.Solve();
 
-        //Check answers
+        // Check answers
         double expected_solution[3]={-68.0,6.0,80.0};
         PetscInt lo, hi;
         ls.GetOwnershipRange(lo, hi);
@@ -795,15 +789,11 @@ public:
         VecRestoreArray(solution_vector2, &p_solution_elements_array2);
         VecDestroy(solution_vector2);
         VecDestroy(solution_vector);
-
-
     }
 
     void TestGetSetKSP() throw (Exception)
     {
-        /////////////////////////
         // Set relative tolerance before first solve
-        /////////////////////////
         LinearSystem ls = LinearSystem(5);
         ls.SetRelativeTolerance(1e-3);
         ls.SetKspType("cg");
@@ -816,7 +806,8 @@ public:
         int maxits;
         KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
         TS_ASSERT_EQUALS(rtol, 1e-3);
-        // others should be their PETSc defaults (unless we've done different)
+
+        // Others should be their PETSc defaults (unless we've done different)
         TS_ASSERT_EQUALS(atol, 1e-50);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 1000); /// \todo #1695 Test against member variable in LinearSystem. At the moment this value depends on whether any previous test called ResetKspSolver() (maxits=1000) or not (maxits=10000).
@@ -837,12 +828,12 @@ public:
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
         ls.SetKspType("gmres");
         ls.SetPcType("ilu");
-        //Test that we can change the solver type after its first use
+
+        // Test that we can change the solver type after its first use
         KSPGetType(ls.mKspSolver, &solver);
         PCGetType(prec, &pc);
         TS_ASSERT( strcmp(solver,"gmres")==0 );
         TS_ASSERT( strcmp(pc,"ilu")==0 );
-
 
         /////////////////////////////////
         // Set relative tolerance after first solve
@@ -886,7 +877,7 @@ public:
 
     void TestPetscSaveAndLoad()
     {
-         //Archive
+        // Archive
         OutputFileHandler handler("Archive", false);
         std::string archive_filename_lhs, archive_filename_rhs;
         archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "direct_lhs.mat";
@@ -895,6 +886,7 @@ public:
         // Make a linear system
         LinearSystem ls = LinearSystem(3);
         ls.SetMatrixIsSymmetric();
+
         // Enter symmetric data
         for (int row=0; row<3; row++)
         {
@@ -904,7 +896,8 @@ public:
             }
         }
         ls.AssembleFinalLinearSystem();
-        // arbitrary
+
+        // Arbitrary
         ls.SetRhsVectorElement(0, 14.0);
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
@@ -990,14 +983,14 @@ public:
 
     void TestSaveAndLoadLinearSystem()
     {
-         //Archive
+        // Archive
         OutputFileHandler handler("Archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "linear_system.arch";
 
         int lo, hi;
-        unsigned size=5;
+        unsigned size = 5;
         std::vector<double> rhs_values;
         rhs_values.push_back(14.0);
         rhs_values.push_back(32.0);
@@ -1065,11 +1058,11 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            //LinearSystem linear_system(3);
+            // LinearSystem linear_system(3);
             LinearSystem* p_linear_system;//=&linear_system;
             input_arch >> p_linear_system;
 
-            //Check that structural symmetry is preserved
+            // Check that structural symmetry is preserved
             PetscTruth symm_set, is_symmetric;
             is_symmetric=PETSC_FALSE;
             MatIsSymmetricKnown(p_linear_system->GetLhsMatrix(), &symm_set, &is_symmetric);
@@ -1098,7 +1091,7 @@ public:
                 }
             }
 
-            //Check archiving of KSP/PC types
+            // Check archiving of KSP/PC types
             Vec solution_vector3;
             solution_vector3 = p_linear_system->Solve();
             VecDestroy(solution_vector3);

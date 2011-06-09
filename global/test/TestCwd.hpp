@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTCWD_HPP_
 #define _TESTCWD_HPP_
 
@@ -55,4 +54,4 @@ public:
     }
 };
 
-#endif
+#endif /*_TESTCWD_HPP_*/

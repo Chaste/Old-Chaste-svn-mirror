@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-
 #ifndef TESTHEARTEVENTHANDLER_HPP_
 #define TESTHEARTEVENTHANDLER_HPP_
 
@@ -83,7 +79,7 @@ public:
         }
         else
         {
-            //Top process has smaller amount of work
+            // Top process has smaller amount of work
             HeartEventHandler::MilliSleep(10);
         }
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
@@ -98,22 +94,19 @@ public:
 
     void TestEventExceptions() throw(Exception)
     {
-        // should not be able to end and event that has not yet begun
+        // Should not be able to end and event that has not yet begun
         TS_ASSERT_THROWS_THIS(HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING),
                 "Error: The event associated with the counter for \'Total\' had not begun when EndEvent was called.");
 
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 
-        // beginning an event already begun should print an error message,
-        // and disable the handler
+        // Beginning an event already begun should print an error message and disable the handler
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         TS_ASSERT(!HeartEventHandler::IsEnabled());
         // Report should then throw
         TS_ASSERT_THROWS_THIS(HeartEventHandler::Report(),
                 "Asked to report on a disabled event handler.  Check for contributory errors above.");
     }
-
- };
-
+};
 
 #endif /*TESTHEARTEVENTHANDLER_HPP_*/

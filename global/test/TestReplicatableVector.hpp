@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTREPLICATABLEVECTOR_HPP_
 #define TESTREPLICATABLEVECTOR_HPP_
 #include <cxxtest/TestSuite.h>
@@ -42,11 +41,12 @@ static const int VEC_SIZE=10;
 class TestReplicatableVector : public CxxTest::TestSuite
 {
 public:
+
     void TestBasics()
     {
         ReplicatableVector rep_vector(VEC_SIZE);
-        rep_vector[0]=15;
-        rep_vector[1]=20;
+        rep_vector[0] = 15;
+        rep_vector[1] = 20;
 
         TS_ASSERT_EQUALS(rep_vector[0], 15);
         TS_ASSERT_EQUALS(rep_vector[1], 20);
@@ -61,7 +61,7 @@ public:
         for (int vec_size=0; vec_size<10; vec_size++)
         {
             int lo, hi;
-            Vec temp_vec=PetscTools::CreateVec(vec_size);
+            Vec temp_vec = PetscTools::CreateVec(vec_size);
             VecGetOwnershipRange(temp_vec,&lo,&hi);
             VecDestroy(temp_vec); // vector no longer needed
 
@@ -90,7 +90,7 @@ public:
     void TestPetscReplication()
     {
         int lo, hi;
-        Vec petsc_vec=PetscTools::CreateVec(VEC_SIZE);
+        Vec petsc_vec = PetscTools::CreateVec(VEC_SIZE);
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
         double* p_petsc_vec;
@@ -126,7 +126,7 @@ public:
     void TestPetscReplicationUsingAlternativeConstructor()
     {
         int lo, hi;
-        Vec petsc_vec=PetscTools::CreateVec(VEC_SIZE);
+        Vec petsc_vec = PetscTools::CreateVec(VEC_SIZE);
 
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
@@ -159,4 +159,5 @@ public:
         VecDestroy(petsc_vec);
     }
 };
+
 #endif /*TESTREPLICATABLEVECTOR_HPP_*/

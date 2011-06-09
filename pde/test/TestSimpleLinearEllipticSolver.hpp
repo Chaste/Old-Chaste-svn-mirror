@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
 #define _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
 
@@ -43,8 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VaryingDiffusionAndSourceTermPde.hpp"
 #include "TrianglesMeshReader.hpp"
 
-// these are need for the nD problems in mD space (n!=m), as those
-// particular cases are not explicitly instantiated
+/*
+ * These are need for the nD problems in mD space (n!=m), as those
+ * particular cases are not explicitly instantiated.
+ */
 #include "AbstractBoundaryConditionsContainerImplementation.hpp"
 #include "BoundaryConditionsContainerImplementation.hpp"
 
@@ -53,6 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestSimpleLinearEllipticSolver : public CxxTest::TestSuite
 {
 public:
+
     void TestWithPoissonsEquationAndMeshReader()
     {
         // Create mesh from mesh reader
@@ -108,8 +112,8 @@ public:
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
-        ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         // Add Neumann condition to the left hand end
+        ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
@@ -129,7 +133,6 @@ public:
         VecDestroy(result);
     }
 
-
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
@@ -148,6 +151,7 @@ public:
 
         // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(-1.0);
+
         // Add Neumann condition to the left hand end
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
@@ -254,13 +258,11 @@ public:
 
         // Boundary conditions u(1)=4
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
-            new ConstBoundaryCondition<1>(4.0);
+        ConstBoundaryCondition<1>* p_boundary_dirichlet_condition = new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_dirichlet_condition);
 
         // Note we need to specify D * du/dx for the Neumann boundary condition
-        ConstBoundaryCondition<1>* p_neumann_boundary_condition =
-            new ConstBoundaryCondition<1>(7.0*9.0);
+        ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(7.0*9.0);
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
@@ -295,10 +297,8 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         // u = 0 on r<=1, z=0
-        ConstBoundaryCondition<2>* p_boundary_dirichlet_condition =
-            new ConstBoundaryCondition<2>(0.0);
-        TetrahedralMesh<2,2>::BoundaryNodeIterator iter1 =
-            mesh.GetBoundaryNodeIteratorBegin();
+        ConstBoundaryCondition<2>* p_boundary_dirichlet_condition = new ConstBoundaryCondition<2>(0.0);
+        TetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = mesh.GetBoundaryNodeIteratorBegin();
         while (iter1 != mesh.GetBoundaryNodeIteratorEnd())
         {
             if ((*iter1)->GetPoint()[0] <= 1.0 && fabs((*iter1)->GetPoint()[1]) < 0.0001)
@@ -361,12 +361,12 @@ public:
             }
             TS_ASSERT_DELTA(p_result[local_index], u, 0.08);
         }
+
         VecRestoreArray(result, &p_result);
         VecDestroy(result);
     }
 
-
-    //Test 3d data
+    // Test 3d data
     void Test3dEllipticEquationDirichletCondition()
     {
         // Create mesh from mesh reader
@@ -398,7 +398,7 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        //Solution should be -1/6*(x^2 + y^2 +z^2)
+        // Solution should be -1/6*(x^2 + y^2 +z^2)
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -411,7 +411,7 @@ public:
         VecDestroy(result);
     }
 
-    //Test 3d data
+    // Test 3d data
     void Test3dEllipticEquationNeumannCondition()
     {
         // Create mesh from mesh reader
@@ -463,7 +463,7 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        //Solution should be -1/6*(x^2 + y^2 +z^2)
+        // Solution should be -1/6*(x^2 + y^2 +z^2)
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -476,8 +476,7 @@ public:
         VecDestroy(result);
     }
 
-
-    // solve u_xx + 4*u = 0, u(0)=1, u(1)=2 => u = a sin(2x) + cos(2x), where a = (2-cos2)/sin2
+    // Solve u_xx + 4*u = 0, u(0)=1, u(1)=2 => u = a sin(2x) + cos(2x), where a = (2-cos2)/sin2
     void TestWithLinearSourceTerm()
     {
         // Create mesh from mesh reader
@@ -516,8 +515,10 @@ public:
         VecDestroy(result);
     }
 
-    // Picking the solution u=exp(xy), we solve the pde u_xx + u_yy = (x^2+y^2) u, with bcs
-    // u = exp(xy) on the boundary
+    /*
+     * Picking the solution u=exp(xy), we solve the PDE u_xx + u_yy = (x^2+y^2) u,
+     * with BCs u = exp(xy) on the boundary.
+     */
     void TestWithLinearSourceTerm2d()
     {
         // Create mesh from mesh reader
@@ -561,8 +562,10 @@ public:
         VecDestroy(result);
     }
 
-    // Test that the solver can read an ordering file and assign the correct number of
-    // nodes to each processor.
+    /*
+     * Test that the solver can read an ordering file and assign the correct
+     * number of nodes to each processor.
+     */
     void TestOrdering() throw(Exception)
     {
         // Create mesh from mesh reader
@@ -600,7 +603,6 @@ public:
         }
     }
 
-
     // Solve a 1d problem in 2d space yet
     void TestWithPoissonsEquation1dMeshIn2dSpace()
     {
@@ -634,7 +636,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.001);
         }
 
-        // coverage
+        // Coverage
         TS_ASSERT(solver.GetLinearSystem()!=NULL);
 
         VecDestroy(result);

@@ -25,10 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 /*
-* Implementation file for Hdf5DataWriter class.
-*
-*/
+ * Implementation file for Hdf5DataWriter class.
+ *
+ */
 #include <set>
 #include <cstring> //For strcmp etc. Needed in gcc-4.4
 
@@ -102,6 +103,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         hsize_t dataset_max_sizes[DATASET_DIMS];
         H5Sget_simple_extent_dims(variables_dataspace, mDatasetDims, dataset_max_sizes);
         H5Sclose(variables_dataspace);
+
         // Check that an unlimited dimension is defined
         if (dataset_max_sizes[0] != H5S_UNLIMITED)
         {
@@ -110,6 +112,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
             EXCEPTION("Tried to open a datafile for extending which doesn't have an unlimited dimension.");
         }
         mIsUnlimitedDimensionSet = true;
+
         // Sanity check other dimension sizes
         for (unsigned i=1; i<DATASET_DIMS; i++)  // Zero is excluded since it is unlimited
         {
@@ -130,20 +133,24 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
 
         char* string_array = (char *)malloc(sizeof(char)*MAX_STRING_SIZE*(int)num_columns);
         H5Aread(attribute_id, attribute_type, string_array);
+
         // Loop over columns/variables
         for (unsigned index=0; index<num_columns; index++)
         {
             // Read the string from the raw vector
             std::string column_name_unit(&string_array[MAX_STRING_SIZE*index]);
+
             // Find location of unit name
             size_t name_length = column_name_unit.find('(');
             size_t unit_length = column_name_unit.find(')') - name_length - 1;
+
             // Create the variable
             DataWriterVariable var;
             var.mVariableName = column_name_unit.substr(0, name_length);
             var.mVariableUnits = column_name_unit.substr(name_length+1, unit_length);
             mVariables.push_back(var);
         }
+
         // Free memory, release ids
         free(string_array);
         H5Tclose(attribute_type);
@@ -154,6 +161,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         mUnlimitedDimensionName = "Time"; // Assumed by the reader...
         mTimeDatasetId = H5Dopen(mFileId, mUnlimitedDimensionName.c_str());
         mUnlimitedDimensionUnit = "ms"; // Assumed by Chaste...
+
         // How many time steps have been written so far?
         hid_t timestep_dataspace = H5Dget_space(mTimeDatasetId);
         hsize_t num_timesteps;
@@ -193,16 +201,20 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
             attribute_id = H5Aopen_name(mDatasetId, "NodeMap");
             attribute_type  = H5Aget_type(attribute_id);
             attribute_space = H5Aget_space(attribute_id);
+
             // Get the dataset/dataspace dimensions
             unsigned num_node_indices = H5Sget_simple_extent_npoints(attribute_space);
+
             // Read data from hyperslab in the file into the hyperslab in memory
             mIncompleteNodeIndices.clear();
             mIncompleteNodeIndices.resize(num_node_indices);
             H5Aread(attribute_id, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
+
             // Release ids
             H5Tclose(attribute_type);
             H5Sclose(attribute_space);
             H5Aclose(attribute_id);
+
             // Set up what data we can
             mNumberOwned = mrVectorFactory.GetLocalOwnership();
             ComputeIncompleteOffset();
@@ -216,7 +228,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
             EXCEPTION("Unable to extend an incomplete data file at present.");
         }
 
-        // Done!
+        // Done
         mIsInDefineMode = false;
         AdvanceAlongUnlimitedDimension();
     }
@@ -319,26 +331,29 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
     mUseMatrixForIncompleteData = true;
     ComputeIncompleteOffset();
 
-    //Make sure we've not done it already
+    // Make sure we've not done it already
     assert(mSingleIncompleteOutputMatrix == NULL);
     assert(mDoubleIncompleteOutputMatrix == NULL);
     PetscTools::SetupMat(mSingleIncompleteOutputMatrix,   mFileFixedDimensionSize,   mDataFixedDimensionSize, 2,  mNumberOwned,  mHi - mLo);
     PetscTools::SetupMat(mDoubleIncompleteOutputMatrix, 2*mFileFixedDimensionSize, 2*mDataFixedDimensionSize, 4,  2*mNumberOwned, 2*(mHi - mLo));
 
-    //Only do local rows
+    // Only do local rows
     for (unsigned row_index = mOffset; row_index < mOffset + mNumberOwned; row_index++)
     {
-        //Put zero on the diagonal
+        // Put zero on the diagonal
         MatSetValue(mSingleIncompleteOutputMatrix, row_index, row_index, 0.0, INSERT_VALUES);
-        //Put one at (i,j)
+
+        // Put one at (i,j)
         MatSetValue(mSingleIncompleteOutputMatrix, row_index, rNodesToOuput[row_index], 1.0, INSERT_VALUES);
 
-        unsigned bi_index=2*row_index;
-        unsigned perm_index=2*rNodesToOuput[row_index];
-        //Put zeroes on the diagonal
+        unsigned bi_index = 2*row_index;
+        unsigned perm_index = 2*rNodesToOuput[row_index];
+
+        // Put zeroes on the diagonal
         MatSetValue(mDoubleIncompleteOutputMatrix, bi_index, bi_index, 0.0, INSERT_VALUES);
         MatSetValue(mDoubleIncompleteOutputMatrix, bi_index+1, bi_index+1, 0.0, INSERT_VALUES);
-        //Put ones at (i,j)
+
+        // Put ones at (i,j)
         MatSetValue(mDoubleIncompleteOutputMatrix, bi_index, perm_index, 1.0, INSERT_VALUES);
         MatSetValue(mDoubleIncompleteOutputMatrix, bi_index+1, perm_index+1, 1.0, INSERT_VALUES);
     }
@@ -348,7 +363,6 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
     MatAssemblyEnd(mDoubleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
 
 //    MatView(mSingleIncompleteOutputMatrix, PETSC_VIEWER_STDOUT_WORLD);
-
 }
 
 void Hdf5DataWriter::ComputeIncompleteOffset()
@@ -365,7 +379,7 @@ void Hdf5DataWriter::ComputeIncompleteOffset()
         {
             mNumberOwned++;
         }
-     }
+    }
 }
 
 int Hdf5DataWriter::DefineVariable(const std::string& rVariableName,
@@ -426,13 +440,13 @@ void Hdf5DataWriter::CheckUnitsName(const std::string& rName)
 
 void Hdf5DataWriter::EndDefineMode()
 {
-    //Check that at least one variable has been defined
+    // Check that at least one variable has been defined
     if (mVariables.size() < 1)
     {
         EXCEPTION("Cannot end define mode. No variables have been defined.");
     }
 
-    //Check that a fixed dimension has been defined
+    // Check that a fixed dimension has been defined
     if (mIsFixedDimensionSet == false)
     {
         EXCEPTION("Cannot end define mode. One fixed dimension should be defined.");
@@ -456,8 +470,9 @@ void Hdf5DataWriter::EndDefineMode()
     mIsInDefineMode = false;
 
     /*
-     *  Create "Data" dataset
+     * Create "Data" dataset
      */
+
     // Create the dataspace for the dataset.
     mDatasetDims[0] = 1; // While developing we got a non-documented "only the first dimension can be extendible" error.
     mDatasetDims[1] = mFileFixedDimensionSize;
@@ -478,10 +493,13 @@ void Hdf5DataWriter::EndDefineMode()
         hsize_t chunk_size;
         if (mUseOptimalChunkSizeAlgorithm)
         {
-            // Modify dataset creation properties to enable chunking.
-            // We don't want more than 100 chunks, as performance degrades significantly if there are too many,
-            // where "too many" appears to be about 1000.
-            // HDF5's caching won't apply if the chunks are too large, but this seems to have less of an impact.
+            /*
+             * Modify dataset creation properties to enable chunking. We don't want
+             * more than 100 chunks, as performance degrades significantly if there
+             * are too many, where "too many" appears to be about 1000. HDF5's caching
+             * won't apply if the chunks are too large, but this seems to have less of
+             * an impact.
+             */
             chunk_size = mEstimatedUnlimitedLength/100;
             if (chunk_size < 100)
             {
@@ -492,15 +510,20 @@ void Hdf5DataWriter::EndDefineMode()
         {
             chunk_size = mFixedChunkSize;
         }
-        //If the size of a chunk in bytes is bigger than 4GB then there may be problems.
-        // HDF5 1.6.x does not check for this - but there may be snags further down the line
-        // HDF5 1.8.x does more error checking and produces std::cout errors and a file with no data in it
-        if ( chunk_size * mDatasetDims[1] * mDatasetDims[2] >  (uint64_t)0xffffffff)
+        /*
+         * If the size of a chunk in bytes is bigger than 4GB then there may be problems.
+         * HDF5 1.6.x does not check for this - but there may be snags further down the line.
+         * HDF5 1.8.x does more error checking and produces std::cout errors and a file with
+         * no data in it.
+         */
+        if (chunk_size * mDatasetDims[1] * mDatasetDims[2] > (uint64_t)0xffffffff)
         {
-            // Note: this exception can be avoided by altering the lines above
-            // where chunk_size is set (at a loss of efficiency).
-            mIsInDefineMode = true; //To stop things that would be created below from being deleted on Close()
-            H5Fclose(mFileId); //This is the one thing which we have made
+            /*
+             * Note: this exception can be avoided by altering the lines above
+             * where chunk_size is set (at a loss of efficiency).
+             */
+            mIsInDefineMode = true; // To stop things that would be created below from being deleted on Close()
+            H5Fclose(mFileId); // This is the one thing which we have made
             EXCEPTION("HDF5 may be writing more than 4GB to disk at any time and would fail. It may be possible to tune the Chaste code to get around this");
         }
 
@@ -573,7 +596,7 @@ void Hdf5DataWriter::EndDefineMode()
     }
 
     /*
-     *  Create "Time" dataset
+     * Create "Time" dataset
      */
     if (mIsUnlimitedDimensionSet)
     {
@@ -611,6 +634,7 @@ void Hdf5DataWriter::EndDefineMode()
     /*
      * Create the provenance attribute
      */
+
     // Create a longer type for 'string'
     const unsigned MAX_PROVENANCE_STRING_SIZE = 1023;
     hid_t long_string_type = H5Tcopy(H5T_C_S1);
@@ -630,7 +654,6 @@ void Hdf5DataWriter::EndDefineMode()
     free(provenance_data);
     H5Sclose(provenance_space);
     H5Aclose(prov_attr);
-
 }
 
 void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
@@ -652,6 +675,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     PossiblyExtend();
 
     Vec output_petsc_vector;
+
     // Decide what to write
     if (mSinglePermutation == NULL)
     {
@@ -667,6 +691,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         // Apply the permutation matrix
         MatMult(mSinglePermutation, petscVector, output_petsc_vector);
     }
+
     // Define a dataset in memory for this process
     hid_t memspace=0;
     if (mNumberOwned != 0)
@@ -773,6 +798,7 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
     PossiblyExtend();
 
     Vec output_petsc_vector;
+
     // Decide what to write
     if (mDoublePermutation == NULL)
     {
@@ -864,7 +890,7 @@ void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVec
 
     if (petscVector != output_petsc_vector)
     {
-        //Free local vector
+        // Free local vector
         VecDestroy(output_petsc_vector);
     }
 }
@@ -953,10 +979,11 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
     mCurrentTimeStep++;
 
     /*
-     * Extend the dataset
+     * Extend the dataset.
+     * 
+     * If the user provided an estimate for the length of the
+     * unlimited dimension, allocate all that space.
      */
-    // If the user provided an estimate for the length of the
-    // unlimited dimension, allocate all that space.
     if ( mEstimatedUnlimitedLength > mDatasetDims[0] )
     {
         mDatasetDims[0] = mEstimatedUnlimitedLength;
@@ -984,6 +1011,7 @@ void Hdf5DataWriter::PossiblyExtend()
 int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
 {
     int id = -1;
+
     // Check for the variable name in the existing variables
     for (unsigned index=0; index<mVariables.size(); index++)
     {
@@ -1017,8 +1045,10 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     {
         EXCEPTION("Permutation doesn't match the expected problem size");
     }
+
     // Permutation checker
     std::set<unsigned> permutation_pigeon_hole;
+
     // Fill up the pigeon holes
     bool identity_map = true;
     for (unsigned i=0; i<mDataFixedDimensionSize; i++)
@@ -1034,6 +1064,7 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
         // Do nothing
         return false;
     }
+
     /*
      * The pigeon-hole principle states that each index appears exactly once
      * so if any don't appear then either one appears twice or something out of

@@ -160,7 +160,7 @@ public:
             TS_ASSERT_DELTA(distances[index], parallel_distances[index], 1e-15);
         }
 
-        //Test some point-to-point distances
+        // Test some point-to-point distances
         RandomNumberGenerator::Instance()->Reseed(1);
         unsigned trials=25;
         unsigned pops=0;

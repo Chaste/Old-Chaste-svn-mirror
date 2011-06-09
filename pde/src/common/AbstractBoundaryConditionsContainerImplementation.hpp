@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef ABSTRACTBOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 #define ABSTRACTBOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 
@@ -41,7 +40,7 @@ AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Abstract
 {
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
-        mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
+        mpDirichletMap[index_of_unknown] = new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
     }
 }
 

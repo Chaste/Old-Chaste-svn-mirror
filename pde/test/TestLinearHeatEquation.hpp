@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTLINEARHEATEQUATION_HPP_
 #define _TESTLINEARHEATEQUATION_HPP_
 
@@ -35,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestSimplePoissonEquation : public CxxTest::TestSuite
 {
 public:
+
     void TestComputeConstantInUSourceTermAtNode()
     {
         Node<2> zero(0);
@@ -53,7 +55,7 @@ public:
         SimplePoissonEquation<2,2> heat_equation2;
         SimplePoissonEquation<3,3> heat_equation3;
 
-        // diffusion matrices should be equal to identity
+        // Diffusion matrices should be equal to identity
         c_matrix<double,1,1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1);
         c_matrix<double,2,2> diff2 = heat_equation2.ComputeDiffusionTerm(zero2);
         c_matrix<double,3,3> diff3 = heat_equation3.ComputeDiffusionTerm(zero3);
@@ -72,6 +74,5 @@ public:
         TS_ASSERT_DELTA(diff3(1,2),0,1e-12);
     }
 };
-
 
 #endif //_TESTLINEARHEATEQUATION_HPP_

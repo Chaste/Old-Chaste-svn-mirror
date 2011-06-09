@@ -50,7 +50,7 @@ class DistributedVector
 private:
     friend class TestDistributedVector;
 
-    // Data global to all vectors.
+    // Data global to all vectors
 
     /** The first entry owned by the current processor. */
     unsigned mLo;
@@ -61,11 +61,14 @@ private:
     /** The problem size, i.e. the length of the vector of unknowns. */
     unsigned mProblemSize;
 
-    // Data local to a single vector.
+    // Data local to a single vector
+
     /** How much bigger this vector is than the problem size. */
     unsigned mSizeMultiplier;
+
     /** The underlying PETSc vector. */
     Vec mVec;
+
     /** The local part of the underlying PETSc vector. */
     double* mpVec;
 
@@ -304,7 +307,5 @@ public:
      */
     double& operator[](Iterator index) throw (DistributedVectorException);
 };
-
-
 
 #endif /*DISTRIBUTEDVECTOR_HPP_*/

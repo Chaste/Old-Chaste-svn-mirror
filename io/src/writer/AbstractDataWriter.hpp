@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef ABSTRACTDATAWRITER_HPP
 #define ABSTRACTDATAWRITER_HPP
 

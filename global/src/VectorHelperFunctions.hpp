@@ -152,10 +152,7 @@ inline void CopyToStdVector(const VECTOR& rSrc, std::vector<double>& rDest);
 template<typename VECTOR>
 inline void CopyFromStdVector(const std::vector<double>& rSrc, VECTOR& rDest);
 
-
-//
 // Specialisations for std::vector<double>
-//
 
 /**
  * Specialisation for std::vector<double>.
@@ -256,10 +253,7 @@ inline void CopyFromStdVector(const std::vector<double>& rSrc, std::vector<doubl
     rDest = rSrc;
 }
 
-
-//
 // Specialisations for N_Vector
-//
 
 #ifdef CHASTE_CVODE
 
@@ -391,9 +385,11 @@ inline void CopyFromStdVector(const std::vector<double>& rSrc, N_Vector& rDest)
     // Check for no-op
     realtype* p_dest = NV_DATA_S(rDest);
     if (p_dest == &(rSrc[0])) return;
+
     // Check dest size
     long size = NV_LENGTH_S(rDest);
     assert(size == (long)rSrc.size());
+
     // Copy data
     for (long i=0; i<size; i++)
     {
@@ -416,9 +412,6 @@ inline std::vector<double> MakeStdVec(N_Vector v)
 
 #endif // CHASTE_CVODE
 
-//
 // End of helper functions
-//
-
 
 #endif /*VECTORHELPERFUNCTIONS_HPP_*/

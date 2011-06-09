@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/extended_type_info_no_rtti.hpp>
 #include <boost/serialization/type_info_implementation.hpp>
 
-
 std::string Identifiable::TidyTemplatedExportIdentifier(std::string identifier) const
 {
     // First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTMATERIALLAWS_HPP_
 #define TESTMATERIALLAWS_HPP_
 
@@ -46,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestMaterialLaws : public CxxTest::TestSuite
 {
 private:
+
     // Helper method for testing T=0 when C=I and p=p_zero_strain (incompressible case)
     template<unsigned DIM>
     void CheckZeroStressWhenNoDeformation(AbstractIncompressibleMaterialLaw<DIM>* pLaw)
@@ -68,8 +68,6 @@ private:
             }
         }
     }
-
-
 
     // Helper method for testing T=0 when C=I (compressible case)
     template<unsigned DIM>
@@ -200,7 +198,7 @@ private:
         }
     }
 
-    // helper method for testing change of basis (implemented for 2d only)
+    // Helper method for testing change of basis (implemented for 2d only)
     void CheckChangeOfBasis(AbstractMaterialLaw<2>* pLaw)
     {
         c_matrix<double,2,2> C;
@@ -223,12 +221,12 @@ private:
 
         pLaw->ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
 
-        // now assume fibres in Y-dir. first set up equivalent C
+        // Now assume fibres in Y-dir. first set up equivalent C
         C(0,0) = 1.1;
         C(1,1) = 1.2;
         invC = Inverse(C);
 
-        // change of basis matrix
+        // Change of basis matrix
         c_matrix<double,2,2> P;
         P(0,0) = P(1,1) = 0.0;
         P(1,0) = P(0,1) = 1.0;
@@ -259,8 +257,8 @@ private:
         pLaw->ResetToNoChangeOfBasisMatrix();
     }
 
-
 public:
+
     void TestMooneyRivlinLaw()
     {
         TS_ASSERT_THROWS_THIS(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0),"c1 must be positive in mooney-rivlin");
@@ -296,8 +294,7 @@ public:
 
         TS_ASSERT_DELTA(law_3d.GetZeroStrainPressure(), 2*c1+4*c2, 1e-12);
 
-
-        // compute stress given a non-zero deformation
+        // Compute stress given a non-zero deformation
         c_matrix<double,3,3> F;
         F(0,0) = 3.0;
         F(0,1) = 1.0;
@@ -334,8 +331,7 @@ public:
 
         c_matrix<double,3,3> T_transposeF = prod(T,trans(F));//T_as_unsym_tensor*transpose(F);
 
-
-        // check sigma is correct - sigma should be (1/detF) F * T * trans(F)
+        // Check sigma is correct - sigma should be (1/detF) F * T * trans(F)
         for (unsigned i=0; i<3; i++)
         {
             for (unsigned j=0; j<3; j++)
@@ -344,7 +340,7 @@ public:
             }
         }
 
-        // check S is correct
+        // Check S is correct
         for (unsigned M=0; M<3; M++)
         {
             for (unsigned i=0; i<3; i++)
@@ -357,13 +353,13 @@ public:
         {
             for (unsigned N=0; N<3; N++)
             {
-                // check we gave a symmetric C
+                // Check we gave a symmetric C
                 assert(C(M,N)==C(N,M));
 
-                // check the stress
+                // Check the stress
                 TS_ASSERT_DELTA(T(M,N), (2*c1+2*c2*I1)*(M==N) - 2*c2*C(M,N) - pressure*invC(M,N), 1e-12);
 
-                // check alternative computation of the stress
+                // Check alternative computation of the stress
                 TS_ASSERT_DELTA(T(M,N), T2(M,N), 1e-12);
 
                 for (unsigned P=0;P<3;P++)
@@ -383,7 +379,6 @@ public:
         TS_ASSERT_DELTA(law_3d.GetC1(), c1/10, 1e-12);
         TS_ASSERT_DELTA(law_3d.GetC2(), c2/10, 1e-12);
     }
-
 
     void TestExponentialLaw()
     {
@@ -421,9 +416,7 @@ public:
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI1I2(I1,I2),0.0,                 1e-12);
     }
 
-
-    // The polynomial material law with N=1 is exactly a mooney-rivlin law and should
-    // agree
+    // The polynomial material law with N=1 is exactly a Mooney-Rivlin law and shouldagree
     void TestPolynomialMaterialLawAgainstMooneyRivlin()
     {
         unsigned N = 1;
@@ -438,7 +431,6 @@ public:
         TS_ASSERT_DELTA(alpha[0][1],0.0,1e-12);
         TS_ASSERT_DELTA(alpha[1][0],0.0,1e-12);
         TS_ASSERT_DELTA(alpha[1][1],0.0,1e-12);
-
 
         double c1 = 3.0;
         double c2 = 2.0;
@@ -461,8 +453,6 @@ public:
         TS_ASSERT_DELTA(mooney_rivlin_law.Get_d2W_dI2(I1,I2),   poly_mr_law.Get_d2W_dI2(I1,I2),   1e-12);
         TS_ASSERT_DELTA(mooney_rivlin_law.Get_d2W_dI1I2(I1,I2), poly_mr_law.Get_d2W_dI1I2(I1,I2), 1e-12);
     }
-
-
 
     // Test the Polynomial Material Law with a quadratic law
     //   W = c20 (I1-3)^2  +  c11 (I1-3)(I2-3)  +  c02 (I2-3)^2   -   p C^{-1}/2
@@ -498,7 +488,6 @@ public:
         double I1 =  Trace(C);
         double I2 =  SecondInvariant(C);
 
-
         double true_dWdI1    = 2*c20*(I1-3) +   c11*(I2-3);
         double true_dWdI2    =   c11*(I1-3) + 2*c02*(I2-3);
         double true_d2WdI1   = 2*c20;
@@ -510,7 +499,6 @@ public:
         TS_ASSERT_DELTA(true_d2WdI1,   poly_law.Get_d2W_dI1(I1,I2),   1e-12);
         TS_ASSERT_DELTA(true_d2WdI2,   poly_law.Get_d2W_dI2(I1,I2),   1e-12);
         TS_ASSERT_DELTA(true_d2WdI1I2, poly_law.Get_d2W_dI1I2(I1,I2), 1e-12);
-
 
         c_matrix<double,3,3> invC = Inverse(C);
 
@@ -525,12 +513,11 @@ public:
         {
             for (unsigned N=0; N<3; N++)
             {
-                // check we gave a symmetric C
+                // Check we gave a symmetric C
                 assert(C(M,N)==C(N,M));
 
                 double dI1_dC_MN = (M==N);
                 double dI2_dC_MN = I1*(M==N)-C(M,N);
-
 
                 double true_val =   2 * true_dWdI1 * dI1_dC_MN
                                     + 2 * true_dWdI2 * dI2_dC_MN
@@ -567,29 +554,30 @@ public:
             }
         }
 
-        // cover GetAlpha
+        // Cover GetAlpha
         TS_ASSERT_DELTA(poly_law.GetAlpha(0,1),0.0,1e-12);
         TS_ASSERT_DELTA(poly_law.GetAlpha(0,2),c02,1e-12);
         TS_ASSERT_DELTA(poly_law.GetAlpha(1,1),c11,1e-12);
         TS_ASSERT_DELTA(poly_law.GetAlpha(1,0),0.0,1e-12);
         TS_ASSERT_DELTA(poly_law.GetAlpha(2,0),c20,1e-12);
 
-
-        // check exception thrown if N=0
+        // Check exception thrown if N=0
         TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly1(0,alpha),"n must be positive");
 
-        // check exception thrown if alpha is not correctly sized
+        // Check exception thrown if alpha is not correctly sized
         std::vector< std::vector<double> > bad_alpha(2);
         bad_alpha[0].resize(1);
         bad_alpha[1].resize(1);
         TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly2(2,bad_alpha),"alpha not big enough");
 
-        // check exception thrown if alpha[p][q]!=0, when p+q>N
+        // Check exception thrown if alpha[p][q]!=0, when p+q>N
         alpha[2][2] = 1.0;
         TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly3(2,alpha),"alpha[2][2] should be zero, as p+q > 2");
 
-        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
-        // obviously it should be zero
+        /*
+         * Compute the stress given C=delta_{MN} and p=zero_strain_pressure,
+         * obviously it should be zero.
+         */
         c_matrix<double,3,3> identity_strain_3d = identity_matrix<double>(3);
         c_matrix<double,3,3> T_3d;
 
@@ -631,7 +619,6 @@ public:
 
         CheckZeroStressWhenNoDeformation<2>(&pole_zero_law);
         CheckDTdEComputation<2>(&pole_zero_law);
-
 
         CheckChangeOfBasis(&pole_zero_law);
 
@@ -685,7 +672,7 @@ public:
         TS_ASSERT_DELTA( T(0,1), t10, 1e-9 );
         TS_ASSERT_DELTA( T(1,1), t11, 1e-9 );
 
-        // test dTdE
+        // Test dTdE
         double dtde00 = ( 2*3.5*3.5 + 14*3.5 + 0.25*7*8 )/78815.6387;
         double dtde10 = 2*( 2*4*4 + 4*1*6*4 + 42)/65536.0;
         double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
@@ -712,9 +699,10 @@ public:
             }
         }
 
-
-        // test the pressure terms in the stress and stress-deriv, by calling with
-        // p=0 and p=1 and verifying the difference is what it should be
+        /*
+         * Test the pressure terms in the stress and stress-deriv, by calling with
+         * p=0 and p=1 and verifying the difference is what it should be.
+         */
         c_matrix<double,2,2> T2;
         FourthOrderTensor<2,2,2,2> dTdE2;
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 0.0, T,  dTdE,  true);
@@ -787,7 +775,7 @@ public:
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-        //// same as previous test, except the t22 and dtde22 bits are new
+        // Same as previous test, except the t22 and dtde22 bits are new
         double t00 = 1*0.5*3/6433.92969;
         double t10 = 2.0*1.0*(2+6.0/4.0)/4096.0;
         double t11 = 3.0*2.0*(2+5*2.0/4.0)/1024.0;
@@ -799,7 +787,7 @@ public:
         TS_ASSERT_DELTA( T(1,1), t11, 1e-9 );
         TS_ASSERT_DELTA( T(2,2), t22, 1e-9 );
 
-        // test dTdE
+        // Test dTdE
         double dtde00 = ( 2*3.5*3.5 + 14*3.5 + 0.25*7*8 )/78815.6387;
         double dtde10 = 2*( 2*4*4 + 4*1*6*4 + 42)/65536.0;
         double dtde11 = 3*( 2*4*4 + 4*2*5*4 + 120)/16384.0;
@@ -811,13 +799,11 @@ public:
         TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
         TS_ASSERT_DELTA(dTdE(2,2,2,2), dtde22, 1e-9);
 
-
         pole_zero_law.ScaleMaterialParameters(10);
         TS_ASSERT_DELTA(pole_zero_law.mK[0][0], 0.1, 1e-12);
         TS_ASSERT_DELTA(pole_zero_law.mA[0][0], 4, 1e-12);
         TS_ASSERT_DELTA(pole_zero_law.mB[0][0], 7, 1e-12);
     }
-
 
     void TestNashHunterPoleZeroLaw3d() throw(Exception)
     {
@@ -841,12 +827,14 @@ public:
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-        // hard-coded test to test nothing changes (and stresses are of
-        // the correct magnitude, which is dependent on whether the params
-        // have been entered a Pa or KPa)
+        /*
+         * Hard-coded test to test nothing changes (and stresses are of
+         * the correct magnitude, which is dependent on whether the params
+         * have been entered a Pa or KPa).
+         */
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
 
-        // pick a P such that P =/= P^T
+        // Pick a P such that P =/= P^T
         c_matrix<double,3,3> basis = identity_matrix<double>(3);
         basis(0,0) = 1/sqrt(2);
         basis(1,0) = 1/sqrt(2);
@@ -856,9 +844,11 @@ public:
         law.SetChangeOfBasisMatrix(basis);
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-        // carefully checked that the P's and P^T's are the right way
-        // round in the transformations, this is just a hardcoded check that
-        // nothing has changed
+        /*
+         * Carefully checked that the P's and P^T's are the right way
+         * round in the transformations, this is just a hardcoded check
+         * that nothing has changed.
+         */
         TS_ASSERT_DELTA(T(0,0),1.7052,1e-3);
     }
 
@@ -883,15 +873,16 @@ public:
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-        // hard-coded test to test nothing changes (and stresses are of
-        // the correct magnitude, which is dependent on whether the params
-        // have been entered a Pa or KPa)
+        /*
+         * Hard-coded test to test nothing changes (and stresses are of
+         * the correct magnitude, which is dependent on whether the params
+         * have been entered a Pa or KPa).
+         */
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
 
         C(0,0) = 10;
         TS_ASSERT_THROWS_CONTAINS(law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true), "strain unacceptably large");
     }
-
 
     void TestSchmidCostaExponentialLaw()
     {
@@ -933,10 +924,11 @@ public:
         TS_ASSERT_DELTA(T_base(1,1), a*exp(Q)*bss*e11/2, 1e-9);
     }
 
-
-    // Uses the simple material law W(I1,I2,I3) = c1(I1-3) + c2(I2-3) + c3(I3-1),
-    // which may not correspond to a physically acceptable law but can still be used
-    // to test the code
+    /*
+     * Uses the simple material law W(I1,I2,I3) = c1(I1-3) + c2(I2-3) + c3(I3-1),
+     * which may not correspond to a physically acceptable law but can still be
+     * used to test the code.
+     */
     void TestCompressibleLawsUsingToyCompressibleMaterialLaw()
     {
         double c1 = 2.0;
@@ -959,7 +951,7 @@ public:
         TS_ASSERT_DELTA(law_3d.Get_dW_dI2(2.0,2.0,1.0), c2, 1e-12);
         TS_ASSERT_DELTA(law_3d.Get_dW_dI3(2.0,2.0,1.0), -c1-2*c2, 1e-12);
 
-        // compute stress given a non-zero deformation
+        // Compute stress given a non-zero deformation
         c_matrix<double,3,3> F;
         F(0,0) = 3.0;
         F(0,1) = 1.0;
@@ -996,8 +988,7 @@ public:
 
         c_matrix<double,3,3> T_transposeF = prod(T,trans(F));//T_as_unsym_tensor*transpose(F);
 
-
-        // check sigma is correct - sigma should be (1/detF) F * T * trans(F)
+        // Check sigma is correct - sigma should be (1/detF) F * T * trans(F)
         for (unsigned i=0; i<3; i++)
         {
             for (unsigned j=0; j<3; j++)
@@ -1006,7 +997,7 @@ public:
             }
         }
 
-        // check S is correct
+        // Check S is correct
         for (unsigned M=0; M<3; M++)
         {
             for (unsigned i=0; i<3; i++)
@@ -1019,13 +1010,13 @@ public:
         {
             for (unsigned N=0; N<3; N++)
             {
-                // check we gave a symmetric C
+                // Check we gave a symmetric C
                 assert(C(M,N)==C(N,M));
 
-                // check the stress
+                // Check the stress
                 TS_ASSERT_DELTA(T(M,N), (2*c1+2*c2*I1)*(M==N) - 2*c2*C(M,N) - 2*(c1+2*c2)*I3*invC(M,N), 1e-12);
 
-                // check alternative computation of the stress
+                // Check alternative computation of the stress
                 TS_ASSERT_DELTA(T(M,N), T2(M,N), 1e-12);
 
                 for (unsigned P=0;P<3;P++)
@@ -1041,7 +1032,6 @@ public:
             }
         }
     }
-
 
     void TestCompressibleMooneyRivlinLaw()
     {
@@ -1076,14 +1066,11 @@ public:
         TS_ASSERT_DELTA(law_2d.Get_d2W_dI1I2(i1,2.0,i3), 0.0, 1e-12);
         TS_ASSERT_DELTA(law_2d.Get_d2W_dI2I3(i1,2.0,i3), 0.0, 1e-12);
 
-
         law_2d.ScaleMaterialParameters(10);
         TS_ASSERT_DELTA(law_2d.GetC1(), c1/10, 1e-12);
         TS_ASSERT_DELTA(law_2d.GetC3(), c3/10, 1e-12);
 
-
         CompressibleMooneyRivlinMaterialLaw<3> law_3d(c1, c3);
-
 
         CheckZeroStressWhenNoDeformation<3>(&law_3d);
         CheckDTdEComputation<3>(&law_3d);
@@ -1096,7 +1083,6 @@ public:
         TS_ASSERT_DELTA(law_3d.Get_dW_dI3(3.0,3.0,1.0), -c1, 1e-12);
     }
 
-
     void TestCompressibleExponentialLaw() throw(Exception)
     {
         CompressibleExponentialLaw<2> law;
@@ -1108,7 +1094,7 @@ public:
 
         double a = law.GetA();
         assert(a > 0);
-        double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
+        double bff = law.GetB()[0][0]; // i.e. b_{fibre,fibre}
         double bfs = law.GetB()[0][1];
         double bsf = law.GetB()[1][0];
         double bss = law.GetB()[1][1];
@@ -1144,7 +1130,6 @@ public:
         CheckDTdEComputation<2>(&law);
     }
 
-
     void TestCompressibleExponentialLaw3d() throw(Exception)
     {
         CompressibleExponentialLaw<3> law;
@@ -1154,7 +1139,7 @@ public:
 
         double a = law.GetA();
         assert(a > 0);
-        double bff = law.GetB()[0][0]; // ie b_{fibre,fibre}
+        double bff = law.GetB()[0][0]; // i.e. b_{fibre,fibre}
         double bfs = law.GetB()[0][1];
         double bsf = law.GetB()[1][0];
         double bss = law.GetB()[1][1];

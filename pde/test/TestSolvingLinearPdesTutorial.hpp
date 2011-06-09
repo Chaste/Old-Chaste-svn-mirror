@@ -75,8 +75,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cannot be included in the source code. */
 #include "PetscSetupAndFinalize.hpp"
 
-
-
 /* == Test 1: Solving a linear elliptic PDE ==
  *
  * Here, we solve the PDE: div(D grad u) + u + x^2^+y^2^ = 0, in 2D, where
@@ -137,7 +135,6 @@ public:
     }
 };
 
-
 /* Next, we define the test suite (a class). It is sensible to name it the same
  * as the filename. The class should inherit from {{{CxxTest::TestSuite}}} */
 class TestSolvingLinearPdesTutorial : public CxxTest::TestSuite
@@ -176,8 +173,7 @@ public:
 
         /* We want to specify u=0 on x=0 and y=0. To do this, get a boundary node iterator
          * from the mesh */
-        TetrahedralMesh<2,2>::BoundaryNodeIterator iter
-           = mesh.GetBoundaryNodeIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         /* Then loop over the boundary nodes, getting the x and y value */
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -240,8 +236,6 @@ public:
             /* and increment the iterator */
             surf_iter++;
         }
-
-
 
         /* Next we define the solver of the PDE.
          * To solve {{{AbstractLinearEllipticPde}}} (which is the type of pde {{{MyPde}}} is),
@@ -367,7 +361,5 @@ public:
         VecDestroy(static_solution);
     }
 };
-
-
 
 #endif /*TESTSOLVINGLINEARPDESTUTORIAL_HPP_*/

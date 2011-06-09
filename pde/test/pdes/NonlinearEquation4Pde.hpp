@@ -25,11 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _NONLINEAREQUATION4PDE_HPP_
 #define _NONLINEAREQUATION4PDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
-
 
 template <int SPACE_DIM>
 class NonlinearEquation4Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>

@@ -58,7 +58,7 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         EXCEPTION("Size of vector does not match FixedDimensionSize.");
     }
 
-    //Construct the appropriate "scatter" object to concentrate the vector on the master
+    // Construct the appropriate "scatter" object to concentrate the vector on the master
     if (mConcentrated==NULL)
     {
         VecScatterCreateToZero(petscVector, &mToMaster, &mConcentrated);
@@ -89,7 +89,6 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         }
         VecRestoreArray(mConcentrated, &concentrated_vector);
     }
-
 }
 
 void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe& rStripe)

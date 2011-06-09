@@ -26,13 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TIMER_HPP_
 #define TIMER_HPP_
 
 #include <ctime>
 #include <string>
-
 
 /**
  *  A very simple lightweight benchmarking tool. Call Timer::Reset() to reset the timer
@@ -61,26 +59,25 @@ private:
 public:
 
     /**
-     *  Reset the timer.
+     * Reset the timer.
      */
     static void Reset();
 
     /**
-     *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
-     *  preceded by the message provided.
+     * Print the elapsed time (to std::cout and the Log file (under logging-level 2)
+     * preceded by the message provided.
      *
-     *  @param message
+     * @param message
      */
     static void Print(std::string message);
 
     /**
-     *  Print the elapsed time (to std::cout and the Log file (under logging-level 2)
-     *  preceded by the message provided, and also reset the timer.
+     * Print the elapsed time (to std::cout and the Log file (under logging-level 2)
+     * preceded by the message provided, and also reset the timer.
      *
-     *  @param message
+     * @param message
      */
     static void PrintAndReset(std::string message);
-
 };
 
 #endif /*TIMER_HPP_*/

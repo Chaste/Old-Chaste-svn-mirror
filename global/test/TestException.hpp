@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestException : public CxxTest::TestSuite
 {
 public:
+
     void TestGetMessage()
     {
         std::string msg("This is an exception");
@@ -53,7 +54,10 @@ public:
 
         TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
                         err.GetShortMessage(), "Hello. I'm an exception" );
-        //NB The following test will fail if the number of lines above is changed drastically... (that's why method GetShortMessage() was introduced).
+        /*
+         * Note: The following test will fail if the number of lines above is changed drastically
+         * (that's why method GetShortMessage() was introduced).
+         */
         TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
                                 err.GetMessage().find("Hello. I\'m an exception",0), 51u); // This appears at position 51 in full message (a bit more robust?!)
     }
@@ -61,6 +65,7 @@ public:
     void TestCheckMethods()
     {
         std::string msg("This is our message");
+
         // If another process threw an exception, this is what this process will actually throw
         std::string parallel_msg("Another process threw an exception; bailing out.");
 

@@ -91,8 +91,8 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     PetscInt num_local_rows, num_local_columns;
     MatGetLocalSize(system_matrix, &num_local_rows, &num_local_columns);
 
-    // odd number of rows: impossible in Bidomain.
-    // odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
+    // Odd number of rows: impossible in Bidomain.
+    // Odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
     if ((num_rows%2 != 0) || (num_local_rows%2 != 0))
     {
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
@@ -117,7 +117,6 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 
         VecDestroy(dummy_vec);
     }
-
 
     // Get matrix sublock A11
     {
@@ -213,8 +212,6 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 //     MatShift(mPCContext.A22_matrix_subblock, shift);
 // #endif
 
-
-
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     // Register PC context and call-back function
@@ -225,7 +222,6 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     // Register call-back function
     PCShellSetApply(mPetscPCObject, PCLDUFactorisationApply);
 #endif
-
 }
 
 void PCLDUFactorisation::PCLDUFactorisationSetUp()
@@ -236,7 +232,7 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
 //     PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
 
     /*
-     *  Set up preconditioner for block A11
+     * Set up preconditioner for block A11
      */
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, SAME_PRECONDITIONER);
@@ -278,9 +274,8 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
 
-
     /*
-     *  Set up amg preconditioner for block A22
+     * Set up amg preconditioner for block A22
      */
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A22));
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, SAME_PRECONDITIONER);
@@ -333,7 +328,7 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     assert(block_diag_context!=NULL);
 
     /*
-     *  Split vector x into two. x = [x1 x2]'
+     * Split vector x into two. x = [x1 x2]'
      */
 #ifdef TRACE_KSP
     double init_time = MPI_Wtime();
@@ -346,11 +341,11 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 #endif
 
     /*
-     *  Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]'
+     * Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]'
      *
-     *     z  = inv(A11)*x1
-     *     y2 = inv(A22)*(x2 - B*z)
-     *     y1 = z - inv(A11)(B*y2)
+     *    z  = inv(A11)*x1
+     *    y2 = inv(A22)*(x2 - B*z)
+     *    y1 = z - inv(A11)(B*y2)
      */
 #ifdef TRACE_KSP
     init_time = MPI_Wtime();
@@ -385,8 +380,7 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     block_diag_context->mA2PreconditionerTime += MPI_Wtime() - init_time;
 #endif
 
-
-    //y1 = z - inv(A11)(B*y2)
+    // y1 = z - inv(A11)(B*y2)
 #ifdef TRACE_KSP
     init_time = MPI_Wtime();
 #endif
@@ -414,9 +408,8 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     block_diag_context->mExtraLAOperations += MPI_Wtime() - init_time;
 #endif
 
-
     /*
-     *  Gather vectors y1 and y2. y = [y1 y2]'
+     * Gather vectors y1 and y2. y = [y1 y2]'
      */
 #ifdef TRACE_KSP
     init_time = MPI_Wtime();

@@ -41,8 +41,8 @@ using namespace std;
 
 class TestColumnDataReaderWriter : public CxxTest::TestSuite
 {
-
 private:
+
     ColumnDataWriter* mpTestWriter;
     ColumnDataReader* mpTestReader;
 
@@ -420,7 +420,7 @@ public:
 
         delete mpTestReader;
 
-        // precision exceptions
+        // Precision exceptions
         TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,1),
                 "Precision must be between 2 and 20 (inclusive)");
         TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21),
@@ -581,6 +581,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
+
         // Make sure there's a data value to read the field width from
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 1.1e-130, 2));
 

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef DISTRIBUTEDVECTOREXCEPTION_HPP_
 #define DISTRIBUTEDVECTOREXCEPTION_HPP_
 

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTOUTPUTFILEHANDLER_HPP_
 #define TESTOUTPUTFILEHANDLER_HPP_
 
@@ -115,13 +114,16 @@ public:
         PetscTools::Barrier();
 
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
+
         // Make a folder
         OutputFileHandler handler5("whatever");
-        // erase it
+
+        // Erase it
         if (PetscTools::AmMaster())
         {
             MPIABORTIFNON0(system, "rm -rf somewhere_without_trailing_forward_slash");
         }
+
         // Reset the location of CHASTE_TEST_OUTPUT
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
 
@@ -149,10 +151,12 @@ public:
             command = "mkdir -p " + OutputFileHandler::GetChasteTestOutputDirectory() + "cannot_delete_me";
             system(command.c_str());
         }
+
         // Wait until directory has been created
         PetscTools::Barrier();
 
         command = "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "cannot_delete_me";
+
         // Check this folder has been created...
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
@@ -171,20 +175,20 @@ public:
         PetscTools::Barrier();
 
         OutputFileHandler handler2("can_delete_me", false);
+
         // Test file is still present
         return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value, 0);
         PetscTools::Barrier();
 
         OutputFileHandler handler3("can_delete_me", true);
+
         // Test file is deleted
         return_value = system(command.c_str());
         TS_ASSERT_DIFFERS(return_value, 0);
         PetscTools::Barrier();
 
-        //
-        // Test we can make a directory of folders and delete them all.
-        //
+        // Test we can make a directory of folders and delete them all
         OutputFileHandler handler4("what_about_me/and_me/and_me/and_da_da_da",true);
 
         // Check we have made a subdirectory

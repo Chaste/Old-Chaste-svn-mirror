@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Initialise static data
 bool DistributedVectorFactory::msCheckNumberOfProcessesOnLoad = true;
 
-
-
 void DistributedVectorFactory::CalculateOwnership(Vec vec)
 {
 #ifndef NDEBUG
@@ -43,7 +41,8 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
         CheckForPetsc();
     }
 #endif
-    // calculate my range
+
+    // Calculate my range
     PetscInt petsc_lo, petsc_hi;
     VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
     mGlobalLows.clear();
@@ -55,7 +54,6 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     mProblemSize = (unsigned) size;
     mNumProcs = PetscTools::GetNumProcs();
 }
-
 
 void DistributedVectorFactory::SetFromFactory(DistributedVectorFactory* pFactory)
 {
@@ -86,7 +84,7 @@ DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local
 #ifndef NDEBUG
     CheckForPetsc();
 #endif
-    Vec vec=PetscTools::CreateVec(size, local);
+    Vec vec = PetscTools::CreateVec(size, local);
     CalculateOwnership(vec);
     VecDestroy(vec);
 }
@@ -96,9 +94,12 @@ DistributedVectorFactory::DistributedVectorFactory(DistributedVectorFactory* pOr
       mpOriginalFactory(pOriginalFactory)
 {
     assert(mpOriginalFactory != NULL);
-    //Normally called when mpOriginalFactory->GetNumProcs() != PetscTools::GetNumProcs()
-    //so ignore mpOriginalFactory->GetLocalOwnership()
-    Vec vec=PetscTools::CreateVec(mpOriginalFactory->GetProblemSize());
+
+    /*
+     * Normally called when mpOriginalFactory->GetNumProcs() != PetscTools::GetNumProcs()
+     * so ignore mpOriginalFactory->GetLocalOwnership()
+     */
+    Vec vec = PetscTools::CreateVec(mpOriginalFactory->GetProblemSize());
 
     CalculateOwnership(vec);
     VecDestroy(vec);
@@ -122,18 +123,19 @@ DistributedVectorFactory::~DistributedVectorFactory()
     delete mpOriginalFactory;
 }
 
-
 void DistributedVectorFactory::CheckForPetsc()
 {
     assert(mPetscStatusKnown==false);
     PetscTruth petsc_is_initialised;
     PetscInitialized(&petsc_is_initialised);
 
-    // Tripping this assertion means that PETSc and MPI weren't intialised
-    // A unit test should include the global fixture:
-    //#include "PetscSetupAndFinalize.hpp"
+    /*
+     * Tripping this assertion means that PETSc and MPI weren't intialised.
+     * A unit test should include the global fixture:
+     * #include "PetscSetupAndFinalize.hpp"
+     */
     assert(petsc_is_initialised);
-    mPetscStatusKnown=true;
+    mPetscStatusKnown = true;
 }
 
 bool DistributedVectorFactory::IsGlobalIndexLocal(unsigned globalIndex)
@@ -143,7 +145,7 @@ bool DistributedVectorFactory::IsGlobalIndexLocal(unsigned globalIndex)
 
 Vec DistributedVectorFactory::CreateVec()
 {
-    Vec vec=PetscTools::CreateVec(mProblemSize, mHi-mLo);
+    Vec vec = PetscTools::CreateVec(mProblemSize, mHi-mLo);
     return vec;
 }
 
@@ -166,12 +168,14 @@ std::vector<unsigned> &DistributedVectorFactory::rGetGlobalLows()
     {
         assert( mGlobalLows.empty());
         mGlobalLows.resize(PetscTools::GetNumProcs());
-        //Exchange data
+
+        // Exchange data
         MPI_Allgather( &mLo, 1, MPI_UNSIGNED, &mGlobalLows[0], 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
       }
 
     return  mGlobalLows;
 }
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(DistributedVectorFactory)

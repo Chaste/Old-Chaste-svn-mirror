@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _PETSCVECTOOLS_HPP_
 #define _PETSCVECTOOLS_HPP_
 
@@ -40,20 +39,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PetscVecTools
 {
 public:
+
     /**
      * Do parallel communication required to get the vector in a good state for further operations.
+     *
      * @param vector  the vector to assemble
      */
     static void Assemble(Vec vector);
 
     /**
      * Display the given vector.
+     *
      * @param vector  the vector to display
      */
     static void Display(Vec vector);
 
     /**
      * Zero all entries of a given vector.
+     *
      * @param vector  the vector to be zero
      */
     static void Zero(Vec vector);
@@ -127,7 +130,6 @@ public:
      */
     static void WAXPY(Vec w, double a, Vec x, Vec y);
 
-
     /**
      * Add multiple values to a vector.
      *
@@ -166,8 +168,10 @@ public:
         }
         else
         {
-            // We need continuous data, if some of the rows do not belong to the processor their values
-            // are not passed to VecSetValues
+            /*
+             * We need continuous data, if some of the rows do not belong
+             * to the processor their values are not passed to VecSetValues.
+             */
             double values[VECTOR_SIZE];
             unsigned num_values_owned = 0;
 
@@ -198,7 +202,6 @@ public:
      */
     static void SetupInterleavedVectorScatterGather(Vec interleavedVec, VecScatter& rFirstVariableScatterContext, VecScatter& rSecondVariableScatterContext);
 
-
     /**
      * Performs scatter operation from a bidomain-like vector of interleaved values into two separate PETSc Vec.
      *
@@ -220,7 +223,6 @@ public:
      * @param secondVariableVec Source vector with second variable
      */
     static void DoInterleavedVecGather(Vec interleavedVec, VecScatter firstVariableScatterContext, Vec firstVariableVec, VecScatter secondVariableScatterContext, Vec secondVariableVec);
-
 };
 
 #endif //_PETSCVECTOOLS_HPP_

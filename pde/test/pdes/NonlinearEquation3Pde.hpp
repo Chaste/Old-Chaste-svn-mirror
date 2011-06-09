@@ -25,15 +25,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _NONLINEAREQUATION3PDE_HPP_
 #define _NONLINEAREQUATION3PDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
 /**
- *  A simple nonlinear elliptic PDE used by tests; Grad.(u Grad u) - exp(-x) = 0
+ * A simple nonlinear elliptic PDE used by tests; Grad.(u Grad u) - exp(-x) = 0
  */
-
 template <int SPACE_DIM>
 class NonlinearEquation3Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
 {

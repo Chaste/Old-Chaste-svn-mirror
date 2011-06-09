@@ -84,12 +84,13 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         }
         else
         {
-        // We don't understand the exception, so we shouldn't continue
+            // We don't understand the exception, so we shouldn't continue
 #define COVERAGE_IGNORE
             throw boost_exception;
 #undef COVERAGE_IGNORE
         }
     }
+
     // Try to open the secondary archive for distributed data
     mpPrivateStream = new std::ifstream(private_path.c_str(), std::ios::binary);
     if (!mpPrivateStream->is_open())
@@ -134,6 +135,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
     {
         EXCEPTION("Specifying the secondary archive file ID doesn't make sense when writing.");
     }
+
     // Figure out where things live
     ArchiveLocationInfo::SetArchiveDirectory(rDirectory);
     if (ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput())
@@ -157,8 +159,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
     }
     else
     {
-        // Non-master processes need to go through the serialization methods,
-        // but not write any data.
+        // Non-master processes need to go through the serialization methods, but not write any data
         mpCommonStream = new std::ofstream("/dev/null");
         #define COVERAGE_IGNORE
         if (!mpCommonStream->is_open())
@@ -199,6 +200,3 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::~ArchiveOpener()
      */
     PetscTools::Barrier("~ArchiveOpener");
 }
-
-
-

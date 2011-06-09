@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTVARYINGDIFFUSIONANDSOURCETERMPDE_HPP_
 #define _TESTVARYINGDIFFUSIONANDSOURCETERMPDE_HPP_
 
@@ -34,13 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVaryingDiffusionAndSourceTermPde: public CxxTest::TestSuite
 {
 public:
+
     void TestVaryingPde1D()
     {
         VaryingDiffusionAndSourceTermPde<1> pde;
         ChastePoint<1> evaluation_point(2);
         TS_ASSERT_EQUALS(pde.ComputeConstantInUSourceTerm(evaluation_point),8.0);
-        c_matrix<double, 1, 1> diffusion_term=pde.ComputeDiffusionTerm(evaluation_point);
-        TS_ASSERT_EQUALS(diffusion_term(0,0),4);
+        c_matrix<double, 1, 1> diffusion_term = pde.ComputeDiffusionTerm(evaluation_point);
+        TS_ASSERT_EQUALS(diffusion_term(0,0), 4);
     }
 
     void TestVaryingPde2D()
@@ -48,11 +50,11 @@ public:
         VaryingDiffusionAndSourceTermPde<2> pde;
         ChastePoint<2> evaluation_point(3,4);
         TS_ASSERT_EQUALS(pde.ComputeConstantInUSourceTerm(evaluation_point),125.0);
-        c_matrix<double, 2, 2> diffusion_term=pde.ComputeDiffusionTerm(evaluation_point);
-        TS_ASSERT_EQUALS(diffusion_term(0,0),25.0);
-        TS_ASSERT_EQUALS(diffusion_term(0,1),0.0);
-        TS_ASSERT_EQUALS(diffusion_term(1,0),0.0);
-        TS_ASSERT_EQUALS(diffusion_term(1,1),25.0);
+        c_matrix<double, 2, 2> diffusion_term = pde.ComputeDiffusionTerm(evaluation_point);
+        TS_ASSERT_EQUALS(diffusion_term(0,0), 25.0);
+        TS_ASSERT_EQUALS(diffusion_term(0,1), 0.0);
+        TS_ASSERT_EQUALS(diffusion_term(1,0), 0.0);
+        TS_ASSERT_EQUALS(diffusion_term(1,1), 25.0);
     }
 };
 

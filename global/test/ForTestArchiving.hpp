@@ -51,7 +51,7 @@ public:
 
 CLASS_IS_ABSTRACT(BaseClass)
 
-// see http://www.boost.org/libs/serialization/doc/index.html
+// See http://www.boost.org/libs/serialization/doc/index.html
 class ParentClass;
 
 class ChildClass : public BaseClass
@@ -93,7 +93,6 @@ public:
     }
 };
 
-
 namespace boost
 {
 namespace serialization
@@ -117,10 +116,13 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, ParentClass * t, const unsigned int file_version)
 {
-    // It doesn't actually matter what values we pass to our standard
-    // constructor, provided they are valid parameter values, since the
-    // state loaded later from the archive will overwrite their effect in
-    // this case.
+    /*
+     * It doesn't actually matter what values we pass to our standard
+     * constructor, provided they are valid parameter values, since the
+     * state loaded later from the archive will overwrite their effect
+     * in this case.
+     */
+
     // Invoke inplace constructor to initialize instance of ParentClass.
     ChildClass* p_child;
     ar >> p_child;

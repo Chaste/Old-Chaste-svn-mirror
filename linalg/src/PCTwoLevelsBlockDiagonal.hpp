@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef PCTWOLEVELSBLOCKDIAGONAL_HPP_
 #define PCTWOLEVELSBLOCKDIAGONAL_HPP_
 
@@ -38,14 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- *  PETSc will return the control to this function everytime it needs to precondition a vector (i.e. y = inv(M)*x)
+ * PETSc will return the control to this function everytime it needs to precondition a vector (i.e. y = inv(M)*x)
  *
- *  This function needs to be declared global, since I (migb) haven't found a way of defining it inside a class and
- *  be able of passing it by reference.
+ * This function needs to be declared global, since I (migb) haven't found a way of defining it inside a class and
+ * be able of passing it by reference.
  *
- *  @param pc_context preconditioner context struct. Stores preconditioner state (i.e. PC, Mat, and Vec objects used)
- *  @param x unpreconditioned residual.
- *  @param y preconditioned residual. y = inv(M)*x
+ * @param pc_context preconditioner context struct. Stores preconditioner state (i.e. PC, Mat, and Vec objects used)
+ * @param x unpreconditioned residual.
+ * @param y preconditioned residual. y = inv(M)*x
  */
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
 PetscErrorCode PCTwoLevelsBlockDiagonalApply(PC pc_context, Vec x, Vec y);
@@ -80,8 +79,9 @@ PetscErrorCode PCTwoLevelsBlockDiagonalApply(void* pc_context, Vec x, Vec y);
 class PCTwoLevelsBlockDiagonal
 {
 public:
+
     /**
-     *  This struct defines the state of the preconditioner (initialised data and objects to be reused)
+     * This struct defines the state of the preconditioner (initialised data and objects to be reused).
      */
     typedef struct{
         Mat A11_matrix_subblock; /**< Mat object that stores the A11 subblock*/
@@ -108,27 +108,32 @@ public:
 public:
 
     /**
-     *  Constructor
+     * Constructor.
      *
-     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
-     *  @param rBathNodes a list of nodes defining the bath
+     * @param rKspObject KSP object where we want to install the block diagonal preconditioner.
+     * @param rBathNodes a list of nodes defining the bath
      */
     PCTwoLevelsBlockDiagonal(KSP& rKspObject, std::vector<PetscInt>& rBathNodes);
 
+    /**
+     * Destructor.
+     */
     ~PCTwoLevelsBlockDiagonal();
 
 private:
+
     /**
-     *  Creates all the state data required by the preconditioner
+     * Creates all the state data required by the preconditioner.
      *
-     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
-     *  @param rBathNodes a list of nodes defining the bath
+     * @param rKspObject KSP object where we want to install the block diagonal preconditioner.
+     * @param rBathNodes a list of nodes defining the bath
      */
     void PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, std::vector<PetscInt>& rBathNodes);
 
     /**
-     *  Setups preconditioner
+     * Setups preconditioner.
      */
     void PCTwoLevelsBlockDiagonalSetUp();
 };
+
 #endif /*PCTWOLEVELSBLOCKDIAGONAL_HPP_*/

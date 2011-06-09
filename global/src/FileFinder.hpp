@@ -59,21 +59,23 @@ struct RelativeTo
 class FileFinder
 {
 private:
-    /** The absolute path to our file */
+
+    /** The absolute path to our file. */
     std::string mAbsPath;
 
-    /** Whether to fake one of the fixed paths, e.g. ChasteSourceRoot */
+    /** Whether to fake one of the fixed paths, e.g. ChasteSourceRoot. */
     static bool msFaking;
 
-    /** Which path to fake */
+    /** Which path to fake. */
     static RelativeTo::Value msFakeWhat;
 
-    /** The fake value of the faked path */
+    /** The fake value of the faked path. */
     static std::string msFakePath;
 
 public:
+
     /**
-     * Default constructor for subclasses to use.  They @b must call
+     * Default constructor for subclasses to use. They @b must call
      * SetAbsolutePath() in their constructor.
      *
      * This also allows classes to store a FileFinder instance that hasn't
@@ -83,6 +85,7 @@ public:
 
     /**
      * Main constructor.
+     *
      * @param rPath  the path to the file/dir to find
      * @param relativeTo  how to interpret this path
      */
@@ -90,6 +93,7 @@ public:
 
     /**
      * Change this FileFinder to point at a new location.
+     *
      * @param rPath  the path to the file/dir to find
      * @param relativeTo  how to interpret this path
      */
@@ -121,6 +125,7 @@ public:
     /**
      * Test whether this file/dir is newer than another file/dir.
      * Compares modification times.
+     *
      * @param rOtherEntity  the entity to test against.
      */
     bool IsNewerThan(const FileFinder& rOtherEntity) const;
@@ -132,12 +137,14 @@ public:
 
     /**
      * Test whether a path is absolute. Currently just checks whether the first character is '/'.
+     *
      * @param rPath The path to test
      */
     static bool IsAbsolutePath(const std::string& rPath);
 
     /**
      * For testing purposes, fake the value of one of the normally fixed paths, e.g. ChasteSourceRoot.
+     *
      * @param fakeWhat  which path to fake
      * @param rFakePath  its fake value
      */

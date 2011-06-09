@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef REPLICATABLEVECTOR_HPP_
 #define REPLICATABLEVECTOR_HPP_
 
@@ -120,7 +119,6 @@ public:
      * @param vec  The PETSc vector to replicate.
      */
     void ReplicatePetscVector(Vec vec);
-
 };
 
 #endif /*REPLICATABLEVECTOR_HPP_*/

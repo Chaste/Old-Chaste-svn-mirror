@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FileFinder.hpp"
-
 #include "ChasteBuildRoot.hpp"
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
@@ -36,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <cassert>
 #include <sys/stat.h>
-
 
 bool FileFinder::msFaking = false;
 
@@ -54,7 +52,6 @@ FileFinder::FileFinder(const std::string& rRelativePath, RelativeTo::Value relat
 {
     SetPath(rRelativePath, relativeTo);
 }
-
 
 void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {

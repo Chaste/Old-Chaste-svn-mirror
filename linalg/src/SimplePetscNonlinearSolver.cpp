@@ -26,20 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 /**
  * Concrete Simple Nonlinear PDE system solver.
  */
-
-
 
 #include "SimplePetscNonlinearSolver.hpp"
 #include "Exception.hpp"
 #include "petscsnes.h"
 #include "PetscTools.hpp"
 #include <sstream>
-
-
 
 Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
@@ -53,9 +48,9 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     Vec residual;
     VecDuplicate(initialGuess, &residual);
 
-    Mat jacobian; //Jacobian Matrix
+    Mat jacobian; // Jacobian Matrix
 
-    PetscInt N; //number of elements
+    PetscInt N; // number of elements
 
     // Get the size of the Jacobian from the residual
     VecGetSize(initialGuess,&N);
@@ -73,7 +68,6 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     VecDuplicate(initialGuess, &x);
     VecCopy(initialGuess, x);
 
-
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     SNESSolve(snes, x);
 #else
@@ -86,7 +80,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     SNESConvergedReason reason;
     SNESGetConvergedReason(snes,&reason);
 #define COVERAGE_IGNORE
-    if (reason<0)
+    if (reason < 0)
     {
         std::stringstream reason_stream;
         reason_stream << reason;

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTPETSCTOOLS2_HPP_
 #define TESTPETSCTOOLS2_HPP_
 
@@ -52,4 +51,5 @@ public:
         PetscTools::Barrier();
     }
 };
+
 #endif /*TESTPETSCTOOLS2_HPP_*/

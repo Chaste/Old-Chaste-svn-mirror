@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscMatTools.hpp"
 #include <cassert>
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
@@ -93,10 +92,11 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
 {
     AssembleFinal(matrix);
 
-    // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
-    // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
-    // are kept.
+    /*
+     * Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
+     * when the row is zeroed, and if there is a next timestep, the memory will have to reallocated when
+     * assembly to done again. This can kill performance. The following makes sure the zeroed rows are kept.
+     */
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
  #if (PETSC_VERSION_MINOR == 0)
     MatSetOption(matrix, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
@@ -125,8 +125,8 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
 [2]PETSC ERROR: MatILUFactorSymbolic_SeqAIJ() line 906 in src/mat/impls/aij/seq/aijfact.c
      *
      *
-    //There appears to be a problem with MatZeroRows not setting diagonals correctly
-    //While we are supporting PETSc 2.2, we have to do this the slow way
+    // There appears to be a problem with MatZeroRows not setting diagonals correctly
+    // While we are supporting PETSc 2.2, we have to do this the slow way
 
     AssembleFinal(matrix);
     PetscInt lo, hi;
@@ -139,7 +139,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
         if (row >= lo && row < hi)
         {
             std::vector<unsigned> non_zero_cols;
-            //This row is local, so zero it.
+            // This row is local, so zero it.
             for (PetscInt column = 0; column < size; column++)
             {
                 if (GetElement(matrix, row, column) != 0.0)
@@ -147,15 +147,15 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
                     non_zero_cols.push_back(column);
                 }
             }
-            //Separate "gets" from "sets" so that we don't have to keep going into "assembled" mode
+            // Separate "gets" from "sets" so that we don't have to keep going into "assembled" mode
             for (unsigned i=0; i<non_zero_cols.size();i++)
             {
                 SetElement(matrix, row, non_zero_cols[i], 0.0);
             }
-            //Set the diagonal
+            // Set the diagonal
             SetElement(matrix, row, row, diagonalValue);
         }
-        //Everyone communicate after row is finished
+        // Everyone communicate after row is finished
         AssembleFinal(matrix);
     }
     */
@@ -174,16 +174,17 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
     GetOwnershipRange(matrix, lo, hi);
     std::vector<unsigned>* p_nonzero_rows_per_column = new std::vector<unsigned>[rRowColIndices.size()];
 
-    // for each column: collect all the row indices corresponding to a non-zero entry
-    // We do all the columns at once, before doing the zeroing, as otherwise
-    // a MatAssemblyBegin() & MatAssemblyEnd() would have to be called
-    // after every MatSetValues and before the below GetMatrixElement()
+    /*
+     * For each column: collect all the row indices corresponding to a non-zero entry.
+     * We do all the columns at once, before doing the zeroing, as otherwise a
+     * MatAssemblyBegin() & MatAssemblyEnd() would have to be called after every
+     * MatSetValues and before the below GetMatrixElement().
+     */
     for (unsigned index=0; index<rRowColIndices.size(); index++)
     {
         unsigned column = rRowColIndices[index];
 
-        // determine which rows in this column are non-zero (and
-        // therefore need to be zeroed)
+        // Determine which rows in this column are non-zero (and therefore need to be zeroed)
         for (PetscInt row = lo; row < hi; row++)
         {
             if (GetElement(matrix, row, column) != 0.0)
@@ -216,7 +217,7 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
     }
     delete[] p_nonzero_rows_per_column;
 
-    // now zero the rows and add the diagonal entries
+    // Now zero the rows and add the diagonal entries
     ZeroRowsWithValueOnDiagonal(matrix, rRowColIndices, diagonalValue);
 }
 
@@ -227,8 +228,7 @@ void PetscMatTools::ZeroColumn(Mat matrix, PetscInt col)
     PetscInt lo, hi;
     GetOwnershipRange(matrix, lo, hi);
 
-    // determine which rows in this column are non-zero (and
-    // therefore need to be zeroed)
+    // Determine which rows in this column are non-zero (and therefore need to be zeroed)
     std::vector<unsigned> nonzero_rows;
     for (PetscInt row = lo; row < hi; row++)
     {
@@ -238,7 +238,7 @@ void PetscMatTools::ZeroColumn(Mat matrix, PetscInt col)
         }
     }
 
-    // set those rows to be zero by calling MatSetValues
+    // Set those rows to be zero by calling MatSetValues
     unsigned size = nonzero_rows.size();
     PetscInt* rows = new PetscInt[size];
     PetscInt cols[1];
@@ -294,7 +294,6 @@ double PetscMatTools::GetElement(Mat matrix, PetscInt row, PetscInt col)
     return ret_array[0];
 }
 
-
 void PetscMatTools::SetOption(Mat matrix, MatOption option)
 {
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
@@ -304,12 +303,12 @@ void PetscMatTools::SetOption(Mat matrix, MatOption option)
 #endif
 }
 
-
-
 Vec PetscMatTools::GetMatrixRowDistributed(Mat matrix, unsigned rowIndex)
 {
-    //  We need to make sure that lhs_ith_row doesn't ignore off processor entries when assembling,
-    //  otherwise the VecSetValues call a few lines below will not work as expected.
+    /*
+     * We need to make sure that lhs_ith_row doesn't ignore off processor entries when assembling,
+     * otherwise the VecSetValues call a few lines below will not work as expected.
+     */
 
     PetscInt lo, hi;
     PetscMatTools::GetOwnershipRange(matrix, lo, hi);
@@ -323,8 +322,10 @@ Vec PetscMatTools::GetMatrixRowDistributed(Mat matrix, unsigned rowIndex)
 
     bool am_row_owner = (PetscInt)rowIndex >= lo && (PetscInt)rowIndex < hi;
 
-    // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
-    // In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
+    /*
+     * Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
+     * In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
+     */
     if (am_row_owner)
     {
         MatGetRow(matrix, rowIndex, &num_entries, &column_indices, &values);

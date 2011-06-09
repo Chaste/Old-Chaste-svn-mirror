@@ -30,15 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 
-
 /**
- *  This class creates the file 'progress_status.txt' in the specified directory
- *  and writes "n% completed" etc in the file when n% of a simulation has been
- *  done, for integer n.
+ * This class creates the file 'progress_status.txt' in the specified directory
+ * and writes "n% completed" etc in the file when n% of a simulation has been
+ * done, for integer n.
  *
- *  You can watch the progress of your simulation by doing one of
- *  a) watch tail \<outputDirectory>/progress_status.txt
- *  b) tail -f \<outputDirectory>/progress_status.txt
+ * You can watch the progress of your simulation by doing one of
+ * a) watch tail \<outputDirectory>/progress_status.txt
+ * b) tail -f \<outputDirectory>/progress_status.txt
  */
 class ProgressReporter
 {
@@ -82,7 +81,6 @@ public:
      * Print initialising message to file.
      */
     void PrintInitialising();
-
 };
 
 #endif /*PROGRESSREPORTER_HPP_*/

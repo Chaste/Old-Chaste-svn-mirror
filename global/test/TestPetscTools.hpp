@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTPETSCTOOLS_HPP_
 #define TESTPETSCTOOLS_HPP_
 
@@ -44,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestPetscTools : public CxxTest::TestSuite
 {
 public:
+
     void TestMostOfPetscTools()
     {
         PetscInt my_rank;
@@ -66,9 +66,7 @@ public:
         std::cout << "  Process " << PetscTools::GetMyRank() << std::endl;
         PetscTools::EndRoundRobin();
 
-        ////////////////////////////////////////////////////
-        // test CreateVec which returns a vec of constants
-        ////////////////////////////////////////////////////
+        // Test CreateVec which returns a vec of constants
         Vec vec1 = PetscTools::CreateAndSetVec(10, 3.41);
         ReplicatableVector vec1_repl(vec1);
 
@@ -78,9 +76,7 @@ public:
             TS_ASSERT_DELTA(vec1_repl[i], 3.41, 1e-12);
         }
 
-        ////////////////////////////////////////////////////
-        // test CreateVec which uses a std::vector of data
-        ////////////////////////////////////////////////////
+        // Test CreateVec which uses a std::vector of data
         std::vector<double> data(10);
         for (unsigned i=0; i<10; i++)
         {
@@ -97,9 +93,7 @@ public:
             TS_ASSERT_DELTA(vec2_repl[i], i+0.45, 1e-12);
         }
 
-        ///////////////////////////////////////////////////
-        // test SetupMatrix
-        ///////////////////////////////////////////////////
+        // Test SetupMatrix
         Mat mat;
         PetscTools::SetupMat(mat, 10, 11, 11);
         int m,n;
@@ -126,9 +120,7 @@ public:
         VecDestroy(vec2);
         MatDestroy(mat);
 
-        ///////////////////////////////////////////////////
-        // test SetupMatrix with non-default preallocation
-        ///////////////////////////////////////////////////
+        // Test SetupMatrix with non-default preallocation
         Mat mat2;
         PetscTools::SetupMat(mat2, 12, 10, 4);
         MatGetSize(mat2, &m, &n);
@@ -179,17 +171,19 @@ public:
 
     void TestBarrier()
     {
-        // Testing the barrier method is kind of tricky, since we really want
-        // to also check if it works when PETSc isn't set up.  So see TestPetscTools2.hpp!
+        /*
+         * Testing the barrier method is kind of tricky, since we really want
+         * to also check if it works when PETSc isn't set up. So see TestPetscTools2.hpp!
+         */
         PetscTools::Barrier();
     }
 
     void TestReplicateBool()
     {
-        bool my_flag=false;
+        bool my_flag = false;
         if (PetscTools::AmMaster())
         {
-            my_flag=true;
+            my_flag = true;
         }
 
         TS_ASSERT(PetscTools::ReplicateBool(my_flag));
@@ -215,7 +209,7 @@ public:
 
         PetscTools::SetupMat(matrix, 10, 10, 10);
 
-        vector=PetscTools::CreateVec(10);
+        vector = PetscTools::CreateVec(10);
 
         PetscInt lo, hi;
         VecGetOwnershipRange(vector, &lo, &hi);
@@ -277,11 +271,10 @@ public:
 
         MatDestroy(matrix_read);
         VecDestroy(vector_read);
-
     }
 
     /*
-     *  This test reuses the 10x10 matrix written to disc in the previous test. It reads it
+     * This test reuses the 10x10 matrix written to disc in the previous test. It reads it
      * back in with a different parallel layout. For p=2 it is partitioned in 6 and 4 rows,
      * for p=3 4, 4, and 2.
      */
@@ -328,18 +321,17 @@ public:
         VecDestroy(parallel_layout);
     }
 
-
     void TestUnevenCreation()
     {
-        //Uneven test (as in TestDistributedVectorFactory).
-        //Calculate total number of elements in the vector
+        /*
+         * Uneven test (as in TestDistributedVectorFactory).
+         * Calculate total number of elements in the vector.
+         */
         unsigned num_procs = PetscTools::GetNumProcs();
         unsigned total_elements = (num_procs+1)*num_procs/2;
         unsigned my_rank=PetscTools::GetMyRank();
 
-
         Vec petsc_vec_uneven = PetscTools::CreateVec(total_elements, my_rank+1);
-
 
         int petsc_lo, petsc_hi;
         VecGetOwnershipRange(petsc_vec_uneven, &petsc_lo, &petsc_hi);
@@ -352,6 +344,6 @@ public:
 
         VecDestroy(petsc_vec_uneven);
     }
-
 };
+
 #endif /*TESTPETSCTOOLS_HPP_*/

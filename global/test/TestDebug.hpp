@@ -32,17 +32,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "Debug.hpp"
 
-// interestingly, this test won't fork if you attempt to run in parallel unless this is included
+// Interestingly, this test won't fork if you attempt to run in parallel unless this is included
 #include "PetscSetupAndFinalize.hpp"
 
 class TestDebug : public CxxTest::TestSuite
 {
 public:
-    // Can't really test these other than that they compile and visually looking at output.
+
+    // Can't really test these other than that they compile and visually looking at output
     void TestDebugMacros()
     {
         TRACE("Some trace");
-        //Note that these macros do nothing in NDEBUG -- we should ensure that the variables get used anyway.
+
+        // Note that these macros do nothing in NDEBUG -- we should ensure that the variables get used anyway
         double use_vars = 0.0;
 
         unsigned my_var = 3141;
@@ -92,7 +94,7 @@ public:
         vec[3] = 3.1;
         PRINT_VECTOR(vec);
 
-        MARK; //Something like: "DEBUG: ./global/test/TestDebug.hpp at line 95"
+        MARK; // Something like: "DEBUG: ./global/test/TestDebug.hpp at line 95"
     }
 };
 

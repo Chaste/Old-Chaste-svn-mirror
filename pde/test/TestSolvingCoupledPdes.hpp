@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSOLVINGCOUPLEDPDES_HPP_
 #define TESTSOLVINGCOUPLEDPDES_HPP_
 
@@ -46,7 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/void.hpp>
-
 
 //////////////////////////////////////////////////////////////////////////////
 // A simple pde : u_xx + u_yy + x = 0
@@ -70,7 +70,6 @@ public:
     }
 };
 
-
 //////////////////////////////////////////////////////////////////////////////
 // A solver to solve the 'coupled' 2-unknown problem
 //    u_xx + u_yy +         x  = 0
@@ -79,8 +78,8 @@ public:
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 class MySimpleCoupledSolver
-   : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>,
-     public AbstractStaticLinearPdeSolver<2,2,2>
+    : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>,
+      public AbstractStaticLinearPdeSolver<2,2,2>
 {
 private:
     double mLambda;
@@ -94,9 +93,11 @@ private:
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
 
-        // The following can be done more efficiently using matrix slices and prods
-        // and so on (see BidomainDg0Assembler) - efficiency not needed for this
-        // test though
+        /*
+         * The following can be done more efficiently using matrix slices
+         * and prods and so on (see BidomainDg0Assembler) - efficiency not
+         * needed for this test though.
+         */
         for (unsigned i=0; i<3; i++)
         {
             for (unsigned j=0; j<3; j++)
@@ -110,7 +111,6 @@ private:
         }
         return ret;
     }
-
 
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
                                                        c_matrix<double, 2, 2+1>& rGradPhi,
@@ -157,9 +157,10 @@ private:
 
     /**
      * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.
-     *  @param currentSolution The current solution which can be used in setting up
+     *
+     * @param currentSolution The current solution which can be used in setting up
      *   the linear system if needed (NULL if there isn't a current solution)
-     *  @param computeMatrix Whether to compute the LHS matrix of the linear system
+     * @param computeMatrix Whether to compute the LHS matrix of the linear system
      *   (mainly for dynamic solves).
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
@@ -178,7 +179,6 @@ public:
         mLambda = lambda;
     }
 };
-
 
 //////////////////////////////////////////////////////////////////////////////
 // A solver to solve the coupled 2-unknown problem
@@ -265,7 +265,6 @@ public:
         Vec result_2unknowns = solver_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
 
-
         ///////////////////////////////////////////////////////////////////
         // Now solve u_xx + u_yy + x = 0 as an uncoupled 1-unknown problem
         ///////////////////////////////////////////////////////////////////
@@ -283,10 +282,12 @@ public:
         Vec result_1unknown = solver_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
-        // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
-        // solution of the 1-unknown problem and the v solutions
-        // (result_2unknowns_repl[2*i+1]) are equal to two times the 1-unknown
-        // solution
+        /*
+         * Check the u solutions (result_2unknowns_repl[2*i]) is equal
+         * to the solution of the 1-unknown problem and the v solutions
+         * (result_2unknowns_repl[2*i+1]) are equal to two times the
+         * 1-unknown solution.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i]  ,   result_1unknown_repl[i], 1e-10);
@@ -297,7 +298,6 @@ public:
         VecDestroy(result_2unknowns);
         VecDestroy(result_1unknown);
     }
-
 
     /*  Solve:
      *     u_xx + u_yy + x = 0
@@ -317,7 +317,7 @@ public:
         // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
-        // boundary conditions for 2-unknown problem
+        // Boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
 
         // du/dn = -0.5 on r=1
@@ -336,20 +336,19 @@ public:
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
 
-        // use solver to solve (with lambda in MySimpleCoupledSolver = 1)
+        // Use solver to solve (with lambda in MySimpleCoupledSolver = 1)
 
         MySimpleCoupledSolver solver_2unknowns(&mesh,&bcc_2unknowns,1.0);
 
         Vec result_2unknowns = solver_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
 
-
         ///////////////////////////////////////////////////////////////////
         // Now solve u_xx + u_yy + x = 0 as an uncoupled 1-unknown problem
         ///////////////////////////////////////////////////////////////////
 
         // Instantiate PDE object
-        MySimplePde pde;  //defined above
+        MySimplePde pde; // defined above
 
         // boundary conditions for 1-unknown problem
         BoundaryConditionsContainer<2,2,1> bcc_1unknown;
@@ -371,10 +370,12 @@ public:
         Vec result_1unknown = solver_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
-        // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
-        // solution of the 1-unknown problem and the v solutions
-        // (result_2unknowns_repl[2*i+1]) are equal to the 1-unknown
-        // solution
+        /*
+         * Check the u solutions (result_2unknowns_repl[2*i]) is equal
+         * to the solution of the 1-unknown problem and the v solutions
+         * (result_2unknowns_repl[2*i+1]) are equal to the 1-unknown
+         * solution.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i]  , result_1unknown_repl[i], 1e-6);
@@ -386,16 +387,15 @@ public:
         VecDestroy(result_1unknown);
     }
 
-
     /*
-     *  Solve a real coupled problem:
-     *     u_xx + u_yy  + v = f(x,y)
-     *     v_xx + v_yy  + u = g(x,y)
+     * Solve a real coupled problem:
+     *    u_xx + u_yy  + v = f(x,y)
+     *    v_xx + v_yy  + u = g(x,y)
      *
-     *  where f and g are chosen so that (with zero-dirichlet boundary conditions)
-     *  the solution is
+     * where f and g are chosen so that (with zero-dirichlet boundary conditions)
+     * the solution is
      *
-     *     u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
+     *    u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
      */
     void TestRealCoupledPde() throw (Exception)
     {
@@ -403,12 +403,12 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // boundary conditions for 2-unknown problem
+        // Boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // purpose-made solver for this problem:
+        // Purpose-made solver for this problem:
         AnotherCoupledSolver solver(&mesh,&bcc);
 
         Vec result = solver.Solve();
@@ -430,4 +430,5 @@ public:
         VecDestroy(result);
     }
 };
+
 #endif /*TESTSOLVINGCOUPLEDPDES_HPP_*/

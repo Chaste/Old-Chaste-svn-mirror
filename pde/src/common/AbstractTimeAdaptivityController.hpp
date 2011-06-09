@@ -38,23 +38,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractTimeAdaptivityController
 {
 private:
+
     /** Minimum timestep to be used */
     double mMinimumTimeStep;
+
     /** Maximum timestep to be used */
     double mMaximumTimeStep;
-    /** Pure method to be implemented which returns the timestep based on the
-     *  current solution and current time. Doesn't need to be checked to be
-     *  between the minimum and maximum timesteps.
-     *  @param currentTime current time
-     *  @param currentSolution current solution
+
+    /**
+     * Pure method to be implemented which returns the timestep based on the
+     * current solution and current time. Doesn't need to be checked to be
+     * between the minimum and maximum timesteps.
+     *
+     * @param currentTime current time
+     * @param currentSolution current solution
      */
     virtual double ComputeTimeStep(double currentTime, Vec currentSolution)=0;
 
 public:
+
     /**
-     *  Constructor
-     *  @param minimumTimeStep minimum timestep to be used
-     *  @param maximumTimeStep maximum timestep to be used
+     * Constructor.
+     *
+     * @param minimumTimeStep minimum timestep to be used
+     * @param maximumTimeStep maximum timestep to be used
      */
     AbstractTimeAdaptivityController(double minimumTimeStep, double maximumTimeStep)
         : mMinimumTimeStep(minimumTimeStep),
@@ -65,14 +72,16 @@ public:
         assert(minimumTimeStep < maximumTimeStep);
     }
 
-    /** Destructor */
+    /** Destructor. */
     virtual ~AbstractTimeAdaptivityController()
     {
     }
 
-    /** Get the actual timestep to be used
-     *  @param currentTime current time
-     *  @param currentSolution current solution
+    /**
+     * Get the actual timestep to be used.
+     *
+     * @param currentTime current time
+     * @param currentSolution current solution
      */
     double GetNextTimeStep(double currentTime, Vec currentSolution)
     {

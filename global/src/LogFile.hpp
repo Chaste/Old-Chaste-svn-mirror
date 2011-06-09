@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef LOGFILE_HPP_
 #define LOGFILE_HPP_
 
@@ -38,32 +37,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 
 /**
- *  A singleton log file class. Allows the user to define log file in the test, which
- *  can be written to (without being passed around in the code).
+ * A singleton log file class. Allows the user to define log file in the test, which
+ * can be written to (without being passed around in the code).
  *
- *  Usage (in test):
+ * Usage (in test):
  *
- *  // begining of test
- *  LogFile* p_log = LogFile::Instance();
- *  p_log->Set(level, "dir","file");
- *  p_log->WriteHeader("type_of_sim"); // optional
+ * // begining of test
+ * LogFile* p_log = LogFile::Instance();
+ * p_log->Set(level, "dir","file");
+ * p_log->WriteHeader("type_of_sim"); // optional
  *
- *  // at end of simulation
- *  LogFile::Close();
+ * // at end of simulation
+ * LogFile::Close();
  *
- *  Here 'level' is a number between 0 and LogFile::MaxLoggingLevel, with zero
- *  meaning no logging and MaxLoggingLevel meaning full logging.
+ * Here 'level' is a number between 0 and LogFile::MaxLoggingLevel, with zero
+ * meaning no logging and MaxLoggingLevel meaning full logging.
  *
- *  Usage (in source) - use the macro 'LOG'
- *  LOG(1, "Info to be written to the log file\n" << "More info\n");
- *  LogFile::Instance()->WriteElapsedTime(); // optional
+ * Usage (in source) - use the macro 'LOG'
+ * LOG(1, "Info to be written to the log file\n" << "More info\n");
+ * LogFile::Instance()->WriteElapsedTime(); // optional
  *
- *  This checks whether the given level (here '1') is greater or equal to the given
- *  logging level, in which case it writes to the current log file. If there is
- *  no log file set up it does nothing.
+ * This checks whether the given level (here '1') is greater or equal to the given
+ * logging level, in which case it writes to the current log file. If there is
+ * no log file set up it does nothing.
  *
- *  Note the log file can be written to directly, without any level-checking, using
- *  (*LogFile::Instance()) << "Info to be written to the log file\n";
+ * Note the log file can be written to directly, without any level-checking, using
+ * (*LogFile::Instance()) << "Info to be written to the log file\n";
  */
 class LogFile
 {
@@ -91,84 +90,84 @@ private:
     unsigned mPrecision;
 
     /**
-     *  Constructor. Should never be called directly, call LogFile::Instance() instead.
+     * Constructor. Should never be called directly, call LogFile::Instance() instead.
      */
     LogFile();
 
 public:
 
     /**
-     *  Get the single instance of the LogFile object.
+     * Get the single instance of the LogFile object.
      */
     static LogFile* Instance();
 
     /**
-     *  Get the logging level.
+     * Get the logging level.
      */
     static unsigned Level();
 
     /**
-     *  Set the logging level, the directory (relative to TEST_OUTPUT) and the file
-     *  the log should be written to (file defaults to "log.txt").
+     * Set the logging level, the directory (relative to TEST_OUTPUT) and the file
+     * the log should be written to (file defaults to "log.txt").
      *
-     *  The level should be a number between 0 and LogFile::MaxLoggingLevel() (which is the
-     *  same as LogFile::mMaxLoggingLevel)
+     * The level should be a number between 0 and LogFile::MaxLoggingLevel() (which is the
+     * same as LogFile::mMaxLoggingLevel)
      *
-     *  Note: we intentionally do NOT check or throw an exception if a file has already
-     *  been set (ie Close() wasn't called the last time a log was used).
+     * Note: we intentionally do NOT check or throw an exception if a file has already
+     * been set (i.e. Close() wasn't called the last time a log was used).
      *
-     *  The directory is never cleaned.
+     * The directory is never cleaned.
      *
-     *  @param level  the logging level
-     *  @param rDirectory  the directory in which to write the data to file
-     *  @param rFileName  the name of the file to write to, relative to the output directory
+     * @param level  the logging level
+     * @param rDirectory  the directory in which to write the data to file
+     * @param rFileName  the name of the file to write to, relative to the output directory
      */
     void Set(unsigned level, const std::string& rDirectory, const std::string& rFileName="log.txt");
 
     /**
-     *  Get the maximum allowed logging level.
+     * Get the maximum allowed logging level.
      */
     static unsigned MaxLoggingLevel();
 
     /**
-     *  Set the precision to write data (the 'decimal precision', look up
-     *  documentation for std::setprecision()).
+     * Set the precision to write data (the 'decimal precision', look up
+     * documentation for std::setprecision()).
      *
-     *  @param precision  the precision
+     * @param precision  the precision
      */
     void SetPrecision(unsigned precision);
 
     /**
-     *  Write a header in the log file, stating the (given) type of simulation and the
-     *  date and time
+     * Write a header in the log file, stating the (given) type of simulation and the
+     * date and time.
      *
-     *  @param simulationType The type of simulation, eg "Bidomain" or "Crypt" or
-     *  "Cardiac Electromechanics". Defaults to empty.
+     * @param simulationType The type of simulation, eg "Bidomain" or "Crypt" or
+     * "Cardiac Electromechanics". Defaults to empty.
      */
     void WriteHeader(std::string simulationType="");
 
     /**
-     *  Write the elapsed time since the simulation began (since the log file was created).
+     * Write the elapsed time since the simulation began (since the log file was created).
      *
-     *  @param pre a string (eg spacings) to write before the elapsed time line.
+     * @param pre a string (eg spacings) to write before the elapsed time line.
      */
     void WriteElapsedTime(std::string pre="");
 
     /**
-     *  Close the currently open file, and delete the single LogFile instance
+     * Close the currently open file, and delete the single LogFile instance.
      */
     static void Close();
 
     /**
-     *  Whether Set() has been called
+     * Whether Set() has been called.
      */
     bool IsFileSet();
 
     /**
-     *  Overloaded << operator, to write to the log file, if one has been set, and
-     *  does nothing if not.
+     * Overloaded << operator, to write to the log file, if one has been set, and
+     * does nothing if not.
      *
-     *  @param message the message to write to the log file
+     * @param message the message to write to the log file
      */
     template <class T>
     LogFile& operator<<(T message)
@@ -182,10 +181,8 @@ public:
     }
 };
 
-
 // Define the log macro
 #define LOG(level, message) assert(level>0); if(level <= LogFile::Level()) { (*LogFile::Instance()) << message << "\n"; }
 #define LOG_AND_COUT(level, message) {std::cout << message << std::endl << std::flush; LOG(level, message); }
-
 
 #endif /*LOGFILE_HPP_*/

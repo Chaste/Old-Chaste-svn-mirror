@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTTIMESTEPPER_HPP_
 #define TESTTIMESTEPPER_HPP_
 
@@ -40,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestTimeStepper : public CxxTest::TestSuite
 {
 public:
+
     void TestOverflow()
     {
         TimeStepper stepper(0.0, DBL_MAX, DBL_EPSILON);
@@ -50,15 +50,13 @@ public:
 
     void TestAdvance()
     {
-        const double smidge=1e-10;
+        const double smidge = 1e-10;
 
         double start_time = 0.0;
         double end_time = 2.0;
         double timestep = 3.7e-05;
 
-        ////////////////////////////////////////////////////////
         // This is how a time stepper is normally used
-        ////////////////////////////////////////////////////////
         TimeStepper my_stepper(start_time, end_time, timestep);
         while ( !my_stepper.IsTimeAtEnd() )
         {
@@ -67,22 +65,19 @@ public:
             my_stepper.AdvanceOneTimeStep();
         }
 
-
-        ////////////////////////////////////////////////////////
-        // tests
-        ////////////////////////////////////////////////////////
+        // Tests
         TS_ASSERT_THROWS_THIS(TimeStepper(end_time, start_time, timestep),"The simulation duration must be positive");
 
         TimeStepper stepper(start_time, end_time, timestep);
 
-        TS_ASSERT_EQUALS( stepper.EstimateTimeSteps(),
-                          (unsigned) floor((end_time - start_time)/timestep) );
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), (unsigned) floor((end_time - start_time)/timestep) );
 
         double real_time_step = timestep;
         unsigned time_step_number = 0;
         double current_time = start_time;
 
-        /* We'll trap for stopping times that are close to the end time
+        /*
+         * We'll trap for stopping times that are close to the end time
          * in order to avoid having a timestep of 1e-14 (or whatever) at
          * the end in the case of rounding errors.
          */
@@ -93,6 +88,7 @@ public:
             TS_ASSERT(!stepper.IsTimeAtEnd());
 
             time_step_number++;
+
             // Determine what the value time step should really be like
             double to_time = start_time+time_step_number*timestep;
 
@@ -122,7 +118,7 @@ public:
 
     void TestEnforceConstantTimeStep() throw(Exception)
     {
-        TimeStepper stepper(0.0, 1.0, 0.3); // timestep does not divide, but no checking..
+        TimeStepper stepper(0.0, 1.0, 0.3); // timestep does not divide, but no checking
 
         TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true),
                 "TimeStepper estimate non-constant timesteps will need to be used: "
@@ -144,7 +140,6 @@ public:
 
     void TestAdditionalSteppingPoints() throw(Exception)
     {
-
         std::vector<double> additional_times_bad_order;
         additional_times_bad_order.push_back(0.75);
         additional_times_bad_order.push_back(0.25);
@@ -177,7 +172,6 @@ public:
         expected_times_reverse_order.push_back(0.03);
         expected_times_reverse_order.push_back(0.0);
 
-
         std::vector<double> expected_timesteps_reverse_order;
         expected_timesteps_reverse_order.push_back(0.1);
         expected_timesteps_reverse_order.push_back(0.1);
@@ -193,7 +187,6 @@ public:
         expected_timesteps_reverse_order.push_back(0.07);
         expected_timesteps_reverse_order.push_back(0.03);
 
-
         while (!stepper.IsTimeAtEnd())
         {
             TS_ASSERT_DELTA(stepper.GetTime(),expected_times_reverse_order.back(),1e-12);
@@ -201,7 +194,6 @@ public:
 
             TS_ASSERT_DELTA(stepper.GetNextTimeStep(),expected_timesteps_reverse_order.back(),1e-12);
             expected_timesteps_reverse_order.pop_back();
-
 
             stepper.AdvanceOneTimeStep();
         }
@@ -247,7 +239,6 @@ public:
         stepper.AdvanceOneTimeStep();
         TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
     }
-
 
     void TestResetTimeStepWithAdditionalSteppingPoints() throw(Exception)
     {

@@ -43,6 +43,7 @@ private:
     }
 
 public:
+
     void TestGetMessage()
     {
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
@@ -55,7 +56,6 @@ public:
         Warnings::QuietDestroy();
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
     }
-
 
     void TestWarningsWithLogging()
     {
@@ -100,8 +100,6 @@ public:
         WARNING("This one will get printed.");
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
     }
-
-
- };
+};
 
 #endif //_TESTWARNINGS_HPP_

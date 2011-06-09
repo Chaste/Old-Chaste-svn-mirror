@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTNONLINEARELASTICITYSOLVERLONG_HPP_
 #define TESTNONLINEARELASTICITYSOLVERLONG_HPP_
 
@@ -37,12 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 
-// Defines the body force and surface traction for a 3d problem
-// on a cube with a Neo-Hookean law with a known solution. See
-// documentation for the test class below and references therein.
+/*
+ * Defines the body force and surface traction for a 3d problem
+ * on a cube with a Neo-Hookean law with a known solution. See
+ * documentation for the test class below and references therein.
+ */
 class ThreeDimensionalModelProblem
 {
 public:
+
     static double a;
     static double b;
     static double c1;
@@ -118,30 +120,28 @@ double ThreeDimensionalModelProblem::a = 0.1;
 double ThreeDimensionalModelProblem::b = 0.1;
 double ThreeDimensionalModelProblem::c1 = 0.1;
 
-
-
 /**
- *  Solve 3D nonlinear elasticity problem with an exact solution.
+ * Solve 3D nonlinear elasticity problem with an exact solution.
  *
- *  For full details see Pathmanathan, Gavaghan, Whiteley "A comparison of numerical
- *  methods used in finite element modelling of soft tissue deformation", J. Strain
- *  Analysis, to appear.
+ * For full details see Pathmanathan, Gavaghan, Whiteley "A comparison of numerical
+ * methods used in finite element modelling of soft tissue deformation", J. Strain
+ * Analysis, to appear.
  *
- *  We solve a 3d problem on a cube with a Neo-Hookean material, assuming the solution
- *  will be
- *    x = X+aX^2/2
- *    y = Y+bY^2/2
- *    z = Z/(1+aX)(1+bY)
- *    with p=2c (c the material parameter),
- *  which, note, has been constructed to be an incompressible. We assume displacement
- *  boundary conditions on X=0 and traction boundary conditions on the remaining 5 surfaces.
- *  It is then possible to determine the body force and surface tractions required for
- *  this deformation, and they are defined in the above class.
- *
+ * We solve a 3d problem on a cube with a Neo-Hookean material, assuming the solution
+ * will be
+ *   x = X+aX^2/2
+ *   y = Y+bY^2/2
+ *   z = Z/(1+aX)(1+bY)
+ * with p=2c (c the material parameter),
+ * which, note, has been constructed to be an incompressible. We assume displacement
+ * boundary conditions on X=0 and traction boundary conditions on the remaining 5 surfaces.
+ * It is then possible to determine the body force and surface tractions required for
+ * this deformation, and they are defined in the above class.
  */
 class TestNonlinearElasticitySolverLong : public CxxTest::TestSuite
 {
 public:
+
     void TestSolve3d() throw(Exception)
     {
         unsigned num_elem_each_dir = 5;
@@ -172,8 +172,7 @@ public:
         }
         assert(fixed_nodes.size()==(2*num_elem_each_dir+1)*(2*num_elem_each_dir+1));
 
-        // Define traction boundary conditions
-        // on all boundary elems that are not on X=0
+        // Define traction boundary conditions on all boundary elems that are not on X=0
         std::vector<BoundaryElement<2,3>*> boundary_elems;
         for (TetrahedralMesh<3,3>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
@@ -193,15 +192,14 @@ public:
                                             1.0 /*density*/, "nonlin_elas_3d",
                                             fixed_nodes, &locations);
 
-        // set the body force and traction functions
+        // Set the body force and traction functions
         solver.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
         solver.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
         solver.Solve();
 
-        // compare
+        // Compare
         std::vector<c_vector<double,3> >& r_solution = solver.rGetDeformedPosition();
-
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
@@ -223,6 +221,5 @@ public:
         }
     }
 };
-
 
 #endif /*TESTNONLINEARELASTICITYSOLVERLONG_HPP_*/

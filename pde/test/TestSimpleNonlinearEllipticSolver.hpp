@@ -25,10 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTSIMPLENONLINEARELLIPTICSOLVER_HPP_
 #define _TESTSIMPLENONLINEARELLIPTICSOLVER_HPP_
-
-
 
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
@@ -55,9 +54,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
-
-
-
 
 /**
  * For use in TestSimpleNonlinearEllipticSolver::Test2dOnUnitSquare.
@@ -97,7 +93,6 @@ double one_bc(const ChastePoint<2>& p)
     return p[1];
 }
 
-
 class TestSimpleNonlinearEllipticSolver : public CxxTest::TestSuite
 {
 public:
@@ -117,7 +112,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
-        // solver
+        // Solver
         SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
         TS_ASSERT( solver.VerifyJacobian(1e-3) );
@@ -140,7 +135,6 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
         SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
-
 
         // Set up initial guess
         Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0);
@@ -529,7 +523,7 @@ public:
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),0.25);
 
-        // solve
+        // Solve
         Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
@@ -610,7 +604,6 @@ public:
 
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),4.0);
-
 
         // Numerical Jacobian
         Vec answer = solver.Solve(initial_guess, false);

@@ -57,10 +57,11 @@ private:
     /** Mesh filename (relative to #mDirAbsPath). */
     static std::string mMeshFilename;
 
-
 public:
+
     /**
      * Set the location to write mesh files.
+     *
      * @param rDirectory  the directory to write to.
      * @param rFilename  the base name (minus extension) for the mesh files.
      */
@@ -68,6 +69,7 @@ public:
 
     /**
      * Set the location to write mesh files.
+     *
      * @param rDirectory  the directory to write to (if relative, assumes relative to CHASTE_TEST_OUTPUT).
      * @param rFilename  the base name (minus extension) for the mesh files.
      */
@@ -75,12 +77,14 @@ public:
 
     /**
      * Set the filename for mesh files.
+     *
      * @param rFilename  the base name (minus extension) for the mesh files, used to put on a timestamp.
      */
     static void SetMeshFilename(const std::string& rFilename);
 
     /**
      * Get the filename that the mesh should be written to
+     *
      * @return mesh filename
      */
     static std::string GetMeshFilename();
@@ -88,6 +92,7 @@ public:
     /**
      * Get the directory that archives are being written to.
      * Will always end in a '/'.
+     *
      * @return full path to directory
      */
     static std::string GetArchiveDirectory();
@@ -101,7 +106,7 @@ public:
      *
      * @param rFileName  the base file name
      * @param procId  the process id number (defaults to current process)
-     * @return  a full path to the file for this process
+     * @return a full path to the file for this process
      */
     static std::string GetProcessUniqueFilePath(const std::string& rFileName,
                                                 unsigned procId=PetscTools::GetMyRank());
@@ -117,12 +122,13 @@ public:
      * Get the directory to which the archives are being written.
      * Remove CHASTE_TEST_OUTPUT prefix (assuming it exists); if it doesn't, returns the absolute path.
      * Will always end in a '/'.
+     *
      * @return relative path to directory
      */
     static std::string GetArchiveRelativePath();
 
     /**
-     *  Get whether the directory provided is relative to CHASTE_TEST_OUTPUT.
+     * Get whether the directory provided is relative to CHASTE_TEST_OUTPUT.
      */
     static bool GetIsDirRelativeToChasteTestOutput();
 };

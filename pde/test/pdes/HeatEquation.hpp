@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _HEATEQUATION_HPP_
 #define _HEATEQUATION_HPP_
 
@@ -35,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A simple parabolic PDE used in tests.
  */
-
 template <int SPACE_DIM>
 class HeatEquation : public AbstractLinearParabolicPde<SPACE_DIM>
 {
@@ -55,7 +55,6 @@ public:
     {
         return 1;
     }
-
 };
 
 #endif //_HEATEQUATION_HPP_

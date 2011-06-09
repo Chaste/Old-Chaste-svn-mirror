@@ -249,7 +249,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
 
-        //Test for connectivity
+        // Test for connectivity
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "/1dMeshIn2dSpace.ncl mesh/test/data/1dMeshIn2dSpace.ncl").c_str()), 0);
     }
 
@@ -334,12 +334,12 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(output_dir + "1d_quadratic", 2, 2);
 
-        //Test that reader is reading correctly
+        // Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 1u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 1u);
 
-        //Test that mesh can be reconstructed
+        // Test that mesh can be reconstructed
         QuadraticMesh<1> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
@@ -358,12 +358,12 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir + "2d_quadratic", 2, 2);
 
-        //Test that reader is reading correctly
+        // Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 2u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 6u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 3u);
 
-        //Test that mesh can be reconstructed
+        // Test that mesh can be reconstructed
         QuadraticMesh<2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
@@ -382,12 +382,12 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<3,3> mesh_reader(output_dir + "3d_quadratic", 2, 2);
 
-        //Test that reader is reading correctly
+        // Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 10u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 6u);
 
-        //Test that mesh can be reconstructed
+        // Test that mesh can be reconstructed
         QuadraticMesh<3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
@@ -849,7 +849,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
 
-        //Test for connectivity
+        // Test for connectivity
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/simple_cube_binary_from_mesh.ncl mesh/test/data/simple_cube_binary.ncl").c_str()), 0);
 
         /* Looking for beginning of provenance line: "#Created by Chaste"
@@ -866,7 +866,6 @@ public:
             TS_ASSERT_EQUALS(sizeof(double), 8u);
          */
     }
-
 };
 
 #endif //_TESTMESHWRITERS_HPP_

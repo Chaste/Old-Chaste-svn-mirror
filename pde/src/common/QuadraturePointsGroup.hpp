@@ -35,11 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearBasisFunction.hpp"
 #include <vector>
 
-
 /**
- *  A simple class which takes in a mesh and a quadrature rule, and collects
- *  are the quadrature points (in physical space ie several for each element)
- *  together in one data structure, for access.
+ * A simple class which takes in a mesh and a quadrature rule, and collects
+ * are the quadrature points (in physical space ie several for each element)
+ * together in one data structure, for access.
  */
 template<unsigned DIM>
 class QuadraturePointsGroup

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef PARALLELCOLUMNDATAWRITER_HPP_
 #define PARALLELCOLUMNDATAWRITER_HPP_
 
@@ -63,7 +64,6 @@ public:
      * Destructor.
      */
     virtual ~ParallelColumnDataWriter();
-
 
     /**
      * Write data for a given variable from a Petsc vector to the dataset.

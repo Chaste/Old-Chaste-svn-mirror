@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "ForTestArchiving.hpp"
 
-
 BaseClass::BaseClass()
     : mTagInBaseClass(4)
 {
@@ -38,10 +37,6 @@ BaseClass::BaseClass()
 BaseClass::~BaseClass()
 {
 }
-
-
-
-
 
 ChildClass::ChildClass() : mTag(1)
 {
@@ -57,12 +52,8 @@ void ChildClass::Hello()
     std::cout << "Hello!\n";
 }
 
-
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(ChildClass)
-
-
-
 
 ParentClass::ParentClass(ChildClass* pChild)
     : mTag(0), mpChild(pChild)

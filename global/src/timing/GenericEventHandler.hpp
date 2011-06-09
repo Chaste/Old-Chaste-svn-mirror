@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef GENERICEVENTHANDLER_HPP_
 #define GENERICEVENTHANDLER_HPP_
 
@@ -56,14 +55,15 @@ class GenericEventHandler
     friend class TestHeartEventHandler;
 
 private:
+
     std::vector<double> mWallTime; /**< Wall time assigned to each event */
     std::vector<bool> mHasBegun; /**< Whether each event is in progress */
     bool mEnabled; /**< Whether the event handler is recording event times */
     bool mInUse; /**< Determines if any of the event have begun */
 
     /**
-     * Sleep for a specified number of milliseconds
-     * Used in testing
+     * Sleep for a specified number of milliseconds.
+     * Used in testing.
      * Ought to be more portable than sleep() or usleep().
      *
      * @param milliseconds  minimim number of milliseconds for which to sleep (ought to be a multiple of 10)
@@ -78,7 +78,7 @@ private:
         }
     }
 
-    /** Helper function - get the current wall clock time */
+    /** Helper function - get the current wall clock time. */
     inline double GetWallTime()
     {
         return MPI_Wtime();
@@ -105,6 +105,7 @@ private:
     }
 
 public:
+
     /**
      * Get the singleton instance of the event handler.
      */
@@ -196,6 +197,7 @@ public:
     }
 
 protected:
+
     /**
      * Default constructor.
      */
@@ -208,6 +210,7 @@ protected:
     }
 
 private:
+
     /**
      * Reset the event handler - set all event durations to zero.
      */
@@ -219,7 +222,7 @@ private:
             mHasBegun[event] = false;
         }
         Enable();
-        mInUse=false;
+        mInUse = false;
     }
 
     /**
@@ -238,12 +241,12 @@ private:
 #endif
         mInUse = true;
         assert(event<NUM_EVENTS);
-        //Check that we are recording the total
+        // Check that we are recording the total
         if (event != NUM_EVENTS-1) // If use <, Intel complains when NUM_EVENTS==1
         {
             if (!mHasBegun[NUM_EVENTS-1])
             {
-                //Silently open the "total" event
+                // Silently open the "total" event
                 BeginEvent(NUM_EVENTS-1);
             }
         }
@@ -334,12 +337,12 @@ private:
         {
             EXCEPTION("Asked to report on an event handler which is set to zero.");
         }
-        //Check that all events are finished
+        // Check that all events are finished
         for (unsigned event=0; event<NUM_EVENTS; event++)
         {
             if (mHasBegun[event])
             {
-                //Silently close event
+                // Silently close event
                 EndEvent(event);
             }
         }
@@ -383,8 +386,7 @@ private:
         if (PetscTools::IsParallel())
         {
             double total_cpu_time[NUM_EVENTS];
-            MPI_Reduce(&mWallTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE,
-                       MPI_SUM, 0, PETSC_COMM_WORLD);
+            MPI_Reduce(&mWallTime[0], total_cpu_time, NUM_EVENTS, MPI_DOUBLE, MPI_SUM, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
                 total = ConvertWallTimeToSeconds(total_cpu_time[top_event]);
@@ -399,8 +401,7 @@ private:
             }
 
             double max_cpu_time[NUM_EVENTS];
-            MPI_Reduce(&mWallTime[0], max_cpu_time, NUM_EVENTS, MPI_DOUBLE,
-                       MPI_MAX, 0, PETSC_COMM_WORLD);
+            MPI_Reduce(&mWallTime[0], max_cpu_time, NUM_EVENTS, MPI_DOUBLE, MPI_MAX, 0, PETSC_COMM_WORLD);
             if (PetscTools::AmMaster())
             {
                 total = ConvertWallTimeToSeconds(max_cpu_time[top_event]);
@@ -446,9 +447,7 @@ private:
         }
     }
 
-    /**
-     * Enable the event handler so that it will record event durations.
-     */
+    /** Enable the event handler so that it will record event durations. */
     void EnableImpl()
     {
         mEnabled = true;

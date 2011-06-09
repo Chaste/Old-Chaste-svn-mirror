@@ -79,6 +79,9 @@ private:
      */
     double mSamplingTimeStep;
 
+    /** Whether ODE systems are present (if not, then the system comprises coupled PDEs only). */
+    bool mOdeSystemsPresent;
+
     /** Output directory (a subfolder of tmp/[USERNAME]/testoutput). */
     std::string mOutputDirectory;;
 
@@ -301,6 +304,7 @@ c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> LinearParabolicPdeSystemWithCouple
             vector_term(i*PROBLEM_DIM + pde_index) = this_vector_term(i);
         }
     }
+
     return vector_term;
 }
 
@@ -325,6 +329,7 @@ c_vector<double, PROBLEM_DIM*ELEMENT_DIM> LinearParabolicPdeSystemWithCoupledOde
             vector_surface_term(i*PROBLEM_DIM + pde_index) = this_vector_surface_term(i);
         }
     }
+
     return vector_surface_term;
 }
 
@@ -333,25 +338,30 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 {
     mInterpolatedOdeStateVariables.clear();
 
-    unsigned num_state_variables = mOdeSystemsAtNodes[0]->GetNumberOfStateVariables();
-    mInterpolatedOdeStateVariables.resize(num_state_variables, 0.0);
+    if (mOdeSystemsPresent)
+    {
+        unsigned num_state_variables = mOdeSystemsAtNodes[0]->GetNumberOfStateVariables();
+        mInterpolatedOdeStateVariables.resize(num_state_variables, 0.0);
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
 {
-    unsigned num_state_variables = mOdeSystemsAtNodes[0]->GetNumberOfStateVariables();
-
-    for (unsigned i=0; i<num_state_variables ; i++)
+    if (mOdeSystemsPresent)
     {
-        mInterpolatedOdeStateVariables[i] += phiI * mOdeSystemsAtNodes[pNode->GetIndex()]->rGetStateVariables()[i];
+        unsigned num_state_variables = mOdeSystemsAtNodes[0]->GetNumberOfStateVariables();
+    
+        for (unsigned i=0; i<num_state_variables ; i++)
+        {
+            mInterpolatedOdeStateVariables[i] += phiI * mOdeSystemsAtNodes[pNode->GetIndex()]->rGetStateVariables()[i];
+        }
     }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::InitialiseForSolve(Vec initialSolution)
 {
-    ///\todo (#1777) don't really understand this method
     if (this->mpLinearSystem == NULL)
     {
         unsigned preallocation = mpMesh->CalculateMaximumContainingElementsPerProcess() + ELEMENT_DIM;
@@ -393,11 +403,21 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
       mpPdeSystem(pPdeSystem),
       mOdeSystemsAtNodes(odeSystemsAtNodes),
       mpOdeSolver(pOdeSolver),
-      mSamplingTimeStep(PdeSimulationTime::GetPdeTimeStep())
+      mSamplingTimeStep(PdeSimulationTime::GetPdeTimeStep()),
+      mOdeSystemsPresent(false)
 {
     this->mpBoundaryConditions = pBoundaryConditions;
 
-    assert(mOdeSystemsAtNodes.size() == mpMesh->GetNumNodes());
+    /*
+     * If any ODE systems are passed in to the constructor, then we aren't just
+     * solving a coupled PDE system, in which case the number of ODE system objects
+     * must match the number of nodes in the finite element mesh.
+     */
+    if (!mOdeSystemsAtNodes.empty())
+    {
+        mOdeSystemsPresent = true;
+        assert(mOdeSystemsAtNodes.size() == mpMesh->GetNumNodes());
+    }
     if (!mpOdeSolver)
     {
 #ifdef CHASTE_CVODE
@@ -414,7 +434,6 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     double time = PdeSimulationTime::GetTime();
     double dt = PdeSimulationTime::GetPdeTimeStep();
 
-    ///\todo (#1777) I'm sure there is a much easier way of doing this bit!
     ReplicatableVector soln_repl(currentPdeSolution);
     std::vector<double> current_soln_this_node;
 
@@ -432,11 +451,14 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
             current_soln_this_node[pde_index] = current_soln_this_pde_this_node;
         }
 
-        // Pass it into the ODE system at this node
-        mOdeSystemsAtNodes[node_index]->SetPdeSolution(current_soln_this_node);
+        if (mOdeSystemsPresent)
+        {
+            // Pass it into the ODE system at this node
+            mOdeSystemsAtNodes[node_index]->SetPdeSolution(current_soln_this_node);
 
-        // Solve ODE system at this node
-        mpOdeSolver->SolveAndUpdateStateVariable(mOdeSystemsAtNodes[node_index], time, time+dt, dt);
+            // Solve ODE system at this node
+            mpOdeSolver->SolveAndUpdateStateVariable(mOdeSystemsAtNodes[node_index], time, time+dt, dt);
+        }
     }
 }
 
@@ -539,38 +561,41 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         mesh_writer.AddPointData(data_name.str(), pde_index_data);
     }
 
-    /*
-     * We cannot loop over ODEs like PDEs, since the solutions are not
-     * stored in one place. Therefore we build up a large 'vector of
-     * vectors', then pass each component of this vector to the mesh
-     * writer.
-     */
-    std::vector<std::vector<double> > ode_data;
-    unsigned num_odes = mOdeSystemsAtNodes[0]->rGetStateVariables().size();
-    for (unsigned ode_index=0; ode_index<num_odes; ode_index++)
+    if (mOdeSystemsPresent)
     {
-        std::vector<double> ode_index_data;
-        ode_index_data.resize(num_nodes, 0.0);
-        ode_data.push_back(ode_index_data);
-    }
-
-    for (unsigned node_index=0; node_index<num_nodes; node_index++)
-    {
-        std::vector<double> all_odes_this_node = mOdeSystemsAtNodes[node_index]->rGetStateVariables();
-        for (unsigned i=0; i<num_odes; i++)
+        /*
+         * We cannot loop over ODEs like PDEs, since the solutions are not
+         * stored in one place. Therefore we build up a large 'vector of
+         * vectors', then pass each component of this vector to the mesh
+         * writer.
+         */
+        std::vector<std::vector<double> > ode_data;
+        unsigned num_odes = mOdeSystemsAtNodes[0]->rGetStateVariables().size();
+        for (unsigned ode_index=0; ode_index<num_odes; ode_index++)
         {
-            ode_data[i][node_index] = all_odes_this_node[i];
+            std::vector<double> ode_index_data;
+            ode_index_data.resize(num_nodes, 0.0);
+            ode_data.push_back(ode_index_data);
         }
-    }
-
-    for (unsigned ode_index=0; ode_index<num_odes; ode_index++)
-    {
-        std::vector<double> ode_index_data = ode_data[ode_index];
-
-        // Add this data to the mesh writer
-        std::stringstream data_name;
-        data_name << "ODE variable " << ode_index;
-        mesh_writer.AddPointData(data_name.str(), ode_index_data);
+    
+        for (unsigned node_index=0; node_index<num_nodes; node_index++)
+        {
+            std::vector<double> all_odes_this_node = mOdeSystemsAtNodes[node_index]->rGetStateVariables();
+            for (unsigned i=0; i<num_odes; i++)
+            {
+                ode_data[i][node_index] = all_odes_this_node[i];
+            }
+        }
+    
+        for (unsigned ode_index=0; ode_index<num_odes; ode_index++)
+        {
+            std::vector<double> ode_index_data = ode_data[ode_index];
+    
+            // Add this data to the mesh writer
+            std::stringstream data_name;
+            data_name << "ODE variable " << ode_index;
+            mesh_writer.AddPointData(data_name.str(), ode_index_data);
+        }
     }
 
     mesh_writer.WriteFilesUsingMesh(*mpMesh);

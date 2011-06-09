@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
 #define TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
-
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
@@ -38,24 +38,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-// all these are for the MyBodyForce and MySurfaceTraction functions below. See TestAgainstExactNonlinearSolution()
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * All these are for the MyBodyForce and MySurfaceTraction functions below.
+ * See TestAgainstExactNonlinearSolution().
+ */
 static const double C_PARAM = 1.0;
 static const double D_PARAM = 0.1;
 static const double A_PARAM = 0.1;
 static const double Q_PARAM = 0.9;
 static const double m = -0.5; // -1/DIM
 static const double w1 = C_PARAM*pow(Q_PARAM,2*m);
-
 
 double ComputeLambda(double X)
 {
@@ -99,7 +91,6 @@ c_matrix<double,2,2> Compute1stPkStress(double X, double Y)
 
     return S;
 }
-
 
 c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
 {
@@ -151,14 +142,14 @@ c_vector<double,2> MyTraction(c_vector<double,2>& X, double t)
     return traction;
 }
 
-
-
-
 class TestCompressibleNonlinearElasticitySolver : public CxxTest::TestSuite
 {
 public:
-    // This is purely for coverage of assembling a 3D system (and also uses alternative, heterogeneous
-    // constructor, also for coverage)
+
+    /*
+     * This is purely for coverage of assembling a 3D system (and also uses
+     * alternative, heterogeneous constructor, also for coverage).
+     */
     void TestAssembleSystem3D() throw (Exception)
     {
         QuadraticMesh<3> mesh;
@@ -183,7 +174,7 @@ public:
 
         solver.AssembleSystem(true, true);
 
-        // check that the matrix is symmetric
+        // Check that the matrix is symmetric
         PetscTruth is_symmetric;
         PetscReal sym_tol = 1e-12;
         MatIsSymmetric(solver.mJacobianMatrix, sym_tol, &is_symmetric);
@@ -199,8 +190,7 @@ public:
 
         ToyCompressibleMaterialLaw<2> law(1.0, 0.0, -1.0);
 
-        std::vector<unsigned> fixed_nodes
-          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         CompressibleNonlinearElasticitySolver<2> solver(&mesh,
                                                         &law,
@@ -212,7 +202,7 @@ public:
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 0u);
 
-        // get deformed position
+        // Get deformed position
         std::vector<c_vector<double,2> >& r_deformed_position
             = solver.rGetDeformedPosition();
 
@@ -222,7 +212,7 @@ public:
             TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[1], r_deformed_position[i](1), 1e-8);
         }
 
-        // coverage of exceptions
+        // Coverage of exceptions
         MooneyRivlinMaterialLaw<2> incompressible_law(1.0,1.0);
         TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,&incompressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "ompressibleNonlinearElasticitySolver must take in a compressible material law");
 
@@ -234,26 +224,23 @@ public:
         TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,incompressible_laws,zero_vector<double>(2),1.0,"",fixed_nodes),  "CompressibleNonlinearElasticitySolver must take in a compressible material law");
     }
 
-
-
-
     /**
-     *  Test against an exact solution.
+     * Test against an exact solution.
      *
-     *  Suppose the deformation is given by  x = (alpha X, beta Y), with a nonlinear Mooney-Rivlin material law
-     *  W(I1,I2,I3) = c(I1*I3^{-1/2} -3) - d(I3^{1/2} - 1)^2
+     * Suppose the deformation is given by  x = (alpha X, beta Y), with a nonlinear Mooney-Rivlin material law
+     * W(I1,I2,I3) = c(I1*I3^{-1/2} -3) - d(I3^{1/2} - 1)^2
      *
-     *  On the unit square we specify displacement boundaries on the X=0 which match this deformation, we assume
-     *  zero body force, zero traction boundary conditions on the top/bottom surfaces, and fixed traction value, s, on
-     *  the X=1 surface. Using the above deformation and material law we can compute S by hand, in terms of alpha and
-     *  beta, and then S11 defines s, and S22=0 gives a relationship between alpha and beta.
+     * On the unit square we specify displacement boundaries on the X=0 which match this deformation, we assume
+     * zero body force, zero traction boundary conditions on the top/bottom surfaces, and fixed traction value, s, on
+     * the X=1 surface. Using the above deformation and material law we can compute S by hand, in terms of alpha and
+     * beta, and then S11 defines s, and S22=0 gives a relationship between alpha and beta.
      *
-     *  In this case (writing a for alpha, etc), 0.5*S22 = c/a + a^2 b(-0.5c*(a^2+b^2)/(ab)^3 + d(1 - 1/(ab))
+     * In this case (writing a for alpha, etc), 0.5*S22 = c/a + a^2 b(-0.5c*(a^2+b^2)/(ab)^3 + d(1 - 1/(ab))
      *
-     *  which gives a cubic equation to determine beta given alpha, c and d. Let D=d/c, then:
-     *   (2Da^3)b^3 + (1-2Da^2)b^2  - a^2 = 0
+     * which gives a cubic equation to determine beta given alpha, c and d. Let D=d/c, then:
+     *  (2Da^3)b^3 + (1-2Da^2)b^2  - a^2 = 0
      *
-     *  For a given alpha we can use matlab to get the solution (choosing the positive real root):
+     * For a given alpha we can use matlab to get the solution (choosing the positive real root):
      *
      *  >> a=0.9; D=0.5;
      *  >> roots([2*D*a*a*a, 1-2*D*a*a, 0.0, -a*a])
@@ -323,7 +310,7 @@ public:
 
         solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
 
-        // coverage
+        // Coverage
         solver.SetKspAbsoluteTolerance(1e-10);
 
         solver.Solve();
@@ -350,26 +337,23 @@ public:
         MechanicsEventHandler::Report();
     }
 
-
-
     /**
-     *  Test using a nonlinear material law and for a nonlinear deformation
+     * Test using a nonlinear material law and for a nonlinear deformation
      *
-     *  We take the unit square as before, fix one side, use the compressible Mooney-Rivlin
-     *  law,
+     * We take the unit square as before, fix one side, use the compressible Mooney-Rivlin
+     * law,
      *  W(I1,I2,I3) = c(I1*I3^{-1/2} -3) - d(I3^{1/2} - 1)^2,
-     *  and want to prescribe tractions on the remaining sides and a body force such that
+     * and want to prescribe tractions on the remaining sides and a body force such that
      *
      *  x = [ q(X + aX^2/2), Y/(1+aX) ]
      *
-     *  Note that when q=1, this is an incompressible nonlinear deformation (see similar test of
-     *  incompressible solver). q adds some compressibility
+     * Note that when q=1, this is an incompressible nonlinear deformation (see similar test of
+     * incompressible solver). q adds some compressibility
      *
-     *  Then after a page of algebra, we can derive what the 1st PK stress is, which allows us to
-     *  determine the required traction and body force.
+     * Then after a page of algebra, we can derive what the 1st PK stress is, which allows us to
+     * determine the required traction and body force.
      *
-     *  The calculation is written out fully in the FiniteElementImplementations document
-     *
+     * The calculation is written out fully in the FiniteElementImplementations document.
      */
     void TestAgainstExactNonlinearSolution() throw(Exception)
     {
@@ -378,8 +362,7 @@ public:
 
         CompressibleMooneyRivlinMaterialLaw<2> law(C_PARAM,D_PARAM);
 
-        std::vector<unsigned> fixed_nodes
-          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
@@ -422,8 +405,7 @@ public:
             TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-4);
         }
 
-
-        // check that the last matrix was symmetric
+        // Check that the last matrix was symmetric
         Mat J_trans;
         PetscTruth is_symmetric;
 #if PETSC_VERSION_MAJOR==2
@@ -433,7 +415,6 @@ public:
 #endif
         MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
         MatDestroy(J_trans);
-
 
 /// ****  WHY IS THIS FAILING? *****
         //TS_ASSERT(is_symmetric);

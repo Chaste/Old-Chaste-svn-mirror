@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef TESTNONLINEARELASTICITYTOOLSGROUP_HPP_
 #define TESTNONLINEARELASTICITYTOOLSGROUP_HPP_
+
 #include <cxxtest/TestSuite.h>
 
 #include "NonlinearElasticityTools.hpp"

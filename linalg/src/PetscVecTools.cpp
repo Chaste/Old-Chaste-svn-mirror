@@ -117,9 +117,6 @@ void PetscVecTools::AddScaledVector(Vec y, Vec x, double scaleFactor)
 #endif
 }
 
-
-
-
 void PetscVecTools::Scale(Vec vector, double scaleFactor)
 {
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
@@ -137,7 +134,6 @@ void PetscVecTools::WAXPY(Vec w, double a, Vec x, Vec y)
     PETSCEXCEPT( VecWAXPY(w, a, x, y) );
 #endif
 }
-
 
 void PetscVecTools::SetupInterleavedVectorScatterGather(Vec interleavedVec, VecScatter& rFirstVariableScatterContext, VecScatter& rSecondVariableScatterContext)
 {
@@ -192,7 +188,6 @@ void PetscVecTools::DoInterleavedVecScatter(Vec interleavedVec, VecScatter first
     VecRestoreArray(interleavedVec, &p_interleaved_vec);
     VecRestoreArray(firstVariableVec, &p_1st_variable_vec);
     VecRestoreArray(secondVariableVec, &p_2nd_variable_vec);
-
 
 //    DistributedVectorFactory factory(vec_size/2);
 //

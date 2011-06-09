@@ -562,7 +562,7 @@ public:
         VertexMesh<2,2>& r_mesh = (static_cast<VertexBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->rGetMesh();
         CompareMeshes(p_mesh2, &r_mesh);
 
-        //Test Warnings
+        // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
         Warnings::QuietDestroy();
 

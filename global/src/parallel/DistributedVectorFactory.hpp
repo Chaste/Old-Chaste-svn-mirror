@@ -50,18 +50,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  class DistributedVectorFactory
 {
 private:
-    // Data global to all vectors created by this factory.
+
+    // Data global to all vectors created by this factory
+
     /** The first entry owned by the current processor. */
     unsigned mLo;
+
     /** One above the last entry owned by the current processor. */
     unsigned mHi;
+
     /** The problem size, i.e. the number of nodes in the mesh (the number of unknowns may be larger in a Stripe). */
     unsigned mProblemSize;
+
     /** How many processes this factory is expecting. */
     unsigned mNumProcs;
+
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
-    /** A cached vector of #mLo values from each process */
+
+    /** A cached vector of #mLo values from each process. */
     std::vector<unsigned> mGlobalLows;
 
     /**
@@ -77,12 +84,12 @@ private:
     DistributedVectorFactory* mpOriginalFactory;
 
     /**
-     * Double check (in debug code) that PETSc has been initialised properly
+     * Double check (in debug code) that PETSc has been initialised properly.
      */
     void CheckForPetsc();
 
     /**
-     * Helper method for the constructors
+     * Helper method for the constructors.
      *
      * @param vec the sample PETSc vector from which to calculate ownerships
      */
@@ -104,6 +111,7 @@ private:
     }
 
 public:
+
     /**
      * Set the problem with an existing PETSc vector -- must have stride=1.
      *
@@ -139,25 +147,25 @@ public:
      */
     DistributedVectorFactory(unsigned lo, unsigned hi, unsigned size, unsigned numProcs=PetscTools::GetNumProcs());
 
-    /** Destructor deletes #mpOriginalFactory if it exists */
+    /** Destructor deletes #mpOriginalFactory if it exists. */
     ~DistributedVectorFactory();
 
     /**
-     * Create a PETSc vector of the problem size
+     * Create a PETSc vector of the problem size.
      *
      * @return the created vector
      */
     Vec CreateVec();
 
     /**
-     * Create a striped PETSc vector of size: stride * problem size
+     * Create a striped PETSc vector of size: stride * problem size.
      *
      * @param stride
      */
     Vec CreateVec(unsigned stride);
 
     /**
-     * Create a distributed vector which wraps a given petsc vector
+     * Create a distributed vector which wraps a given petsc vector.
      *
      * @param vec is the vector
      * @return the distributed vector
@@ -172,7 +180,7 @@ public:
     bool IsGlobalIndexLocal(unsigned globalIndex);
 
     /**
-     * @return The number of elements in the vector owned by the local process
+     * @return The number of elements in the vector owned by the local process.
      */
     unsigned GetLocalOwnership() const
     {
@@ -196,7 +204,7 @@ public:
     }
 
     /**
-     * @return The number of elements in (normal) vectors created by CreateVec()
+     * @return The number of elements in (normal) vectors created by CreateVec().
      */
     unsigned GetProblemSize() const
     {
@@ -252,18 +260,16 @@ public:
     }
 
     /**
-     * Set #mLo and #mHi from another vector factory.  Used by archiving.
+     * Set #mLo and #mHi from another vector factory. Used by archiving.
      * @param pFactory  the factory to set from.
      */
     void SetFromFactory(DistributedVectorFactory* pFactory);
 
     /**
-     * @returns the mLo value from each process in a vector.  This is calculated on the first call
+     * @returns the mLo value from each process in a vector. This is calculated on the first call
      * and cached for later use.
      */
     std::vector<unsigned> &rGetGlobalLows();
-
-
 
 //    /**
 //     * For debugging.
@@ -275,6 +281,7 @@ public:
 //        std::cout << " [running np=" << PetscTools::GetNumProcs() << " rank=" << PetscTools::GetMyRank() << "]\n" << std::flush;
 //    }
 };
+ 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(DistributedVectorFactory)
@@ -301,7 +308,7 @@ inline void save_construct_data(
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate an instance (using existing constructor)
+ * instantiate an instance (using existing constructor).
  */
 template<class Archive>
 inline void load_construct_data(

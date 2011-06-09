@@ -170,7 +170,7 @@ public:
         TS_ASSERT_DELTA(cell_population.rGetMesh().GetVolumeOfElement(0), 1.0, 0.1);
         TS_ASSERT_DELTA(cell_population.rGetMesh().GetSurfaceAreaOfElement(0), 3.5449077, 0.1);
 
-        //Test Warnings
+        // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
         Warnings::QuietDestroy();
     }

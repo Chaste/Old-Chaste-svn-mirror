@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTCOMMANDLINEARGUMENTS_HPP_
 #define TESTCOMMANDLINEARGUMENTS_HPP_
 
@@ -38,9 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCommandLineArguments : public CxxTest::TestSuite
 {
 public:
+
     void TestCommandLineArgumentsSingleton() throw(Exception)
     {
-        // test that argc and argv are populated
+        // Test that argc and argv are populated
         int argc = *(CommandLineArguments::Instance()->p_argc);
         TS_ASSERT_LESS_THAN(0, argc); // argc should always be 1 or greater
 
@@ -52,14 +52,15 @@ public:
         std::string final_part_of_string = arg_as_string.substr(arg_as_string.length()-30,arg_as_string.length());
         TS_ASSERT_EQUALS("TestCommandLineArgumentsRunner",final_part_of_string);
 
-        // Now test OptionExists() and GetValueCorrespondingToOption()
-        //
-        // The following tests would require the following arguments to be passed
-        // in:
-        // ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14
-        //
-        // To test the methods we overwrite the arg_c and arg_v contained in the
-        // singleton with the arguments that were needed.
+        /*
+         * Now test OptionExists() and GetValueCorrespondingToOption().
+         * 
+         * The following tests would require the following arguments to be passed in:
+         * ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14
+         * 
+         * To test the methods we overwrite the arg_c and arg_v contained in the
+         * singleton with the arguments that were needed.
+         */
         int new_argc = 8;
         char new_argv0[] = "..";
         char new_argv1[] = "-myoption";
@@ -80,19 +81,19 @@ public:
         new_argv[6] = new_argv6;
         new_argv[7] = new_argv7;
 
-        // (save the real args to be restored at the end)
+        // Save the real args to be restored at the end
         int* p_real_argc = CommandLineArguments::Instance()->p_argc;
         char*** p_real_argv = CommandLineArguments::Instance()->p_argv;
 
-        // overwrite the args
+        // Overwrite the args
         CommandLineArguments::Instance()->p_argc = &new_argc;
         CommandLineArguments::Instance()->p_argv = &new_argv;
 
-        // test OptionExists()
+        // Test OptionExists()
         TS_ASSERT(CommandLineArguments::Instance()->OptionExists("-myoption"));
         TS_ASSERT( ! CommandLineArguments::Instance()->OptionExists("-asddsgijdfgokgfgurgher"));
 
-        // test GetValueCorrespondingToOption()
+        // Test GetValueCorrespondingToOption()
         char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-myintval");
         unsigned i = atol(val);
         TS_ASSERT_EQUALS(i, 24u);
@@ -117,7 +118,7 @@ public:
         x = CommandLineArguments::Instance()->GetDoubleCorrespondingToOption("-mydoubleval");
         TS_ASSERT_EQUALS(x, 3.14);
 
-        // test exceptions in GetValueCorrespondingToOption()
+        // Test exceptions in GetValueCorrespondingToOption()
         TS_ASSERT_THROWS_CONTAINS(CommandLineArguments::Instance()->GetValueCorrespondingToOption("-rwesdb"), "does not exist");
 
         new_argc = 5;
@@ -125,12 +126,10 @@ public:
 
         delete new_argv;
 
-        // (restore the real args)
+        // Restore the real args
         CommandLineArguments::Instance()->p_argc = p_real_argc;
         CommandLineArguments::Instance()->p_argv = p_real_argv;
     }
 };
-
-
 
 #endif /*TESTCOMMANDLINEARGUMENTS_HPP_*/

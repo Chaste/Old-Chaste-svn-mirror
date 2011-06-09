@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTARCHIVING_HPP_
 #define TESTARCHIVING_HPP_
 
@@ -70,15 +69,15 @@ public:
 
     ClassOfSimpleVariables()
     {
-        //Do nothing.  Used when loading into a pointer
+        // Do nothing. Used when loading into a pointer.
     }
     ClassOfSimpleVariables(int initial,
                            std::string string,
                            std::vector<double> doubles,
                            std::vector<bool> bools)
-            : mString(string),
-            mVectorOfDoubles(doubles),
-            mVectorOfBools(bools)
+        : mString(string),
+          mVectorOfDoubles(doubles),
+          mVectorOfBools(bools)
     {
         mNumber = initial;
     }
@@ -129,7 +128,7 @@ public:
 
             ClassOfSimpleVariables i(42,"hello",doubles,bools);
 
-            // cast to const.
+            // Cast to const
             output_arch << static_cast<const ClassOfSimpleVariables&>(i);
         }
 
@@ -146,10 +145,10 @@ public:
 
             ClassOfSimpleVariables j(0,"bye",bad_doubles,bad_bools);
 
-            // read the archive
+            // Read the archive
             input_arch >> j;
 
-            // Check that the values
+            // Check that the values are correct
             TS_ASSERT_EQUALS(j.GetNumber(),42);
             TS_ASSERT_EQUALS(j.GetString(),"hello");
             TS_ASSERT_EQUALS(j.GetVectorOfDoubles().size(),3u);
@@ -166,8 +165,10 @@ public:
 
     void TestArchivingLinkedChildAndParent() throw (Exception)
     {
-        // This test is an abstraction of archiving a cyclically linked parent-child pair.
-        // The parent represents a Cell and the child represents an AbstractCellCycleModel
+        /*
+         * This test is an abstraction of archiving a cyclically linked parent-child pair.
+         * The parent represents a Cell and the child represents an AbstractCellCycleModel.
+         */
 
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
@@ -210,18 +211,19 @@ public:
             TS_ASSERT_EQUALS(p_parent->mpChild->mTag, 11u);
             TS_ASSERT_EQUALS(p_parent->mpChild->mpParent, p_parent);
 
+            // Tidy up
             delete p_parent->mpChild;
             delete p_parent;
         }
     }
 
-
     void TestArchivingSetOfSetOfPointers() throw (Exception)
     {
-        // This test is an abstraction of archiving a set of sets of pointers and a list of objects.
-        //
-        // Note that the list.push_back method uses the copy constructor. This is why we iterate
-        // through the list to generate the pointers to populate the set.
+        /*
+         * This test is an abstraction of archiving a set of sets of pointers and a list of objects.
+         * Note that the list.push_back method uses the copy constructor. This is why we iterate
+         * through the list to generate the pointers to populate the set.
+         */
 
         std::vector<double> doubles;
         std::vector<bool> bools;
@@ -255,7 +257,7 @@ public:
             output_arch << static_cast<const std::set<std::set<ClassOfSimpleVariables*> >&>(wrapper_set);
         }
 
-        //Load
+        // Load
         {
             std::set<std::set<ClassOfSimpleVariables*> > wrapper_set;
             std::list<ClassOfSimpleVariables> a_list;
@@ -274,11 +276,11 @@ public:
             ClassOfSimpleVariables* p_one_in_set = NULL;
             ClassOfSimpleVariables* p_two_in_set = NULL;
             for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
-                 it!=a_set.end();
+                 it != a_set.end();
                  ++it)
             {
                    ClassOfSimpleVariables* p_class = *(it);
-                   if (p_class->GetNumber()==42)
+                   if (p_class->GetNumber() == 42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
                         TS_ASSERT_EQUALS(p_class->GetString(), "hello");
@@ -295,21 +297,21 @@ public:
             ClassOfSimpleVariables* p_one_in_list = NULL;
             ClassOfSimpleVariables* p_two_in_list = NULL;
             for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
-                 it!=a_list.end();
+                 it != a_list.end();
                  ++it)
             {
                    ClassOfSimpleVariables* p_class = &(*it);
-                   if (p_class->GetNumber()==42)
+                   if (p_class->GetNumber() == 42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
                         TS_ASSERT_EQUALS(p_class->GetString(), "hello");
-                        p_one_in_list=p_class;
+                        p_one_in_list = p_class;
                    }
-                   else if (p_class->GetNumber()==256)
+                   else if (p_class->GetNumber() == 256)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
                         TS_ASSERT_EQUALS(p_class->GetString(), "goodbye");
-                        p_two_in_list=p_class;
+                        p_two_in_list = p_class;
                    }
                    else
                    {
@@ -361,7 +363,6 @@ public:
         }
     }
 
-
     void TestArchivingBoostSharedPtrToChildUsingBaseClass() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -395,6 +396,5 @@ public:
         }
     }
 };
-
 
 #endif /*TESTARCHIVING_HPP_*/

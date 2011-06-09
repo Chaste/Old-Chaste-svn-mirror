@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTLOGFILE_HPP_
 #define TESTLOGFILE_HPP_
 
@@ -38,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestLogFile : public CxxTest::TestSuite
 {
 public:
+
     void TestLogFileCreate()
     {
         LogFile* p_log_file = LogFile::Instance();
@@ -64,7 +64,7 @@ public:
     {
         LogFile::Close();
 
-        // check file not set on a new instance
+        // Check file not set on a new instance
         LogFile* p_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_log->IsFileSet(), false);
     }
@@ -98,7 +98,7 @@ public:
     {
         LogFile::Close();
 
-        // test no seg faults etc
+        // Test no seg faults etc
         (*LogFile::Instance()) << "this won't be written anywhere, as no log file has been created";
     }
 
@@ -108,7 +108,7 @@ public:
         p_log_file->Set(1, "TestLogFile");
         (*p_log_file) << "data";
 
-        // open a new file without closing the previous
+        // Open a new file without closing the previous
         p_log_file->Set(1, "TestLogFile","log3.txt");
         (*p_log_file) << "data";
 
@@ -119,12 +119,11 @@ public:
         LogFile::Close();
     }
 
-
     void TestUsingMacroAndLevels()
     {
         LogFile* p_log_file = LogFile::Instance();
 
-        // bad level
+        // Bad level
         TS_ASSERT_THROWS_THIS(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile"),
                 "Requested level 3 should have been less than or equal to 2");
 
@@ -137,11 +136,10 @@ public:
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
 
-        // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
+        // This will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log4.txt  global/test/data/good_log4.txt").c_str()), 0);
         LogFile::Close();
     }
-
 
     void TestHeaderAndElapsedTime()
     {
@@ -155,26 +153,26 @@ public:
 
         LogFile::Close();
 
-        // the file will be different on different occasions (as the date is printed),
-        // so we test by reading it in
+        // The file will be different on different occasions (as the date is printed), so test by reading it in
         std::ifstream ifs((OutputFileHandler::GetChasteTestOutputDirectory()+"TestLogFile/log5.txt").c_str());
         if (ifs.is_open())
         {
             std::string line;
-            // get the second line
+
+            // Get the second line
             getline(ifs,line);
             getline(ifs,line);
 
-            // the date will change but the beginning of the line won't
+            // The date will change but the beginning of the line won't
             std::string expected_beginning_of_line = "Chaste: Complete human simulation, on";
             TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),
                              expected_beginning_of_line);
 
-            // get the fourth line
+            // Get the fourth line
             getline(ifs,line);
             getline(ifs,line);
 
-            // hopefully it took less than one minute(!) to do a tiny bit of writing..
+            //Hopefully it took less than one minute(!) to do a tiny bit of writing..
             expected_beginning_of_line = " -> Elapsed time is: 0h 0m";
             TS_ASSERT_EQUALS(line.substr(0,expected_beginning_of_line.size()),
                              expected_beginning_of_line);
@@ -185,4 +183,5 @@ public:
         }
     }
 };
+
 #endif /*TESTLOGFILE_HPP_*/

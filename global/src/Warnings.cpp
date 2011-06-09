@@ -35,8 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "LogFile.hpp"
 
-
-
 Warnings* Warnings::mpInstance = NULL;
 
 Warnings::Warnings()
@@ -51,9 +49,11 @@ void Warnings::NoisyDestroy(void)
              it != mpInstance->mWarningMessages.end();
              ++it)
         {
-            //Look at my warnings please
-            //First in pair is the context
-            //Second in pair is that actual warning
+            /*
+             * Look at my warnings please.
+             * First in pair is the context.
+             * Second in pair is that actual warning.
+             */
             std::cout << it->first << it->second << std::endl;
         }
         delete mpInstance;
@@ -80,9 +80,7 @@ Warnings* Warnings::Instance()
     return mpInstance;
 }
 
-
-void
-Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce)
+void Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce)
 {
 
     std::stringstream line_number_stream;
@@ -103,9 +101,7 @@ Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, 
     LOG(1, context + rMessage);
 }
 
-
-unsigned
-Warnings::GetNumWarnings()
+unsigned Warnings::GetNumWarnings()
 {
     return mWarningMessages.size();
 }
@@ -116,7 +112,7 @@ std::string Warnings::GetNextWarningMessage()
     {
         EXCEPTION("There are no warnings");
     }
-    std::string message = mWarningMessages.front().second;  //Second in pair is the actual warning.
+    std::string message = mWarningMessages.front().second; // Second in pair is the actual warning
     mWarningMessages.pop_front();
 
     return message;

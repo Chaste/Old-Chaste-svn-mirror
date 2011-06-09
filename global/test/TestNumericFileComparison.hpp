@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTNUMERICFILECOMPARISON_HPP_
 #define TESTNUMERICFILECOMPARISON_HPP_
 
@@ -68,7 +67,6 @@ public:
         //TS_ASSERT(same_data.CompareFiles(5e-4));//Fails do to difference after comment
         TS_ASSERT(same_data.CompareFiles(5e-3));//Fails do to difference after comment
     }
-
-
 };
+
 #endif /*TESTNUMERICFILECOMPARISON_HPP_*/

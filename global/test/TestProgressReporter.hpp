@@ -35,9 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestProgressReporter : public CxxTest::TestSuite
 {
 public:
+
     void TestBar()
     {
-        // this is in a block to make sure the file gets closed (ie destructor called)
+        // This is in a block to make sure the file gets closed (i.e. destructor called)
         {
             ProgressReporter progress_bar("ProgressReporter", 1.0, 10.0);
 
@@ -75,7 +76,8 @@ public:
             {
             }
         }
-        //File should now be closed since  progress_bar is out of scope
+
+        // File should now be closed since  progress_bar is out of scope
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "ProgressReporterException/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "progress_status.txt  global/test/data/bad_progress_status.txt").c_str()), 0);
     }

@@ -628,7 +628,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     map.Resize(this->GetNumAllNodes());
     if (mAddedNodes || !mDeletedNodeIndices.empty())
     {
-        //Size of mesh is about to change
+        // Size of mesh is about to change
         if (this->mpDistributedVectorFactory)
         {
             delete this->mpDistributedVectorFactory;

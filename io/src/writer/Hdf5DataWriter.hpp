@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef HDF5DATAWRITER_HPP_
 #define HDF5DATAWRITER_HPP_
 
@@ -35,14 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DataWriterVariable.hpp"
 #include "DistributedVectorFactory.hpp"
 
-
-
 /**
  * A concrete HDF5 data writer class.
  */
 class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
+
     /** The factory to use in creating PETSc Vec and DistributedVector objects. */
     DistributedVectorFactory& mrVectorFactory;
     std::string mDirectory; /**< Directory output files will be stored in. */
@@ -243,7 +243,6 @@ public:
      * @param chunkSize user provided chunk size
      */
     void SetFixedChunkSize(unsigned chunkSize);
-
 };
 
 #endif /*HDF5DATAWRITER_HPP_*/

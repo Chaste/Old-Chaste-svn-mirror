@@ -25,14 +25,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TOYCOMPRESSIBLEMATERIALLAW_HPP_
 #define TOYCOMPRESSIBLEMATERIALLAW_HPP_
 
 #include "AbstractIsotropicCompressibleMaterialLaw.hpp"
 
-// simple material law W(I1,I2,I3) = c1(I1-3) + c2(I2-3) + c3(I3-1),
-// which may not correspond to a physically acceptable law but can still be used
-// to test the code
+/*
+ * Simple material law W(I1,I2,I3) = c1(I1-3) + c2(I2-3) + c3(I3-1),
+ * which may not correspond to a physically acceptable law but can
+ * still be used to test the code.
+ */
 template<unsigned DIM>
 class ToyCompressibleMaterialLaw : public AbstractIsotropicCompressibleMaterialLaw<DIM>
 {
@@ -102,6 +105,5 @@ public:
         }
     }
 };
-
 
 #endif /* TOYCOMPRESSIBLEMATERIALLAW_HPP_ */

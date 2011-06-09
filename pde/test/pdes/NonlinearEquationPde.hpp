@@ -25,14 +25,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _NONLINEAREQUATIONPDE_HPP_
 #define _NONLINEAREQUATIONPDE_HPP_
-
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
 /**
- *  A simple nonlinear elliptic PDE used by tests; Div.(u Grad u) + 1 = 0
+ * A simple nonlinear elliptic PDE used by tests; Div.(u Grad u) + 1 = 0
  */
 template <int SPACE_DIM>
 class NonlinearEquationPde : public AbstractNonlinearEllipticPde<SPACE_DIM>
@@ -63,9 +63,6 @@ public:
     {
         return 0.0;
     }
-
-
 };
-
 
 #endif //_NONLINEAREQUATIONPDE_HPP_

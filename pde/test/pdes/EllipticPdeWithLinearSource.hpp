@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef ELLIPTICPDEWITHLINEARSOURCE_HPP_
 #define ELLIPTICPDEWITHLINEARSOURCE_HPP_
 
@@ -62,6 +63,5 @@ public:
         return identity_matrix<double>(SPACE_DIM);
     }
 };
-
 
 #endif /*ELLIPTICPDEWITHLINEARSOURCE_HPP_*/

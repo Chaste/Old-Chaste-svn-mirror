@@ -26,15 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTSTATICPOLYMORPHISM_HPP_
 #define TESTSTATICPOLYMORPHISM_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "PetscSetupAndFinalize.hpp"
 
-
-// Single class. Method() not virtual
+// Single class. Method() not virtual.
 class SingleClass
 {
 public:
@@ -55,7 +53,6 @@ public:
     virtual ~SingleClass()
     {}
 };
-
 
 class DynamicBaseclass
 {
@@ -78,7 +75,6 @@ public:
     {}
 };
 
-
 class DynamicSubclass : public DynamicBaseclass
 {
 public:
@@ -90,7 +86,6 @@ public:
     virtual ~DynamicSubclass()
     {}
 };
-
 
 class DynamicSubsubclass : public DynamicSubclass
 {
@@ -116,7 +111,6 @@ public:
     {}
 };
 
-
 template <class Derived>
 class StaticBaseclass
 {
@@ -139,8 +133,6 @@ public:
     {}
 };
 
-
-
 class StaticSubclass : public StaticBaseclass<StaticSubclass>
 {
 public:
@@ -152,8 +144,6 @@ public:
     virtual ~StaticSubclass()
     {}
 };
-
-
 
 class TestStaticPolymorphism : public CxxTest::TestSuite
 {
@@ -185,6 +175,6 @@ public:
         static_subclass.Run();
         std::cout << "Static subclass: " << MPI_Wtime()-start_time << std::endl;
     }
-
 };
+
 #endif /*TESTSTATICPOLYMORPHISM_HPP_*/

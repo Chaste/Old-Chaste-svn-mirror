@@ -343,6 +343,7 @@ std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigne
 
     // Put the file stream pointer to the right location
     mNodesFile.seekg(mNodeFileDataStart + mNodeItemWidth*index, std::ios_base::beg);
+
     // Read the next item.
     return GetNextNode();
 }
@@ -361,6 +362,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned
 
     // Put the file stream pointer to the right location
     mElementsFile.seekg(mElementFileDataStart + mElementItemWidth*index, std::ios_base::beg);
+
     // Read the next item.
     return GetNextElementData();
 }
@@ -376,9 +378,11 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned in
     {
         EXCEPTION("Face does not exist - not enough faces.");
     }
+
     // Put the file stream pointer to the right location
     mFacesFile.seekg(mFaceFileDataStart + mFaceItemWidth*index, std::ios_base::beg);
-    // Read the next item.
+
+    // Read the next item
     return GetNextFaceData();
 }
 
@@ -394,20 +398,21 @@ std::vector<unsigned> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetContaining
     {
         EXCEPTION("No NCL file available for this mesh.");
     }
-    if (index >=mNumNodes)
+    if (index >= mNumNodes)
     {
         EXCEPTION("Connectivity list does not exist - not enough nodes.");
     }
 
     if (mNodePermutationDefined)
     {
-        assert(index<mInversePermutationVector.size());
+        assert(index < mInversePermutationVector.size());
         index = mInversePermutationVector[index];
     }
 
     // Put the file stream pointer to the right location
     mNclFile.seekg(mNclFileDataStart + mNclItemWidth*index, std::ios_base::beg);
-    // Read the next item.
+
+    // Read the next item
     std::vector<unsigned> containing_element_indices;
     containing_element_indices.resize(mMaxContainingElements);
 
@@ -528,8 +533,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenCableElementsFile()
     }
 }
 
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNodeAttributes()
 {
@@ -540,7 +543,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     /*
-     *  Reading node file header
+     * Reading node file header
      */
     std::string buffer;
     GetNextLineFromStream(mNodesFile, buffer);
@@ -551,7 +554,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         EXCEPTION("SPACE_DIM  != dimension read from file ");
     }
-    //Is there anything else on the header line?
+
+    // Is there anything else on the header line?
     std::string extras;
     node_header_line >> extras;
     if (extras == "BIN")
@@ -559,7 +563,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mFilesAreBinary = true;
         mNodeFileDataStart = mNodesFile.tellg(); // Record the position of the first byte after the header.
         mNodeItemWidth = SPACE_DIM * sizeof(double);
-        //We enforce that all binary files (written by Chaste) are indexed from zero
+
+        // We enforce that all binary files (written by Chaste) are indexed from zero
         mIndexFromZero = true;
     }
     else
@@ -574,6 +579,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         node_first_line >> first_index;
         assert(first_index == 0 || first_index == 1);
         mIndexFromZero = (first_index == 0);
+
         // Close, reopen, skip header
         mNodesFile.close();
         OpenNodeFile();
@@ -581,7 +587,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     }
 
     /*
-     *  Reading element file header
+     * Reading element file header
      */
     GetNextLineFromStream(mElementsFile, buffer);
     std::stringstream element_header_line(buffer);
@@ -594,12 +600,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         extra_attributes = mNumElementAttributes;
 
-        //Is there anything else on the header line?
+        // Is there anything else on the header line?
         std::string element_extras;
         element_header_line >> element_extras;
         if (element_extras == "BIN")
         {
-            //Double check for binaryness
+            // Double check for binaryness
             assert (mFilesAreBinary);
         }
         else if (element_extras == "HEX")
@@ -622,7 +628,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         }
 
         // The condition below allows the writer to cope with a NodesOnlyMesh
-        ///\todo throw a warning if this is the case? (#1784)
         if (mNumElements != 0)
         {
             if (mNumElementNodes != mNodesPerElement)
@@ -641,12 +646,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         extra_attributes = mNumFaceAttributes;
 
-        //Is there anything else on the header line?
+        // Is there anything else on the header line?
         std::string element_extras;
         element_header_line >> element_extras;
         if (element_extras == "BIN")
         {
-            //Double check for binaryness
+            // Double check for binaryness
             assert (mFilesAreBinary);
         }
 
@@ -661,10 +666,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     }
 
     /*
-     *  Reading face/edge file header
+     * Reading face/edge file header.
+     * The condition below allows the writer to cope with a NodesOnlyMesh.
      */
-    // The condition below allows the writer to cope with a NodesOnlyMesh
-    ///\todo throw a warning if this is the case? (#1784)
     if (mNumElements != 0)
     {
         if (ELEMENT_DIM == 1)
@@ -679,9 +683,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
             face_header_line >> mNumFaces >> mNumFaceAttributes;
             assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
-            // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
-            // the number of faces which are marked as boundary faces
-            //Double check for binaryness
+
+            /*
+             * If mNumFaceAttributes=1 then loop over and set mNumFaces to be
+             * the number of faces which are marked as boundary faces.
+             * Double check for binaryness.
+             */
             std::string face_extras;
             face_header_line >> face_extras;
             assert (mFilesAreBinary == (face_extras == "BIN"));
@@ -749,11 +756,13 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
             EXCEPTION("NCL file does not contain the correct number of nodes for mesh");
         }
 
-        mNclFileDataStart = mNclFile.tellg(); // Record the position of the first byte after the header.
+        mNclFileDataStart = mNclFile.tellg(); // Record the position of the first byte after the header
         mNclItemWidth = mMaxContainingElements * sizeof(unsigned);
     }
 
-    /* Read cable file, if available */
+    /*
+     * Read cable file (if one is available)
+     */
     if (mCableElementsFile.is_open())
     {
         GetNextLineFromStream(mCableElementsFile, buffer);
@@ -824,14 +833,15 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         unsigned item_index;
         buffer_stream >> item_index;
 
-        // If we are indexing from zero our expected item number is one larger.
+        // If we are indexing from zero our expected item number is one larger
         expectedItemNumber += mIndexFromZero ? 0 : 1;
 
         if (item_index != expectedItemNumber)
         {
             std::stringstream error;
             if (!mIndexFromZero)
-            { // To fix the exception message to agree with file format.
+            {
+                // To fix the exception message to agree with file format
                 expectedItemNumber--;
             }
             error << "Data for item " << expectedItemNumber << " missing";
@@ -861,21 +871,21 @@ std::string TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
     return mFilesBaseName;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
 {
     assert(ELEMENT_DIM == 1);
     if (!mOneDimBoundary.empty())
     {
-        //We have already read this and have reset the reader (probably from the mesh class)...
+        // We have already read this and have reset the reader (probably from the mesh class)
         return;
     }
 
     std::vector<unsigned> node_indices(2);
-    std::vector<unsigned>  dummy_attribute;//unused
-    //Count how many times we see each node
-    std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
+    std::vector<unsigned>  dummy_attribute; // unused
+
+    // Count how many times we see each node
+    std::vector<unsigned> node_count(mNumNodes); // Covers the case if it's indexed from 1
     for (unsigned element_index=0; element_index<mNumElements;element_index++)
     {
         GetNextItemFromStream(mElementsFile, element_index, node_indices, mNumElementAttributes, dummy_attribute);
@@ -888,6 +898,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
         node_count[node_indices[0]]++;
         node_count[node_indices[1]]++;
     }
+
     // Find the ones which are terminals (only one mention)
     for (unsigned node_index=0; node_index<mNumNodes;node_index++)
     {
@@ -908,7 +919,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::EnsureIndexingFromZero(std::vector<unsigned>& rNodeIndices)
 {
-
     if (!mIndexFromZero) // If node indices do not start at zero move them all down one so they do
     {
         for (unsigned i=0; i<rNodeIndices.size(); i++)
@@ -916,7 +926,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::EnsureIndexingFromZero(std::ve
             rNodeIndices[i]--;
         }
     }
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -934,14 +943,13 @@ bool TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::HasNclFile()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetReadBufferSize(unsigned bufferSize)
 {
-    mNodeFileReadBuffer =  new char[bufferSize];
-    mElementFileReadBuffer =  new char[bufferSize];
-    mFaceFileReadBuffer =  new char[bufferSize];
+    mNodeFileReadBuffer = new char[bufferSize];
+    mElementFileReadBuffer = new char[bufferSize];
+    mFaceFileReadBuffer = new char[bufferSize];
 
     mNodesFile.rdbuf()->pubsetbuf(mNodeFileReadBuffer, bufferSize);
     mElementsFile.rdbuf()->pubsetbuf(mElementFileReadBuffer, bufferSize);
     mFacesFile.rdbuf()->pubsetbuf(mFaceFileReadBuffer, bufferSize);
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -962,8 +970,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetNodePermutation(std::vector
     }
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
@@ -975,7 +981,6 @@ template class TrianglesMeshReader<1,3>;
 template class TrianglesMeshReader<2,2>;
 template class TrianglesMeshReader<2,3>;
 template class TrianglesMeshReader<3,3>;
-
 
 /**
  * \cond

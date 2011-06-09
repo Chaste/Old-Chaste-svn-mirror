@@ -108,7 +108,6 @@ void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues
     }
 }
 
-
 double  RandomNumberGenerator::StandardNormalRandomDeviate()
 {
     /**
@@ -116,7 +115,7 @@ double  RandomNumberGenerator::StandardNormalRandomDeviate()
      * method for getting normally distributed variables from uniform
      * ones.
      *
-     * G. E. P. Box and Mervin E. Muller,
+     * G.E.P. Box and Mervin E. Muller,
      * A Note on the Generation of Random Normal Deviates,
      * The Annals of Mathematical Statistics (1958),
      * Vol. 29, No. 2 pp. 610–611
@@ -127,7 +126,6 @@ double  RandomNumberGenerator::StandardNormalRandomDeviate()
      * http://en.wikipedia.org/wiki/Marsaglia_polar_method
      * on 29/11/10
      */
-
 
     if (mUseLastNum) /* We use value generated at the previous call */
     {
@@ -150,7 +148,3 @@ double  RandomNumberGenerator::StandardNormalRandomDeviate()
         return mWorkingMem1*mWorkingMemW;
     }
 }
-
-
-
-

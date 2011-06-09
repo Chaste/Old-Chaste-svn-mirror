@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CommandLineArguments
 {
 private:
+
     /** Default constructor. Should never be called directly, call CommandLineArguments::Instance() instead.*/
     CommandLineArguments();
 
@@ -55,9 +56,10 @@ private:
     static CommandLineArguments* mpInstance;
 
     /**
-     *  Get the index for the given argument. Returns -1 if the argument is not found.
-     *  @param argument The argument as a string. This should start with "-", for
-     *    example "-my_arg" "-timestep" etc.
+     * Get the index for the given argument. Returns -1 if the argument is not found.
+     *
+     * @param argument The argument as a string. This should start with "-", for
+     *   example "-my_arg" "-timestep" etc.
      */
     int GetIndexForArgument(std::string argument);
 
@@ -73,24 +75,25 @@ public:
     static CommandLineArguments* Instance();
 
     /**
-     *  Check whether a given option exists in the command line arguments.
-     *  @param option The option as a string. This should start with "-", for
-     *    example "-implicit_scheme" "-no_output" etc.
+     * Check whether a given option exists in the command line arguments.
+     *
+     * @param option The option as a string. This should start with "-", for
+     *   example "-implicit_scheme" "-no_output" etc.
      */
     bool OptionExists(std::string option);
 
     /**
-     *  Get the value for a given option, ie the argument after the option name in
-     *  the list of command line arguments. For example, if the following arguments
-     *  were given
-     *   ./heart/build/debug/TestMyClassRunner -timestep 0.04
-     *  Then calling
-     *    CommandLineArguments::Instance()->GetValueCorrespondingToOption("-timestep");
-     *  will return 0.04 (as a char*).
-     *  Use atoi or atof to convert the char* to an int or a double(float) respectively.
+     * Get the value for a given option, ie the argument after the option name in
+     * the list of command line arguments. For example, if the following arguments
+     * were given
+     *  ./heart/build/debug/TestMyClassRunner -timestep 0.04
+     * Then calling
+     *   CommandLineArguments::Instance()->GetValueCorrespondingToOption("-timestep");
+     * will return 0.04 (as a char*).
+     * Use atoi or atof to convert the char* to an int or a double(float) respectively.
      *
-     *  @param option The option as a string. This should start with "-", for
-     *    example "-my_param" "-timestep" etc.
+     * @param option The option as a string. This should start with "-", for
+     *   example "-my_param" "-timestep" etc.
      */
     char* GetValueCorrespondingToOption(std::string option);
 
@@ -126,7 +129,6 @@ public:
      *    for example "-my_param", "-timestep" etc.
      */
     unsigned GetUnsignedCorrespondingToOption(std::string option);
-
 };
 
 #endif // COMMANDLINEARGUMENTS_HPP_

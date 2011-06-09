@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _ABSTRACTBOUNDARYCONDITION_HPP_
 #define _ABSTRACTBOUNDARYCONDITION_HPP_
 
@@ -41,6 +42,7 @@ template<unsigned SPACE_DIM>
 class AbstractBoundaryCondition
 {
 private:
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**

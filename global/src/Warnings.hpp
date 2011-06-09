@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _WARNINGS_HPP_
 #define _WARNINGS_HPP_
 
@@ -47,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Warnings
 {
 private:
+
     static Warnings* mpInstance; /**<  Pointer to the single instance. For use as singleton */
 
     /** Container type for warnings */
@@ -55,6 +55,7 @@ private:
     WarningsContainerType mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
 
 protected:
+
     /**
      * Protected constructor.
      * Use Instance() to access the Warnings singleton.
@@ -62,6 +63,7 @@ protected:
     Warnings();
 
 public:
+
     /**
      * Default destroyer (takes the place of a destructor, using the std::atexit directive).
      * Prints all warning messages to stdout.
@@ -70,12 +72,12 @@ public:
 
     /**
      * Public destroyer (takes the place of a destructor but is called by the user to make sure
-     * that no warnings appear)
+     * that no warnings appear).
      */
     static void QuietDestroy();
 
     /**
-     * Make a warning with a message string and add it to the list
+     * Make a warning with a message string and add it to the list.
      *
      * @param rMessage  the message
      * @param rFilename  which source file threw the exception
@@ -85,7 +87,7 @@ public:
     void AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce=false);
 
     /**
-     * Get the message associated with the exception with file and line number
+     * Get the message associated with the exception with file and line number.
      *
      * @return The message set when the exception was thrown including file and line number information
      */
@@ -98,12 +100,12 @@ public:
     static Warnings* Instance();
 
     /**
-     * How many warnings are in the queue
+     * How many warnings are in the queue.
      */
     unsigned GetNumWarnings();
 
     /**
-     * Remove and inspect a warning
+     * Remove and inspect a warning.
      */
     std::string GetNextWarningMessage();
 };
@@ -111,21 +113,21 @@ public:
 #define WARNING(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__)
 
 /**
- *  Warn only the first time line is reached. Note: this does not base whether to not warn
- *  again on the message content, just on whether the line of code where this macro is placed
- *  has been reached. In other words:
+ * Warn only the first time line is reached. Note: this does not base whether to not warn
+ * again on the message content, just on whether the line of code where this macro is placed
+ * has been reached. In other words:
  *
- *  for (unsigned i=0; i<10; i++)
- *  {
- *     WARN_ONCE_ONLY("Don't make me angry");
- *  }
+ * for (unsigned i=0; i<10; i++)
+ * {
+ *    WARN_ONCE_ONLY("Don't make me angry");
+ * }
  *
- *  will print once, whereas
+ * will print once, whereas
  *
- *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
- *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
+ * WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
+ * WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
  *
- *  will warn twice.
+ * will warn twice.
  */
 #define WARN_ONCE_ONLY(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__, true)
 

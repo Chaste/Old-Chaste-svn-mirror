@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTPDESIMULATIONTIME_HPP_
 #define TESTPDESIMULATIONTIME_HPP_
 
@@ -44,4 +45,5 @@ public:
         TS_ASSERT_EQUALS(PdeSimulationTime::GetPdeTimeStepInverse(), 1.0/0.025);
     }
 };
+
 #endif /*TESTPDESIMULATIONTIME_HPP_*/

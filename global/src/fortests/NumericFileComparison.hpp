@@ -31,18 +31,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #define A_WORD DBL_MAX
 #define NOTHING_TO_READ DBL_MIN
+
 /**
  * Compare files of numbers to see if they match to within a given tolerance.
  */
 class NumericFileComparison
 {
 private:
+
     std::string mFilename1; /**< First filename */
     std::string mFilename2; /**< Second filename */
 
     std::ifstream* mpFile1; /**< First file */
     std::ifstream* mpFile2; /**< Second file */
+
 public:
+
     /**
      * Specify two files to compare, and open them for reading.
      * Actual comparison is done by calling CompareFiles.
@@ -55,6 +59,7 @@ public:
         mFilename2(fileName2)
     {
         mpFile1 = new std::ifstream(fileName1.c_str());
+
         // If it doesn't exist - throw exception
         if (!mpFile1->is_open())
         {
@@ -63,6 +68,7 @@ public:
         }
 
         mpFile2 = new std::ifstream(fileName2.c_str());
+
         // If it doesn't exist - throw exception
         if (!mpFile2->is_open())
         {
@@ -72,6 +78,7 @@ public:
             EXCEPTION("Couldn't open file: " + fileName2);
         }
     }
+
     /**
      * Close the files being compared.
      */
@@ -88,12 +95,12 @@ public:
         delete mpFile1;
         delete mpFile2;
     }
+
     /**
      * Compare the files.
      *
      * @param absTolerance  absolute tolerance on difference between numbers.
      * @param ignoreFirstFewLines  How many lines to ignore from the comparison
-     *
      */
     bool CompareFiles(double absTolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0)
     {
@@ -108,55 +115,55 @@ public:
             char buffer[1024];
             mpFile1->getline(buffer, 1024);
             mpFile2->getline(buffer, 1024);
-            TS_ASSERT(!mpFile1->fail()); //Here we are assuming that there a least "ignoreFirstFewLines" lines
-            TS_ASSERT(!mpFile2->fail()); // and that they are lines of no more than 1024 characters
+            TS_ASSERT(!mpFile1->fail()); // Here we assume there are at least "ignoreFirstFewLines" lines...
+            TS_ASSERT(!mpFile2->fail()); // ...and that they are lines of no more than 1024 characters
         }
 
         do
         {
             if (!(*mpFile1>>data1))
             {
-                //Cannot read the next token from file as a number, so try a word instead
+                // Cannot read the next token from file as a number, so try a word instead
                 std::string word;
-                mpFile1->clear();//reset the "failbit"
-                if (*mpFile1>>word)
+                mpFile1->clear(); // reset the "failbit"
+                if (*mpFile1 >> word)
                 {
-                    data1=A_WORD;
+                    data1 = A_WORD;
                     if (word == "#" || word == "!")
                     {
-                        //Ignore comment (up to 1024 characters until newline)
+                        // Ignore comment (up to 1024 characters until newline)
                         mpFile1->ignore(1024, '\n');
                     }
                 }
                 else
                 {
-                    mpFile1->clear();//reset the "failbit"
-                    data1=NOTHING_TO_READ;
+                    mpFile1->clear(); // reset the "failbit"
+                    data1 = NOTHING_TO_READ;
                 }
             }
-            if (!(*mpFile2>>data2))
+            if (!(*mpFile2 >> data2))
             {
-                //Cannot read the next token from file as a number, so try a word instead
+                // Cannot read the next token from file as a number, so try a word instead
                 std::string word;
-                mpFile2->clear();//reset the "failbit"
-                if (*mpFile2>>word)
+                mpFile2->clear(); // reset the "failbit"
+                if (*mpFile2 >> word)
                 {
-                    data2=A_WORD;
+                    data2 = A_WORD;
                     if (word == "#" || word == "!")
                     {
-                        //Ignore comment (up to 1024 characters until newline)
+                        // Ignore comment (up to 1024 characters until newline)
                         mpFile2->ignore(1024, '\n');
                     }
                 }
                 else
                 {
-                    mpFile2->clear();//reset the "failbit"
+                    mpFile2->clear(); // reset the "failbit"
                     data2=NOTHING_TO_READ;
                 }
             }
 
             double error = fabs(data1 - data2);
-            if ( error > absTolerance )
+            if (error > absTolerance)
             {
                 failures++;
                 // Force CxxTest error
@@ -171,11 +178,12 @@ public:
                 break; // Don't clog the screen
             }
         }
-        while (data1 != NOTHING_TO_READ && data2 != NOTHING_TO_READ); //If either is a NOTHING_TO_READ, then it means that there's nothing to read from the file
+        while (data1 != NOTHING_TO_READ && data2 != NOTHING_TO_READ); // If either is a NOTHING_TO_READ, then it means that there's nothing to read from the file
 
         // Force CxxTest error if there were any major differences
         TS_ASSERT_LESS_THAN(max_error, absTolerance);
-        //If that assertion tripped...
+
+        // If that assertion tripped...
         if (max_error >= absTolerance)
         {
 #define COVERAGE_IGNORE

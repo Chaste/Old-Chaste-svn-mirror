@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
 #define TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
 
@@ -42,14 +43,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearEquationPde.hpp"
 #include "SimpleNewtonNonlinearSolver.hpp"
 
-
-//////////////////////////////////////////////////////////////////////////////
-// a solver to solve the 'coupled' 2-unknown problem
-//    div.(u grad u) + 1  = 0
-//    div.(v grav v) + lambda  = 0
-//
-//   lambda is taken in in the constructor
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * A solver to solve the 'coupled' 2-unknown problem
+ *    div.(u grad u) + 1  = 0,
+ *    div.(v grav v) + lambda  = 0,
+ * where lambda is taken in in the constructor.
+ */
 template <int DIM>
 class MySimpleNonlinearCoupledSolver : public AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>
 {
@@ -105,7 +104,6 @@ private:
         return ret;
     }
 
-
     virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM>& rSurfaceElement,
                                                              c_vector<double,DIM>& rPhi,
                                                              ChastePoint<DIM>& rX)
@@ -123,7 +121,6 @@ private:
         return ret;
     }
 
-
 public:
     MySimpleNonlinearCoupledSolver(TetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
@@ -134,18 +131,15 @@ public:
     }
 };
 
-
-/////////////////////////////////////////////////////////////////////////////////
-// a solver to solve the coupled 2-unknown problem
-//    div.(v gradu) = f(x,y)
-//    div.(u gradv) = g(x,y)
-//
-// where f and g (and boundary conditions) are chosen such that the solution is
-//    u = x^2,  v = y
-//////////////////////////////////////////////////////////////////////////////////
+/**
+ * A solver to solve the coupled 2-unknown problem
+ *    div.(v gradu) = f(x,y),
+ *    div.(u gradv) = g(x,y),
+ * where f and g (and boundary conditions) are chosen such that the solution is
+ *    u = x^2,  v = y.
+ */
 class AnotherCoupledNonlinearAssembler :  public AbstractNonlinearAssemblerSolverHybrid<2,2,2> // AnotherCoupledNonlinearAssembler>
 {
-
 private:
     double f(double x,double y)
     {
@@ -156,7 +150,6 @@ private:
     {
         return 0;
     }
-
 
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1>& rPhi,
                                                                c_matrix<double, 2, 2+1>& rGradPhi,
@@ -184,7 +177,6 @@ private:
         }
         return ret;
     }
-
 
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
                                                        c_matrix<double, 2, 2+1>& rGradPhi,
@@ -248,30 +240,27 @@ private:
         // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
-        // boundary conditions for 2-unknown problem
+        // Boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<DIM,DIM,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // for comparing residuals
-        MySimpleNonlinearCoupledSolver<DIM> solver_lam_1(&mesh,&bcc,1);
-        // for comparing solutions
-        MySimpleNonlinearCoupledSolver<DIM> solver(&mesh,&bcc,4);
+        // For comparing residuals
+        MySimpleNonlinearCoupledSolver<DIM> solver_lam_1(&mesh, &bcc, 1);
 
+        // For comparing solutions
+        MySimpleNonlinearCoupledSolver<DIM> solver(&mesh, &bcc, 4);
 
         ////////////////////////////////////////////
-        // store residual
+        // Store residual
         ////////////////////////////////////////////
 
-        // initialize 'solution' vector
+        // Initialize 'solution' vector
         Vec guess = PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(), 1.0);
 
-        /////////////////////////////////////////////
-        // solve as well
-        /////////////////////////////////////////////
+        // Solve as well
         Vec result = solver.Solve(guess, true);
         ReplicatableVector result_repl(result);
-
 
         ///////////////////////////////////////////////////////////////////////
         // Now solve div.(u gradu) + 1 = 0 as an uncoupled 1-unknown problem
@@ -288,16 +277,13 @@ private:
         SimpleNonlinearEllipticSolver<DIM,DIM> solver_1unknown(&mesh,&pde,&bcc_1unknown);
 
         ////////////////////////////////////////////
-        // store residual
+        // Store residual
         ////////////////////////////////////////////
         Vec guess_1unknown = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 1.0);
 
-        /////////////////////////////////////////////
-        // solve as well
-        /////////////////////////////////////////////
+        // Solve as well
         Vec result_1unknown = solver_1unknown.Solve(guess_1unknown, true);
         ReplicatableVector result_1unknown_repl(result_1unknown);
-
 
         /////////////////////////////////////////////////////////////////////////
         // check the residuals and solutions agree
@@ -318,13 +304,14 @@ private:
 
 public:
 
-    /*  Solve:
-     *     div.(u gradu) + 1  = 0
-     *     div.(v gradv) + 4  = 0
-     *  with zero dirichlet on boundary
+    /*
+     * Solve:
+     *     div.(u gradu) + 1  = 0,
+     *     div.(v gradv) + 4  = 0,
+     * with zero dirichlet on boundary.
      *
-     *  This is obviously really just two virtually identical uncoupled
-     *  problems
+     * This is obviously really just two virtually identical uncoupled
+     * problems
      */
     void TestSimpleCoupledNonlinearPde()   throw (Exception)
     {
@@ -338,15 +325,14 @@ public:
         runTestSimpleCoupledNonlinearPde<3>();
     }
 
-
-
-    /*  Solve:
-     *     div.(u gradu) + 1  = 0
-     *     div.(v gradv) + 1  = 0
-     *  with neumann boundary conditions (the same on both u and v)
-     *  on part of the boundary
+    /*
+     * Solve:
+     *     div.(u gradu) + 1  = 0,
+     *     div.(v gradv) + 1  = 0,
+     * with neumann boundary conditions (the same on both u and v)
+     * on part of the boundary
      *
-     *  This is obviously two identical uncoupled problems
+     * This is obviously two identical uncoupled problems
      */
     void TestSimpleCoupledNonlinearPdeWithNeumannBoundaryConditions() throw (Exception)
     {
@@ -378,12 +364,11 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
 
-        // use solver to solve (with lambda = 1)
+        // Use solver to solve (with lambda = 1)
         MySimpleNonlinearCoupledSolver<2> solver(&mesh,&bcc,1.0);
 
         Vec result = solver.Solve(PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(),1.0),true);
         ReplicatableVector result_repl(result);
-
 
         ///////////////////////////////////////////////////////////////////////
         // Now solve div.(u gradu) + 1 = 0 as an uncoupled 1-unknown problem

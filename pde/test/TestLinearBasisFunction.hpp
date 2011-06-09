@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTLINEARBASISFUNCTION_HPP_
 #define _TESTLINEARBASISFUNCTION_HPP_
 
@@ -50,7 +51,7 @@ public:
         TS_ASSERT_EQUALS(basis_function_vector.size(), 1u);
         TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
 
-        // check link with 0d quad rule works ok
+        // Check link with 0d quad rule works ok
         GaussianQuadratureRule<0>  quad_rule(1);
         const ChastePoint<0>& quad_point = quad_rule.rGetQuadPoint(0);
 
@@ -101,7 +102,6 @@ public:
         TS_ASSERT_DELTA(derivatives(0,2),  0, 1e-12);
     }
 
-
     void TestLinearBasisFunction3d()
     {
         ChastePoint<3> zero(0,0,0);
@@ -127,14 +127,13 @@ public:
         TS_ASSERT_DELTA(derivatives(0,3),  0, 1e-12);
     }
 
-
     void TestComputeTransformedBasisFunctionDerivatives()
     {
         // 1D
         ChastePoint<1> one(1);
 
         c_matrix<double, 1, 1> inv_J;
-        inv_J(0,0)=0.5;
+        inv_J(0,0) = 0.5;
 
         c_matrix<double, 1, 2> trans_deriv;
         LinearBasisFunction<1>::ComputeTransformedBasisFunctionDerivatives(one, inv_J, trans_deriv);
@@ -154,7 +153,7 @@ public:
         TS_ASSERT_DELTA(trans_deriv2(0,1),  0.5, 1e-12);
         TS_ASSERT_DELTA(trans_deriv2(0,2),    0, 1e-12);
 
-        //3D
+        // 3D
         ChastePoint<3> oneoneone(1,1,1);
 
         c_matrix<double, 3, 3> inv_J3 = 0.5 * identity_matrix<double>(3);

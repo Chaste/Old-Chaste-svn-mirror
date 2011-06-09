@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef UBLASCUSTOMFUNCTIONS_HPP_
 #define UBLASCUSTOMFUNCTIONS_HPP_
 
@@ -56,11 +55,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace boost::numeric::ublas;
 
-
-
 // COMMON DETERMINANTS - SQUARE
+
 /**
- * 1x1 Determinant
+ * 1x1 Determinant.
  * Get the determinant of a ublas matrix.
  *
  * @param rM The matrix of which to find the determinant.
@@ -72,9 +70,10 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 1, 1>& rM)
 
     return rM(0,0);
 }
+
 /**
- * 2x2 Determinant
- * Get the determinant of a ublas matrix
+ * 2x2 Determinant.
+ * Get the determinant of a ublas matrix.
  *
  * @param rM The matrix of which to find the determinant.
  */
@@ -85,9 +84,10 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,2,2>& rM)
 
     return rM(0,0)*rM(1,1) - rM(1,0)*rM(0,1);
 }
+
 /**
- * 3x3 Determinant
- * Get the determinant of a ublas matrix
+ * 3x3 Determinant.
+ * Get the determinant of a ublas matrix.
  *
  * @param rM The matrix of which to find the determinant.
  */
@@ -101,14 +101,13 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 3>& rM)
             + rM(0,2) * (rM(1,0)*rM(2,1) - rM(1,1)*rM(2,0));
 }
 
-
-
 // COMMON GENERALIZED DETERMINANTS - NOT SQUARE
 
 /**
- * 3x2 (Generalized determinant)
+ * 3x2 (Generalized determinant).
  * Calculate the generalized determinant of a 3x2 matrix.
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -120,9 +119,10 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 2>& rM)
 }
 
 /**
- * 3x1 (Generalized determinant)
+ * 3x1 (Generalized determinant).
  * Calculate the generalized determinant of a 3x1 matrix.
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -133,9 +133,10 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 1>& rM)
 }
 
 /**
- * 2x1 (Generalized determinant)
+ * 2x1 (Generalized determinant).
  * Calculate the generalized determinant of a 2x1 matrix.
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -145,10 +146,9 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 2, 1>& rM)
     return   std::sqrt(rM(0,0) * rM(0,0) + rM(1,0) * rM(1,0));
 }
 
-
-
 /**
- * 3x0 (Generalized determinant) - not implement, but needed by some compilers
+ * 3x0 (Generalized determinant) - not implement, but needed by some compilers.
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -158,7 +158,8 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 0>& rM)
 }
 
 /**
- * 2x0 (Generalized determinant) - not implement, but needed by some compilers
+ * 2x0 (Generalized determinant) - not implement, but needed by some compilers.
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -168,7 +169,8 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 2, 0>& rM)
 }
 
 /**
- * 1x0 (Generalized determinant) - not implement, but needed by some compilers
+ * 1x0 (Generalized determinant) - not implement, but needed by some compilers.
+ *
  * @param rM The matrix of which to find the generalized determinant.
  */
 template<class T>
@@ -177,40 +179,34 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM)
     NEVER_REACHED;
 }
 
-
-
-
 // COMMON SUBDETERMINANTS - SQUARE
 
 /**
- * 1x1 SubDeterminant
+ * 1x1 SubDeterminant.
  * Return the determinant of a submatrix after removing a particular row and column
  * For a 1x1 matrix this should always remove the only row and column (0,0).
  *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
- *
  */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 1>& rM, const unsigned missrow, const unsigned misscol)
 {
     using namespace boost::numeric::ublas;
 
-    assert(missrow==0);
-    assert(misscol==0);
+    assert(missrow == 0);
+    assert(misscol == 0);
     return 1.0;
 }
 
-
 /**
- * 2x2 SubDeterminant
- * Return the determinant of a submatrix after removing a particular row and column
+ * 2x2 SubDeterminant.
+ * Return the determinant of a submatrix after removing a particular row and column.
  *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
- *
  */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 2, 2>& rM, const unsigned missrow, const unsigned misscol)
@@ -226,8 +222,9 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 2, 2>& rM, const unsig
 }
 
 /**
- * SubDeterminant 3x3
+ * SubDeterminant 3x3.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -249,10 +246,10 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 3, 3>& rM, const unsig
 
 // COMMON SUBDETERMINANTS - NOT SQUARE
 
-
 /**
- * SubDeterminant 3x2
+ * SubDeterminant 3x2.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -273,9 +270,10 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 3, 2>& rM, const unsig
 }
 
 /**
- * SubDeterminant 3x1
+ * SubDeterminant 3x1.
  * Determinant of a submatrix after removing a particular row and column.
  * @param rM The matrix of which to find the subdeterminant.
+ *
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
  */
@@ -295,8 +293,9 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 3, 1>& rM, const unsig
 }
 
 /**
- * SubDeterminant 2x1
+ * SubDeterminant 2x1.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -314,13 +313,13 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 2, 1>& rM, const unsig
     return rM(row,col);
 }
 
-
 #if defined(__xlC__)
 /* IBM compiler doesn't support zero-sized arrays*/
 #else //#if defined(__xlC__)
 /**
  * SubDeterminant 3x0 - Not implemented, but needed by some compilers for recursive template calls.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -334,6 +333,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 3, 0>& rM, const unsig
 /**
  * SubDeterminant 2x0 - Not implemented, but needed by some compilers for recursive template calls.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -347,6 +347,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 2, 0>& rM, const unsig
 /**
  * SubDeterminant 1x0 - Not implemented, but needed by some compilers for recursive template calls.
  * Determinant of a submatrix after removing a particular row and column.
+ *
  * @param rM The matrix of which to find the subdeterminant.
  * @param missrow The index to the row to remove
  * @param misscol The index to the column to remove
@@ -358,13 +359,11 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM, const unsig
 }
 #endif //#if defined(__xlC__)
 
-
-
 // COMMON INVERSES - SQUARE
 
 /**
- * 1x1 Inverse
- * Get the inverse of a ublas matrix
+ * 1x1 Inverse.
+ * Get the inverse of a ublas matrix.
  *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
@@ -376,14 +375,14 @@ boost::numeric::ublas::c_matrix<T, 1, 1> Inverse(const boost::numeric::ublas::c_
 
     c_matrix<T,1,1> inverse;
     T det = Determinant(rM);
-    assert( fabs(det) > DBL_EPSILON ); // else it is a singular matrix
+    assert(fabs(det) > DBL_EPSILON); // else it is a singular matrix
     inverse(0,0) =  1.0/det;
     return inverse;
 }
 
 /**
- * 2x2 Inverse
- * Get the inverse of a ublas matrix
+ * 2x2 Inverse.
+ * Get the inverse of a ublas matrix.
  *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
@@ -405,8 +404,8 @@ boost::numeric::ublas::c_matrix<T, 2, 2> Inverse(const boost::numeric::ublas::c_
 }
 
 /**
- * 3x3 Inverse
- * Get the inverse of a ublas matrix
+ * 3x3 Inverse.
+ * Get the inverse of a ublas matrix.
  *
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
@@ -418,7 +417,7 @@ boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_
 
     c_matrix<T, 3, 3> inverse;
     T det = Determinant(rM);
-    assert( fabs(det) > DBL_EPSILON ); // else it is a singular matrix
+    assert(fabs(det) > DBL_EPSILON); // else it is a singular matrix
 
     inverse(0,0) =  (rM(1,1)*rM(2,2) - rM(1,2)*rM(2,1))/det;
     inverse(1,0) = -(rM(1,0)*rM(2,2) - rM(1,2)*rM(2,0))/det;
@@ -437,8 +436,8 @@ boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_
 
 /**
  * 2x3 pseudo-inverse of a  matrix.
+ * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'.
  *
- * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */
@@ -475,11 +474,10 @@ boost::numeric::ublas::c_matrix<T, 2, 3> Inverse(const boost::numeric::ublas::c_
     return inverse;
 }
 
-
 /**
  * 2x1 pseudo-inverse of a  matrix.
+ * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'.
  *
- * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */
@@ -499,8 +497,8 @@ boost::numeric::ublas::c_matrix<T, 1, 2> Inverse(const boost::numeric::ublas::c_
 
 /**
  * 3x1 pseudo-inverse of a  matrix.
+ * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'.
  *
- * The pseudo-inverse is given by pinv(T) = (T'T)^(-1)*T'
  * @param rM The matrix of which to find the inverse.
  * @return The inverse
  */
@@ -518,7 +516,6 @@ boost::numeric::ublas::c_matrix<T, 1, 3> Inverse(const boost::numeric::ublas::c_
 
     return inverse;
 }
-
 
 // COMMON MATRIX TRACES
 
@@ -571,11 +568,12 @@ T Trace(const c_matrix<T, 4, 4>& rM)
 }
 
 // OTHER MATRIX FUNCTIONS (INVARIANTS, EIGENVECTORS)
+
 /**
- *  3x3 second invariant.
- *  @note Implementation only correct for
- *  a SYMMETRIC matrix though. It is up to the user to check the
- *  input matrix is symmetric.
+ * 3x3 second invariant.
+ * @note Implementation only correct for
+ * a SYMMETRIC matrix though. It is up to the user to check the
+ * input matrix is symmetric.
  *
  * @param rM The matrix
  */
@@ -587,9 +585,9 @@ T SecondInvariant(const c_matrix<T, 3, 3>& rM)
 }
 
 /**
- *  2x2 second invariant.
- *  Second invariant of a 2d matrix, i.e. the determinant. This function
- *  is mainly here just so that the same code can be used in 2d and 3d.
+ * 2x2 second invariant.
+ * Second invariant of a 2d matrix, i.e. the determinant. This function
+ * is mainly here just so that the same code can be used in 2d and 3d.
  *
  * @param rM The matrix
  */
@@ -599,9 +597,9 @@ T SecondInvariant(const c_matrix<T, 2, 2>& rM)
     return Determinant(rM);
 }
 
-
-/** Use LAPACK functionality to find the eigenvector corresponding
- *  real eigenvalue which is smallest in magnitude.
+/**
+ * Use LAPACK functionality to find the eigenvector corresponding
+ * real eigenvalue which is smallest in magnitude.
  * Caveat: if there are zero eigenvalues they are ignored.
  * It's the smallest magnitude non-zero real eigenvalue which is used.
  *
@@ -610,11 +608,11 @@ T SecondInvariant(const c_matrix<T, 2, 2>& rM)
  */
 c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double, 3, 3>& rA);
 
-
 //COMMON VECTOR FUNCTIONS
 
 /**
- * This is a cross-product aka vector-product, only implemented for 3-vectors
+ * This is a cross-product aka vector-product, only implemented for 3-vectors.
+ *
  * @param rA first vector
  * @param rB second vector
  * @return rA x rB
@@ -638,7 +636,6 @@ c_vector<T, 3> VectorProduct(const c_vector<T, 3>& rA, const c_vector<T, 3>& rB)
 
     return result;
 }
-
 
 /**
  * Convenience function for quickly creating test vectors (1D).
@@ -667,9 +664,9 @@ c_vector<double, 2> Create_c_vector(double x, double y);
  */
 c_vector<double, 3> Create_c_vector(double x, double y, double z);
 
-
 /**
- * Replacement "pow" function
+ * Replacement "pow" function.
+ *
  * @param x number to be raised to a small power
  * @param exponent small integer exponent
  * @return x^exponent a.k.a x**exponent.
@@ -679,11 +676,11 @@ double SmallPow(double x, unsigned exponent);
 /**
  * Uses fmod to determine if smallerNumber divides the largerNumber.
  * We expect smallerNumber/largerNumber <= 1 and therefore
- * fmod(largerNumber,smallerNumber) should be close zero or close to  smallerNumber
+ * fmod(largerNumber,smallerNumber) should be close zero or close to smallerNumber.
+ *
  * @param smallerNumber the smaller
  * @param largerNumber the larger
  */
 bool Divides(double smallerNumber, double largerNumber);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
-

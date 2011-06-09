@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _LINEARSYSTEM_HPP_
 #define _LINEARSYSTEM_HPP_
 
@@ -224,7 +223,6 @@ public:
      */
     ~LinearSystem();
 
-
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
 
@@ -360,21 +358,22 @@ public:
     Vec GetMatrixRowDistributed(unsigned rowIndex);
 
     /**
-     *  Zero several rows of the matrix, putting a given value in the diagonal entries.
+     * Zero several rows of the matrix, putting a given value in the diagonal entries.
      *
-     *  *Massively* less expensive than zeroing each matrix rowindividually
+     * *Massively* less expensive than zeroing each matrix rowindividually
      *
-     *  @param rRows std::vector of rows to be zeroed
-     *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
+     * @param rRows std::vector of rows to be zeroed
+     * @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
      */
     void ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue);
 
 
     /**
-     *  Zero several rows and columns of the matrix, putting a given value on the diagonal.
-     *  @param rRowColIndices A list of indices. All the rows with these indices, and all the columns
-     *  with these indices, will be zeroed.
-     *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
+     * Zero several rows and columns of the matrix, putting a given value on the diagonal.
+     *
+     * @param rRowColIndices A list of indices. All the rows with these indices, and all the columns
+     * with these indices, will be zeroed.
+     * @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
      */
     void ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue);
 
@@ -443,7 +442,6 @@ public:
      *
      * @param nullbasis  an array PETSc vectors containing orthogonal directions in the nullspace
      * @param numberOfBases the number of directions (size of nullbasis array)
-     *
      */
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
@@ -576,7 +574,6 @@ namespace boost
 {
 namespace serialization
 {
-
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const LinearSystem * t, const unsigned int file_version)

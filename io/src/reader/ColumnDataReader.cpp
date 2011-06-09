@@ -122,8 +122,10 @@ void ColumnDataReader::CheckFiles(const std::string& rDirectory, const std::stri
 
             mDataFilename = rDirectory + rBaseName + "_" + suffix.str() + ".dat";
 
-            // The ancillary path needs to come from a single place that is
-            // used by both the reader & writer, otherwise all will be bad.
+            /*
+             * The ancillary path needs to come from a single place that is
+             * used by both the reader & writer, otherwise all will be bad.
+             */
             mAncillaryFilename = rDirectory + rBaseName + "_unlimited.dat";
 
             // Extract the units and place into map
@@ -183,21 +185,22 @@ void ColumnDataReader::CheckFiles(const std::string& rDirectory, const std::stri
         column++;
     }
 
-    // Now read the first line of proper data to determine the field width used when this
-    // file was created. Do this by reading the first entry and measuring the distance from
-    // the decimal point to the 'e'.  This gives the precision; the field width is then
-    // precision + 7.
-    // eg, if the first entry is
-    //   6.3124e+01         => field width = 11 // chaste release 1 and 1.1
-    //  -3.5124e+01         => field width = 11 // chaste release 1 and 1.1
-    //  +1.00000000e+00     => field width = 15
-    //  -1.20000000e+01     => field width = 15
-    //  -1.12345678e-321    => field width = 15
-    //
+    /*
+     * Now read the first line of proper data to determine the field width used when this
+     * file was created. Do this by reading the first entry and measuring the distance from
+     * the decimal point to the 'e'.  This gives the precision; the field width is then
+     * precision + 7.
+     * e.g. if the first entry is
+     *   6.3124e+01         => field width = 11 // chaste release 1 and 1.1
+     *  -3.5124e+01         => field width = 11 // chaste release 1 and 1.1
+     *  +1.00000000e+00     => field width = 15
+     *  -1.20000000e+01     => field width = 15
+     *  -1.12345678e-321    => field width = 15
+     */
     std::string first_line;
     std::string first_entry;
 
-    // read the first entry of the line. If there is no first entry, move to the next line..
+    // Read the first entry of the line. If there is no first entry, move to the next line..
     while (first_entry.length()==0 && !datafile.eof())
     {
         std::getline(datafile, first_line);
@@ -217,6 +220,7 @@ void ColumnDataReader::CheckFiles(const std::string& rDirectory, const std::stri
         EXCEPTION("Badly formatted scientific data field");
     }
     mFieldWidth = e_pos - dot_pos - 1 + 7;
+
     // Attempt to account for old format files (which only allowed 2 characters for the exponent)
     dot_pos = first_line.find(".");
     size_t second_dot_pos = first_line.find(".", dot_pos+1);
@@ -399,4 +403,3 @@ unsigned ColumnDataReader::GetFieldWidth()
 {
     return mFieldWidth;
 }
-

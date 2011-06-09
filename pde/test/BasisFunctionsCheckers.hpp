@@ -25,8 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _BASISFUNCTIONSCHECKERS_HPP_
 #define _BASISFUNCTIONSCHECKERS_HPP_
+
 #include <cxxtest/TestSuite.h>
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
@@ -43,6 +45,7 @@ template <unsigned ELEMENT_DIM>
 class BasisFunctionsCheckers
 {
 public:
+
     void checkLinearBasisFunctions(std::vector<ChastePoint<ELEMENT_DIM>*> evaluationPoints)
     {
         unsigned size = evaluationPoints.size(); // number of evalutation points and basis functions too
@@ -68,10 +71,7 @@ public:
                 {
                     expected_evaluation = 0.0;
                 }
-                TS_ASSERT_DELTA(basis_function_vector(func_index),
-                                expected_evaluation,
-                                1e-12);
-
+                TS_ASSERT_DELTA(basis_function_vector(func_index), expected_evaluation, 1e-12);
 
                 TS_ASSERT_DELTA(LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
@@ -105,10 +105,7 @@ public:
                 {
                     expected_evaluation = 0.0;
                 }
-                TS_ASSERT_DELTA(basis_function_vector(func_index),
-                                expected_evaluation,
-                                1e-12);
-
+                TS_ASSERT_DELTA(basis_function_vector(func_index), expected_evaluation, 1e-12);
 
                 TS_ASSERT_DELTA(QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
@@ -116,7 +113,6 @@ public:
             }
         }
     }
-
 };
 
 #endif //_BASISFUNCTIONSCHECKERS_HPP_

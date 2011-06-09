@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class ExecutableSupport
 {
 public:
+
     /**
      * Initialise PETSc from the command line arguments.
      *
@@ -139,7 +140,8 @@ public:
     static const int EXIT_BAD_ARGUMENTS = 2;
 
 private:
-    /** The output directory to put machine provenance information into */
+
+    /** The output directory to put machine provenance information into. */
     static std::string mOutputDirectory;
 };
 

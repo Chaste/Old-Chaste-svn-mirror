@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "OutputFileHandler.hpp"
 
 #include <cstdlib>
@@ -41,11 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
-    //Is it a valid request for a directory?
+    // Is it a valid request for a directory?
     if (rDirectory.find("..") != std::string::npos)
     {
         EXCEPTION("Will not create directory: " + rDirectory +
-                " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
+                  " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
     }
 
     mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
@@ -60,11 +59,11 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
             EXCEPTION("Cannot delete " + mDirectory + " because signature file \".chaste_deletable_folder\" is not present.");
         }
 
-        // Are we the master process?  Only the master should delete files
+        // Are we the master process? Only the master should delete files
         if (PetscTools::AmMaster())
         {
-            //Remove whatever was there before
-            //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
+            // Remove whatever was there before
+            // Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
             MPIABORTIFNON0(system, "rm -rf " + mDirectory + "/*");
         }
         // Wait for master to finish before going on to use the directory.
@@ -101,7 +100,6 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
     return directory_root;
 }
 
-
 std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& rDirectory) const
 {
     std::string directory_root = GetChasteTestOutputDirectory();
@@ -109,23 +107,23 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
     AddTrailingSlash(directories_to_add);
     std::string directory = directory_root + directories_to_add;
 
-    // Are we the master process?  Only the master should make any new directories
+    // Are we the master process? Only the master should make any new directories
     if (PetscTools::AmMaster())
     {
-        // If necessary make the ChasteTestOutputDirectory - don't make it deleteable by Chaste.
+        // If necessary make the ChasteTestOutputDirectory - don't make it deleteable by Chaste
         std::string command = "test -d " + directory_root;
         int return_value = system(command.c_str());
         if (return_value!=0)
         {
-            // We make as many folders as necessary here.
-            MPIABORTIFNON0(system,"mkdir -p " + directory_root);
+            // We make as many folders as necessary here
+            MPIABORTIFNON0(system, "mkdir -p " + directory_root);
         }
 
-        // Now make all the sub-folders requested one-by-one and add the .chaste_deletable_folder file to them.
+        // Now make all the sub-folders requested one-by-one and add the .chaste_deletable_folder file to them
         std::string remaining_directories = directories_to_add;
         std::string directory_to_add = "";
 
-        // Create the output directory structure one folder at a time.
+        // Create the output directory structure one folder at a time
         while (remaining_directories.find("/") != std::string::npos)
         {
             size_t found = remaining_directories.find_first_of("/");
@@ -137,9 +135,10 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
             if (return_value!=0)
             {
                 // We make only the next folder here
-                MPIABORTIFNON0(system,"mkdir -p " + directory_root + directory_to_add);
+                MPIABORTIFNON0(system, "mkdir -p " + directory_root + directory_to_add);
+
                 // Put the Chaste signature file into this folder
-                MPIABORTIFNON0(system,"touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
+                MPIABORTIFNON0(system, "touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
             }
         }
     }
@@ -149,7 +148,6 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
 
     return directory;
 }
-
 
 std::string OutputFileHandler::GetOutputDirectoryFullPath() const
 {
@@ -166,7 +164,6 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
     }
     return p_output_file;
 }
-
 
 out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
                                              unsigned number,

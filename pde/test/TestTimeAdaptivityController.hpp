@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTTIMEADAPTIVITYCONTROLLER_HPP_
 #define TESTTIMEADAPTIVITYCONTROLLER_HPP_
 
@@ -55,7 +54,7 @@ class ToyController : public AbstractTimeAdaptivityController
 
 public:
     ToyController(double minDt, double maxDt)
-      : AbstractTimeAdaptivityController(minDt, maxDt)
+        : AbstractTimeAdaptivityController(minDt, maxDt)
     {
     }
 };

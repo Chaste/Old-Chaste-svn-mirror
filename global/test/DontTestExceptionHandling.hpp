@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTEXCEPTIONHANDLING_HPP_
 #define _TESTEXCEPTIONHANDLING_HPP_
 
@@ -40,14 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The tests are supposed to fail, so aren't run normally.
  */
-
-
 class TestExceptionHandling : public CxxTest::TestSuite
 {
 public:
+
     void TestThrowingWithPetsc()
     {
-        Vec test_vecc=PetscTool::CreateVec(20);
+        Vec test_vecc = PetscTool::CreateVec(20);
 
         VecAssemblyBegin(test_vec);
         VecAssemblyEnd(test_vec);

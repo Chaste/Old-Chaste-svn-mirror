@@ -26,11 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
-
-
 
 bool DistributedVector::IsGlobalIndexLocal(unsigned globalIndex)
 {
@@ -58,7 +55,7 @@ DistributedVector::DistributedVector(Vec vec, DistributedVectorFactory* pFactory
 
 double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVectorException)
 {
-    assert(mSizeMultiplier==1);
+    assert(mSizeMultiplier == 1);
     if (mLo<=globalIndex && globalIndex<mHi)
     {
         return mpVec[globalIndex - mLo];
@@ -77,10 +74,7 @@ void DistributedVector::Restore()
     VecRestoreArray(mVec, &mpVec);
 }
 
-//
 // Iterator class
-//
-
 
 bool DistributedVector::Iterator::operator!=(const Iterator& rOther)
 {
@@ -94,9 +88,7 @@ DistributedVector::Iterator& DistributedVector::Iterator::operator++()
     return(*this);
 }
 
-//
 // Iterator creation
-//
 
 DistributedVector::Iterator DistributedVector::Begin()
 {
@@ -113,4 +105,3 @@ DistributedVector::Iterator DistributedVector::End()
     index.Global = mHi;
     return index;
 }
-

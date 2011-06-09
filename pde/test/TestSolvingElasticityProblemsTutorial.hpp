@@ -181,8 +181,7 @@ public:
          * has a static method for helping do this: the following gets all the nodes for which Y=1.0. The second
          * argument (the '1') indicates Y (eg, `GetNodesByComponentValue(mesh, 0, 10)` would correspond to X=10).
          */
-        std::vector<unsigned> fixed_nodes
-          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
         /* Now we create the (incompressible) solver, passing in the mesh, law, force, density, output directory
          * name and fixed nodes..
@@ -255,8 +254,7 @@ public:
 
         double density = 1.0;
 
-        std::vector<unsigned> fixed_nodes
-          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
         /* Now the traction boundary conditions. We need to collect all the boundary elements on the surface which we want to
          * apply non-zero tractions, put them in a `std::vector`, and create a corresponding `std::vector` of the tractions
@@ -273,13 +271,12 @@ public:
         traction(0) = 0;
         traction(1) = 1.0; // this choice of sign corresponds to an inward force (if applied to the bottom surface)
         /* Loop over boundary elements */
-        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
-                = mesh.GetBoundaryElementIteratorBegin();
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
              iter != mesh.GetBoundaryElementIteratorEnd();
              ++iter)
         {
             /* If the centre of the element has Y value of 0.0, it is on the surface we need */
-            if (fabs((*iter)->CalculateCentroid()[1] - 0.0)<1e-6)
+            if (fabs((*iter)->CalculateCentroid()[1] - 0.0) < 1e-6)
             {
                 /* Put the boundary element and the constant traction into the stores. */
                 BoundaryElement<1,2>* p_element = *iter;
@@ -288,7 +285,7 @@ public:
             }
         }
         /* A quick check */
-        assert(boundary_elems.size()==8u);
+        assert(boundary_elems.size() == 8u);
         /* Create solver as before */
         NonlinearElasticitySolver<2> solver(&mesh,
                                             &law,
@@ -349,7 +346,6 @@ public:
         /* Loop over the mesh nodes */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-
             /* If the node is on the Y=0 surface (the LHS) */
             if ( fabs(mesh.GetNode(i)->rGetLocation()[1])<1e-6)
             {
@@ -368,8 +364,7 @@ public:
          * here we don't create the tractions for each element
          */
         std::vector<BoundaryElement<1,2>*> boundary_elems;
-        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
-                = mesh.GetBoundaryElementIteratorBegin();
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
              iter != mesh.GetBoundaryElementIteratorEnd();
              ++iter)
         {
@@ -471,8 +466,5 @@ public:
      * `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being implemented properly, tutorials
      * to be added later.
      */
-
-
-
 
 #endif /*TESTSOLVINGELASTICITYPROBLEMS_HPP_*/

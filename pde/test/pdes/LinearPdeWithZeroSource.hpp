@@ -25,11 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _LINEARPDEWITHZEROSOURCE_HPP_
 #define _LINEARPDEWITHZEROSOURCE_HPP_
 
 #include "AbstractLinearEllipticPde.hpp"
-
 
 /**
  * Linear PDE with zero source term and identity diffusion term.

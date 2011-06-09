@@ -38,9 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include "Warnings.hpp"
 
-
 /*
- *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
+ * Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
  * different compared to a real cardiac simulation. Do not take conclusions about preconditioner/solver performance
  * based on these tests only.
  */
@@ -60,11 +59,11 @@ public:
         Timer::Reset();
         {
             Mat system_matrix;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
             Vec system_rhs;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
@@ -86,11 +85,11 @@ public:
 
         {
             Mat system_matrix;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
             Vec system_rhs;
-            //Note that this test deadlocks if the file's not on the disk
+            // Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
@@ -132,11 +131,11 @@ public:
 #endif
 
         Mat system_matrix;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
         Vec system_rhs;
-        //Note that this test deadlocks if the file's not on the disk
+        // Note that this test deadlocks if the file's not on the disk
         PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
         // Make sure we are not inheriting a non-default number of iterations from previous test
@@ -223,7 +222,6 @@ public:
         VecDestroy(parallel_layout);
         VecDestroy(zero_guess);
     }
-
 };
 
 #endif /*TESTPCBLOCKDIAGONAL_HPP_*/

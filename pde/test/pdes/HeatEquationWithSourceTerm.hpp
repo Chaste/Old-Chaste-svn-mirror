@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _HEATEQUATIONWITHSOURCETERM_HPP_
 #define _HEATEQUATIONWITHSOURCETERM_HPP_
-
 
 #include "AbstractLinearParabolicPde.hpp"
 #include "ChastePoint.hpp"
@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A simple parabolic PDE used in tests.
  */
-
 template <int SPACE_DIM>
 class HeatEquationWithSourceTerm : public AbstractLinearParabolicPde<SPACE_DIM>
 {
@@ -54,7 +53,6 @@ public:
     {
         return 1;
     }
-
 };
 
 #endif //_HEATEQUATIONWITHSOURCETERM_HPP_

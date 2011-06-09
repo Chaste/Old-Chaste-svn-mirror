@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTNONLINEARELASTICITYSOLVER_HPP_
 #define TESTNONLINEARELASTICITYSOLVER_HPP_
 
@@ -101,8 +100,6 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location, double t)
 
     return traction;
 }
-
-
 
 class TestNonlinearElasticitySolver : public CxxTest::TestSuite
 {

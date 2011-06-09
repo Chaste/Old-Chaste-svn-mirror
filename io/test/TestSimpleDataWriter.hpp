@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSIMPLEDATAWRITER_HPP_
 #define TESTSIMPLEDATAWRITER_HPP_
 
@@ -55,7 +56,6 @@ public:
         TS_ASSERT_THROWS_THIS(SimpleDataWriter bad_writer("SimpleDataWriter", "bad2", t,x),
                 "Data vector sizes are not all equal");
     }
-
 
     void TestSimpleDataWriterWithStdVecs()
     {
@@ -88,4 +88,5 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "std_vecs3.dat  io/test/data/good_std_vec3.dat").c_str()), 0);
     }
 };
+
 #endif /*TESTSIMPLEDATAWRITER_HPP_*/

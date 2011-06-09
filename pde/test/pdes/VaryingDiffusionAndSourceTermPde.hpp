@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _VARYINGDIFFUSIONANDSOURCETERMPDE_
 #define _VARYINGDIFFUSIONANDSOURCETERMPDE_
 
@@ -36,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A more complex linear elliptic PDE used in tests. The source and diffusion terms
  * depend on x.
  */
-
 template <int SPACE_DIM>
 class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM,SPACE_DIM>
 {

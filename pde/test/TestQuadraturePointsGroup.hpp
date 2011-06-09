@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef TESTQUADRATUREPOINTSGROUP_HPP_
 #define TESTQUADRATUREPOINTSGROUP_HPP_
-#include <cxxtest/TestSuite.h>
 
+#include <cxxtest/TestSuite.h>
 
 #include "QuadraturePointsGroup.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestQuadraturePointsGroup : public CxxTest::TestSuite
 {
 public:
+
     void TestGetQuadPointLocations1d() throw(Exception)
     {
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -98,10 +99,7 @@ public:
             TS_ASSERT_LESS_THAN(group.Get(index)[0], 0.8);
             TS_ASSERT_LESS_THAN(0.2, group.Get(index)[0]);
         }
-
-
     }
 };
-
 
 #endif /*TESTQUADRATUREPOINTSGROUP_HPP_*/

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef HDF5DATAREADER_HPP_
 #define HDF5DATAREADER_HPP_
 
@@ -41,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 
 const unsigned MAX_STRING_SIZE = 100; /// \todo: magic number
-
 
 /**
  * A concrete HDF5 data reader class.
@@ -163,7 +163,6 @@ public:
      * Destructor just calls Close.
      */
     ~Hdf5DataReader();
-
 };
 
 #endif /*HDF5DATAREADER_HPP_*/

@@ -76,8 +76,8 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
     PetscInt num_local_rows, num_local_columns;
     MatGetLocalSize(system_matrix, &num_local_rows, &num_local_columns);
 
-    // odd number of rows: impossible in Bidomain.
-    // odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
+    // Odd number of rows: impossible in Bidomain.
+    // Odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
     if ((num_rows%2 != 0) || (num_local_rows%2 != 0))
     {
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
@@ -102,9 +102,7 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
     mPCContext.y21_subvector = PetscTools::CreateVec(subvector_num_rows_tissue, subvector_local_rows_tissue);
     mPCContext.y22_subvector = PetscTools::CreateVec(subvector_num_rows_bath, subvector_local_rows_bath);
 
-    /*
-     * Define IS objects that will be used throughout the method.
-     */
+    // Define IS objects that will be used throughout the method
     IS A11_all_rows;
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_all_rows);
 
@@ -219,7 +217,6 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
         MatGetSubMatrix(system_matrix, A22_B2_local_rows, A22_B2_columns, PETSC_DECIDE,
             MAT_INITIAL_MATRIX, &mPCContext.A22_B2_matrix_subblock);
 #endif
-
     }
 
     ISDestroy(A11_all_rows);
@@ -235,6 +232,7 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
 #else
     // Register PC context so it gets passed to PCTwoLevelsBlockDiagonalApply
     PCShellSetContext(mPetscPCObject, &mPCContext);
+
     // Register call-back function
     PCShellSetApply(mPetscPCObject, PCTwoLevelsBlockDiagonalApply);
 #endif
@@ -322,9 +320,9 @@ PetscErrorCode PCTwoLevelsBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 #endif
 
     /*
-     *  y1  = ILU(A11)*x1
-     *  y21 = ILU(A22)*x21
-     *  y22 = AMG(A22)*x22
+     * y1  = ILU(A11)*x1
+     * y21 = ILU(A22)*x21
+     * y22 = AMG(A22)*x22
      */
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->y1_subvector);
     PCApply(block_diag_context->PC_amg_A22_B1, block_diag_context->x21_subvector, block_diag_context->y21_subvector);

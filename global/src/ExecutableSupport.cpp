@@ -69,13 +69,13 @@ void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 
 void ExecutableSupport::ShowCopyright()
 {
-    //Compilation information
+    // Compilation information
     std::stringstream provenance_msg;
     provenance_msg << "This version of Chaste was compiled on:\n";
     provenance_msg << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
     provenance_msg << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
 
-    //Only show one copy of copyright/header
+    // Only show one copy of copyright/header
     if (PetscTools::AmMaster())
     {
         std::cout << "Copyright (C) University of Oxford, 2005-2011 \n\n\
@@ -93,7 +93,7 @@ Lesser GNU General Public License for more details. \n\n\
 You should have received a copy of the Lesser GNU General Public License \n\
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
-        //Write provenance information to stdout
+        // Write provenance information to stdout
         std::cout << provenance_msg.str() << std::flush;
     }
 }
@@ -102,7 +102,7 @@ void ExecutableSupport::ShowParallelLaunching()
 {
     if (PetscTools::IsParallel())
     {
-        ///Information to show that Chaste is being run in parallel
+        // Information to show that Chaste is being run in parallel
         PetscTools::BeginRoundRobin();
         std::cout << "Chaste launched on process " << PetscTools::GetMyRank()
             << " of " << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
@@ -162,7 +162,7 @@ void ExecutableSupport::WriteProvenanceInfoFile()
     OutputFileHandler out_file_handler(mOutputDirectory, false);
     out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");
 
-    //Compilation information
+    // Compilation information
     std::stringstream provenance_msg;
     provenance_msg << "This version of Chaste was compiled on:\n";
     provenance_msg << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";

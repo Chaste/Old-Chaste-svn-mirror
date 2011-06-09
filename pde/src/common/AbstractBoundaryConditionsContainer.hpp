@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef ABSTRACTBOUNDARYCONDITIONSCONTAINER_HPP_
 #define ABSTRACTBOUNDARYCONDITIONSCONTAINER_HPP_
 
@@ -63,6 +64,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractBoundaryConditionsContainer
 {
 protected:
+
     /** To save typing */
     typedef typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >
         DirichletMapType;
@@ -75,12 +77,16 @@ protected:
 
     /** Whether there are any Dirichlet BCs anywhere on the mesh*/
     bool mHasDirichletBCs;
-    /** Have we calculated mHasDirichletBCs */
+    
+    /** Have we calculated mHasDirichletBCs. */
     bool mCheckedAndCommunicatedIfDirichletBcs;
-    /** Whether to delete BCs in destructor */
+
+    /** Whether to delete BCs in destructor. */
     bool mDeleteConditions;
+
     /**
      * Delete the list of Dirichlet boundary conditions.
+     *
      * @note This should stay as a protected method to avoid it being called with default arguments and causing seg faults
      *  (requires careful bookkeeping when calling this method).
      * @param alreadyDeletedConditions  This is a set of BCs that have already been deleted that we should avoid trying
@@ -90,6 +96,7 @@ protected:
                                             = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
 
 public:
+
     /**
      * Constructor allocates memory for the Dirichlet boundary conditions lists.
      *

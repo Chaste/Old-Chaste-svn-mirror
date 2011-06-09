@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTPARALLELCOLUMNDATAREADERWRITER_HPP_
 #define _TESTPARALLELCOLUMNDATAREADERWRITER_HPP_
 
@@ -41,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestParallelColumnDataReaderWriter : public CxxTest::TestSuite
 {
-
 private:
 
     ParallelColumnDataWriter* mpParallelWriter;
@@ -50,6 +50,7 @@ private:
     static const int num_nodes = 10;
 
 public:
+
     void TestParallelColumnWriter()
     {
         int time_var_id=-1, var1_id=-1, var2_id=-1;
@@ -230,12 +231,12 @@ public:
         // Check that some of the data is correct
         std::vector<double> var1_node4;
         var1_node4 = mpReader->GetValues("Var1",4);
-        TS_ASSERT_EQUALS(var1_node4[0], 4.0); //First time step
-        TS_ASSERT_EQUALS(var1_node4[1], 2.0); //Second time step
+        TS_ASSERT_EQUALS(var1_node4[0], 4.0); // First time step
+        TS_ASSERT_EQUALS(var1_node4[1], 2.0); // Second time step
         std::vector<double> var2_node4;
         var2_node4 = mpReader->GetValues("Var2",4);
-        TS_ASSERT_EQUALS(var2_node4[0], -4 * 1e100); //First time step
-        TS_ASSERT_DELTA(var2_node4[1], sqrt(4 * 1e100), 1e-4); //Second time step
+        TS_ASSERT_EQUALS(var2_node4[0], -4 * 1e100); // First time step
+        TS_ASSERT_DELTA(var2_node4[1], sqrt(4 * 1e100), 1e-4); // Second time step
 
         TS_ASSERT_THROWS_THIS(mpReader->GetValues("LifeSigns",4),"Unknown variable");
         TS_ASSERT_THROWS(mpReader->GetValues("Var1",10),std::out_of_range);

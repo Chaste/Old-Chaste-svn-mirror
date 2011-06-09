@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "DistributedVectorFactory.hpp"
 
-
 bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
                                    std::string pathname2, std::string filename2, bool makeAbsolute2,
                                    double tol)
@@ -49,6 +48,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
         std::cout << "Number of nodes " << number_nodes1 << " and " << number_nodes2 << " don't match\n";
         return false;
     }
+
     // Check the variable names and units
     std::vector<std::string> variable_names1 = reader1.GetVariableNames();
     std::vector<std::string> variable_names2 = reader2.GetVariableNames();
@@ -75,6 +75,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
             return false;
         }
     }
+
     // Check the timestep vectors
     std::vector<double> times1 = reader1.GetUnlimitedDimensionValues();
     std::vector<double> times2 = reader2.GetUnlimitedDimensionValues();
@@ -190,42 +191,42 @@ bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string 
                                              std::string pathname2, std::string filename2, bool makeAbsolute2,
                                              double tol)
 {
-        Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
-        Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
+    Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
+    Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
 
-        unsigned number_nodes1 = reader1.GetNumberOfRows();
-        bool is_the_same = true;
-        std::vector<std::string> variable_names1 = reader1.GetVariableNames();
-        std::vector<std::string> variable_names2 = reader2.GetVariableNames();
-        std::vector<double> times1 = reader1.GetUnlimitedDimensionValues();
-        unsigned num_vars = variable_names1.size();
-        DistributedVectorFactory factory(number_nodes1);
+    unsigned number_nodes1 = reader1.GetNumberOfRows();
+    bool is_the_same = true;
+    std::vector<std::string> variable_names1 = reader1.GetVariableNames();
+    std::vector<std::string> variable_names2 = reader2.GetVariableNames();
+    std::vector<double> times1 = reader1.GetUnlimitedDimensionValues();
+    unsigned num_vars = variable_names1.size();
+    DistributedVectorFactory factory(number_nodes1);
 
-        Vec data1 = factory.CreateVec();
-        Vec data2 = factory.CreateVec();
+    Vec data1 = factory.CreateVec();
+    Vec data2 = factory.CreateVec();
 
-        for (unsigned timestep=0; timestep<times1.size(); timestep++)
+    for (unsigned timestep=0; timestep<times1.size(); timestep++)
+    {
+        for (unsigned var=0; var<num_vars; var++)
         {
-            for (unsigned var=0; var<num_vars; var++)
-            {
-                reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
-                reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
+            reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
+            reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
 
-                PetscReal data1_norm;
-                PetscReal data2_norm;
-                VecNorm(data1, NORM_2, &data1_norm);
-                VecNorm(data2, NORM_2, &data2_norm);
-                PetscReal norm = fabs(data1_norm-data2_norm);
-                if (norm > tol)
-                {
-                    is_the_same = false;
-                    std::cout << "Vectors differ in global NORM_2 by " << norm << std::endl;
-                }
+            PetscReal data1_norm;
+            PetscReal data2_norm;
+            VecNorm(data1, NORM_2, &data1_norm);
+            VecNorm(data2, NORM_2, &data2_norm);
+            PetscReal norm = fabs(data1_norm-data2_norm);
+            if (norm > tol)
+            {
+                is_the_same = false;
+                std::cout << "Vectors differ in global NORM_2 by " << norm << std::endl;
             }
         }
+    }
 
-        VecDestroy(data1);
-        VecDestroy(data2);
+    VecDestroy(data1);
+    VecDestroy(data2);
 
-        return is_the_same;
+    return is_the_same;
 }

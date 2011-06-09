@@ -109,7 +109,6 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     num_attr = 1u; // We have a single region code
 
     // The condition below allows the writer to cope with a NodesOnlyMesh
-    ///\todo throw a warning if this is the case? (#1784)
     if (num_elements == 0)
     {
         *p_element_file << 0 << "\t";
@@ -152,8 +151,10 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         // Write each element's data
         for (unsigned item_num=0; item_num<num_elements; item_num++)
         {
-            // if item_num==0 we will already got the element above (in order to
-            // get the number of nodes per element
+            /*
+             * If item_num==0 we will already have got the element above (in order to
+             * get the number of nodes per element).
+             */
             if (item_num > 0)
             {
                 element_data = this->GetNextElement();
@@ -170,7 +171,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     if (ELEMENT_DIM == 1)
     {
-        // In 1-D there is no boundary file.  It's trivial to calculate
+        // In 1-D there is no boundary file: it's trivial to calculate
         return;
     }
     else if (ELEMENT_DIM == 2)
@@ -319,6 +320,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     {
         *p_face_file << "\n";
     }
+
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
@@ -337,10 +339,11 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, u
 {
     if (this->mFilesAreBinary)
     {
-        //No item numbers
-        //Write raw data out of std::vector into the file
+        // No item numbers
+        // Write raw data out of std::vector into the file
         pFile->write((char*)&dataPacket[0], dataPacket.size()*sizeof(T));
-        //Write raw attribute
+
+        // Write raw attribute
         if (attribute != UINT_MAX)
         {
             pFile->write((char*) &attribute, sizeof(attribute));
@@ -360,6 +363,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, u
         *pFile << "\n";
     }
 }
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

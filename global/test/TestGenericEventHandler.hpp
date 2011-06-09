@@ -26,12 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTGENERICEVENTHANDLER_HPP_
 #define TESTGENERICEVENTHANDLER_HPP_
 
 #include "GenericEventHandler.hpp"
-
 
 class AnEventHandler : public GenericEventHandler<3, AnEventHandler>
 {
@@ -47,7 +45,6 @@ public:
 };
 
 const char* AnEventHandler::EventName[] = { "Test1", "Test2", "Test3"};
-
 
 class TestGenericEventHandler : public CxxTest::TestSuite
 {

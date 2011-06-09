@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTPETSCSETUP_HPP_
 #define _TESTPETSCSETUP_HPP_
 
@@ -41,11 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * This tests that the initialisation of PETSc does something.
  */
-
-
 class TestPetscSetup : public CxxTest::TestSuite
 {
 public:
+
     void TestPetscIsThere()
     {
         PetscTruth is_there;
@@ -55,8 +53,10 @@ public:
 
     void TestPetscExceptions()
     {
-        // Note we could test with TS_ASSERT_THROWS_THIS() but PetscException includes line numbers so it isn't very robust.
-
+        /*
+         * Note we could test with TS_ASSERT_THROWS_THIS() but PetscException
+         * includes line numbers so it isn't very robust.
+         */
         int err = 0;
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
 
@@ -73,22 +73,24 @@ public:
         TS_ASSERT_EQUALS(err, PETSC_ERR_FILE_OPEN);
         TS_ASSERT_THROWS(PETSCEXCEPT(err), Exception);
 
-        //See if we can do it without a temporary
+        // See if we can do it without a temporary
         TS_ASSERT_THROWS(
             PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, 2, 1, &v)), Exception);
         VecDestroy(v);
 
-        //This test give back an "unknown error" message
+        // This test give back an "unknown error" message
         TS_ASSERT_THROWS( PETSCEXCEPT(-3), Exception);
     }
 
-
     void TestKspExceptionsForCoverage()
     {
-        TS_ASSERT_THROWS_NOTHING(  KSPEXCEPT(2) );
-        //These next few lines are designed to force the coverage test to pass.
-        //Some are hard to throw in normal circumstances --
-        //"Unknown KSP error code" ought never to be thrown.
+        TS_ASSERT_THROWS_NOTHING( KSPEXCEPT(2));
+
+        /*
+         * These next few lines are designed to force the coverage test to pass.
+         * Some are hard to throw in normal circumstances --
+         * "Unknown KSP error code" ought never to be thrown.
+         */
         TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_ITS), Exception );
         TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_DTOL), Exception );
         TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN), Exception );
@@ -104,11 +106,11 @@ public:
         double zero = 0.0;
         double ans;
 #ifdef TEST_FOR_FPE
-//If we are testing for divide-by-zero, then this will throw an exception
+// If we are testing for divide-by-zero, then this will throw an exception
         //TS_ASSERT_THROWS_ANYTHING(ans = one / zero);
         ans=zero*one;//otherwise compiler would complain
 #else
-//If we aren't testing for it, then there will be no exception
+// If we aren't testing for it, then there will be no exception
         TS_ASSERT_THROWS_NOTHING(ans = one / zero);
         double negative_infinity=std::numeric_limits<double>::infinity();
         TS_ASSERT_EQUALS(ans, negative_infinity);
@@ -120,17 +122,15 @@ public:
         double zero = 0.0;
         double ans;
 #ifdef TEST_FOR_FPE
-//If we are testing for divide-by-zero, then this will throw an exception
+// If we are testing for divide-by-zero, then this will throw an exception
         //TS_ASSERT_THROWS_ANYTHING(ans = zero / zero);
         ans=zero;//otherwise compiler would complain
 #else
-//If we aren't testing for it, then there will be no exception
+// If we aren't testing for it, then there will be no exception
         TS_ASSERT_THROWS_NOTHING(ans = zero / zero);
         TS_ASSERT(std::isnan(ans));
 #endif
     }
 };
-
-
 
 #endif // _TESTPETSCSETUP_HPP_

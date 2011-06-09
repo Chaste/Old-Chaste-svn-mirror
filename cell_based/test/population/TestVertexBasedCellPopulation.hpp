@@ -835,7 +835,7 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
 
-        //Test that the cell population parameters are output correctly
+        // Test that the cell population parameters are output correctly
         out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
         // Write cell population parameters to file
@@ -844,7 +844,6 @@ public:
 
         // Compare output with saved files of what they should look like
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters cell_based/test/data/TestVertexBasedCellPopulationOutputWriters/results.parameters").c_str()), 0);
-
     }
 
     void TestArchiving2dVertexBasedCellPopulation() throw(Exception)

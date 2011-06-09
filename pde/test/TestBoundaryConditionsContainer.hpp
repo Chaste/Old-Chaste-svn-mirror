@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _TESTBOUNDARYCONDITIONCONTAINER_HPP_
 #define _TESTBOUNDARYCONDITIONCONTAINER_HPP_
 
@@ -45,9 +46,7 @@ class TestBoundaryConditionsContainer : public CxxTest::TestSuite
 public:
     void TestSetGet()
     {
-        //////////////////////////////////////////////////////////////
-        // test in 1d
-        //////////////////////////////////////////////////////////////
+        // Test in 1d
 
         int num_nodes = 10;
         BoundaryConditionsContainer<1,1,1> bcc1;
@@ -101,9 +100,8 @@ public:
             delete elements[i].GetNode(0);
         }
 
-        //////////////////////////////////////////////////////////////
-        // test in 2d
-        //////////////////////////////////////////////////////////////
+        // Test in 2d
+
         num_nodes = 10;
         BoundaryConditionsContainer<2,2,1> bcc2;
 
@@ -156,9 +154,8 @@ public:
             delete elements2[i].GetNode(1);
         }
 
-        //////////////////////////////////////////////////////////////
-        // test in 3d
-        //////////////////////////////////////////////////////////////
+        // Test in 3d
+
         num_nodes = 10;
         BoundaryConditionsContainer<3,3,1> bcc3;
 
@@ -263,7 +260,6 @@ public:
         // 2007 AD code from here
         //////////////////////////
 
-
         /*
          *  Based on the original system and the boundary conditions applied in a non-symmetric
          *  manner, the resulting system looks like:
@@ -353,15 +349,14 @@ public:
         some_system.AssembleFinalLinearSystem();
 
         /*
-         *  Based on the original system and the boundary conditions applied in a symmetric
-         *  manner, the resulting system looks like:
+         * Based on the original system and the boundary conditions applied in a symmetric
+         * manner, the resulting system looks like:
          *
          *      1 0 0 ... 0
          *      0 1 0 ... 0
          *      0 0 1 ... 0
          *      ...
          *      0 0 0 ... 1
-         *
          */
         int lo, hi;
         some_system.GetOwnershipRange(lo, hi);
@@ -399,7 +394,6 @@ public:
         }
         VecDestroy(solution);
     }
-
 
     void TestApplyToNonlinearSystem()
     {
@@ -480,6 +474,7 @@ public:
             double value = bcc.GetDirichletBCValue(mesh.GetNode(i));
             TS_ASSERT_DELTA(value, 0.0, 1e-12);
         }
+
         // Check non-boundary node has no condition
         TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNode(4)));
     }
@@ -510,16 +505,13 @@ public:
         }
         TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), false);
 
-
         iter = mesh.GetBoundaryElementIteratorBegin();
 
-        ConstBoundaryCondition<2>* p_boundary_condition2 =
-            new ConstBoundaryCondition<2>(-1);
+        ConstBoundaryCondition<2>* p_boundary_condition2 = new ConstBoundaryCondition<2>(-1);
 
         bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition2);
         TS_ASSERT_EQUALS(bcc_2unknowns.AnyNonZeroNeumannConditions(), true);
     }
-
 
     void TestValidate()
     {
@@ -564,8 +556,7 @@ public:
         ConstBoundaryCondition<2> *bc1 = new ConstBoundaryCondition<2>(2.0);
         ConstBoundaryCondition<2> *bc2 = new ConstBoundaryCondition<2>(-3.0);
 
-        TetrahedralMesh<2,2>::BoundaryElementIterator iter
-        = mesh.GetBoundaryElementIteratorEnd();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, bc1, 0);
         bcc.AddNeumannBoundaryCondition(*iter, bc2, 1);
@@ -632,17 +623,16 @@ public:
 
         some_system.AssembleFinalLinearSystem();
 
-        // matrix should now look like
-        // A = (1 0 0 0 .. 0)
-        //     (0 1 0 0 .. 0)
-        //     (     ..     )
-        //     (1 1 ..     1)
-        //     (1 1 ..     1)
-        //
-        // and rhs vector looks like b=(-1, -2, -1, -2, ..., -1, -2, 2, 2)
-        // so solution of Ax = b is  x=(-1, -2, -1, -2, ..., -1, -2, ?, ?)
-
-
+        /*
+         * Matrix should now look like
+         *   A = (1 0 0 0 .. 0)
+         *       (0 1 0 0 .. 0)
+         *       (     ..     )
+         *       (1 1 ..     1)
+         *       (1 1 ..     1)
+         * and rhs vector looks like b=(-1, -2, -1, -2, ..., -1, -2, 2, 2)
+         * so solution of Ax = b is  x=(-1, -2, -1, -2, ..., -1, -2, ?, ?).
+         */
         Vec solution = some_system.Solve();
         DistributedVector d_solution = factory.CreateDistributedVector(solution);
         DistributedVector::Stripe solution0(d_solution,0);
@@ -667,7 +657,6 @@ public:
 
         VecDestroy(solution);
     }
-
 
     void TestApplyToLinearSystem3Unknowns()
     {
@@ -743,7 +732,6 @@ public:
         VecDestroy(solution);
     }
 
-
     void TestApplyToNonlinearSystem3Unknowns()
     {
         const int SIZE = 10;
@@ -778,14 +766,9 @@ public:
         {
             nodes_array[i] = new Node<3>(i,true);
 
-            ConstBoundaryCondition<3>* p_boundary_condition0 =
-                new ConstBoundaryCondition<3>(-1);
-
-            ConstBoundaryCondition<3>* p_boundary_condition1 =
-                new ConstBoundaryCondition<3>(-2);
-
-            ConstBoundaryCondition<3>* p_boundary_condition2 =
-                new ConstBoundaryCondition<3>(-3);
+            ConstBoundaryCondition<3>* p_boundary_condition0 = new ConstBoundaryCondition<3>(-1);
+            ConstBoundaryCondition<3>* p_boundary_condition1 = new ConstBoundaryCondition<3>(-2);
+            ConstBoundaryCondition<3>* p_boundary_condition2 = new ConstBoundaryCondition<3>(-3);
 
             bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
             bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition1, 1);
@@ -850,8 +833,7 @@ public:
             ConstBoundaryCondition<2> *bc1 = new ConstBoundaryCondition<2>(2.0);
             ConstBoundaryCondition<2> *bc2 = new ConstBoundaryCondition<2>(-3.0);
 
-            TetrahedralMesh<2,2>::BoundaryElementIterator iter
-                = mesh.GetBoundaryElementIteratorEnd();
+            TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
             iter--;
             p_bcc->AddNeumannBoundaryCondition(*iter, bc1, 0);
             p_bcc->AddNeumannBoundaryCondition(*iter, bc2, 1);
@@ -882,8 +864,7 @@ public:
             // ...and fill it
             p_bcc->LoadFromArchive( input_arch, &mesh );
 
-            TetrahedralMesh<2,2>::BoundaryElementIterator iter
-                = mesh.GetBoundaryElementIteratorEnd();
+            TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
             iter--;
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);

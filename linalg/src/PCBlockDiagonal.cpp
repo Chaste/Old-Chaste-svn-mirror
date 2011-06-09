@@ -89,8 +89,8 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     PetscInt num_local_rows, num_local_columns;
     MatGetLocalSize(system_matrix, &num_local_rows, &num_local_columns);
 
-    // odd number of rows: impossible in Bidomain.
-    // odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
+    // Odd number of rows: impossible in Bidomain.
+    // Odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
     if ((num_rows%2 != 0) || (num_local_rows%2 != 0))
     {
         TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
@@ -172,6 +172,7 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 #else
     // Register PC context so it gets passed to PCBlockDiagonalApply
     PCShellSetContext(mPetscPCObject, &mPCContext);
+
     // Register call-back function
     PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
 #endif
@@ -225,8 +226,6 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     //    PCHYPRESetType(mPCContext.PC_amg_A22, "euclid");
 
-
-
     /* Block Jacobi with AMG at each block */
     //     PCSetType(mPCContext.PC_amg_A22, PCBJACOBI);
 
@@ -253,7 +252,6 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 //     PetscOptionsSetValue("-sub_pc_hypre_type", "boomeramg");
 //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_max_iter", "1");
 //     PetscOptionsSetValue("-sub_pc_hypre_boomeramg_strong_threshold", "0.0");
-
 
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A22);
@@ -289,8 +287,8 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 #endif
 
     /*
-     *  y1 = AMG(A11)*x1
-     *  y2 = AMG(A22)*x2
+     * y1 = AMG(A11)*x1
+     * y2 = AMG(A22)*x2
      */
 #ifdef TRACE_KSP
     init_time = MPI_Wtime();

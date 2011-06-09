@@ -1915,7 +1915,7 @@ public:
 //        TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), mesh_reader.GetNumNodes());
 //        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), mesh_reader.GetNumElements());
 
-        //Test for connectivity
+        // Test for connectivity
         ///\todo #1621 use the mesh reader when it's written
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_binary_v2.ncl").c_str()), 0);
     }

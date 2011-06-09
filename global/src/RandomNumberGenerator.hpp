@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
 
@@ -50,15 +49,19 @@ private:
     /** Pointer to the single instance. */
     static RandomNumberGenerator* mpInstance;
 
-    /** Working memory for the normal random number calculations */
+    /** Working memory for the normal random number calculations. */
     double mWorkingMem1;
-    /** Working memory for the normal random number calculations */
+
+    /** Working memory for the normal random number calculations. */
     double mWorkingMem2;
-    /** Working memory for the normal random number calculations */
+
+    /** Working memory for the normal random number calculations. */
     double mWorkingMemW;
-    /** Stored normal random number (we generate two at once) */
+
+    /** Stored normal random number (we generate two at once). */
     double mRandNum2;
-    /** Whether to use the stored random number next */
+
+    /** Whether to use the stored random number next. */
     bool mUseLastNum;
 
     friend class boost::serialization::access;
@@ -76,7 +79,7 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        // note, version is always the latest when saving
+        // Note, version is always the latest when saving
         archive & mSeed;
         archive & mTimesCalled;
         archive & mUseLastNum;
@@ -101,13 +104,18 @@ private:
         archive & mTimesCalled;
         archive & mUseLastNum;
         archive & mRandNum2;
-        // reset the random number generator to use the correct seed
+
+        // Reset the random number generator to use the correct seed
         srandom(mSeed);
-        // call it the correct number of times to put it in the
-        // same state as it used to be.
-        // NOTE: This is only guaranteed to work if Normal random
-        // deviates are not used, since the methods to generate
-        // numbers from a normal distribution use static variables.
+
+        /*
+         * Call it the correct number of times to put it in the same state
+         * as it used to be.
+         * 
+         * Note: This is only guaranteed to work if Normal random deviates
+         * are not used, since the methods to generate numbers from a normal
+         * distribution use static variables.
+         */
         for (long unsigned i=0; i<mTimesCalled; i++)
         {
             random();
@@ -124,7 +132,6 @@ protected:
     RandomNumberGenerator();
 
 public:
-
 
     /**
      * Uses a ranf() call and an approximation to the inverse PDF of the
@@ -152,7 +159,7 @@ public:
     double ranf();
 
     /**
-     * Generate a random number modulo base (ie an integer
+     * Generate a random number modulo base (i.e. an integer
      * within the range 0,..,base-1),
      *
      * @param base the order of the field of positive integers from which the random number is drawn
@@ -190,7 +197,6 @@ public:
      * @param seed the new seed
      */
     void Reseed(int seed);
-
-
 };
+
 #endif /*RANDOMNUMBERGENERATORS_HPP_*/
