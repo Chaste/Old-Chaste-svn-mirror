@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "HeatEquationForCoupledOdeSystem.hpp"
+#include "SchnackenbergCoupledPdeSystem.hpp"
 
 class TestLinearParabolicPdeSystemForCoupledOdeSystem : public CxxTest::TestSuite
 {
@@ -63,6 +64,34 @@ public:
 
         c_matrix<double,1,1> diffusion_term = pde.ComputeDiffusionTerm(x, 0);
         TS_ASSERT_DELTA(diffusion_term(0,0), 1.0, 1e-6);
+    }
+
+    void TestSchnackenbergCoupledPdeSystem()
+    {
+        // Create PDE system object
+        SchnackenbergCoupledPdeSystem<1> pde(1e-4, 1e-2, 0.1, 0.2, 0.3, 0.1);
+
+        ChastePoint<1> x(1.0);
+
+        TS_ASSERT_DELTA(pde.ComputeDuDtCoefficientFunction(x,0), 1.0, 1e-6);
+
+        c_vector<double,2> pde_solution;
+        pde_solution(0) = 2.0;
+        pde_solution(1) = 0.75;
+
+        std::vector<double> ode_solution(1);
+        ode_solution[0] = 5.0;
+
+        TS_ASSERT_DELTA(pde.ComputeSourceTerm(x, pde_solution, ode_solution, 0), 0.0, 1e-6);
+
+        Node<1> node(0);
+        TS_ASSERT_DELTA(pde.ComputeSourceTermAtNode(node, pde_solution, ode_solution, 0), 0.0, 1e-6);
+
+        c_matrix<double,1,1> diffusion_term1 = pde.ComputeDiffusionTerm(x, 0);
+        TS_ASSERT_DELTA(diffusion_term1(0,0), 1e-4, 1e-6);
+
+        c_matrix<double,1,1> diffusion_term2 = pde.ComputeDiffusionTerm(x, 1);
+        TS_ASSERT_DELTA(diffusion_term2(0,0), 1e-2, 1e-6);
     }
 };
 
