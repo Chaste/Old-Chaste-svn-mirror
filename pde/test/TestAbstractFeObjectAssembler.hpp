@@ -34,8 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MassMatrixAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "PetscMatTools.hpp"
 
-///\todo PROBLEM_DIM>1 is not tested here, so only in coupled PDE solves
+
+// Note: PROBLEM_DIM>1 is not tested here, so only in coupled PDE solves
 
 
 // simple assembler which just returns a c_vector of ones for each quad point
@@ -184,18 +186,6 @@ public:
     }
 };
 
-// Petsc is rubbish.
-double GetMatrixEntry(Mat& rMat, unsigned i, unsigned j)
-{
-    PetscInt row[1];
-    row[0] = (PetscInt) i;
-    PetscInt col[1];
-    col[0] = (PetscInt) j;
-    double value;
-    MatGetValues(rMat, 1, row, 1, col, &value);
-    return value;
-}
-
 
 class TestAbstractFeObjectAssembler : public CxxTest::TestSuite
 {
@@ -277,7 +267,7 @@ public:
         {
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
         }
@@ -322,7 +312,7 @@ public:
             TS_ASSERT_DELTA(vec_repl[i], h, 1e-4);
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
         }
@@ -342,7 +332,7 @@ public:
             TS_ASSERT_DELTA(vec_repl2[i], h, 1e-4);
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
         }
@@ -364,7 +354,7 @@ public:
             TS_ASSERT_DELTA(vec_repl3[i], h, 1e-4);
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 // value is 0.0 now
                 TS_ASSERT_DELTA(value, 0.0, 1e-4);
             }
@@ -379,7 +369,7 @@ public:
         {
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
         }
@@ -517,7 +507,7 @@ public:
         {
             for (unsigned j=0; j<mesh.GetNumNodes(); j++)
             {
-                double value = GetMatrixEntry(mat,i,j);
+                double value = PetscMatTools::GetElement(mat,i,j);
                 if (i>0 && i<mesh.GetNumNodes()-1)
                 {
                     // All rows except first and last should look like
@@ -599,34 +589,34 @@ public:
 
         if (lo==0)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,0)/scale_factor, 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,1)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,2)/scale_factor,    0.0, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,3)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,0,0)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,0,1)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,0,2)/scale_factor,    0.0, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,0,3)/scale_factor, 1.0/24, 1e-6);
         }
 
         if (lo<=1 && 1<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,0)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,1)/scale_factor, 1.0/6,  1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,2)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,3)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,1,0)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,1,1)/scale_factor, 1.0/6,  1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,1,2)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,1,3)/scale_factor, 1.0/12, 1e-6);
         }
 
         if (lo<=2 && 2<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,0)/scale_factor,    0.0, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,1)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,2)/scale_factor, 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,3)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,2,0)/scale_factor,    0.0, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,2,1)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,2,2)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,2,3)/scale_factor, 1.0/24, 1e-6);
         }
 
         if (lo<=3 && 3<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,0)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,1)/scale_factor, 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,2)/scale_factor, 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,0)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,1)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,2)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
         }
 
         MatDestroy(mat);
