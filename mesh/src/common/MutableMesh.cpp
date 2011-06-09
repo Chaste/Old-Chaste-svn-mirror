@@ -722,8 +722,18 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
 
-        this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
-
+        try
+        {
+            this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
+        }
+        catch (Exception& e)
+        {
+            //A zero-area element was detected so we couldn't carry on
+            //Tidy up triangle
+            this->FreeTriangulateIo(mesher_input);
+            this->FreeTriangulateIo(mesher_output);
+            throw e;
+        }
         //Tidy up triangle
         this->FreeTriangulateIo(mesher_input);
         this->FreeTriangulateIo(mesher_output);
