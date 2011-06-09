@@ -41,7 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemForCoupledHeatEquationWithSource.hpp"
 #include "HeatEquationForCoupledOdeSystem.hpp"
 #include "HeatEquationWithSourceForCoupledOdeSystem.hpp"
+#include "SchnackenbergCoupledPdeSystem.hpp"
+#include "RandomNumberGenerator.hpp"
 #include "LinearParabolicPdeSystemWithCoupledOdeSystemSolver.hpp"
+#include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
@@ -334,6 +337,73 @@ public:
 
         // Tidy up
         VecDestroy(initial_condition);
+    }
+
+    /**
+     * This test provides an example of how to solve a coupled PDE system
+     * where there is no coupled ODE system, and can be used as a template
+     * for solving standard reaction-diffusion problems arising in the
+     * study of pattern formation on fixed domains.
+     */
+    void TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
+    {
+        // Create mesh of domain [0,1]
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1000_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Create PDE system object
+        SchnackenbergCoupledPdeSystem<1> pde(1e-4, 1e-2, 0.1, 0.2, 0.3, 0.1);
+
+        // Create non-zero Dirichlet boundary conditions for each state variable
+        BoundaryConditionsContainer<1,1,2> bcc;
+        ConstBoundaryCondition<1>* p_bc_for_u = new ConstBoundaryCondition<1>(2.0);
+        ConstBoundaryCondition<1>* p_bc_for_v = new ConstBoundaryCondition<1>(0.75);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_bc_for_u, 0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_bc_for_v, 1);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_u, 0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_v, 1);
+
+        // Create PDE system solver
+        LinearParabolicPdeSystemWithCoupledOdeSystemSolver<1,1,2> solver(&mesh, &pde, &bcc);
+
+        // Set end time and time step
+        double t_end = 10;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(1e-1);
+
+        // Create initial conditions that are random perturbations of the uniform steady state
+        std::vector<double> init_conds(2*mesh.GetNumNodes());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            init_conds[2*i] = fabs(2.0 + RandomNumberGenerator::Instance()->ranf());
+            init_conds[2*i + 1] = fabs(0.75 + RandomNumberGenerator::Instance()->ranf());
+        }
+        Vec initial_condition = PetscTools::CreateVec(init_conds);
+        solver.SetInitialCondition(initial_condition);
+
+        // Solve PDE system and store result
+        Vec result = solver.Solve();
+        ReplicatableVector result_repl(result);
+
+        // Store results in an accessible form
+        ReplicatableVector solution_repl(result);
+
+        // Write results for visualization in gnuplot
+        OutputFileHandler handler("TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet");
+        out_stream file = handler.OpenOutputFile("schnackenberg.dat");
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            double u = solution_repl[2*i];
+            double v = solution_repl[2*i + 1];
+            (*file) << x << "\t" << u << "\t" << v << "\n" << std::flush;
+        }
+        file->close();
+
+        // Tidy up
+        VecDestroy(initial_condition);
+        VecDestroy(result);
     }
 };
 
