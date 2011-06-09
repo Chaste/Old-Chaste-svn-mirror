@@ -327,7 +327,7 @@ public:
         }
         
         TrianglesMeshReader<2,2> reader2(mesh_base);
-        MixedDimensionMesh<2,2> partitioned_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        MixedDimensionMesh<2,2> partitioned_mesh;
         partitioned_mesh.ConstructFromMeshReader(reader2);
         
         
