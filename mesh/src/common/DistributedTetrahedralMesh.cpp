@@ -234,7 +234,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
         // Binary : load only the nodes which are needed
         for (std::set<unsigned>::const_iterator it=nodes_owned.begin(); it!=nodes_owned.end(); it++)
         {
-            //Loop over wholey-owned nodes
+            //Loop over wholly-owned nodes
             unsigned global_node_index=*it;
             coords = rMeshReader.GetNode(global_node_index);
             RegisterNode(global_node_index);

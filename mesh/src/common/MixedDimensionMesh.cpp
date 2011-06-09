@@ -47,7 +47,9 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader)
 {
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ConstructFromMeshReader(rMeshReader);
-
+    //Note that the above method may permute the node (for a parMETIS partition) after construction
+    //We have to convert to the permuted form first
+    
     // Add cable elements
     mNumCableElements = rMeshReader.GetNumCableElements();
     //this->mCableElements.reserve(mNumCableElements);
@@ -55,6 +57,14 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
     for (unsigned element_index=0; element_index < mNumCableElements; element_index++)
     {
         ElementData element_data = rMeshReader.GetNextCableElementData();
+        //Convert the node indices from the original to the permuted
+        if ( this->mNodesPermutation.empty() == false)
+        {
+            for (unsigned j=0; j<2; j++) // cables are always 1d
+            {
+                element_data.NodeIndices[j] = this->mNodesPermutation[ element_data.NodeIndices[j] ];
+            }
+        }
 
         //Determine if we own any nodes on this cable element
         bool node_owned = false;

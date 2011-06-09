@@ -49,7 +49,7 @@ public:
          */
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh;
+        MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 121u);
@@ -101,8 +101,7 @@ public:
             if (PetscTools::GetMyRank() == 0)
             {
                 // For a dumb partition, process 0 owns nodes 0 to 59
-                // Cables 0, 1, 2, 3, 4
-                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 5u);
+                // Cables 0, 1, 2, 3, 4, 5
 
                 for (unsigned i=0; i<5u; i++)
                 {
@@ -115,16 +114,16 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
                     TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) ); // Designated owner of all these five, since we own node 0 (lowest index)
                 }
-                TS_ASSERT_THROWS_THIS(mesh.GetCableElement(5), "Requested cable element 5 does not belong to processor 0");
+                TS_ASSERT_THROWS_THIS(mesh.GetCableElement(6), "Requested cable element 6 does not belong to processor 0");
             }
             else
             {
                 // For a dumb partition, process 1 owns nodes 60 to 120
-                // Cables 4, 5, 6, 7, 8, 9
-                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 6u);
+                // Cables  5, 6, 7, 8, 9
+                TS_ASSERT_EQUALS(mesh.GetNumLocalCableElements(), 5u);
                 TS_ASSERT_THROWS_THIS(mesh.GetCableElement(0), "Requested cable element 0 does not belong to processor 1");
 
-                for (unsigned i=4; i<10u; i++)
+                for (unsigned i=5; i<10u; i++)
                 {
                     Element<1,2>* p_cable_elt = mesh.GetCableElement(i);
                     TS_ASSERT_EQUALS(p_cable_elt->GetNumNodes(), 2u);
@@ -135,7 +134,7 @@ public:
                     TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
 
                     // Not designated owner of the first of these as node 0 is owned by process 0
-                    if (i==4)
+                    if (i==5)
                     {
                         TS_ASSERT( ! mesh.CalculateDesignatedOwnershipOfCableElement(i) );
                     }
@@ -171,59 +170,6 @@ public:
         }
     }
 
-    void TestCableElementIterator() throw (Exception)
-    {
-        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
-        TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
-
-        unsigned count = 0;
-        for (MixedDimensionMesh<2,2>::CableElementIterator iter = mesh.GetCableElementIteratorBegin();
-             iter != mesh.GetCableElementIteratorEnd();
-             ++iter)
-        {
-            unsigned index = (*iter)->GetIndex();
-
-            TS_ASSERT_EQUALS((*iter)->GetNumNodes(), 2u);
-            TS_ASSERT_EQUALS((*iter)->GetNodeGlobalIndex(0u), 55u + index);
-            TS_ASSERT_EQUALS((*iter)->GetNodeGlobalIndex(1u), 56u + index);
-            TS_ASSERT_EQUALS((*iter)->GetNode(0u), mesh.GetNodeOrHaloNode(55u + index));
-            TS_ASSERT_EQUALS((*iter)->GetNode(1u), mesh.GetNodeOrHaloNode(56u + index));
-            TS_ASSERT_EQUALS((*iter)->GetRegion(), index+1);
-
-            count++;
-        }
-
-        if (PetscTools::IsSequential())
-        {
-            TS_ASSERT_EQUALS(count, 10u);
-        }
-        if (PetscTools::GetNumProcs() == 2)
-        {
-            if (PetscTools::GetMyRank() == 0)
-            {
-                TS_ASSERT_EQUALS(count, 5u);
-            }
-            else
-            {
-                TS_ASSERT_EQUALS(count, 6u);
-            }
-        }
-
-        //Test that every cable element has a designated owner
-        unsigned local_owned=0u;
-        for (unsigned i=0; i<mesh.GetNumCableElements(); i++)
-        {
-            if (mesh.CalculateDesignatedOwnershipOfCableElement(i))
-            {
-                local_owned++;
-            }
-        }
-        unsigned total_owned;
-        MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        TS_ASSERT_EQUALS(total_owned, mesh.GetNumCableElements());
-    }
 
     void TestReadingMeshWithNoCables() throw (Exception)
     {
@@ -280,8 +226,6 @@ public:
 
     void TestWritingBinaryFormat()
     {
-//        EXIT_IF_PARALLEL; /// \todo #1760 - make this work in parallel
-
         //Read as ascii
         TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
 
@@ -332,46 +276,102 @@ public:
     }
     
 
-/// This test shows how both processes own an element (ie an error to be fixed) when     
-    void failingTestStuffThatIsFailingInParallel() throw(Exception)
+    void TestGeometryWithMetisPermuation() throw(Exception)
     {
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
+        MixedDimensionMesh<2,2> dumb_partition_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        dumb_partition_mesh.ConstructFromMeshReader(reader);
         
         
-        for (MixedDimensionMesh<1,2>::CableElementIterator iter = mesh.GetCableElementIteratorBegin();
-             iter != mesh.GetCableElementIteratorEnd();
+        for (MixedDimensionMesh<1,2>::CableElementIterator iter = dumb_partition_mesh.GetCableElementIteratorBegin();
+             iter != dumb_partition_mesh.GetCableElementIteratorEnd();
              ++iter)
         {
             Element<1,2>& r_element = *(*iter);
-//            
-//            c_matrix<double, 2, 1> jacobian;
-//            c_matrix<double, 1, 2> inverse_jacobian;
-//            double jacobian_determinant;
-//
-//            r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-//            
-//            TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
-//            TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
-//            TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
-//            TS_ASSERT_DELTA(inverse_jacobian(0,1), 0.0, 1e-6);
-//            TS_ASSERT_DELTA(jacobian_determinant, 0.01, 1e-6);
+            
+            c_matrix<double, 2, 1> jacobian;
+            c_matrix<double, 1, 2> inverse_jacobian;
+            double jacobian_determinant;
+
+            r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
+            
+            TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
+            TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
+            TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
+            TS_ASSERT_DELTA(inverse_jacobian(0,1), 0.0, 1e-6);
+            TS_ASSERT_DELTA(jacobian_determinant, 0.01, 1e-6);
 
             // y value of all the cable nodes should be 0.05
             TS_ASSERT_DELTA(r_element.GetNodeLocation(0,1), 0.05, 1e-6);
             TS_ASSERT_DELTA(r_element.GetNodeLocation(1,1), 0.05, 1e-6);
+            // x value at the ends of the cable element can also be anticipated
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(0,0), r_element.GetIndex()*0.01, 1e-6);
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(1,0), (r_element.GetIndex()+1)*0.01, 1e-6);
+            
+        }
 
-            // shows that process 0 and 1 both own element 4            
-            if(r_element.GetOwnership() == true)
+        //Test that every cable element has a designated owner
+        {
+            unsigned local_owned=0u;
+            for (unsigned i=0; i<dumb_partition_mesh.GetNumCableElements(); i++)
             {
-                std::cout << "Process " << PetscTools::GetMyRank() << " owns element " << r_element.GetIndex() << "\n";
+                if (dumb_partition_mesh.CalculateDesignatedOwnershipOfCableElement(i))
+                {
+                    local_owned++;
+                }
             }
+            unsigned total_owned;
+            MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+            TS_ASSERT_EQUALS(total_owned, dumb_partition_mesh.GetNumCableElements());
         }
         
-        // remove when above is fixed
-        TS_FAIL("fix me");
+        TrianglesMeshReader<2,2> reader2(mesh_base);
+        MixedDimensionMesh<2,2> partitioned_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        partitioned_mesh.ConstructFromMeshReader(reader2);
+        
+        
+        for (MixedDimensionMesh<1,2>::CableElementIterator iter = partitioned_mesh.GetCableElementIteratorBegin();
+             iter != partitioned_mesh.GetCableElementIteratorEnd();
+             ++iter)
+        {
+            Element<1,2>& r_element = *(*iter);
+            
+            c_matrix<double, 2, 1> jacobian;
+            c_matrix<double, 1, 2> inverse_jacobian;
+            double jacobian_determinant;
+
+            r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
+            
+            TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
+            TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
+            TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
+            TS_ASSERT_DELTA(inverse_jacobian(0,1), 0.0, 1e-6);
+            TS_ASSERT_DELTA(jacobian_determinant, 0.01, 1e-6);
+
+            // y value of all the cable nodes should be 0.05
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(0,1), 0.05, 1e-6);
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(1,1), 0.05, 1e-6);
+            // x value at the ends of the cable element can also be anticipated
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(0,0), r_element.GetIndex()*0.01, 1e-6);
+            TS_ASSERT_DELTA(r_element.GetNodeLocation(1,0), (r_element.GetIndex()+1)*0.01, 1e-6);
+            
+        }
+        //Test that every cable element has a designated owner
+        {
+            unsigned local_owned=0u;
+            for (unsigned i=0; i<partitioned_mesh.GetNumCableElements(); i++)
+            {
+                if (partitioned_mesh.CalculateDesignatedOwnershipOfCableElement(i))
+                {
+                    local_owned++;
+                }
+            }
+            unsigned total_owned;
+            MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+            TS_ASSERT_EQUALS(total_owned, partitioned_mesh.GetNumCableElements());
+        }
+        
     }
 };
 
