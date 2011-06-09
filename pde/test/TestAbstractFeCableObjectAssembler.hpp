@@ -76,6 +76,49 @@ public:
     }
 };
 
+template<unsigned DIM>
+class SimpleVectorAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>
+{
+private:
+    c_vector<double,1*2> ComputeCableVectorTerm(
+        c_vector<double, 2>& rPhi,
+        c_matrix<double, DIM, 2>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double, 1, DIM>& rGradU,
+        Element<1,DIM>* pElement)
+    {
+        assert(fabs(rU(0)-10.0)<1e-6); // check u has been passed through correctly as 10 - see TestExceptionsAndSetCurrentSolution() below
+        return zero_vector<double>(2);
+    }
+public:
+    SimpleVectorAssembler(MixedDimensionMesh<DIM,DIM>* pMesh)
+        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
+    {
+    }
+};
+
+template<unsigned DIM>
+class SimpleMatrixAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,false,true,NORMAL>
+{
+private:
+    c_matrix<double,1*2,1*2> ComputeCableMatrixTerm(
+        c_vector<double, 2>& rPhi,
+        c_matrix<double, DIM, 2>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double, 1, DIM>& rGradU,
+        Element<1,DIM>* pElement)
+    {
+        return zero_matrix<double>(2,2);
+    }
+public:
+    SimpleMatrixAssembler(MixedDimensionMesh<DIM,DIM>* pMesh)
+        : AbstractFeCableObjectAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
+    {
+    }
+};
+
 
 class TestAbstractFeCableObjectAssembler : public CxxTest::TestSuite
 {
@@ -83,7 +126,7 @@ public:
     void TestBasicCableAssemblers() throw(Exception)
     {
         EXIT_IF_PARALLEL;
-        
+
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh;
@@ -108,6 +151,7 @@ public:
 
         /*
          * Cables:
+       index   node0   node1
         0       55      56      1
         1       56      57      2
         2       57      58      3
@@ -181,6 +225,34 @@ public:
         }
 
         MatDestroy(mat);
+    }
+
+
+    void TestExceptionsAndSetCurrentSolution() throw(Exception)
+    {
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        SimpleMatrixAssembler<2> matrix_assembler(&mesh);
+        TS_ASSERT_THROWS_THIS(matrix_assembler.Assemble(), "Matrix to be assembled has not been set");
+
+        SimpleVectorAssembler<2> vector_assembler(&mesh);
+        TS_ASSERT_THROWS_THIS(vector_assembler.Assemble(), "Vector to be assembled has not been set");
+
+        // Now cover and test the code that sets the current solution before assembling.
+        // We create a current solution of u=10 (for all nodes)...
+        Vec current_soln = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 10.0);
+        vector_assembler.SetCurrentSolution(current_soln);
+        // .. and call Assemble(). Note that the concrete assembler (defined above) checks
+        // that u=10 in ComputeCableVectorTerm().
+        Vec vec = PetscTools::CreateVec(mesh.GetNumNodes());
+        vector_assembler.SetVectorToAssemble(vec,true);
+        vector_assembler.Assemble();
+
+        VecDestroy(vec);
+        VecDestroy(current_soln);
     }
 };
 

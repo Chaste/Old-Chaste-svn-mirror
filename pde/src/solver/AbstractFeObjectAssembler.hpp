@@ -29,37 +29,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTFEOBJECTASSEMBLER_HPP_
 #define ABSTRACTFEOBJECTASSEMBLER_HPP_
 
-#include "LinearBasisFunction.hpp"
+#include "AbstractFeAssemblerCommon.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "ReplicatableVector.hpp"
-#include "DistributedVector.hpp"
-#include "HeartEventHandler.hpp"
-#include "AbstractTetrahedralMesh.hpp"
-#include "PetscTools.hpp"
-
-/**
- * Enumeration for defining how much interpolation (onto quadrature points) is
- * required by the concrete class.
- *
- * CARDIAC: only interpolates the first component of the unknown (ie the voltage)
- * NORMAL: interpolates the position X and all components of the unknown u
- * NONLINEAR: interpolates X, u and grad(u). Also computes the gradient of the
- *   basis functions when assembling vectors.
- */
-typedef enum InterpolationLevel_
-{
-    CARDIAC = 0,
-    NORMAL,
-    NONLINEAR
-} InterpolationLevel;
+#include "PetscVecTools.hpp"
+#include "PetscMatTools.hpp"
 
 /**
  *
  * An abstract class for creating finite element vectors or matrices that are defined
  * by integrals over the computational domain of functions of basis functions (for
  * example, stiffness or mass matrices), that require assembly by looping over
- * each element in the mesh and computing the elementwise integrals and adding it to
+ * each element in the mesh and computing the element-wise integrals and adding it to
  * the full matrix or vector.
  *
  * This class can be used to assemble a matrix OR a vector OR one of each. The
@@ -81,42 +62,23 @@ typedef enum InterpolationLevel_
  * NORMAL: interpolates the position X and all components of the unknown u
  * NONLINEAR: interpolates X, u and grad(u). Also computes the gradient of the
  *  basis functions when assembling vectors.
+ *
+ * This class inherits from AbstractFeAssemblerCommon which is where some member variables
+ * (the matrix/vector to be created, for example) are defined.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-class AbstractFeObjectAssembler : boost::noncopyable
+class AbstractFeObjectAssembler :
+     public AbstractFeAssemblerCommon<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>
 {
 protected:
-
-    /** The vector to be assembled (only used if CAN_ASSEMBLE_VECTOR == true). */
-    Vec mVectorToAssemble;
-
-    /** The matrix to be assembled (only used if CAN_ASSEMBLE_MATRIX == true). */
-    Mat mMatrixToAssemble;
-
-    /**
-     * Whether to assemble the matrix (an assembler may be able to assemble matrices
-     * (CAN_ASSEMBLE_MATRIX==true), but may not want to do so each timestep, hence
-     * this second boolean.
-     */
-    bool mAssembleMatrix;
-
-    /** Whether to assemble the vector. */
-    bool mAssembleVector;
-
-    /** Whether to zero the given vector before assembly, or just add to it. */
-    bool mZeroVectorBeforeAssembly;
+    /** Mesh to be solved on. */
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
     /** Whether to add surface integral contributions to the vector. */
     bool mApplyNeummanBoundaryConditionsToVector;
 
     /** Whether to ONLY assemble of the surface elements (defaults to false). */
     bool mOnlyAssembleOnSurfaceElements;
-
-    /** Ownership range of the vector/matrix - lowest component owned. */
-    PetscInt mOwnershipRangeLo;
-
-    /** Ownership range of the vector/matrix - highest component owned +1. */
-    PetscInt mOwnershipRangeHi;
 
     /** Quadrature rule for use on normal elements. */
     GaussianQuadratureRule<ELEMENT_DIM>* mpQuadRule;
@@ -130,11 +92,6 @@ protected:
     /** Basis function for use with boundary elements. */
     typedef LinearBasisFunction<ELEMENT_DIM-1> SurfaceBasisFunction;
 
-    /**
-     * If the matrix or vector will be dependent on a current solution, say,
-     * this is where that infomation is put.
-     */
-    ReplicatableVector mCurrentSolutionOrGuessReplicated;
 
     /**
      * Compute the derivatives of all basis functions at a point within an element.
@@ -160,7 +117,7 @@ protected:
                                                     c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rReturnValue);
 
     /**
-     * The main assembly method. Private, should only be called through Assemble(),
+     * The main assembly method. Should only be called through Assemble(),
      * AssembleMatrix() or AssembleVector() which set mAssembleMatrix, mAssembleVector
      * accordingly.
      */
@@ -174,21 +131,7 @@ protected:
      */
     void ApplyNeummanBoundaryConditionsToVector();
 
-    /**
-     * Useful inline function for getting an entry from the current solution vector.
-     *
-     * @param nodeIndex node index
-     * @param indexOfUnknown index of unknown
-     */
-    virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown)
-    {
-        return mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*nodeIndex + indexOfUnknown];
-    }
-
 protected:
-
-    /** Mesh to be solved on. */
-    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
     /**
      * A boundary conditions container saved if SetApplyNeummanBoundaryConditionsToVector()
@@ -197,24 +140,7 @@ protected:
      */
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
 
-    /**
-     * The concrete subclass can overload this and IncrementInterpolatedQuantities()
-     * if there are some quantities which need to be computed at each Gauss point.
-     * They are called in AssembleOnElement().
-     */
-    virtual void ResetInterpolatedQuantities()
-    {}
 
-    /**
-     * The concrete subclass can overload this and ResetInterpolatedQuantities()
-     * if there are some quantities which need to be computed at each Gauss point.
-     * They are called in AssembleOnElement().
-     *
-     * @param phiI
-     * @param pNode pointer to a node
-     */
-    virtual void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
-    {}
 
     /**
      * This method returns the matrix to be added to element stiffness matrix
@@ -306,17 +232,7 @@ protected:
         return zero_vector<double>(PROBLEM_DIM*ELEMENT_DIM);
     }
 
-    /**
-     * Whether to include this (volume) element when assembling. Returns true
-     * here but can be overridden by the concrete assembler if not all
-     * elements should be included.
-     *
-     * @param rElement the element
-     */
-    virtual bool ElementAssemblyCriterion(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
-    {
-        return true;
-    }
+
 
     /**
      * Calculate the contribution of a single element to the linear system.
@@ -347,6 +263,19 @@ protected:
      */
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
                                           c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem);
+
+    /**
+     * Whether to include this (volume) element when assembling. Returns true
+     * here but can be overridden by the concrete assembler if not all
+     * elements should be included.
+     *
+     * @param rElement the element
+     */
+    virtual bool ElementAssemblyCriterion(Element<ELEMENT_DIM,SPACE_DIM>& rElement)
+    {
+        return true;
+    }
+
 
 public:
 
@@ -383,62 +312,6 @@ public:
     }
 
     /**
-     * Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
-     *
-     * @param rMatToAssemble Reference to the matrix
-     */
-    void SetMatrixToAssemble(Mat& rMatToAssemble);
-
-    /**
-     * Set the vector that needs to be assembled. Requires CAN_ASSEMBLE_VECTOR==true.
-     *
-     * @param rVecToAssemble Reference to the vector
-     * @param zeroVectorBeforeAssembly Whether to zero the vector before assembling
-     *  (otherwise it is just added to)
-     */
-    void SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly);
-
-    /**
-     * Set a current solution vector that will be used in AssembleOnElement and can passed
-     * up to ComputeMatrixTerm() or ComputeVectorTerm().
-     *
-     * @param currentSolution Current solution vector.
-     */
-    void SetCurrentSolution(Vec currentSolution);
-
-    /**
-     * Assemble everything that the class can assemble.
-     */
-    void Assemble()
-    {
-        mAssembleMatrix = CAN_ASSEMBLE_MATRIX;
-        mAssembleVector = CAN_ASSEMBLE_VECTOR;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the matrix. Requires CAN_ASSEMBLE_MATRIX==true and ComputeMatrixTerm() to be implemented.
-     */
-    void AssembleMatrix()
-    {
-        assert(CAN_ASSEMBLE_MATRIX);
-        mAssembleMatrix = true;
-        mAssembleVector = false;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the vector. Requires CAN_ASSEMBLE_VECTOR==true and ComputeVectorTerm() to be implemented.
-     */
-    void AssembleVector()
-    {
-        assert(CAN_ASSEMBLE_VECTOR);
-        mAssembleMatrix = false;
-        mAssembleVector = true;
-        DoAssemble();
-    }
-
-    /**
      * Destructor.
      */
     virtual ~AbstractFeObjectAssembler()
@@ -452,18 +325,16 @@ public:
 };
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
-AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeObjectAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, unsigned numQuadPoints)
-    : mVectorToAssemble(NULL),
-      mMatrixToAssemble(NULL),
-      mZeroVectorBeforeAssembly(true),
+AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeObjectAssembler(
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, unsigned numQuadPoints)
+    : AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>(),
+      mpMesh(pMesh),
       mApplyNeummanBoundaryConditionsToVector(false),
       mOnlyAssembleOnSurfaceElements(false),
-      mpMesh(pMesh),
       mpBoundaryConditions(NULL)
 {
     assert(pMesh);
     assert(numQuadPoints > 0);
-    assert(CAN_ASSEMBLE_VECTOR || CAN_ASSEMBLE_MATRIX);
 
     mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);
 
@@ -477,48 +348,13 @@ AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECT
     }
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetMatrixToAssemble(Mat& rMatToAssemble)
-{
-    assert(rMatToAssemble);
-    MatGetOwnershipRange(rMatToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
 
-    mMatrixToAssemble = rMatToAssemble;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly)
-{
-    assert(rVecToAssemble);
-    VecGetOwnershipRange(rVecToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
-    mVectorToAssemble = rVecToAssemble;
-    mZeroVectorBeforeAssembly = zeroVectorBeforeAssembly;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetCurrentSolution(Vec currentSolution)
-{
-    assert(currentSolution != NULL);
-
-    // Replicate the current solution and store so can be used in AssembleOnElement
-    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-    mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolution);
-    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
-
-    /*
-     * The AssembleOnElement type methods will determine if a current solution or
-     * current guess exists by looking at the size of the replicated vector, so
-     * check the size is zero if there isn't a current solution.
-     */
-    assert(mCurrentSolutionOrGuessReplicated.GetSize() > 0);
-}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
 void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::DoAssemble()
 {
     HeartEventHandler::EventType assemble_event;
-    if (mAssembleMatrix)
+    if (this->mAssembleMatrix)
     {
         assemble_event = HeartEventHandler::ASSEMBLE_SYSTEM;
     }
@@ -527,11 +363,11 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         assemble_event = HeartEventHandler::ASSEMBLE_RHS;
     }
 
-    if (mAssembleMatrix && mMatrixToAssemble==NULL)
+    if (this->mAssembleMatrix && this->mMatrixToAssemble==NULL)
     {
         EXCEPTION("Matrix to be assembled has not been set");
     }
-    if (mAssembleVector && mVectorToAssemble==NULL)
+    if (this->mAssembleVector && this->mVectorToAssemble==NULL)
     {
         EXCEPTION("Vector to be assembled has not been set");
     }
@@ -540,13 +376,13 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     HeartEventHandler::BeginEvent(assemble_event);
 
     // Zero the matrix/vector if it is to be assembled
-    if (mAssembleVector && mZeroVectorBeforeAssembly)
+    if (this->mAssembleVector && this->mZeroVectorBeforeAssembly)
     {
-        PetscVecTools::Zero(mVectorToAssemble);
+        PetscVecTools::Zero(this->mVectorToAssemble);
     }
-    if (mAssembleMatrix)
+    if (this->mAssembleMatrix)
     {
-        PetscMatTools::Zero(mMatrixToAssemble);
+        PetscMatTools::Zero(this->mMatrixToAssemble);
     }
 
     const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);
@@ -554,7 +390,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     c_vector<double, STENCIL_SIZE> b_elem;
 
     // Loop over elements
-    if (mAssembleMatrix || (mAssembleVector && !mOnlyAssembleOnSurfaceElements))
+    if (this->mAssembleMatrix || (this->mAssembleVector && !mOnlyAssembleOnSurfaceElements))
     {
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = mpMesh->GetElementIteratorBegin();
              iter != mpMesh->GetElementIteratorEnd();
@@ -570,14 +406,14 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
                 unsigned p_indices[STENCIL_SIZE];
                 r_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
 
-                if (mAssembleMatrix)
+                if (this->mAssembleMatrix)
                 {
-                    PetscMatTools::AddMultipleValues<STENCIL_SIZE>(mMatrixToAssemble, p_indices, a_elem);
+                    PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mMatrixToAssemble, p_indices, a_elem);
                 }
 
-                if (mAssembleVector)
+                if (this->mAssembleVector)
                 {
-                    PetscVecTools::AddMultipleValues<STENCIL_SIZE>(mVectorToAssemble, p_indices, b_elem);
+                    PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_elem);
                 }
             }
         }
@@ -592,7 +428,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
      * Proper solution involves changing the boundary conditions container to have a map
      * of arrays boundary conditions rather than an array of maps.
      */
-    if (mApplyNeummanBoundaryConditionsToVector && mAssembleVector)
+    if (mApplyNeummanBoundaryConditionsToVector && this->mAssembleVector)
     {
         HeartEventHandler::EndEvent(assemble_event);
         ApplyNeummanBoundaryConditionsToVector();
@@ -613,7 +449,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::ApplyNeummanBoundaryConditionsToVector()
 {
-    assert(mAssembleVector);
+    assert(this->mAssembleVector);
     assert(mpBoundaryConditions != NULL);
 
     HeartEventHandler::BeginEvent(HeartEventHandler::NEUMANN_BCS);
@@ -632,7 +468,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
             const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
             unsigned p_indices[STENCIL_SIZE];
             r_surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-            PetscVecTools::AddMultipleValues<STENCIL_SIZE>(mVectorToAssemble, p_indices, b_surf_elem);
+            PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_surf_elem);
             ++neumann_iterator;
         }
     }
@@ -673,19 +509,12 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
     mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
-    // With the new signature of GetInverseJacobianForElement, inverse and Jacobian are returned at the same time
-    //        // Initialise element contributions to zero
-    //        if ( mAssembleMatrix || this->ProblemIsNonlinear() ) // don't need to construct grad_phi or grad_u in that case
-    //        {
-    //            this->mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), inverse_jacobian);
-    //        }
-
-    if (mAssembleMatrix)
+    if (this->mAssembleMatrix)
     {
         rAElem.clear();
     }
 
-    if (mAssembleVector)
+    if (this->mAssembleVector)
     {
         rBElem.clear();
     }
@@ -703,7 +532,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
         BasisFunction::ComputeBasisFunctions(quad_point, phi);
 
-        if ( mAssembleMatrix || INTERPOLATION_LEVEL==NONLINEAR )
+        if ( this->mAssembleMatrix || INTERPOLATION_LEVEL==NONLINEAR )
         {
             ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
         }
@@ -716,7 +545,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
 
         // Allow the concrete version of the assembler to interpolate any desired quantities
-        ResetInterpolatedQuantities();
+        this->ResetInterpolatedQuantities();
 
         // Interpolation
         for (unsigned i=0; i<num_nodes; i++)
@@ -732,7 +561,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
             // Interpolate u and grad u if a current solution or guess exists
             unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
-            if (mCurrentSolutionOrGuessReplicated.GetSize() > 0)
+            if (this->mCurrentSolutionOrGuessReplicated.GetSize() > 0)
             {
                 for (unsigned index_of_unknown=0; index_of_unknown<(INTERPOLATION_LEVEL!=CARDIAC ? PROBLEM_DIM : 1); index_of_unknown++)
                 {
@@ -744,7 +573,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
                      * u and v, they are stored in the current solution vector as
                      * [U1 V1 U2 V2 ... U_n V_n].
                      */
-                    double u_at_node = GetCurrentSolutionOrGuessValue(node_global_index, index_of_unknown);
+                    double u_at_node = this->GetCurrentSolutionOrGuessValue(node_global_index, index_of_unknown);
                     u(index_of_unknown) += phi(i)*u_at_node;
 
                     if (INTERPOLATION_LEVEL==NONLINEAR) // don't need to construct grad_phi or grad_u in other cases
@@ -758,18 +587,18 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
             }
 
             // Allow the concrete version of the assembler to interpolate any desired quantities
-            IncrementInterpolatedQuantities(phi(i), p_node);
+            this->IncrementInterpolatedQuantities(phi(i), p_node);
         }
 
         double wJ = jacobian_determinant * mpQuadRule->GetWeight(quad_index);
 
         // Create rAElem and rBElem
-        if (mAssembleMatrix)
+        if (this->mAssembleMatrix)
         {
             noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
 
-        if (mAssembleVector)
+        if (this->mAssembleVector)
         {
             noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
@@ -809,7 +638,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
             x.rGetLocation() += phi(i)*node_loc;
 
             // Allow the concrete version of the assembler to interpolate any desired quantities
-            IncrementInterpolatedQuantities(phi(i), rSurfaceElement.GetNode(i));
+            this->IncrementInterpolatedQuantities(phi(i), rSurfaceElement.GetNode(i));
         }
 
         double wJ = jacobian_determinant * mpSurfaceQuadRule->GetWeight(quad_index);
