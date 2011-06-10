@@ -44,7 +44,9 @@ class NodesOnlyMesh: public MutableMesh<SPACE_DIM, SPACE_DIM>
 private:
 
     /**
-     * Vector of cell radii.
+     * Vector of radii of cells corresponding to nodes.
+     * Each radius is set to 1.0 by default in the method
+     * ConstructNodesWithoutMesh()
      */
     std::vector<double> mCellRadii;
 
