@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MATRIXBASEDBIDOMAINSOLVER_HPP_
-#define MATRIXBASEDBIDOMAINSOLVER_HPP_
+#ifndef BIDOMAINSOLVER_HPP_
+#define BIDOMAINSOLVER_HPP_
 
 
 #include "UblasIncludes.hpp"
@@ -50,11 +50,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  FEM linear system.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MatrixBasedBidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
+class BidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
 {
 private:
+    // The base class has an an assembler for creating the LHS matrix.
+
     /** Mass matrix, used to computing the RHS vector (actually: mass-matrix in
-     *  voltage-voltage block, zero elsewhere
+     *  voltage-voltage block, zero elsewhere)
      */
     Mat mMassMatrix;
 
@@ -100,15 +102,15 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MatrixBasedBidomainSolver(bool bathSimulation,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                              BidomainTissue<SPACE_DIM>* pTissue,
-                              BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
-                              unsigned numQuadPoints = 2);
+    BidomainSolver(bool bathSimulation,
+                   AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                   BidomainTissue<SPACE_DIM>* pTissue,
+                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
+                   unsigned numQuadPoints = 2);
 
-    ~MatrixBasedBidomainSolver();
+    ~BidomainSolver();
 };
 
 
-#endif /*MATRIXBASEDBIDOMAINSOLVER_HPP_*/
+#endif /*BIDOMAINSOLVER_HPP_*/
 

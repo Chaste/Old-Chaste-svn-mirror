@@ -382,7 +382,7 @@ public:
         //// The following, which requires 2 classes to be friends of this test compiles
         //// but fails asserts in the first line as bcc is not set up. 
         //AbstractDynamicLinearPdeSolver<1,1,1>* p_solver = monodomain_problem.CreateSolver();
-        //MatrixBasedMonodomainSolver<1,1>* p_mono_solver = dynamic_cast<MatrixBasedMonodomainSolver<1,1>*>(p_solver);
+        //MonodomainSolver<1,1>* p_mono_solver = dynamic_cast<MonodomainSolver<1,1>*>(p_solver);
         //MonodomainCorrectionTermAssembler<1,1>* p_assembler = p_mono_solver->mpMonodomainCorrectionTermAssembler;
         //TS_ASSERT_EQUALS(p_assembler->mElementsHasIdenticalCellModels.size(), 10u);        
         

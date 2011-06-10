@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "MatrixBasedMonodomainSolver.hpp"
+#include "MonodomainSolver.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "Mahajan2008.hpp"
 

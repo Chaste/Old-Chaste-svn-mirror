@@ -36,8 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 
 /**
- *  Assembler for assembling the LHS matrix and RHS vector of the linear
- *  systems solved in bidomain problems
+ *  Assembler, used for assembling the LHS matrix of the linear system
+ *  that arises when the bidomain equations are discretised, and for assembling
+ *  the contribution to the RHS vector that comes from a surface integral.
+ * 
+ *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
+ *  methods ComputeMatrixTerm() and ComputeVectorSurfaceTerm().
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>
@@ -45,32 +49,12 @@ class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SP
 protected:
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
-    /** Ionic current to be interpolated from cache*/
-    double mIionic;
-    /** Intracellular stimulus to be interpolated from cache*/
-    double mIIntracellularStimulus;
-    /** Extracellular stimulus to be interpolated from cache*/
-    double mIExtracellularStimulus;
-
-    /**
-     * Overridden ResetInterpolatedQuantities() method.
-     */
-    void ResetInterpolatedQuantities();
-
-    /**
-     * Overridden IncrementInterpolatedQuantities() method.
-     *
-     * @param phiI
-     * @param pNode
-     */
-    void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
-
 
     /**
      * ComputeMatrixTerm()
      *
      * This method is called by AssembleOnElement() and tells the assembler
-     * the contribution to add to the element stiffness matrix.
+     * the contribution to add to the element LHS matrix.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
@@ -88,32 +72,7 @@ protected:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  ComputeVectorTerm()
-     *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness vector.
-     *
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
-     * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
-     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
-     * @param pElement Pointer to the element
-     */
-    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-    /**
      * ComputeVectorSurfaceTerm()
-     *
-     * This method is called by AssembleOnSurfaceElement() and tells the
-     * assembler what to add to the element stiffness matrix arising
-     * from surface element contributions.
      *
      * @param rSurfaceElement the element which is being considered.
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases

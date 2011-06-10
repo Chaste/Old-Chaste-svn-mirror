@@ -32,24 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities()
-{
-    mIionic = 0;
-    mIIntracellularStimulus = 0;
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
-        double phiI,
-        const Node<SPACE_DIM>* pNode)
-{
-    unsigned node_global_index = pNode->GetIndex();
-
-    mIionic                 += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phiI * this->mpCardiacTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
@@ -105,34 +87,6 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
 
     return ret;
 }
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2*(ELEMENT_DIM+1)>
-    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,2> &u,
-            c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-{
-    // get bidomain parameters
-    double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
-    double Cm = mpConfig->GetCapacitance();
-
-    c_vector<double,2*(ELEMENT_DIM+1)> ret;
-
-    vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-    vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
-
-    // u(0) = voltage
-    noalias(slice_V)   = (Am*Cm*u(0)*PdeSimulationTime::GetPdeTimeStepInverse() - Am*mIionic - mIIntracellularStimulus) * rPhi;
-    noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
-
-    return ret;
-}
-
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

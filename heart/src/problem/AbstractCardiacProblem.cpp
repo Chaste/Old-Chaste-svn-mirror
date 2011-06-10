@@ -46,7 +46,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
     : mMeshFilename(""),               // i.e. undefined
-      mUseMatrixBasedRhsAssembly(true),
+      mUseMatrixBasedRhsAssembly(true), // NOT USED, to be deleted see #1794
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
@@ -73,6 +73,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     // it doesn't really matter what we initialise these to, as they'll be overwritten by
     // the serialization methods
     : mMeshFilename(""),
+      mUseMatrixBasedRhsAssembly(true), // NOT USED, to be deleted see #1794
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacTissue
       mWriteInfo(false),
       mPrintOutput(true),

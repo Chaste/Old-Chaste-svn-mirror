@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacProblem.hpp"
 #include "BidomainProblem.hpp"
-#include "MatrixBasedBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 #include "BidomainTissue.hpp"
 #include "AdaptiveTetrahedralMesh.hpp"
 #include "AbstractStimulusFunction.hpp"
@@ -95,7 +95,7 @@ private:
      *  We need to save the solver that is being used to switch off the
      *  electrodes (by adding default boundary conditions to the solver)
      */
-    MatrixBasedBidomainSolver<3,3>* mpSolver;
+    BidomainSolver<3,3>* mpSolver;
 
     /** Adaptive tetrahedral mesh: used to interface with adaptivity library */
     AdaptiveTetrahedralMesh *mpAdaptiveMesh;

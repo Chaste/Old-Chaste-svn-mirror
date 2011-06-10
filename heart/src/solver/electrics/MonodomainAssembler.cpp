@@ -46,25 +46,6 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
             + mStiffnessMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
 }
 
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi /* not used */,
-        ChastePoint<SPACE_DIM> &rX /* not used */,
-        c_vector<double,1> &rU,
-        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement /* not used */)
-{
-    double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
-    double Cm = mpConfig->GetCapacitance();
-    
-    return  rPhi * (Am*Cm*rU(0)*PdeSimulationTime::GetPdeTimeStepInverse() - Am*mIionic - mIIntracellularStimulus);
-}
-
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, ELEMENT_DIM> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
@@ -77,14 +58,7 @@ c_vector<double, ELEMENT_DIM> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::Comput
 }
     
  
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
-{
-    unsigned node_global_index = pNode->GetIndex();
-    mIionic                 += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phiI * this->mpCardiacTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
-}   
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,

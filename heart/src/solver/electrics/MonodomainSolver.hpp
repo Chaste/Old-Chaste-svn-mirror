@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef MATRIXBASEDMONODOMAINSOLVER_HPP_
-#define MATRIXBASEDMONODOMAINSOLVER_HPP_
+#ifndef MONODOMAINSOLVER_HPP_
+#define MONODOMAINSOLVER_HPP_
 
 #include "AbstractMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  details.
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MatrixBasedMonodomainSolver
+class MonodomainSolver
    : public AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM> 
 {
 private:
@@ -90,17 +90,17 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MatrixBasedMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
-                                BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                unsigned numQuadPoints = 2);
+    MonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                     MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
+                     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
+                     unsigned numQuadPoints = 2);
                      
     /**
      *  Destructor
      */
-    ~MatrixBasedMonodomainSolver();
+    ~MonodomainSolver();
 };
 
 
 
-#endif /*MATRIXBASEDMONODOMAINSOLVER_HPP_*/
+#endif /*MONODOMAINSOLVER_HPP_*/

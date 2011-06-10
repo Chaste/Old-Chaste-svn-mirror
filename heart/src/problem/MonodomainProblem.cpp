@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
-#include "MatrixBasedMonodomainSolver.hpp"
+#include "MonodomainSolver.hpp"
 #include "OperatorSplittingMonodomainSolver.hpp"
 
 
@@ -64,10 +64,10 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
     }
     else
     {
-        return new MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                                      mpMonodomainTissue,
-                                                                      this->mpBoundaryConditionsContainer.get(),
-                                                                      2);
+        return new MonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                           mpMonodomainTissue,
+                                                           this->mpBoundaryConditionsContainer.get(),
+                                                           2);
     }
 }
 

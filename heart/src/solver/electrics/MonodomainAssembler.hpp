@@ -36,8 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainStiffnessMatrixAssembler.hpp"
 
 /**
- *  Assembler for assembling the LHS matrix and RHS vector of the linear
- *  systems solved in monodomain problems
+ *  Assembler, mainly used for assembling the LHS matrix of the linear system
+ *  that arises when the monodomain equations are discretised.
+ * 
+ *  If the discretised monodomain equation is written as A V^{n+1} = M V^n + M F^n + b_surf
+ *  where A is the LHS matrix, M the mass matrix, V the voltage, F the ionic current plus
+ *  stimulus, and b_surf corresponding to a contribution from surface boundary conditions
+ *  (usually zero), this assembler is used for assembling the matrix A and vector b_surf. 
+ * 
+ *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
+ *  methods ComputeMatrixTerm() and ComputeVectorSurfaceTerm().
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainAssembler
@@ -46,11 +54,6 @@ class MonodomainAssembler
 protected:
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
-
-    /** Ionic current to be interpolated from cache*/
-    double mIionic;
-    /** Intracellular stimulus to be interpolated from cache*/
-    double mIIntracellularStimulus;
     
     /** Assembler for the mass matrix */
     MassMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mMassMatrixAssembler;
@@ -79,32 +82,12 @@ protected:
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-    /**
-     *  ComputeVectorTerm()
-     *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness vector.
-     *
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
-     * @param rX The point in space
-     * @param rU The unknown as a vector, u(i) = u_i
-     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
-     * @param pElement Pointer to the element
-     */
-    c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
-                c_vector<double, ELEMENT_DIM+1> &rPhi,
-                c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi /* not used */,
-                ChastePoint<SPACE_DIM> &rX /* not used */,
-                c_vector<double,1> &rU,
-                c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-                Element<ELEMENT_DIM,SPACE_DIM>* pElement /* not used */);
 
     /**
      * ComputeVectorSurfaceTerm()
      *
      * This method is called by AssembleOnSurfaceElement() and tells the
-     * assembler what to add to the element stiffness matrix arising
+     * assembler what to add to the element  arising
      * from surface element contributions.
      *
      * @param rSurfaceElement the element which is being considered.
@@ -115,24 +98,6 @@ protected:
                 const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
                 c_vector<double, ELEMENT_DIM>& rPhi,
                 ChastePoint<SPACE_DIM>& rX);
-
-    
-    /**
-     * Overridden ResetInterpolatedQuantities() method.
-     */
-    void ResetInterpolatedQuantities( void )
-    {
-        mIionic = 0;
-        mIIntracellularStimulus = 0;
-    }
-    
-    /**
-     * Overridden IncrementInterpolatedQuantities() method.
-     *
-     * @param phiI
-     * @param pNode
-     */
-    void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
 
 public:
 

@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
 #include "MemfemMeshReader.hpp"
-#include "MatrixBasedBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "NumericFileComparison.hpp"
 #include "Electrodes.hpp"
@@ -305,10 +305,10 @@ public:
         // Coverage of the exception in the solver itself
         BoundaryConditionsContainer<1,1,2> container;
 
-        MatrixBasedBidomainSolver<1,1> bidomain_solver(false,
-                                                       &bidomain_problem.rGetMesh(),
-                                                       bidomain_problem.GetBidomainTissue(),
-                                                       &container);
+        BidomainSolver<1,1> bidomain_solver(false,
+                                            &bidomain_problem.rGetMesh(),
+                                            bidomain_problem.GetBidomainTissue(),
+                                            &container);
 
         TS_ASSERT_THROWS_THIS(bidomain_solver.SetRowForAverageOfPhiZeroed(0),
                 "Row for applying the constraint \'Average of phi_e = zero\' should be odd in C++ like indexing");

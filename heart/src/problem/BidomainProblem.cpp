@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BidomainProblem.hpp"
-#include "MatrixBasedBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 #include "HeartConfig.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
@@ -125,11 +125,11 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver(
      * As long as they are kept as member variables here for as long as they are
      * required in the solvers it should all work OK.
      */
-    mpSolver = new MatrixBasedBidomainSolver<DIM,DIM>(mHasBath, 
-                                                          this->mpMesh,
-                                                          mpBidomainTissue,
-                                                          this->mpBoundaryConditionsContainer.get(),
-                                                          2);
+    mpSolver = new BidomainSolver<DIM,DIM>(mHasBath, 
+                                           this->mpMesh,
+                                           mpBidomainTissue,
+                                           this->mpBoundaryConditionsContainer.get(),
+                                           2);
 
     try
     {

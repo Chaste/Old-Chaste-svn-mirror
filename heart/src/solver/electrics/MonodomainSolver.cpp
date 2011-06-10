@@ -26,13 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MatrixBasedMonodomainSolver.hpp"
+#include "MonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
 #include "PetscMatTools.hpp"
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
@@ -136,7 +136,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
@@ -160,7 +160,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec 
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
+MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
@@ -185,7 +185,7 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver()
+MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MonodomainSolver()
 {
     if(mVecForConstructingRhs)
     {
@@ -204,9 +204,9 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver
 // explicit instantiation
 ///////////////////////////////////////////////////////
 
-template class MatrixBasedMonodomainSolver<1,1>;
-template class MatrixBasedMonodomainSolver<1,2>;
-template class MatrixBasedMonodomainSolver<1,3>;
-template class MatrixBasedMonodomainSolver<2,2>;
-template class MatrixBasedMonodomainSolver<3,3>;
+template class MonodomainSolver<1,1>;
+template class MonodomainSolver<1,2>;
+template class MonodomainSolver<1,3>;
+template class MonodomainSolver<2,2>;
+template class MonodomainSolver<3,3>;
 

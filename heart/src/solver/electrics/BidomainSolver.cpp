@@ -27,13 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "MatrixBasedBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 #include "BidomainAssembler.hpp"
 #include "BidomainWithBathAssembler.hpp"
 #include "PetscMatTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
@@ -56,7 +56,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec in
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
+void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         Vec currentSolution,
         bool computeMatrix)
 {
@@ -215,7 +215,7 @@ void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
+BidomainSolver<ELEMENT_DIM,SPACE_DIM>::BidomainSolver(
         bool bathSimulation,
         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
         BidomainTissue<SPACE_DIM>* pTissue,
@@ -241,7 +241,7 @@ MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedBidomainSolver()
+BidomainSolver<ELEMENT_DIM,SPACE_DIM>::~BidomainSolver()
 {
     if(mVecForConstructingRhs)
     {
@@ -259,7 +259,7 @@ MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedBidomainSolver()
 // explicit instantiation
 ///////////////////////////////////////////////////////
 
-template class MatrixBasedBidomainSolver<1,1>;
-template class MatrixBasedBidomainSolver<2,2>;
-template class MatrixBasedBidomainSolver<3,3>;
+template class BidomainSolver<1,1>;
+template class BidomainSolver<2,2>;
+template class BidomainSolver<3,3>;
 

@@ -301,7 +301,6 @@ public:
 //
 //        HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
 //
-//        para_para_problem.UseMatrixBasedRhsAssembly(false);
 //        para_para_problem.Initialise();
 //
 //        // Nodes are not labeled until Initialise() is called.

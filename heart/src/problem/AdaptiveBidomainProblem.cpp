@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifdef CHASTE_ADAPTIVITY
 
 #include "AdaptiveBidomainProblem.hpp"
-#include "MatrixBasedBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 
 #include "VtkMeshWriter.hpp"
 #include "TetrahedralMesh.hpp"
@@ -244,9 +244,9 @@ void AdaptiveBidomainProblem::AdaptMesh()
         mpCardiacTissue = mpBidomainTissue;
 
         delete mpSolver;
-        MatrixBasedBidomainSolver<3,3>* p_new_solver;
-        p_new_solver = new MatrixBasedBidomainSolver<3,3>(false, mpMesh, mpBidomainTissue,
-                                                          mpBoundaryConditionsContainer.get(), 2);
+        BidomainSolver<3,3>* p_new_solver;
+        p_new_solver = new BidomainSolver<3,3>(false, mpMesh, mpBidomainTissue,
+                                               mpBoundaryConditionsContainer.get(), 2);
         mpSolver = p_new_solver;
         mpSolver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());
 
@@ -401,8 +401,8 @@ void AdaptiveBidomainProblem::Solve()
         }
     }
 
-    mpSolver = new MatrixBasedBidomainSolver<3,3>(false, mpMesh, mpBidomainTissue,
-                                                  mpBoundaryConditionsContainer.get(), 2);
+    mpSolver = new BidomainSolver<3,3>(false, mpMesh, mpBidomainTissue,
+                                       mpBoundaryConditionsContainer.get(), 2);
     mSolution = CreateInitialCondition();
 
     TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(),
