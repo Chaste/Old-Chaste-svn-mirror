@@ -229,11 +229,13 @@ void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
         EXCEPTION(error);
     }
 
-    // Add this parameter and suggest that mechanics systems set it.
-    // Allocates memory for mpBoxCollection and does the splitting and putting nodes into boxes
+    /*
+     * Add this parameter and suggest that mechanics systems set it.
+     * Allocates memory for mpBoxCollection and does the splitting
+     * and putting nodes into boxes.
+     */
     SplitUpIntoBoxes(mMechanicsCutOffLength, domain_size);
 
-    ///\todo Would it make more sense to have BoxCollection take in a NodesOnlyMesh? (#1762)
     std::vector<Node<DIM>*> nodes;
     for (unsigned index=0; index<mrMesh.GetNumNodes(); index++)
     {
