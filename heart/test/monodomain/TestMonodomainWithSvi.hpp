@@ -203,15 +203,6 @@ public:
                 monodomain_problem.SetMesh(&mesh);
                 monodomain_problem.Initialise();
 
-                if(i==0)
-                {
-                    //This block is for exception coverage
-                    monodomain_problem.UseMatrixBasedRhsAssembly(false);
-                    TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),"State variable interpolation only available");
-                    
-                    monodomain_problem.UseMatrixBasedRhsAssembly(true);
-                }
-                            
                 monodomain_problem.Solve();
                     
                 final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());

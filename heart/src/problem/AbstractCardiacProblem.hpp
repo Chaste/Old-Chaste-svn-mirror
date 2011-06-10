@@ -129,6 +129,7 @@ private:
         archive & mMeshFilename;
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacTissue
+//// TODO #1794
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
@@ -220,6 +221,7 @@ private:
         archive & mpMesh;
         assert(mpMesh != NULL); //If NULL then loading mesh has failed without an exception so Boost has given up on the mesh.  This would happen if a 2-dimensional mesh was successfully unarchived but mpMesh was expecting a 3-d mesh etc.
         //archive & mAllocatedMemoryForMesh; // Will always be true after a load
+// TODO #1794
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
@@ -346,8 +348,8 @@ protected:
     std::string mMeshFilename;
 
     /**
-     *  Whether to use matrix-based assembly of the RHS vector (much more efficient).
-     *  True by default
+     *  THIS BOOL IS BEING DEPRECATED AND ONLY PRESENT HERE SO
+     *  ARCHIVING TESTS STILL PASS
      */
     bool mUseMatrixBasedRhsAssembly;
     /** Whether this problem class has created the mesh itself, as opposed to being given it */
@@ -611,13 +613,6 @@ public:
      * Create and return a data reader configured to read the results we've been outputting.
      */
     Hdf5DataReader GetDataReader();
-
-    /**
-     *  Whether to use matrix-based RHS assembly or not.
-     *
-     * @param useMatrixBasedRhsAssembly
-     */
-    void UseMatrixBasedRhsAssembly(bool useMatrixBasedRhsAssembly=true);
 
     /**
      *  Called at beginning of each time step in the main time-loop in

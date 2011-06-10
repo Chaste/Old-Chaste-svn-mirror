@@ -73,7 +73,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     // it doesn't really matter what we initialise these to, as they'll be overwritten by
     // the serialization methods
     : mMeshFilename(""),
-      mUseMatrixBasedRhsAssembly(true),
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacTissue
       mWriteInfo(false),
       mPrintOutput(true),
@@ -742,12 +741,6 @@ Hdf5DataReader AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetDat
         EXCEPTION("Data reader invalid as data writer cannot be initialised");
     }
     return Hdf5DataReader(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::UseMatrixBasedRhsAssembly(bool usematrix)
-{
-    mUseMatrixBasedRhsAssembly = usematrix;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

@@ -650,7 +650,6 @@ public:
             Timer::Reset();
 
             non_matrix_based_bido.SetMesh(p_mesh);
-            non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
 

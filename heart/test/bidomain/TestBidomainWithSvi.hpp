@@ -136,14 +136,6 @@ public:
                 BidomainProblem<1> bidomain_problem( &cell_factory );
                 bidomain_problem.SetMesh(&mesh);
                 bidomain_problem.Initialise();
-
-                if(i==0)
-                {
-                    //This is only for exception coverage
-                    bidomain_problem.UseMatrixBasedRhsAssembly(false);
-                    TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(),"State variable interpolation only available");
-                    bidomain_problem.UseMatrixBasedRhsAssembly(true);
-                }
                             
                 bidomain_problem.Solve();
                     
@@ -166,13 +158,6 @@ public:
                 BidomainProblem<1> bidomain_problem( &cell_factory );
                 bidomain_problem.SetMesh(&mesh);
                 bidomain_problem.Initialise();
-                if(i==0)
-                {
-                    //This is only for exception coverage
-                    bidomain_problem.UseMatrixBasedRhsAssembly(false);
-                    TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(),"State variable interpolation only available");
-                    bidomain_problem.UseMatrixBasedRhsAssembly(true);
-                }
                             
                 bidomain_problem.Solve();
                     

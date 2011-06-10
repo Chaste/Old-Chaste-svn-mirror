@@ -46,10 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
 /**
- *  A better Bidomain solver (better than BasicModomainSolver, from which it
- *  inherits), which computes the right-hand-side (RHS) vector of the linear 
- *  system to be solved using matrix-vector products, rather than assembly.
- *  Massively more efficient than BasicBidomainSolver
+ *  A bidomain solver, which uses various assemblers to set up the bidomain
+ *  FEM linear system.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MatrixBasedBidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>

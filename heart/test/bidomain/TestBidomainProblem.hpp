@@ -126,10 +126,6 @@ public:
         pinned_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
 
-        // switch off matrix-based assembly (just to test old method). Note: switching this off
-        // is VERY inefficient
-        bidomain_problem.UseMatrixBasedRhsAssembly(false);
-
         try
         {
             bidomain_problem.Solve();

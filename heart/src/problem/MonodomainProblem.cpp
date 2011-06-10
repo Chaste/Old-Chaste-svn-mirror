@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
-#include "BasicMonodomainSolver.hpp"
 #include "MatrixBasedMonodomainSolver.hpp"
 #include "OperatorSplittingMonodomainSolver.hpp"
 
@@ -56,14 +55,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
      * required in the solvers it should all work OK.
      */
      
-    if(!this->mUseMatrixBasedRhsAssembly)
-    {
-        return new BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                                mpMonodomainTissue,
-                                                                this->mpBoundaryConditionsContainer.get(),
-                                                                2);
-    }
-    else if (HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting())
+    if (HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting())
     {
         return new OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                                             mpMonodomainTissue,

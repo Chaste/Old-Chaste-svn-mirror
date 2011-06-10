@@ -585,54 +585,6 @@ public:
         TS_ASSERT(edges_checked_reduced==4);
     }
 
-    // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
-    //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
-    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
-    // the equations have been divided through by the surface-area-to-volume ratio.
-    // (Historical reasons...)
-    void TestMonodomainWithNoMatrixBasedAssembly() throw(Exception)
-    {
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetPrintingTimeStep(1); //ms
-        HeartConfig::Instance()->SetSimulationDuration(2); //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
-        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dMatrixBasedRhs");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-
-        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
-        MonodomainProblem<1> monodomain_problem( &cell_factory );
-
-        // switch off matrix based assembly
-        monodomain_problem.UseMatrixBasedRhsAssembly(false);
-
-        monodomain_problem.Initialise();
-
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);
-
-        monodomain_problem.Solve();
-
-        // test whether voltages and gating variables are in correct ranges
-        CheckMonoLr91Vars<1>(monodomain_problem);
-
-        // check some voltages
-        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
-
-        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
-        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
-        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
-        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
-        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
-        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-
-        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
-        {
-            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  1e-10);
-        }
-    }
-
 
     ///////////////////////////////////////////////////////////////////
     // Solve a simple simulation and check the output was only

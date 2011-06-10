@@ -34,10 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainCorrectionTermAssembler.hpp"
 
 /**
- *  A better Monodomain solver (better than BasicMonodomainSolver), which 
- *  computes the right-hand-side (RHS) vector of the linear system to be 
- *  solved using matrix-vector products, rather than assembly.
- *  Massively more efficient than BasicMonodomainSolver.
+ *  A monodomain solver, which uses various assemblers to set up the 
+ *  monodomain linear system.
  * 
  *  Also allows state variable interpolation (SVI) to be used on elements
  *  for which it will be needed, if the appropriate HeartConfig boolean

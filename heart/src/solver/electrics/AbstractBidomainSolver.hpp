@@ -53,9 +53,7 @@ protected:
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* mpBoundaryConditions;
 
     /**
-     *  The bidomain assembler, used to set up the LHS matrix,
-     *  (and also used to set up the RHS vector in the BasicBidomainSolver, but
-     *  not in the MatrixBasedBidomainSolver)
+     *  The bidomain assembler, used to set up the LHS matrix
      */
     BidomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainAssembler;
     
