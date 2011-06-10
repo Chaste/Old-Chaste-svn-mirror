@@ -142,7 +142,24 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolu
     {
         return;
     }
-    AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(initialSolution);
+
+    // call base class version...
+    AbstractLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>::InitialiseForSolve(initialSolution);
+
+    //..then do a bit extra
+    if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
+    {
+        this->mpLinearSystem->SetAbsoluteTolerance(HeartConfig::Instance()->GetAbsoluteTolerance());
+    }
+    else
+    {
+        this->mpLinearSystem->SetRelativeTolerance(HeartConfig::Instance()->GetRelativeTolerance());
+    }
+
+    this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
+    this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
+    this->mpLinearSystem->SetMatrixIsSymmetric(true);
+    this->mpLinearSystem->SetUseFixedNumberIterations(HeartConfig::Instance()->GetUseFixedNumberIterationsLinearSolver(), HeartConfig::Instance()->GetEvaluateNumItsEveryNSolves());
 
     // initialise matrix-based RHS vector and matrix, and use the linear
     // system rhs as a template
@@ -157,7 +174,14 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolu
                          local_size, local_size);
 }
 
-
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec currentSolution)
+{
+    // solve cell models
+    double time = PdeSimulationTime::GetTime();
+    double dt = PdeSimulationTime::GetPdeTimeStep();
+    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+dt);
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
@@ -165,8 +189,16 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
             MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
             unsigned numQuadPoints)
-    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pTissue,pBoundaryConditions,numQuadPoints)
+    : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>(pMesh),
+      mpMonodomainTissue(pTissue),
+      mNumQuadPoints(numQuadPoints),
+      mpBoundaryConditions(pBoundaryConditions)
 {
+    assert(pTissue);
+    assert(pBoundaryConditions);
+    this->mMatrixIsConstant = true;
+
+    mpMonodomainAssembler = NULL; // can't initialise until know what dt is
     // Tell tissue there's no need to replicate ionic caches
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
@@ -187,6 +219,11 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MonodomainSolver()
 {
+    if(mpMonodomainAssembler)
+    {
+        delete mpMonodomainAssembler;
+    }
+
     if(mVecForConstructingRhs)
     {
         VecDestroy(mVecForConstructingRhs);

@@ -87,7 +87,7 @@ protected:
      * ComputeVectorSurfaceTerm()
      *
      * This method is called by AssembleOnSurfaceElement() and tells the
-     * assembler what to add to the element  arising
+     * assembler what to add to the element stiffness matrix arising
      * from surface element contributions.
      *
      * @param rSurfaceElement the element which is being considered.

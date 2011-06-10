@@ -60,8 +60,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *        solved for one timestep and the PDEs are solved for one timestep, since this is formally equivalent
  *        to the default implementation where the ionic current is interpolated from the nodal values 
  *        (ie ICI - see ICI/SVI discussion in documentation)
- *
- *  Unlike the other two solvers this currently does not inherit from AbstractMonodomainSolver.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class OperatorSplittingMonodomainSolver : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>

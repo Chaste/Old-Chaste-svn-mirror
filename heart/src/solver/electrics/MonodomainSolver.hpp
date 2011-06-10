@@ -29,9 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINSOLVER_HPP_
 #define MONODOMAINSOLVER_HPP_
 
-#include "AbstractMonodomainSolver.hpp"
+#include "AbstractDynamicLinearPdeSolver.hpp"
 #include "MassMatrixAssembler.hpp"
 #include "MonodomainCorrectionTermAssembler.hpp"
+#include "MonodomainTissue.hpp"
+#include "MonodomainAssembler.hpp"
 
 /**
  *  A monodomain solver, which uses various assemblers to set up the 
@@ -40,13 +42,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Also allows state variable interpolation (SVI) to be used on elements
  *  for which it will be needed, if the appropriate HeartConfig boolean
  *  is set. See wiki page ChasteGuides/StateVariableInterpolation for more 
- *  details.
+ *  details on this.
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainSolver
-   : public AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM> 
+  : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>
 {
 private:
+   
+    /** Monodomain tissue class (collection of cells, and conductivities) */
+    MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
+        
+    /**
+     *  Number of quadrature points per dimension (only saved so it can be
+     *  passed to the assembler
+     */
+    unsigned mNumQuadPoints;       
+
+    /** Boundary conditions */    
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* mpBoundaryConditions;
+
+
+    /** The monodomain assembler, used to set up the LHS matrix */
+    MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
+
     /** The mass matrix, used to computing the RHS vector */
     Mat mMassMatrix;
     
@@ -71,16 +90,21 @@ private:
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix);
     
-    
 public:
-  
-    /** Overloaded InitialiseForSolve() which calls base version but also
-     *  initialises #mMassMatrix and #mVecForConstructingRhs.
+    /**
+     *  Overloaded PrepareForSetupLinearSystem() methods which
+     *  gets the cell models to solve themselves
      * 
-     *  @param initialSolution  initial solution
+     *  @param currentSolution solution at current time
      */
-    void InitialiseForSolve(Vec initialSolution);
+    void PrepareForSetupLinearSystem(Vec currentSolution);
 
+    /**
+     *  Overloaded InitialiseForSolve
+     * 
+     *  @param initialSolution initial solution
+     */
+    virtual void InitialiseForSolve(Vec initialSolution);
 
     /**
      * Constructor
