@@ -132,7 +132,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_local_rows,
             MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #else
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
@@ -156,7 +156,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_local_rows,
             MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #else
         MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE,
@@ -178,12 +178,13 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         IS B_local_rows;
         IS B_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &B_local_rows);
-        ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+        ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &B_columns);
         MatGetSubMatrix(system_matrix, B_local_rows, B_columns,
             MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #else
+	ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
         MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE,
             MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #endif

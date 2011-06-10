@@ -128,7 +128,7 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_local_rows,
             MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 #else
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
@@ -154,7 +154,7 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
 
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_local_rows,
             MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 #else
         MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE,
