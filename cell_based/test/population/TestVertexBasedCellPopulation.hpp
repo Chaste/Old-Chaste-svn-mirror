@@ -546,6 +546,17 @@ public:
         unsigned old_num_elements = p_mesh->GetNumElements();
         unsigned old_num_cells = cell_population.rGetCells().size();
 
+        // Test GetNeighbouringNodeIndices() method
+        std::set<unsigned> node_10_neighbours = cell_population.GetNeighbouringNodeIndices(10);
+
+        std::set<unsigned> expected_node_10_neighbours;
+        expected_node_10_neighbours.insert(6);
+        expected_node_10_neighbours.insert(13);
+        expected_node_10_neighbours.insert(14);
+
+        TS_ASSERT_EQUALS(node_10_neighbours.size(), expected_node_10_neighbours.size());
+        TS_ASSERT_EQUALS(node_10_neighbours, expected_node_10_neighbours);
+
         // Add a new cell by dividing cell 4
 
         cell_population.GetCellUsingLocationIndex(4)->ReadyToDivide();

@@ -235,7 +235,6 @@ public:
 
         TS_ASSERT_DELTA(cell_population.GetDampingConstantNormal(),2.0, 1e-6);
         TS_ASSERT_DELTA(cell_population.GetDampingConstantMutant(),3.0, 1e-6);
-
     }
 
     void TestAreaBasedDampingConstant()
@@ -366,6 +365,18 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(cell_population.rGetCells().size(), 81u);
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 81u);
+
+        // Test GetNeighbouringNodeIndices() method
+        std::set<unsigned> node_50_neighbours = cell_population.GetNeighbouringNodeIndices(50);
+
+        std::set<unsigned> expected_node_50_neighbours;
+        expected_node_50_neighbours.insert(10);
+        expected_node_50_neighbours.insert(18);
+        expected_node_50_neighbours.insert(27);
+        expected_node_50_neighbours.insert(34);
+
+        TS_ASSERT_EQUALS(node_50_neighbours.size(), expected_node_50_neighbours.size());
+        TS_ASSERT_EQUALS(node_50_neighbours, expected_node_50_neighbours);
 
         p_simulation_time->IncrementTimeOneStep();
 

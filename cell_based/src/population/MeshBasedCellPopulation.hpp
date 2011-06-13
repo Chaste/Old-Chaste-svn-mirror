@@ -558,9 +558,16 @@ public:
      * @return mWriteVtkAsPoints.
      */
     bool GetWriteVtkAsPoints();
+
+    /**
+     * Overridden GetNeighbouringNodeIndices() method.
+     *
+     * @param index the node index
+     * @return the set of neighbouring node indices.
+     */
+    std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
 };
 #undef COVERAGE_IGNORE // Avoid prototypes being treated as code by gcov
-
 
 #include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeshBasedCellPopulation)

@@ -119,37 +119,11 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
 }
 
 
-std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(unsigned index)
-{
-    TetrahedralMesh<2,2>& r_mesh = mrCellPopulation.rGetMesh();
-
-    Node<2>* p_node = r_mesh.GetNode(index);
-
-    std::set<unsigned> neighbouring_node_indices;
-
-    for (Node<2>::ContainingElementIterator it = p_node->ContainingElementsBegin();
-         it != p_node->ContainingElementsEnd();
-         ++it)
-    {
-        Element<2,2>* p_element = r_mesh.GetElement(*it);
-        for (unsigned i=0; i<p_element->GetNumNodes(); i++)
-        {
-            unsigned node_index = p_element->GetNodeGlobalIndex(i);
-            if (node_index!=index)
-            {
-                neighbouring_node_indices.insert(node_index);
-            }
-        }
-    }
-    return neighbouring_node_indices;
-}
-
-
 std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned index, double theta)
 {
     TetrahedralMesh<2,2>& r_mesh = mrCellPopulation.rGetMesh();
 
-    std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
+    std::set<unsigned> neighbouring_node_indices = mrCellPopulation.GetNeighbouringNodeIndices(index);
 
     double tangential_force = 0.0;
     double normal_force = 0.0;
@@ -201,7 +175,7 @@ std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned in
 {
     TetrahedralMesh<2,2>& r_mesh = mrCellPopulation.rGetMesh();
 
-    std::set<unsigned> neighbouring_node_indices = GetNeighbouringNodeIndices(index);
+    std::set<unsigned> neighbouring_node_indices = mrCellPopulation.GetNeighbouringNodeIndices(index);
 
     std::vector<double> sampling_angles(4*neighbouring_node_indices.size());
 

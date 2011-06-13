@@ -120,7 +120,7 @@ public:
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
         bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
-                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
+                                     correct_ghost_node_indices.begin(), correct_ghost_node_indices.end());
 
         TS_ASSERT_EQUALS(all_included, true);
 

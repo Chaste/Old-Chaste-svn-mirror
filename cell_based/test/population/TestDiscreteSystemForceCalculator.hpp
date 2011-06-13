@@ -78,7 +78,7 @@ public:
         expected_node_indices.insert(15u);
         expected_node_indices.insert(16u);
 
-        std::set<unsigned> neighbouring_node_indices = calculator.GetNeighbouringNodeIndices(node_index);
+        std::set<unsigned> neighbouring_node_indices = cell_population.GetNeighbouringNodeIndices(node_index);
 
         TS_ASSERT(neighbouring_node_indices == expected_node_indices);
 

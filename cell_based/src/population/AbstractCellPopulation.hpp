@@ -473,13 +473,25 @@ public:
 
     /**
      * Calculate the 'width' of any dimension of the cell population.
-     *
-     * This method is overridden in some daughter classes.
+     *      
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
      *
      * @param rDimension a dimension (0,1 or 2)
      * @return The maximum distance between any nodes in this dimension.
      */
     virtual double GetWidth(const unsigned& rDimension)=0;
+
+    /**
+     * Given a node index, returns the set of neighbouring node indices.
+     *      
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param index the node index
+     * @return the set of neighbouring node indices.
+     */
+    virtual std::set<unsigned> GetNeighbouringNodeIndices(unsigned index)=0;
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.

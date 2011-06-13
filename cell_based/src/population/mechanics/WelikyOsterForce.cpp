@@ -87,7 +87,7 @@ void WelikyOsterForce<DIM>::AddForceContribution(std::vector<c_vector<double, DI
         /******** End of membrane force calculation **********/
 
         unsigned num_nodes = element_iter->GetNumNodes();
-           for (unsigned node_local_index = 0; node_local_index < num_nodes; node_local_index++)
+        for (unsigned node_local_index = 0; node_local_index < num_nodes; node_local_index++)
         {
             unsigned node_global_index = element_iter->GetNodeGlobalIndex(node_local_index);
 
@@ -97,6 +97,7 @@ void WelikyOsterForce<DIM>::AddForceContribution(std::vector<c_vector<double, DI
 
             c_vector<double, DIM> clockwise_unit_vector = p_cell_population->rGetMesh().GetVectorFromAtoB(current_node, previous_node);
             clockwise_unit_vector /= norm_2(clockwise_unit_vector);
+
             c_vector<double, DIM> anti_clockwise_unit_vector = p_cell_population->rGetMesh().GetVectorFromAtoB(current_node, next_node);
             anti_clockwise_unit_vector /= norm_2(anti_clockwise_unit_vector);
 
@@ -108,8 +109,7 @@ void WelikyOsterForce<DIM>::AddForceContribution(std::vector<c_vector<double, DI
 
             c_vector<double, DIM> membrane_surface_tension_contribution = membrane_surface_tension_coefficient * (clockwise_unit_vector + anti_clockwise_unit_vector);
 
-            c_vector<double, DIM> force_on_node = deformation_contribution +
-                                                  membrane_surface_tension_contribution;
+            c_vector<double, DIM> force_on_node = deformation_contribution + membrane_surface_tension_contribution;
 
             rForces[node_global_index] += force_on_node;
         }

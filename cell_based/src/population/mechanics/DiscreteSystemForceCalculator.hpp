@@ -57,15 +57,6 @@ private:
     out_stream mpVizStressResultsFile;
 
     /**
-     * Given a node index, returns the set of neighbouring node indices.
-     *
-     * @param index the node index
-     *
-     * @return the set of neighbouring node indices.
-     */
-    std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
-
-    /**
      * Given a node index and angle of intersecting line in the range (-pi,pi],
      * returns the tangential and normal forces.
      *

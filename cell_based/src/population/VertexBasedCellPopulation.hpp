@@ -321,6 +321,14 @@ public:
      * @return The maximum distance between any nodes in this dimension.
      */
     double GetWidth(const unsigned& rDimension);
+
+    /**
+     * Overridden GetNeighbouringNodeIndices() method.
+     *
+     * @param index the node index
+     * @return the set of neighbouring node indices.
+     */
+    std::set<unsigned> GetNeighbouringNodeIndices(unsigned index);
 };
 
 #include "SerializationExportWrapper.hpp"

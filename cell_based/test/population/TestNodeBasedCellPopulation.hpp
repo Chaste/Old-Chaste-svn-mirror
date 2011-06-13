@@ -388,7 +388,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
-        // Create a simple mesh
+        // Create a simple mesh of the domain [0,1]x[0,1]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> generating_mesh;
         generating_mesh.ConstructFromMeshReader(mesh_reader);
@@ -396,6 +396,10 @@ public:
         // Convert this to a NodesOnlyMesh
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(generating_mesh);
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            mesh.SetCellRadius(i, 0.1);
+        }
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -411,6 +415,22 @@ public:
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(node_based_cell_population.GetNumRealCells(), 81u);
+
+        // Test GetNeighbouringNodeIndices() method
+        std::set<unsigned> node_50_neighbours = node_based_cell_population.GetNeighbouringNodeIndices(50);
+
+        std::set<unsigned> expected_node_50_neighbours;
+        expected_node_50_neighbours.insert(10);
+        expected_node_50_neighbours.insert(18);
+        expected_node_50_neighbours.insert(27);
+        expected_node_50_neighbours.insert(34);
+        expected_node_50_neighbours.insert(48);
+        expected_node_50_neighbours.insert(49);
+        expected_node_50_neighbours.insert(64);
+        expected_node_50_neighbours.insert(66);
+
+        TS_ASSERT_EQUALS(node_50_neighbours.size(), expected_node_50_neighbours.size());
+        TS_ASSERT_EQUALS(node_50_neighbours, expected_node_50_neighbours);
 
         // Add a cell to the cell population
         boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);

@@ -66,14 +66,12 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
     }
 }
 
-
 template<unsigned DIM>
 VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM, DIM>& rMesh)
-             : mrMesh(rMesh)
+    : mrMesh(rMesh)
 {
     mDeleteMesh = true;
 }
-
 
 template<unsigned DIM>
 VertexBasedCellPopulation<DIM>::~VertexBasedCellPopulation()
@@ -83,7 +81,6 @@ VertexBasedCellPopulation<DIM>::~VertexBasedCellPopulation()
         delete &mrMesh;
     }
 }
-
 
 template<unsigned DIM>
 double VertexBasedCellPopulation<DIM>::GetDampingConstant(unsigned nodeIndex)
@@ -115,13 +112,11 @@ double VertexBasedCellPopulation<DIM>::GetDampingConstant(unsigned nodeIndex)
     return average_damping_constant;
 }
 
-
 template<unsigned DIM>
 MutableVertexMesh<DIM, DIM>& VertexBasedCellPopulation<DIM>::rGetMesh()
 {
     return mrMesh;
 }
-
 
 template<unsigned DIM>
 const MutableVertexMesh<DIM, DIM>& VertexBasedCellPopulation<DIM>::rGetMesh() const
@@ -129,13 +124,11 @@ const MutableVertexMesh<DIM, DIM>& VertexBasedCellPopulation<DIM>::rGetMesh() co
     return mrMesh;
 }
 
-
 template<unsigned DIM>
 VertexElement<DIM, DIM>* VertexBasedCellPopulation<DIM>::GetElement(unsigned elementIndex)
 {
     return mrMesh.GetElement(elementIndex);
 }
-
 
 template<unsigned DIM>
 unsigned VertexBasedCellPopulation<DIM>::GetNumNodes()
@@ -143,13 +136,11 @@ unsigned VertexBasedCellPopulation<DIM>::GetNumNodes()
     return mrMesh.GetNumNodes();
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> VertexBasedCellPopulation<DIM>::GetLocationOfCellCentre(CellPtr pCell)
 {
     return mrMesh.GetCentroidOfElement(this->mCellLocationMap[pCell.get()]);
 }
-
 
 template<unsigned DIM>
 Node<DIM>* VertexBasedCellPopulation<DIM>::GetNode(unsigned index)
@@ -157,13 +148,11 @@ Node<DIM>* VertexBasedCellPopulation<DIM>::GetNode(unsigned index)
     return mrMesh.GetNode(index);
 }
 
-
 template<unsigned DIM>
 unsigned VertexBasedCellPopulation<DIM>::AddNode(Node<DIM>* pNewNode)
 {
     return mrMesh.AddNode(pNewNode);
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
@@ -171,20 +160,17 @@ void VertexBasedCellPopulation<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM
     mrMesh.SetNode(nodeIndex, rNewLocation);
 }
 
-
 template<unsigned DIM>
 VertexElement<DIM, DIM>* VertexBasedCellPopulation<DIM>::GetElementCorrespondingToCell(CellPtr pCell)
 {
     return mrMesh.GetElement(this->mCellLocationMap[pCell.get()]);
 }
 
-
 template<unsigned DIM>
 unsigned VertexBasedCellPopulation<DIM>::GetNumElements()
 {
     return mrMesh.GetNumElements();
 }
-
 
 template<unsigned DIM>
 CellPtr VertexBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell)
@@ -215,7 +201,6 @@ CellPtr VertexBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector
     return p_created_cell;
 }
 
-
 template<unsigned DIM>
 unsigned VertexBasedCellPopulation<DIM>::RemoveDeadCells()
 {
@@ -236,7 +221,6 @@ unsigned VertexBasedCellPopulation<DIM>::RemoveDeadCells()
     }
     return num_removed;
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
@@ -274,13 +258,11 @@ void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_ve
     }
 }
 
-
 template<unsigned DIM>
 bool VertexBasedCellPopulation<DIM>::IsCellAssociatedWithADeletedLocation(CellPtr pCell)
 {
     return GetElementCorrespondingToCell(pCell)->IsDeleted();;
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
@@ -330,7 +312,6 @@ void VertexBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
     element_map.ResetToIdentity();
 }
 
-
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::Validate()
 {
@@ -362,7 +343,6 @@ void VertexBasedCellPopulation<DIM>::Validate()
         }
     }
 }
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
@@ -435,7 +415,6 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
         }
     }
     *mpVizElementsFile << "\n";
-
 }
 
 template<unsigned DIM>
@@ -485,8 +464,6 @@ void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     }
     *(this->mpCellVolumesFile) << "\n";
 }
-
-
 
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::WriteVtkResultsToFile()
@@ -683,6 +660,12 @@ double VertexBasedCellPopulation<DIM>::GetWidth(const unsigned& rDimension)
     double width = mrMesh.GetWidth(rDimension);
 
     return width;
+}
+
+template<unsigned DIM>
+std::set<unsigned> VertexBasedCellPopulation<DIM>::GetNeighbouringNodeIndices(unsigned index)
+{
+    return mrMesh.GetNeighbouringNodeIndices(index);
 }
 
 /////////////////////////////////////////////////////////////////////////////
