@@ -39,10 +39,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A monodomain solver, which uses various assemblers to set up the 
  *  monodomain linear system.
  * 
- *  Also allows state variable interpolation (SVI) to be used on elements
- *  for which it will be needed, if the appropriate HeartConfig boolean
- *  is set. See wiki page ChasteGuides/StateVariableInterpolation for more 
- *  details on this.
+ *  The discretised monodomain equation leads to the linear system (see FEM 
+ *  implementations document)
+ * 
+ *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf  
+ *
+ *  where chi is the surface-area to volume ratio, C the capacitance, dt the timestep
+ *  M the mass matrix, K the stiffness matrix, V^{n} the vector of voltages at time n,
+ *  F^{n} the vector of (chi*Iionic + Istim) at each node, and c_surf a vector
+ *  arising from any surface stimuli (usually zero).
+ * 
+ *  This solver uses two assemblers, one to assemble the LHS matrix, (chi*C/dt) M  + K,
+ *  and also to compute c_surf, and one to assemble the mass matrix M.   
+ *  
+ *  Also allows state variable interpolation (SVI) to be used on elements for which it 
+ *  will be needed, if the appropriate HeartConfig boolean is set. 
+ *  See wiki page ChasteGuides/StateVariableInterpolation for more details on this.
+ *  In this case the equation is
+ *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf + c_correction
+ *  and another assembler is used to create the c_correction. 
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainSolver
@@ -55,13 +70,12 @@ private:
         
     /**
      *  Number of quadrature points per dimension (only saved so it can be
-     *  passed to the assembler
+     *  passed to the assembler)
      */
     unsigned mNumQuadPoints;       
 
     /** Boundary conditions */    
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* mpBoundaryConditions;
-
 
     /** The monodomain assembler, used to set up the LHS matrix */
     MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
@@ -70,7 +84,7 @@ private:
     Mat mMassMatrix;
     
     /** The vector multiplied by the mass matrix. Ie, if the linear system to
-     *  be solved is Ax=b, this vector is z where b=Mz.
+     *  be solved is Ax=b (excluding surface integrals), this vector is z where b=Mz.
      */
     Vec mVecForConstructingRhs;
 

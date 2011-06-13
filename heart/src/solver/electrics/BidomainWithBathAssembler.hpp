@@ -34,8 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainAssembler.hpp"
 
 /**
- *  Assembler for assembling the LHS matrix and RHS vector of the linear
- *  systems solved in bidomain problems with a perfusing bath
+ *  Assembler for assembling the LHS matrix system solved in bidomain 
+ *  problems with a perfusing bath. See FEM implementations document for 
+ *  the exact definition of this.
+ * 
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathAssembler : public BidomainAssembler<ELEMENT_DIM,SPACE_DIM>

@@ -39,6 +39,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Assembler, used for assembling the LHS matrix of the linear system
  *  that arises when the bidomain equations are discretised, and for assembling
  *  the contribution to the RHS vector that comes from a surface integral.
+ *
+ *  The discretised bidomain equation leads to the linear system (see FEM 
+ *  implementations document)
+ * 
+ *  [ (chi*C/dt) M + K1    K1   ] [ V^{n+1}   ]  =  [  (chi*C/dt) M V^{n} + M F^{n} + c1_surf ]
+ *  [        K1            K2   ] [ PhiE^{n+1}]     [              c2_surf                    ]
+ *
+ *  where chi is the surface-area to volume ratio, C the capacitance, dt the timestep
+ *  M the mass matrix, K1 and K2 stiffness matrices, V^{n} and PhiE^{n} the vector of 
+ *  voltages and phi_e at time n, F^{n} the vector of (chi*Iionic + Istim) at each node, 
+ *  and c1_surf and c2_surf vectors arising from any surface stimuli (usually zero).
+ * 
+ *  This assembler is used to assemble the LHS matrix, ie
+ * 
+ *  [ (chi*C/dt) M + K1    K1   ]
+ *  [        K1            K2   ]
+ * 
+ *  and also the surface term (usually zero) 
+ *  [ c1_surf ]
+ *  [ c2_surf ]
  * 
  *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
  *  methods ComputeMatrixTerm() and ComputeVectorSurfaceTerm().
