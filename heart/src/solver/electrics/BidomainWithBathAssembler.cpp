@@ -77,26 +77,6 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2*(ELEMENT_DIM+1)>
-    BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,2> &rU,
-            c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-{
-    if (HeartRegionCode::IsRegionTissue( pElement->GetRegion() )) // ie if a tissue element
-    {
-        return BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
-    }
-    else // bath element
-    {
-        return zero_vector<double>(2*(ELEMENT_DIM+1));
-    }
-}
-
 
 ///////////////////////////////////////////////////////
 // explicit instantiation

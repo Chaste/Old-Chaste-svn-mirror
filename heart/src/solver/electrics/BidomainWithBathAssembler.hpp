@@ -60,25 +60,6 @@ protected:
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-    /**
-     * Overloaded ComputeVectorTerm() - calls the base class version for tissue
-     * elements, otherwise returns zero.
-     *
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
-     * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
-     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
-     * @param pElement Pointer to the element
-     */
-    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
-        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
 public:
     /**
      * Constructor.
