@@ -176,8 +176,20 @@ public:
 
         // Check that the matrix is symmetric
         PetscTruth is_symmetric;
-        PetscReal sym_tol = 1e-12;
-        MatIsSymmetric(solver.mJacobianMatrix, sym_tol, &is_symmetric);
+
+        //Using transpose and equality
+        Mat J_trans;
+#if PETSC_VERSION_MAJOR==2
+        MatTranspose(solver.mJacobianMatrix, &J_trans);
+#else        
+        MatTranspose(solver.mJacobianMatrix, MAT_INITIAL_MATRIX, &J_trans);
+#endif
+        MatEqual(solver.mJacobianMatrix, J_trans, &is_symmetric);
+        
+        //Note MatIsSymmetric won't work in parallel on some PETSc versions:
+        // "Matrix of type <mpiaij> does not support checking for symmetric!"
+        //PetscReal sym_tol = 1e-12;
+        //MatIsSymmetric(solver.mJacobianMatrix, sym_tol, &is_symmetric);
         TS_ASSERT(is_symmetric);
     }
 
