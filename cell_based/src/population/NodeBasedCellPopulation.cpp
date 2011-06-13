@@ -351,12 +351,25 @@ void NodeBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     {
         // Get the index of the corresponding node in mrMesh
         unsigned node_index = this->GetLocationIndexUsingCell(*cell_iter);
+           
+        // Write node index to file
+        *(this->mpCellVolumesFile) << node_index << " ";
+
+        // Write cell ID to file
+        *(this->mpCellVolumesFile) << cell_iter->GetCellId() << " ";
+
+        // Write node location to file
+        c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
+        for (unsigned i=0; i<DIM; i++)
+        {
+            *(this->mpCellVolumesFile) << node_location[i] << " ";
+        }
 
         // Get cell radius
         double cell_radius = mrMesh.GetCellRadius(node_index);
 
         // Get cell volume from radius
-        double cell_volume;
+        double cell_volume = 0.0;
         
         if (DIM == 2)
         {
@@ -366,21 +379,6 @@ void NodeBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
         {
             cell_volume = (4.0/3.0)*M_PI*cell_radius*cell_radius*cell_radius;
         }
-           
-        // Write node index to file
-        *(this->mpCellVolumesFile) << node_index << " ";
-
-        // Write cell ID to file
-        unsigned cell_index = cell_iter->GetCellId();
-        *(this->mpCellVolumesFile) << cell_index << " ";
-
-        // Write node location to file
-        c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
-        for (unsigned i=0; i<DIM; i++)
-        {
-            *(this->mpCellVolumesFile) << node_location[i] << " ";
-        }
-
         // Write cell volume (in 3D) or area (in 2D) to file
         *(this->mpCellVolumesFile) << cell_volume << " ";
     }
