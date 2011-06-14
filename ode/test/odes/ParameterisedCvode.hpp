@@ -26,12 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifdef CHASTE_CVODE
 #ifndef PARAMETERISEDCVODE_HPP_
 #define PARAMETERISEDCVODE_HPP_
 
 #include "AbstractCvodeSystem.hpp"
 
+#ifdef CHASTE_CVODE
 /**
  * dy/dt = a, y(0) = 0, where a is a user-supplied parameter.
  */
@@ -49,6 +49,6 @@ public:
     static bool fakeSecondParameter;
     static bool noParameterDefaults;
 };
+#endif // CHASTE_CVODE
 
 #endif /*PARAMETERISEDCVODE_HPP_*/
-#endif // CHASTE_CVODE

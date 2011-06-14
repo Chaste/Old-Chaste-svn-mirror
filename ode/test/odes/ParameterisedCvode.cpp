@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include "VectorHelperFunctions.hpp"
 
+#ifdef CHASTE_CVODE
 bool ParameterisedCvode::fakeSecondParameter = false;
 bool ParameterisedCvode::noParameterDefaults = false;
 
@@ -82,3 +83,4 @@ void OdeSystemInformation<ParameterisedCvode>::Initialise()
 
     this->mInitialised = true;
 }
+#endif // CHASTE_CVODE
