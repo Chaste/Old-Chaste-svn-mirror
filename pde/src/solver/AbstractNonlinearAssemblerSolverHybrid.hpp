@@ -408,26 +408,13 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 
     mUseAnalyticalJacobian = false;
     ComputeJacobian(initial_guess, &numerical_jacobian);
-
-    double minus_one = -1.0;
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    // MatAYPX(*a, X, Y) does  Y = X + a*Y.
-    MatAYPX(&minus_one, analytic_jacobian, numerical_jacobian);
-#elif (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 1) //PETSc 2.3.1
-    // MatAYPX( Y, a, X, structure) does Y = a*Y + X.
-    MatAYPX(numerical_jacobian, minus_one, analytic_jacobian);
-#else
-    // MatAYPX( Y, a, X, structure) does Y = a*Y + X.
-    MatAYPX(numerical_jacobian, minus_one, analytic_jacobian, DIFFERENT_NONZERO_PATTERN);
-#endif
-    double norm;
-    MatNorm(numerical_jacobian,NORM_INFINITY,&norm);
-
+    
+    bool ok = PetscMatTools::CheckEquality(numerical_jacobian, analytic_jacobian, tol);
     MatDestroy(numerical_jacobian);
     MatDestroy(analytic_jacobian);
     VecDestroy(initial_guess);
 
-    return (norm < tol);
+    return ok;
 }
 
 // Implementations of GLOBAL functions called by Petsc nonlinear solver

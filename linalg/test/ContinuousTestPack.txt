@@ -2,6 +2,7 @@ TestChebyshevIteration.hpp
 TestFourthOrderTensor.hpp
 TestLinearSystem.hpp
 TestNonlinearSolvers.hpp
+TestPetscMatTools.hpp
 TestPetscVecTools.hpp
 TestPCBlockDiagonal.hpp
 TestPCLDUFactorisation.hpp

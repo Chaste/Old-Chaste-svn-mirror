@@ -342,3 +342,40 @@ Vec PetscMatTools::GetMatrixRowDistributed(Mat matrix, unsigned rowIndex)
 
     return mat_ith_row;
 }
+
+
+bool PetscMatTools::CheckEquality(const Mat mat1, const Mat mat2, double tol)
+{
+    Mat y;
+    MatDuplicate(mat2, MAT_COPY_VALUES, &y);
+    
+    double minus_one = -1.0;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    // MatAYPX(*a, X, Y) does  Y = X + a*Y.
+    MatAYPX(&minus_one, mat1, y);
+#elif (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 1) //PETSc 2.3.1
+    // MatAYPX( Y, a, X) does Y = a*Y + X.
+    MatAYPX(y, minus_one, mat1);
+#else
+    // MatAYPX( Y, a, X, structure) does Y = a*Y + X.
+    MatAYPX(y, minus_one, mat1, DIFFERENT_NONZERO_PATTERN);
+#endif
+    PetscReal norm;
+    MatNorm(y, NORM_INFINITY, &norm);
+    MatDestroy(y);
+
+    return (norm < tol);
+}
+
+bool PetscMatTools::CheckSymmetry(const Mat matrix, double tol)
+{
+    Mat trans;
+#if PETSC_VERSION_MAJOR==2
+    MatTranspose(matrix, &trans);
+#else        
+    MatTranspose(matrix, MAT_INITIAL_MATRIX, &trans);
+#endif
+    bool is_symmetric = PetscMatTools::CheckEquality(matrix, trans, tol);
+    MatDestroy(trans);
+    return is_symmetric;
+}
