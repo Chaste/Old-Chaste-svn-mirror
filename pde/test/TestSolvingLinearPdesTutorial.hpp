@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * as early as possible.
  */
 #include "UblasCustomFunctions.hpp"
-/* This is the class that is needed to solve a linear elliptic pde */
+/* This is the class that is needed to solve a linear elliptic PDE */
 #include "SimpleLinearEllipticSolver.hpp"
 /* This is the class that is needed to solve a linear parabolic PDE */
 #include "SimpleLinearParabolicSolver.hpp"
