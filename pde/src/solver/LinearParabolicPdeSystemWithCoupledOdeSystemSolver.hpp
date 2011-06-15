@@ -404,7 +404,7 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
       mpPdeSystem(pPdeSystem),
       mOdeSystemsAtNodes(odeSystemsAtNodes),
       mpOdeSolver(pOdeSolver),
-      mSamplingTimeStep(PdeSimulationTime::GetPdeTimeStep()),
+      mSamplingTimeStep(DOUBLE_UNSET),
       mOdeSystemsPresent(false)
 {
     this->mpBoundaryConditions = pBoundaryConditions;
@@ -479,6 +479,11 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SolveAndWriteResultsToFile()
 {
+	if (mSamplingTimeStep == DOUBLE_UNSET)
+	{
+		EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+	}
+
 #ifdef CHASTE_VTK
     // Create a .pvd output file
     OutputFileHandler output_file_handler(mOutputDirectory, false);

@@ -145,19 +145,13 @@ public:
         double t_end = 10;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(1e-1);
+        solver.SetSamplingTimeStep(1);
         solver.SetOutputDirectory("TestSchnackenbergSystemOnButterflyMesh");
 
         /* We create a vector of initial conditions for u and v that are random perturbations
          * of the spatially uniform steady state and pass this to the solver. */
 
-//        DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
-//                DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
-//
-//                /* A loop over all the components owned by this process.. */
-//                for (DistributedVector::Iterator index = dist_bidomain_voltage.Begin();
-//                     index != dist_bidomain_voltage.End();
-//                     ++index)
-
+//        \todo DistributedVector::Stripe (#1777)
         std::vector<double> init_conds(2*mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -168,7 +162,8 @@ public:
         solver.SetInitialCondition(initial_condition);
 
         /* We now solve the PDE system and write results to VTK files, for
-         * visualization using Paraview.
+         * visualization using Paraview.  Results will be written to CHASTE_TEST_OUTPUT/TestSchnackenbergSystemOnButterflyMesh
+         * as a results.pvd file and several results_[time].vtu files
          */
         solver.SolveAndWriteResultsToFile();
 

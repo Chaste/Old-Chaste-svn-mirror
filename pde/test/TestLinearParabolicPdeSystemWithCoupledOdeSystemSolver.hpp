@@ -313,9 +313,6 @@ public:
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
 
-        // Set sampling timestep
-        solver.SetSamplingTimeStep(0.1);
-
         /*
          * Set initial condition
          *
@@ -333,7 +330,13 @@ public:
         Vec initial_condition = PetscTools::CreateVec(init_cond);
         solver.SetInitialCondition(initial_condition);
 
-        TS_ASSERT_THROWS_NOTHING(solver.SolveAndWriteResultsToFile());
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+        		"SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+
+        // Set sampling time step
+        solver.SetSamplingTimeStep(0.1);
+
+        solver.SolveAndWriteResultsToFile();
 
         // Tidy up
         VecDestroy(initial_condition);
