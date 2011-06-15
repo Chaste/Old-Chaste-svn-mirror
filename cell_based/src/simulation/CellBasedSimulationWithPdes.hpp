@@ -108,6 +108,17 @@ private:
     std::map<CellPtr, unsigned> mCellPdeElementMap;
 
     /**
+     * Type of mesh to use for the Coarse Mesh (see /mesh/test/data ) currently only for 2D meshes. Defaults to zero in the constructor.
+     *
+     * 0 - square_128_elements
+     * 1 - square_4096_elements
+     * 2 - disk_522_elements
+     * 3 - disk_984_elements
+     *
+     */
+    unsigned mCoarseMeshType;
+
+    /**
      * Overridden SetupSolve() method.
      */
     void SetupSolve();
@@ -181,6 +192,21 @@ private:
      * Writes out special information about the mesh to the visualizer.
      */
     void WriteVisualizerSetupFile();
+
+    /**
+     * Set the type of mesh to use in the Coarse Mesh
+     *
+     * 0 - square_128_elements
+     * 1 - square_4096_elements
+     * 2 - disk_522_elements
+     * 3 - disk_984_elements
+     */
+    void SetCoarseMeshType(unsigned type);
+
+    /*
+     * Return Coarse Mesh type
+     */
+    unsigned GetCoarseMeshType();
 
 public:
 

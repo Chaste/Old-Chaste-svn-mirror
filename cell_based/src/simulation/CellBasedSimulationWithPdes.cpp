@@ -59,6 +59,9 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
 
     // We must not have any ghost nodes
     assert(dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(&(this->mrCellPopulation)) == NULL);
+
+    // Set a default coarse mesh to use
+    mCoarseMeshType=0;
 }
 
 template<unsigned DIM>
@@ -163,10 +166,42 @@ void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double coarseGrainSca
 template<>
 void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScaleFactor)
 {
-    // Create coarse PDE mesh (can use a larger mesh if required, e.g. disk_984_elements)
-    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
+    // Create coarse PDE mesh depending on mCoarseMeshType
+	switch(mCoarseMeshType)
+	{
+		case 0:
+		{
+		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
+		    break;
+		}
+		case 1:
+		{
+		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
+		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
+		    break;
+		}
+		case 2:
+		{
+		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
+		    break;
+		}
+		case 3:
+		{
+		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
+		    break;
+
+		}
+		default:
+			NEVER_REACHED;
+	}
+
 
     // Find centre of cell population
     c_vector<double,2> centre_of_cell_population = zero_vector<double>(2);
@@ -707,6 +742,18 @@ void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rP
     CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
 }
 
+template<unsigned DIM>
+void CellBasedSimulationWithPdes<DIM>::SetCoarseMeshType(unsigned type)
+{
+	assert(type<4);
+	mCoarseMeshType=type;
+}
+
+template<unsigned DIM>
+unsigned CellBasedSimulationWithPdes<DIM>::GetCoarseMeshType()
+{
+	return mCoarseMeshType;
+}
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
