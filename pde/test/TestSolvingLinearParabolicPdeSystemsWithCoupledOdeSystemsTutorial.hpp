@@ -81,7 +81,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* == Test 1: Solving the Schnackenberg system ==
  *
- * Here, we solve the Schnackenberg system...
+ * Here, we solve the Schnackenberg system of PDEs, given by
+ *
+ * u,,t,, = div(D1 grad u) + k,,1,, - k,,-1,,*u + k,,3,,u^2^v,
+ * v,,t,, = div(D2 grad v) + k,,2,, - k,,3,,u^2^v,
+ *
+ * on a 2d butterfly-shaped domain. We impose non-zero Dirichlet
+ * boundary conditions and an initial condition that is a random
+ * perturbation of the spatially uniform steady state of the
+ * system.
  *
  * EMPTYLINE
  *
@@ -97,46 +105,61 @@ public:
     /*
      * Define a particular test.
      */
-    void TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
+    void TestSchnackenbergSystemOnButterflyMesh()
     {
-        /*
-         * First we declare a mesh reader which reads mesh data files of the 'Triangle'
-         * format. The path given is the relative to the main Chaste directory. The reader
-         * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d)
-         * [name].edge. Note that the first template argument here is the dimension of the
-         * elements in the mesh ({{{ELEMENT_DIM}}}), and the second is the dimension of the nodes,
-         * i.e. the dimension of the space the mesh lives in ({{{SPACE_DIM}}}). Usually
-         * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}} will be equal. */
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1000_elements");
-        /* Now declare a tetrahedral mesh with the same dimensions */
-        TetrahedralMesh<1,1> mesh;
-        /* Construct the mesh using the mesh reader */
+        /* As usual, we first create a mesh. Here we are using a 2d mesh of a butterfly-shaped domain. */
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/butterfly");
+        TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Create PDE system object
-        SchnackenbergCoupledPdeSystem<1> pde(1e-4, 1e-2, 0.1, 0.2, 0.3, 0.1);
+        /* We scale the mesh to an appropriate size. */
+        mesh.Scale(0.2, 0.2);
 
-        /* A set of boundary conditions are stored in a {{{BoundaryConditionsContainer}}}. The
-         * three template arguments are ELEMENT_DIM, SPACE_DIM and PROBLEM_DIM, the latter being
-         * the number of unknowns we are solving for. We have two unknown (ie u is a 2-vector),
-         * so in this case {{{PROBLEM_DIM}}}=2. */
-        BoundaryConditionsContainer<1,1,2> bcc;
-        ConstBoundaryCondition<1>* p_bc_for_u = new ConstBoundaryCondition<1>(2.0);
-        ConstBoundaryCondition<1>* p_bc_for_v = new ConstBoundaryCondition<1>(0.75);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_bc_for_u, 0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_bc_for_v, 1);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_u, 0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_v, 1);
+        /* Next, we instantiate the PDE system to be solved. We pass the parameter values into the
+         * constructor. */
+        SchnackenbergCoupledPdeSystem<2> pde(1e-4, 1e-2, 0.1, 0.2, 0.3, 0.1);
 
-        // Create PDE system solver
-        LinearParabolicPdeSystemWithCoupledOdeSystemSolver<1,1,2> solver(&mesh, &pde, &bcc);
+        /*
+         * Then we have to define the boundary conditions. As we are in 2d, {{{SPACE_DIM}}}=2 and
+         * {{{ELEMENT_DIM}}}=2. We also have two unknowns u and v,
+         * so in this case {{{PROBLEM_DIM}}}=2. The value of each boundary condition is
+         * given by the spatially uniform steady state solution of the Schnackenberg system,
+         * given by u = (k,,1,, + k,,2,,)/k,,-1,,, v = k,,2,,k,,1,,^2^/k,,3,,(k,,1,, + k,,2,,)^2^.
+         */
+        BoundaryConditionsContainer<2,2,2> bcc;
+        ConstBoundaryCondition<2>* p_bc_for_u = new ConstBoundaryCondition<2>(2.0);
+        ConstBoundaryCondition<2>* p_bc_for_v = new ConstBoundaryCondition<2>(0.75);
+        for (TetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
+             node_iter != mesh.GetBoundaryNodeIteratorEnd();
+             ++node_iter)
+        {
+            bcc.AddDirichletBoundaryCondition(*node_iter, p_bc_for_u, 0);
+            bcc.AddDirichletBoundaryCondition(*node_iter, p_bc_for_v, 1);
+        }
 
-        // Set end time and time step
+        /* This is the solver for solving coupled systems of linear parabolic PDEs and ODEs,
+         * which takes in the mesh, the PDE system, the boundary conditions and optionally
+         * a vector of ODE systems (one for each node in the mesh). Since in this example
+         * we are solving a system of coupled PDEs only, we do not supply this last argument. */
+        LinearParabolicPdeSystemWithCoupledOdeSystemSolver<2,2,2> solver(&mesh, &pde, &bcc);
+
+        /* Then we set the end time and time step and the output directory to which results will be written. */
         double t_end = 10;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(1e-1);
+        solver.SetOutputDirectory("TestSchnackenbergSystemOnButterflyMesh");
 
-        // Create initial conditions that are random perturbations of the uniform steady state
+        /* We create a vector of initial conditions for u and v that are random perturbations
+         * of the spatially uniform steady state and pass this to the solver. */
+
+//        DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
+//                DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
+//
+//                /* A loop over all the components owned by this process.. */
+//                for (DistributedVector::Iterator index = dist_bidomain_voltage.Begin();
+//                     index != dist_bidomain_voltage.End();
+//                     ++index)
+
         std::vector<double> init_conds(2*mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -146,18 +169,15 @@ public:
         Vec initial_condition = PetscTools::CreateVec(init_conds);
         solver.SetInitialCondition(initial_condition);
 
-        // Solve PDE system and store result
-        Vec result = solver.Solve();
-        ReplicatableVector result_repl(result);
-
-        // Store results in an accessible form
-        ReplicatableVector solution_repl(result);
+        /* We now solve the PDE system and write results to VTK files, for
+         * visualization using Paraview.
+         */
+        solver.SolveAndWriteResultsToFile();
 
         /*
          * All Petsc {{{Vec}}}s should be destroyed when they are no longer needed.
          */
         VecDestroy(initial_condition);
-        VecDestroy(result);
     }
 };
 #endif /*TESTSOLVINGLINEARPARABOLICPDESYSTEMSWITHCOUPLEDODESYSTEMSTUTORIAL_HPP_*/

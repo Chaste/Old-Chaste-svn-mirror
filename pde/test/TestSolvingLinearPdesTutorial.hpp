@@ -145,9 +145,9 @@ public:
     void TestSolvingEllipticPde() throw(Exception)
     {
         /* First we declare a mesh reader which reads mesh data files of the 'Triangle'
-         * format. The path given is the relative to the main Chaste directory. The reader
-         * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d)
-         * [name].edge. Note that the first template argument here is the dimension of the
+         * format. The path given is the relative to the main Chaste directory. As we are in 2d,
+         * the reader will look for three datafiles, [name].nodes, [name].ele and [name].edge.
+         * Note that the first template argument here is the dimension of the
          * elements in the mesh ({{{ELEMENT_DIM}}}), and the second is the dimension of the nodes,
          * i.e. the dimension of the space the mesh lives in ({{{SPACE_DIM}}}). Usually
          * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}} will be equal. */
