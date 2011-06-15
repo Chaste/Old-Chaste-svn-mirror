@@ -40,9 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Examples showing how to solve a system of coupled linear parabolic PDEs and ODEs =
  *
  * In this tutorial we show how Chaste can be used to solve a system of coupled linear
- * parabolic PDEs and ODEs. This test uses the {{{LinearParabolicPdeSystemWithCoupledOdeSystemSolver}}}.
- *
- * EMPTYLINE
+ * parabolic PDEs and ODEs. This test uses the `LinearParabolicPdeSystemWithCoupledOdeSystemSolver`.
  *
  * The following header files need to be included.
  * First we include the header needed to define this class as a test suite.

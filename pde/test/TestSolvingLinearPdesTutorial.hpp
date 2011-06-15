@@ -40,11 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Examples showing how to solve linear elliptic and parabolic PDEs =
  *
  * In this tutorial we show how Chaste can be used to solve linear PDEs. The first test
- * uses the {{{SimpleLinearEllipticSolver}}} to solve a linear elliptic PDE, and the
- * second test uses the {{{SimpleLinearParabolicSolver}}} to solve a parabolic time-dependent
- * linear PDE
- *
- * EMPTYLINE
+ * uses the `SimpleLinearEllipticSolver` to solve a linear elliptic PDE, and the
+ * second test uses the `SimpleLinearParabolicSolver` to solve a parabolic time-dependent
+ * linear PDE.
  *
  * The following header files need to be included.
  * First we include the header needed to define this class as a test suite */
