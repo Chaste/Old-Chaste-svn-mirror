@@ -48,7 +48,10 @@ public:
         const unsigned size = 10u;
         PetscTools::SetupMat(matrix1, size, size, size);
         PetscTools::SetupMat(matrix2, size, size, size);
+        TS_ASSERT_EQUALS(PetscMatTools::GetSize(matrix1), size);
+        TS_ASSERT_EQUALS(PetscMatTools::GetSize(matrix2), size);
 
+        // Note: not efficient, but checks SetElement guards for ownership
         for (unsigned row=0; row<size; row++)
         {
             for (unsigned col=0; col<size; col++)
@@ -76,6 +79,7 @@ public:
         Mat matrix;
         const unsigned size = 10u;
         PetscTools::SetupMat(matrix, size, size, size);
+        // Note: not efficient, but checks SetElement guards for ownership
         for (unsigned row=0; row<size; row++)
         {
             for (unsigned col=0; col<row; col++)
