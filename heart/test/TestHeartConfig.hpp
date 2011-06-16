@@ -1878,6 +1878,15 @@ public:
         TS_ASSERT_EQUALS( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps(), 7u );
     }
 
+//    /// \todo #1807
+//	void TestStrangelLoadError() throw(Exception)
+//	{
+//		// Error thrown when this (admittedly rather dumb) function call is made is very uninformative:
+//		// Chaste error: heart/src/problem/HeartConfig.cpp:578: No Simulation/SaveSimulation provided (neither default nor user defined)
+//
+//		HeartConfig::Instance()->GetCheckpointTimestep();
+//	}
+
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/
