@@ -64,7 +64,15 @@ double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
 {
-    mCellRadii[index] = radius;
+    ///\todo there is probably a more efficient way to do this (#1808)
+    if (index >= mCellRadii.size())
+    {
+        mCellRadii.push_back(radius);
+    }
+    else
+    {
+        mCellRadii[index] = radius;
+    }
 }
 
 template<unsigned SPACE_DIM>
@@ -121,6 +129,19 @@ void NodesOnlyMesh<SPACE_DIM>::ReMesh(NodeMap& map)
 }
 
 template<unsigned SPACE_DIM>
+unsigned NodesOnlyMesh<SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
+{
+    // Call method on parent class
+    unsigned new_node_index = MutableMesh<SPACE_DIM, SPACE_DIM>::AddNode(pNewNode);
+
+    // Then update mCellRadii
+    ///\todo properly test this (#1808)
+    mCellRadii[new_node_index] = 1.0;
+
+    return new_node_index;
+}
+
+template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::DeleteNode(unsigned index)
 {
     if (this->mNodes[index]->IsDeleted())
@@ -130,6 +151,13 @@ void NodesOnlyMesh<SPACE_DIM>::DeleteNode(unsigned index)
 
     this->mNodes[index]->MarkAsDeleted();
     this->mDeletedNodeIndices.push_back(index);
+
+    /**
+     * Note: we do not need to update mCellRadii here, since if the
+     * node index is ever re-used when a new node is added, mCellRadii
+     * will be updated correctly.
+     * \todo check this is really true by properly testing it (#1808)
+     */
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

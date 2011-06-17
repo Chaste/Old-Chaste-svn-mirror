@@ -118,6 +118,13 @@ public:
     void ReMesh(NodeMap& rMap);
 
     /**
+     * Overridden AddNode() method.
+     *
+     * @param pNewNode  pointer to the new node
+     */
+    unsigned AddNode(Node<SPACE_DIM>* pNewNode);
+
+    /**
      * Overridden DeleteNode() method.
      *
      * @param index is the index of the node to be deleted

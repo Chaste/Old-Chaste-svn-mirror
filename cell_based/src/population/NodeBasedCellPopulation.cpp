@@ -552,6 +552,25 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 #endif //CHASTE_VTK
 }
 
+template<unsigned DIM>
+CellPtr NodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell)
+{
+    assert(pNewCell);
+    assert(pParentCell);
+
+    // Add new cell to cell population
+    CellPtr p_created_cell = AbstractCentreBasedCellPopulation<DIM>::AddCell(pNewCell, rCellDivisionVector, pParentCell);
+    assert(p_created_cell == pNewCell);
+
+    // Then set the new cell radius in the NodesOnlyMesh
+    ///\todo set the correct cell radius and properly test this (#1808)
+    unsigned node_index = this->GetLocationIndexUsingCell(p_created_cell);
+    mrMesh.SetCellRadius(node_index, 1.0);
+    
+    // Return pointer to new cell
+    return p_created_cell;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
