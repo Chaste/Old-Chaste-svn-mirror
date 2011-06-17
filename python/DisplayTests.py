@@ -877,21 +877,22 @@ def _statusColour(status, build):
 _time_re = re.compile(r"Command execution time: ([0-9.]+) seconds")
 _states = ['Other', 'Compile', 'Object dependency analysis', 'CxxTest generation', 'PyCml execution', 'Test running']
 _state_res = map(re.compile,
-        [r"mpicxx ",
-         r"BuildTest\(\[",
-         r"cxxtest/cxxtestgen.py",
-         r"RunPyCml\(\[",
-         r"(r|R)unning '(.*/build/.*/Test.*Runner|python/test/.*\.py)'"])
+                 [r"mpicxx ",
+                  r"BuildTest\(\[",
+                  r"cxxtest/cxxtestgen.py",
+                  r"RunPyCml\(\[",
+                  r"(r|R)unning '(.*/build/.*/Test.*Runner|python/test/.*\.py)'"])
 
 def _parseBuildTimings(logfilename):
-        """Parse a build log file to determine timings.
-        
-        Returns a dictionary mapping activity to time (in seconds).
-        """
-        times = [0] * len(_states)
+    """Parse a build log file to determine timings.
+    
+    Returns a dictionary mapping activity to time (in seconds).
+    """
+    times = [0] * len(_states)
+    try:
         logfile = open(logfilename, 'r')
         state = 0
-
+    
         for line in logfile:
             m = _time_re.match(line)
             if m:
@@ -904,10 +905,12 @@ def _parseBuildTimings(logfilename):
                         state = i+1
                         break
         logfile.close()
-
+    
         result = dict(zip(_states, times))
-        result['Total'] = sum(times)
-        return result
+    except IOError:
+        result = dict.fromkeys(_states, -1.0)
+    result['Total'] = sum(times)
+    return result
 
 
 
