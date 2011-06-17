@@ -57,6 +57,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<S
 template<unsigned SPACE_DIM>
 double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 {
+    assert(index < mCellRadii.size());
     return mCellRadii[index];
 }
 
