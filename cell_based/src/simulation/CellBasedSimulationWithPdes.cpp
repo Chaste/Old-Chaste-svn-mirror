@@ -51,7 +51,8 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
       mNumRadialIntervals(0), // 'unset' value
-      mpCoarsePdeMesh(NULL)
+      mpCoarsePdeMesh(NULL),
+      mCoarseMeshType(0)
 {
     // We must be using a mesh-based cell population
     // assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL);
@@ -59,9 +60,6 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
 
     // We must not have any ghost nodes
     assert(dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(&(this->mrCellPopulation)) == NULL);
-
-    // Set a default coarse mesh to use
-    mCoarseMeshType=0;
 }
 
 template<unsigned DIM>
@@ -167,7 +165,7 @@ template<>
 void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScaleFactor)
 {
     // Create coarse PDE mesh depending on mCoarseMeshType
-	switch(mCoarseMeshType)
+	switch (mCoarseMeshType)
 	{
 		case 0:
 		{
@@ -745,8 +743,11 @@ void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rP
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::SetCoarseMeshType(unsigned type)
 {
-	assert(type<4);
-	mCoarseMeshType=type;
+    if (type >= 4)
+    {
+        EXCEPTION("Input argument for SetCoarseMeshType() must take the value 0, 1, 2 or 3.");
+    }
+	mCoarseMeshType = type;
 }
 
 template<unsigned DIM>

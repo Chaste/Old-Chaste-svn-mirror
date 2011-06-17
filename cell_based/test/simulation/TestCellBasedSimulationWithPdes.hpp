@@ -1598,11 +1598,11 @@ public:
     void TestNodeBasedWithDifferentCoarseMesh() throw(Exception)
 	{
 		EXIT_IF_PARALLEL; // defined in PetscTools
-		for(unsigned k=0;k<4;k++)
+		for (unsigned k=0; k<4; k++)
 		{
-			if(k>0)
+			if (k != 0)
 			{
-			SimulationTime::Instance()->SetStartTime(0.0);
+                SimulationTime::Instance()->SetStartTime(0.0);
 			}
 
 			// Create a simple mesh
@@ -1639,8 +1639,10 @@ public:
 			p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
 			p_data->SetCellPopulation(&cell_population);
 
-			// Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-			// we need to pass it some initial conditions to avoid memory errors
+			/*
+			 * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+			 * we need to pass it some initial conditions to avoid memory errors.
+			 */
 			for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 			{
 				p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(),0);
@@ -1668,14 +1670,18 @@ public:
 			linear_force.SetCutOffLength(1.5);
 			simulator.AddForce(&linear_force);
 
-			// Tell simulator to use the coarse mesh.
+			// For coverage, we try to call SetCoarseMeshType() with an invalid input argument
+			TS_ASSERT_THROWS_THIS(simulator.SetCoarseMeshType(5),
+                "Input argument for SetCoarseMeshType() must take the value 0, 1, 2 or 3.");
+
+			// Tell simulator to use the coarse mesh
 			simulator.SetCoarseMeshType(k);
-			unsigned correct_mesh=k;
+			unsigned correct_mesh = k;
 			TS_ASSERT_EQUALS(simulator.GetCoarseMeshType() ,correct_mesh);
 
 			simulator.UseCoarsePdeMesh(10.0);
 
-			//Solve the system
+			// Solve the system
 			simulator.Solve();
 
 			// Find centre of cell population
