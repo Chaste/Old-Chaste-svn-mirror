@@ -556,7 +556,6 @@ template<unsigned DIM>
 CellPtr NodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell)
 {
     assert(pNewCell);
-    assert(pParentCell);
 
     // Add new cell to cell population
     CellPtr p_created_cell = AbstractCentreBasedCellPopulation<DIM>::AddCell(pNewCell, rCellDivisionVector, pParentCell);
