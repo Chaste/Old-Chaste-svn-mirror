@@ -565,7 +565,7 @@ CellPtr NodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<d
     ///\todo set the correct cell radius and properly test this (#1808)
     unsigned node_index = this->GetLocationIndexUsingCell(p_created_cell);
     mrMesh.SetCellRadius(node_index, 1.0);
-    
+
     // Return pointer to new cell
     return p_created_cell;
 }

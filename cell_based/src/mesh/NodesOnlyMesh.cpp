@@ -37,6 +37,9 @@ template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes)
 {
     this->Clear();
+
+    ///\todo override Clear() to call clear() on mCellRadii? (#1808)
+
     for (unsigned i=0; i<rNodes.size(); i++)
     {
         assert(!rNodes[i]->IsDeleted());
@@ -44,6 +47,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
 
         Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location);
         this->mNodes.push_back(p_node_copy);
+
         mCellRadii.push_back(1.0);
     }
 }
@@ -64,15 +68,8 @@ double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::SetCellRadius(unsigned index, double radius)
 {
-    ///\todo there is probably a more efficient way to do this (#1808)
-    if (index >= mCellRadii.size())
-    {
-        mCellRadii.push_back(radius);
-    }
-    else
-    {
-        mCellRadii[index] = radius;
-    }
+    assert(index < mCellRadii.size());
+    mCellRadii[index] = radius;
 }
 
 template<unsigned SPACE_DIM>
@@ -136,7 +133,11 @@ unsigned NodesOnlyMesh<SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
 
     // Then update mCellRadii
     ///\todo properly test this (#1808)
-    mCellRadii[new_node_index] = 1.0;
+    if (new_node_index >= mCellRadii.size())
+    {
+        mCellRadii.resize(new_node_index+1);
+    }
+    SetCellRadius(new_node_index, 1.0);
 
     return new_node_index;
 }
