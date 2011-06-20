@@ -66,7 +66,7 @@ public:
      *
      * @param rCoarseMesh reference to the coarse mesh
      */
-    void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
+    void virtual SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.

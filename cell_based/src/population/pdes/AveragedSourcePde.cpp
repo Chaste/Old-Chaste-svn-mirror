@@ -39,8 +39,9 @@ AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopu
 template<unsigned DIM>
 void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
 {
-    // Allocate memory
+	// Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
+
     for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
     {
         mCellDensityOnCoarseElements[elem_index] = 0.0;
@@ -69,6 +70,12 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
     {
         rCoarseMesh.GetElement(elem_index)->CalculateJacobian(jacobian, det);
         mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume(det);
+
+        //Make sure that the density is not > 1.0
+        if(mCellDensityOnCoarseElements[elem_index]>1.0)
+        {
+        	mCellDensityOnCoarseElements[elem_index]/=mCellDensityOnCoarseElements[elem_index];
+        }
     }
 }
 
