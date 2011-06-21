@@ -35,6 +35,7 @@ import codecs
 import optparse
 import os
 import re
+import subprocess
 import sys
 
 # Make sure PyCml is on sys.path
@@ -53,8 +54,7 @@ class CellMLValidator(object):
     def __init__(self):
         """Initialise a validator for CellML files."""
         # Create validator from RELAX NG schema
-        self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path,
-                                                               'cellml1.0.rnc'))
+        self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path, 'cellml1.0.rnc'))
         
         # Create validator from Schematron schema
         regen = False
@@ -222,8 +222,7 @@ class CellMLValidator(object):
 
 class RelaxNGValidator(object):
     """
-    A RELAX NG validator built on top of RVP
-    (http://www.davidashen.net/rnv.html).
+    A RELAX NG validator built on top of RVP (http://www.davidashen.net/rnv.html).
     Can validate against schemas written in the compact syntax.
     """
     class RvpProtocolError(Exception):
@@ -236,17 +235,19 @@ class RelaxNGValidator(object):
             return repr(self.value)
 
     def __init__(self, schema_filename):
-        """RelaxNGValidator(schema_filename):
-        Initialise the RELAX NG validator.
+        """Initialise the RELAX NG validator.
         Launches RVP as a parallel process.
-        schema_filename should be the name of a file containing
-        the RELAX NG schema, in compact syntax.
+        schema_filename should be the name of a file containing the RELAX NG schema, in compact syntax.
         """
         self._ws = re.compile('[^\t\n\r ]')
         # Launch RVP
-        inf, outf = os.popen2('rvp ' + schema_filename)
+        try:
+            self._rvp_pipe = subprocess.Popen(['rvp', schema_filename],
+                                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=True)
+        except OSError, e:
+            raise self.RvpProtocolError("Failed to run rvp for CellML syntax validation: " + str(e))
         # We use os.read & os.write, so store file descriptors
-        self._rvpin, self._rvpout = inf.fileno(), outf.fileno()
+        self._rvpin, self._rvpout = self._rvp_pipe.stdin.fileno(), self._rvp_pipe.stdout.fileno()
         # Import Expat parser module
         import xml.parsers.expat
         self.expat = xml.parsers.expat
@@ -259,11 +260,9 @@ class RelaxNGValidator(object):
 ##        """
 ##        self.quit()
     def quit(self):
-        """V.quit():
-        Call this method when the validator is finished with, to terminate
-        the associated RVP process cleanly.
-        Failure to do so will probably result in an error when your program
-        exits.
+        """Call this method when the validator is finished with.
+        It terminates the associated RVP process cleanly.
+        Failure to do so will probably result in an error when your program exits.
         """
         self._send('quit')
         return self._resp()
