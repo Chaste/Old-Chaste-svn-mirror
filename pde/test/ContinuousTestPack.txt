@@ -3,6 +3,7 @@ TestAbstractFeCableObjectAssembler.hpp
 TestAbstractFeObjectAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
+TestCableTestProblem.hpp 
 TestCompressibleNonlinearElasticitySolver.hpp
 TestNonlinearElasticitySolver.hpp
 TestConstBoundaryCondition.hpp
