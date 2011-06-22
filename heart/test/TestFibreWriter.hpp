@@ -45,8 +45,6 @@ class TestFibreWriter : public CxxTest::TestSuite
 public:
     void TestAxiWriterAscii()
     {
-        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
-        
         FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector;
@@ -62,8 +60,6 @@ public:
     }
     void TestAxiWriterBinary()
     {
-        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
-        
         FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector;
@@ -80,8 +76,6 @@ public:
     
     void TestOrthoWriterAscii() throw (Exception)
     {
-        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
-        
         FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, ORTHO);
         std::vector< c_vector<double, 3> > fibres;
@@ -99,8 +93,6 @@ public:
     
     void TestOrthoWriterBinary() throw (Exception)
     {
-        EXIT_IF_PARALLEL;///\todo #1768 Make it work in parallel
-        
         FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, ORTHO);
         std::vector< c_vector<double, 3> > fibres;
