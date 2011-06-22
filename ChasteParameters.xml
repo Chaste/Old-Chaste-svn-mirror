@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters
-       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_3 heart/src/io/ChasteParameters_2_3.xsd">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_3 heart/src/io/ChasteParameters_2_3.xsd">
 
     <!--
         Note: all unit attributes must be included, but their content cannot be changed.
@@ -19,21 +18,24 @@
         <SimulationDuration unit="ms">50.0</SimulationDuration>
         <Domain>Mono</Domain>
         <IonicModels>
-            <Default><Hardcoded>FaberRudy2000</Hardcoded></Default>
+            <Default>
+                <Hardcoded>FaberRudy2000</Hardcoded>
+            </Default>
         </IonicModels>
-        
+
         <!-- 
             Mesh definition 
         -->
         <Mesh unit="cm">
-            <Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
-          </Mesh>
-    
+            <Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>
+        </Mesh>
+
         <!-- 
             Stimuli (as many <Stimulus> definitions as needed) 
            -->
-           <Stimuli>
-              <Stimulus> <!-- #1 -->
+        <Stimuli>
+            <Stimulus>
+                <!-- #1 -->
                 <Strength unit="uA/cm^3">-25500.0</Strength>
                 <Duration unit="ms">2.0</Duration>
                 <Delay unit="ms">0</Delay>
@@ -43,14 +45,15 @@
                         <UpperCoordinates x="0.1" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
-            </Stimulus>    
+            </Stimulus>
         </Stimuli>
 
         <!-- 
             Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
            -->
         <CellHeterogeneities>
-              <CellHeterogeneity> <!-- #1 -->
+            <CellHeterogeneity>
+                <!-- #1 -->
                 <ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
                 <ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
@@ -60,9 +63,10 @@
                         <UpperCoordinates x="1.5" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
-            </CellHeterogeneity>    
-        
-              <CellHeterogeneity> <!-- #2 -->
+            </CellHeterogeneity>
+
+            <CellHeterogeneity>
+                <!-- #2 -->
                 <ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
                 <ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
@@ -72,9 +76,10 @@
                         <UpperCoordinates x="2.5" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
-            </CellHeterogeneity>    
-        
-              <CellHeterogeneity> <!-- #3 -->
+            </CellHeterogeneity>
+
+            <CellHeterogeneity>
+                <!-- #3 -->
                 <ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
                 <ScaleFactorIto unit="dimensionless">1.0</ScaleFactorIto>
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
@@ -85,21 +90,21 @@
                     </Cuboid>
                 </Location>
             </CellHeterogeneity>
-        </CellHeterogeneities>        
-        
+        </CellHeterogeneities>
+
         <!-- 
             Output 
         -->
         <OutputDirectory>ChasteResults</OutputDirectory>
         <OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
     </Simulation>
-    
+
     <Physiological>
         <!--
             Conductivities
         -->
         <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
-        <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
+        <ExtracellularConductivities longi="7.0" trans="7.0" normal="7.0" unit="mS/cm"/>
         <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
         <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>
     </Physiological>
@@ -112,7 +117,6 @@
         <KSPSolver>gmres</KSPSolver>
         <KSPPreconditioner>jacobi</KSPPreconditioner>
     </Numerical>
-    
-    <PostProcessing>
-    </PostProcessing>  
+
+    <PostProcessing> </PostProcessing>
 </ChasteParameters>
