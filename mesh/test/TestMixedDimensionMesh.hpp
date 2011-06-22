@@ -371,7 +371,29 @@ public:
             MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
             TS_ASSERT_EQUALS(total_owned, partitioned_mesh.GetNumCableElements());
         }
-        
+    }
+
+/// failing test for reopened #1760 (passes in sequential, fails in parallel)
+    void failingTestSomething() throw(Exception)
+    {
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        for (MixedDimensionMesh<1, 2>::CableElementIterator iter = mesh.GetCableElementIteratorBegin();
+             iter != mesh.GetCableElementIteratorEnd();
+             ++iter)
+        {
+            Element<1,2>& r_element = *(*iter);
+            if ( r_element.GetOwnership() )
+            {
+                // cable elements should have nodes N and N+1 for N=55..64, check that the difference
+                // between the node indices is equal to 1.
+                TS_ASSERT(abs(r_element.GetNodeGlobalIndex(0)-r_element.GetNodeGlobalIndex(1))==1);
+                std::cout << "[" << PetscTools::GetMyRank() << "]: "<< r_element.GetNodeGlobalIndex(0) << " " <<  r_element.GetNodeGlobalIndex(1) << "\n";
+            }
+        }
     }
 };
 
