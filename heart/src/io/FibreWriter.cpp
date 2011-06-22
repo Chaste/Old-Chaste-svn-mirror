@@ -86,18 +86,24 @@ void FibreWriter<DIM>::WriteAllOrtho(const std::vector< c_vector<double, DIM> >&
     {
         if (this->mFileIsBinary)
         {
-            ///The binary file is row-major while the ascii file is column-major
+            //The binary file is row-major
             p_file->write((char*)&fibres[i][0], DIM*sizeof(double));
             p_file->write((char*)&second[i][0], DIM*sizeof(double));
             p_file->write((char*)&third[i][0], DIM*sizeof(double));
         }
         else
         {
-            ///\todo #1768 Transpose issue?
+            //The ascii file is row-major
             for(unsigned j=0; j<DIM; j++)
             {
                 *p_file << fibres[i][j] << "\t";
+            }
+            for(unsigned j=0; j<DIM; j++)
+            {
                 *p_file << second[i][j] << "\t";
+            }
+            for(unsigned j=0; j<DIM; j++)
+            {
                 *p_file << third[i][j] << "\t";
             }
             *p_file <<"\n";

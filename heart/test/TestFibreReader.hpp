@@ -129,6 +129,55 @@ public:
         TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreVector(fibre_vector), "End of file")
     }
     
+
+    void TestFibreConvenienceMethodsForVtk()
+    {
+
+        {
+            FileFinder file("heart/test/data/fibre_tests/SimpleAxisymmetric.axi", RelativeTo::ChasteSourceRoot);
+            FibreReader<3> fibre_reader(file, AXISYM);
+            std::vector< c_vector<double, 3> > fibres;
+            fibre_reader.GetAllAxi(fibres);
+            TS_ASSERT_EQUALS(fibres.size(), 6u);
+            for (unsigned i=0; i<fibres.size()-1; i++)
+            {
+                TS_ASSERT_DELTA(fibres[i][0], 1.0, 1e-10);//x
+                TS_ASSERT_DELTA(fibres[i][1], 0.0, 1e-10);//y
+                TS_ASSERT_DELTA(fibres[i][2], 0.0, 1e-10);//z
+            }
+            //Last element differs
+            TS_ASSERT_DELTA(fibres[5][0], 0.0, 1e-10);//x
+            TS_ASSERT_DELTA(fibres[5][1], 0.0, 1e-10);//y
+            TS_ASSERT_DELTA(fibres[5][2], 1.0, 1e-10);//z
+        }
+        {
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
+            FibreReader<3> fibre_reader(file, ORTHO);
+            std::vector< c_vector<double, 3> > fibres;
+            std::vector< c_vector<double, 3> > second;
+            std::vector< c_vector<double, 3> > third;
+            fibre_reader.GetAllOrtho(fibres, second, third);
+            TS_ASSERT_EQUALS(fibres.size(), 6u);
+            TS_ASSERT_EQUALS(second.size(), 6u);
+            TS_ASSERT_EQUALS(third.size(), 6u);
+            for (unsigned i=0; i<fibres.size()-1; i++)
+            {
+                TS_ASSERT_DELTA(fibres[i][0], 1.0, 1e-10);//x
+                TS_ASSERT_DELTA(fibres[i][1], 0.0, 1e-10);//y
+                TS_ASSERT_DELTA(fibres[i][2], 0.0, 1e-10);//z
+            }
+            //Last element differs
+            TS_ASSERT_DELTA(fibres[5][0], 0.0, 1e-10);//x
+            TS_ASSERT_DELTA(fibres[5][1], 1.0, 1e-10);//y
+            TS_ASSERT_DELTA(fibres[5][2], 0.0, 1e-10);//z
+            TS_ASSERT_DELTA(second[5][0], 0.0, 1e-10);//x
+            TS_ASSERT_DELTA(second[5][1], 0.0, 1e-10);//y
+            TS_ASSERT_DELTA(second[5][2], 1.0, 1e-10);//z
+            TS_ASSERT_DELTA(third[5][0], 1.0, 1e-10);//x
+            TS_ASSERT_DELTA(third[5][1], 0.0, 1e-10);//y
+            TS_ASSERT_DELTA(third[5][2], 0.0, 1e-10);//z                        
+        }
+    }
     void TestFibretoVtk()
     {
 #ifdef CHASTE_VTK

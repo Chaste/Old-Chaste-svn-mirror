@@ -108,7 +108,7 @@ public:
         std::vector< c_vector<double, 3> > third;
         fibre_reader.GetAllOrtho(fibres, second, third);
           
-        //Write ascii file
+        //Write binary file
         FibreWriter<3> fibre_writer("TestFibreWriter", "Orthotropic3DBin", false);
         fibre_writer.SetWriteFileAsBinary();
         fibre_writer.WriteAllOrtho(fibres, second, third);

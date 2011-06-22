@@ -92,20 +92,22 @@ void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_d
     }   
     for (unsigned i=0; i<mNumLinesOfData; i++)
     {
-        ///\todo #1768 Transpose issue?
         c_matrix<double, DIM, DIM> temp_matrix;
         GetNextFibreSheetAndNormalMatrix(temp_matrix, true);
-        matrix_row<c_matrix<double, DIM, DIM> > row0(temp_matrix, 0);
-        first_direction.push_back(row0);
+        
+        //Note that although the matrix appears row-wise in the ascii .ortho file,
+        //for convenience it is stored column-wise.
+        matrix_column<c_matrix<double, DIM, DIM> > col0(temp_matrix, 0);
+        first_direction.push_back(col0);
         if (DIM>=2)
         {
-            matrix_row<c_matrix<double, DIM, DIM> > row1(temp_matrix, 1);
-            second_direction.push_back(row1);
+            matrix_column<c_matrix<double, DIM, DIM> > col1(temp_matrix, 1);
+            second_direction.push_back(col1);
         }
         if (DIM==3)
         {
-            matrix_row<c_matrix<double, DIM, DIM> > row2(temp_matrix, 2);
-            third_direction.push_back(row2);
+            matrix_column<c_matrix<double, DIM, DIM> > col2(temp_matrix, 2);
+            third_direction.push_back(col2);
         }
     }
  
@@ -122,7 +124,6 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
     if (mFileIsBinary)
     {
         //Take mNumItemsPerLine from the ifstream
-        ///The binary file is row-major while the ascii file is column-major
         mDataFile.read((char*)&(rFibreMatrix(0,0)), mNumItemsPerLine*sizeof(double));
     }
     else
@@ -139,12 +140,15 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
         {
             for(unsigned j=0; j<DIM; j++)
             {
-                ///\todo #1768 Transpose issue?
-                rFibreMatrix(j,i) = mTokens[DIM*i + j];
+                rFibreMatrix(i,j) = mTokens[DIM*i + j];
             }
         }
+
     }
-        
+
+    //The binary file and ascii file are row-major.  However, we store column major 
+    //matrices
+    rFibreMatrix = trans(rFibreMatrix);
 
 
     if(checkOrthogonality)
