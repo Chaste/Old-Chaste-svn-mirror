@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractFeObjectAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "MassMatrixAssembler.hpp"
+#include "StiffnessMatrixAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscMatTools.hpp"
@@ -617,6 +618,86 @@ public:
             TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,1)/scale_factor, 1.0/12, 1e-6);
             TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,2)/scale_factor, 1.0/24, 1e-6);
             TS_ASSERT_DELTA(PetscMatTools::GetElement(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
+        }
+
+        MatDestroy(mat);
+    }
+
+    void TestStiffnessMatrixAssembler1d() throw(Exception)
+    {
+        TetrahedralMesh<1,1> mesh;
+        double h = 0.1;
+        mesh.ConstructRegularSlabMesh(h, 0.5);
+
+        Mat mat;
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 3);
+
+        StiffnessMatrixAssembler<1,1> assembler(&mesh);
+
+        assembler.SetMatrixToAssemble(mat);
+        assembler.Assemble();
+
+        PetscMatTools::AssembleFinal(mat);
+
+        int lo, hi;
+        MatGetOwnershipRange(mat, &lo, &hi);
+
+        for (unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            for (unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                double value = PetscMatTools::GetElement(mat,i,j);
+                if (i>0 && i<mesh.GetNumNodes()-1)
+                {
+                    // All rows except first and last should look like
+                    // [0, .., 0, -1/h, 2/h, -1/h, 0, .., 0]
+                    if (j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 2.0/h, 1e-5);
+                    }
+                    else if (j==i+1 || j+1==i)
+                    {
+                        TS_ASSERT_DELTA(value, -1.0/h, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+                if (i==0)
+                {
+                    // top row: [1/h, -1/h, 0, .., 0]
+                    if (j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 1.0/h, 1e-5);
+                    }
+                    else if (j==i+1)
+                    {
+                        TS_ASSERT_DELTA(value, -1.0/h, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+                if (i+1==mesh.GetNumNodes())
+                {
+                    // bottom row: [0, .., 0, -1/h, 1/h]
+                    if (j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 1.0/h, 1e-5);
+                    }
+                    else if (j+1==i)
+                    {
+                        TS_ASSERT_DELTA(value, -1.0/h, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+
+            }
         }
 
         MatDestroy(mat);
