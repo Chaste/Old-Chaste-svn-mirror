@@ -177,26 +177,19 @@ public:
 			double y = mesh.GetNode(i)->GetPoint()[1];
 			double r = sqrt(x*x+y*y);
 
-			double u = log(r)/2*M_PI;
+			double u = log(r)/(2*M_PI);
 
-double scale_factor_to_be_fixed=10;
-
-			if(r>0.8)
+			if(r>0.1)
 			{
-	            TS_ASSERT_DELTA(scale_factor_to_be_fixed*result_repl[i], u, 0.1);
-			}
-            else if(r>0.4)
-            {
-                TS_ASSERT_DELTA(scale_factor_to_be_fixed*result_repl[i], u, 0.25);
-            }
-			else if(r>0.1)
-			{
-			    TS_ASSERT_DELTA(scale_factor_to_be_fixed*result_repl[i], u, 0.5);
+			    // use a tolerance that is weighted by 1-r as accuracy will decrease as
+			    // get closer to r=0 for which u=-infty. Visually the solution compared
+			    // to the true solution looks pretty good.
+			    TS_ASSERT_DELTA(result_repl[i], u, 0.07*(1-r)+1e-6);
 			}
 			else
 			{
-			    // for these nodes r=0 and the true solution is infinite
-			    TS_ASSERT_LESS_THAN(scale_factor_to_be_fixed*result_repl[i], -4);
+			    // for these nodes r=0 and the true solution is -infinity
+			    TS_ASSERT_LESS_THAN(result_repl[i], -0.4);
 			}
 
             *p_file << x << " " << y << " " << mesh.GetNode(i)->GetPoint()[2] << " " << result_repl[i] << "\n";
