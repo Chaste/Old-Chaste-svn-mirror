@@ -1703,9 +1703,9 @@ public:
 			centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
 
 			// Test that the two centres match
-			TS_ASSERT_DELTA(centre_of_cell_population[0], centre_of_coarse_pde_mesh[0], 1e-4);
-			TS_ASSERT_DELTA(centre_of_cell_population[1], centre_of_coarse_pde_mesh[1], 1e-4);
-
+			c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
+            TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
+	
 			// Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
 
 			simulator.InitialiseCoarsePdeMesh(); // coverage
