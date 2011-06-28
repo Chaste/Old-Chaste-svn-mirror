@@ -38,9 +38,47 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FibreReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
-
 class TestStreeterFibreGeneratorNightly : public CxxTest::TestSuite
 {
+private:
+    void CompareOrthoFiles(std::string orthoFile1Absolute, std::string orthoFile2Relative) throw (Exception)
+    {
+        //Read one
+        FileFinder file_finder1(orthoFile1Absolute, RelativeTo::Absolute);
+        FibreReader<3> fibre_reader1(file_finder1, ORTHO);
+        std::vector< c_vector<double, 3> > fibres1;
+        std::vector< c_vector<double, 3> > second1;
+        std::vector< c_vector<double, 3> > third1;
+        fibre_reader1.GetAllOrtho(fibres1, second1, third1);
+        TS_ASSERT_EQUALS(fibres1.size(), second1.size());
+        TS_ASSERT_EQUALS(fibres1.size(), third1.size());
+        
+        //Read two
+        FileFinder file_finder2(orthoFile2Relative, RelativeTo::ChasteSourceRoot);
+        FibreReader<3> fibre_reader2(file_finder2, ORTHO);
+        std::vector< c_vector<double, 3> > fibres2;
+        std::vector< c_vector<double, 3> > second2;
+        std::vector< c_vector<double, 3> > third2;
+        fibre_reader2.GetAllOrtho(fibres2, second2, third2);
+        TS_ASSERT_EQUALS(fibres2.size(), second2.size());
+        TS_ASSERT_EQUALS(fibres2.size(), third2.size());
+
+        //Compare data
+        TS_ASSERT_EQUALS(fibres1.size(), fibres2.size());
+        
+        for (unsigned i = 431980; i< fibres1.size(); i++)
+        {
+            for (unsigned j = 0; j< 3u ; j++)
+            {
+                TS_ASSERT_DELTA(fibres1[i][j], fibres2[i][j], 1e-16);
+                TS_ASSERT_DELTA(second1[i][j], second2[i][j], 1e-16);
+                TS_ASSERT_DELTA(third1[i][j], third2[i][j], 1e-16);
+            }
+        }
+    }
+
+
+
 public:
     void TestSimpleOrthotropic() throw (Exception)
     {
@@ -62,8 +100,8 @@ public:
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "point50.ortho";
         std::string wall_file = handler.GetOutputDirectoryFullPath() + "wall_thickness.data";
 
-        NumericFileComparison comp_ortho(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
-        TS_ASSERT(comp_ortho.CompareFiles(1e-11));
+        CompareOrthoFiles(fibre_file, "heart/test/data/point50_heart_mesh/point50.ortho");
+        
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
@@ -88,8 +126,7 @@ public:
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "point50_not_dist.ortho";
         std::string wall_file = handler.GetOutputDirectoryFullPath() + "wall_thickness.data";
 
-        NumericFileComparison comp_ortho(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
-        TS_ASSERT(comp_ortho.CompareFiles(1e-11));
+        CompareOrthoFiles(fibre_file, "heart/test/data/point50_heart_mesh/point50.ortho");
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
@@ -113,8 +150,7 @@ public:
         OutputFileHandler handler("streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "downsampled.ortho";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/fibre_tests/downsampled.ortho");
-        TS_ASSERT(comp.CompareFiles(1e-11));
+        CompareOrthoFiles(fibre_file, "heart/test/data/fibre_tests/downsampled.ortho");
 #ifdef CHASTE_VTK
         //Output to VTK.
         VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "downsampled_fibres", false);
