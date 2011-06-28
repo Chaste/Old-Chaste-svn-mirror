@@ -1,6 +1,7 @@
 TestChastePoint.hpp
 TestChasteRegions.hpp
 TestDistributedTetrahedralMesh.hpp
+TestDeformedBoundaryElement.hpp
 TestElement.hpp
 TestMixedDimensionMesh.hpp
 TestMutableMesh.hpp
