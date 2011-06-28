@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractNonlinearElasticitySolver.hpp"
 #include "AbstractIncompressibleMaterialLaw.hpp"
+#include "DeformedBoundaryElement.hpp"
+
 
 /**
  * Finite elasticity solver. Solves static *incompressible* nonlinear elasticity
@@ -86,6 +88,14 @@ protected:
      */
     std::vector<double> mPressures;
 
+	/** pressure BCs */
+    std::vector<double > mPressureBoundaryConditions;
+    /** Whether to use pressure-on-deformed-surface BCs */
+    bool mUsingPressureBoundaryConditionFunction;
+    /** Helper element if using pressure-on-deformed-surface BCs */
+    DeformedBoundaryElement<DIM-1,DIM>* mpDeformedBoundaryElement;
+
+
     /**
      * Assemble residual or Jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
@@ -122,16 +132,16 @@ protected:
      * @param rBelem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     * @param rTraction
      * @param assembleResidual A bool stating whether to assemble the residual vector.
      * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
+     * @param boundaryConditionIndex index of traction BC
      */
     virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1, DIM>& rBoundaryElement,
                                            c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE>& rAelem,
                                            c_vector<double, BOUNDARY_STENCIL_SIZE>& rBelem,
-                                           c_vector<double, DIM>& rTraction,
                                            bool assembleResidual,
-                                           bool assembleJacobian);
+                                           bool assembleJacobian,
+                                           unsigned boundaryConditionIndex);
 
     /**
      * Set up the current guess to be the solution given no displacement.
@@ -209,6 +219,22 @@ public:
      * Get pressures for each vertex.
      */
     std::vector<double>& rGetPressures();
+
+
+
+    void SetPressureBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
+                                       std::vector<double >& rPressures,
+                                       std::vector<c_vector<double,DIM> >& rOutwardNormals)
+    {
+
+        this->mBoundaryElements = rBoundaryElements;
+        mPressureBoundaryConditions = rPressures;
+        mUsingPressureBoundaryConditionFunction = true;
+
+        mpDeformedBoundaryElement = new DeformedBoundaryElement<DIM-1,DIM>;
+    }
+
+
 };
 
 #endif /*NONLINEARELASTICITYSOLVER_HPP_*/

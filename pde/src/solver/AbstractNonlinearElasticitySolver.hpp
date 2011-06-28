@@ -1024,6 +1024,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 
     #ifdef MECH_KSP_MONITOR
     PetscOptionsSetValue("-ksp_monitor","");
+	//PetscOptionsSetValue("-ksp_norm_type","natural");
     #endif
 
     KSPSetFromOptions(solver);

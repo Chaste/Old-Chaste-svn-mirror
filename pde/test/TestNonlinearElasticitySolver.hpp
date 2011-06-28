@@ -676,6 +676,94 @@ public:
         solver.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(solver.Solve(), "KSP Absolute tolerance was too high");
     }
+
+    /*
+     *   TODO: comment
+     */
+    void TestSolveWithPressureBcsOnDeformedSurface() throw(Exception)
+    {
+        MechanicsEventHandler::Reset();
+
+        double lambda = 0.85;
+        double c1 = 1.0;
+        c_vector<double,2> body_force = zero_vector<double>(2);
+        unsigned num_elem = 10;
+
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+        MooneyRivlinMaterialLaw<2> law(c1);
+
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > locations;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+                c_vector<double,2> new_position;
+                new_position(0) = (lambda/sqrt(2)) * mesh.GetNode(i)->rGetLocation()[1];
+                new_position(1) = (lambda/sqrt(2)) * mesh.GetNode(i)->rGetLocation()[1];
+                locations.push_back(new_position);
+            }
+        }
+
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<double> pressures;
+        std::vector<c_vector<double,2> > outward_normals;
+        c_vector<double,2> const_outward_normal;
+        const_outward_normal(0) = 1;
+        const_outward_normal(1) = 0;
+        double pressure = (2*c1*(pow(lambda,-1) - lambda*lambda*lambda))/lambda;
+
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+                pressures.push_back(pressure);
+                outward_normals.push_back(const_outward_normal);
+            }
+        }
+        assert(boundary_elems.size()==num_elem);
+
+        NonlinearElasticitySolver<2> solver(&mesh,
+                                            &law,
+                                            body_force,
+                                            1.0,
+                                            "nonlin_elas_pressure_on_deformed",
+                                            fixed_nodes,
+                                            &locations);
+
+        solver.SetPressureBoundaryConditions(boundary_elems, pressures, outward_normals);
+
+        solver.Solve();
+
+        std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double exact_x_before_rotation = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
+            double exact_y_before_rotation = lambda*mesh.GetNode(i)->rGetLocation()[1];
+
+            double exact_x = (1.0/sqrt(2))*( exact_x_before_rotation + exact_y_before_rotation);
+            double exact_y = (1.0/sqrt(2))*(-exact_x_before_rotation + exact_y_before_rotation);
+
+            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-3 );
+            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-3 );
+        }
+
+        for (unsigned i=0; i<mesh.GetNumVertices(); i++)
+        {
+            TS_ASSERT_DELTA( solver.rGetPressures()[i], 2*c1*lambda*lambda, 5e-2 );
+        }
+
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+    }
 };
 
 #endif /*TESTNONLINEARELASTICITYSOLVER_HPP_*/

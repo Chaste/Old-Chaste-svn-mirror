@@ -139,7 +139,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
         for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
         {
             BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mBoundaryElements[i]);
-            AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, this->mSurfaceTractions[i], assembleResidual, assembleJacobian);
+            AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, assembleResidual, assembleJacobian, i);
 
             unsigned p_indices[BOUNDARY_STENCIL_SIZE];
             for (unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
@@ -529,9 +529,9 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             BoundaryElement<DIM-1,DIM>& rBoundaryElement,
             c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
             c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-            c_vector<double,DIM>& rTraction,
             bool assembleResidual,
-            bool assembleJacobian)
+            bool assembleJacobian,
+            unsigned boundaryConditionIndex)
 {
     rAelem.clear();
     rBelem.clear();
@@ -544,7 +544,29 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     c_vector<double, DIM> weighted_direction;
     double jacobian_determinant;
+
     this->mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
+
+    c_vector<double,DIM> deformed_normal;
+    if (mUsingPressureBoundaryConditionFunction)
+    {
+        static std::vector<c_vector<double,DIM> > element_current_displacements(DIM/*num vertices in the element*/);
+        for (unsigned II=0; II<DIM/*num vertices per boundary element*/; II++)
+        {
+            for (unsigned JJ=0; JJ<DIM; JJ++)
+            {
+                element_current_displacements[II](JJ) = this->mCurrentSolution[DIM*rBoundaryElement.GetNodeGlobalIndex(II) + JJ];
+            }
+        }
+
+        mpDeformedBoundaryElement->ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
+
+        mpDeformedBoundaryElement->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
+
+        deformed_normal = mpDeformedBoundaryElement->ComputeDeformedOutwardNormal();
+    }
+
+
 
     c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
@@ -568,9 +590,13 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             }
             traction = (*(this->mpTractionBoundaryConditionFunction))(X, this->mCurrentTime);
         }
+        else if (mUsingPressureBoundaryConditionFunction)
+        {
+            traction = mPressureBoundaryConditions[boundaryConditionIndex]*deformed_normal;
+        }
         else
         {
-            traction = rTraction;
+            traction = this->mSurfaceTractions[boundaryConditionIndex];
         }
 
         for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
@@ -637,6 +663,8 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
                                              outputDirectory, fixedNodes,
                                              INCOMPRESSIBLE)
 {
+mUsingPressureBoundaryConditionFunction=false;
+
     assert(pMaterialLaw != NULL);
 
     AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
@@ -664,6 +692,8 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
                                              outputDirectory, fixedNodes,
                                              INCOMPRESSIBLE)
 {
+mUsingPressureBoundaryConditionFunction=false;
+
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
