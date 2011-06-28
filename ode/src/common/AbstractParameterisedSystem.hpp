@@ -139,12 +139,13 @@ public:
 
     /**
      * Get a copy of the state variable vector.
-     * Caller takes responsibility for freeing the vector (if required for the VECTOR type).
+     * Caller takes responsibility for deleting the returned vector (if required for the VECTOR type).
      */
     VECTOR GetStateVariables();
 
     /**
-     * Set the state variables equal to the values in the given vector.
+     * Set the state variables equal to the values in the given vector, copying it.
+     * Caller thus maintains responsibility for deleting the input vector (if required for the VECTOR type).
      *
      * @param rStateVariables  new values for the state variables
      */
