@@ -107,6 +107,22 @@ template<typename VECTOR>
 inline void CreateVectorIfEmpty(VECTOR& rVec, unsigned size);
 
 /**
+ * Helper function to create a new empty/unset vector, useful for defining a default parameter value.
+ *
+ * @return a new vector
+ */
+template<typename VECTOR>
+inline VECTOR CreateEmptyVector();
+
+/**
+ * Helper function to test whether a vector is empty/unset.
+ *
+ * @param rVec  the vector
+ */
+template<typename VECTOR>
+inline bool IsEmptyVector(VECTOR& rVec);
+
+/**
  * Helper function to delete a vector.
  *
  * This isn't a member so that we can specialise it without having to
@@ -214,6 +230,25 @@ inline void CreateVectorIfEmpty(std::vector<double>& rVec, unsigned size)
 
 /**
  * Specialisation for std::vector<double>.
+ */
+template<>
+inline std::vector<double> CreateEmptyVector()
+{
+    return std::vector<double>();
+}
+
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ */
+template<>
+inline bool IsEmptyVector(std::vector<double>& rVec)
+{
+    return rVec.empty();
+}
+
+/**
+ * Specialisation for std::vector<double>.
  * @param rVec
  */
 template<>
@@ -315,6 +350,25 @@ inline void CreateVectorIfEmpty(N_Vector& rVec, unsigned size)
     {
         rVec = N_VNew_Serial(size);
     }
+}
+
+/**
+ * Specialisation for CVODE's N_Vector type.
+ */
+template<>
+inline N_Vector CreateEmptyVector()
+{
+    return NULL;
+}
+
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ */
+template<>
+inline bool IsEmptyVector(N_Vector& rVec)
+{
+    return rVec == NULL;
 }
 
 /**
