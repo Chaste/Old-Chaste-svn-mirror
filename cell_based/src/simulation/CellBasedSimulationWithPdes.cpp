@@ -51,8 +51,7 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
       mNumRadialIntervals(0), // 'unset' value
-      mpCoarsePdeMesh(NULL),
-      mCoarseMeshType(0)
+      mpCoarsePdeMesh(NULL)
 {
     // We must be using a mesh-based cell population
     // assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL);
@@ -164,43 +163,6 @@ void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double coarseGrainSca
 template<>
 void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScaleFactor)
 {
-    // Create coarse PDE mesh depending on mCoarseMeshType
-	switch (mCoarseMeshType)
-	{
-		case 0:
-		{
-		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
-		    break;
-		}
-		case 1:
-		{
-		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
-		    break;
-		}
-		case 2:
-		{
-		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
-		    break;
-		}
-		case 3:
-		{
-		    TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-		    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-		    mpCoarsePdeMesh->ConstructFromMeshReader(mesh_reader);
-		    break;
-
-		}
-		default:
-			NEVER_REACHED;
-	}
-
-
     // Find centre of cell population
     c_vector<double,2> centre_of_cell_population = zero_vector<double>(2);
     for (AbstractCellPopulation<2>::Iterator cell_iter = this->mrCellPopulation.Begin();
@@ -224,6 +186,26 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScale
         }
     }
 
+    // Create rectangular slab mesh to contain the cell population
+    double step_size;
+
+    // We would like to use a mesh element size >> cell radius (assumed approximatley 1)
+    // but if the cell population is too small we should use a finer mesh.
+    if(max_cell_population_radius>10.0)
+    {
+		double mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
+		step_size=mesh_width/((unsigned)(mesh_width/10.0));
+    }
+    else
+    {
+		step_size=max_cell_population_radius;
+    }
+    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+    mpCoarsePdeMesh->ConstructRegularSlabMesh(	step_size,
+												2.0*max_cell_population_radius*coarseGrainScaleFactor,
+												2.0*max_cell_population_radius*coarseGrainScaleFactor	);
+
+
     // Find centre of coarse PDE mesh
     c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
     for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
@@ -244,14 +226,7 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScale
     }
 
     // Translate centre of coarse PDE mesh to the origin
-    mpCoarsePdeMesh->Translate(-centre_of_coarse_mesh[0], -centre_of_coarse_mesh[1]);
-
-    // Scale coarse PDE mesh
-    double scale_factor = (max_cell_population_radius/max_mesh_radius)*coarseGrainScaleFactor;
-    mpCoarsePdeMesh->Scale(scale_factor, scale_factor);
-
-    // Translate centre of coarse PDE mesh to centre of the cell population
-    mpCoarsePdeMesh->Translate(centre_of_cell_population[0], centre_of_cell_population[1]);
+    mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
 }
 
 template<unsigned DIM>
@@ -740,21 +715,7 @@ void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rP
     CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
 }
 
-template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetCoarseMeshType(unsigned type)
-{
-    if (type >= 4)
-    {
-        EXCEPTION("Input argument for SetCoarseMeshType() must take the value 0, 1, 2 or 3.");
-    }
-	mCoarseMeshType = type;
-}
 
-template<unsigned DIM>
-unsigned CellBasedSimulationWithPdes<DIM>::GetCoarseMeshType()
-{
-	return mCoarseMeshType;
-}
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

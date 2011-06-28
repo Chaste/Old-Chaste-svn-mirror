@@ -716,8 +716,8 @@ public:
         centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
 
         // Test that the two centres match
-        TS_ASSERT_DELTA(centre_of_cell_population[0], centre_of_coarse_pde_mesh[0], 1e-4);
-        TS_ASSERT_DELTA(centre_of_cell_population[1], centre_of_coarse_pde_mesh[1], 1e-4);
+        c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
+		TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
 
         // Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
 
@@ -900,8 +900,8 @@ public:
         centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
 
         // Test that the two centres match
-        TS_ASSERT_DELTA(centre_of_cell_population[0], centre_of_coarse_pde_mesh[0], 1e-4);
-        TS_ASSERT_DELTA(centre_of_cell_population[1], centre_of_coarse_pde_mesh[1], 1e-4);
+        c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
+        TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
 
         // Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
 
@@ -1484,11 +1484,11 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        // Create a simple mesh
+        // Create a simple mesh - larger to use coarse graining.
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         MutableMesh<2,2>* p_mesh = new MutableMesh<2,2>;
         p_mesh->ConstructFromMeshReader(mesh_reader);
-        p_mesh->Scale(5.0,1.0);
+        p_mesh->Scale(20.0,20.0);
 
 		NodesOnlyMesh<2> mesh;
 		mesh.ConstructNodesWithoutMesh(*p_mesh);
@@ -1522,11 +1522,11 @@ public:
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(),0);
+            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE
-        AveragedSourcePde<2> pde(cell_population, -1.0);
+        // Set up PDE - zero uptake to check analytic solution.
+        AveragedSourcePde<2> pde(cell_population, 0.0);
         ConstBoundaryCondition<2> bc(1.0);
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
@@ -1553,6 +1553,17 @@ public:
         //Solve the system
         simulator.Solve();
 
+        // Test solution is constant
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+
+            double analytic_solution = 1.0;
+            // Test that PDE solver is working correctly
+            TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), analytic_solution, 1e-2);
+        }
+
         // Find centre of cell population
         c_vector<double,2> centre_of_cell_population = zero_vector<double>(2);
 
@@ -1572,8 +1583,8 @@ public:
         centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
 
         // Test that the two centres match
-        TS_ASSERT_DELTA(centre_of_cell_population[0], centre_of_coarse_pde_mesh[0], 1e-4);
-        TS_ASSERT_DELTA(centre_of_cell_population[1], centre_of_coarse_pde_mesh[1], 1e-4);
+        c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
+		TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
 
         // Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
 
@@ -1588,142 +1599,101 @@ public:
             TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
         }
 
-        // Run cell-based simulation
-        //TS_ASSERT_THROWS_THIS(simulator.Solve(), "Neumann BCs not yet implemented when using a coarse PDE mesh");
-
         // Tidy up
         CellwiseData<2>::Destroy();
     }
 
-    void TestNodeBasedWithDifferentCoarseMesh() throw(Exception)
-	{
-		EXIT_IF_PARALLEL; // defined in PetscTools
-		for (unsigned k=0; k<4; k++)
-		{
-			if (k != 0)
-			{
-                SimulationTime::Instance()->SetStartTime(0.0);
-			}
+    void TestCoarsePdeSolutionOnNodeBased() throw(Exception)
+        {
+            EXIT_IF_PARALLEL; // defined in PetscTools
 
-			// Create a simple mesh
-			TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+            // Create a simple mesh
 			MutableMesh<2,2>* p_mesh = new MutableMesh<2,2>;
-			p_mesh->ConstructFromMeshReader(mesh_reader);
-			p_mesh->Scale(5.0,1.0);
+			p_mesh->ConstructRectangularMesh(10,10);
+			//p_mesh->Scale(5.0,5.0); //Stretch it so we use coarse graining
 
-			NodesOnlyMesh<2> mesh;
-			mesh.ConstructNodesWithoutMesh(*p_mesh);
+    		NodesOnlyMesh<2> mesh;
+    		mesh.ConstructNodesWithoutMesh(*p_mesh);
 
-			// Set up cells
-			std::vector<CellPtr> cells;
-			boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-			for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-			{
-				FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-				p_model->SetDimension(2);
-				p_model->SetCellProliferativeType(DIFFERENTIATED);
+            // Set up cells
+            std::vector<CellPtr> cells;
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
-				CellPtr p_cell(new Cell(p_state, p_model));
-				double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
-				p_cell->SetBirthTime(birth_time);
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+            {
+                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+                p_model->SetDimension(2);
+                p_model->SetCellProliferativeType(DIFFERENTIATED);
 
-				cells.push_back(p_cell);
-			}
+                CellPtr p_cell(new Cell(p_state, p_model));
+                double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
+                p_cell->SetBirthTime(birth_time);
 
-			// Set up cell population
-			NodeBasedCellPopulation<2> cell_population(mesh, cells);
-			cell_population.SetMechanicsCutOffLength(1.5);
+                cells.push_back(p_cell);
+            }
 
-			// Set up CellwiseData and associate it with the cell population
-			CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-			p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
-			p_data->SetCellPopulation(&cell_population);
+            // Set up cell population
+            NodeBasedCellPopulation<2> cell_population(mesh, cells);
+            cell_population.SetMechanicsCutOffLength(1.5);
 
-			/*
-			 * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-			 * we need to pass it some initial conditions to avoid memory errors.
-			 */
-			for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-			{
-				p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(),0);
-			}
+            // Set up CellwiseData and associate it with the cell population
+            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+            p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+            p_data->SetCellPopulation(&cell_population);
 
-			// Set up PDE
-			AveragedSourcePde<2> pde(cell_population, -1.0);
-			ConstBoundaryCondition<2> bc(1.0);
-			bool is_neumann_bc = false;
-			PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
+            // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+            // we need to pass it some initial conditions to avoid memory errors
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+            {
+            	c_vector<double,2> location;
+            	c_vector<double,2> centre_of_mesh;
+            	centre_of_mesh[0]=5.0;
+            	centre_of_mesh[1]=5.0;
+            	location=mesh.GetNode(i)->rGetLocation();
+            	double initial_condition;
+            	if(norm_2(location-centre_of_mesh)<1.0)
+            	{
+            		initial_condition=0.0;
+            	}
+            	else
+            	{
+            		initial_condition=1.0;
+            	}
 
-			std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-			pde_and_bc_collection.push_back(&pde_and_bc);
+                p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
+            }
 
-			// Set up cell-based simulation
-			CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-			simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithCoarseMeshPDE");
-			simulator.SetEndTime(0.01);
+            // Set up PDE - uniform uptake at each cell.
+            AveragedSourcePde<2> pde(cell_population, -0.01);
+            ConstBoundaryCondition<2> bc(1.0);
+            bool is_neumann_bc = false;
+            PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
 
-			// Coverage
-			simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+            std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+            pde_and_bc_collection.push_back(&pde_and_bc);
 
-			// Create a force law and pass it to the simulation
-			GeneralisedLinearSpringForce<2> linear_force;
-			linear_force.SetCutOffLength(1.5);
-			simulator.AddForce(&linear_force);
+            // Set up cell-based simulation
+            CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+            simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased");
+            simulator.SetEndTime(0.01);
 
-			// For coverage, we try to call SetCoarseMeshType() with an invalid input argument
-			TS_ASSERT_THROWS_THIS(simulator.SetCoarseMeshType(5),
-                "Input argument for SetCoarseMeshType() must take the value 0, 1, 2 or 3.");
+            // Coverage
+            simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
-			// Tell simulator to use the coarse mesh
-			simulator.SetCoarseMeshType(k);
-			unsigned correct_mesh = k;
-			TS_ASSERT_EQUALS(simulator.GetCoarseMeshType() ,correct_mesh);
+            // Tell simulator to use the coarse mesh.
+            simulator.UseCoarsePdeMesh(10.0);
 
-			simulator.UseCoarsePdeMesh(10.0);
+            //Solve the system
+            simulator.Solve();
 
-			// Solve the system
-			simulator.Solve();
+            // Test solution is unchanged at first two cells
+            TS_ASSERT_DELTA(p_data->GetValue(*(cell_population.Begin())), 0.971884, 1e-4);
+            TS_ASSERT_DELTA(p_data->GetValue(*(++cell_population.Begin())), 0.971884, 1e-4);
 
-			// Find centre of cell population
-			c_vector<double,2> centre_of_cell_population = zero_vector<double>(2);
+            // Tidy up
+            CellwiseData<2>::Destroy();
+        }
 
-			for (unsigned i=0; i<simulator.rGetCellPopulation().GetNumNodes(); i++)
-			{
-				centre_of_cell_population += simulator.rGetCellPopulation().GetNode(i)->rGetLocation();
-			}
-			centre_of_cell_population /= simulator.rGetCellPopulation().GetNumNodes();
-
-			// Find centre of coarse PDE mesh
-			c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
-
-			for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
-			{
-				centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
-			}
-			centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
-
-			// Test that the two centres match
-			c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
-            TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
-	
-			// Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
-
-			simulator.InitialiseCoarsePdeMesh(); // coverage
-
-			for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-				cell_iter != cell_population.End();
-				++cell_iter)
-			{
-				unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
-				TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
-				TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
-			}
-
-			// Tidy up
-			CellwiseData<2>::Destroy();
-			SimulationTime::Destroy();
-		}
-	}
 };
 
 #endif /*TESTCELLBASEDSIMULATIONWITHPDES_HPP_*/
