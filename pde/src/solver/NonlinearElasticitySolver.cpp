@@ -663,7 +663,8 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
                                              outputDirectory, fixedNodes,
                                              INCOMPRESSIBLE)
 {
-mUsingPressureBoundaryConditionFunction=false;
+    mUsingPressureBoundaryConditionFunction=false;
+    mpDeformedBoundaryElement = NULL;
 
     assert(pMaterialLaw != NULL);
 
@@ -692,7 +693,8 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
                                              outputDirectory, fixedNodes,
                                              INCOMPRESSIBLE)
 {
-mUsingPressureBoundaryConditionFunction=false;
+    mUsingPressureBoundaryConditionFunction=false;
+    mpDeformedBoundaryElement = NULL;
 
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
@@ -714,6 +716,10 @@ mUsingPressureBoundaryConditionFunction=false;
 template<size_t DIM>
 NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 {
+    if(mpDeformedBoundaryElement)
+    {
+        delete mpDeformedBoundaryElement;
+    }
 }
 
 template<size_t DIM>

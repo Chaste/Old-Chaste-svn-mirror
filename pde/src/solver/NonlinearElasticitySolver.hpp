@@ -221,7 +221,14 @@ public:
     std::vector<double>& rGetPressures();
 
 
-
+    /**
+     *  Set traction boundary conditions corresponding to a normal pressures applied to
+     *  the deformed surface
+     *
+     *  @param rBoundaryElements vector of the boundary elements of the mesh
+     *  @param rPressures pressures for each boundary element
+     *  @param rOutwardNormals (not used) (this is in the process of being refactored)
+     */
     void SetPressureBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
                                        std::vector<double >& rPressures,
                                        std::vector<c_vector<double,DIM> >& rOutwardNormals)
