@@ -247,36 +247,36 @@ public:
     /**
      * Call this before Solve().
      *
-     * This calls AssembleFinalLhsMatrix() and AssembleRhsVector().
+     * This calls FinaliseLhsMatrix() and FinaliseRhsVector().
      */
     void AssembleFinalLinearSystem();
 
     /**
      * Should be called before AddToMatrixElement.
      *
-     * This calls AssembleIntermediateLhsMatrix() and AssembleRhsVector().
+     * This calls SwitchWriteModeLhsMatrix() and FinaliseRhsVector().
      */
     void AssembleIntermediateLinearSystem();
 
     /**
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
      */
-    void AssembleFinalLhsMatrix();
+    void FinaliseLhsMatrix();
 
     /**
      * Sets up the PETSc matrix used for preconditioning.
      */
-    void AssembleFinalPrecondMatrix();
+    void FinalisePrecondMatrix();
 
     /**
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
      */
-    void AssembleIntermediateLhsMatrix();
+    void SwitchWriteModeLhsMatrix();
 
     /**
      * Sets up the PETSc vector right-hand-side mRhsVector
      */
-    void AssembleRhsVector();
+    void FinaliseRhsVector();
 
     /**
      * Force PETSc to treat the matrix in this linear system as symmetric from now on.

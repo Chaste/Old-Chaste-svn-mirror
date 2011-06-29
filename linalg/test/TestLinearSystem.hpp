@@ -546,7 +546,7 @@ public:
 
         LinearSystem lsm(NULL, m);
         TS_ASSERT_EQUALS(lsm.GetSize(), size);
-        lsm.AssembleFinalLhsMatrix();
+        lsm.FinaliseLhsMatrix();
 
         if (dist_vec.Begin() != dist_vec.End())
         {
@@ -1242,7 +1242,7 @@ public:
             {
                 PetscMatTools::SetElement(r_identity_matrix, row_col, row_col, 1.0);
             }
-            ls_diff_precond.AssembleFinalPrecondMatrix();
+            ls_diff_precond.FinalisePrecondMatrix();
 
             Vec solution = ls_diff_precond.Solve();
             num_it_diff_mat = ls_diff_precond.GetNumIterations();

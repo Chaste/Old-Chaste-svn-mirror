@@ -55,7 +55,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
         mass_matrix_assembler.Assemble();
 
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpLinearSystem->FinaliseLhsMatrix();
         PetscMatTools::Finalise(mMassMatrix);
         
         if (HeartConfig::Instance()->GetUseMassLumpingForPrecond() && !HeartConfig::Instance()->GetUseMassLumping())
@@ -69,7 +69,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
             lumped_mass_assembler.AssembleMatrix();
             HeartConfig::Instance()->SetUseMassLumping(false);
             
-            this->mpLinearSystem->AssembleFinalPrecondMatrix();
+            this->mpLinearSystem->FinalisePrecondMatrix();
         }
         
     }
@@ -130,7 +130,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
     }
   
     // finalise 
-    this->mpLinearSystem->AssembleRhsVector();
+    this->mpLinearSystem->FinaliseRhsVector();
 }
 
 

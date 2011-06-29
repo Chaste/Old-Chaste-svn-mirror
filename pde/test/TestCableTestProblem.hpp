@@ -87,14 +87,14 @@ private:
         mpRhsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), true);
         mpRhsAssembler->Assemble();
 
-        this->mpLinearSystem->AssembleRhsVector();
-        this->mpLinearSystem->AssembleIntermediateLhsMatrix();
+        this->mpLinearSystem->FinaliseRhsVector();
+        this->mpLinearSystem->SwitchWriteModeLhsMatrix();
 
         // apply the Dirichlet boundary conditions
         mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), computeMatrix);
 
-        this->mpLinearSystem->AssembleRhsVector();
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpLinearSystem->FinaliseRhsVector();
+        this->mpLinearSystem->FinaliseLhsMatrix();
 	}
 
 

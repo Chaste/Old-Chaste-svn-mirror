@@ -202,13 +202,13 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec exi
                     }
 
                 }
-                this->mpLinearSystem->AssembleFinalLhsMatrix();
+                this->mpLinearSystem->FinaliseLhsMatrix();
 
             }
             // Set the mRowForAverageOfPhiZeroed-th rhs vector row to 0
             this->mpLinearSystem->SetRhsVectorElement(mRowForAverageOfPhiZeroed, 0);
 
-            this->mpLinearSystem->AssembleRhsVector();
+            this->mpLinearSystem->FinaliseRhsVector();
         }
     }
 }

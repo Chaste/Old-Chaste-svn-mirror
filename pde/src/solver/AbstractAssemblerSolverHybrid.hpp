@@ -122,13 +122,13 @@ void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOL
         this->AssembleVector();
     }
 
-    pLinearSystem->AssembleRhsVector();
-    pLinearSystem->AssembleIntermediateLhsMatrix();
+    pLinearSystem->FinaliseRhsVector();
+    pLinearSystem->SwitchWriteModeLhsMatrix();
 
     this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*pLinearSystem, true);
 
-    pLinearSystem->AssembleRhsVector();
-    pLinearSystem->AssembleFinalLhsMatrix();
+    pLinearSystem->FinaliseRhsVector();
+    pLinearSystem->FinaliseLhsMatrix();
 }
 
 #endif /*ABSTRACTASSEMBLERSOLVERHYBRID_HPP_*/

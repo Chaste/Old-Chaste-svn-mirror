@@ -305,32 +305,32 @@ void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
 
 void LinearSystem::AssembleFinalLinearSystem()
 {
-    AssembleFinalLhsMatrix();
-    AssembleRhsVector();
+    FinaliseLhsMatrix();
+    FinaliseRhsVector();
 }
 
 void LinearSystem::AssembleIntermediateLinearSystem()
 {
-    AssembleIntermediateLhsMatrix();
-    AssembleRhsVector();
+    SwitchWriteModeLhsMatrix();
+    FinaliseRhsVector();
 }
 
-void LinearSystem::AssembleFinalLhsMatrix()
+void LinearSystem::FinaliseLhsMatrix()
 {
     PetscMatTools::Finalise(mLhsMatrix);
 }
 
-void LinearSystem::AssembleIntermediateLhsMatrix()
+void LinearSystem::SwitchWriteModeLhsMatrix()
 {
     PetscMatTools::SwitchWriteMode(mLhsMatrix);
 }
 
-void LinearSystem::AssembleFinalPrecondMatrix()
+void LinearSystem::FinalisePrecondMatrix()
 {
     PetscMatTools::Finalise(mPrecondMatrix);
 }
 
-void LinearSystem::AssembleRhsVector()
+void LinearSystem::FinaliseRhsVector()
 {
     PetscVecTools::Finalise(mRhsVector);
 }

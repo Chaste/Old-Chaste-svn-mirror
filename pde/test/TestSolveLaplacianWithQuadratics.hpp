@@ -206,11 +206,11 @@ private:
 
         if (assembleVector)
         {
-            mpLinearSystem->AssembleRhsVector();
+            mpLinearSystem->FinaliseRhsVector();
         }
         if (assembleMatrix)
         {
-            mpLinearSystem->AssembleIntermediateLhsMatrix();
+            mpLinearSystem->SwitchWriteModeLhsMatrix();
         }
 
         // Apply dirichlet boundary conditions
@@ -218,11 +218,11 @@ private:
 
         if (assembleVector)
         {
-            mpLinearSystem->AssembleRhsVector();
+            mpLinearSystem->FinaliseRhsVector();
         }
         if (assembleMatrix)
         {
-            mpLinearSystem->AssembleFinalLhsMatrix();
+            mpLinearSystem->FinaliseLhsMatrix();
         }
     }
 

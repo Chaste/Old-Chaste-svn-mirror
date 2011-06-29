@@ -93,7 +93,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
         mass_matrix_assembler.Assemble();
 
-        this->mpLinearSystem->AssembleIntermediateLhsMatrix();
+        this->mpLinearSystem->SwitchWriteModeLhsMatrix();
         PetscMatTools::Finalise(mMassMatrix);
     }
 
@@ -196,21 +196,21 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mpBidomainCorrectionTermAssembler->AssembleVector();
     }  
 
-    this->mpLinearSystem->AssembleRhsVector();
+    this->mpLinearSystem->FinaliseRhsVector();
 
     this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), computeMatrix);
 
     if(this->mBathSimulation)
     {
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpLinearSystem->FinaliseLhsMatrix();
         this->FinaliseForBath(computeMatrix,true);
     }
 
     if(computeMatrix)
     {
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpLinearSystem->FinaliseLhsMatrix();
     }
-    this->mpLinearSystem->AssembleRhsVector();
+    this->mpLinearSystem->FinaliseRhsVector();
 }
 
 

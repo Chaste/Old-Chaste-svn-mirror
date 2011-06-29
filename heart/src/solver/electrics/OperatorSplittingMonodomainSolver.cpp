@@ -52,7 +52,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
         mass_matrix_assembler.Assemble();
 
-        this->mpLinearSystem->AssembleFinalLhsMatrix();
+        this->mpLinearSystem->FinaliseLhsMatrix();
         PetscMatTools::Finalise(mMassMatrix);
     }
 
@@ -104,7 +104,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
     this->mpMonodomainAssembler->AssembleVector();
 
     // finalise
-    this->mpLinearSystem->AssembleRhsVector();
+    this->mpLinearSystem->FinaliseRhsVector();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
