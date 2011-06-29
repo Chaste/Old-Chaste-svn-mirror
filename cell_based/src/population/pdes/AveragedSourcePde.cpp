@@ -70,7 +70,6 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
     {
         rCoarseMesh.GetElement(elem_index)->CalculateJacobian(jacobian, det);
         mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume(det);
-        std::cout << mCellDensityOnCoarseElements[elem_index] << "\n";
     }
 }
 
