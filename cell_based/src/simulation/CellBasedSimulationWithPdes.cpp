@@ -173,8 +173,14 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScale
     }
     centre_of_cell_population /= this->mrCellPopulation.GetNumRealCells();
 
-    // Find max radius of cell population
-    double max_cell_population_radius = 0.0;
+    // Find max radius of cell population in each axis direction
+    c_vector<double,2> max_axial_cell_population_radius;
+    double max_cell_population_radius=0.0;
+    for(unsigned i=0;i<2;i++)
+    {
+    	max_axial_cell_population_radius[i]=0.0;
+    }
+
     for (AbstractCellPopulation<2>::Iterator cell_iter = this->mrCellPopulation.Begin();
         cell_iter != this->mrCellPopulation.End();
         ++cell_iter)
@@ -184,26 +190,52 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScale
         {
             max_cell_population_radius = radius;
         }
+
+    	c_vector<double,2> relative_location=centre_of_cell_population-this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+    	for(unsigned i=0;i<2;i++)
+    	{
+        	if (abs(relative_location[i]) > max_axial_cell_population_radius[i])
+			{
+				max_axial_cell_population_radius[i] = abs(relative_location[i]);
+			}
+    	}
     }
 
     // Create rectangular slab mesh to contain the cell population
-    double step_size;
+    double step_size, mesh_width;
+
+    // Find the direction in which the cell population is smallest
+    unsigned min_direction=0;
+    for(unsigned i=0;i<2;i++)
+    {
+    	if(max_axial_cell_population_radius[i]<max_axial_cell_population_radius[min_direction])
+    	{
+    		min_direction=i;
+    	}
+    }
+
+    double min_population_radius=max_axial_cell_population_radius[min_direction];
+
 
     // We would like to use a mesh element size >> cell radius (assumed approximatley 1)
-    // but if the cell population is too small we should use a finer mesh.
-    if(max_cell_population_radius>10.0)
+    // but if the cell population is too small (in any direction) we should use a finer mesh.
+    if(min_population_radius>10.0)
     {
-		double mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
+		mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
 		step_size=mesh_width/((unsigned)(mesh_width/10.0));
     }
+    // Let the step size be controlled by the size of the population in the direction in
+    // which it is smallest...
     else
     {
-		step_size=max_cell_population_radius;
+		mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
+		step_size=mesh_width/((unsigned)(mesh_width/min_population_radius));
     }
+
     mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
     mpCoarsePdeMesh->ConstructRegularSlabMesh(	step_size,
-												2.0*max_cell_population_radius*coarseGrainScaleFactor,
-												2.0*max_cell_population_radius*coarseGrainScaleFactor	);
+												mesh_width,
+												mesh_width	);
 
 
     // Find centre of coarse PDE mesh

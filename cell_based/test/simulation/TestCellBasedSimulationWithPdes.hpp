@@ -1687,8 +1687,8 @@ public:
             simulator.Solve();
 
             // Test solution is unchanged at first two cells
-            TS_ASSERT_DELTA(p_data->GetValue(*(cell_population.Begin())), 0.971884, 1e-4);
-            TS_ASSERT_DELTA(p_data->GetValue(*(++cell_population.Begin())), 0.971884, 1e-4);
+            TS_ASSERT_DELTA(p_data->GetValue(*(cell_population.Begin())), 0.9990, 1e-4);
+            TS_ASSERT_DELTA(p_data->GetValue(*(++cell_population.Begin())), 0.9990, 1e-4);
 
             // Tidy up
             CellwiseData<2>::Destroy();
