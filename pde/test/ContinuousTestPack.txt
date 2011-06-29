@@ -5,7 +5,6 @@ TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
 TestCableTestProblem.hpp 
 TestCompressibleNonlinearElasticitySolver.hpp
-TestNonlinearElasticitySolver.hpp
 TestConstBoundaryCondition.hpp
 TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp

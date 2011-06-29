@@ -118,16 +118,16 @@ protected:
      * @param rBelem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     * @param rTraction
      * @param assembleResidual A bool stating whether to assemble the residual vector.
      * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
+     * @param boundaryConditionIndex index of the traction boundary condition
      */
     virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1, DIM>& rBoundaryElement,
                                            c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE>& rAelem,
                                            c_vector<double, BOUNDARY_STENCIL_SIZE>& rBelem,
-                                           c_vector<double, DIM>& rTraction,
                                            bool assembleResidual,
-                                           bool assembleJacobian);
+                                           bool assembleJacobian,
+                                           unsigned boundaryConditionIndex);
 
     /**
      * Assemble the residual vector (using the current solution stored
@@ -146,39 +146,27 @@ public:
      * Constructor for homogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
+     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param pMaterialLaw A single material law to use on all elements
-     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
-     * @param density The density (assumed constant)
      * @param outputDirectory The output directory
-     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
-     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                           AbstractMaterialLaw<DIM>* pMaterialLaw,
-                                          c_vector<double,DIM> bodyForce,
-                                          double density,
-                                          std::string outputDirectory,
-                                          std::vector<unsigned>& fixedNodes,
-                                          std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+                                          std::string outputDirectory);
 
     /**
      * Variant constructor taking a vector of material laws for heterogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
+     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param rMaterialLaws Vector of material laws for each element
-     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
-     * @param density The density (assumed constant)
      * @param outputDirectory The output directory
-     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
-     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                           std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                                          c_vector<double,DIM> bodyForce,
-                                          double density,
-                                          std::string outputDirectory,
-                                          std::vector<unsigned>& fixedNodes,
-                                          std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+                                          std::string outputDirectory);
 
     /** Destructor. */
     ~CompressibleNonlinearElasticitySolver();

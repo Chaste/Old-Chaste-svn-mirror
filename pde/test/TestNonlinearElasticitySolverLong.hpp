@@ -187,14 +187,16 @@ public:
         }
         assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir);
 
-        NonlinearElasticitySolver<3> solver(&mesh, &law,
-                                            zero_vector<double>(3), /*body force-overwritten by functional definiton below*/
-                                            1.0 /*density*/, "nonlin_elas_3d",
-                                            fixed_nodes, &locations);
+        SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        problem_defn.SetBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
-        // Set the body force and traction functions
-        solver.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
-        solver.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
+
+        NonlinearElasticitySolver<3> solver(&mesh,
+                                            problem_defn,
+                                            &law,
+                                            "nonlin_elas_3d");
 
         solver.Solve();
 

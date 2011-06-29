@@ -116,12 +116,12 @@ public:
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
+        SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+
         NonlinearElasticitySolver<3> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            zero_vector<double>(3),
-                                            1.0,
-                                            "",
-                                            fixed_nodes);
+                                            "");
         solver.AssembleSystem(true, true);
     }
 
@@ -132,12 +132,13 @@ public:
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            zero_vector<double>(2),
-                                            1.0,
-                                            "",
-                                            fixed_nodes);
+                                            "");
         solver.AssembleSystem(true, true);
 
         ///////////////////////////////////////////////////////////////////
@@ -252,12 +253,13 @@ public:
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
+        SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
         NonlinearElasticitySolver<3> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            zero_vector<double>(3),
-                                            1.0,
-                                            "",
-                                            fixed_nodes);
+                                            "");
 
         // compute the residual norm - should be zero as no force or tractions
         TS_ASSERT_DELTA( solver.ComputeResidualAndGetNorm(false), 0.0, 1e-7);
@@ -306,12 +308,14 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
+
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             &mooney_rivlin_law,
-                                            zero_vector<double>(2),
-                                            1.0,
-                                            "",
-                                            fixed_nodes);
+                                            "");
 
         // for coverage
         TS_ASSERT_THROWS_THIS(solver.SetWriteOutput(true),
@@ -341,16 +345,17 @@ public:
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
 
+
         // more coverage of exceptions
         CompressibleMooneyRivlinMaterialLaw<2> compressible_law(1.0,1.0);
-        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,&compressible_law,zero_vector<double>(2),1.0,"",fixed_nodes),  "NonlinearElasticitySolver must take in an incompressible material law");
+        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,&compressible_law,""),  "NonlinearElasticitySolver must take in an incompressible material law");
 
         std::vector<AbstractMaterialLaw<2>*> compressible_laws;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             compressible_laws.push_back(&compressible_law);
         }
-        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,compressible_laws,zero_vector<double>(2),1.0,"",fixed_nodes),  "NonlinearElasticitySolver must take in an incompressible material law");
+        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,compressible_laws,""),  "NonlinearElasticitySolver must take in an incompressible material law");
     }
 
     void TestSettingUpHeterogeneousProblem() throw(Exception)
@@ -367,13 +372,13 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             laws,
-                                            zero_vector<double>(2),
-                                            1.0,
-                                            "",
-                                            fixed_nodes);
+                                            "");
 
         TS_ASSERT_EQUALS(solver.mMaterialLaws.size(), 2u);
         TS_ASSERT_DELTA(solver.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
@@ -400,13 +405,14 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetBodyForce(body_force);
 
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            body_force,
-                                            1.0,
-                                            "simple_nonlin_elas",
-                                            fixed_nodes);
+                                            "simple_nonlin_elas");
 
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u); // 'hardcoded' answer, protects against Jacobian getting messed up
@@ -477,7 +483,6 @@ public:
     {
         double lambda = 0.85;
         double c1 = 1.0;
-        c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 5;
 
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
@@ -516,15 +521,18 @@ public:
         }
         assert(boundary_elems.size()==num_elem);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            &law,
-                                            body_force,
-                                            1.0,
-                                            "nonlin_elas_non_zero_bcs",
-                                            fixed_nodes,
-                                            &locations);
 
-        solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
+
+
+        NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
+                                            &law,
+                                            "nonlin_elas_non_zero_bcs");
+
 
         // coverage
         solver.SetKspAbsoluteTolerance(1e-10);
@@ -580,8 +588,6 @@ public:
     {
         MechanicsEventHandler::Reset();
 
-        c_vector<double,2> body_force = zero_vector<double>(2);
-
         unsigned num_elem = 5;
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
@@ -606,15 +612,18 @@ public:
         }
         assert(boundary_elems.size()==3*num_elem);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            &law,
-                                            body_force,
-                                            1.0,
-                                            "nonlin_elas_functional_data",
-                                            fixed_nodes);
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetBodyForce(MyBodyForce);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, MyTraction);
 
-        solver.SetFunctionalBodyForce(MyBodyForce);
-        solver.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
+
+
+        NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
+                                            &law,
+                                            "nonlin_elas_functional_data");
+
 
         // this test requires the time to be set to t=1 to pass (see comment
         // in and MyBodyForce() and MyTraction()
@@ -686,7 +695,6 @@ public:
 
         double lambda = 0.85;
         double c1 = 1.0;
-        c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 10;
 
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
@@ -708,10 +716,6 @@ public:
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         std::vector<double> pressures;
-        std::vector<c_vector<double,2> > outward_normals;
-        c_vector<double,2> const_outward_normal;
-        const_outward_normal(0) = 1;
-        const_outward_normal(1) = 0;
         double pressure = (2*c1*(pow(lambda,-1) - lambda*lambda*lambda))/lambda;
 
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
@@ -724,20 +728,20 @@ public:
                 BoundaryElement<1,2>* p_element = *iter;
                 boundary_elems.push_back(p_element);
                 pressures.push_back(pressure);
-                outward_normals.push_back(const_outward_normal);
             }
         }
         assert(boundary_elems.size()==num_elem);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            &law,
-                                            body_force,
-                                            1.0,
-                                            "nonlin_elas_pressure_on_deformed",
-                                            fixed_nodes,
-                                            &locations);
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressures);
 
-        solver.SetPressureBoundaryConditions(boundary_elems, pressures, outward_normals);
+
+        NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
+                                            &law,
+                                            "nonlin_elas_pressure_on_deformed");
+
 
         solver.Solve();
 

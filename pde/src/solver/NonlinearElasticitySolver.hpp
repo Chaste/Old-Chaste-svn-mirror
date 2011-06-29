@@ -40,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractNonlinearElasticitySolver.hpp"
 #include "AbstractIncompressibleMaterialLaw.hpp"
-#include "DeformedBoundaryElement.hpp"
 
 
 /**
@@ -87,13 +86,6 @@ protected:
      * The solution pressures. mPressures[i] = pressure at node i (ie vertex i).
      */
     std::vector<double> mPressures;
-
-	/** pressure BCs */
-    std::vector<double > mPressureBoundaryConditions;
-    /** Whether to use pressure-on-deformed-surface BCs */
-    bool mUsingPressureBoundaryConditionFunction;
-    /** Helper element if using pressure-on-deformed-surface BCs */
-    DeformedBoundaryElement<DIM-1,DIM>* mpDeformedBoundaryElement;
 
 
     /**
@@ -178,39 +170,27 @@ public:
      * Constructor for homogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
+     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param pMaterialLaw A single material law to use on all elements
-     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
-     * @param density The density (assumed constant)
      * @param outputDirectory The output directory
-     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
-     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                              SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                               AbstractMaterialLaw<DIM>* pMaterialLaw,
-                              c_vector<double,DIM> bodyForce,
-                              double density,
-                              std::string outputDirectory,
-                              std::vector<unsigned>& fixedNodes,
-                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+                              std::string outputDirectory);
 
     /**
      * Variant constructor taking a vector of material laws for heterogeneous problems.
      *
      * @param pQuadMesh The quadratic mesh to solve on
+     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param rMaterialLaws Vector of material laws for each element
-     * @param bodyForce The body force if constant. (If not constant, pass in a zero vector and call SetFunctionalBodyForce()
-     * @param density The density (assumed constant)
      * @param outputDirectory The output directory
-     * @param fixedNodes Which nodes are fixed in space (the displacement is assumed to be zero unless the next parameter is given
-     * @param pFixedNodeLocations Optional new locations of the fixed nodes.
      */
     NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                              SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                               std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                              c_vector<double,DIM> bodyForce,
-                              double density,
-                              std::string outputDirectory,
-                              std::vector<unsigned>& fixedNodes,
-                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+                              std::string outputDirectory);
 
     /** Destructor. */
     ~NonlinearElasticitySolver();
@@ -219,29 +199,6 @@ public:
      * Get pressures for each vertex.
      */
     std::vector<double>& rGetPressures();
-
-
-    /**
-     *  Set traction boundary conditions corresponding to a normal pressures applied to
-     *  the deformed surface
-     *
-     *  @param rBoundaryElements vector of the boundary elements of the mesh
-     *  @param rPressures pressures for each boundary element
-     *  @param rOutwardNormals (not used) (this is in the process of being refactored)
-     */
-    void SetPressureBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                       std::vector<double >& rPressures,
-                                       std::vector<c_vector<double,DIM> >& rOutwardNormals)
-    {
-
-        this->mBoundaryElements = rBoundaryElements;
-        mPressureBoundaryConditions = rPressures;
-        mUsingPressureBoundaryConditionFunction = true;
-
-        mpDeformedBoundaryElement = new DeformedBoundaryElement<DIM-1,DIM>;
-    }
-
-
 };
 
 #endif /*NONLINEARELASTICITYSOLVER_HPP_*/

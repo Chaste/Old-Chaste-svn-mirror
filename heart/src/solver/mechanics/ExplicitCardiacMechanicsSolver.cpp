@@ -37,12 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class ELASTICITY_SOLVER,unsigned DIM>
 ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
                                                                                       QuadraticMesh<DIM>* pQuadMesh,
+                                                                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                                       std::string outputDirectory,
-                                                                                      std::vector<unsigned>& rFixedNodes,
                                                                                       AbstractMaterialLaw<DIM>* pMaterialLaw)
     : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
+                                                            rProblemDefinition,
                                                             outputDirectory,
-                                                            rFixedNodes,
                                                             pMaterialLaw)
 {
     switch(contractionModel)

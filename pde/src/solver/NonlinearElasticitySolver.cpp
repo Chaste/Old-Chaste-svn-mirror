@@ -134,11 +134,11 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
     // Loop over specified boundary elements and compute surface traction terms
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
     c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
-    if (this->mBoundaryElements.size() > 0)
+    if (this->mrProblemDefinition.GetTractionBoundaryConditionType() != NO_TRACTIONS)
     {
-        for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
+        for (unsigned i=0; i<this->mrProblemDefinition.mTractionBoundaryElements.size(); i++)
         {
-            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mBoundaryElements[i]);
+            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mrProblemDefinition.mTractionBoundaryElements[i]);
             AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, assembleResidual, assembleJacobian, i);
 
             unsigned p_indices[BOUNDARY_STENCIL_SIZE];
@@ -294,19 +294,26 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
         // Get the body force, interpolating X if necessary
         if (assembleResidual)
         {
-            if (this->mUsingBodyForceFunction)
+            switch (this->mrProblemDefinition.GetBodyForceType())
             {
-                c_vector<double,DIM> X = zero_vector<double>(DIM);
-                // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
-                for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+                case FUNCTIONAL_BODY_FORCE:
                 {
-                    X += linear_phi(node_index)*this->mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                    c_vector<double,DIM> X = zero_vector<double>(DIM);
+                    // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
+                    for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+                    {
+                        X += linear_phi(node_index)*this->mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                    }
+                    body_force = this->mrProblemDefinition.EvaluateBodyForceFunction(X, this->mCurrentTime);
+                    break;
                 }
-                body_force = (*(this->mpBodyForceFunction))(X, this->mCurrentTime);
-            }
-            else
-            {
-                body_force = this->mBodyForce;
+                case CONSTANT_BODY_FORCE:
+                {
+                    body_force = this->mrProblemDefinition.GetConstantBodyForce();
+                    break;
+                }
+                default:
+                    NEVER_REACHED;
             }
         }
 
@@ -359,7 +366,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
                 unsigned spatial_dim = index%DIM;
                 unsigned node_index = (index-spatial_dim)/DIM;
 
-                rBElem(index) +=  - this->mDensity
+                rBElem(index) +=  - this->mrProblemDefinition.GetDensity()
                                   * body_force(spatial_dim)
                                   * quad_phi(node_index)
                                   * wJ;
@@ -547,8 +554,10 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     this->mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
+
+
     c_vector<double,DIM> deformed_normal;
-    if (mUsingPressureBoundaryConditionFunction)
+    if (this->mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
     {
         static std::vector<c_vector<double,DIM> > element_current_displacements(DIM/*num vertices in the element*/);
         for (unsigned II=0; II<DIM/*num vertices per boundary element*/; II++)
@@ -559,11 +568,11 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             }
         }
 
-        mpDeformedBoundaryElement->ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
+        this->mpDeformedBoundaryElement->ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
 
-        mpDeformedBoundaryElement->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
+        this->mpDeformedBoundaryElement->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
 
-        deformed_normal = mpDeformedBoundaryElement->ComputeDeformedOutwardNormal();
+        deformed_normal = this->mpDeformedBoundaryElement->ComputeDeformedOutwardNormal();
     }
 
 
@@ -581,23 +590,33 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
         // Get the required traction, interpolating X (slightly inefficiently, as interpolating
         // using quad bases) if necessary
         c_vector<double,DIM> traction = zero_vector<double>(DIM);
-        if (this->mUsingTractionBoundaryConditionFunction)
+
+        switch (this->mrProblemDefinition.GetTractionBoundaryConditionType())
         {
-            c_vector<double,DIM> X = zero_vector<double>(DIM);
-            for (unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
+            case FUNCTIONAL_TRACTION:
             {
-                X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                c_vector<double,DIM> X = zero_vector<double>(DIM);
+                for (unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
+                {
+                    X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                }
+                traction = (*(this->mrProblemDefinition.mpTractionBoundaryConditionFunction))(X, this->mCurrentTime);
+                break;
             }
-            traction = (*(this->mpTractionBoundaryConditionFunction))(X, this->mCurrentTime);
+            case ELEMENTWISE_TRACTION:
+            {
+                traction = this->mrProblemDefinition.mElementwiseTractionsBoundaryCondition[boundaryConditionIndex];
+                break;
+            }
+            case PRESSURE_ON_DEFORMED:
+            {
+                traction = this->mrProblemDefinition.mElementwiseNormalPressures[boundaryConditionIndex]*deformed_normal;
+                break;
+            }
+            default:
+                NEVER_REACHED;
         }
-        else if (mUsingPressureBoundaryConditionFunction)
-        {
-            traction = mPressureBoundaryConditions[boundaryConditionIndex]*deformed_normal;
-        }
-        else
-        {
-            traction = this->mSurfaceTractions[boundaryConditionIndex];
-        }
+
 
         for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
         {
@@ -650,22 +669,15 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
 }
 
 template<size_t DIM>
-NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
-            QuadraticMesh<DIM>* pQuadMesh,
-            AbstractMaterialLaw<DIM>* pMaterialLaw,
-            c_vector<double,DIM> bodyForce,
-            double density,
-            std::string outputDirectory,
-            std::vector<unsigned>& fixedNodes,
-            std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
+NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                                          AbstractMaterialLaw<DIM>* pMaterialLaw,
+                                                          std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
-                                             bodyForce, density,
-                                             outputDirectory, fixedNodes,
+                                             rProblemDefinition,
+                                             outputDirectory,
                                              INCOMPRESSIBLE)
 {
-    mUsingPressureBoundaryConditionFunction=false;
-    mpDeformedBoundaryElement = NULL;
-
     assert(pMaterialLaw != NULL);
 
     AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
@@ -675,27 +687,22 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
     }
     mMaterialLaws.push_back(p_law);
 
-    Initialise(pFixedNodeLocations);
+    this->Initialise();
     FormInitialGuess();
+
+
 }
 
 template<size_t DIM>
-NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
-            QuadraticMesh<DIM>* pQuadMesh,
-            std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-            c_vector<double,DIM> bodyForce,
-            double density,
-            std::string outputDirectory,
-            std::vector<unsigned>& fixedNodes,
-            std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
+NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                                          std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
+                                                          std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
-                                             bodyForce, density,
-                                             outputDirectory, fixedNodes,
+                                             rProblemDefinition,
+                                             outputDirectory,
                                              INCOMPRESSIBLE)
 {
-    mUsingPressureBoundaryConditionFunction=false;
-    mpDeformedBoundaryElement = NULL;
-
     mMaterialLaws.resize(rMaterialLaws.size(), NULL);
     for (unsigned i=0; i<mMaterialLaws.size(); i++)
     {
@@ -709,17 +716,13 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
     }
 
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
-    Initialise(pFixedNodeLocations);
+    this->Initialise();
     FormInitialGuess();
 }
 
 template<size_t DIM>
 NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 {
-    if(mpDeformedBoundaryElement)
-    {
-        delete mpDeformedBoundaryElement;
-    }
 }
 
 template<size_t DIM>
@@ -739,6 +742,5 @@ std::vector<double>& NonlinearElasticitySolver<DIM>::rGetPressures()
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-//template class NonlinearElasticitySolver<1>;
 template class NonlinearElasticitySolver<2>;
 template class NonlinearElasticitySolver<3>;

@@ -160,14 +160,14 @@ public:
      * Constructor
      *
      * @param pQuadMesh A pointer to the mesh.
+     * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param rFixedNodes The fixed nodes
      * @param pMaterialLaw The material law for the tissue. If NULL the default
      *   (NashHunterPoleZero) law is used.
      */
     AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory,
-                                   std::vector<unsigned>& rFixedNodes,
                                    AbstractMaterialLaw<DIM>* pMaterialLaw);
 
 
@@ -265,15 +265,13 @@ public:
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
 AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                                       std::string outputDirectory,
-                                                                                      std::vector<unsigned>& rFixedNodes,
                                                                                       AbstractMaterialLaw<DIM>* pMaterialLaw)
    : ELASTICITY_SOLVER(pQuadMesh,
+                       rProblemDefinition,
                        pMaterialLaw,
-                       zero_vector<double>(DIM),
-                       DOUBLE_UNSET,
-                       outputDirectory,
-                       rFixedNodes),
+                       outputDirectory),
      mCurrentTime(DBL_MAX),
      mNextTime(DBL_MAX),
      mOdeTimestep(DBL_MAX)

@@ -105,6 +105,12 @@ protected :
     /** The mesh for the mechanics */
     QuadraticMesh<DIM>* mpMechanicsMesh;
 
+    /**
+     *  Object containing body force and boundary conditions info for
+     *  solid mechanics problems.
+     */
+    SolidMechanicsProblemDefinition<DIM>* mpProblemDefinition;
+
     /** Class wrapping both meshes, useful for transferring information */
     FineCoarseMeshPair<DIM>* mpMeshPair;
 

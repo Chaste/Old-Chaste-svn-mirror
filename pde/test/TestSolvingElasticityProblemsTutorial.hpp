@@ -161,8 +161,6 @@ public:
         body_force(0) =  0.0;
         body_force(1) = -2.0;
 
-        /* The density of the body is also needed */
-        double density = 1.0;
 
         /* Two types of boundary condition are required: displacement and traction. As with the other PDE solvers,
          * the displacement (Dirichlet) boundary conditions are specified at nodes, whereas traction (Neumann) boundary
@@ -183,15 +181,32 @@ public:
          */
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
-        /* Now we create the (incompressible) solver, passing in the mesh, law, force, density, output directory
-         * name and fixed nodes..
+        /*
+         * Before creating the solver we create a `SolidMechanicsProblemDefinition` object, in which is
+         * stored everything that defines the problem (except mesh and material law): ie body force,
+         * the fixed nodes and their locations, any traction boundary conditions, and the density
+         * (which multiplies the body force, otherwise isn't used).
+         */
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+        /*
+         * Set the fixed nodes, choosing zero displacement for these nodes (see later for how
+         * to provide locations for the fixed nodes).
+         */
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        /* Set the body force and the density. (Note that the second line isn't technically
+         * needed, as internally the density is initialised to 1
+         */
+        problem_defn.SetBodyForce(body_force);
+        problem_defn.SetDensity(1.0);
+
+        /* Now we create the (incompressible) solver, passing in the mesh, problem definition, law,
+         * and output directory
          */
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            body_force,
-                                            density,
-                                            "SimpleIncompressibleElasticityTutorial",
-                                            fixed_nodes);
+                                            "SimpleIncompressibleElasticityTutorial");
 
         /* .. and call `Solve()` */
         solver.Solve();
@@ -228,6 +243,10 @@ public:
          * solution_0.exnode, the deformed by solution_1.exnode).
          */
         solver.CreateCmguiOutput();
+
+        /* This is just to check that nothing has been accidentally changed in this test */
+        TS_ASSERT_DELTA(r_deformed_positions[node_index](0),  0.7980, 1e-3);
+        TS_ASSERT_DELTA(r_deformed_positions[node_index](1), -0.1129, 1e-3);
     }
 
     /*
@@ -251,8 +270,6 @@ public:
         c_vector<double,2> body_force;
         body_force(0) =  0.0;
         body_force(1) = -2.0;
-
-        double density = 1.0;
 
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
@@ -286,15 +303,22 @@ public:
         }
         /* A quick check */
         assert(boundary_elems.size() == 8u);
+
+        /* Now create the problem definition object, setting the fixed nodes and body force as
+         * before (this time not calling SetDensity(), so using the default density of 1.0,
+         * and also calling a method for setting tractions, which takes in the boundary elements
+         * and tractions for each of those elements.
+         */
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetBodyForce(body_force);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
         /* Create solver as before */
         NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
                                             &law,
-                                            body_force,
-                                            density,
-                                            "IncompressibleElasticityWithTractionsTutorial",
-                                            fixed_nodes);
-        /* This is how to set the tractions */
-        solver.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+                                            "IncompressibleElasticityWithTractionsTutorial");
         /* Call `Solve()` */
         solver.Solve();
 
@@ -310,6 +334,10 @@ public:
          * Create cmgui output
          */
         solver.CreateCmguiOutput();
+
+        /* This is just to check that nothing has been accidentally changed in this test */
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[8](0), 0.8574, 1e-3);
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[8](1), 0.0310, 1e-3);
     }
 
     /* == Incompressible deformation: non-zero displacement boundary conditions, functional tractions ==
@@ -376,30 +404,36 @@ public:
             }
         }
 
-        /* Create the solver, passing in the new locations as the final argument */
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            &law,
-                                            zero_vector<double>(2),
-                                            1.0,
-                                            "IncompressibleElasticityMoreComplicatedExample",
-                                            fixed_nodes,
-                                            &locations);
-
-        /* Now call `SetFunctionalTractionBoundaryCondition`, passing in the boundary elements,
-         * together with a ''function pointer'' (just the name of the function) to a
-         * function returning traction in terms of position (and time [see below]). This function is defined
-         * above, before the tests. It has take in a `c_vector` (position) and a double (time), and return a
-         * `c_vector` (traction), and will only be called using the quadrature points in the boundary elements being
-         * passed in. The function `MyTraction` above defines a horizontal traction (ie a shear stress, since it is
-         * applied to the top surface) which increases in magnitude across the object.
+        /* Create a problem definition object, and this time calling `SetFixedNodes`
+         * which takes in the new locations of the fixed nodes.
          */
-        solver.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
-        /* Note: You can also call `solver.SetFunctionalBodyForce(MyBodyForce)`, though is only
-         * really useful for constructing problems with exact solutions.
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        /* Now call `SetTractionBoundaryConditions`, which takes in a vector of
+         * boundary elements as in the previous test; however this time the second argument
+         * is a ''function pointer'' (just the name of the function) to a
+         * function returning traction in terms of position (and time [see below]).
+         * This function is defined above, before the tests. It has take in a `c_vector` (position)
+         *  and a double (time), and returns a `c_vector` (traction), and will only be called
+         * using points in the boundary elements being passed in. The function `MyTraction`
+         * above defines a horizontal traction (ie a shear stress, since it is
+         * applied to the top surface) which increases in magnitude across the object.
+          */
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, MyTraction);
+        /* Note: You can also call `problem_defn.SetBodyForce(MyBodyForce)`, passing in a function
+         * instead of a vector, although isn't really physically useful, it is only really useful
+         * for constructing problems with exact solutions.
          *
          * EMPTYLINE
          *
-         * Call `Solve()` */
+         * Create the solver as before */
+        NonlinearElasticitySolver<2> solver(&mesh,
+                                            problem_defn,
+                                            &law,
+                                            "IncompressibleElasticityMoreComplicatedExample");
+
+
+        /* Call `Solve()` */
         solver.Solve();
 
         /* Another quick check */
@@ -425,6 +459,10 @@ public:
          * Create cmgui output
          */
         solver.CreateCmguiOutput();
+
+        /* This is just to check that nothing has been accidentally changed in this test */
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[98](0), 1.4543, 1e-3);
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[98](1), 0.5638, 1e-3);
     }
 };
     /* == IMPORTANT: Using HYPRE ==

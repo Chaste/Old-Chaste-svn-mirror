@@ -35,12 +35,12 @@ template<class ELASTICITY_SOLVER,unsigned DIM>
 ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsSolver(
                                   ContractionModel contractionModel,
                                   QuadraticMesh<DIM>* pQuadMesh,
+                                  SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                   std::string outputDirectory,
-                                  std::vector<unsigned>& rFixedNodes,
                                   AbstractMaterialLaw<DIM>* pMaterialLaw)
     : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
+                                                            rProblemDefinition,
                                                             outputDirectory,
-                                                            rFixedNodes,
                                                             pMaterialLaw)
 {
     switch(contractionModel)

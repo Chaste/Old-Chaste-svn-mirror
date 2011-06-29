@@ -234,6 +234,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             double mechanicsSolveTimestep,
             double contractionModelOdeTimeStep,
             std::string outputDirectory = "") :
+        mpProblemDefinition(NULL),
         mpMeshPair(NULL)
 {
     // Start-up mechanics event handler..
@@ -363,6 +364,11 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
         delete mpMaterialLaw;
     }
 
+    if(mpProblemDefinition)
+    {
+        delete mpProblemDefinition;
+    }
+
     LogFile::Close();
 }
 
@@ -380,11 +386,13 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         DetermineWatchedNodes();
     }
 
-
     // initialise monodomain problem
     mpMonodomainProblem->SetMesh(mpElectricsMesh);
     HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
     mpMonodomainProblem->Initialise();
+
+    mpProblemDefinition = new SolidMechanicsProblemDefinition<DIM>(*mpMechanicsMesh);
+    mpProblemDefinition->SetZeroDisplacementNodes(mFixedNodes);
 
     // set up default material law if SetMaterialLaw() hasn't been called
     if(mpMaterialLaw == NULL)
@@ -401,17 +409,17 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes,mpMaterialLaw);
+                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit (explicit may be unstable)
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes,mpMaterialLaw);
+                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes,mpMaterialLaw);
+                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

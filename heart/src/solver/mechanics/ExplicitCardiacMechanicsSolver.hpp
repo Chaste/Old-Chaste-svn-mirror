@@ -88,15 +88,15 @@ public:
      *
      * @param contractionModel The contraction model.
      * @param pQuadMesh A pointer to the mesh.
+     * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param rFixedNodes The fixed nodes
      * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
     ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
                                    QuadraticMesh<DIM>* pQuadMesh,
+                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory,
-                                   std::vector<unsigned>& rFixedNodes,
                                    AbstractMaterialLaw<DIM>* pMaterialLaw);
 
     /**

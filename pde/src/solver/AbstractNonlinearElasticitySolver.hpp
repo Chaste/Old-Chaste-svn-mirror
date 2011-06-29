@@ -44,6 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMaterialLaw.hpp"
 #include "Warnings.hpp"
 
+#include "SolidMechanicsProblemDefinition.hpp"
+#include "DeformedBoundaryElement.hpp"
+
 //#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
 //#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
 //#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
@@ -99,8 +102,11 @@ protected:
      */
     QuadraticMesh<DIM>* mpQuadMesh;
 
-    /** Boundary elements with (non-zero) surface tractions defined on them. */
-    std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
+    /**
+     *  This class contains all the information about the problem (except the material law):
+     *  body force, surface tractions, fixed nodes, density
+     */
+    SolidMechanicsProblemDefinition<DIM>& mrProblemDefinition;
 
     /** Gaussian quadrature rule. */
     GaussianQuadratureRule<DIM>* mpQuadratureRule;
@@ -152,7 +158,7 @@ protected:
     Mat mJacobianMatrix;
 
     /**
-     * Helper vector (see ApplyBoundaryConditions code).
+     * Helper vector (see ApplyDirichletBoundaryConditions code).
      */
     Vec mDirichletBoundaryConditionsVector;
 
@@ -175,18 +181,6 @@ protected:
      * pressure basis functions).
      */
     Mat mPreconditionMatrix;
-
-    /** Body force vector. */
-    c_vector<double,DIM> mBodyForce;
-
-    /** Mass density of the undeformed body (equal to the density of deformed body in the incompressible case). */
-    double mDensity;
-
-    /** All nodes (including non-vertices) which are fixed. */
-    std::vector<unsigned> mFixedNodes;
-
-    /** The displacements of those nodes with displacement boundary conditions. */
-    std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
 
     /** Whether to write any output. */
     bool mWriteOutput;
@@ -224,24 +218,13 @@ protected:
     std::vector<c_vector<double,DIM> > mDeformedPosition;
 
     /**
-     * The surface tractions (which should really be non-zero) for the boundary elements in mBoundaryElements.
+     *  For a particular type of boundary condition - prescribed pressures acting on the deformed
+     *  surface, we need to do surface integrals over the deformed surface. This object is a helper
+     *  object for this, it takes in a base boundary element and a set of displacements, and
+     *  sets up the deformed boundary element. Only used if
+     *  mProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
      */
-    std::vector<c_vector<double,DIM> > mSurfaceTractions;
-
-    /** An optionally provided (pointer to a) function, giving the body force as a function of undeformed position. */
-    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>& X, double t);
-
-    /**
-     * An optionally provided (pointer to a) function, giving the surface traction as a function of
-     * undeformed position.
-     */
-    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& X, double t);
-
-    /** Whether the functional version of the body force is being used or not. */
-    bool mUsingBodyForceFunction;
-
-    /** Whether the functional version of the surface traction is being used or not. */
-    bool mUsingTractionBoundaryConditionFunction;
+    DeformedBoundaryElement<DIM-1,DIM>* mpDeformedBoundaryElement;
 
     /**
      * This solver is for static problems, however the body force or surface tractions
@@ -266,16 +249,14 @@ protected:
      * @param assembleLinearSystem A bool stating whether to assemble the Jacobian matrix and the RHS
      *  vector of the linear system (which is based on the residual but could be slightly different
      *  due to the way dirichlet boundary conditions are applied to the linear system - see comments in
-     *  ApplyBoundaryConditions).
+     *  ApplyDirichletBoundaryConditions).
      */
     virtual void AssembleSystem(bool assembleResidual, bool assembleLinearSystem)=0;
 
     /**
      * Initialise the solver.
-     *
-     * @param pFixedNodeLocations
      */
-    void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
+    void Initialise();
 
     /**
      * Allocates memory for the Jacobian and preconditioner matrices (larger number of
@@ -299,11 +280,11 @@ protected:
      * @param applyToMatrix Whether to apply the boundary conditions to the linear system
      *     (as well as the residual).
      */
-    void ApplyBoundaryConditions(bool applyToMatrix);
+    void ApplyDirichletBoundaryConditions(bool applyToMatrix);
 
     /**
      * To be called at the end of AssembleSystem. Calls (Petsc) assemble methods on the
-     * Vecs and Mat, and calls ApplyBoundaryConditions.
+     * Vecs and Mat, and calls ApplyDirichletBoundaryConditions.
      *
      * @param assembleResidual see documentation for AssembleSystem
      * @param assembleLinearSystem see documentation for AssembleSystem
@@ -412,19 +393,15 @@ public:
      * Constructor.
      *
      * @param pQuadMesh  the quadratic mesh
-     * @param bodyForce  Body force density (for example, acceleration due to gravity)
-     * @param density    density
+     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param outputDirectory output directory
-     * @param fixedNodes std::vector of nodes which have a dirichlet boundary condition imposed on them
      * @param compressibilityType Should be equal to COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
      *   (depending on which concrete class is inheriting from this) and is only used in computing mNumDofs and allocating
      *   matrix memory.
      */
     AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                                      c_vector<double,DIM> bodyForce,
-                                      double density,
+                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                       std::string outputDirectory,
-                                      std::vector<unsigned>& fixedNodes,
                                       CompressibilityType compressibilityType);
 
     /**
@@ -460,14 +437,6 @@ public:
      */
     unsigned GetNumNewtonIterations();
 
-    /**
-     * Set a function which gives body force as a function of X (undeformed position)
-     * Whatever body force was provided in the constructor will now be ignored.
-     *
-     * @param pFunction the function, which should be a function of space and time
-     *  Note that SetCurrentTime() should be called each timestep if the force changes with time
-     */
-    void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
 
     /**
      * Set whether to write any output.
@@ -509,27 +478,6 @@ public:
         return mCurrentSolution;
     }
 
-    /**
-     * Specify traction boundary conditions (if this is not called zero surface
-     * tractions are assumed. This method takes in a list of boundary elements
-     * and a corresponding list of surface tractions.
-     *
-     * @param rBoundaryElements the boundary elements
-     * @param rSurfaceTractions the corresponding tractions
-     */
-    void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                              std::vector<c_vector<double,DIM> >& rSurfaceTractions);
-
-    /**
-     * Set a function which gives the surface traction as a function of X (undeformed position),
-     * together with the surface elements which make up the Neumann part of the boundary.
-     *
-     * @param rBoundaryElements the boundary elements
-     * @param pFunction the function, which should be a function of space and time.
-     *  Note that SetCurrentTime() should be called each timestep if the traction changes with time
-     */
-    void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-                                                c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
 
     /**
      * Get the deformed position. Note returnvalue[i](j) = x_j for node i.
@@ -559,42 +507,21 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
+void AbstractNonlinearElasticitySolver<DIM>::Initialise()
 {
     assert(mpQuadMesh);
 
     AllocateMatrixMemory();
-
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {
-        assert(mFixedNodes[i] < mpQuadMesh->GetNumNodes());
-    }
 
     mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
     mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
 
     mCurrentSolution.resize(mNumDofs, 0.0);
 
-    // Compute the displacements at each of the fixed nodes, given the fixed nodes locations
-    if (pFixedNodeLocations == NULL)
+    if (this->mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
     {
-        mFixedNodeDisplacements.clear();
-        for (unsigned i=0; i<mFixedNodes.size(); i++)
-        {
-            mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
-        }
+        mpDeformedBoundaryElement = new DeformedBoundaryElement<DIM-1,DIM>;
     }
-    else
-    {
-        assert(pFixedNodeLocations->size()==mFixedNodes.size());
-        for (unsigned i=0; i<mFixedNodes.size(); i++)
-        {
-            unsigned index = mFixedNodes[i];
-            c_vector<double,DIM> displacement = (*pFixedNodeLocations)[i] - mpQuadMesh->GetNode(index)->rGetLocation();
-            mFixedNodeDisplacements.push_back(displacement);
-        }
-    }
-    assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
 }
 
 template<unsigned DIM>
@@ -748,10 +675,8 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
  * there are D boundary conditions
  */
 template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyToLinearSystem)
+void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bool applyToLinearSystem)
 {
-    assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
-
     assert(mResidualVector); // BCs will be added to all the time
     if (applyToLinearSystem)
     {
@@ -768,8 +693,8 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
     std::vector<unsigned> rows;
     std::vector<double> values;
 
-    rows.resize(DIM*mFixedNodes.size());
-    values.resize(DIM*mFixedNodes.size());
+    rows.resize(DIM*mrProblemDefinition.rGetFixedNodes().size());
+    values.resize(DIM*mrProblemDefinition.rGetFixedNodes().size());
 
     // Whether to apply symmetrically, ie alter columns as well as rows (see comment above)
     bool applySymmetrically = (applyToLinearSystem) && (mCompressibilityType==COMPRESSIBLE);
@@ -781,14 +706,14 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
         PetscMatTools::Finalise(mJacobianMatrix);
     }
 
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
+    for (unsigned i=0; i<mrProblemDefinition.rGetFixedNodes().size(); i++)
     {
-        unsigned node_index = mFixedNodes[i];
+        unsigned node_index = mrProblemDefinition.rGetFixedNodes()[i];
         for (unsigned j=0; j<DIM; j++)
         {
             unsigned dof_index = DIM*node_index+j;
             rows[DIM*i+j] = dof_index;
-            values[DIM*i+j] = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);;
+            values[DIM*i+j] = mCurrentSolution[dof_index] - mrProblemDefinition.rGetFixedNodeDisplacements()[i](j);
         }
     }
 
@@ -869,7 +794,7 @@ void AbstractNonlinearElasticitySolver<DIM>::FinishAssembleSystem(bool assembleR
     }
 
     // Apply Dirichlet boundary conditions
-    ApplyBoundaryConditions(assembleJacobian);
+    ApplyDirichletBoundaryConditions(assembleJacobian);
 
     if (assembleResidual)
     {
@@ -1243,33 +1168,26 @@ void AbstractNonlinearElasticitySolver<DIM>::PostNewtonStep(unsigned counter, do
 
 template<unsigned DIM>
 AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                                                                          c_vector<double,DIM> bodyForce,
-                                                                          double density,
+                                                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                           std::string outputDirectory,
-                                                                          std::vector<unsigned>& fixedNodes,
                                                                           CompressibilityType compressibilityType)
     : mpQuadMesh(pQuadMesh),
+      mrProblemDefinition(rProblemDefinition),
       mpQuadratureRule(NULL),
       mpBoundaryQuadratureRule(NULL),
       mKspAbsoluteTol(-1),
       mResidualVector(NULL),
       mJacobianMatrix(NULL),
       mPreconditionMatrix(NULL),
-      mBodyForce(bodyForce),
-      mDensity(density),
-      mFixedNodes(fixedNodes),
       mOutputDirectory(outputDirectory),
       mpOutputFileHandler(NULL),
       mWriteOutputEachNewtonIteration(false),
       mNumNewtonIterations(0),
-      mUsingBodyForceFunction(false),
-      mUsingTractionBoundaryConditionFunction(false),
+      mpDeformedBoundaryElement(NULL),
       mCurrentTime(0.0),
       mCompressibilityType(compressibilityType)
 {
     assert(DIM==2 || DIM==3);
-    assert(density > 0);
-    assert(fixedNodes.size() > 0);
     assert(pQuadMesh != NULL);
 
     if (mCompressibilityType==COMPRESSIBLE)
@@ -1311,6 +1229,11 @@ AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
     if (mpOutputFileHandler)
     {
         delete mpOutputFileHandler;
+    }
+
+    if(mpDeformedBoundaryElement)
+    {
+        delete mpDeformedBoundaryElement;
     }
 }
 
@@ -1436,13 +1359,6 @@ unsigned AbstractNonlinearElasticitySolver<DIM>::GetNumNewtonIterations()
 }
 
 template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
-{
-    mUsingBodyForceFunction = true;
-    mpBodyForceFunction = pFunction;
-}
-
-template<unsigned DIM>
 void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
 {
     if (writeOutput && (mOutputDirectory==""))
@@ -1450,26 +1366,6 @@ void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
         EXCEPTION("Can't write output if no output directory was given in constructor");
     }
     mWriteOutput = writeOutput;
-}
-
-template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::SetSurfaceTractionBoundaryConditions(
-            std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-            std::vector<c_vector<double,DIM> >& rSurfaceTractions)
-{
-    assert(rBoundaryElements.size()==rSurfaceTractions.size());
-    mBoundaryElements = rBoundaryElements;
-    mSurfaceTractions = rSurfaceTractions;
-}
-
-template<unsigned DIM>
-void AbstractNonlinearElasticitySolver<DIM>::SetFunctionalTractionBoundaryCondition(
-            std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
-            c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
-{
-    mBoundaryElements = rBoundaryElements;
-    mUsingTractionBoundaryConditionFunction = true;
-    mpTractionBoundaryConditionFunction = pFunction;
 }
 
 template<unsigned DIM>
