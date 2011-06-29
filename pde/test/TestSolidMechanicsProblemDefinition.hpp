@@ -34,11 +34,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "SolidMechanicsProblemDefinition.hpp"
 
-c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
+c_vector<double,2> SomeFunction(c_vector<double,2>& X, double t)
 {
     c_vector<double,2> body_force;
     body_force(0) = X(0)+t;
     body_force(1) = 2*(X(1)+t);
+    return body_force;
+}
+
+c_vector<double,2> AnotherFunction(c_vector<double,2>& X, double t)
+{
+    c_vector<double,2> body_force;
+    body_force(0) = X(0)*t;
+    body_force(1) = 10*X(1)*t;
     return body_force;
 }
 
@@ -60,7 +68,6 @@ public:
 
         TS_ASSERT_EQUALS(problem_defn.GetTractionBoundaryConditionType(), NO_TRACTIONS);
 
-
         problem_defn.SetDensity(2.0);
         TS_ASSERT_DELTA(problem_defn.GetDensity(), 2.0, 1e-12);
 
@@ -69,7 +76,7 @@ public:
         // Body force
         //////////////////////////////////
 
-        problem_defn.SetBodyForce(MyBodyForce);
+        problem_defn.SetBodyForce(SomeFunction);
         TS_ASSERT_EQUALS(problem_defn.GetBodyForceType(), FUNCTIONAL_BODY_FORCE);
         c_vector<double,2> X;
         X(0) = 10.0;
@@ -90,11 +97,73 @@ public:
         //////////////////////////////////
         // Traction
         //////////////////////////////////
-// to be done once interface is created
+
+        std::vector<BoundaryElement<1,2>*> boundary_elements;
+        std::vector<c_vector<double,2> > tractions;
+
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter
+           = mesh.GetBoundaryElementIteratorBegin();
+
+        c_vector<double,2> vec;
+        vec(0)=1.0;
+        boundary_elements.push_back(*iter);
+        tractions.push_back(vec);
+
+        ++iter;
+        vec(1)=2.0;
+        boundary_elements.push_back(*iter);
+        tractions.push_back(vec);
+
+        problem_defn.SetTractionBoundaryConditions(boundary_elements, tractions);
+
+        TS_ASSERT_EQUALS(problem_defn.GetTractionBoundaryConditionType(), ELEMENTWISE_TRACTION);
+
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements().size(), 2u);
+        TS_ASSERT_EQUALS(problem_defn.rGetElementwiseTractions().size(), 2u);
+
+        // comparing addresses
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[0], boundary_elements[0]);
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[1], boundary_elements[1]);
+
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseTractions()[0](0), 1.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseTractions()[0](1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseTractions()[1](0), 1.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseTractions()[1](1), 2.0, 1e-12);
+
+        ++iter;
+        boundary_elements.push_back(*iter);
+        std::vector<double> pressures;
+        pressures.push_back(10);
+        pressures.push_back(11);
+        pressures.push_back(12);
+
+        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elements, pressures);
+
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements().size(), 3u);
+        TS_ASSERT_EQUALS(problem_defn.rGetElementwiseNormalPressures().size(), 3u);
+
+        // comparing addresses
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[0], boundary_elements[0]);
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[1], boundary_elements[1]);
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[2], boundary_elements[2]);
+
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[0], 10.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[1], 11.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[2], 12.0, 1e-12);
+
+        ++iter;
+        boundary_elements.push_back(*iter);
+        problem_defn.SetTractionBoundaryConditions(boundary_elements, AnotherFunction);
+        TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements().size(), 4u);
+
+        TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(0), 5.0,  1e-12);
+        TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(1), 55.0, 1e-12);
+
 
         //////////////////////////////////
         // Fixed nodes
         //////////////////////////////////
+
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
         fixed_nodes.push_back(4);

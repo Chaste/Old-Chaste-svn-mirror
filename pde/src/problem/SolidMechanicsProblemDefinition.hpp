@@ -65,7 +65,7 @@ typedef enum TractionBoundaryConditionType_
 template<unsigned DIM>
 class SolidMechanicsProblemDefinition
 {
-public:
+private:
     /** The mesh being solved on */
     QuadraticMesh<DIM>& mrMesh;
 
@@ -96,7 +96,7 @@ public:
     std::vector<BoundaryElement<DIM-1,DIM>*> mTractionBoundaryElements;
 
     /** The tractions on each surface element (only used if mTractionBoundaryConditionType is set appropriately) */
-    std::vector<c_vector<double,DIM> > mElementwiseTractionsBoundaryCondition;
+    std::vector<c_vector<double,DIM> > mElementwiseTractions;
 
     /** If the tractions are specified to correspond to a pressure acting on the surface: the pressures for each
      *  boundary element (only used if mTractionBoundaryConditionType is set appropriately) */
@@ -215,6 +215,34 @@ public:
      */
     void SetApplyNormalPressureOnDeformedSurface(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
                                                  std::vector<double>& rElementwiseNormalPressures);
+
+    /**
+     * Get the vector of traction boundary elements
+     */
+    std::vector<BoundaryElement<DIM-1,DIM>*>& rGetTractionBoundaryElements();
+
+    /**
+     *  Get the element-wise tractions vector (corresponding to
+     *  vector returned by rGetTractionBoundaryElements())
+     *  (error if GetTractionBoundaryConditionType()!=ELEMENTWISE_TRACTION)
+     */
+    std::vector<c_vector<double,DIM> >& rGetElementwiseTractions();
+
+    /**
+     *  Get the vector of pressures for each boundary element (corresponding to
+     *  vector returned by rGetTractionBoundaryElements())
+     *  (error if GetTractionBoundaryConditionType()!=PRESSURE_ON_DEFORMED)
+     */
+    std::vector<double>& rGetElementwiseNormalPressures();
+
+
+    /**
+     * Evaluate the traction boundary condition function (error if GetTractionBoundaryConditionType()!=FUNCTIONAL_TRACTION)
+     *
+     * @param X spatial location
+     * @param t current time
+     */
+    c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& X, double t);
 
 };
 

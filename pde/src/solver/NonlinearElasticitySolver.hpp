@@ -117,7 +117,7 @@ protected:
      * a specified non-zero surface traction (ie Neumann boundary condition)
      * to be added to the Rhs vector.
      *
-     * @param rBoundaryElement
+     * @param rBoundaryElement the boundary element to be integrated on
      * @param rAelem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
      *     need to zero this matrix before calling.
@@ -126,7 +126,9 @@ protected:
      *     need to zero this vector before calling.
      * @param assembleResidual A bool stating whether to assemble the residual vector.
      * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
-     * @param boundaryConditionIndex index of traction BC
+     * @param boundaryConditionIndex index of this boundary (in the vectors
+     *     in the problem definition object, in which the boundary conditions are
+     *     stored
      */
     virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1, DIM>& rBoundaryElement,
                                            c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE>& rAelem,

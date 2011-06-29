@@ -124,10 +124,10 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
     c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE> a_boundary_elem;
     if (this->mrProblemDefinition.GetTractionBoundaryConditionType() != NO_TRACTIONS)
     {
-        for (unsigned i=0; i<this->mrProblemDefinition.mTractionBoundaryElements.size(); i++)
+        for (unsigned bc_index=0; bc_index<this->mrProblemDefinition.rGetTractionBoundaryElements().size(); bc_index++)
         {
-            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mrProblemDefinition.mTractionBoundaryElements[i]);
-            AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, assembleResidual, assembleJacobian, i);
+            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(this->mrProblemDefinition.rGetTractionBoundaryElements()[bc_index]);
+            AssembleOnBoundaryElement(r_boundary_element, a_boundary_elem, b_boundary_elem, assembleResidual, assembleJacobian, bc_index);
 
             unsigned p_indices[BOUNDARY_STENCIL_SIZE];
             for (unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
@@ -493,17 +493,17 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
                 {
                     X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
                 }
-                traction = (*(this->mrProblemDefinition.mpTractionBoundaryConditionFunction))(X, this->mCurrentTime);
+                traction = this->mrProblemDefinition.EvaluateTractionFunction(X, this->mCurrentTime);
                 break;
             }
             case ELEMENTWISE_TRACTION:
             {
-                traction = this->mrProblemDefinition.mElementwiseTractionsBoundaryCondition[boundaryConditionIndex];
+                traction = this->mrProblemDefinition.rGetElementwiseTractions()[boundaryConditionIndex];
                 break;
             }
             case PRESSURE_ON_DEFORMED:
             {
-                traction = this->mrProblemDefinition.mElementwiseNormalPressures[boundaryConditionIndex]*deformed_normal;
+                traction = this->mrProblemDefinition.rGetElementwiseNormalPressures()[boundaryConditionIndex]*deformed_normal;
                 break;
             }
             default:

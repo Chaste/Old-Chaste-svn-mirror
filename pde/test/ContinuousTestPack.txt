@@ -22,6 +22,7 @@ TestQuadraturePointsGroup.hpp
 TestSimpleLinearParabolicSolver.hpp
 TestSimpleLinearEllipticSolver.hpp
 TestSimpleNonlinearEllipticSolver.hpp
+TestSolidMechanicsProblemDefinition.hpp
 TestSolvingCoupledPdes.hpp
 TestSolveLaplacianWithQuadratics.hpp
 TestTimeAdaptivityController.hpp

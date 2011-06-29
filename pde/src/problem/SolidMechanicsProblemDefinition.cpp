@@ -102,7 +102,7 @@ void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::ve
     assert(rTractionBoundaryElements.size()==rElementwiseTractions.size());
     mTractionBoundaryConditionType = ELEMENTWISE_TRACTION;
     mTractionBoundaryElements = rTractionBoundaryElements;
-    mElementwiseTractionsBoundaryCondition = rElementwiseTractions;
+    mElementwiseTractions = rElementwiseTractions;
 }
 
 template<unsigned DIM>
@@ -171,6 +171,35 @@ template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& SolidMechanicsProblemDefinition<DIM>::rGetFixedNodeDisplacements()
 {
     return mFixedNodeDisplacements;
+}
+
+template<unsigned DIM>
+std::vector<BoundaryElement<DIM-1,DIM>*>& SolidMechanicsProblemDefinition<DIM>::rGetTractionBoundaryElements()
+{
+    return mTractionBoundaryElements;
+}
+
+
+template<unsigned DIM>
+std::vector<c_vector<double,DIM> >& SolidMechanicsProblemDefinition<DIM>::rGetElementwiseTractions()
+{
+    assert(mTractionBoundaryConditionType==ELEMENTWISE_TRACTION);
+    return mElementwiseTractions;
+}
+
+
+template<unsigned DIM>
+std::vector<double>& SolidMechanicsProblemDefinition<DIM>::rGetElementwiseNormalPressures()
+{
+    assert(mTractionBoundaryConditionType==PRESSURE_ON_DEFORMED);
+    return mElementwiseNormalPressures;
+}
+
+template<unsigned DIM>
+c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunction(c_vector<double,DIM>& X, double t)
+{
+    assert(mTractionBoundaryConditionType==FUNCTIONAL_TRACTION);
+    return (*mpTractionBoundaryConditionFunction)(X,t);
 }
 
 
