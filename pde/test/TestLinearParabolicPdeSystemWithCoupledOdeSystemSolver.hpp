@@ -348,7 +348,9 @@ public:
      * for solving standard reaction-diffusion problems arising in the
      * study of pattern formation on fixed domains.
      */
-    void TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
+    ///\todo #1777 This test will now throw "This test will fail with use_cvode=0"
+    ///\todo Also check the tutorial
+    void this_test_now_fails_TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
     {
         // Create mesh of domain [0,1]
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1000_elements");
@@ -368,6 +370,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_v, 1);
 
         // Create PDE system solver
+        ///\todo #1777 This line will now throw "This test will fail with use_cvode=0"
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<1,1,2> solver(&mesh, &pde, &bcc);
 
         // Set end time and time step
