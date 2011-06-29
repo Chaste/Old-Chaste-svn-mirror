@@ -778,7 +778,7 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyT
     {
         assert(applyToLinearSystem);
         PetscVecTools::Zero(mDirichletBoundaryConditionsVector);
-        PetscMatTools::AssembleFinal(mJacobianMatrix);
+        PetscMatTools::Finalise(mJacobianMatrix);
     }
 
     for (unsigned i=0; i<mFixedNodes.size(); i++)
@@ -858,12 +858,12 @@ void AbstractNonlinearElasticitySolver<DIM>::FinishAssembleSystem(bool assembleR
 {
     if (assembleResidual)
     {
-        PetscVecTools::Assemble(mResidualVector);
+        PetscVecTools::Finalise(mResidualVector);
     }
     if (assembleJacobian)
     {
-        PetscMatTools::AssembleIntermediate(mJacobianMatrix);
-        PetscMatTools::AssembleIntermediate(mPreconditionMatrix);
+        PetscMatTools::SwitchWriteMode(mJacobianMatrix);
+        PetscMatTools::SwitchWriteMode(mPreconditionMatrix);
 
         VecCopy(mResidualVector, mLinearSystemRhsVector);
     }
@@ -873,13 +873,13 @@ void AbstractNonlinearElasticitySolver<DIM>::FinishAssembleSystem(bool assembleR
 
     if (assembleResidual)
     {
-        PetscVecTools::Assemble(mResidualVector);
+        PetscVecTools::Finalise(mResidualVector);
     }
     if (assembleJacobian)
     {
-        PetscMatTools::AssembleFinal(mJacobianMatrix);
-        PetscMatTools::AssembleFinal(mPreconditionMatrix);
-        PetscVecTools::Assemble(mLinearSystemRhsVector);
+        PetscMatTools::Finalise(mJacobianMatrix);
+        PetscMatTools::Finalise(mPreconditionMatrix);
+        PetscVecTools::Finalise(mLinearSystemRhsVector);
     }
 }
 

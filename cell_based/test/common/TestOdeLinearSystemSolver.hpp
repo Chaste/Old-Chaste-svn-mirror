@@ -57,7 +57,7 @@ public:
         PetscMatTools::SetElement(r_matrix, 1, 0, 0.0);
         PetscMatTools::SetElement(r_matrix, 0, 1, 0.0);
         PetscMatTools::SetElement(r_matrix, 1, 1, 2.0);
-        PetscMatTools::AssembleFinal(r_matrix);
+        PetscMatTools::Finalise(r_matrix);
 
         // Initial condition
         Vec initial_condition = PetscTools::CreateAndSetVec(2, 0.0);
@@ -106,7 +106,7 @@ public:
         PetscMatTools::SetElement(r_matrix, 1, 0, 1.0);
         PetscMatTools::SetElement(r_matrix, 0, 1, 1.0);
         PetscMatTools::SetElement(r_matrix, 1, 1, 0.0);
-        PetscMatTools::AssembleFinal(r_matrix);
+        PetscMatTools::Finalise(r_matrix);
 
         // Initial condition
         Vec initial_condition = PetscTools::CreateAndSetVec(2, 0.0);
@@ -167,7 +167,7 @@ public:
         PetscMatTools::SetElement(r_matrix, 3, 1, 2.0);
         PetscMatTools::SetElement(r_matrix, 3, 2, 1.0);
         PetscMatTools::SetElement(r_matrix, 3, 3, 1.0);
-        PetscMatTools::AssembleFinal(r_matrix);
+        PetscMatTools::Finalise(r_matrix);
 
         // Initial condition
         Vec initial_condition = PetscTools::CreateAndSetVec(4, 0.0);

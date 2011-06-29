@@ -53,7 +53,7 @@ void OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem
         mass_matrix_assembler.Assemble();
 
         this->mpLinearSystem->AssembleFinalLhsMatrix();
-        PetscMatTools::AssembleFinal(mMassMatrix);
+        PetscMatTools::Finalise(mMassMatrix);
     }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);

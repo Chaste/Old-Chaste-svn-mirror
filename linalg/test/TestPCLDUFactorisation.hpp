@@ -71,7 +71,7 @@ public:
             PetscVecTools::SetElement(one_zeros, node_index, 1.0);
             PetscVecTools::SetElement(one_zeros, node_index+1, 0.0);
         }
-        PetscVecTools::Assemble(one_zeros);
+        PetscVecTools::Finalise(one_zeros);
 
         MatMult(system_matrix, one_zeros, rhs);
         VecDestroy(one_zeros);

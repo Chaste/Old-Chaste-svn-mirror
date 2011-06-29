@@ -94,7 +94,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mass_matrix_assembler.Assemble();
 
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-        PetscMatTools::AssembleFinal(mMassMatrix);
+        PetscMatTools::Finalise(mMassMatrix);
     }
 
 

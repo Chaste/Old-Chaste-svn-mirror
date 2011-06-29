@@ -60,13 +60,13 @@ public:
                 PetscMatTools::SetElement(matrix2, row, col, (double) size*row+col+1);
             }
         }
-        PetscMatTools::AssembleFinal(matrix1);
-        PetscMatTools::AssembleFinal(matrix2);
+        PetscMatTools::Finalise(matrix1);
+        PetscMatTools::Finalise(matrix2);
         
         TS_ASSERT(PetscMatTools::CheckEquality(matrix1, matrix2));
 
         PetscMatTools::AddToElement(matrix2, 1, 1, 2e-10);
-        PetscMatTools::AssembleFinal(matrix2);
+        PetscMatTools::Finalise(matrix2);
         TS_ASSERT(!PetscMatTools::CheckEquality(matrix1, matrix2));
         TS_ASSERT(PetscMatTools::CheckEquality(matrix1, matrix2, 1e-9));
         
@@ -88,11 +88,11 @@ public:
                 PetscMatTools::SetElement(matrix, col, row, (double) size*row+col+1);
             }
         }
-        PetscMatTools::AssembleFinal(matrix);
+        PetscMatTools::Finalise(matrix);
         TS_ASSERT(PetscMatTools::CheckSymmetry(matrix));
 
         PetscMatTools::AddToElement(matrix, 1, 2, 2e-10);
-        PetscMatTools::AssembleFinal(matrix);
+        PetscMatTools::Finalise(matrix);
         TS_ASSERT(!PetscMatTools::CheckSymmetry(matrix));
         TS_ASSERT(PetscMatTools::CheckSymmetry(matrix, 1e-9));
         

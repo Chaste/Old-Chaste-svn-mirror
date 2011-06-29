@@ -446,7 +446,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             this->mDirichIterator++;
         }
     }
-    PetscMatTools::AssembleFinal(jacobian);
+    PetscMatTools::Finalise(jacobian);
     PetscMatTools::ZeroRowsWithValueOnDiagonal(jacobian, rows_to_zero, 1.0);
 }
 

@@ -267,7 +267,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     this->SetApplyNeummanBoundaryConditionsToVector(mpBoundaryConditions);
     this->AssembleVector();
 
-    PetscVecTools::Assemble(residualVector);
+    PetscVecTools::Finalise(residualVector);
 
     ApplyDirichletConditions(currentGuess, residualVector, NULL);
 }
@@ -281,11 +281,11 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
         this->SetCurrentSolution(currentGuess);
         this->AssembleMatrix();
 
-        PetscMatTools::AssembleIntermediate(*pJacobian);
+        PetscMatTools::SwitchWriteMode(*pJacobian);
 
         ApplyDirichletConditions(currentGuess, NULL, pJacobian);
 
-        PetscMatTools::AssembleFinal(*pJacobian);
+        PetscMatTools::Finalise(*pJacobian);
     }
     else
     {
@@ -350,7 +350,7 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     VecDestroy(result);
     VecDestroy(current_guess_copy);
 
-    PetscMatTools::AssembleFinal(*pJacobian);
+    PetscMatTools::Finalise(*pJacobian);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

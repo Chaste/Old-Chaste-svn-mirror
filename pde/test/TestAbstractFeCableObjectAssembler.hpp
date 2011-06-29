@@ -146,8 +146,8 @@ public:
         basic_cable_assembler.SetVectorToAssemble(vec,true);
         basic_cable_assembler.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
-        PetscVecTools::Assemble(vec);
+        PetscMatTools::Finalise(mat);
+        PetscVecTools::Finalise(vec);
 
         /*
          * Cables:

@@ -58,7 +58,7 @@ public:
         Vec initial_guess = PetscTools::CreateVec(length);
         PetscVecTools::SetElement(initial_guess, 0, -1e16);
         PetscVecTools::SetElement(initial_guess, 1, -1e8);
-        PetscVecTools::Assemble(initial_guess);
+        PetscVecTools::Finalise(initial_guess);
         TS_ASSERT_THROWS_THIS(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, length, NULL),
                 "Iteration 27, unable to find damping factor such that residual decreases in update direction");
         VecDestroy(initial_guess);
@@ -76,7 +76,7 @@ public:
         Vec initial_guess=PetscTools::CreateVec(length);
         PetscVecTools::SetElement(initial_guess, 0, 1.0);
         PetscVecTools::SetElement(initial_guess, 1, 1.0);
-        PetscVecTools::Assemble(initial_guess);
+        PetscVecTools::Finalise(initial_guess);
 
         // Solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
@@ -119,7 +119,7 @@ public:
         PetscVecTools::SetElement(initial_guess, 0, 1);
         PetscVecTools::SetElement(initial_guess, 1, 1);
         PetscVecTools::SetElement(initial_guess, 2, 1);
-        PetscVecTools::Assemble(initial_guess);
+        PetscVecTools::Finalise(initial_guess);
 
         // Solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
@@ -174,7 +174,7 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
 
     PetscVecTools::SetElement(residual,0,x*x+y*y-1);
     PetscVecTools::SetElement(residual,1,x-y);
-    PetscVecTools::Assemble(residual);
+    PetscVecTools::Finalise(residual);
     return 0;
 }
 
@@ -211,7 +211,7 @@ PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,v
     PetscVecTools::SetElement(residual,0,x*x+y*y+z*z-1);
     PetscVecTools::SetElement(residual,1,x-y);
     PetscVecTools::SetElement(residual,2,y-z);
-    PetscVecTools::Assemble(residual);
+    PetscVecTools::Finalise(residual);
 
     return 0;
 }

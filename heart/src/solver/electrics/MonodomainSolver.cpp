@@ -56,7 +56,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
         mass_matrix_assembler.Assemble();
 
         this->mpLinearSystem->AssembleFinalLhsMatrix();
-        PetscMatTools::AssembleFinal(mMassMatrix);
+        PetscMatTools::Finalise(mMassMatrix);
         
         if (HeartConfig::Instance()->GetUseMassLumpingForPrecond() && !HeartConfig::Instance()->GetUseMassLumping())
         {

@@ -317,22 +317,22 @@ void LinearSystem::AssembleIntermediateLinearSystem()
 
 void LinearSystem::AssembleFinalLhsMatrix()
 {
-    PetscMatTools::AssembleFinal(mLhsMatrix);
+    PetscMatTools::Finalise(mLhsMatrix);
 }
 
 void LinearSystem::AssembleIntermediateLhsMatrix()
 {
-    PetscMatTools::AssembleIntermediate(mLhsMatrix);
+    PetscMatTools::SwitchWriteMode(mLhsMatrix);
 }
 
 void LinearSystem::AssembleFinalPrecondMatrix()
 {
-    PetscMatTools::AssembleFinal(mPrecondMatrix);
+    PetscMatTools::Finalise(mPrecondMatrix);
 }
 
 void LinearSystem::AssembleRhsVector()
 {
-    PetscVecTools::Assemble(mRhsVector);
+    PetscVecTools::Finalise(mRhsVector);
 }
 
 void LinearSystem::SetRhsVectorElement(PetscInt row, double value)

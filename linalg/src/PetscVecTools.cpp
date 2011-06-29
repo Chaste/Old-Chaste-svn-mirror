@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-void PetscVecTools::Assemble(Vec vector)
+void PetscVecTools::Finalise(Vec vector)
 {
     VecAssemblyBegin(vector);
     VecAssemblyEnd(vector);

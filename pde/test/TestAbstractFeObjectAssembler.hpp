@@ -218,7 +218,7 @@ private:
         basic_vector_assembler.SetVectorToAssemble(vec,true);
         basic_vector_assembler.Assemble();
 
-        PetscVecTools::Assemble(vec);
+        PetscVecTools::Finalise(vec);
 
         ReplicatableVector vec_repl(vec);
         double volume_of_element = DIM==1 ? h : (DIM==2 ? 0.5*h*h : h*h*h/6);
@@ -260,7 +260,7 @@ public:
         basic_matrix_assembler_1d.SetMatrixToAssemble(mat);
         basic_matrix_assembler_1d.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);
@@ -300,8 +300,8 @@ public:
 
         assembler_1d.Assemble();
 
-        PetscVecTools::Assemble(vec);
-        PetscMatTools::AssembleFinal(mat);
+        PetscVecTools::Finalise(vec);
+        PetscMatTools::Finalise(mat);
 
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);
@@ -323,8 +323,8 @@ public:
 
         assembler_1d.Assemble();
 
-        PetscVecTools::Assemble(vec);
-        PetscMatTools::AssembleFinal(mat);
+        PetscVecTools::Finalise(vec);
+        PetscMatTools::Finalise(mat);
 
         ReplicatableVector vec_repl2(vec);
 
@@ -345,8 +345,8 @@ public:
 
         assembler_1d.AssembleVector();
 
-        PetscVecTools::Assemble(vec);
-        PetscMatTools::AssembleFinal(mat);
+        PetscVecTools::Finalise(vec);
+        PetscMatTools::Finalise(mat);
 
         ReplicatableVector vec_repl3(vec);
 
@@ -364,7 +364,7 @@ public:
         // now call AssembleMatrix()
         assembler_1d.AssembleMatrix();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         for (unsigned i=lo; i<(unsigned)hi; i++)
         {
@@ -409,7 +409,7 @@ public:
         basic_vector_assembler.SetApplyNeummanBoundaryConditionsToVector(&bcc);
         basic_vector_assembler.Assemble();
 
-        PetscVecTools::Assemble(vec);
+        PetscVecTools::Finalise(vec);
 
         ReplicatableVector vec_repl(vec);
 
@@ -431,7 +431,7 @@ public:
         basic_vector_assembler.OnlyAssembleOnSurfaceElements();
         basic_vector_assembler.Assemble();
 
-        PetscVecTools::Assemble(vec2);
+        PetscVecTools::Finalise(vec2);
 
         ReplicatableVector vec2_repl(vec2);
 
@@ -470,7 +470,7 @@ public:
         basic_vector_assembler.SetApplyNeummanBoundaryConditionsToVector(&bcc);
         basic_vector_assembler.Assemble();
 
-        PetscVecTools::Assemble(vec);
+        PetscVecTools::Finalise(vec);
 
         ReplicatableVector vec_repl(vec);
 
@@ -499,7 +499,7 @@ public:
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);
@@ -581,7 +581,7 @@ public:
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);
@@ -637,7 +637,7 @@ public:
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);

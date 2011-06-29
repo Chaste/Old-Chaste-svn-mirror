@@ -55,13 +55,13 @@ void PetscMatTools::AddToElement(Mat matrix, PetscInt row, PetscInt col, double 
     }
 }
 
-void PetscMatTools::AssembleFinal(Mat matrix)
+void PetscMatTools::Finalise(Mat matrix)
 {
     MatAssemblyBegin(matrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(matrix, MAT_FINAL_ASSEMBLY);
 }
 
-void PetscMatTools::AssembleIntermediate(Mat matrix)
+void PetscMatTools::SwitchWriteMode(Mat matrix)
 {
     MatAssemblyBegin(matrix, MAT_FLUSH_ASSEMBLY);
     MatAssemblyEnd(matrix, MAT_FLUSH_ASSEMBLY);
@@ -90,7 +90,7 @@ void PetscMatTools::SetRow(Mat matrix, PetscInt row, double value)
 
 void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned>& rRows, double diagonalValue)
 {
-    AssembleFinal(matrix);
+    Finalise(matrix);
 
     /*
      * Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
@@ -168,7 +168,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
 
 void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vector<unsigned>& rRowColIndices, double diagonalValue)
 {
-    AssembleFinal(matrix);
+    Finalise(matrix);
 
     PetscInt lo, hi;
     GetOwnershipRange(matrix, lo, hi);
@@ -223,7 +223,7 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
 
 void PetscMatTools::ZeroColumn(Mat matrix, PetscInt col)
 {
-    AssembleFinal(matrix);
+    Finalise(matrix);
 
     PetscInt lo, hi;
     GetOwnershipRange(matrix, lo, hi);

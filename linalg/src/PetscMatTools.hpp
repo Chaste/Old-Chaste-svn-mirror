@@ -64,18 +64,18 @@ public:
 
     /**
      * Sets up the matrix ready for use, e.g. in solving a linear system.
-     *
+     * This is a wrapper to PETSc functions like MatAssemblyBegin(matrix, MAT_FINAL_ASSEMBLY).
      * @param matrix  the matrix
      */
-    static void AssembleFinal(Mat matrix);
+    static void Finalise(Mat matrix);
 
     /**
      * This must be called if switching between inserting or adding values to the matrix, to ensure all
      * processes are in sync.
-     *
+     * This is a wrapper to PETSc functions like MatAssemblyBegin(matrix, MAT_FLUSH_ASSEMBLY).
      * @param matrix  the matrix
      */
-    static void AssembleIntermediate(Mat matrix);
+    static void SwitchWriteMode(Mat matrix);
 
     /**
      * Display a matrix.

@@ -58,7 +58,7 @@ public:
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
 
-        PetscMatTools::AssembleFinal(mat);
+        PetscMatTools::Finalise(mat);
 
         double sigma = 1.75;
 
