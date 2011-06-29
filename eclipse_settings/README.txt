@@ -8,3 +8,10 @@ use them, go to File > Import... and then select:
 Among other things, the preferences contain Chaste code styles and templates
 for header files, source files, and tests.  The latter must be selected explicitly
 when creating a new file.
+
+We haven't yet figured out how to include certain project-specific settings, found
+by right-clicking on the Chaste project in the Navigator pane and selecting
+Properties.
+
+1) On the C/C++ General tab, tick "Enable project specific settings" and select
+   'Doxygen' as the documentation tool.
