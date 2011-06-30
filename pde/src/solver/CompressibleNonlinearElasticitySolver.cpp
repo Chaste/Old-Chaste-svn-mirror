@@ -69,14 +69,14 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleRes
     c_vector<double, STENCIL_SIZE> b_elem;
 
     // Loop over elements
-    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = this->mpQuadMesh->GetElementIteratorBegin();
-         iter != this->mpQuadMesh->GetElementIteratorEnd();
+    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = this->mrQuadMesh.GetElementIteratorBegin();
+         iter != this->mrQuadMesh.GetElementIteratorEnd();
          ++iter)
     {
         #ifdef MECH_VERY_VERBOSE
         if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
         {
-            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
+            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mrQuadMesh.GetNumElements() << std::flush;
         }
         #endif
 
@@ -167,7 +167,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
 
-    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
+    this->mrQuadMesh.GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {
@@ -261,7 +261,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
                     // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
                     for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
                     {
-                        X += linear_phi(node_index)*this->mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                        X += linear_phi(node_index)*this->mrQuadMesh.GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
                     }
                     body_force = this->mrProblemDefinition.EvaluateBodyForceFunction(X, this->mCurrentTime);
                     break;
@@ -450,7 +450,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     c_vector<double, DIM> weighted_direction;
     double jacobian_determinant;
-    this->mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
+    this->mrQuadMesh.GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
     c_vector<double,DIM> deformed_normal;
     if (this->mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
@@ -491,7 +491,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
                 c_vector<double,DIM> X = zero_vector<double>(DIM);
                 for (unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
                 {
-                    X += phi(node_index)*this->mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                    X += phi(node_index)*this->mrQuadMesh.GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
                 }
                 traction = this->mrProblemDefinition.EvaluateTractionFunction(X, this->mCurrentTime);
                 break;
@@ -526,11 +526,11 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 }
 
 template<size_t DIM>
-CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                                                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                                   AbstractMaterialLaw<DIM>* pMaterialLaw,
                                                                                   std::string outputDirectory)
-    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+    : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
                                              COMPRESSIBLE)
@@ -548,11 +548,11 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
 }
 
 template<size_t DIM>
-CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                                                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                                   std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
                                                                                   std::string outputDirectory)
-    : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
+    : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
                                              COMPRESSIBLE)
@@ -569,7 +569,7 @@ CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolve
         mMaterialLaws[i] = p_law;
     }
 
-    assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
+    assert(rMaterialLaws.size()==rQuadMesh.GetNumElements());
     this->Initialise();
 }
 

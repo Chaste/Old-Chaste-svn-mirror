@@ -409,17 +409,17 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit (explicit may be unstable)
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

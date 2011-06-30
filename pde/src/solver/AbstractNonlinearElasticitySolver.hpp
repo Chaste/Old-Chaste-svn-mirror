@@ -100,7 +100,7 @@ protected:
      * The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
      * as quadratic bases are used.
      */
-    QuadraticMesh<DIM>* mpQuadMesh;
+    QuadraticMesh<DIM>& mrQuadMesh;
 
     /**
      *  This class contains all the information about the problem (except the material law):
@@ -392,14 +392,14 @@ public:
     /**
      * Constructor.
      *
-     * @param pQuadMesh  the quadratic mesh
+     * @param rQuadMesh  the quadratic mesh
      * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param outputDirectory output directory
      * @param compressibilityType Should be equal to COMPRESSIBLE or INCOMPRESSIBLE (see enumeration defined at top of file)
      *   (depending on which concrete class is inheriting from this) and is only used in computing mNumDofs and allocating
      *   matrix memory.
      */
-    AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+    AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                       SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                       std::string outputDirectory,
                                       CompressibilityType compressibilityType);
@@ -509,8 +509,6 @@ public:
 template<unsigned DIM>
 void AbstractNonlinearElasticitySolver<DIM>::Initialise()
 {
-    assert(mpQuadMesh);
-
     AllocateMatrixMemory();
 
     mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
@@ -557,12 +555,12 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
             num_non_zeros_each_row[i] = 0;
         }
 
-        for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<mrQuadMesh.GetNumNodes(); i++)
         {
             // this upper bound neglects the fact that two containing elements will share the same nodes..
             // 4 = max num dofs associated with this node
             // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
-            unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
+            unsigned num_non_zeros_upper_bound = 4 + 30*mrQuadMesh.GetNode(i)->GetNumContainingElements();
 
             num_non_zeros_upper_bound = std::min(num_non_zeros_upper_bound, mNumDofs);
 
@@ -572,10 +570,10 @@ void AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
 
             if (mCompressibilityType==INCOMPRESSIBLE)
             {
-                //Could do !mpQuadMesh->GetNode(i)->IsInternal()
-                if (i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+                //Could do !mrQuadMesh.GetNode(i)->IsInternal()
+                if (i<mrQuadMesh.GetNumVertices()) // then this is a vertex
                 {
-                    num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
+                    num_non_zeros_each_row[DIM*mrQuadMesh.GetNumNodes() + i] = num_non_zeros_upper_bound;
                 }
             }
         }
@@ -1167,11 +1165,11 @@ void AbstractNonlinearElasticitySolver<DIM>::PostNewtonStep(unsigned counter, do
 }
 
 template<unsigned DIM>
-AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                                                           SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                           std::string outputDirectory,
                                                                           CompressibilityType compressibilityType)
-    : mpQuadMesh(pQuadMesh),
+    : mrQuadMesh(rQuadMesh),
       mrProblemDefinition(rProblemDefinition),
       mpQuadratureRule(NULL),
       mpBoundaryQuadratureRule(NULL),
@@ -1188,15 +1186,14 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
       mCompressibilityType(compressibilityType)
 {
     assert(DIM==2 || DIM==3);
-    assert(pQuadMesh != NULL);
 
     if (mCompressibilityType==COMPRESSIBLE)
     {
-        mNumDofs = DIM*mpQuadMesh->GetNumNodes();
+        mNumDofs = DIM*mrQuadMesh.GetNumNodes();
     }
     else
     {
-        mNumDofs = DIM*mpQuadMesh->GetNumNodes() + mpQuadMesh->GetNumVertices();
+        mNumDofs = DIM*mrQuadMesh.GetNumNodes() + mrQuadMesh.GetNumVertices();
     }
 
     mWriteOutput = (mOutputDirectory != "");
@@ -1371,12 +1368,12 @@ void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
 template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& AbstractNonlinearElasticitySolver<DIM>::rGetDeformedPosition()
 {
-    mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
-    for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+    mDeformedPosition.resize(mrQuadMesh.GetNumNodes(), zero_vector<double>(DIM));
+    for (unsigned i=0; i<mrQuadMesh.GetNumNodes(); i++)
     {
         for (unsigned j=0; j<DIM; j++)
         {
-            mDeformedPosition[i](j) = mpQuadMesh->GetNode(i)->rGetLocation()[j] + mCurrentSolution[DIM*i+j];
+            mDeformedPosition[i](j) = mrQuadMesh.GetNode(i)->rGetLocation()[j] + mCurrentSolution[DIM*i+j];
         }
     }
     return mDeformedPosition;
@@ -1392,7 +1389,7 @@ void AbstractNonlinearElasticitySolver<DIM>::CreateCmguiOutput()
 
     CmguiDeformedSolutionsWriter<DIM> writer(mOutputDirectory + "/cmgui",
                                              "solution",
-                                             *mpQuadMesh,
+                                             mrQuadMesh,
                                              WRITE_QUADRATIC_MESH);
 
     std::vector<c_vector<double,DIM> >& r_deformed_positions = rGetDeformedPosition();

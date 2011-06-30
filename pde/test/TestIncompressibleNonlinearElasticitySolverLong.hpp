@@ -193,7 +193,7 @@ public:
         problem_defn.SetTractionBoundaryConditions(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
 
-        IncompressibleNonlinearElasticitySolver<3> solver(&mesh,
+        IncompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                           problem_defn,
                                                           &law,
                                                           "nonlin_elas_3d");

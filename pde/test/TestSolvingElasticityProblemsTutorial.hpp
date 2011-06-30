@@ -203,7 +203,7 @@ public:
         /* Now we create the (incompressible) solver, passing in the mesh, problem definition, law,
          * and output directory
          */
-        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+        IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
                                                           &law,
                                                           "SimpleIncompressibleElasticityTutorial");
@@ -315,7 +315,7 @@ public:
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
         /* Create solver as before */
-        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+        IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
                                                           &law,
                                                           "IncompressibleElasticityWithTractionsTutorial");
@@ -427,7 +427,7 @@ public:
          * EMPTYLINE
          *
          * Create the solver as before */
-        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+        IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
                                                           &law,
                                                           "IncompressibleElasticityMoreComplicatedExample");

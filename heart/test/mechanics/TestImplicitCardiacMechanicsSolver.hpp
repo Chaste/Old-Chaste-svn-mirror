@@ -66,7 +66,7 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d solver(NHS,&mesh,problem_defn,"",&law);
+        IncompressibleImplicitSolver2d solver(NHS,mesh,problem_defn,"",&law);
 
         std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 0.0);
         std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
@@ -129,7 +129,7 @@ public:
 
 //// default no longer allowed
 //        // coverage - test default material law works ok
-//        IncompressibleImplicitSolver2d another_solver(NHS, &mesh,"",fixed_nodes);
+//        IncompressibleImplicitSolver2d another_solver(NHS, mesh,"",fixed_nodes);
 //        c_matrix<double,2,2> F = zero_matrix<double>(2,2);
 //        F(0,0)=F(1,1)=1.1;
 //        double pressure = 1;
@@ -152,7 +152,7 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d solver(NHS,&mesh,problem_defn,"ImplicitCardiacMech/ZeroActiveTension",&law);
+        IncompressibleImplicitSolver2d solver(NHS,mesh,problem_defn,"ImplicitCardiacMech/ZeroActiveTension",&law);
 
         TS_ASSERT_EQUALS(solver.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
 
@@ -184,7 +184,7 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d solver(NHS,&mesh,problem_defn,"ImplicitCardiacMech/SpecifiedCaCompression",&law);
+        IncompressibleImplicitSolver2d solver(NHS,mesh,problem_defn,"ImplicitCardiacMech/SpecifiedCaCompression",&law);
         QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
 
         std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());
@@ -279,7 +279,7 @@ public:
             SolidMechanicsProblemDefinition<2> problem_defn(mesh);
             problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-            IncompressibleImplicitSolver2d solver(NHS,&mesh,problem_defn,"ImplicitCardiacMech/FibresInYDirection",&law);
+            IncompressibleImplicitSolver2d solver(NHS,mesh,problem_defn,"ImplicitCardiacMech/FibresInYDirection",&law);
 
             if(run==1)
             {
@@ -350,8 +350,8 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d impl_solver1(KERCHOFFS2003,&mesh,problem_defn,"",&law);
-        IncompressibleImplicitSolver2d impl_solver2(NONPHYSIOL3,&mesh,problem_defn,"",&law);
+        IncompressibleImplicitSolver2d impl_solver1(KERCHOFFS2003,mesh,problem_defn,"",&law);
+        IncompressibleImplicitSolver2d impl_solver2(NONPHYSIOL3,mesh,problem_defn,"",&law);
 
         // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
     }
@@ -368,7 +368,7 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d solver(KERCHOFFS2003,&mesh,problem_defn,"",&law);
+        IncompressibleImplicitSolver2d solver(KERCHOFFS2003,mesh,problem_defn,"",&law);
         
         // compute the stretches, they should be 1
         std::vector<double> stretches(mesh.GetNumElements());
@@ -447,7 +447,7 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleImplicitSolver2d solver(NHS, &mesh, problem_defn, "ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",&law);
+        IncompressibleImplicitSolver2d solver(NHS, mesh, problem_defn, "ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",&law);
         
         TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
         solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.orthoquad", true);
@@ -519,7 +519,7 @@ public:
 //        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 //        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 //
-//        IncompressibleImplicitSolver2d solver(NHS, &mesh, problem_defn, "ImplicitCardiacMech/CompareWithExplicit",&law);
+//        IncompressibleImplicitSolver2d solver(NHS, mesh, problem_defn, "ImplicitCardiacMech/CompareWithExplicit",&law);
 //
 //        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
 //        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);

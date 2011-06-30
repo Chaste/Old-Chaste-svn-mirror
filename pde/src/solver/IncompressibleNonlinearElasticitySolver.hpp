@@ -171,12 +171,12 @@ public:
     /**
      * Constructor for homogeneous problems.
      *
-     * @param pQuadMesh The quadratic mesh to solve on
+     * @param rQuadMesh The quadratic mesh to solve on
      * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param pMaterialLaw A single material law to use on all elements
      * @param outputDirectory The output directory
      */
-    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                             SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                             AbstractMaterialLaw<DIM>* pMaterialLaw,
                                             std::string outputDirectory);
@@ -184,12 +184,12 @@ public:
     /**
      * Variant constructor taking a vector of material laws for heterogeneous problems.
      *
-     * @param pQuadMesh The quadratic mesh to solve on
+     * @param rQuadMesh The quadratic mesh to solve on
      * @param rProblemDefinition an object defining in particular the body force and boundary conditions
      * @param rMaterialLaws Vector of material laws for each element
      * @param outputDirectory The output directory
      */
-    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                             SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                             std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
                                             std::string outputDirectory);

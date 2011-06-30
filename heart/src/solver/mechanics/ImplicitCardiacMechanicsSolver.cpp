@@ -34,11 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class ELASTICITY_SOLVER,unsigned DIM>
 ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsSolver(
                                   ContractionModel contractionModel,
-                                  QuadraticMesh<DIM>* pQuadMesh,
+                                  QuadraticMesh<DIM>& rQuadMesh,
                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                   std::string outputDirectory,
                                   AbstractMaterialLaw<DIM>* pMaterialLaw)
-    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(pQuadMesh,
+    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
                                                             rProblemDefinition,
                                                             outputDirectory,
                                                             pMaterialLaw)

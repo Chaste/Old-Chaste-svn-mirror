@@ -160,13 +160,13 @@ public:
     /**
      * Constructor
      *
-     * @param pQuadMesh A pointer to the mesh.
+     * @param rQuadMesh A reference to the mesh.
      * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
      * @param pMaterialLaw The material law for the tissue. If NULL the default
      *   (NashHunterPoleZero) law is used.
      */
-    AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+    AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>& rQuadMesh,
                                    SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory,
                                    AbstractMaterialLaw<DIM>* pMaterialLaw);
@@ -265,11 +265,11 @@ public:
 
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
-AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>& rQuadMesh,
                                                                                       SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                                                                       std::string outputDirectory,
                                                                                       AbstractMaterialLaw<DIM>* pMaterialLaw)
-   : ELASTICITY_SOLVER(pQuadMesh,
+   : ELASTICITY_SOLVER(rQuadMesh,
                        rProblemDefinition,
                        pMaterialLaw,
                        outputDirectory),
@@ -278,7 +278,7 @@ AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsS
      mOdeTimestep(DBL_MAX)
 {
     // compute total num quad points
-    mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
+    mTotalQuadPoints = rQuadMesh.GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
 
     // initialise the store of fibre stretches
     mStretches.resize(mTotalQuadPoints, 1.0);
@@ -407,7 +407,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
     std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
     std::vector<double>& rStretches)
 {
-    assert(rStretches.size()==this->mpQuadMesh->GetNumElements());
+    assert(rStretches.size()==this->mrQuadMesh.GetNumElements());
     
     // this will only work currently if the coarse mesh fibre info is defined per element, not per quad point 
     assert(!mpVariableFibreSheetDirections || !mFibreSheetDirectionsDefinedByQuadraturePoint);
@@ -422,9 +422,9 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
     ChastePoint<DIM> quadrature_point; // not needed, but has to be passed in  
     
     // loop over all the elements
-    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    for(unsigned elem_index=0; elem_index<this->mrQuadMesh.GetNumElements(); elem_index++)
     {
-        Element<DIM,DIM>* p_elem = this->mpQuadMesh->GetElement(elem_index);
+        Element<DIM,DIM>* p_elem = this->mrQuadMesh.GetElement(elem_index);
 
         // get the fibre direction for this element
         mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[elem_index] : &mConstantFibreSheetDirections;
@@ -443,7 +443,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
         }
 
         // set up the linear basis functions
-        this->mpQuadMesh->GetInverseJacobianForElement(elem_index, jacobian, jacobian_determinant, inverse_jacobian);
+        this->mrQuadMesh.GetInverseJacobianForElement(elem_index, jacobian, jacobian_determinant, inverse_jacobian);
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_lin_phi);
         
         F = identity_matrix<double>(DIM,DIM); 
@@ -482,11 +482,11 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetVariableFibreShee
     
     unsigned num_entries = reader.GetNumLinesOfData();
 
-    if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=this->mpQuadMesh->GetNumElements()) )
+    if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=this->mrQuadMesh.GetNumElements()) )
     {
         std::stringstream ss;
         ss << "Number of entries defined at top of file " << orthoFile << " does not match number of elements in the mesh, "
-           << "found " <<  num_entries << ", expected " << this->mpQuadMesh->GetNumElements();
+           << "found " <<  num_entries << ", expected " << this->mrQuadMesh.GetNumElements();
         EXCEPTION(ss.str());
     }
 

@@ -60,7 +60,7 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         // NONPHYSIOL1 => NonphysiologicalContractionModel 1
-        IncompressibleExplicitSolver2d solver(NONPHYSIOL1,&mesh,problem_defn,"TestExplicitCardiacMech",&law);
+        IncompressibleExplicitSolver2d solver(NONPHYSIOL1,mesh,problem_defn,"TestExplicitCardiacMech",&law);
 
         // coverage
         QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
@@ -94,8 +94,8 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         // NONPHYSIOL 1 - contraction model is of the form sin(t)
-        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL1,&mesh,problem_defn,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,&law);
-        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL1,&mesh,problem_defn,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL1,mesh,problem_defn,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,&law);
+        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL1,mesh,problem_defn,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,&law);
 
         double dt = 0.25;
         for(double t=0; t<3; t+=dt)
@@ -127,8 +127,8 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         // NONPHYSIOL 2 - contraction model is of the form lam*sin(t)
-        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL2,&mesh,problem_defn,"TestCompareExplAndImplCardiacSolversStretch_Exp",&law);
-        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL2,&mesh,problem_defn,"TestCompareExplAndImplCardiacSolversStretch_Imp",&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL2,mesh,problem_defn,"TestCompareExplAndImplCardiacSolversStretch_Exp",&law);
+        IncompressibleImplicitSolver2d impl_solver(NONPHYSIOL2,mesh,problem_defn,"TestCompareExplAndImplCardiacSolversStretch_Imp",&law);
 
         expl_solver.WriteCurrentDeformation("solution",0);
         impl_solver.WriteCurrentDeformation("solution",0);
@@ -190,13 +190,13 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL3,&mesh,problem_defn,"",&law);
+        IncompressibleExplicitSolver2d expl_solver(NONPHYSIOL3,mesh,problem_defn,"",&law);
 
-        IncompressibleExplicitSolver2d expl_solver_with_nash(NASH2004,&mesh,problem_defn,"",&law);
-        IncompressibleExplicitSolver2d expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,problem_defn,"",&law);
+        IncompressibleExplicitSolver2d expl_solver_with_nash(NASH2004,mesh,problem_defn,"",&law);
+        IncompressibleExplicitSolver2d expl_solver_with_kerchoffs(KERCHOFFS2003,mesh,problem_defn,"",&law);
 
         // bad contraction model
-        TS_ASSERT_THROWS_THIS(IncompressibleExplicitSolver2d solver(NHS,&mesh,problem_defn,"",&law), "Unknown or stretch-rate-dependent contraction model");
+        TS_ASSERT_THROWS_THIS(IncompressibleExplicitSolver2d solver(NHS,mesh,problem_defn,"",&law), "Unknown or stretch-rate-dependent contraction model");
     }
 };
 
