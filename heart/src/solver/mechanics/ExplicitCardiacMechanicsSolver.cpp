@@ -138,5 +138,5 @@ void ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::Solve(double time, d
 
 
 
-template class ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2>;
-template class ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<3>,3>;
+template class ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<2>,2>;
+template class ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<3>,3>;

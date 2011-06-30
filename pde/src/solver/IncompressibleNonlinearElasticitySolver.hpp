@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef NONLINEARELASTICITYSOLVER_HPP_
-#define NONLINEARELASTICITYSOLVER_HPP_
+#ifndef INCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
+#define INCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
 
 /*
  * NOTE ON COMPILATION ERRORS:
@@ -50,9 +50,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * outside other assembler or solver hierarchy.
  */
 template<size_t DIM>
-class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
+class IncompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
-    friend class TestNonlinearElasticitySolver;
+    friend class TestIncompressibleNonlinearElasticitySolver;
     friend class TestNonlinearElasticityAdjointSolver;
     friend class AdaptiveNonlinearElasticityProblem;
 
@@ -176,10 +176,10 @@ public:
      * @param pMaterialLaw A single material law to use on all elements
      * @param outputDirectory The output directory
      */
-    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                              AbstractMaterialLaw<DIM>* pMaterialLaw,
-                              std::string outputDirectory);
+    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                            SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                            AbstractMaterialLaw<DIM>* pMaterialLaw,
+                                            std::string outputDirectory);
 
     /**
      * Variant constructor taking a vector of material laws for heterogeneous problems.
@@ -189,13 +189,13 @@ public:
      * @param rMaterialLaws Vector of material laws for each element
      * @param outputDirectory The output directory
      */
-    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                              SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                              std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                              std::string outputDirectory);
+    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                                            SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                            std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
+                                            std::string outputDirectory);
 
     /** Destructor. */
-    ~NonlinearElasticitySolver();
+    ~IncompressibleNonlinearElasticitySolver();
 
     /**
      * Get pressures for each vertex.
@@ -203,4 +203,4 @@ public:
     std::vector<double>& rGetPressures();
 };
 
-#endif /*NONLINEARELASTICITYSOLVER_HPP_*/
+#endif /*INCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_*/

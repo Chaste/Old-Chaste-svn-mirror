@@ -26,12 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTNONLINEARELASTICITYSOLVER_HPP_
-#define TESTNONLINEARELASTICITYSOLVER_HPP_
+#ifndef TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
+#define TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "NonlinearElasticitySolver.hpp"
+#include "IncompressibleNonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
@@ -101,7 +101,7 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location, double t)
     return traction;
 }
 
-class TestNonlinearElasticitySolver : public CxxTest::TestSuite
+class TestIncompressibleNonlinearElasticitySolver : public CxxTest::TestSuite
 {
 public:
     // This is purely for coverage of assembling a 3D system...
@@ -118,10 +118,10 @@ public:
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
 
-        NonlinearElasticitySolver<3> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "");
+        IncompressibleNonlinearElasticitySolver<3> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "");
         solver.AssembleSystem(true, true);
     }
 
@@ -135,10 +135,10 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                         problem_defn,
+                                                         &law,
+                                                         "");
         solver.AssembleSystem(true, true);
 
         ///////////////////////////////////////////////////////////////////
@@ -256,10 +256,10 @@ public:
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        NonlinearElasticitySolver<3> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "");
+        IncompressibleNonlinearElasticitySolver<3> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "");
 
         // compute the residual norm - should be zero as no force or tractions
         TS_ASSERT_DELTA( solver.ComputeResidualAndGetNorm(false), 0.0, 1e-7);
@@ -312,10 +312,10 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &mooney_rivlin_law,
-                                            "");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &mooney_rivlin_law,
+                                                          "");
 
         // for coverage
         TS_ASSERT_THROWS_THIS(solver.SetWriteOutput(true),
@@ -348,14 +348,14 @@ public:
 
         // more coverage of exceptions
         CompressibleMooneyRivlinMaterialLaw<2> compressible_law(1.0,1.0);
-        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,&compressible_law,""),  "NonlinearElasticitySolver must take in an incompressible material law");
+        TS_ASSERT_THROWS_CONTAINS(IncompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,&compressible_law,""),  "IncompressibleNonlinearElasticitySolver must take in an incompressible material law");
 
         std::vector<AbstractMaterialLaw<2>*> compressible_laws;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             compressible_laws.push_back(&compressible_law);
         }
-        TS_ASSERT_THROWS_CONTAINS(NonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,compressible_laws,""),  "NonlinearElasticitySolver must take in an incompressible material law");
+        TS_ASSERT_THROWS_CONTAINS(IncompressibleNonlinearElasticitySolver<2> bad_solver(&mesh,problem_defn,compressible_laws,""),  "IncompressibleNonlinearElasticitySolver must take in an incompressible material law");
     }
 
     void TestSettingUpHeterogeneousProblem() throw(Exception)
@@ -375,10 +375,10 @@ public:
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            laws,
-                                            "");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          laws,
+                                                          "");
 
         TS_ASSERT_EQUALS(solver.mMaterialLaws.size(), 2u);
         TS_ASSERT_DELTA(solver.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
@@ -409,10 +409,10 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetBodyForce(body_force);
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "simple_nonlin_elas");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "simple_nonlin_elas");
 
         solver.Solve();
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u); // 'hardcoded' answer, protects against Jacobian getting messed up
@@ -528,10 +528,10 @@ public:
 
 
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "nonlin_elas_non_zero_bcs");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "nonlin_elas_non_zero_bcs");
 
 
         // coverage
@@ -619,10 +619,10 @@ public:
 
 
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "nonlin_elas_functional_data");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "nonlin_elas_functional_data");
 
 
         // this test requires the time to be set to t=1 to pass (see comment
@@ -737,10 +737,10 @@ public:
         problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressures);
 
 
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "nonlin_elas_pressure_on_deformed");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "nonlin_elas_pressure_on_deformed");
 
 
         solver.Solve();
@@ -770,4 +770,4 @@ public:
     }
 };
 
-#endif /*TESTNONLINEARELASTICITYSOLVER_HPP_*/
+#endif /*TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_*/

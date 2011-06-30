@@ -29,9 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACMECHANICSSOLVER_HPP_
 #define ABSTRACTCARDIACMECHANICSSOLVER_HPP_
 
-#include "NonlinearElasticitySolver.hpp"
+#include "IncompressibleNonlinearElasticitySolver.hpp"
+#include "CompressibleNonlinearElasticitySolver.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
-#include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticitySolver.hpp, just the cpp
+#include "QuadraticBasisFunction.hpp" // not included in *NonlinearElasticitySolver.hpp, just the cpp
 #include "LinearBasisFunction.hpp"
 #include "AbstractContractionModel.hpp"
 #include "FibreReader.hpp"
@@ -41,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  AbstractCardiacMechanicsSolver
  *
- *  Base class to implicit and explicit cardiac mechanics solvers. Inherits from NonlinearElasticitySolver
+ *  Base class to implicit and explicit cardiac mechanics solvers. Inherits from IncompressibleNonlinearElasticitySolver
  *  or CompressibleNonlinearElasticityAssembler (depending on what the template parameter ELASTICITY_SOLVER
  *  is), and also from AbstractCardiacMechanicsSolverInterface which just declares this classes
  *  main public methods.

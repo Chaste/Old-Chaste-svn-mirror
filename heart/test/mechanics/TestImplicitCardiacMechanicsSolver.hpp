@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 // useful typedef
-typedef ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
+typedef ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
 
 
 

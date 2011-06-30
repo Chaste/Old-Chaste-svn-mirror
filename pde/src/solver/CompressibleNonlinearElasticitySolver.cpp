@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * NOTE ON COMPILATION ERRORS:
  *
- * (The following applies to NonlinearElasticityAssembler; possibly/probably holds for this class too).
+ * (The following applies to IncompressibleNonlinearElasticityAssembler; possibly/probably holds for this class too).
  *
  * This file won't compile with Intel icpc version 9.1.039, with error message:
  * "Terminate with:

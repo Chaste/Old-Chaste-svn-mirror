@@ -36,14 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Try recompiling with icpc version 10.0.025.
  */
 
-#include "NonlinearElasticitySolver.hpp"
+#include "IncompressibleNonlinearElasticitySolver.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include <algorithm>
 
 template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
-                                                    bool assembleJacobian)
+void IncompressibleNonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
+                                                                  bool assembleJacobian)
 {
     // Check we've actually been asked to do something!
     assert(assembleResidual || assembleJacobian);
@@ -180,7 +180,7 @@ void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
 }
 
 template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::AssembleOnElement(
+void IncompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
             Element<DIM, DIM>& rElement,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
@@ -532,7 +532,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnElement(
 }
 
 template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
+void IncompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             BoundaryElement<DIM-1,DIM>& rBoundaryElement,
             c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
             c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
@@ -633,7 +633,7 @@ void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 }
 
 template<size_t DIM>
-void NonlinearElasticitySolver<DIM>::FormInitialGuess()
+void IncompressibleNonlinearElasticitySolver<DIM>::FormInitialGuess()
 {
     this->mCurrentSolution.resize(this->mNumDofs, 0.0);
 
@@ -669,10 +669,11 @@ void NonlinearElasticitySolver<DIM>::FormInitialGuess()
 }
 
 template<size_t DIM>
-NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                          AbstractMaterialLaw<DIM>* pMaterialLaw,
-                                                          std::string outputDirectory)
+IncompressibleNonlinearElasticitySolver<DIM>::IncompressibleNonlinearElasticitySolver(
+        QuadraticMesh<DIM>* pQuadMesh,
+        SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+        AbstractMaterialLaw<DIM>* pMaterialLaw,
+        std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
@@ -683,7 +684,7 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQ
     AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
     if (!p_law)
     {
-        EXCEPTION("NonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
+        EXCEPTION("IncompressibleNonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
     }
     mMaterialLaws.push_back(p_law);
 
@@ -694,10 +695,11 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQ
 }
 
 template<size_t DIM>
-NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
-                                                          SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                          std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                                                          std::string outputDirectory)
+IncompressibleNonlinearElasticitySolver<DIM>::IncompressibleNonlinearElasticitySolver(
+         QuadraticMesh<DIM>* pQuadMesh,
+         SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+         std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
+         std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(pQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
@@ -710,7 +712,7 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQ
         AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
         if (!p_law)
         {
-            EXCEPTION("NonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
+            EXCEPTION("IncompressibleNonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
         }
         mMaterialLaws[i] = p_law;
     }
@@ -721,12 +723,12 @@ NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(QuadraticMesh<DIM>* pQ
 }
 
 template<size_t DIM>
-NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
+IncompressibleNonlinearElasticitySolver<DIM>::~IncompressibleNonlinearElasticitySolver()
 {
 }
 
 template<size_t DIM>
-std::vector<double>& NonlinearElasticitySolver<DIM>::rGetPressures()
+std::vector<double>& IncompressibleNonlinearElasticitySolver<DIM>::rGetPressures()
 {
     mPressures.clear();
     mPressures.resize(this->mpQuadMesh->GetNumVertices());
@@ -742,5 +744,5 @@ std::vector<double>& NonlinearElasticitySolver<DIM>::rGetPressures()
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-template class NonlinearElasticitySolver<2>;
-template class NonlinearElasticitySolver<3>;
+template class IncompressibleNonlinearElasticitySolver<2>;
+template class IncompressibleNonlinearElasticitySolver<3>;

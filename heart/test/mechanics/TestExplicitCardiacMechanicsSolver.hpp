@@ -42,8 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 // some useful typedefs
-typedef ExplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleExplicitSolver2d;
-typedef ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
+typedef ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<2>,2> IncompressibleExplicitSolver2d;
+typedef ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<2>,2> IncompressibleImplicitSolver2d;
 
 class TestExplicitCardiacMechanicsSolver : public CxxTest::TestSuite
 {

@@ -26,12 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTNONLINEARELASTICITYSOLVERLONG_HPP_
-#define TESTNONLINEARELASTICITYSOLVERLONG_HPP_
+#ifndef TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVERLONG_HPP_
+#define TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVERLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "NonlinearElasticitySolver.hpp"
+#include "IncompressibleNonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
@@ -138,7 +138,7 @@ double ThreeDimensionalModelProblem::c1 = 0.1;
  * It is then possible to determine the body force and surface tractions required for
  * this deformation, and they are defined in the above class.
  */
-class TestNonlinearElasticitySolverLong : public CxxTest::TestSuite
+class TestIncompressibleNonlinearElasticitySolverLong : public CxxTest::TestSuite
 {
 public:
 
@@ -193,10 +193,10 @@ public:
         problem_defn.SetTractionBoundaryConditions(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
 
-        NonlinearElasticitySolver<3> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "nonlin_elas_3d");
+        IncompressibleNonlinearElasticitySolver<3> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "nonlin_elas_3d");
 
         solver.Solve();
 
@@ -224,4 +224,4 @@ public:
     }
 };
 
-#endif /*TESTNONLINEARELASTICITYSOLVERLONG_HPP_*/
+#endif /*TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVERLONG_HPP_*/

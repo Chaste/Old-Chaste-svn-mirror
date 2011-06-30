@@ -211,7 +211,7 @@ void ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::GetActiveTensionAndT
 
 
 
-template class ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<2>,2>;
-template class ImplicitCardiacMechanicsSolver<NonlinearElasticitySolver<3>,3>;
+template class ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<2>,2>;
+template class ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<3>,3>;
 
 

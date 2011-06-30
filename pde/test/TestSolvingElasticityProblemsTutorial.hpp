@@ -88,8 +88,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * as early as possible.
  */
 #include "UblasCustomFunctions.hpp"
-/* The incompressible solver is called `NonlinearElasticitySolver` */
-#include "NonlinearElasticitySolver.hpp"
+/* The incompressible solver is called `IncompressibleNonlinearElasticitySolver` */
+#include "IncompressibleNonlinearElasticitySolver.hpp"
 /* The compressible solver is called `CompressibleNonlinearElasticitySolver` */
 #include "CompressibleNonlinearElasticitySolver.hpp"
 /* The simplest incompressible material law is the Mooney-Rivlin material law (of which
@@ -203,10 +203,10 @@ public:
         /* Now we create the (incompressible) solver, passing in the mesh, problem definition, law,
          * and output directory
          */
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "SimpleIncompressibleElasticityTutorial");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "SimpleIncompressibleElasticityTutorial");
 
         /* .. and call `Solve()` */
         solver.Solve();
@@ -315,10 +315,10 @@ public:
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
         /* Create solver as before */
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "IncompressibleElasticityWithTractionsTutorial");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "IncompressibleElasticityWithTractionsTutorial");
         /* Call `Solve()` */
         solver.Solve();
 
@@ -427,10 +427,10 @@ public:
          * EMPTYLINE
          *
          * Create the solver as before */
-        NonlinearElasticitySolver<2> solver(&mesh,
-                                            problem_defn,
-                                            &law,
-                                            "IncompressibleElasticityMoreComplicatedExample");
+        IncompressibleNonlinearElasticitySolver<2> solver(&mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "IncompressibleElasticityMoreComplicatedExample");
 
 
         /* Call `Solve()` */
@@ -500,7 +500,7 @@ public:
      * EMPTYLINE
      *
      * To solve compressible elasticity problems, all that needs to be changed is to use `CompressibleNonlinearElasticitySolver` instead
-     * of `NonlinearElasticitySolver` (making sure we include it), changing the type of material law used, and noting that there is no pressure computed. See
+     * of `IncompressibleNonlinearElasticitySolver` (making sure we include it), changing the type of material law used, and noting that there is no pressure computed. See
      * `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being implemented properly, tutorials
      * to be added later.
      */

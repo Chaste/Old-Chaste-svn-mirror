@@ -1,4 +1,4 @@
-TestNonlinearElasticitySolverLong.hpp
+TestIncompressibleNonlinearElasticitySolverLong.hpp
 TestSimpleLinearParabolicSolverLong.hpp
 TestSolvingCoupledNonlinearPdes.hpp
 TestSolvingElasticityProblemsTutorial.hpp

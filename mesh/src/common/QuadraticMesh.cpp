@@ -43,7 +43,7 @@ void QuadraticMesh<DIM>::CountAndCheckVertices()
 {
     // count the number of vertices, and also check all vertices come before the
     // rest of the nodes (as this is assumed in
-    // NonlinearElasticitySolver<DIM>::AllocateMatrixMemory() )
+    // AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory() )
     //
     mNumVertices = 0;
     bool vertices_mode = true;

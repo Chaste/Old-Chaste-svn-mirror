@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  contraction model is not stretch-rate-dependent (for those the implicit solver is
  *  needed).
  *
- *  The first template parameter should be either NonlinearElasticitySolver
+ *  The first template parameter should be either IncompressibleNonlinearElasticitySolver
  *  or CompressibleNonlinearElasticityAssembler; this will be the class that this class
  *  ultimately inherits from.
  *
