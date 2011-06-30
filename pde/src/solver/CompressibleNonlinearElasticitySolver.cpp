@@ -450,11 +450,17 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 
     c_vector<double, DIM> weighted_direction;
     double jacobian_determinant;
+    // note: jacobian determinant may be over-written below
     this->mrQuadMesh.GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
+    // If the boundary condition is of type PRESSURE_ON_DEFORMED (specified pressures to be
+    // applied in the normal direction on the *deformed* surface, we need to integrate over the
+    // current deformed boundary element, as well as work out the deformed outward normal so
+    // it can be multiplied by the pressure.
     c_vector<double,DIM> deformed_normal;
     if (this->mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
     {
+        // collect the current displacements of the vertices (not all the nodes) of the element
         static std::vector<c_vector<double,DIM> > element_current_displacements(DIM/*num vertices in the element*/);
         for (unsigned II=0; II<DIM/*num vertices per boundary element*/; II++)
         {
@@ -463,11 +469,11 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
                 element_current_displacements[II](JJ) = this->mCurrentSolution[DIM*rBoundaryElement.GetNodeGlobalIndex(II) + JJ];
             }
         }
-
+        // set up the deformed element
         this->mpDeformedBoundaryElement->ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
-
+        // recompute the jacobian determinant for the deformed element
         this->mpDeformedBoundaryElement->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
-
+        // compute deformed normal
         deformed_normal = this->mpDeformedBoundaryElement->ComputeDeformedOutwardNormal();
     }
 
@@ -503,6 +509,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             }
             case PRESSURE_ON_DEFORMED:
             {
+                // see comments above re. PRESSURE_ON_DEFORMED
                 traction = this->mrProblemDefinition.rGetElementwiseNormalPressures()[boundaryConditionIndex]*deformed_normal;
                 break;
             }

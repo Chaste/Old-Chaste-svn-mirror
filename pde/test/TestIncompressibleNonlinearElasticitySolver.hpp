@@ -687,7 +687,16 @@ public:
     }
 
     /*
-     *   TODO: comment
+     *  Test the functionality for specifying that a pressure should act in the normal direction on the
+     *  DEFORMED SURFACE.
+     *
+     *  The deformation is based on that in TestSolveWithNonZeroBoundaryConditions (x=X/lambda,
+     *  y=Y*lam; see comments for this test), but the exact solution here is this rotated by
+     *  45 degrees anticlockwise. We choose dirichlet boundary conditions on the X=0 surface to
+     *  match this, and a pressure on the opposite surface (similar to the traction provided in
+     *  TestSolveWithNonZeroBoundaryConditions, except we don't provide the direction, the code
+     *  needs to work this out), and it is scaled by 1.0/lambda as it acts on a smaller surface
+     *  than would on the undeformed surface.
      */
     void TestSolveWithPressureBcsOnDeformedSurface() throw(Exception)
     {
