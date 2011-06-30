@@ -4936,7 +4936,16 @@ def get_options(args, default_options=None):
     parser.add_option('--expose-all-variables',
                       action='store_true', default=False,
                       help="expose all variables for access via the GetAnyVariable functionality")
+    def protocol_callback(option, opt_str, value, parser):
+        """
+        Protocols don't always produce normal cardiac cell models.
+        However, we want to allow a later option to override these changes.
+        """
+        parser.values.protocol = value
+        parser.values.convert_interfaces = False
+        parser.values.use_chaste_stimulus = False
     parser.add_option('--protocol',
+                      action='callback', callback=protocol_callback, type='string', nargs=1,
                       help="[experimental] specify a simulation protocol to apply to"
                       " the model prior to translation")
     # Settings for lookup tables
@@ -4996,10 +5005,6 @@ def get_options(args, default_options=None):
     if options.do_jacobian_analysis:
         options.translate_type = 'Maple'
         options.maple_output = False # Just in case...!
-    if options.protocol:
-        # Protocols don't always produce normal cardiac cell models
-        options.convert_interfaces = False
-        options.use_chaste_stimulus = False
 
     return options, args[0]
 
