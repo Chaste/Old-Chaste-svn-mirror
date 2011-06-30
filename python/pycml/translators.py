@@ -4699,7 +4699,8 @@ class ConfigurationStore(object):
                 var.set_is_derived_quantity(True)
         if self.options.expose_annotated_variables:
             for var in self.metadata_vars:
-                if not var.oxmeta_name in cellml_metadata.STIMULUS_NAMES:
+                if (not self.options.use_chaste_stimulus or
+                    not var.oxmeta_name in cellml_metadata.STIMULUS_NAMES):
                     annotate(var)
             DEBUG('translate', "+++ Exposed annotated variables")
         if self.options.expose_all_variables:
@@ -4907,6 +4908,9 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="when generating Chaste code, use Chaste's stimulus"
                       " rather than that defined in the model")
+    parser.add_option('--no-use-chaste-stimulus', dest='use_chaste_stimulus',
+                      action='store_false',
+                      help="when generating Chaste code, use the model's stimulus, not Chaste's")
     parser.add_option('-i', '--convert-interfaces',
                       action='store_true', default=False,
                       help="perform units conversions at interfaces to Chaste"
