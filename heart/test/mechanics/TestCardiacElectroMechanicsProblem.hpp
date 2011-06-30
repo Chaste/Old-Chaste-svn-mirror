@@ -85,7 +85,7 @@ public:
         //// with an assert(0);
         
         // coverage
-        TS_ASSERT_EQUALS( problem.GetCardiacMechanicsSolver()->rGetDeformedPosition().size(), 9u );
+        TS_ASSERT_EQUALS( problem.GetSolidMechanicsProblemDefinition()->rGetFixedNodes()[0], 0u);
     }
 
 

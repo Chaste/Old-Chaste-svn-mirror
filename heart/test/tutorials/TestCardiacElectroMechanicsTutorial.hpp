@@ -139,16 +139,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-    /* EMPTYLINE
-     * 
-     * == Simple 2d test ==
-     * 
-     * EMPTYLINE
-     * 
-     * This test shows how to use the `CardiacElectroMechProbRegularGeom` class, which
-     * inherits from the more general class `CardiacElectroMechanicsProblem` class but
-     * sets up a square or cubic geometry for you.
-     */
+/* EMPTYLINE
+ *
+ * == Simple 2d test ==
+ *
+ * EMPTYLINE
+ *
+ * This test shows how to use the `CardiacElectroMechProbRegularGeom` class, which
+ * inherits from the more general class `CardiacElectroMechanicsProblem` class but
+ * sets up a square or cubic geometry for you.
+ */
 class TestCardiacElectroMechanicsTutorial : public CxxTest::TestSuite
 {
 public:
@@ -339,11 +339,12 @@ public:
      *
      * == Other comments ==
      *
-     * If you would like to apply a traction boundary condition, see the solid mechanics tutorial on how to apply tractions given
-     * a `NonlinearElasticitySolver`, and then note that you can access this solver in the tests above by doing, for example:
+     * If you would like to apply a traction boundary condition, see the solid mechanics tutorial on how to apply tractions
+     * to normal mechanics problems, and then note that you can access the (mechanics) problem definition object that is contained
+     * internally in `CardiacElectroMechanicsProblem` after `Initialise()` is called: overall doing, for example:
      */
-    //problem.Initialise();
-    //problem.GetCardiacMechanicsSolver()->SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+    //problem.Initialise
+    //problem.GetSolidMechanicsProblemDefinition()->SetSurfaceTractions(boundary_elems, tractions);
     /* and then calling `problem.Solve()`. */
 
 #endif /*TESTCARDIACELECTROMECHANICSTUTORIAL_HPP_*/

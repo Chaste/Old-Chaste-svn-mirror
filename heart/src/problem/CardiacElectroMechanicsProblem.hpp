@@ -317,14 +317,17 @@ public :
     virtual void OnEndOfTimeStep(unsigned counter){}
 
     /**
-     *  Get the mechanics solver. Needs to be called after Initialise().
+     *  Get a pointer to the object which contains the mechanics problem definition (which includes
+     *  boundary conditions, both fixed node or traction). The user can call this to say
+     *  then set traction boundary conditions for the mechanics problem by calling methods on
+     *  this object.
      *
-     *  ///\todo #1756
+     *  Needs to be called after Initialise().
      */
-    AbstractNonlinearElasticitySolver<DIM>* GetCardiacMechanicsSolver()
+    SolidMechanicsProblemDefinition<DIM>* GetSolidMechanicsProblemDefinition()
     {
-        assert(mpMechanicsSolver);
-        return mpMechanicsSolver;
+        assert(mpProblemDefinition);
+        return mpProblemDefinition;
     }
 
     /** Set the material law. If this isn't called the default material law will be used.
