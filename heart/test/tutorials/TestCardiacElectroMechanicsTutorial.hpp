@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The equations of cardiac electro-mechanics are written down in Section 4.2 of the PDF on equations and
  * finite element implementations in ChasteGuides -> Miscellaneous information. '''Note:''' By default we do
- * not these full equations: the mechanics information is not coupled back to electrics, ie by default
+ * not solve these full equations: the mechanics information is not coupled back to electrics, ie by default
  * the conductivities do not depend  on deformation, and cell models do not get affected by stretch.
  * This has to be switched on if required - see comments on mechano-electric feedback below.
  *
@@ -343,7 +343,7 @@ public:
      * to normal mechanics problems, and then note that you can access the (mechanics) problem definition object that is contained
      * internally in `CardiacElectroMechanicsProblem` after `Initialise()` is called: overall doing, for example:
      */
-    //problem.Initialise
+    //problem.Initialise();
     //problem.GetSolidMechanicsProblemDefinition()->SetSurfaceTractions(boundary_elems, tractions);
     /* and then calling `problem.Solve()`. */
 

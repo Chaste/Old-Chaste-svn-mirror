@@ -59,8 +59,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The solvers currently implemented are STATIC (time-independent) and use NONLINEAR ELASTICITY. The main solver
  * solves for an INCOMPRESSIBLE deformation, although there is now a COMPRESSIBLE solver. The material behaviour is
  * assumed to be ELASTIC (stress is just a function of strain, not strain-rate etc), and in particular HYPER-ELASTIC
- * (stress is a function of strain via a 'strain energy function' (S.E.F.), for which stress is obtained by differentiating the
- * S.E.F. with respect to strain).
+ * (stress is a function of strain via a 'strain energy function', for which stress is obtained by differentiating the
+ * strain energy function with respect to strain).
  *
  * EMPTYLINE
  *
@@ -182,8 +182,8 @@ public:
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
         /*
-         * Before creating the solver we create a `SolidMechanicsProblemDefinition` object, in which is
-         * stored everything that defines the problem (except mesh and material law): ie body force,
+         * Before creating the solver we create a `SolidMechanicsProblemDefinition` object,  which contains
+         * everything that defines the problem (except mesh and material law): ie body force,
          * the fixed nodes and their locations, any traction boundary conditions, and the density
          * (which multiplies the body force, otherwise isn't used).
          */
@@ -195,7 +195,7 @@ public:
          */
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         /* Set the body force and the density. (Note that the second line isn't technically
-         * needed, as internally the density is initialised to 1
+         * needed, as internally the density is initialised to 1)
          */
         problem_defn.SetBodyForce(body_force);
         problem_defn.SetDensity(1.0);
@@ -214,7 +214,6 @@ public:
         /* This test is just here to (help) check nothing has gotten changed in this test. Note that since we are solving
          * a nonlinear problem we have to a nonlinear solver. We use Newton's method (with damping). In this test
          * 4 iterations were needed to converge. */
-        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u);
 
         /* '''Visualisation'''. Go to the folder `SimpleIncompressibleElasticityTutorial` in your test-output directory.
          * There should be 2 files, initial.nodes and solution.nodes. These are the original nodal positions and the deformed
@@ -244,9 +243,13 @@ public:
          */
         solver.CreateCmguiOutput();
 
-        /* This is just to check that nothing has been accidentally changed in this test */
+        /* These are just to check that nothing has been accidentally changed in this test.
+         * We use Newton's method (with damping) to solve the nonlinear problem. In this test
+         * 4 iterations were needed to converge.
+         */
         TS_ASSERT_DELTA(r_deformed_positions[node_index](0),  0.7980, 1e-3);
         TS_ASSERT_DELTA(r_deformed_positions[node_index](1), -0.1129, 1e-3);
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u);
     }
 
     /*
@@ -305,7 +308,7 @@ public:
         assert(boundary_elems.size() == 8u);
 
         /* Now create the problem definition object, setting the fixed nodes and body force as
-         * before (this time not calling SetDensity(), so using the default density of 1.0,
+         * before (this time not calling `SetDensity()`, so using the default density of 1.0,
          * and also calling a method for setting tractions, which takes in the boundary elements
          * and tractions for each of those elements.
          */
@@ -500,9 +503,9 @@ public:
      * EMPTYLINE
      *
      * To solve compressible elasticity problems, all that needs to be changed is to use `CompressibleNonlinearElasticitySolver` instead
-     * of `IncompressibleNonlinearElasticitySolver` (making sure we include it), changing the type of material law used, and noting that there is no pressure computed. See
-     * `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being implemented properly, tutorials
-     * to be added later.
+     * of `IncompressibleNonlinearElasticitySolver` (making sure we include it), changing the type of material law used, and noting that there
+     * is no pressure computed. See `TestCompressibleNonlinearElasticitySolver`. Compressible solid mechanics is in the process of being
+     * implemented properly, tutorials to be added later.
      */
 
 #endif /*TESTSOLVINGELASTICITYPROBLEMS_HPP_*/
