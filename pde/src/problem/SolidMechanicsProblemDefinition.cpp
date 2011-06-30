@@ -117,12 +117,11 @@ void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::ve
 
 template<unsigned DIM>
 void SolidMechanicsProblemDefinition<DIM>::SetApplyNormalPressureOnDeformedSurface(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                                                                   std::vector<double>& rElementwiseNormalPressures)
+                                                                                   double normalPressure)
 {
-    assert(rTractionBoundaryElements.size()==rElementwiseNormalPressures.size());
     mTractionBoundaryConditionType = PRESSURE_ON_DEFORMED;
     mTractionBoundaryElements = rTractionBoundaryElements;
-    mElementwiseNormalPressures = rElementwiseNormalPressures;
+    mNormalPressure = normalPressure;
 
 }
 
@@ -189,10 +188,10 @@ std::vector<c_vector<double,DIM> >& SolidMechanicsProblemDefinition<DIM>::rGetEl
 
 
 template<unsigned DIM>
-std::vector<double>& SolidMechanicsProblemDefinition<DIM>::rGetElementwiseNormalPressures()
+double SolidMechanicsProblemDefinition<DIM>::GetNormalPressure()
 {
     assert(mTractionBoundaryConditionType==PRESSURE_ON_DEFORMED);
-    return mElementwiseNormalPressures;
+    return mNormalPressure;
 }
 
 template<unsigned DIM>

@@ -132,24 +132,18 @@ public:
 
         ++iter;
         boundary_elements.push_back(*iter);
-        std::vector<double> pressures;
-        pressures.push_back(10);
-        pressures.push_back(11);
-        pressures.push_back(12);
+        double pressure = 3423.342;
 
-        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elements, pressures);
+        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elements, pressure);
 
         TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements().size(), 3u);
-        TS_ASSERT_EQUALS(problem_defn.rGetElementwiseNormalPressures().size(), 3u);
 
         // comparing addresses
         TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[0], boundary_elements[0]);
         TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[1], boundary_elements[1]);
         TS_ASSERT_EQUALS(problem_defn.rGetTractionBoundaryElements()[2], boundary_elements[2]);
 
-        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[0], 10.0, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[1], 11.0, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetElementwiseNormalPressures()[2], 12.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.GetNormalPressure(), 3423.342, 1e-12);
 
         ++iter;
         boundary_elements.push_back(*iter);

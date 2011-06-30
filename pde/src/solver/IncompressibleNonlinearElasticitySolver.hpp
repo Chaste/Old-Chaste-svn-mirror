@@ -53,6 +53,7 @@ template<size_t DIM>
 class IncompressibleNonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
     friend class TestIncompressibleNonlinearElasticitySolver;
+    friend class TestCompressibleNonlinearElasticitySolver;
     friend class TestNonlinearElasticityAdjointSolver;
     friend class AdaptiveNonlinearElasticityProblem;
 

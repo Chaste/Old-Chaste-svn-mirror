@@ -98,9 +98,9 @@ private:
     /** The tractions on each surface element (only used if mTractionBoundaryConditionType is set appropriately) */
     std::vector<c_vector<double,DIM> > mElementwiseTractions;
 
-    /** If the tractions are specified to correspond to a pressure acting on the surface: the pressures for each
-     *  boundary element (only used if mTractionBoundaryConditionType is set appropriately) */
-    std::vector<double> mElementwiseNormalPressures;
+    /** If the tractions are specified to correspond to a pressure acting on the surface: the pressure for the given
+     *  boundary elements (only used if mTractionBoundaryConditionType is set appropriately) */
+    double mNormalPressure;
 
     /** The tractions as a function of space and time (only used if mTractionBoundaryConditionType is set appropriately) */
     c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& X, double t);
@@ -211,10 +211,10 @@ public:
      * on surfaces in the DEFORMED body in the outward normal direction.
      *
      * @param rTractionBoundaryElements The boundary elements
-     * @param rElementwiseNormalPressures the corresponding pressures.
+     * @param normalPressure the corresponding pressure
      */
     void SetApplyNormalPressureOnDeformedSurface(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                                 std::vector<double>& rElementwiseNormalPressures);
+                                                 double normalPressure);
 
     /**
      * Get the vector of traction boundary elements
@@ -229,11 +229,11 @@ public:
     std::vector<c_vector<double,DIM> >& rGetElementwiseTractions();
 
     /**
-     *  Get the vector of pressures for each boundary element (corresponding to
+     *  Get the pressure for the boundary elements (corresponding to
      *  vector returned by rGetTractionBoundaryElements())
      *  (error if GetTractionBoundaryConditionType()!=PRESSURE_ON_DEFORMED)
      */
-    std::vector<double>& rGetElementwiseNormalPressures();
+    double GetNormalPressure();
 
 
     /**

@@ -724,7 +724,6 @@ public:
         }
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
-        std::vector<double> pressures;
         double pressure = (2*c1*(pow(lambda,-1) - lambda*lambda*lambda))/lambda;
 
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
@@ -736,15 +735,13 @@ public:
             {
                 BoundaryElement<1,2>* p_element = *iter;
                 boundary_elems.push_back(p_element);
-                pressures.push_back(pressure);
             }
         }
         assert(boundary_elems.size()==num_elem);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
-        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressures);
-
+        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressure);
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,

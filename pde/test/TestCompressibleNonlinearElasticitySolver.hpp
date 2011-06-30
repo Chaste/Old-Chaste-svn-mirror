@@ -32,9 +32,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
 #include "CompressibleNonlinearElasticitySolver.hpp"
+#include "IncompressibleNonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ToyCompressibleMaterialLaw.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
 #include "NonlinearElasticityTools.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 
@@ -405,6 +407,41 @@ public:
 
         // Check that the last matrix was symmetric
         TS_ASSERT(PetscMatTools::CheckSymmetry(solver.mJacobianMatrix));
+
+        ////////////////////////////////////////////////////////////////////
+        // Completely separately, we now test the AssembleOnBoundaryElement
+        // method for the situation where a normal pressure on the deformed surface
+        // is chosen. This is tested in the incompressible case by solving
+        // a full problem and testing against an exact solution, here we just
+        // check that AssembleOnBoundaryElement in the compressible solver matches
+        // AssembleOnBoundaryElement in the incompressible solve
+        ////////////////////////////////////////////////////////////////////
+        double pressure = 12.32423;
+        problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressure);
+
+        c_matrix<double,6,6> a_elem;
+        c_vector<double,6> b_elem;
+        solver.AssembleOnBoundaryElement(*(boundary_elems[0]), a_elem, b_elem, true, false, 0);
+
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_incompressible(1.0);
+
+        IncompressibleNonlinearElasticitySolver<2> incompressible_solver(mesh,
+                                                                         problem_defn,
+                                                                         &mooney_rivlin_incompressible,
+                                                                         "");
+
+        c_matrix<double,8,8> a_elem_incompressible;
+        c_vector<double,8> b_elem_incompressible;
+
+        incompressible_solver.mCurrentSolution = solver.mCurrentSolution;
+
+        incompressible_solver.AssembleOnBoundaryElement(*(boundary_elems[0]), a_elem_incompressible, b_elem_incompressible, true, false, 0);
+
+        // incompressible_b = [compressible_b  0 0 ]
+        for(unsigned i=0; i<6; i++)
+        {
+            TS_ASSERT_DELTA( b_elem_incompressible(i), b_elem(i), 1e-12 );
+        }
     }
 };
 

@@ -470,11 +470,11 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             }
         }
         // set up the deformed element
-        this->mpDeformedBoundaryElement->ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
+        this->mDeformedBoundaryElement.ApplyUndeformedElementAndDisplacement(&rBoundaryElement, element_current_displacements);
         // recompute the jacobian determinant for the deformed element
-        this->mpDeformedBoundaryElement->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
+        this->mDeformedBoundaryElement.CalculateWeightedDirection(weighted_direction, jacobian_determinant);
         // compute deformed normal
-        deformed_normal = this->mpDeformedBoundaryElement->ComputeDeformedOutwardNormal();
+        deformed_normal = this->mDeformedBoundaryElement.ComputeDeformedOutwardNormal();
     }
 
     c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
@@ -510,7 +510,7 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             case PRESSURE_ON_DEFORMED:
             {
                 // see comments above re. PRESSURE_ON_DEFORMED
-                traction = this->mrProblemDefinition.rGetElementwiseNormalPressures()[boundaryConditionIndex]*deformed_normal;
+                traction = this->mrProblemDefinition.GetNormalPressure()*deformed_normal;
                 break;
             }
             default:

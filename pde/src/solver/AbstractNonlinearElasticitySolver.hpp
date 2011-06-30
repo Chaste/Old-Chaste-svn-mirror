@@ -224,7 +224,7 @@ protected:
      *  sets up the deformed boundary element. Only used if
      *  mProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
      */
-    DeformedBoundaryElement<DIM-1,DIM>* mpDeformedBoundaryElement;
+    DeformedBoundaryElement<DIM-1,DIM> mDeformedBoundaryElement;
 
     /**
      * This solver is for static problems, however the body force or surface tractions
@@ -515,11 +515,6 @@ void AbstractNonlinearElasticitySolver<DIM>::Initialise()
     mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
 
     mCurrentSolution.resize(mNumDofs, 0.0);
-
-    if (this->mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
-    {
-        mpDeformedBoundaryElement = new DeformedBoundaryElement<DIM-1,DIM>;
-    }
 }
 
 template<unsigned DIM>
@@ -1181,7 +1176,6 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
       mpOutputFileHandler(NULL),
       mWriteOutputEachNewtonIteration(false),
       mNumNewtonIterations(0),
-      mpDeformedBoundaryElement(NULL),
       mCurrentTime(0.0),
       mCompressibilityType(compressibilityType)
 {
@@ -1226,11 +1220,6 @@ AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
     if (mpOutputFileHandler)
     {
         delete mpOutputFileHandler;
-    }
-
-    if(mpDeformedBoundaryElement)
-    {
-        delete mpDeformedBoundaryElement;
     }
 }
 
