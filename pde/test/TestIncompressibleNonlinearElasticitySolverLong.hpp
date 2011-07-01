@@ -142,7 +142,7 @@ public:
      * It is then possible to determine the body force and surface tractions required for
      * this deformation, and they are defined in the above class.
      */
-    void xTestSolve3d() throw(Exception)
+    void TestSolve3d() throw(Exception)
     {
         unsigned num_elem_each_dir = 5;
         QuadraticMesh<3> mesh(1.0/num_elem_each_dir, 1.0, 1.0, 1.0);
