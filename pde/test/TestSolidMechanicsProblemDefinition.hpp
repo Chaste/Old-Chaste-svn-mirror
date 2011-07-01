@@ -104,7 +104,7 @@ public:
         TetrahedralMesh<2,2>::BoundaryElementIterator iter
            = mesh.GetBoundaryElementIteratorBegin();
 
-        c_vector<double,2> vec;
+        c_vector<double,2> vec = zero_vector<double>(2);
         vec(0)=1.0;
         boundary_elements.push_back(*iter);
         tractions.push_back(vec);
