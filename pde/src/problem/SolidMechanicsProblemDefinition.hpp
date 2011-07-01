@@ -116,7 +116,9 @@ private:
     std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
 
 public:
-    /** Constructor initialised the body force to zero and density to 1.0 */
+    /** Constructor initialised the body force to zero and density to 1.0 
+     * @param rMesh  is the mesh being solved on
+     */
     SolidMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh);
 
     /** Set the density

@@ -107,9 +107,9 @@ public:
     /**
      * Returns the uptake rate.
      *
-     * @param pElement the element we wish to return the uptake rate for
+     * @param elementIndex the element we wish to return the uptake rate for
      */
-    double GetUptakeRateForElement(unsigned ElementIndex);
+    double GetUptakeRateForElement(unsigned elementIndex);
 };
 
 #endif /*VOLUMEDEPENDENTAVERAGEDSOURCEPDE_HPP_*/

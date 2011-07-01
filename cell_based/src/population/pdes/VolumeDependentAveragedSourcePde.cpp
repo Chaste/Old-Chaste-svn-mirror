@@ -58,7 +58,7 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
         //
-        double cell_weight;
+        double cell_weight=0.0;
 
 		unsigned node_index=mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 		if(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)))
@@ -69,6 +69,11 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
 			cell_weight=radius*radius;
 
 		}
+        else
+        {
+            ///\todo What happens if cell_weight is not initialised?
+            NEVER_REACHED;
+        }
 
 
         bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
@@ -109,9 +114,9 @@ c_matrix<double,DIM,DIM> VolumeDependentAveragedSourcePde<DIM>::ComputeDiffusion
 }
 
 template<unsigned DIM>
-double VolumeDependentAveragedSourcePde<DIM>::GetUptakeRateForElement(unsigned ElementIndex)
+double VolumeDependentAveragedSourcePde<DIM>::GetUptakeRateForElement(unsigned elementIndex)
 {
-	return mCellDensityOnCoarseElements[ElementIndex];
+	return mCellDensityOnCoarseElements[elementIndex];
 }
 
 
