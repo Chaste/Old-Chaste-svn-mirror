@@ -72,7 +72,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "VtkFilePostprocessor.hpp"
 #include "HeartConfig.hpp"
 
 class TestAdaptiveBidomainProblemNightly : public CxxTest::TestSuite

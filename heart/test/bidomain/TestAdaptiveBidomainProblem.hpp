@@ -73,7 +73,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "VtkFilePostprocessor.hpp"
 
 class TestAdaptiveBidomainProblem : public CxxTest::TestSuite
 {
@@ -447,10 +446,10 @@ public:
         bidomain_problem.DoNotAdaptMesh();
         bidomain_problem.PrintOutput(false);
         bidomain_problem.Initialise();
-        
+
         //Note that this test relies on the debug VerifyStateVariables() method throwing (when NDEBUG is not set)
         //However, the adaptivity library headers for this test will turn if on by default
-        
+
         //#ifndef NDEBUG
         //TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "State variable fast_sodium_current_m_gate__m has gone out of range.");
         //#ifdef NDEBUG
