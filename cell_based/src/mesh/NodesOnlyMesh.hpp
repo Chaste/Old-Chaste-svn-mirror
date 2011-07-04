@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "MutableMesh.hpp"
+#include "Debug.hpp"
 
 /**
  * Mesh class for storing lists of nodes (no elements). This inherits from MutableMesh
@@ -50,6 +51,9 @@ private:
      */
     std::vector<double> mCellRadii;
 
+
+    friend class TestNodesOnlyMesh;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -66,8 +70,8 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mCellRadii;
         archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
+        archive & mCellRadii;
     }
 
 public:
@@ -94,6 +98,16 @@ public:
      * @param rGeneratingMesh TetrahedralMesh used to generate the NodesOnlyMesh
      */
     void ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh);
+
+    /*
+     * Overridden Clear method for NodesOnlyMesh
+     */
+    void Clear();
+
+    /*
+     * Overriddenridden clear method
+     */
+    void ClearWithoutCellRadii();
 
     /**
      * Get the cell radius associated with a given node index.

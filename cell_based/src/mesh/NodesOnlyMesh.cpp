@@ -38,7 +38,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
 {
     this->Clear();
 
-    ///\todo override Clear() to call clear() on mCellRadii? (#1808)
+    ///\todo Fix clear hack in ReMesh method
 
     for (unsigned i=0; i<rNodes.size(); i++)
     {
@@ -49,6 +49,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
         this->mNodes.push_back(p_node_copy);
 
         mCellRadii.push_back(1.0);
+
     }
 }
 
@@ -57,6 +58,24 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<S
 {
     ConstructNodesWithoutMesh(rGeneratingMesh.mNodes);
 }
+
+template<unsigned SPACE_DIM>
+void NodesOnlyMesh<SPACE_DIM>::Clear()
+{
+	// Call the parent clear
+	MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
+
+	// Clear the cell radii
+	mCellRadii.clear();
+}
+
+template<unsigned SPACE_DIM>
+void NodesOnlyMesh<SPACE_DIM>::ClearWithoutCellRadii()
+{
+	// Call the parent clear
+	MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
+}
+
 
 template<unsigned SPACE_DIM>
 double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
@@ -93,7 +112,7 @@ void NodesOnlyMesh<SPACE_DIM>::ReMesh(NodeMap& map)
     }
 
     // Remove current data
-    this->Clear();
+    this->ClearWithoutCellRadii();  ///\todo This needs to be fixed properly not using this hack.
 
     // Construct the nodes and boundary nodes
     for (unsigned node_index=0; node_index<old_node_locations.size(); node_index++)
@@ -132,7 +151,6 @@ unsigned NodesOnlyMesh<SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
     unsigned new_node_index = MutableMesh<SPACE_DIM, SPACE_DIM>::AddNode(pNewNode);
 
     // Then update mCellRadii
-    ///\todo properly test this (#1808)
     if (new_node_index >= mCellRadii.size())
     {
         mCellRadii.resize(new_node_index+1);
@@ -157,7 +175,6 @@ void NodesOnlyMesh<SPACE_DIM>::DeleteNode(unsigned index)
      * Note: we do not need to update mCellRadii here, since if the
      * node index is ever re-used when a new node is added, mCellRadii
      * will be updated correctly.
-     * \todo check this is really true by properly testing it (#1808)
      */
 }
 

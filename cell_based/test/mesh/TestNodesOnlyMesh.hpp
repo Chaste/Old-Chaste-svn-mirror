@@ -71,6 +71,35 @@ public:
         }
     }
 
+    void TestClearingNodesOnlyMesh()
+    {
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(6, false, 0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
+
+        NodesOnlyMesh<3> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
+
+        mesh.Clear();
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), 0u);
+        TS_ASSERT_EQUALS(mesh.mCellRadii.size(),0u);
+
+    }
+
     void TestConstructNodesWithoutMeshUsingMesh()
     {
         // Create a simple mesh
@@ -189,6 +218,23 @@ public:
         }
     }
 
+    void TestAddNode() throw (Exception)
+	{
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 0.0, 0.5));
+
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        // Test add node
+        mesh.AddNode(new Node<2>(2, true, 0.0, 1.0));
+
+        unsigned num_nodes=3;
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),num_nodes);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(2),1.0,1e-4);
+	}
+
     void TestDeleteNodes() throw (Exception)
     {
         std::vector<Node<2>*> nodes;
@@ -203,6 +249,9 @@ public:
 
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
+
+        // Set radius of cell 3 - for use later in test
+        mesh.SetCellRadius(3,2.0);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
 
@@ -226,6 +275,13 @@ public:
         {
             delete *it;
         }
+
+        // Check that mCellRadii is updated correctly when new cell is added
+        // using a previously deleted index.
+        mesh.AddNode(new Node<2>(0, true, 6.0, 6.0));
+
+        // Check the most recently deleted node now has the correct cell radius
+        TS_ASSERT_DELTA(mesh.GetCellRadius(3),1.0,1e-4);
     }
 
     void TestArchiving() throw(Exception)
@@ -246,6 +302,7 @@ public:
             nodes_only_mesh.SetCellRadius(0, 1.12);
             nodes_only_mesh.SetCellRadius(1, 2.34);
 
+            TS_ASSERT_EQUALS(nodes_only_mesh.mCellRadii.size(), 543u);
             TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(0), 1.12, 1e-6);
             TS_ASSERT_DELTA(nodes_only_mesh.GetCellRadius(1), 2.34, 1e-6);
 
@@ -256,6 +313,7 @@ public:
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             (*p_arch) << p_mesh;
+
         }
 
         {
@@ -283,6 +341,7 @@ public:
             TS_ASSERT_DELTA(p_nodes_only_mesh->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
 
             // Check some cell radii
+            TS_ASSERT_EQUALS(p_nodes_only_mesh->mCellRadii.size(), 543u);
             TS_ASSERT_DELTA(p_nodes_only_mesh->GetCellRadius(0), 1.12, 1e-6);
             TS_ASSERT_DELTA(p_nodes_only_mesh->GetCellRadius(1), 2.34, 1e-6);
 
