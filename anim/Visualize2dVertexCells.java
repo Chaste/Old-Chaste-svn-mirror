@@ -959,7 +959,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
     int node_radius = 3;
     
     BufferedImage buffered_image = null;
-    Graphics g2 = null;
+    Graphics2D g2 = null;
     
     
     Color background_white = new Color(255,255,255);
@@ -1029,7 +1029,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
             height = getHeight();
             width = getWidth();
             buffered_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            g2 = buffered_image.getGraphics();
+            g2 = (Graphics2D) buffered_image.getGraphics();
         }
         
         g2.setColor(background_white);
@@ -1040,6 +1040,9 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
 
+        // Store the nodes containting element. Only used for potts sims where this is unique.
+        int containing_elements[];
+        containing_elements = new int[vis.numNodes[vis.timeStep]];
         
         if (vis.drawPotts)
         {
@@ -1052,7 +1055,25 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 			    g2.setColor(Color.black);
 			    
 			    g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
+			    
+			    containing_elements[i] = -1; //Default of medium
 			}
+			
+			
+	        // Calculate the containing elements for each node
+			int num_entries_covered = 0;
+			for (int i=0; i < vis.numElements[vis.timeStep]; i++)
+		    {	
+		      	int num_nodes_in_this_element = vis.element_num_nodes[vis.timeStep][i];	        	
+		       	int global_index;
+		       	for (int j=0; j<num_nodes_in_this_element; j++)
+		        {
+		        	global_index = vis.element_nodes[vis.timeStep][num_entries_covered + j];
+		        	containing_elements[global_index] = i;
+		        }
+		       	num_entries_covered = num_entries_covered + num_nodes_in_this_element;
+			}
+			
         }
                 
 	    // Draw elements first
@@ -1125,13 +1146,17 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	        	// Where are they? Convert to integer pixels	           
 		        point = scale(real_point);
 	        	     	
+		        
+		        
 	        	SetNodeColour(global_index);
-	
-	        	// \todo: Larger simulations would be clearer with smaller nodes
+		        	// \todo: Larger simulations would be clearer with smaller nodes
 	        	g2.fillOval(point.x - node_radius, point.y - node_radius, 2 * node_radius, 2 * node_radius);
 	        	
 	        	if (vis.drawPotts)
 	        	{
+	        		int nodes_across = (int) vis.max_x +1;
+		            int nodes_up = (int) vis.max_y +1;
+	        		
 	        		PlotPoint square_vertices[] = new PlotPoint[4];
 	    	       	
 	    	       	square_vertices[0] = scale(real_point.x - 0.5, real_point.y - 0.5);
@@ -1150,8 +1175,11 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	    	        
 	                g2.fillPolygon(xpoints, ypoints, 4);
 	
-	                // Plot cell boundary lines
+	                // Plot cell boundary lines with dashed lines
 	                g2.setColor(Color.black);
+ 
+	                Stroke dashed_stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 1, 0 }, 0);
+	                g2.setStroke(dashed_stroke);
 	                
 	                for (int node=0; node<4; node++)
 	                {
@@ -1160,7 +1188,85 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	                			    xpoints[(node+1)%4],
 	                			    ypoints[(node+1)%4]);
 	                }
-	        		
+	                
+	                // Find Cell edges and plot them with solid lines
+	                Stroke solid_stroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 1 , 0}, 0);
+	                g2.setStroke(solid_stroke);
+	                                
+	                
+	                if (global_index > nodes_across) // not on bottom row 
+	                {
+	                	int bottom_neighbour = global_index - nodes_across;
+	                	if (containing_elements[bottom_neighbour] != i) //i is current element
+	                	{
+	                		g2.drawLine(xpoints[0], 
+		                			    ypoints[0], 
+		                			    xpoints[1],
+		                			    ypoints[1]);
+		                }
+	                	
+	                }
+	                else
+	                {
+	                	g2.drawLine(xpoints[0], 
+                			        ypoints[0], 
+                			        xpoints[1],
+                			    	ypoints[1]);
+	                }
+	        		if (global_index < nodes_across*(nodes_up-1) ) // not on top row 
+	        		{
+	        			int top_neighbour = global_index + nodes_across;
+	                	if (containing_elements[top_neighbour] != i) //i is current element
+	                	{
+	                		g2.drawLine(xpoints[2], 
+		                			    ypoints[2], 
+		                			    xpoints[3],
+		                			    ypoints[3]);
+		                }
+	        		}
+	        		else
+	        		{
+	                	g2.drawLine(xpoints[2], 
+                			        ypoints[2], 
+                			        xpoints[3],
+                			        ypoints[3]);
+	                }
+	        		if (global_index%nodes_across != 0 ) // Not on left hand side
+	        		{
+	        			int left_neighbour = global_index - 1;
+	                	if (containing_elements[left_neighbour] != i) //i is current element
+	                	{
+	                		g2.drawLine(xpoints[0], 
+		                			    ypoints[0], 
+		                			    xpoints[3],
+		                			    ypoints[3]);
+		                }
+	        		}
+	        		else
+	        		{
+	                	g2.drawLine(xpoints[0], 
+                			        ypoints[0], 
+                			        xpoints[3],
+                			        ypoints[3]);
+	                }
+	        		if (global_index%nodes_across != (nodes_across - 1)) // Not on right hand side
+	                {
+	                	int right_neighbour = global_index + 1;
+	                	if (containing_elements[right_neighbour] != i) //i is current element
+		                {
+	                		g2.drawLine(xpoints[1], 
+		                			    ypoints[1], 
+		                			    xpoints[2],
+		                			    ypoints[2]);
+		                }
+	                }
+	        		else
+	        		{
+	                	g2.drawLine(xpoints[1], 
+                			        ypoints[1], 
+                			        xpoints[2],
+                			        ypoints[2]);
+	                }
 	        	}
 	        }
 	        num_entries_covered = num_entries_covered + num_nodes_in_this_element;
@@ -1422,12 +1528,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
     
     void SetCellColour(int index)
     {
-    	if(vis.drawPotts)
-        {
-            Color cell_colour = ancestorColourMap(index);
-            g2.setColor(cell_colour);
-        }
-    	else if (vis.drawAncestors && (vis.ancestor_values[vis.timeStep][index]!=-1))
+        if (vis.drawAncestors && (vis.ancestor_values[vis.timeStep][index]!=-1))
       	{	// If we are drawing ancestors and this cell's value has been set in simulation.
     		Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
     		g2.setColor(ancestor_colour);
