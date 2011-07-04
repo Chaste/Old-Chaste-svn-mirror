@@ -672,6 +672,12 @@ class MemoryTesting(GccDebug):
         except:
             # Probably means valgrind isn't installed, so don't add extra suppressions
             pass
+        # OpenMPI ships its own suppressions file
+        if 'openmpi' in self.tools['mpirun']:
+            openmpi_supp_path = os.path.join(os.path.dirname(self.tools['mpirun']), os.path.pardir,
+                                             'share', 'openmpi', 'openmpi-valgrind.supp')
+            if os.path.exists(openmpi_supp_path):
+                self._valgrind_flags += " --suppressions=" + openmpi_supp_path
 
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         "Run all tests using valgrind to check for memory leaks."
@@ -684,7 +690,7 @@ class MemoryTesting(GccDebug):
         return cmd
     
     def SetNumProcesses(self, np):
-        """Can't run profiling in parallel (yet)."""
+        """Can't run normal memory testing in parallel (yet)."""
         raise ValueError("Use ParallelMemoryTesting to run memory tests in parallel.")
     
     def StatusColour(self, status):
