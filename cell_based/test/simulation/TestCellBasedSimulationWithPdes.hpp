@@ -1778,6 +1778,10 @@ public:
             simulator.SetEndTime(0.01);
 
             // Coverage
+            c_vector<double,2> centre=simulator.GetCellPopulationLocation();
+            c_vector<double,2> size=simulator.GetCellPopulationSize();
+
+            // Coverage
             simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
             // Tell simulator to use the coarse mesh.

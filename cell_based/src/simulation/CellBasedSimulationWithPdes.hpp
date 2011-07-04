@@ -107,6 +107,7 @@ private:
      */
     std::map<CellPtr, unsigned> mCellPdeElementMap;
 
+
     /**
      * Overridden SetupSolve() method.
      */
@@ -181,6 +182,16 @@ private:
      * Writes out special information about the mesh to the visualizer.
      */
     void WriteVisualizerSetupFile();
+
+    /*
+     * Method for getting centre of mass of cell population
+     */
+    c_vector<double,DIM> GetCellPopulationLocation();
+
+    /*
+     * Method for getting max size of cell population in each direction
+     */
+    c_vector<double,DIM> GetCellPopulationSize();
 
 
 public:

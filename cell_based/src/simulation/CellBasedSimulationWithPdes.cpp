@@ -627,6 +627,52 @@ void CellBasedSimulationWithPdes<DIM>::PostSolve()
 
 }
 
+template<unsigned DIM>
+c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationLocation()
+{
+	// Loop over cells and calculate centre of mass
+	c_vector<double,DIM> cell_population_centre;
+	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+		cell_iter != this->mrCellPopulation.End();
+		++cell_iter)
+	{
+		cell_population_centre += this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+	}
+	cell_population_centre /= this->mrCellPopulation.GetNumRealCells();
+
+	return cell_population_centre;
+}
+
+template<unsigned DIM>
+c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationSize()
+{
+	// Find cell population size
+	c_vector<double,DIM> population_centre=this->GetCellPopulationLocation();
+	c_vector<double,DIM> cell_population_max_size;
+	for(unsigned i=0;i<DIM;i++)
+	{
+		cell_population_max_size[i]=0.0;
+	}
+	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+		cell_iter != this->mrCellPopulation.End();
+		++cell_iter)
+	{
+
+		for(unsigned i=0;i<DIM;i++)
+		{
+			double displacement = abs(population_centre[i] - (this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter))[i]);
+
+			if (displacement > cell_population_max_size[i])
+			{
+				cell_population_max_size[i] = displacement;
+			}
+		}
+	}
+
+	return cell_population_max_size;
+
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
