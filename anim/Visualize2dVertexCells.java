@@ -86,6 +86,8 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
     public static double max_y = -1e12;
     public static double min_x =  1e12;
     public static double min_y =  1e12;
+    public static int lattice_sites_up = 0;
+    public static int lattice_sites_across = 0;
     public static double crypt_width = 0.0;
     public static double half_width = 0.0;
     public static double[] times;
@@ -817,6 +819,8 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                }
            }
         }
+        lattice_sites_up = (int)max_y + 1;
+        lattice_sites_across = (int)max_x + 1;
     }
     
     
@@ -1154,8 +1158,8 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	        	
 	        	if (vis.drawPotts)
 	        	{
-	        		int nodes_across = (int) vis.max_x +1;
-		            int nodes_up = (int) vis.max_y +1;
+	        		int nodes_across = vis.lattice_sites_across;
+		            int nodes_up = vis.lattice_sites_up;
 	        		
 	        		PlotPoint square_vertices[] = new PlotPoint[4];
 	    	       	
@@ -1194,7 +1198,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	                g2.setStroke(solid_stroke);
 	                                
 	                
-	                if (global_index > nodes_across) // not on bottom row 
+	                if (global_index >= nodes_across) // not on bottom row 
 	                {
 	                	int bottom_neighbour = global_index - nodes_across;
 	                	if (containing_elements[bottom_neighbour] != i) //i is current element
