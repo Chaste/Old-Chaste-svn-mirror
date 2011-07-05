@@ -1540,8 +1540,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block()
         
         # Methods associated with oxmeta annotated variables
+        # Don't use LT & modifiers for the const methods
         use_modifiers = self.use_modifiers
         self.use_modifiers = False
+        use_lt = self.use_lookup_tables
+        self.use_lookup_tables = False
         for var in self.metadata_vars:
             if var.is_statically_const(ignore_annotations=True):
                 self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
@@ -1555,6 +1558,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 if var in self.cell_parameters and var in self.modifier_vars:
                     # 'Forget' its index, so normal code generation occurs (#1647)
                     var._cml_has_modifier = True
+        self.use_lookup_tables = use_lt
         self.use_modifiers = use_modifiers
         self.output_default_stimulus()
         self.output_intracellular_calcium()

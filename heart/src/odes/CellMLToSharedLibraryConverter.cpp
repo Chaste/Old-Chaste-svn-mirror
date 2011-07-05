@@ -147,6 +147,12 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
     catch (Exception& e)
     {
         PetscTools::ReplicateException(true);
+        if (mPreserveGeneratedSources)
+        {
+            // Copy any temporary files
+            IGNORE_RET(system, "cp -r " + build_folder + " " + rCellmlFolder + "/build/");
+            IGNORE_RET(system, "cp -r " + tmp_folder + " " + rCellmlFolder + "/tmp/");
+        }
         // Delete the temporary folders
         EXPECT0(system, "rm -rf " + build_folder); // -f because folder might not exist
         EXPECT0(system, "rm -r " + tmp_folder);
