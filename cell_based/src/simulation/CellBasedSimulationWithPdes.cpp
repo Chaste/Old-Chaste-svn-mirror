@@ -649,16 +649,16 @@ c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationSize()
 	// Find cell population size
 	c_vector<double,DIM> population_centre=this->GetCellPopulationLocation();
 	c_vector<double,DIM> cell_population_max_size;
-	for(unsigned i=0;i<DIM;i++)
+	for (unsigned i=0; i<DIM; i++)
 	{
-		cell_population_max_size[i]=0.0;
+		cell_population_max_size[i] = 0.0;
 	}
 	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
 		cell_iter != this->mrCellPopulation.End();
 		++cell_iter)
 	{
 
-		for(unsigned i=0;i<DIM;i++)
+		for (unsigned i=0; i<DIM; i++)
 		{
 			double displacement = abs(population_centre[i] - (this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter))[i]);
 

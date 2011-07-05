@@ -1060,13 +1060,12 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 			    
 			    g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
 			    
-			    containing_elements[i] = -1; //Default of medium
+			    containing_elements[i] = -1; // Default of medium
 			}
-			
 			
 	        // Calculate the containing elements for each node
 			int num_entries_covered = 0;
-			for (int i=0; i < vis.numElements[vis.timeStep]; i++)
+			for (int i=0; i<vis.numElements[vis.timeStep]; i++)
 		    {	
 		      	int num_nodes_in_this_element = vis.element_num_nodes[vis.timeStep][i];	        	
 		       	int global_index;
@@ -1149,11 +1148,10 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	        
 	        	// Where are they? Convert to integer pixels	           
 		        point = scale(real_point);
-	        	     	
-		        
-		        
+
 	        	SetNodeColour(global_index);
-		        	// \todo: Larger simulations would be clearer with smaller nodes
+
+		        // \todo: Larger simulations would be clearer with smaller nodes
 	        	g2.fillOval(point.x - node_radius, point.y - node_radius, 2 * node_radius, 2 * node_radius);
 	        	
 	        	if (vis.drawPotts)
@@ -1193,11 +1191,10 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 	                			    ypoints[(node+1)%4]);
 	                }
 	                
-	                // Find Cell edges and plot them with solid lines
+	                // Find cell edges and plot them with solid lines
 	                Stroke solid_stroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 1 , 0}, 0);
 	                g2.setStroke(solid_stroke);
-	                                
-	                
+
 	                if (global_index >= nodes_across) // not on bottom row 
 	                {
 	                	int bottom_neighbour = global_index - nodes_across;
@@ -1208,7 +1205,6 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
 		                			    xpoints[1],
 		                			    ypoints[1]);
 		                }
-	                	
 	                }
 	                else
 	                {

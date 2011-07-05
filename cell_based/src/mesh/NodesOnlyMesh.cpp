@@ -62,7 +62,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<S
 template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::Clear()
 {
-	// Call the parent clear
+	// Call Clear() on the parent class
 	MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
 
 	// Clear the cell radii

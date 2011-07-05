@@ -230,9 +230,9 @@ public:
         // Test add node
         mesh.AddNode(new Node<2>(2, true, 0.0, 1.0));
 
-        unsigned num_nodes=3;
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),num_nodes);
-        TS_ASSERT_DELTA(mesh.GetCellRadius(2),1.0,1e-4);
+        unsigned num_nodes = 3;
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(2), 1.0, 1e-4);
 	}
 
     void TestDeleteNodes() throw (Exception)
@@ -276,12 +276,14 @@ public:
             delete *it;
         }
 
-        // Check that mCellRadii is updated correctly when new cell is added
-        // using a previously deleted index.
+        /*
+         * Check that mCellRadii is updated correctly when a new cell
+         * is added using a previously deleted index.
+         */
         mesh.AddNode(new Node<2>(0, true, 6.0, 6.0));
 
         // Check the most recently deleted node now has the correct cell radius
-        TS_ASSERT_DELTA(mesh.GetCellRadius(3),1.0,1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(3), 1.0, 1e-4);
     }
 
     void TestArchiving() throw(Exception)
@@ -313,12 +315,14 @@ public:
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             (*p_arch) << p_mesh;
-
         }
 
         {
-            // Should archive the most abstract class you can to check boost knows what individual classes are
-            // (but here AbstractMesh doesn't have the methods below).
+            /*
+             * Should archive the most abstract class possible to check that
+             * boost knows what individual classes are (but here AbstractMesh
+             * doesn't have the methods below).
+             */
             AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive

@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "MutableMesh.hpp"
-#include "Debug.hpp"
 
 /**
  * Mesh class for storing lists of nodes (no elements). This inherits from MutableMesh
@@ -99,13 +98,15 @@ public:
      */
     void ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh);
 
-    /*
-     * Overridden Clear method for NodesOnlyMesh
+    /**
+     * Overridden Clear() method for NodesOnlyMesh.
+     * Clears mCellRadii in addition to calling Clear() on the parent class.
      */
     void Clear();
 
-    /*
-     * Overriddenridden clear method
+    /**
+     * Call Clear() on the parent class.
+     * Does not clear mCellRadii.
      */
     void ClearWithoutCellRadii();
 
