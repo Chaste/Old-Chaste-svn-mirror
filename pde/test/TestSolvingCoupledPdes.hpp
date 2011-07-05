@@ -155,14 +155,6 @@ private:
         this->mpLinearSystem->SetKspType("cg");
     }
 
-    /**
-     * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.
-     *
-     * @param currentSolution The current solution which can be used in setting up
-     *   the linear system if needed (NULL if there isn't a current solution)
-     * @param computeMatrix Whether to compute the LHS matrix of the linear system
-     *   (mainly for dynamic solves).
-     */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
     {
         SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
@@ -170,8 +162,8 @@ private:
 
 public:
     MySimpleCoupledSolver(TetrahedralMesh<2,2>* pMesh,
-                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
-                             double lambda)
+                          BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
+                          double lambda)
         : AbstractAssemblerSolverHybrid<2,2,2,NORMAL>(pMesh,pBoundaryConditions),
           AbstractStaticLinearPdeSolver<2,2,2>(pMesh)
     {
@@ -180,19 +172,32 @@ public:
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
-// A solver to solve the coupled 2-unknown problem
-//    u_xx + u_yy + v = f(x,y)
-//    v_xx + v_yy + u = g(x,y)
-//
-//   where f and g are chosen so that (with zero-dirichlet boundary conditions)
-//   the solution is
-//       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
-//
-// ComputeMatrixTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledSolver
-//  (above), so this class inherits from MySimpleCoupledSolver
-//////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledSolver : public MySimpleCoupledSolver
+/*
+ * A solver to solve the coupled 2-unknown problem
+ *    u_xx + u_yy + v = f(x,y)
+ *    v_xx + v_yy + u = g(x,y)
+ *
+ *  where f and g are chosen so that (with zero-dirichlet boundary conditions)
+ *  the solution is
+ *       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
+ *
+ *  The linear system that needs to be set up is, in block form
+ *
+ *   [ K   -M  ] [U]  =  [b1]
+ *   [ -M   K  ] [V]     [b2]
+ *
+ *   where K is the stiffness matrix, M the mass matrix, U the vector of nodal values
+ *   of u, V the vector of nodal values of v, b1_i = integral(f\phi_i dV) and
+ *   b1_i = integral(g\phi_i dV), where the basis functions are phi_i
+ *
+ *   However, these Chaste solvers assume a STRIPED data format, ie that the unknown vector
+ *   is [U_1 V_1 U_2 V_2 .. U_n V_n]  not  [ U_1 U_2 .. U_n V_1 V_2 .. V_n]
+ *   Hence the matrix and vector coded below are the striped analogues of the
+ *   matrix and vector written above
+ */
+class AnotherCoupledSolver
+    : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>,
+      public AbstractStaticLinearPdeSolver<2,2,2>
 {
 private:
     double f(double x,double y)
@@ -205,6 +210,37 @@ private:
         return -8*M_PI*M_PI*sin(2*M_PI*x)*sin(2*M_PI*y) + sin(M_PI*x)*sin(M_PI*y);
     }
 
+    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1>& rPhi,
+                                                               c_matrix<double, 2, 2+1>& rGradPhi,
+                                                               ChastePoint<2>& rX,
+                                                               c_vector<double,2>& rU,
+                                                               c_matrix<double,2,2>& rGradU,
+                                                               Element<2,2>* pElement)
+    {
+        c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
+
+        /*
+         * The following can be done more efficiently using matrix slices
+         * and prods and so on (see BidomainDg0Assembler) - efficiency not
+         * needed for this test though.
+         */
+        for (unsigned i=0; i<3; i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                for (unsigned k=0; k<2; k++)
+                {
+                    ret(2*i,  2*j)   += rGradPhi(k,i)*rGradPhi(k,j);
+                    ret(2*i+1,2*j+1) += rGradPhi(k,i)*rGradPhi(k,j);
+                }
+
+                ret(2*i+1, 2*j)   = -rPhi(i)*rPhi(j);
+                ret(2*i,   2*j+1) = -rPhi(i)*rPhi(j);
+            }
+        }
+        return ret;
+    }
+
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
                                                        c_matrix<double, 2, 2+1>& rGradPhi,
                                                        ChastePoint<2>& rX,
@@ -212,21 +248,28 @@ private:
                                                        c_matrix<double,2,2>& rGradU,
                                                        Element<2,2>* pElement)
     {
-        c_vector<double,2*(2+1)> ret;
+       c_vector<double,2*(2+1)> ret;
 
         for (unsigned i=0; i<3; i++)
         {
-            ret(2*i)   = ( rU(1) - f(rX[0],rX[1]) )*rPhi(i);   // = (v-f(x,y))*phi_i
-            ret(2*i+1) = ( rU(0) - g(rX[0],rX[1]) )*rPhi(i);   // = (u-g(x,y))*phi_i
+            ret(2*i)   = - f(rX[0],rX[1]) * rPhi(i);
+            ret(2*i+1) = - g(rX[0],rX[1]) * rPhi(i);
         }
         return ret;
     }
 
+    void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+    {
+        SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
+    }
+
 public:
     AnotherCoupledSolver(TetrahedralMesh<2,2>* pMesh,
-                            BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
-            MySimpleCoupledSolver(pMesh, pBoundaryConditions, 0.0)
-    {}
+                         BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
+        : AbstractAssemblerSolverHybrid<2,2,2,NORMAL>(pMesh,pBoundaryConditions),
+          AbstractStaticLinearPdeSolver<2,2,2>(pMesh)
+    {
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -414,6 +457,9 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
+        //OutputFileHandler handler("Something");
+        //out_stream p_file = handler.OpenOutputFile("file.txt");
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -422,11 +468,14 @@ public:
             double u = sin(M_PI*x)*sin(M_PI*y);
             double v = sin(2*M_PI*x)*sin(2*M_PI*y);
 
-            // need lower tolerance for v because v is higher frequency
-            // and not captured very well on this mesh
-            TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
-            TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
+            //*p_file << x << " " << y << " " << result_repl[2*i] << " "
+            //        <<  result_repl[2*i+1] << " " << u << " " << v << std::endl;
+
+            TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.002);
+            TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.007);
         }
+
+        //p_file->close();
         VecDestroy(result);
     }
 };
