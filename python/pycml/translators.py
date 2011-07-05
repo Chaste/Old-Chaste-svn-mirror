@@ -1575,11 +1575,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
          * membrane_stimulus_current_period
         and optionally:
          * membrane_stimulus_current_offset
+         * membrane_stimulus_current_end
         
         Ensures that the amplitude of the generated RegularStimulus is negative.
         """
         vars = dict()
-        for n in ['duration', 'amplitude', 'period', 'offset']:
+        for n in ['duration', 'amplitude', 'period', 'offset', 'end']:
             vars[n] = self.model.get_variable_by_oxmeta_name('membrane_stimulus_current_'+n, throw=False)
         if not (vars['duration'] and vars['amplitude'] and vars['period']):
             self.has_default_stimulus = False
@@ -1596,9 +1597,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('        ', self.code_name(vars['duration']), ',')
         self.writeln('        ', self.code_name(vars['period']), ',')
         if vars['offset']:
-            self.writeln('        ', self.code_name(vars['offset']), '));')
-        else :
-            self.writeln('        0.0));')
+            self.writeln('        ', self.code_name(vars['offset']))
+        else:
+            self.writeln('        0.0')
+        if vars['end']:
+            self.writeln('      , ', self.code_name(vars['end']))
+        self.writeln('        ));')
         self.close_block(blank_line=True)
     
     def output_intracellular_calcium(self):
@@ -2730,7 +2734,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     meth = getattr(generator, 'add_%sput' % inout)
                     newvar = meth(var, units, annotate=False)
                     newvar.set_pe_keep(True)
-            for n in ['duration', 'period', 'offset']:
+            for n in ['duration', 'period', 'offset', 'end']:
                 add_oxmeta_ioput('membrane_stimulus_current_'+n, ms, 'in')
             add_oxmeta_ioput('membrane_stimulus_current_amplitude', current_units, 'out')
 

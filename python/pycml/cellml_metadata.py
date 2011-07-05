@@ -45,8 +45,8 @@ import pycml
 # TODO #1209: Use a proper ontology!
 METADATA_NAMES = frozenset(
     ['membrane_voltage', 'time', 'membrane_capacitance', 'membrane_E_R', 'membrane_stimulus_current', 'membrane_stimulus_current_duration',
-     'membrane_stimulus_current_amplitude','membrane_stimulus_current_period','membrane_stimulus_current_offset', 'membrane_fast_sodium_current',
-     'membrane_fast_sodium_current_conductance', 'membrane_fast_sodium_current_m_gate', 'membrane_fast_sodium_current_h_gate', 
+     'membrane_stimulus_current_amplitude','membrane_stimulus_current_period','membrane_stimulus_current_offset','membrane_stimulus_current_end',
+     'membrane_fast_sodium_current', 'membrane_fast_sodium_current_conductance', 'membrane_fast_sodium_current_m_gate', 'membrane_fast_sodium_current_h_gate',
      'membrane_potassium_current', 'membrane_potassium_current_conductance', 'potassium_channel_n_gate', 
      'leakage_current','membrane_fast_sodium_current_j_gate', 'temperature',
      'membrane_rapid_delayed_rectifier_potassium_current_conductance','membrane_slow_delayed_rectifier_potassium_current_conductance',
@@ -81,7 +81,7 @@ METADATA_NAMES = frozenset(
 ])
 
 # Parameters for the stimulus current
-STIMULUS_NAMES = frozenset('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
+STIMULUS_NAMES = frozenset('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset', 'end'])
 
 ################################################################################
 # The public interface to this module
