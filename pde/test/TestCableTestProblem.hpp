@@ -126,8 +126,6 @@ class TestCableTestProblem : public CxxTest::TestSuite
 public:
 	void TestSolvingTestProblem() throw(Exception)
 	{
-	    EXIT_IF_PARALLEL;
-
 		std::string mesh_base("mesh/test/data/mixed_dimension_meshes/cylinder");
 		TrianglesMeshReader<3,3> reader(mesh_base);
 		MixedDimensionMesh<3,3> mesh;
@@ -148,9 +146,11 @@ public:
 //             iter != mesh.GetBoundaryNodeIteratorEnd();
 //	         iter++)
 
-		for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+		for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
+	         current_node != mesh.GetNodeIteratorEnd();
+	         ++current_node)
 		{
-		    Node<3>* p_node = mesh.GetNode(i);
+		    Node<3>* p_node = &(*current_node); //Get pointer to the current node from the iterator
             double x = p_node->rGetLocation()[0];
 		    double y = p_node->rGetLocation()[1];
             double r = sqrt(x*x+y*y);
@@ -165,38 +165,35 @@ public:
 		// Solver
 		CableTestProblemSolver<3> cable_solver(&mesh,&bcc);
 		Vec result = cable_solver.Solve();
-		ReplicatableVector result_repl(result);
-
-		OutputFileHandler handler("CableTestProblem");
-		out_stream p_file = handler.OpenOutputFile("solution.txt");
-
+		double* p_result;
+		VecGetArray(result, &p_result);
 		// Solution should be u = log(r)/(2*pi)
-		for (unsigned i=0; i<result_repl.GetSize(); i++)
+		for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
+			 current_node != mesh.GetNodeIteratorEnd();
+			 ++current_node)
 		{
-			double x = mesh.GetNode(i)->GetPoint()[0];
-			double y = mesh.GetNode(i)->GetPoint()[1];
+			double x = current_node->GetPoint()[0];
+			double y = current_node->GetPoint()[1];
 			double r = sqrt(x*x+y*y);
 
 			double u = log(r)/(2*M_PI);
 
+			unsigned local_index = current_node->GetIndex() - mesh.GetDistributedVectorFactory()->GetLow();
 			if(r>0.1)
 			{
 			    // use a tolerance that is weighted by 1-r as accuracy will decrease as
 			    // get closer to r=0 for which u=-infty. Visually the solution compared
 			    // to the true solution looks pretty good.
-			    TS_ASSERT_DELTA(result_repl[i], u, 0.07*(1-r)+1e-6);
+			    TS_ASSERT_DELTA(p_result[local_index], u, 0.07*(1-r)+1e-6);
 			}
 			else
 			{
 			    // for these nodes r=0 and the true solution is -infinity
-			    TS_ASSERT_LESS_THAN(result_repl[i], -0.4);
+			    TS_ASSERT_LESS_THAN(p_result[local_index], -0.4);
 			}
-
-            *p_file << x << " " << y << " " << mesh.GetNode(i)->GetPoint()[2] << " " << result_repl[i] << "\n";
-
 		}
-		p_file->close();
 
+		VecRestoreArray(result, &p_result);
 		VecDestroy(result);
 	}
 };
