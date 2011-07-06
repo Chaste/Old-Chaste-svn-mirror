@@ -129,8 +129,13 @@ private:
         archive & mMeshFilename;
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacTissue
-//// TODO #1794
-        archive & mUseMatrixBasedRhsAssembly;
+
+        if (version < 2)
+        {
+        	bool use_matrix_based_assembly = true;
+        	archive & use_matrix_based_assembly;
+        }
+
         archive & mWriteInfo;
         archive & mPrintOutput;
         archive & mNodesToOutput;
@@ -221,8 +226,13 @@ private:
         archive & mpMesh;
         assert(mpMesh != NULL); //If NULL then loading mesh has failed without an exception so Boost has given up on the mesh.  This would happen if a 2-dimensional mesh was successfully unarchived but mpMesh was expecting a 3-d mesh etc.
         //archive & mAllocatedMemoryForMesh; // Will always be true after a load
-// TODO #1794
-        archive & mUseMatrixBasedRhsAssembly;
+
+        if (version < 2)
+        {
+        	bool use_matrix_based_assembly;
+        	archive & use_matrix_based_assembly;
+        }
+
         archive & mWriteInfo;
         archive & mPrintOutput;
         archive & mNodesToOutput;
@@ -347,11 +357,6 @@ protected:
      *  class, this is for the former */
     std::string mMeshFilename;
 
-    /**
-     *  THIS BOOL IS BEING DEPRECATED AND ONLY PRESENT HERE SO
-     *  ARCHIVING TESTS STILL PASS
-     */
-    bool mUseMatrixBasedRhsAssembly;
     /** Whether this problem class has created the mesh itself, as opposed to being given it */
     bool mAllocatedMemoryForMesh;
     /** Whether to print some statistics (max/min voltage) to screen during the simulation */
@@ -773,7 +778,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM,  unsigned PROBLEM_DIM>
 struct version<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
 {
     ///Macro to set the version number of templated archive in known versions of Boost
-    CHASTE_VERSION_CONTENT(1);
+    CHASTE_VERSION_CONTENT(2);
 };
 } // namespace serialization
 } // namespace boost
