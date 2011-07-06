@@ -167,7 +167,8 @@ private:
      *
      * \todo currently only works in 2D (see #737)
      *
-     * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the initial width of the cell population
+     * @param stepSize horizontal and vertical distance between mesh points
+     * @param meshWidth width and height of the mesh
      */
     void CreateCoarsePdeMesh(double stepSize, double meshWidth);
 
@@ -250,8 +251,8 @@ public:
     /**
      * Solve the PDE problem on a coarse mesh.
      *
-     * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the
-     *                               initial width of the cell population (defaults to 10.0)
+     * @param stepSize horizontal and vertical distance between mesh points
+     * @param meshWidth width and height of the mesh
      */
     void UseCoarsePdeMesh(double stepSize, double meshWidth);
 
