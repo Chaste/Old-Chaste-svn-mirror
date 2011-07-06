@@ -75,6 +75,10 @@ public:
         CellBasedEventHandler::MilliSleep(80);
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
 
+        CellBasedEventHandler::BeginEvent(CellBasedEventHandler::PDE);
+        CellBasedEventHandler::MilliSleep(90);
+        CellBasedEventHandler::EndEvent(CellBasedEventHandler::PDE);
+
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::EVERYTHING);
 
         CellBasedEventHandler::Headings();

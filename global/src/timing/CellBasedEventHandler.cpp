@@ -30,4 +30,4 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const char* CellBasedEventHandler::EventName[] = { "Setup", "Death", "Birth",
                                                 "Update", "Tess", "Force",
-                                                "Pos", "Output", "Total" };
+                                                "Pos", "Output", "Pde", "Total" };

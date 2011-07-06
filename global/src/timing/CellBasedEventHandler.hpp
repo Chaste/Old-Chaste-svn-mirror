@@ -34,12 +34,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A cell_based event class that can be used to calculate the time taken to
  * execute various parts of a cell-based simulation.
  */
-class CellBasedEventHandler : public GenericEventHandler<9, CellBasedEventHandler>
+class CellBasedEventHandler : public GenericEventHandler<10, CellBasedEventHandler>
 {
 public:
 
     /** Character array holding cell_based event names. There are nine cell_based events. */
-    static const char* EventName[9];
+    static const char* EventName[10];
 
     /** Definition of cell_based event types. */
     typedef enum
@@ -52,6 +52,7 @@ public:
         FORCE,
         POSITION,
         OUTPUT,
+        PDE,
         EVERYTHING
     } CellBasedEventType;
 };
