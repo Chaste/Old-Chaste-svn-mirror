@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 template<unsigned DIM>
 CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
@@ -137,7 +138,7 @@ void CellBasedSimulationWithPdes<DIM>::SetupWritePdeSolution()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleFactor)
+void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double meshWidth)
 {
     assert(!mPdeAndBcCollection.empty());
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
@@ -145,11 +146,11 @@ void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleF
         assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde());
     }
 
-    CreateCoarsePdeMesh(coarseGrainScaleFactor);
+    CreateCoarsePdeMesh(stepSize, meshWidth);
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double coarseGrainScaleFactor)
+void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
 {
     EXCEPTION("This method is only implemented in 2D");
 }
@@ -161,101 +162,26 @@ void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double coarseGrainSca
  * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the initial width of the cell population
  */
 template<>
-void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double coarseGrainScaleFactor)
+void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
 {
-    // Find centre of cell population
-    c_vector<double,2> centre_of_cell_population = zero_vector<double>(2);
-    for (AbstractCellPopulation<2>::Iterator cell_iter = this->mrCellPopulation.Begin();
-        cell_iter != this->mrCellPopulation.End();
-        ++cell_iter)
-    {
-        centre_of_cell_population += this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-    }
-    centre_of_cell_population /= this->mrCellPopulation.GetNumRealCells();
-
-    // Find max radius of cell population in each axis direction
-    c_vector<double,2> max_axial_cell_population_radius;
-    double max_cell_population_radius=0.0;
-    for(unsigned i=0;i<2;i++)
-    {
-    	max_axial_cell_population_radius[i]=0.0;
-    }
-
-    for (AbstractCellPopulation<2>::Iterator cell_iter = this->mrCellPopulation.Begin();
-        cell_iter != this->mrCellPopulation.End();
-        ++cell_iter)
-    {
-        double radius = norm_2(centre_of_cell_population - this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter));
-        if (radius > max_cell_population_radius)
-        {
-            max_cell_population_radius = radius;
-        }
-
-    	c_vector<double,2> relative_location=centre_of_cell_population-this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-    	for(unsigned i=0;i<2;i++)
-    	{
-        	if (abs(relative_location[i]) > max_axial_cell_population_radius[i])
-			{
-				max_axial_cell_population_radius[i] = abs(relative_location[i]);
-			}
-    	}
-    }
-
-    // Create rectangular slab mesh to contain the cell population
-    double step_size, mesh_width;
-
-    // Find the direction in which the cell population is smallest
-    unsigned min_direction=0;
-    for(unsigned i=0;i<2;i++)
-    {
-    	if(max_axial_cell_population_radius[i]<max_axial_cell_population_radius[min_direction])
-    	{
-    		min_direction=i;
-    	}
-    }
-
-    double min_population_radius=max_axial_cell_population_radius[min_direction];
-
-
-    // We would like to use a mesh element size >> cell radius (assumed approximatley 1)
-    // but if the cell population is too small (in any direction) we should use a finer mesh.
-    if(min_population_radius>10.0)
-    {
-		mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
-		step_size=mesh_width/((unsigned)(mesh_width/10.0));
-    }
-    // Let the step size be controlled by the size of the population in the direction in
-    // which it is smallest...
-    else
-    {
-		mesh_width=2.0*max_cell_population_radius*coarseGrainScaleFactor;
-		step_size=mesh_width/((unsigned)(mesh_width/min_population_radius));
-    }
-
     mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
-    mpCoarsePdeMesh->ConstructRegularSlabMesh(	step_size,
-												mesh_width,
-												mesh_width	);
 
+    mpCoarsePdeMesh->ConstructRegularSlabMesh(	stepSize,
+												meshWidth,
+												meshWidth	);
+
+	// Write the coarse mesh to file.
+    TrianglesMeshWriter<2,2> mesh_writer(this->mSimulationOutputDirectory+"/", "PdeCoarseMesh");
+	mesh_writer.WriteFilesUsingMesh(*mpCoarsePdeMesh);
 
     // Find centre of coarse PDE mesh
     c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
+    c_vector<double,2> centre_of_cell_population=this->GetCellPopulationLocation();
     for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
     {
         centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
     }
     centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
-
-    // Find max radius of coarse PDE mesh
-    double max_mesh_radius = 0.0;
-    for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
-    {
-        double radius = norm_2(centre_of_coarse_mesh - mpCoarsePdeMesh->GetNode(i)->rGetLocation());
-        if (radius > max_mesh_radius)
-        {
-            max_mesh_radius = radius;
-        }
-    }
 
     // Translate centre of coarse PDE mesh to the origin
     mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
@@ -600,7 +526,9 @@ unsigned CellBasedSimulationWithPdes<DIM>::FindCoarseElementContainingCell(CellP
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::PostSolve()
 {
+	CellBasedEventHandler::BeginEvent(CellBasedEventHandler::PDE);
     SolvePde();
+    CellBasedEventHandler::EndEvent(CellBasedEventHandler::PDE);
 
     // Save results to file
     SimulationTime* p_time = SimulationTime::Instance();

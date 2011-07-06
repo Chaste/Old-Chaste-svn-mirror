@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
-
+#include "CellBasedEventHandler.hpp"
 #include "OutputFileHandler.hpp"
 #include "Cell.hpp"
 
@@ -169,7 +169,7 @@ private:
      *
      * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the initial width of the cell population
      */
-    void CreateCoarsePdeMesh(double coarseGrainScaleFactor);
+    void CreateCoarsePdeMesh(double stepSize, double meshWidth);
 
     /**
      * Initialise the std::map mCellPdeElementMap.
@@ -253,7 +253,7 @@ public:
      * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the
      *                               initial width of the cell population (defaults to 10.0)
      */
-    void UseCoarsePdeMesh(double coarseGrainScaleFactor=10.0);
+    void UseCoarsePdeMesh(double stepSize, double meshWidth);
 
     /**
      * Outputs simulation parameters to file
