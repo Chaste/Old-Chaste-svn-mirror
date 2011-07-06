@@ -1309,7 +1309,7 @@ def GetBuildType(buildType):
     classname = parts[0]
     extras = parts[1:]
     
-    if classname == '' or classname == 'default':
+    if classname in ['', 'default', 'release', 'acceptance', 'longacceptance']:
         # Default build type
         classname = 'GccDebug'
     elif classname == 'failing':
