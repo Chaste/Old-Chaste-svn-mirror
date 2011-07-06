@@ -29,8 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
+#include "PetscTools.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
                                const std::string& rBaseName,
@@ -38,7 +40,8 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     : mBaseName(rBaseName),
       mIsUnlimitedDimensionSet(false),
       mNumberTimesteps(1),
-      mIsDataComplete(true)
+      mIsDataComplete(true),
+      mClosed(false)
 {
     RelativeTo::Value relative_to;
     if (makeAbsolute)
@@ -58,7 +61,8 @@ Hdf5DataReader::Hdf5DataReader(const FileFinder& rDirectory,
     : mBaseName(rBaseName),
       mIsUnlimitedDimensionSet(false),
       mNumberTimesteps(1),
-      mIsDataComplete(true)
+      mIsDataComplete(true),
+      mClosed(false)
 {
     CommonConstructor(rDirectory, rBaseName);
 }
@@ -255,6 +259,74 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(const std::string& rVari
     return ret;
 }
 
+std::vector<std::vector<double> > Hdf5DataReader::GetVariableOverTimeOverMultipleNodes(const std::string& rVariableName,
+                                                                                       unsigned lowerIndex,
+                                                                                       unsigned upperIndex)
+{
+    if (!mIsUnlimitedDimensionSet)
+    {
+        EXCEPTION("The file does not contain time dependent data");
+    }
+
+    if (!mIsDataComplete)
+    {
+    	EXCEPTION("GetVariableOverTimeOverMultipleNodes() cannot be called using incomplete data sets (those for which data was only written for certain nodes)");
+    }
+
+    if (upperIndex > mVariablesDatasetSizes[1])
+    {
+        std::stringstream ss;
+        ss << "The file doesn't contain info for node " << upperIndex-1;
+        EXCEPTION(ss.str());
+    }
+
+    std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
+    if (col_iter == mVariableToColumnIndex.end())
+    {
+        EXCEPTION("The file doesn't contain data for variable " + rVariableName);
+    }
+    int column_index = (*col_iter).second;
+
+    // Define hyperslab in the dataset.
+    hsize_t offset[3] = {0, lowerIndex, column_index};
+    hsize_t count[3]  = {mVariablesDatasetSizes[0], upperIndex-lowerIndex, 1};
+    hid_t variables_dataspace = H5Dget_space(mVariablesDatasetId);
+    H5Sselect_hyperslab(variables_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
+
+    // Define a simple memory dataspace
+    hsize_t data_dimensions[2];
+    data_dimensions[0] = mVariablesDatasetSizes[0];
+    data_dimensions[1] = upperIndex-lowerIndex;
+    hid_t memspace = H5Screate_simple(2, data_dimensions, NULL);
+
+    double* data_read = new double[mVariablesDatasetSizes[0]*(upperIndex-lowerIndex)];
+
+    // Read data from hyperslab in the file into the hyperslab in memory
+    H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, variables_dataspace, H5P_DEFAULT, data_read);
+
+    H5Sclose(variables_dataspace);
+    H5Sclose(memspace);
+
+    // Data buffer to return
+    unsigned num_nodes_read = upperIndex-lowerIndex;
+    unsigned num_timesteps = mVariablesDatasetSizes[0];
+
+    std::vector<std::vector<double> > ret(num_nodes_read);
+
+    for (unsigned node_num=0; node_num<num_nodes_read; node_num++)
+    {
+        ret[node_num].resize(num_timesteps);
+        for (unsigned time_num=0; time_num<num_timesteps; time_num++)
+        {
+            ret[node_num][time_num] = data_read[num_nodes_read*time_num + node_num];
+        }
+    }
+
+    delete[] data_read;
+
+    return ret;
+}
+
 void Hdf5DataReader::GetVariableOverNodes(Vec data,
                                           const std::string& rVariableName,
                                           unsigned timestep)
@@ -345,15 +417,16 @@ std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
 
 void Hdf5DataReader::Close()
 {
-    /// \todo: move code to the destructor???
-    H5Dclose(mVariablesDatasetId);
-
-    if (mIsUnlimitedDimensionSet)
+    if (!mClosed)
     {
-        H5Dclose(mTimeDatasetId);
+        H5Dclose(mVariablesDatasetId);
+        if (mIsUnlimitedDimensionSet)
+        {
+            H5Dclose(mTimeDatasetId);
+        }
+        H5Fclose(mFileId);
+        mClosed = true;
     }
-
-    H5Fclose(mFileId);
 }
 
 Hdf5DataReader::~Hdf5DataReader()

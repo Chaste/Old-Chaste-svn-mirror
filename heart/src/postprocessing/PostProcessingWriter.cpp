@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistanceMapCalculator.hpp"
 #include "PseudoEcgCalculator.hpp"
 #include "Version.hpp"
+#include "HeartEventHandler.hpp"
 
 #include <iostream>
 
@@ -142,25 +143,7 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-    std::vector<std::vector<double> > output_data;
-    //Fill in data
-    for (unsigned node_index = mLo; node_index < mHi; node_index++)
-    {
-        std::vector<double> apds;
-        try
-        {
-            apds = mpCalculator->CalculateAllActionPotentialDurations(repolarisationPercentage, node_index, threshold);
-            assert(apds.size() != 0);
-        }
-        catch(Exception& e)
-        {
-            assert(e.GetShortMessage()=="No full action potential was recorded" ||
-                   e.GetShortMessage()=="AP did not occur, never exceeded threshold voltage.");
-            apds.push_back(0);
-            assert(apds.size() == 1);
-        }
-        output_data.push_back(apds);
-    }
+    std::vector<std::vector<double> > output_data = mpCalculator->CalculateAllActionPotentialDurationsForNodeRange(repolarisationPercentage, mLo, mHi-1, threshold);
     std::stringstream filename_stream;
     filename_stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
     WriteGenericFile(output_data, filename_stream.str());

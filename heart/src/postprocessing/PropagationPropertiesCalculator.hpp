@@ -31,14 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _PROPAGATIONPROPERTIESCALCULATOR_HPP_
 
 #include "Hdf5DataReader.hpp"
-
 #include <string>
+
+
 /**
  * Calculate physiological properties at given global mesh indices
  *  - maximum upstroke velocity at a single cell
  *  - times of upstroke at a single cell
  *  - (all) conduction velocities between two cells
- *  - (all) action potential duration at a single cell
+ *  - (all) action potential duration at a single cell (node)
+ *  - (all) action potential durations for a range of nodes
  *  - maximum transmembrane potential (maximum systolic potential) at a single cell.
  */
 class PropagationPropertiesCalculator
@@ -76,6 +78,8 @@ public:
      */
     PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
                                     const std::string voltageName = "V");
+
+    /** Destructor */
     virtual ~PropagationPropertiesCalculator();
 
     /**
@@ -113,8 +117,7 @@ public:
      *
      * @param globalNearNodeIndex  The cell to measure from.
      * @param globalFarNodeIndex  The cell to measure to.
-     * @param euclideanDistance  The distance the AP travels between the cells,
-     *     along the tissue.
+     * @param euclideanDistance  The distance the AP travels between the cells, along the tissue.
      */
     double CalculateConductionVelocity(unsigned globalNearNodeIndex,
                                        unsigned globalFarNodeIndex,
@@ -129,8 +132,7 @@ public:
      *
      * @param globalNearNodeIndex  The cell to measure from.
      * @param globalFarNodeIndex  The cell to measure to.
-     * @param euclideanDistance  The distance the AP travels between the cells,
-     *     along the tissue.
+     * @param euclideanDistance  The distance the AP travels between the cells, along the tissue.
      */
      std::vector<double> CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
                                                           unsigned globalFarNodeIndex,
@@ -163,6 +165,20 @@ public:
     std::vector<double> CalculateAllActionPotentialDurations(const double percentage,
                                                              unsigned globalNodeIndex,
                                                              double threshold);
+
+     /**
+     * Calculate all the action potentials duration at a cells [lowerNodeIndex, upperNodeIndex-1].
+     *
+     * @param percentage  The percentage of the amplitude to calculate for.
+     * @param lowerNodeIndex  First cell at which to calculate.
+     * @param upperNodeIndex  One past the last cell at which to calculate.
+     * @param threshold  The voltage threshold for APD calculation (we count this as the start of an AP)
+     */
+    std::vector<std::vector<double> > CalculateAllActionPotentialDurationsForNodeRange(const double percentage,
+                                                                                       unsigned lowerNodeIndex,
+                                                                                       unsigned upperNodeIndex,
+                                                                                       double threshold);
+
      /**
       * Calculates all the depolarisations that occur above threshold at a single cell.
       *

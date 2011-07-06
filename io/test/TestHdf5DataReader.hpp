@@ -343,6 +343,18 @@ public:
                 TS_ASSERT_DELTA( i_na_values[i], i*1000 + 200 + node_index, 1e-9);
             }
         }
+        
+        std::vector<double> i_k_values = reader.GetVariableOverTime("I_K", 15);
+        std::vector<double> i_k_values_over_multiple = reader.GetVariableOverTimeOverMultipleNodes("I_K", 10, 19)[5];
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTimeOverMultipleNodes("I_K", 0, NUMBER_NODES+5),
+							  "The file doesn't contain info for node 104");
+
+        TS_ASSERT_EQUALS(i_k_values.size(), i_k_values_over_multiple.size());
+
+        for (unsigned index=0; index< i_k_values.size(); index++)
+        {
+            TS_ASSERT_EQUALS(i_k_values[index], i_k_values_over_multiple[index]);
+        }
 
         unsigned NUMBER_NODES=100;
         DistributedVectorFactory factory(NUMBER_NODES);
@@ -391,7 +403,7 @@ public:
         reader.Close();
     }
 
-    void TestNonMultiStepExceptions ()
+    void TestNonMultiStepExceptions()
     {
         DistributedVectorFactory factory(NUMBER_NODES);
 
@@ -427,7 +439,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(Hdf5DataReader(absent_dir, "base"), "Directory does not exist: ");
     }
 
-    void TestMultiStepExceptions () throw (Exception)
+    void TestMultiStepExceptions() throw (Exception)
     {
         DistributedVectorFactory factory(NUMBER_NODES);
 
@@ -515,6 +527,9 @@ public:
 
         // Data not included
         TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("Node", 22),"The incomplete file does not contain info of node 22");
+
+        // another exception
+        TS_ASSERT_THROWS_CONTAINS(reader.GetVariableOverTimeOverMultipleNodes("I_Na", 0, 1), "GetVariableOverTimeOverMultipleNodes() cannot be called using incomplete data sets");
     }
 };
 

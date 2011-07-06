@@ -157,7 +157,7 @@ public:
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[0], -52.1698, atol);
         TS_ASSERT_DELTA(voltage_replicated[1], -83.8381, atol);
@@ -197,7 +197,7 @@ public:
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
@@ -211,7 +211,7 @@ public:
             mVoltageReplicated1d2ms.push_back(voltage_replicated[index]);
         }
         //How close is our "standard" answer?
-        atol=5e-3;
+        atol = 5e-3;
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[1], 20.7710232, atol);
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[3], 21.5319692, atol);
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[5], 22.9280817, atol);
@@ -219,7 +219,7 @@ public:
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[9], -0.770330519, atol);
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[10], -19.2234919, atol);
 
-        // cover get pde
+        // coverage
         monodomain_problem.GetTissue();
 
         // check a progress report exists
@@ -256,7 +256,7 @@ public:
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
         /// \todo: If we request "relative" tolerance we shouldn't testing in an "absolute" manner
-        double atol=2e-5;
+        double atol = 2e-5;
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
@@ -299,7 +299,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
@@ -744,7 +744,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 13.9682, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 13.9149, atol);
@@ -769,7 +769,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 17.5728, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 17.4562, atol);
@@ -798,7 +798,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 31.9227, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 32.1385, atol);
@@ -1071,7 +1071,7 @@ public:
 
             // check some voltages
             ReplicatableVector voltage_replicated(p_monodomain_problem->GetSolution());
-            double atol=5e-3;
+            double atol = 5e-3;
             TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
             TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
             TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
@@ -1132,7 +1132,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol = 5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);

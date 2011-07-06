@@ -72,6 +72,8 @@ private:
     bool mIsDataComplete;                                   /**< Whether the data file is complete. */
     std::vector<unsigned> mIncompleteNodeIndices;           /**< Vector of node indices for which the data file does not contain data. */
 
+    bool mClosed;                                           /**< Whether we've already closed the file. */
+
     /**
      * Contains functionality common to both constructors.
      *
@@ -112,6 +114,17 @@ public:
      */
     std::vector<double> GetVariableOverTime(const std::string& rVariableName,
                                             unsigned nodeIndex);
+
+    /**
+     * Get the values of a given variable at each time step over multiple nodes.
+     *
+     * @param rVariableName  name of a variable in the data file
+     * @param lowerIndex the index of the lower node for which the data is obtained
+     * @param upperIndex one past the index of the upper node for which the data is obtained
+     */
+    std::vector<std::vector<double> > GetVariableOverTimeOverMultipleNodes(const std::string& rVariableName,
+                                                                           unsigned lowerIndex,
+                                                                           unsigned upperIndex);
 
     /**
      * Get the values of a given variable at each node at a given time step.

@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProperties.hpp"
 #include "Exception.hpp"
 #include <sstream>
+#include "HeartEventHandler.hpp"
 
 PropagationPropertiesCalculator::PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
                                                                  const std::string voltageName)
@@ -86,6 +87,65 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllActionPotential
     CellProperties cell_props(r_voltages, mTimes, threshold);
     return cell_props.GetAllActionPotentialDurations(percentage);
 }
+
+std::vector<std::vector<double> > PropagationPropertiesCalculator::CalculateAllActionPotentialDurationsForNodeRange(
+		const double percentage,
+		unsigned lowerNodeIndex,
+		unsigned upperNodeIndex,
+		double threshold)
+{
+    std::vector<std::vector<double> > output_data;
+    output_data.reserve(upperNodeIndex-lowerNodeIndex+1);
+    unsigned num_nodes_per_data_block = 100; // number of nodes
+    unsigned num_complete_blocks = (upperNodeIndex-lowerNodeIndex) / num_nodes_per_data_block;
+    unsigned size_last_block = (upperNodeIndex-lowerNodeIndex) % num_nodes_per_data_block; 
+
+    for (unsigned block_num=0; 
+         block_num<num_complete_blocks+1; 
+         block_num++)
+    {
+        unsigned num_nodes_to_read;
+        if (block_num != num_complete_blocks)
+        {
+            num_nodes_to_read = num_nodes_per_data_block;
+        }
+        else
+        {
+            num_nodes_to_read = size_last_block;
+        }
+
+        if (num_nodes_to_read > 0)
+        {
+            // Read a big block of data
+            unsigned low_node = lowerNodeIndex + block_num*num_nodes_per_data_block;
+            unsigned high_node = low_node + num_nodes_to_read;
+            std::vector<std::vector<double> > voltages = mpDataReader->GetVariableOverTimeOverMultipleNodes(mVoltageName, low_node, high_node);
+
+            for (unsigned node_within_block=0;
+                 node_within_block < num_nodes_to_read;
+                 node_within_block++)
+            {
+                std::vector<double>& r_voltages = voltages[node_within_block];
+                CellProperties cell_props(r_voltages, mTimes, threshold);
+                std::vector<double> apds;
+                try
+                {
+                    apds = cell_props.GetAllActionPotentialDurations(percentage);
+                    assert(apds.size() != 0);
+                }
+                catch (Exception& e)
+                {
+                    assert(e.GetShortMessage()=="No full action potential was recorded" ||
+                           e.GetShortMessage()=="AP did not occur, never exceeded threshold voltage.");
+                    apds.push_back(0);
+                    assert(apds.size() == 1);
+                }
+                output_data.push_back(apds);
+            }
+        }
+    }
+    return output_data;
+}                                                                     
 
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {

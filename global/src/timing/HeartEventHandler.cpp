@@ -30,4 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const char* HeartEventHandler::EventName[] =  { "InMesh", "Init", "AssSys", "Ode",
                                            "Comms", "AssRhs", "NeuBCs", "DirBCs",
-                                           "Ksp", "Output", "PostProc", "User1", "Total" };
+                                           "Ksp", "Output", "DataConversion",
+                                           "PostProc", "User1", "User2",
+                                           "User3","Total" };

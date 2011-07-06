@@ -31,16 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTPROPAGATIONPROPERTIESCALCULATOR_HPP_
 
 #include <cxxtest/TestSuite.h>
-
 #include <iostream>
-
+#include <cassert>
 #include "PropagationPropertiesCalculator.hpp"
 
 
 class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
 {
 public:
-
     void TestConductionVelocity1D(void) throw (Exception)
     {
         Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
@@ -207,19 +205,56 @@ public:
 
         TS_ASSERT_DELTA(ppc_bw.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
         TS_ASSERT_DELTA(ppc_bw.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
-     }
+    }
 
-     void TestEadCalculation() throw(Exception)
-     {
-        Hdf5DataReader ead_file("heart/test/data", "Ead", false);
-        PropagationPropertiesCalculator ead_calc(&ead_file);
+    void TestAPDCalculatorOverMultipleNodes()
+    {
+        Hdf5DataReader mono_fs_reader("heart/test/data/Monodomain1dFullActionPotential", "Monodomain1dFullActionPotential", false);
 
-        TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[0],1u);
-        TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[1],0u);
-        TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[2],3u);
-        TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[3],0u);
+        PropagationPropertiesCalculator ppc_fs(&mono_fs_reader);
 
-        TS_ASSERT_EQUALS(ead_calc.CalculateAboveThresholdDepolarisationsForLastAp(97u,-40.0), 0u);
+        // hardcoded
+        TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 5u), 331.1516, 1e-3);
+
+        // Testing the method that returns all APs (for a given node)
+        TS_ASSERT_EQUALS(ppc_fs.CalculateActionPotentialDuration(90, 5),
+                         ppc_fs.CalculateAllActionPotentialDurations(90, 5u, -30.0)[0]);
+
+        // Testing the method that returns all APs over a range over nodes
+        std::vector<std::vector<double> > all_aps_for_node_range
+            = ppc_fs.CalculateAllActionPotentialDurationsForNodeRange(90, 1u, 7u, -30.0);
+
+        TS_ASSERT_EQUALS(all_aps_for_node_range.size(), 6u);
+        for(unsigned i=0; i<all_aps_for_node_range.size(); i++)
+        {
+        	TS_ASSERT_EQUALS(all_aps_for_node_range[i].size(), 1u);
+        	//std::cout << "Node " << i+1 << ", APD = " << all_aps_for_node_range[i][0] << "\n";
+        }
+
+        // verify that the APDs for two of the nodes are definitely different
+        assert(all_aps_for_node_range[4][0] != all_aps_for_node_range[5][0]);
+
+        // Check that the CalculateAllActionPotentialDurationsForNodeRange() results
+        // agrees with the single-node version, for both these nodes
+        TS_ASSERT_EQUALS(ppc_fs.CalculateAllActionPotentialDurations(90, 5u, -30.0)[0],
+						 all_aps_for_node_range[4][0]);
+
+        TS_ASSERT_EQUALS(ppc_fs.CalculateAllActionPotentialDurations(90, 6u, -30.0)[0],
+						 all_aps_for_node_range[5][0]);
+
+    }
+
+    void TestEadCalculation() throw(Exception)
+    {
+       Hdf5DataReader ead_file("heart/test/data", "Ead", false);
+       PropagationPropertiesCalculator ead_calc(&ead_file);
+
+       TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[0],1u);
+       TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[1],0u);
+       TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[2],3u);
+       TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[3],0u);
+
+       TS_ASSERT_EQUALS(ead_calc.CalculateAboveThresholdDepolarisationsForLastAp(97u,-40.0), 0u);
      }
 };
 
