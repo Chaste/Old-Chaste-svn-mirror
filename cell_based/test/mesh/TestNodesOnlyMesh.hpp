@@ -98,6 +98,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), 0u);
         TS_ASSERT_EQUALS(mesh.mCellRadii.size(),0u);
 
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+		for (unsigned i=0; i<nodes.size(); i++)
+		{
+			delete nodes[i];
+		}
     }
 
     void TestConstructNodesWithoutMeshUsingMesh()
@@ -221,14 +226,16 @@ public:
     void TestAddNode() throw (Exception)
 	{
         std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
-        nodes.push_back(new Node<2>(1, true, 0.0, 0.5));
+        Node<2> node0(0, true, 0.0, 0.0);
+        nodes.push_back(&node0);
+        Node<2> node1(1, true, 0.0, 0.5);
+        nodes.push_back(&node1);
 
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
 
         // Test add node
-        mesh.AddNode(new Node<2>(2, true, 0.0, 1.0));
+        mesh.AddNode(new Node<2>(2, true, 0.0, 1.0));//This node pointer is added to the mesh and deleted by the destructor
 
         unsigned num_nodes = 3;
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
@@ -271,16 +278,16 @@ public:
         TS_ASSERT_THROWS_THIS(mesh.DeleteNode(3),"Trying to delete a deleted node");
 
         // Free memory - the constructor does a deep copy of its input
-        for (std::vector<Node<2>*>::iterator it = nodes.begin(); it != nodes.end(); ++it)
-        {
-            delete *it;
-        }
+        for (unsigned i=0; i<nodes.size(); i++)
+		{
+			delete nodes[i];
+		}
 
         /*
          * Check that mCellRadii is updated correctly when a new cell
          * is added using a previously deleted index.
          */
-        mesh.AddNode(new Node<2>(0, true, 6.0, 6.0));
+        mesh.AddNode(new Node<2>(0, true, 6.0, 6.0)); //This node pointer is added to the mesh and deleted by the destructor
 
         // Check the most recently deleted node now has the correct cell radius
         TS_ASSERT_DELTA(mesh.GetCellRadius(3), 1.0, 1e-4);
