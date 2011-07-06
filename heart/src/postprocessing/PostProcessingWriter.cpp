@@ -143,7 +143,7 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-    std::vector<std::vector<double> > output_data = mpCalculator->CalculateAllActionPotentialDurationsForNodeRange(repolarisationPercentage, mLo, mHi-1, threshold);
+    std::vector<std::vector<double> > output_data = mpCalculator->CalculateAllActionPotentialDurationsForNodeRange(repolarisationPercentage, mLo, mHi, threshold);
     std::stringstream filename_stream;
     filename_stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
     WriteGenericFile(output_data, filename_stream.str());

@@ -293,21 +293,20 @@ def GetVersionCpp(templateFilePath, env):
     """Return the contents of the Version.cpp source file."""
     chaste_root = Dir('#').abspath
     version_file = os.path.join(chaste_root, 'ReleaseVersion.txt')
+    wc_modified = False
     if os.path.exists(version_file):
         # Extract just the revision number from the file.
         full_version = open(version_file).read().strip()
         chaste_revision = int(full_version[1+full_version.rfind('.'):])
-        wc_modified = False
     else:
         version_pipe = os.popen("svnversion " + chaste_root)
         chaste_revision = version_pipe.read().strip()
         if version_pipe.close():
             chaste_revision = 'UINT_MAX'
-            wc_modified = False
         else:
             # Extract upper end of range, and store modified flag
-            wc_modified = chaste_revision[-1] == 'M'
-            if wc_modified:
+            while chaste_revision[-1] in 'MSP':
+                wc_modified = True
                 chaste_revision = chaste_revision[:-1]
             chaste_revision = int(chaste_revision[1+chaste_revision.rfind(':'):])
     time_format = "%a, %d %b %Y %H:%M:%S +0000"
