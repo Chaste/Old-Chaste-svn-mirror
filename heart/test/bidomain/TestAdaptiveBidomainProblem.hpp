@@ -285,7 +285,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
-        HeartConfig::Instance()->SetMeshFileName("notforrelease/test/data/coarse_slab0005.vtu");
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/coarse_slab0005.vtu");
         HeartConfig::Instance()->SetOutputDirectory("TestAdaptiveBidomainProblem");
         HeartConfig::Instance()->SetOutputFilenamePrefix("coarse_slab_resume");
 
