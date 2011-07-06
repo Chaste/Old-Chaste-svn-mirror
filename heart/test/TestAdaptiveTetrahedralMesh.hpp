@@ -81,7 +81,7 @@ public:
     {
 #ifdef CHASTE_ADAPTIVITY
         AdaptiveTetrahedralMesh *adaptive_mesh = new AdaptiveTetrahedralMesh;
-        adaptive_mesh->ConstructFromVtuFile("heart/test/data/twin_flow.vtu");
+        adaptive_mesh->ConstructFromVtuFile("heart/test/data/adaptivity/twin_flow.vtu");
 
         HeartConfig::Instance()->SetOutputDirectory("TestAdaptiveTetrahedralMesh");
 
@@ -207,7 +207,7 @@ public:
     void TestConvertVtuToPvtu(void) throw(Exception)
     {
 #ifdef CHASTE_ADAPTIVITY
-        VtkMeshReader<3,3> reader("heart/test/data/coarse_slab_neumann_no_adapt0002.vtu");
+        VtkMeshReader<3,3> reader("heart/test/data/adaptivity/coarse_slab_neumann_no_adapt0002.vtu");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB); // No re-ordering, since this will mess up point data
         mesh.ConstructFromMeshReader(reader);
 
@@ -247,7 +247,7 @@ public:
     {
 #ifdef CHASTE_ADAPTIVITY
         AdaptiveTetrahedralMesh adaptive_mesh;
-        adaptive_mesh.ConstructFromVtuFile("heart/test/data/coarse_slab_neumann0002.vtu");
+        adaptive_mesh.ConstructFromVtuFile("heart/test/data/adaptivity/coarse_slab_neumann0002.vtu");
 
         HeartConfig::Instance()->SetOutputDirectory("TestAdaptiveTetrahedralMesh");
 
@@ -347,7 +347,7 @@ public:
         EXIT_IF_PARALLEL;
 
         AdaptiveTetrahedralMesh adaptive_mesh;
-        adaptive_mesh.ConstructFromVtuFile("heart/test/data/small_bidomain_slab.vtu");
+        adaptive_mesh.ConstructFromVtuFile("heart/test/data/adaptivity/small_bidomain_slab.vtu");
 
         HeartConfig::Instance()->SetOutputDirectory("TestAdaptiveTetrahedralMesh");
         OutputFileHandler file_handler(HeartConfig::Instance()->GetOutputDirectory(), false);
@@ -409,7 +409,7 @@ public:
         EXIT_IF_PARALLEL;
 
         AdaptiveTetrahedralMesh adaptive_mesh;
-        adaptive_mesh.ConstructFromVtuFile("heart/test/data/small_bidomain_slab.vtu");
+        adaptive_mesh.ConstructFromVtuFile("heart/test/data/adaptivity/small_bidomain_slab.vtu");
 
         HeartConfig::Instance()->SetOutputDirectory("TestAdaptiveTetrahedralMesh");
 
