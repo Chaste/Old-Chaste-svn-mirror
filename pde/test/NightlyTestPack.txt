@@ -4,3 +4,4 @@ TestSolvingCoupledNonlinearPdes.hpp
 TestSolvingElasticityProblemsTutorial.hpp
 TestSolvingLinearPdesTutorial.hpp
 TestSolvingNonlinearPdesTutorial.hpp
+TestWritingPdeSolversTutorial.hpp
