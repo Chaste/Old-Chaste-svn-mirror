@@ -221,7 +221,7 @@ public:
         OutputFileHandler handler(dirname);
         FileFinder cellml_file_src("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
 
-        CellMLToSharedLibraryConverter converter;
+        CellMLToSharedLibraryConverter converter(true);
 
         // Convert a real CellML file
         FileFinder cellml_file = handler.CopyFileTo(cellml_file_src);
