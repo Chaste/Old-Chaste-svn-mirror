@@ -17,5 +17,5 @@ This version of Chaste was compiled on:
 Wed, 05 Jan 2011 16:24:59 +0000 by Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64 (uname)
 from revision number 11225 with build type GccOpt, shared libraries.
 
-         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total  
+         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output   DataConversion         PostProc            User1            User2            User3            Total  
    0.175 (  0%)     0.027 (  0%)     0.519 (  0%)   245.749 ( 81%)     0.211 (  0%)     1.970 (  1%)     0.003 (  0%)     0.000 (  0%)    10.800 (  4%)    36.100 ( 12%)     3.452 (  1%)     0.000 (  0%)   304.522 (100%)  (seconds) 

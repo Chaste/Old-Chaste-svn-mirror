@@ -130,11 +130,12 @@ private:
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacTissue
 
-        if (version < 2)
-        {
-        	bool use_matrix_based_assembly = true;
-        	archive & use_matrix_based_assembly;
-        }
+        // We shouldn't ever have to save the old version
+        assert(version >= 2);
+//        {
+//        	bool use_matrix_based_assembly = true;
+//        	archive & use_matrix_based_assembly;
+//        }
 
         archive & mWriteInfo;
         archive & mPrintOutput;

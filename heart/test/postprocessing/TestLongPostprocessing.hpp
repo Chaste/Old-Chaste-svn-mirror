@@ -99,8 +99,8 @@ public:
         unsigned num_stims = 1;
 
         TetrahedralMesh<2,2> mesh;
-        unsigned num_elem_x = (unsigned)(1/h);  // num elements to make 5mm
-        unsigned num_elem_y = (unsigned)(1/h);  // num elements to make 5mm
+        unsigned num_elem_x = (unsigned)(0.5/h);  // num elements to make 5mm
+        unsigned num_elem_y = (unsigned)(0.5/h);  // num elements to make 5mm
         //unsigned num_elem_z = (unsigned)(0.15/h);// Num elements to make 0.3cm
         double pacing_cycle_length = 350;
         double stim_mag = -500000;

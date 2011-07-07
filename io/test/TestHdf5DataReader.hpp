@@ -431,6 +431,9 @@ public:
         TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/),
                 "The file does not contain time dependent data");
 
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTimeOverMultipleNodes("Node",0,10),
+                "The file does not contain time dependent data");
+
         VecDestroy(data);
         reader.Close();
 
@@ -465,6 +468,8 @@ public:
                 "The file doesn\'t contain data for variable WrongName");
         TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("Node", 100/*node*/),
                 "The file doesn\'t contain info of node 100");
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTimeOverMultipleNodes("WrongName", 90, 99),
+                "The file doesn\'t contain data for variable WrongName");
 
         Vec data = factory.CreateVec();
         reader.GetVariableOverNodes(data, "Node", 0/*timestep*/);
