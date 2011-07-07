@@ -159,7 +159,8 @@ void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, doub
  * The CreateCoarsePdeMesh method is currently only implemented in 2D, hence there
  * are two definitions to this method (one templated and one not).
  *
- * @param coarseGrainScaleFactor the ratio of the width of the coarse PDE mesh to the initial width of the cell population
+ * @param stepSize horizontal and vertical distance between mesh points
+ * @param meshWidth width and height of the mesh
  */
 template<>
 void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
