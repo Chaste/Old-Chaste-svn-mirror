@@ -176,7 +176,6 @@ public:
 			double y = current_node->GetPoint()[1];
 			double r = sqrt(x*x+y*y);
 
-			double u = log(r)/(2*M_PI);
 
 			unsigned local_index = current_node->GetIndex() - mesh.GetDistributedVectorFactory()->GetLow();
 			if(r>0.1)
@@ -184,6 +183,7 @@ public:
 			    // use a tolerance that is weighted by 1-r as accuracy will decrease as
 			    // get closer to r=0 for which u=-infty. Visually the solution compared
 			    // to the true solution looks pretty good.
+                double u = log(r)/(2*M_PI);
 			    TS_ASSERT_DELTA(p_result[local_index], u, 0.07*(1-r)+1e-6);
 			}
 			else
