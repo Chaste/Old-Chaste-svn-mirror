@@ -294,6 +294,7 @@ void AbstractCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirector
     if (mOutputCellCyclePhases)
     {
         mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
+        mpVizCellProliferativePhasesFile = output_file_handler.OpenOutputFile("results.vizcellphases");
     }
     if (mOutputCellAges)
     {
@@ -324,6 +325,7 @@ void AbstractCellPopulation<DIM>::CloseOutputFiles()
     mpVizBoundaryNodesFile->close();
     mpVizCellProliferativeTypesFile->close();
 
+
     if (mOutputCellMutationStates)
     {
         mpCellMutationStatesFile->close();
@@ -339,6 +341,7 @@ void AbstractCellPopulation<DIM>::CloseOutputFiles()
     if (mOutputCellCyclePhases)
     {
         mpCellCyclePhasesFile->close();
+        mpVizCellProliferativePhasesFile->close();
     }
     if (mOutputCellAncestors)
     {
@@ -395,6 +398,7 @@ void AbstractCellPopulation<DIM>::GenerateCellResults(unsigned locationIndex,
             default:
                 NEVER_REACHED;
         }
+        *mpVizCellProliferativePhasesFile << p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase() << " ";
     }
 
     if (mOutputCellAncestors)
@@ -492,6 +496,7 @@ void AbstractCellPopulation<DIM>::GenerateCellResults(unsigned locationIndex,
     }
 
     *mpVizCellProliferativeTypesFile << colour << " ";
+
 }
 
 template<unsigned DIM>
@@ -542,6 +547,9 @@ void AbstractCellPopulation<DIM>::WriteCellResultsToFiles(std::vector<unsigned>&
             *mpCellCyclePhasesFile << rCellCyclePhaseCounter[i] << "\t";
         }
         *mpCellCyclePhasesFile << "\n";
+
+        // The data for this is output in GenerateCellResults()
+        *mpVizCellProliferativePhasesFile << "\n";
     }
 
     // Write cell age data to file if required
@@ -605,6 +613,7 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
     if (mOutputCellCyclePhases)
     {
         *mpCellCyclePhasesFile << time << "\t";
+        *mpVizCellProliferativePhasesFile << time << "\t";
     }
     if (mOutputCellAges)
     {

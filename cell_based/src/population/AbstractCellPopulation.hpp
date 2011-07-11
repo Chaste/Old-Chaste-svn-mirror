@@ -118,6 +118,9 @@ protected:
     /** Results file for cell visualization */
     out_stream mpVizCellProliferativeTypesFile;
 
+    /** Results file for cell visualization */
+    out_stream mpVizCellProliferativePhasesFile;
+
     /** Results file for cell mutation states */
     out_stream mpCellMutationStatesFile;
 
