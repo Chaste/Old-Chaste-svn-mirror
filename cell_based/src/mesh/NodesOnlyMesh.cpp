@@ -38,8 +38,6 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
 {
     this->Clear();
 
-    ///\todo Fix clear hack in ReMesh method
-
     for (unsigned i=0; i<rNodes.size(); i++)
     {
         assert(!rNodes[i]->IsDeleted());
@@ -70,14 +68,6 @@ void NodesOnlyMesh<SPACE_DIM>::Clear()
 }
 
 template<unsigned SPACE_DIM>
-void NodesOnlyMesh<SPACE_DIM>::ClearWithoutCellRadii()
-{
-	// Call the parent clear
-	MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
-}
-
-
-template<unsigned SPACE_DIM>
 double NodesOnlyMesh<SPACE_DIM>::GetCellRadius(unsigned index)
 {
     assert(index < mCellRadii.size());
@@ -96,6 +86,9 @@ void NodesOnlyMesh<SPACE_DIM>::ReMesh(NodeMap& map)
 {
     // Store the node locations
     std::vector<c_vector<double, SPACE_DIM> > old_node_locations;
+    std::vector<double> old_cell_radii;
+    bool copy_radii = !mCellRadii.empty();
+
     unsigned new_index = 0;
     for (unsigned i=0; i<this->GetNumAllNodes(); i++)
     {
@@ -107,12 +100,19 @@ void NodesOnlyMesh<SPACE_DIM>::ReMesh(NodeMap& map)
         {
             map.SetNewIndex(i, new_index);
             old_node_locations.push_back(this->mNodes[i]->rGetLocation());
+            if (copy_radii)
+            {
+            	old_cell_radii.push_back(mCellRadii[i]);
+            }
+
             new_index++;
         }
     }
-
     // Remove current data
-    this->ClearWithoutCellRadii();  ///\todo This needs to be fixed properly not using this hack.
+    this->Clear();
+
+    // Replace radius data, if need be
+    mCellRadii = old_cell_radii;
 
     // Construct the nodes and boundary nodes
     for (unsigned node_index=0; node_index<old_node_locations.size(); node_index++)

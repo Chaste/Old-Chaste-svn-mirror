@@ -70,6 +70,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
+        //Note that the MutableMesh archiver does a remesh.  If there are deleted nodes then we want to wait
+        //for them to be re-numbered before archiving the radii
         archive & mCellRadii;
     }
 
@@ -103,12 +105,6 @@ public:
      * Clears mCellRadii in addition to calling Clear() on the parent class.
      */
     void Clear();
-
-    /**
-     * Call Clear() on the parent class.
-     * Does not clear mCellRadii.
-     */
-    void ClearWithoutCellRadii();
 
     /**
      * Get the cell radius associated with a given node index.

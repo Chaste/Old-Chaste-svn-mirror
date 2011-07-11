@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VtkMeshWriter.hpp"
 #include "ArchiveOpener.hpp"
 
+
 class TestNodesOnlyMesh : public CxxTest::TestSuite
 {
 public:
@@ -242,7 +243,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetCellRadius(2), 1.0, 1e-4);
 	}
 
-    void TestDeleteNodes() throw (Exception)
+    void TestDeleteNodesAndRemesh() throw (Exception)
     {
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
@@ -257,8 +258,17 @@ public:
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(nodes);
 
-        // Set radius of cell 3 - for use later in test
-        mesh.SetCellRadius(3,2.0);
+        // Free memory - the constructor does a deep copy of its input
+        for (unsigned i=0; i<nodes.size(); i++)
+		{
+			delete nodes[i];
+		}
+
+        // Set radius of cells from 1 to 8
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+			mesh.SetCellRadius(i, i+1);
+        }
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
 
@@ -271,26 +281,48 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
 
         // Delete from corner
+        TS_ASSERT_DELTA(mesh.GetCellRadius(3), 4.0, 1e-4);
         mesh.DeleteNode(3);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
 
         // Deleting a deleted node should throw an exception
         TS_ASSERT_THROWS_THIS(mesh.DeleteNode(3),"Trying to delete a deleted node");
 
-        // Free memory - the constructor does a deep copy of its input
-        for (unsigned i=0; i<nodes.size(); i++)
-		{
-			delete nodes[i];
-		}
+
 
         /*
          * Check that mCellRadii is updated correctly when a new cell
-         * is added using a previously deleted index.
+         * is added using the most recently deleted index.
+         * (Index 3 is at the back of the deleted nodes list and is thus the one to be reused.)
          */
         mesh.AddNode(new Node<2>(0, true, 6.0, 6.0)); //This node pointer is added to the mesh and deleted by the destructor
 
         // Check the most recently deleted node now has the correct cell radius
         TS_ASSERT_DELTA(mesh.GetCellRadius(3), 1.0, 1e-4);
+
+        //Now we have deleted/reused 3, and deleted 1 and 6.
+        //The new nodes are:
+        // New:     0     1     2     3     4     5
+        // Old:     0     2 (new3)    4     5     7
+        // Radius:  1     3     1     5     6     8
+
+        NodeMap map(8);
+        mesh.ReMesh(map);
+        TS_ASSERT_EQUALS(map.GetNewIndex(0), 0u);
+        TS_ASSERT(map.IsDeleted(1));
+        TS_ASSERT_EQUALS(map.GetNewIndex(2), 1u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(3), 2u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(4), 3u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(5), 4u);
+        TS_ASSERT(map.IsDeleted(6));
+        TS_ASSERT_EQUALS(map.GetNewIndex(7), 5u);
+
+        TS_ASSERT_DELTA(mesh.GetCellRadius(0), 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(1), 3.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(2), 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(3), 5.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(4), 6.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetCellRadius(5), 8.0, 1e-4);
     }
 
     void TestArchiving() throw(Exception)
