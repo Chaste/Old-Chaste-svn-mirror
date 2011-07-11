@@ -672,7 +672,7 @@ class MemoryTesting(GccDebug):
         except:
             # Probably means valgrind isn't installed, so don't add extra suppressions
             pass
-        # OpenMPI ships its own suppressions file
+        # OpenMPI ships its own (inadequte) suppressions file
         if 'openmpi' in self.tools['mpirun']:
             openmpi_supp_path = os.path.join(os.path.dirname(self.tools['mpirun']), os.path.pardir,
                                              'share', 'openmpi', 'openmpi-valgrind.supp')
@@ -727,13 +727,14 @@ class MemoryTesting(GccDebug):
         
         # Regexps to check for
         import re
-        invalid = re.compile('==\d+== Invalid ')
-        glibc = re.compile('__libc_freeres')
-        leaks = re.compile('==\d+== LEAK SUMMARY:')
-        lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: ([0-9,]+) bytes in ([0-9,]+) blocks')
-        petsc = re.compile('\[0]Total space allocated (\d+) bytes')
-        uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
-        open_files = re.compile('==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
+        invalid = re.compile(r'==\d+== Invalid ')
+        glibc = re.compile(r'__libc_freeres')
+        leaks = re.compile(r'==\d+== LEAK SUMMARY:')
+        lost = re.compile(r'==\d+==\s+(definitely|indirectly|possibly) lost: ([0-9,]+) bytes in ([0-9,]+) blocks')
+        petsc = re.compile(r'\[0]Total space allocated (\d+) bytes')
+        uninit = re.compile(r'==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
+        open_files = re.compile(r'==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
+        orte_init = re.compile(r'==(\d+)==    (?:by|at) .*(: orte_init)?.*')
         
         if outputLines is None:
             outputLines = logFile.readlines()
@@ -785,12 +786,27 @@ class MemoryTesting(GccDebug):
                 # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
                 # and /home/bob/eclipse/lockfile, and the log files.
                 # All these OK files are inherited from the parent process.
-                if not outputLines[lineno+1].strip().endswith("<inherited from parent>"):
+                if (not outputLines[lineno+1].strip().endswith("<inherited from parent>")
+                    and not self._CheckOpenmpiFile(outputLines, lineno+1, orte_init)):
                     status = 'Openfile'
                     break
         if status == 'Unknown':
             status = 'OK'
         return status
+    
+    def _CheckOpenmpiFile(self, outputLines, lineno, regexp):
+        """Check whether a purported open file is actually something from OpenMPI."""
+        result = False
+        m = regexp.match(outputLines[lineno])
+        while m:
+            if m and m.group(1):
+                result = True
+                break
+            if not m:
+                break
+            lineno += 1
+            m = regexp.match(outputLines[lineno])
+        return result
 
 
 class ParallelMemoryTesting(MemoryTesting, Parallel):

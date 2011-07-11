@@ -62,15 +62,30 @@
 
 # PETSc/OpenMPI
 ###############
-
+{
+   mpi_init (writev)
+   Memcheck:Param
+   writev(vector[...])
+   fun:writev
+   ...
+   obj:*/libmpi.so*
+   fun:PMPI_Init
+   fun:*PetscInitialize*
+   fun:_ZN10PetscSetup10setUpWorldEv
+   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
 {
    mpi_init (malloc)
    Memcheck:Leak
    fun:malloc
    ...
-   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   obj:*/libmpi.so*
    fun:PMPI_Init
-   fun:PetscInitialize
+   fun:*PetscInitialize*
    fun:_ZN10PetscSetup10setUpWorldEv
    fun:_ZN7CxxTest20RealWorldDescription5setUpEv
    fun:_ZN7CxxTest10TestRunner8runWorldEv
@@ -83,9 +98,9 @@
    Memcheck:Leak
    fun:realloc
    ...
-   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   obj:*/libmpi.so*
    fun:PMPI_Init
-   fun:PetscInitialize
+   fun:*PetscInitialize*
    fun:_ZN10PetscSetup10setUpWorldEv
    fun:_ZN7CxxTest20RealWorldDescription5setUpEv
    fun:_ZN7CxxTest10TestRunner8runWorldEv
@@ -98,8 +113,9 @@
    Memcheck:Leak
    fun:calloc
    ...
+   obj:*/libmpi.so*
    fun:PMPI_Init
-   fun:PetscInitialize
+   fun:*PetscInitialize*
    fun:_ZN10PetscSetup10setUpWorldEv
    fun:_ZN7CxxTest20RealWorldDescription5setUpEv
    fun:_ZN7CxxTest10TestRunner8runWorldEv
@@ -112,9 +128,9 @@
    Memcheck:Param
    sched_setaffinity(mask)
    ...
-   obj:/usr/lib/openmpi/lib/libmpi.so.0.0.1
+   obj:*/libmpi.so*
    fun:PMPI_Init
-   fun:PetscInitialize
+   fun:*PetscInitialize*
    fun:_ZN10PetscSetup10setUpWorldEv
    fun:_ZN7CxxTest20RealWorldDescription5setUpEv
    fun:_ZN7CxxTest10TestRunner8runWorldEv
@@ -128,7 +144,9 @@
    Memcheck:Leak
    fun:malloc
    ...
-   fun:PetscFinalize
+   obj:*/libmpi.so*
+   ...
+   fun:*PetscFinalize*
    fun:_ZN10PetscSetup13tearDownWorldEv
    fun:_ZN7CxxTest20RealWorldDescription8tearDownEv
    fun:_ZN7CxxTest10TestRunner8runWorldEv
@@ -136,6 +154,22 @@
    fun:_ZN7CxxTest14ErrorFormatter3runEv
    fun:main
 }
+
+# This last one is perhaps a little more dubious...
+{
+   keyval create (malloc)
+   Memcheck:Leak
+   fun:malloc
+   ...
+   obj:*/libmpi.so*
+   fun:ompi_attr_create_keyval
+   fun:PMPI_Keyval_create
+   fun:_Z18PetscCommDuplicateP19ompi_communicator_tPS0_Pi
+   fun:_Z25PetscHeaderCreate_PrivateP14_p_PetscObjectiiPKcP19ompi_communicator_tPFiS0_EPFiS0_P14_p_PetscViewerE
+   fun:_Z9VecCreateP19ompi_communicator_tPP6_p_Vec
+   fun:_ZN10PetscTools9CreateVecEiib
+}
+
 
 # VTK
 #####
