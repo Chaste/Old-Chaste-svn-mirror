@@ -100,6 +100,11 @@ public:
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant);
 
     /**
+     * Compute a unit vector normal to this element, if possible.
+     */
+    c_vector<double, SPACE_DIM> CalculateNormal();
+
+    /**
      * Compute the Jacobian and the inverse Jacobian for this element.
      *
      * @param rJacobian  the Jacobian matrix (output)
@@ -174,6 +179,11 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian
      */
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant);
+
+    /**
+     * Compute a unit vector normal to this element, if possible.
+     */
+    c_vector<double, SPACE_DIM> CalculateNormal();
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)

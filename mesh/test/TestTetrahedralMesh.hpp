@@ -810,6 +810,54 @@ public:
         }
     }
 
+    void TestCheckOutwardNormals() throw (Exception)
+    {
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+            TetrahedralMesh<3,3> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            mesh.CheckOutwardNormals();
+        }
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements_inward_normal");
+            TetrahedralMesh<3,3> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            TS_ASSERT_THROWS_THIS(mesh.CheckOutwardNormals(), "Inward facing normal in boundary element index 7");
+        }
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            mesh.CheckOutwardNormals();
+        }
+        ///\todo #1814 fix these...
+//        {
+//            std::cout << "Constructed 2d with stagger" << std::endl;
+//            TetrahedralMesh<2,2> mesh;
+//            mesh.ConstructRectangularMesh(2,3);
+//            mesh.CheckOutwardNormals();
+//        }
+//        {
+//            std::cout << "Constructed 2d without stagger" << std::endl;
+//            TetrahedralMesh<2,2> mesh;
+//            mesh.ConstructRectangularMesh(2,3,false);
+//            mesh.CheckOutwardNormals();
+//        }
+        {
+            std::cout << "Constructed 3d" << std::endl;
+            TetrahedralMesh<3,3> mesh;
+            mesh.ConstructCuboid(2,3,4);
+            mesh.CheckOutwardNormals();
+        }
+        {
+            TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
+            TetrahedralMesh<2,3> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            TS_ASSERT_THROWS_THIS(mesh.CheckOutwardNormals(),
+                    "Don't have enough information to calculate a normal vector");
+        }
+    }
+
     void TestConstructCuboid() throw(Exception)
     {
         TetrahedralMesh<3,3> mesh;

@@ -73,27 +73,11 @@ void DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ApplyUndeformedElementAndDispl
     }
 }
 
-// TODO: use mesh information to decide if the computed normal is inward or outward facing
-// and multiply by -1 if necessary.
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 c_vector<double,SPACE_DIM> DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ComputeDeformedOutwardNormal()
 {
-    c_vector<double,SPACE_DIM> deformed_normal;
-    if(ELEM_DIM==1)
-    {
-        // requires anti-clockwise ordering to be outward-facing, see todo above
-        deformed_normal(0) =    this->GetNode(1)->rGetLocation()[1] - this->GetNode(0)->rGetLocation()[1];
-        deformed_normal(1) = - (this->GetNode(1)->rGetLocation()[0] - this->GetNode(0)->rGetLocation()[0]);
-        deformed_normal = deformed_normal/norm_2(deformed_normal);
-    }
-    else
-    {
-        assert(ELEM_DIM==2);
-        c_vector<double,SPACE_DIM> weighted_direction;
-        double jacobian_determinant;
-        this->CalculateWeightedDirection(weighted_direction, jacobian_determinant);
-        deformed_normal = weighted_direction/jacobian_determinant;
-    }
+    ///\todo Remove this method, deprecated by ...
+    c_vector<double,SPACE_DIM> deformed_normal = this->CalculateNormal();
     return deformed_normal;
 }
 

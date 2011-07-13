@@ -169,6 +169,28 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     }
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateNormal()
+{
+    if (ELEMENT_DIM == 1 && SPACE_DIM == 3)
+    {
+        EXCEPTION("Don't have enough information to calculate a normal vector");
+    }
+    c_vector<double, SPACE_DIM> normal;
+    double determinant;
+    CalculateWeightedDirection(normal, determinant);
+    normal /= determinant;
+    if (ELEMENT_DIM == 1)
+    {
+        // Need to rotate so tangent becomes normal
+        double x = normal[0];
+        normal[0] = normal[1];
+        normal[1] = -x;
+    }
+    return normal;
+}
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateCentroid() const
 {
@@ -277,6 +299,18 @@ void AbstractTetrahedralElement<0, SPACE_DIM>::CalculateWeightedDirection(
     rWeightedDirection(0) = 1.0;
 
     rJacobianDeterminant = 1.0;
+}
+
+template<unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> AbstractTetrahedralElement<0, SPACE_DIM>::CalculateNormal()
+{
+    assert(SPACE_DIM > 0);
+
+    // End point of a line
+    c_vector<double, SPACE_DIM> normal = zero_vector<double>(SPACE_DIM);
+    normal(0) = 1.0;
+
+    return normal;
 }
 
 template<unsigned SPACE_DIM>

@@ -411,6 +411,14 @@ public:
                                                         c_vector<double, SPACE_DIM>& rWeightedDirection,
                                                         double& rJacobianDeterminant) const;
 
+    /**
+     * Check whether mesh has outward-facing normals.
+     *
+     * This throws a suitable exception if an inward facing normal is found.
+     *
+     * @return nothing
+     */
+    void CheckOutwardNormals();
 
     /**
      * Construct a 1D linear grid on [0,width]

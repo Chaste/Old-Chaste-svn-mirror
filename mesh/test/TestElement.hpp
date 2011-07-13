@@ -603,6 +603,22 @@ public:
         }
     }
 
+    void TestNormal1dIn2d()
+    {
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 0.5, 0.0));
+        BoundaryElement<1,2> element_1d(0, nodes);
+
+        c_vector<double, 2> normal = element_1d.CalculateNormal();
+
+        TS_ASSERT_EQUALS(normal[0], 0.0);
+        TS_ASSERT_EQUALS(normal[1], -1.0);
+
+        delete nodes[0];
+        delete nodes[1];
+    }
+
     void TestCentroidAndDirection()
     {
         c_vector<double,3> direction;
@@ -610,20 +626,24 @@ public:
 
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 0.5, 0.0, 0.0));
         BoundaryElement<1,3> element_1d(0, nodes);
 
         double det;
-        element_1d.CalculateWeightedDirection(direction,det);
+        element_1d.CalculateWeightedDirection(direction, det);
 
         // 1D element in higher space is orientated by vector between endpoints
-        TS_ASSERT_EQUALS(direction[0], 1.0);
+        TS_ASSERT_EQUALS(direction[0], 0.5);
         TS_ASSERT_EQUALS(direction[1], 0.0);
         TS_ASSERT_EQUALS(direction[2], 0.0);
-        TS_ASSERT_EQUALS(det, 1.0);
+        TS_ASSERT_EQUALS(det, 0.5);
+
+        // Can't compute sensible normal for 1d-in-3d
+        TS_ASSERT_THROWS_THIS(element_1d.CalculateNormal(),
+                "Don't have enough information to calculate a normal vector");
 
         centroid = element_1d.CalculateCentroid();
-        TS_ASSERT_EQUALS(centroid[0], 0.5);
+        TS_ASSERT_EQUALS(centroid[0], 0.25);
         TS_ASSERT_EQUALS(centroid[1], 0.0);
         TS_ASSERT_EQUALS(centroid[2], 0.0);
 
@@ -632,16 +652,21 @@ public:
 
         element_2d.CalculateWeightedDirection(direction, det);
 
-        // 2D element in higher space is orientated by a normal
+        // 2D element in higher space is oriented by a normal
         TS_ASSERT_EQUALS(direction[0], 0.0);
         TS_ASSERT_EQUALS(direction[1], 0.0);
-        TS_ASSERT_EQUALS(direction[2], -1.0);
-        TS_ASSERT_EQUALS(det, 1.0);
+        TS_ASSERT_EQUALS(direction[2], -0.5);
+        TS_ASSERT_EQUALS(det, 0.5);
+
+        c_vector<double,3> normal = element_2d.CalculateNormal();
+        TS_ASSERT_EQUALS(normal[0], 0.0);
+        TS_ASSERT_EQUALS(normal[1], 0.0);
+        TS_ASSERT_EQUALS(normal[2], -1.0);
 
         // Note it's negative z-axis:
         // Vertices are *clockwise* when we look at them from outward facing normal
         centroid = element_2d.CalculateCentroid();
-        TS_ASSERT_DELTA(centroid[0], 1.0/3.0, 1e-8);
+        TS_ASSERT_DELTA(centroid[0], 0.5/3.0, 1e-8);
         TS_ASSERT_DELTA(centroid[1], 1.0/3.0, 1e-8);
         TS_ASSERT_EQUALS(centroid[2], 0.0);
 
@@ -653,7 +678,7 @@ public:
 
         // 3D element in 3D space has no orientation (other than JacobianDeterminant)
         centroid = element_3d.CalculateCentroid();
-        TS_ASSERT_DELTA(centroid[0], 0.25, 1e-8);
+        TS_ASSERT_DELTA(centroid[0], 0.125, 1e-8);
         TS_ASSERT_DELTA(centroid[1], 0.25, 1e-8);
         TS_ASSERT_EQUALS(centroid[2], 0.25 );
 

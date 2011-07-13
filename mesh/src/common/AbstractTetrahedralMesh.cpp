@@ -158,6 +158,67 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBou
 }
 
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckOutwardNormals()
+{
+    if (ELEMENT_DIM <= 1)
+    {
+        //If the ELEMENT_DIM of the mesh is 1 then the boundary will have ELEMENT_DIM = 0
+        EXCEPTION("1-D mesh has no boundary normals");
+    }
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator face_iter = this->GetBoundaryElementIteratorBegin();
+         face_iter != this->GetBoundaryElementIteratorEnd();
+         ++face_iter)
+    {
+        //Form a set for the boundary element node indices
+        std::set<unsigned> boundary_element_node_indices;
+        for (unsigned i=0; i<ELEMENT_DIM; i++)
+        {
+            boundary_element_node_indices.insert( (*face_iter)->GetNodeGlobalIndex(i) );
+        }
+
+        Node<SPACE_DIM>* p_opposite_node = NULL;
+        Node<SPACE_DIM>* p_representative_node = (*face_iter)->GetNode(0);
+          for (typename Node<SPACE_DIM>::ContainingElementIterator element_iter = p_representative_node->ContainingElementsBegin();
+             element_iter != p_representative_node->ContainingElementsEnd();
+             ++element_iter)
+        {
+            Element<ELEMENT_DIM, SPACE_DIM>* p_element = this->GetElement(*element_iter);
+            //Form a set for the element node indices
+            std::set<unsigned> element_node_indices;
+            for (unsigned i=0; i<=ELEMENT_DIM; i++)
+            {
+                element_node_indices.insert( p_element->GetNodeGlobalIndex(i) );
+            }
+
+            std::vector<unsigned> difference(ELEMENT_DIM);
+
+            std::vector<unsigned>::iterator set_iter = std::set_difference(
+                    element_node_indices.begin(),element_node_indices.end(),
+                    boundary_element_node_indices.begin(), boundary_element_node_indices.end(),
+                    difference.begin());
+            if (set_iter - difference.begin() == 1)
+            {
+                p_opposite_node = this -> GetNodeOrHaloNode(difference[0]);
+                break;
+            }
+        }
+        assert(p_opposite_node != NULL);
+
+        //Vector from centroid of face to opposite node
+        c_vector<double, SPACE_DIM> into_mesh = p_opposite_node->rGetLocation() - (*face_iter)->CalculateCentroid() ;
+        c_vector<double, SPACE_DIM> normal = (*face_iter)->CalculateNormal();
+
+        if (inner_prod(into_mesh, normal) > 0.0)
+        {
+            std::stringstream message;
+            message << "Inward facing normal in boundary element index "<<(*face_iter)->GetIndex();
+            EXCEPTION(message.str());
+        }
+    }
+}
+
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
 {
