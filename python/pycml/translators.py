@@ -2089,7 +2089,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 stim_assignment = self.get_stimulus_assignment()
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
-            if self.use_chaste_stimulus:
+            if self.use_chaste_stimulus or zero_stimulus:
                 if isinstance(expr, cellml_variable) and expr is self.doc._cml_config.i_stim_var:
                     clear_type = (self.kept_vars_as_members and expr.pe_keep)
                     if clear_type:

@@ -36,6 +36,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystemInformation.hpp"
 
 /**
+ * This class has no functionality - its sole purpose is to be an untemplated base
+ * class for AbstractParameterisedSystem, to make it easier to move between templated
+ * and generic parts of the codebase.
+ */
+class AbstractUntemplatedParameterisedSystem
+{
+public:
+    /** Make this class polymorphic. */
+    virtual ~AbstractUntemplatedParameterisedSystem()
+    {}
+};
+
+/**
  * This class contains the state variable and parameter vectors for an ODE system,
  * along with methods to access these.  It also holds the AbstractOdeSystemInformation
  * pointer, and methods to access this object to provide information about the ODE
@@ -46,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * types.
  */
 template<typename VECTOR>
-class AbstractParameterisedSystem
+class AbstractParameterisedSystem : public AbstractUntemplatedParameterisedSystem
 {
 friend class TestAbstractCvodeSystem;
 
