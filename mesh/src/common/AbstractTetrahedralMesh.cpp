@@ -285,8 +285,8 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     for (unsigned i=0; i<width; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(this->mNodes[height*(width+1)+i]);
         nodes.push_back(this->mNodes[height*(width+1)+i+1]);
+        nodes.push_back(this->mNodes[height*(width+1)+i]);
         assert(belem_index==i);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
@@ -294,8 +294,8 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     for (unsigned j=1; j<=height; j++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(this->mNodes[(width+1)*(j+1)-1]);
         nodes.push_back(this->mNodes[(width+1)*j-1]);
+        nodes.push_back(this->mNodes[(width+1)*(j+1)-1]);
         assert(belem_index==width+j-1);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
@@ -303,8 +303,8 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     for (unsigned i=0; i<width; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(this->mNodes[i+1]);
         nodes.push_back(this->mNodes[i]);
+        nodes.push_back(this->mNodes[i+1]);
         assert(belem_index==width+height+i);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }

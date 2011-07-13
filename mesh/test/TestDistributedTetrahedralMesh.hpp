@@ -1920,13 +1920,19 @@ public:
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + output_dir + "3dDistributedMesh.ncl mesh/test/data/cube_2mm_152_elements_binary_v2.ncl").c_str()), 0);
     }
 
-//    void TestCheckOutwardNormals() throw (Exception)
-//    {
-//
-//        DistributedTetrahedralMesh<2,2> mesh;
-//        mesh.ConstructRectangularMesh(2,4);
-//        mesh.CheckOutwardNormals();
-//    }
+    void TestCheckOutwardNormals() throw (Exception)
+    {
+        {
+            DistributedTetrahedralMesh<2,2> mesh;
+            mesh.ConstructRectangularMesh(2, 4);
+            mesh.CheckOutwardNormals();
+        }
+        {
+            DistributedTetrahedralMesh<3,3> mesh;
+            mesh.ConstructCuboid(2, 2, 4);
+            mesh.CheckOutwardNormals();
+        }
+    }
 };
 
 #endif /*TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_*/

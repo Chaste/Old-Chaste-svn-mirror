@@ -1209,8 +1209,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
        for (unsigned i=0; i<width; i++)
        {
             std::vector<Node<SPACE_DIM>*> nodes;
-            nodes.push_back(GetNodeOrHaloNode( height*(width+1)+i ));
             nodes.push_back(GetNodeOrHaloNode( height*(width+1)+i+1 ));
+            nodes.push_back(GetNodeOrHaloNode( height*(width+1)+i ));
             belem_index=i;
             RegisterBoundaryElement(belem_index);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -1221,8 +1221,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     for (unsigned j=lo_y+1; j<hi_y; j++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(GetNodeOrHaloNode( (width+1)*(j+1)-1 ));
         nodes.push_back(GetNodeOrHaloNode( (width+1)*j-1 ));
+        nodes.push_back(GetNodeOrHaloNode( (width+1)*(j+1)-1 ));
         belem_index=width+j-1;
         RegisterBoundaryElement(belem_index);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -1234,8 +1234,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
         for (unsigned i=0; i<width; i++)
         {
             std::vector<Node<SPACE_DIM>*> nodes;
-            nodes.push_back(GetNodeOrHaloNode( i+1 ));
             nodes.push_back(GetNodeOrHaloNode( i ));
+            nodes.push_back(GetNodeOrHaloNode( i+1 ));
             belem_index=width+height+i;
             RegisterBoundaryElement(belem_index);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));

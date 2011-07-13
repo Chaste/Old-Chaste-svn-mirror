@@ -830,19 +830,18 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
             mesh.CheckOutwardNormals();
         }
-        ///\todo #1814 fix these...
-//        {
-//            std::cout << "Constructed 2d with stagger" << std::endl;
-//            TetrahedralMesh<2,2> mesh;
-//            mesh.ConstructRectangularMesh(2,3);
-//            mesh.CheckOutwardNormals();
-//        }
-//        {
-//            std::cout << "Constructed 2d without stagger" << std::endl;
-//            TetrahedralMesh<2,2> mesh;
-//            mesh.ConstructRectangularMesh(2,3,false);
-//            mesh.CheckOutwardNormals();
-//        }
+        {
+            std::cout << "Constructed 2d with stagger" << std::endl;
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructRectangularMesh(2,3);
+            mesh.CheckOutwardNormals();
+        }
+        {
+            std::cout << "Constructed 2d without stagger" << std::endl;
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructRectangularMesh(2,3,false);
+            mesh.CheckOutwardNormals();
+        }
         {
             std::cout << "Constructed 3d" << std::endl;
             TetrahedralMesh<3,3> mesh;
