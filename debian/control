@@ -21,7 +21,7 @@ Description: general purpose computational biology simulation package
  computing, mathematical modelling and scientific computing.
  .
  The main website for Chaste can be found at
- http://web.comlab.ox.ac.uk/chaste
+ http://www.cs.ox.ac.uk/chaste
 
 Package: chaste-dependencies
 Architecture: all
@@ -39,4 +39,4 @@ Description: metapackage for installing the dependencies of Chaste
  obtain the source code from the Chaste repository.
  .
  The main website for Chaste can be found at
- http://web.comlab.ox.ac.uk/chaste
+ http://www.cs.ox.ac.uk/chaste

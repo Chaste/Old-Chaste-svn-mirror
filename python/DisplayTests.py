@@ -1076,9 +1076,9 @@ if __name__ == '__main__':
 
     # Alter the configuration slightly
     _tests_dir = '.'
-    _source_browser_url = 'https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/browser/'
-    _trac_url = 'https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/'
-    _our_url = 'https://chaste.comlab.ox.ac.uk/tests.py'
+    _source_browser_url = 'https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+    _trac_url = 'https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/'
+    _our_url = 'https://chaste.cs.ox.ac.uk/tests.py'
 
     _fp = file(os.path.join(_dir, 'index.html'), 'w')
 
