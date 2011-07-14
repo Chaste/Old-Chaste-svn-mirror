@@ -77,6 +77,11 @@ private:
     out_stream mpVizPdeSolutionResultsFile;
 
     /**
+     * File that the values of the PDE solution on the coarse mesh are written out to.
+     */
+    out_stream mpVizCoarsePdeSolutionResultsFile;
+
+    /**
      * File that the average radial PDE solution is written out to.
      */
     out_stream mpAverageRadialPdeSolutionResultsFile;
@@ -119,6 +124,11 @@ private:
     void SetupWritePdeSolution();
 
     /**
+     * Set up the coarse PDE solution writer.
+     */
+    void SetupWriteCoarsePdeSolution();
+
+    /**
      * Write the PDE solution to file at a specified time.
      *
      * @param time The time at which to record the PDE solution
@@ -132,6 +142,11 @@ private:
      * @param numIntervals  The number of radial intervals in which the average PDE solution is calculated
      */
     void WriteAverageRadialPdeSolution(double time, unsigned numIntervals);
+
+    /**
+     * Write the coarse mesh node and element information to file.
+     */
+    void WriteCoarseMeshToFile();
 
     /**
      * Solve the PDE.

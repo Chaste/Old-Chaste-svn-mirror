@@ -112,6 +112,7 @@ void CellBasedSimulationWithPdes<DIM>::SetupSolve()
     if (mpCoarsePdeMesh != NULL)
     {
         InitialiseCoarsePdeMesh();
+        SetupWriteCoarsePdeSolution();
     }
 
     // We must initially have at least one cell in the cell-based simulation
@@ -134,6 +135,16 @@ void CellBasedSimulationWithPdes<DIM>::SetupWritePdeSolution()
         {
             mpAverageRadialPdeSolutionResultsFile = output_file_handler.OpenOutputFile("radial_dist.dat");
         }
+    }
+}
+
+template<unsigned DIM>
+void CellBasedSimulationWithPdes<DIM>::SetupWriteCoarsePdeSolution()
+{
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/", false);
+    if (PetscTools::AmMaster())
+    {
+        mpVizCoarsePdeSolutionResultsFile = output_file_handler.OpenOutputFile("results.vizcoarsepdesolution");
     }
 }
 
@@ -171,10 +182,6 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double stepSize, double
 												meshWidth,
 												meshWidth	);
 
-	// Write the coarse mesh to file.
-    TrianglesMeshWriter<2,2> mesh_writer(this->mSimulationOutputDirectory+"/", "PdeCoarseMesh");
-	mesh_writer.WriteFilesUsingMesh(*mpCoarsePdeMesh);
-
     // Find centre of coarse PDE mesh
     c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
     c_vector<double,2> centre_of_cell_population=this->GetCellPopulationLocation();
@@ -186,6 +193,9 @@ void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double stepSize, double
 
     // Translate centre of coarse PDE mesh to the origin
     mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
+
+    // Write mesh to file
+    WriteCoarseMeshToFile();
 }
 
 template<unsigned DIM>
@@ -458,12 +468,30 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         }
 
         /*
+         * Write solution to file if required.
+         */
+
+        ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
+
+        if (SimulationTime::Instance()->GetTimeStepsElapsed() % this->mSamplingTimestepMultiple == 0)
+        {
+			double current_time = SimulationTime::Instance()->GetTime();
+			(*mpVizCoarsePdeSolutionResultsFile) << current_time << "\t";
+
+			for(unsigned i=0; i< solution_repl.GetSize();i++)
+			{
+				c_vector<double,DIM> location = mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+				double solution = solution_repl[i];
+				(*mpVizCoarsePdeSolutionResultsFile) << i << " " << location[0] << " " << location[1] << " " << solution << " ";
+			}
+			(*mpVizCoarsePdeSolutionResultsFile) << "\n";
+        }
+
+        /*
          * Update cellwise data - since the cells are not nodes on the coarse
          * mesh, we have to interpolate from the nodes of the coarse mesh onto
          * the cell locations.
          */
-        ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
-
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
             cell_iter != this->mrCellPopulation.End();
             ++cell_iter)
@@ -478,6 +506,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
             c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
             double interpolated_solution = 0.0;
+
             for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
             {
                 double nodal_value = solution_repl[ p_element->GetNodeGlobalIndex(i) ];
@@ -560,7 +589,7 @@ template<unsigned DIM>
 c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationLocation()
 {
 	// Loop over cells and calculate centre of mass
-	c_vector<double,DIM> cell_population_centre;
+	c_vector<double,DIM> cell_population_centre=zero_vector<double>(DIM);
 	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
 		cell_iter != this->mrCellPopulation.End();
 		++cell_iter)
@@ -710,6 +739,13 @@ void CellBasedSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time
         lower_radius = radius_intervals[i];
     }
     (*mpAverageRadialPdeSolutionResultsFile) << "\n";
+}
+
+template<unsigned DIM>
+void CellBasedSimulationWithPdes<DIM>::WriteCoarseMeshToFile()
+{
+    TrianglesMeshWriter<DIM,DIM> mesh_writer(this->mSimulationOutputDirectory+"/coarse_mesh_output", "coarse_mesh",false);
+	mesh_writer.WriteFilesUsingMesh(*mpCoarsePdeMesh);
 }
 
 template<unsigned DIM>
