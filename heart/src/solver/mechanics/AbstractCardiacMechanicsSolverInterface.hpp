@@ -45,13 +45,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned DIM>
-class AbstractCardiacMechanicsSolverInterface //: public virtual AbstractNonlinearElasticitySolver<DIM> ///\todo: see #1756
+class AbstractCardiacMechanicsSolverInterface
 {
 public:
     /** Constructor, does nothing */
     AbstractCardiacMechanicsSolverInterface()
- ///\todo: see #1756
- //        : AbstractNonlinearElasticitySolver<DIM>()
     {
     }
 
