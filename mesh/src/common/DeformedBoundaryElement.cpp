@@ -73,14 +73,6 @@ void DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ApplyUndeformedElementAndDispl
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double,SPACE_DIM> DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ComputeDeformedOutwardNormal()
-{
-    ///\todo Remove this method, deprecated by ...
-    c_vector<double,SPACE_DIM> deformed_normal = this->CalculateNormal();
-    return deformed_normal;
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

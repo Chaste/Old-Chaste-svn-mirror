@@ -1200,6 +1200,16 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
     {
         mpOutputFileHandler = new OutputFileHandler(mOutputDirectory);
     }
+
+    // If the problem includes specified pressures on deformed surfaces (as opposed
+    // to specified tractions), the code needs to compute normals, and they need
+    // to be consistently all facing outward (or all facing inward). Check the undeformed
+    // mesh boundary elements has nodes that are ordered so that all normals are
+    // outward-facing
+    if(mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
+    {
+        mrQuadMesh.CheckOutwardNormals();
+    }
 }
 
 template<unsigned DIM>

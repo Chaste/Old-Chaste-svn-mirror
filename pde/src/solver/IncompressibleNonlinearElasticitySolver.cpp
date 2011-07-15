@@ -577,7 +577,7 @@ void IncompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
         // recompute the jacobian determinant for the deformed element
         this->mDeformedBoundaryElement.CalculateWeightedDirection(weighted_direction, jacobian_determinant);
         // compute deformed normal
-        deformed_normal = this->mDeformedBoundaryElement.ComputeDeformedOutwardNormal();
+        deformed_normal = this->mDeformedBoundaryElement.CalculateNormal();
     }
 
 

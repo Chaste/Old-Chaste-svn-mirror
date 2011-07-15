@@ -66,8 +66,8 @@ public:
 
 
         // normal = (-1, 0)
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(0),-1.0, 1e-12);
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(0),-1.0, 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(1), 0.0, 1e-12);
 
         // move nodes to (1.1,1.1) and (0.1,0.1)
         displacement[0](0) = 1.01;
@@ -84,8 +84,8 @@ public:
         TS_ASSERT_DELTA( deformed_bdy_element.GetNode(1)->rGetLocation()[1], 0.01, 1e-12);
 
         // normal is now (-1/sqrt(2), 1/sqrt(2))
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(0),-1.0/sqrt(2), 1e-12);
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(1), 1.0/sqrt(2), 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(0),-1.0/sqrt(2), 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(1), 1.0/sqrt(2), 1e-12);
     }
 
 
@@ -121,9 +121,9 @@ public:
         }
 
         // normal = (0,0,1)
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(1), 0.0, 1e-12);
-        TS_ASSERT_DELTA(deformed_bdy_element.ComputeDeformedOutwardNormal()(2), 1.0, 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(deformed_bdy_element.CalculateNormal()(2), 1.0, 1e-12);
     }
 
 };

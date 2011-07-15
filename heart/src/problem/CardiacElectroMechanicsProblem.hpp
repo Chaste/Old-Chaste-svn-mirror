@@ -84,10 +84,10 @@ protected :
     MonodomainProblem<DIM>* mpMonodomainProblem;
 
     /** The mechanics solver - a pointer to the part that sees the cardiac mechanics interface bit.
-     * (Object pointed to is the same as with mpMechanicsSolver */
+     * (Object pointed to is the same as with mpMechanicsSolver) */
     AbstractCardiacMechanicsSolverInterface<DIM>* mpCardiacMechSolver;
     /** The mechanics solver - a pointer to the part that sees the solid mechanics solver
-     * (Object pointed to is the same as with mpCardiacMechSolver */
+     * (Object pointed to is the same as with mpCardiacMechSolver) */
     AbstractNonlinearElasticitySolver<DIM>* mpMechanicsSolver;
 
     /** End time. The start time is assumed to be 0.0 */

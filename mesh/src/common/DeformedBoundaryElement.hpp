@@ -39,14 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  deformed surfaces, for which this class is a helper class. It takes in
  *  an base boundary element, and a set of displacements for each node of the mesh,
  *  and sets up the corresponding deformed boundary element, on which
- *  ComputeJacobianDeterminant() etc can be called. Also provides a
- *  ComputeDeformedOutwardNormal() methods.
+ *  CalculateNormal(), ComputeJacobianDeterminant() etc can be called.
  *
  *  Note: just use the vertices of the elements, ignores internal nodes, hence this
  *  class is treats the element as a linear element (ie ignores the possible curved
  *  deformed edges). Hence the outward normal, jacobian determinant etc is constant
  *  across the element.
- *
  */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 class DeformedBoundaryElement : public Element<ELEM_DIM,SPACE_DIM>
@@ -54,9 +52,6 @@ class DeformedBoundaryElement : public Element<ELEM_DIM,SPACE_DIM>
 private:
     /** Number of nodes (or actually, vertices) per boundary element. */
     static const size_t NUM_NODES = ELEM_DIM+1;
-
-    //// Todo: use a mesh to determine whether the normal is inward or outward facing
-    // AbstractTetrahedralMesh<DIM+1,DIM+1>* mpMesh
 
 public:
     /**
@@ -77,7 +72,7 @@ public:
      *  Apply an undeformed boundary element and corresponding displacements of each node
      *  (Note: just displacements of the vertices of the element, not any internal nodes).
      *
-     *  Overwrites the nodal locations with the given data.
+     *  Over-writes the nodal locations with the given data.
      *
      *  @param pUndeformedElement The undeformed element
      *  @param rDisplacement Displacement of each node (should be of size ELEM_DIM+1, ie num vertices
@@ -86,11 +81,6 @@ public:
     void ApplyUndeformedElementAndDisplacement( BoundaryElement<ELEM_DIM,SPACE_DIM>* pUndeformedElement,
                                                 std::vector<c_vector<double,SPACE_DIM> >& rDisplacement);
 
-    /**
-     *  Compute the outward normal of the deformed element. Call after
-     *  ApplyUndeformedElementAndDisplacement().
-     */
-    c_vector<double,SPACE_DIM> ComputeDeformedOutwardNormal();
 };
 
 #endif /* DEFORMEDBOUNDARYELEMENT_HPP_ */
