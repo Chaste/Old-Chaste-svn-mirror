@@ -848,12 +848,20 @@ public:
             mesh.ConstructCuboid(2,3,4);
             mesh.CheckOutwardNormals();
         }
+        //These can't be done
         {
             TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
             TetrahedralMesh<2,3> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             TS_ASSERT_THROWS_THIS(mesh.CheckOutwardNormals(),
                     "Don't have enough information to calculate a normal vector");
+        }
+        {
+            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+            TetrahedralMesh<1,1> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            TS_ASSERT_THROWS_THIS(mesh.CheckOutwardNormals(),
+                    "1-D mesh has no boundary normals");
         }
     }
 

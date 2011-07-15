@@ -717,9 +717,19 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        BoundaryElement<0,1>* p_end_boundary = mesh.GetBoundaryElement(0);
+        c_vector<double, 1> dir;
+        double unit_det;
+        p_end_boundary->CalculateWeightedDirection(dir, unit_det);
+        TS_ASSERT_EQUALS(dir[0], 1.0);
+        TS_ASSERT_EQUALS(unit_det, 1.0);
+        dir = p_end_boundary->CalculateNormal();
+        TS_ASSERT_EQUALS(dir[0], 0.0);
+
         ChastePoint<1> new_point(0.01);
         Element<1,1>* p_first_element = mesh.GetElement(0);
-
+        
+        
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
 
         // Instead of a element with nodes at 0 and 0.1

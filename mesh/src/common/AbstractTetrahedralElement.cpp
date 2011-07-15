@@ -308,8 +308,7 @@ c_vector<double, SPACE_DIM> AbstractTetrahedralElement<0, SPACE_DIM>::CalculateN
 
     // End point of a line
     c_vector<double, SPACE_DIM> normal = zero_vector<double>(SPACE_DIM);
-    normal(0) = 1.0;
-
+    ///\todo should throw?
     return normal;
 }
 
