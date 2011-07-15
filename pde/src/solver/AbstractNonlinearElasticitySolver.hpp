@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "AbstractMaterialLaw.hpp"
 #include "Warnings.hpp"
+#include "PetscException.hpp"
 
 #include "SolidMechanicsProblemDefinition.hpp"
 #include "DeformedBoundaryElement.hpp"
@@ -955,6 +956,10 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 
 //todo
     KSPSolve(solver,mLinearSystemRhsVector,solution);
+
+    KSPConvergedReason reason;
+    KSPGetConvergedReason(solver,&reason);
+    KSPEXCEPT(reason);
 
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
