@@ -40,17 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * A system of parabolic PDEs, which may be coupled via their source terms:
  *
- * d/dt (u_i) = div (D(x) grad (u_i)) + f_i (x, u_1, ..., u_p, v_1, ..., v_q),  i=1,...,p.
+ * d/dt (u_i) = div (D(x) grad (u_i)) + f_i (x, u_0, ..., u_{p-1}, v_0, ..., v_{q-1}),  i=0,...,p-1.
  *
  * Here p denotes the size of the PDE system and each source term f_i may be nonlinear.
- * The variables v_1, ..., v_q are assumed to satisfy a coupled ODE system of the form
+ * The variables v_0, ..., v_{q-1} are assumed to satisfy a coupled ODE system of the form
  *
- * d/dt (v_j) = g_j(x, u_1, ..., u_p, v_1, ..., v_q),  j=1,...,q.
+ * d/dt (v_j) = g_j(x, u_0, ..., u_{p-1}, v_0, ..., v_{q-1}),  j=0,...,q-1.
  *
  * Such systems may be solved using LinearParabolicPdeSystemWithCoupledOdeSystemSolver.
- *
- * \todo check that the ODE solution vector is of the correct size, and the PDE index
- * is within the correct range, throughout (#1777)
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM=ELEMENT_DIM, unsigned PROBLEM_DIM=1>
 class AbstractLinearParabolicPdeSystemForCoupledOdeSystem

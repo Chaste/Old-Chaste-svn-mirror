@@ -305,13 +305,8 @@ public:
         // Create PDE system solver
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<2,2,1> solver(&mesh, &pde, &bcc, ode_systems);
 
-        // Set output directory
-        solver.SetOutputDirectory("TestHeatEquationForCoupledOdeSystemIn2dWithZeroDirichletWithOutput");
-
         // Set end time and timestep (end time is not a multiple of timestep, for coverage)
         double t_end = 0.105;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.01);
 
         /*
          * Set initial condition
@@ -331,12 +326,30 @@ public:
         solver.SetInitialCondition(initial_condition);
 
         TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+                "SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");
+
+        // Set output directory
+        solver.SetOutputDirectory("TestHeatEquationForCoupledOdeSystemIn2dWithZeroDirichletWithOutput");
+
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+                "SetTimes() must be called prior to SolveAndWriteResultsToFile()");
+
+        // Set times
+        solver.SetTimes(0, t_end);
+
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+                "SetTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+
+        // Set times
+        solver.SetTimeStep(0.01);
+
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
         		"SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
 
         // Set sampling time step
         solver.SetSamplingTimeStep(0.1);
 
-        solver.SolveAndWriteResultsToFile();
+        TS_ASSERT_THROWS_NOTHING(solver.SolveAndWriteResultsToFile());
 
         // Tidy up
         VecDestroy(initial_condition);

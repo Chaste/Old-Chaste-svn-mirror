@@ -220,14 +220,6 @@ public:
     /**
      * Solve the coupled PDE/ODE system over the pre-specified time interval,
      * and record results using mSamplingTimeStep.
-     *
-     * \todo (#1777) here we are assuming:
-     *    - SPACE_DIM > 1
-     *    - VTK is installed
-     *    - SetOutputDirectory() has been called on the solver object
-     *    - SetTimes() has been called on the solver object
-     *    - SetTimeStep() has been called on the solver object
-     *    - SetSamplingTimeStep() has been called on the solver object
      */
     void SolveAndWriteResultsToFile();
 
@@ -402,7 +394,8 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
       mOdeSystemsAtNodes(odeSystemsAtNodes),
       mpOdeSolver(pOdeSolver),
       mSamplingTimeStep(DOUBLE_UNSET),
-      mOdeSystemsPresent(false)
+      mOdeSystemsPresent(false),
+      mOutputDirectory("")
 {
     this->mpBoundaryConditions = pBoundaryConditions;
 
@@ -481,6 +474,21 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SolveAndWriteResultsToFile()
 {
+    if (mOutputDirectory == "")
+    {
+        EXCEPTION("SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");
+    }
+
+    if (this->mTimesSet == false)
+    {
+        EXCEPTION("SetTimes() must be called prior to SolveAndWriteResultsToFile()");
+    }
+
+    if (this->mIdealTimeStep <= 0.0)
+    {
+        EXCEPTION("SetTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+    }
+
 	if (mSamplingTimeStep == DOUBLE_UNSET)
 	{
 		EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
@@ -527,6 +535,8 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "    </Collection>\n";
     *mpVtkMetaFile << "</VTKFile>\n";
     mpVtkMetaFile->close();
+#else //CHASTE_VTK
+    WARNING("VTK is not installed and is required for output");
 #endif //CHASTE_VTK
 }
 
