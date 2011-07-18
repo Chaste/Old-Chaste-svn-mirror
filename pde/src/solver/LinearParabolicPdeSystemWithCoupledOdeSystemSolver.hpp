@@ -418,25 +418,19 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
     {
         mOdeSystemsPresent = true;
         assert(mOdeSystemsAtNodes.size() == mpMesh->GetNumNodes());
-    }
-    
-    ///\todo #1777 Fix for use_cvode=0
-#define COVERAGE_IGNORE
-    if (!mpOdeSolver && mOdeSystemsAtNodes.empty())
-    {
-        ///\todo #1777 Remove this exception test
-        EXCEPTION("This test will fail with use_cvode=0");
-    }
-#undef COVERAGE_IGNORE
-    
-    if (!mpOdeSolver)
-    {
+
+        /*
+         * In this case, if an ODE solver is not explicitly passed into the
+         * constructor, then we create a default solver.
+         */
+        if (!mpOdeSolver)
+        {
 #ifdef CHASTE_CVODE
-        mpOdeSolver = new CvodeAdaptor;
+            mpOdeSolver = new CvodeAdaptor;
 #else
-        assert(mOdeSystemsPresent);
-        mpOdeSolver = new BackwardEulerIvpOdeSolver(mOdeSystemsAtNodes[0]->GetNumberOfStateVariables());
+            mpOdeSolver = new BackwardEulerIvpOdeSolver(mOdeSystemsAtNodes[0]->GetNumberOfStateVariables());
 #endif //CHASTE_CVODE
+        }
     }
 }
 

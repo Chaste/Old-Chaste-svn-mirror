@@ -348,9 +348,7 @@ public:
      * for solving standard reaction-diffusion problems arising in the
      * study of pattern formation on fixed domains.
      */
-    ///\todo #1777 This test will now throw "This test will fail with use_cvode=0"
-    ///\todo Also check the tutorial
-    void this_test_now_fails_TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
+    void TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet()
     {
         // Create mesh of domain [0,1]
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_1000_elements");
