@@ -478,17 +478,14 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     {
         EXCEPTION("SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");
     }
-
     if (this->mTimesSet == false)
     {
         EXCEPTION("SetTimes() must be called prior to SolveAndWriteResultsToFile()");
     }
-
     if (this->mIdealTimeStep <= 0.0)
     {
         EXCEPTION("SetTimeStep() must be called prior to SolveAndWriteResultsToFile()");
     }
-
 	if (mSamplingTimeStep == DOUBLE_UNSET)
 	{
 		EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
@@ -502,33 +499,14 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
     *mpVtkMetaFile << "    <Collection>\n";
 
-    // Store the 'true' start and end times and the number of nodes in the mesh
-    double true_t_start = this->mTstart;
-    double true_t_end = this->mTend;
-
-    ///\todo (#1777) this is a fudge!
-    unsigned num_sampling_timesteps = (unsigned)((true_t_end + 1e-6 - true_t_start)/mSamplingTimeStep);
-
+    TimeStepper stepper(this->mTstart, this->mTend, mSamplingTimeStep);
     ///\todo (#1777) output VTK for initial conditions
 
     // Main time loop
-    double this_t_end = 0.0;
-    unsigned num_sampling_timesteps_elapsed = 0;
-    while (num_sampling_timesteps_elapsed < num_sampling_timesteps)
+    while ( !stepper.IsTimeAtEnd() )
     {
-        double this_t_start = true_t_start + num_sampling_timesteps_elapsed*mSamplingTimeStep;
-        this_t_end = true_t_start + (num_sampling_timesteps_elapsed+1)*mSamplingTimeStep;
-
-        SolveAndWriteResultsToFileForTimes(this_t_start, this_t_end, num_sampling_timesteps_elapsed);
-
-        num_sampling_timesteps_elapsed++;
-    }
-
-    // Deal with last sampling timestep if necessary
-    ///\todo (#1777) sort out aforementioned fudge!
-    if (this_t_end < true_t_end)
-    {
-        SolveAndWriteResultsToFileForTimes(this_t_end, true_t_end, num_sampling_timesteps_elapsed);
+        SolveAndWriteResultsToFileForTimes(stepper.GetTime(), stepper.GetNextTime(), stepper.GetTotalTimeStepsTaken());
+        stepper.AdvanceOneTimeStep();
     }
 
     // Close .pvd output file
@@ -536,7 +514,9 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "</VTKFile>\n";
     mpVtkMetaFile->close();
 #else //CHASTE_VTK
-    WARNING("VTK is not installed and is required for output");
+#define COVERAGE_IGNORE //We can't test this in regular builds
+    EXCEPTION("VTK is not installed and is required for this functionality");
+#undef //COVERAGE_IGNORE    
 #endif //CHASTE_VTK
 }
 
