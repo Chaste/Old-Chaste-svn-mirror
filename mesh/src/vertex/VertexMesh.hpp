@@ -521,7 +521,7 @@ public:
     /**
      * A smart iterator over the elements in the mesh.
      *
-     * \todo This is the same as in AbstractTetrahedralMesh - merge? (#1379)
+     * \todo This is the same as in AbstractTetrahedralMesh and PottsMesh- merge? (#1379)
      */
     class VertexElementIterator
     {
@@ -554,7 +554,7 @@ public:
          * Constructor for a new iterator.
          *
          * This should not be called directly by user code; use the mesh methods
-         * AbstractTetrahedralMesh::GetElementIteratorBegin and AbstractTetrahedralMesh::GetElementIteratorEnd instead.
+         * VertexMesh::GetElementIteratorBegin and VertexMesh::GetElementIteratorEnd instead.
          *
          * @param rMesh the mesh to iterator over
          * @param elementIter where to start iterating
