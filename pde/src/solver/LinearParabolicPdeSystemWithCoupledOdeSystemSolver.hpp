@@ -267,7 +267,6 @@ c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> Linea
             prod(trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(this_pde_diffusion_term, rGradPhi)) )
                 + timestep_inverse * this_dudt_coefficient * outer_prod(rPhi, rPhi);
 
-        ///\todo (#1777) This is probably a horribly inefficient way of building the matrix!
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
@@ -298,7 +297,6 @@ c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> LinearParabolicPdeSystemWithCouple
         double this_source_term = mpPdeSystem->ComputeSourceTerm(rX, rU, mInterpolatedOdeStateVariables, pde_index);
         c_vector<double, ELEMENT_DIM+1> this_vector_term = (this_source_term + timestep_inverse*this_dudt_coefficient*rU(pde_index))* rPhi;
 
-        ///\todo (#1777) This is probably a horribly inefficient way of building the vector!
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             vector_term(i*PROBLEM_DIM + pde_index) = this_vector_term(i);
@@ -323,7 +321,6 @@ c_vector<double, PROBLEM_DIM*ELEMENT_DIM> LinearParabolicPdeSystemWithCoupledOde
         double this_D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, pde_index);
         c_vector<double, ELEMENT_DIM> this_vector_surface_term = rPhi * this_D_times_gradu_dot_n;
 
-        ///\todo (#1777) This is probably a horribly inefficient way of building the vector!
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
             vector_surface_term(i*PROBLEM_DIM + pde_index) = this_vector_surface_term(i);
