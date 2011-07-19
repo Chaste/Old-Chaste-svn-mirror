@@ -1445,11 +1445,13 @@ public:
 		p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
 		p_data->SetCellPopulation(&cell_population);
 
-		// Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-		// we need to pass it some initial conditions to avoid memory errors
+		/*
+		 * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+		 * we need to pass it some initial conditions to avoid memory errors.
+		 */
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
-			p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(),0);
+			p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(), 0);
 		}
 
 		// Set up PDE
@@ -1520,11 +1522,13 @@ public:
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
         p_data->SetCellPopulation(&cell_population);
 
-        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-        // we need to pass it some initial conditions to avoid memory errors
+        /*
+         * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+         * we need to pass it some initial conditions to avoid memory errors.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(),0);
+            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(), 0);
         }
 
         // Set up PDE - zero uptake to check analytic solution.
@@ -1612,7 +1616,6 @@ public:
         // Create a simple mesh
 		TetrahedralMesh<2,2> temp_mesh;
 		temp_mesh.ConstructRectangularMesh(10,10);
-		//temp_mesh.Scale(5.0,5.0); //Stretch it so we use coarse graining
 
 		NodesOnlyMesh<2> mesh;
 		mesh.ConstructNodesWithoutMesh(temp_mesh);
@@ -1643,29 +1646,28 @@ public:
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
         p_data->SetCellPopulation(&cell_population);
 
-        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-        // we need to pass it some initial conditions to avoid memory errors
+        c_vector<double,2> centre_of_mesh;
+        centre_of_mesh[0] = 5.0;
+        centre_of_mesh[1] = 5.0;
+
+        /*
+         * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+         * we need to pass it some initial conditions to avoid memory errors.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	c_vector<double,2> location;
-        	c_vector<double,2> centre_of_mesh;
-        	centre_of_mesh[0]=5.0;
-        	centre_of_mesh[1]=5.0;
-        	location=mesh.GetNode(i)->rGetLocation();
-        	double initial_condition;
-        	if(norm_2(location-centre_of_mesh)<1.0)
+        	c_vector<double,2> location = mesh.GetNode(i)->rGetLocation();
+
+        	double initial_condition = 0.0;
+        	if (norm_2(location-centre_of_mesh) >= 1.0)
         	{
-        		initial_condition=0.0;
-        	}
-        	else
-        	{
-        		initial_condition=1.0;
+        		initial_condition = 1.0;
         	}
 
             p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE - uniform uptake at each cell.
+        // Set up PDE - uniform uptake at each cell
         AveragedSourcePde<2> pde(cell_population, -0.01);
         ConstBoundaryCondition<2> bc(1.0);
         bool is_neumann_bc = false;
@@ -1682,7 +1684,7 @@ public:
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
-        // Tell simulator to use the coarse mesh.
+        // Tell simulator to use the coarse mesh
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
         //Solve the system
@@ -1703,13 +1705,12 @@ public:
         // Create a simple mesh
         TetrahedralMesh<2,2> temp_mesh;
 		temp_mesh.ConstructRegularSlabMesh(2.0,2,2);
-		//temp_mesh.Scale(5.0,5.0); //Stretch it so we use coarse graining
 
 		NodesOnlyMesh<2> mesh;
 		mesh.ConstructNodesWithoutMesh(temp_mesh);
 
 		// Set some cell radius
-		for(unsigned i=0;i<mesh.GetNumNodes();i++)
+		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
 			mesh.SetCellRadius(i, 0.9);
 		}
@@ -1740,34 +1741,32 @@ public:
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
         p_data->SetCellPopulation(&cell_population);
 
-        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
-        // we need to pass it some initial conditions to avoid memory errors
+        c_vector<double,2> centre_of_mesh;
+        centre_of_mesh[0] = 5.0;
+        centre_of_mesh[1] = 5.0;
+
+        /*
+         * Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+         * we need to pass it some initial conditions to avoid memory errors.
+         */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	c_vector<double,2> location;
-        	c_vector<double,2> centre_of_mesh;
-        	centre_of_mesh[0]=5.0;
-        	centre_of_mesh[1]=5.0;
-        	location=mesh.GetNode(i)->rGetLocation();
-        	double initial_condition;
-        	if(norm_2(location-centre_of_mesh)<1.0)
-        	{
-        		initial_condition=0.0;
-        	}
-        	else
-        	{
-        		initial_condition=1.0;
-        	}
+            c_vector<double,2> location = mesh.GetNode(i)->rGetLocation();
+
+            double initial_condition = 0.0;
+            if (norm_2(location-centre_of_mesh) >= 1.0)
+            {
+                initial_condition = 1.0;
+            }
 
             p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE - uniform uptake at each cell.
+        // Set up PDE - uniform uptake at each cell
         VolumeDependentAveragedSourcePde<2> pde(cell_population, -0.01);
         ConstBoundaryCondition<2> bc(1.0);
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
-
 
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
@@ -1790,15 +1789,12 @@ public:
         //Solve the system
         simulator.Solve();
 
-        // Check the correct cell density is in each element.
-
+        // Check the correct cell density is in each element
         unsigned num_elements_in_coarse_mesh = simulator.mpCoarsePdeMesh->GetNumElements();
-
-        unsigned cells_in_each_coarse_element[num_elements_in_coarse_mesh];
-
-        for(unsigned i=0;i<num_elements_in_coarse_mesh;i++)
+        std::vector<unsigned> cells_in_each_coarse_element(num_elements_in_coarse_mesh);
+        for (unsigned i=0; i<num_elements_in_coarse_mesh; i++)
         {
-        	cells_in_each_coarse_element[i]=0;
+        	cells_in_each_coarse_element[i] = 0;
         }
 
         // Find out how many cells lie in each element
@@ -1808,17 +1804,17 @@ public:
         {
         	// Get containing element
         	unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
-        	cells_in_each_coarse_element[containing_element_index]+=1;
+        	cells_in_each_coarse_element[containing_element_index] += 1;
         }
 
-        for(unsigned i=0;i<num_elements_in_coarse_mesh;i++)
+        for (unsigned i=0; i<num_elements_in_coarse_mesh; i++)
         {
 			c_matrix<double, 2, 2> jacobian;
 			double det;
 			simulator.mpCoarsePdeMesh->GetElement(i)->CalculateJacobian(jacobian, det);
 			double element_volume = simulator.mpCoarsePdeMesh->GetElement(i)->GetVolume(det);
-			double uptake_rate= pde.GetUptakeRateForElement(i);
-			double expected_uptake=0.9*0.9*(cells_in_each_coarse_element[i]/element_volume);
+			double uptake_rate = pde.GetUptakeRateForElement(i);
+			double expected_uptake = 0.9*0.9*(cells_in_each_coarse_element[i]/element_volume);
 
 			TS_ASSERT_DELTA(uptake_rate, expected_uptake, 1e-4);
         }

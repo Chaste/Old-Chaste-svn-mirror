@@ -867,7 +867,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     AOApplicationToPetsc(ordering, my_num_nodes, local_range);
     //AOView(ordering, PETSC_VIEWER_STDOUT_WORLD);
 
-    // Fill in rNodesOwned (TODO: do something smarter with iterators...)
+    // Fill in rNodesOwned
+    ///\todo do something smarter with iterators...
     for (unsigned i=0; i<my_num_nodes; i++)
     {
         rNodesOwned.insert(local_range[i]);

@@ -404,7 +404,7 @@ public:
 
     /*
      * This test visualizing cells of 2 mutation types, wildtype and labelled type.
-     * It asserts that neighboring cells have the correct adhesion parameter for difference
+     * It asserts that neighbouring cells have the correct adhesion parameter for difference
      * pairs of nodes.
      */
     void TestVertexMonolayerWithTwoMutationTypes() throw (Exception)

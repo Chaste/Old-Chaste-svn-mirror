@@ -77,7 +77,7 @@ protected:
      * Locations of T1Swaps (the mid point of the moving nodes), stored so they can be accessed and output by the cell population.
      * The locations are stored until they are cleared by ClearLocationsOfT1Swaps()
      */
-    std::vector< c_vector<double, SPACE_DIM> > mLocationsOfT1Swaps ;
+    std::vector< c_vector<double, SPACE_DIM> > mLocationsOfT1Swaps;
 
     /**
      * Locations of T3Swaps (the location of the intersection with the edge), stored so they can be accessed and output by the cell population.

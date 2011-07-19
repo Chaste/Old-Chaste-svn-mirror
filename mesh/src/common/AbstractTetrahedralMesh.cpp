@@ -205,8 +205,8 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckOutwardNormals()
         }
         assert(p_opposite_node != NULL);
 
-        //Vector from centroid of face to opposite node
-        c_vector<double, SPACE_DIM> into_mesh = p_opposite_node->rGetLocation() - (*face_iter)->CalculateCentroid() ;
+        // Vector from centroid of face to opposite node
+        c_vector<double, SPACE_DIM> into_mesh = p_opposite_node->rGetLocation() - (*face_iter)->CalculateCentroid();
         c_vector<double, SPACE_DIM> normal = (*face_iter)->CalculateNormal();
 
         if (inner_prod(into_mesh, normal) > 0.0)

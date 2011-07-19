@@ -330,7 +330,7 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(
         if (norm_2(a_to_b)< 2.0*mCellRearrangementRatio*mCellRearrangementThreshold)
         {
             WARNING("Edge is too small for normal division, putting node in the middle of a and b, there may be T1Swaps straight away.");
-            ///\todo or should we move a and b apart, it may interfere with neighboring edges? (see #1399)
+            ///\todo or should we move a and b apart, it may interfere with neighbouring edges? (see #1399)
             intersection = position_a + 0.5*a_to_b;
         }
         else

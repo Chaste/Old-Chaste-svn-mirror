@@ -220,14 +220,14 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(const std::string& rVari
         if ( node_index == mIncompleteNodeIndices.size())
         {
             std::stringstream ss;
-            ss << "The incomplete file does not contain info of node " << nodeIndex ;
+            ss << "The incomplete file does not contain info of node " << nodeIndex;
             EXCEPTION(ss.str());
         }
     }
     if (actual_node_index >= mVariablesDatasetSizes[1])
     {
         std::stringstream ss;
-        ss << "The file doesn't contain info of node " << actual_node_index ;
+        ss << "The file doesn't contain info of node " << actual_node_index;
         EXCEPTION(ss.str());
     }
 

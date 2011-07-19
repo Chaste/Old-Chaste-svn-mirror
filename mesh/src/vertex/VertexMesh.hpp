@@ -521,7 +521,7 @@ public:
     /**
      * A smart iterator over the elements in the mesh.
      *
-     * \todo This is the same as in AbstractTetrahedralMesh and PottsMesh- merge? (#1379)
+     * \todo This is the same as in AbstractTetrahedralMesh and PottsMesh - merge? (#1379)
      */
     class VertexElementIterator
     {

@@ -50,7 +50,6 @@ private:
      */
     std::vector<double> mCellRadii;
 
-
     friend class TestNodesOnlyMesh;
 
     /** Needed for serialization. */
@@ -70,8 +69,10 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<MutableMesh<SPACE_DIM, SPACE_DIM> >(*this);
-        //Note that the MutableMesh archiver does a remesh.  If there are deleted nodes then we want to wait
-        //for them to be re-numbered before archiving the radii
+        /*
+         * Note that the MutableMesh archiver does a remesh. If there are deleted nodes
+         * then we want to wait for them to be re-numbered before archiving the radii.
+         */
         archive & mCellRadii;
     }
 

@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CellBasedSimulationWithPdes.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NodeBasedCellPopulation.hpp"
@@ -478,7 +477,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			double current_time = SimulationTime::Instance()->GetTime();
 			(*mpVizCoarsePdeSolutionResultsFile) << current_time << "\t";
 
-			for(unsigned i=0; i< solution_repl.GetSize();i++)
+			for (unsigned i=0; i< solution_repl.GetSize();i++)
 			{
 				c_vector<double,DIM> location = mpCoarsePdeMesh->GetNode(i)->rGetLocation();
 				double solution = solution_repl[i];
@@ -589,7 +588,7 @@ template<unsigned DIM>
 c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationLocation()
 {
 	// Loop over cells and calculate centre of mass
-	c_vector<double,DIM> cell_population_centre=zero_vector<double>(DIM);
+	c_vector<double,DIM> cell_population_centre = zero_vector<double>(DIM);
 	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
 		cell_iter != this->mrCellPopulation.End();
 		++cell_iter)

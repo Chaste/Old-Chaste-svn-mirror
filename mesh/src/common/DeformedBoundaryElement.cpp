@@ -39,13 +39,13 @@ DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::DeformedBoundaryElement()
     this->AddNode(new Node<SPACE_DIM>(UINT_MAX, x0));
 
     c_vector<double,SPACE_DIM> x1 = zero_vector<double>(SPACE_DIM);
-    x1(0)=1.0;
+    x1(0) = 1.0;
     this->AddNode(new Node<SPACE_DIM>(UINT_MAX, x1));
 
-    if(ELEM_DIM==2)
+    if (ELEM_DIM==2)
     {
         c_vector<double,SPACE_DIM> x2 = zero_vector<double>(SPACE_DIM);
-        x2(1)=1.0;
+        x2(1) = 1.0;
         this->AddNode(new Node<SPACE_DIM>(UINT_MAX, x2));
     }
 }
@@ -60,12 +60,12 @@ DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::~DeformedBoundaryElement()
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ApplyUndeformedElementAndDisplacement( BoundaryElement<ELEM_DIM,SPACE_DIM>* pUndeformedElement,
-                                                                                         std::vector<c_vector<double,SPACE_DIM> >& rDisplacement)
+void DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ApplyUndeformedElementAndDisplacement(BoundaryElement<ELEM_DIM,SPACE_DIM>* pUndeformedElement,
+                                                                                        std::vector<c_vector<double,SPACE_DIM> >& rDisplacement)
 {
-    for(unsigned i=0; i<NUM_NODES; i++)
+    for (unsigned i=0; i<NUM_NODES; i++)
     {
-        for(unsigned j=0; j<SPACE_DIM; j++)
+        for (unsigned j=0; j<SPACE_DIM; j++)
         {
             this->GetNode(i)->rGetModifiableLocation()[j]
               = pUndeformedElement->GetNode(i)->rGetLocation()[j] + rDisplacement[i](j);
@@ -73,11 +73,9 @@ void DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::ApplyUndeformedElementAndDispl
     }
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
 template class DeformedBoundaryElement<1,2>;
 template class DeformedBoundaryElement<2,3>;
-

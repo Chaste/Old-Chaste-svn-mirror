@@ -36,7 +36,7 @@ VolumeDependentAveragedSourcePde<DIM>::VolumeDependentAveragedSourcePde(Abstract
       mCoefficient(coefficient)
 {
 	assert(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
-	mpStaticCastCellPopulation=static_cast<NodeBasedCellPopulation<DIM>*>(&mrCellPopulation);
+	mpStaticCastCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*>(&mrCellPopulation);
 }
 
 template<unsigned DIM>
@@ -57,27 +57,13 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
         const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
-        //
-        double cell_weight=0.0;
+		unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-		unsigned node_index=mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
-		if(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)))
-		{
+		// Uptake normalised to 1 for unit cell
+		double radius = mpStaticCastCellPopulation->rGetMesh().GetCellRadius(node_index);
+		double cell_weight = radius*radius;
 
-			// Uptake normalised to 1 for unit cell.
-			double radius=mpStaticCastCellPopulation->rGetMesh().GetCellRadius(node_index);
-			cell_weight=radius*radius;
-
-		}
-        else
-        {
-            ///\todo What happens if cell_weight is not initialised?
-            NEVER_REACHED;
-        }
-
-
-        bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
-
+		bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
         if (!cell_is_apoptotic)
         {
             mCellDensityOnCoarseElements[elem_index] += cell_weight;
