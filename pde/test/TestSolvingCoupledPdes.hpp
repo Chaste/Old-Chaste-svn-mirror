@@ -95,7 +95,7 @@ private:
 
         /*
          * The following can be done more efficiently using matrix slices
-         * and prods and so on (see BidomainDg0Assembler) - efficiency not
+         * and prods and so on (see BidomainAssembler) - efficiency not
          * needed for this test though.
          */
         for (unsigned i=0; i<3; i++)
@@ -221,7 +221,7 @@ private:
 
         /*
          * The following can be done more efficiently using matrix slices
-         * and prods and so on (see BidomainDg0Assembler) - efficiency not
+         * and prods and so on (see BidomainAssembler) - efficiency not
          * needed for this test though.
          */
         for (unsigned i=0; i<3; i++)
