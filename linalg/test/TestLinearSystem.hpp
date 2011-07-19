@@ -1477,5 +1477,27 @@ public:
     }
     // The above test should be last in the suite
 
+
+//#1834
+    void xxxxxxxTestSolveShowingPetscIsRubbish() throw(Exception)
+    {
+        LinearSystem ls(2);
+
+        ls.SetMatrixElement(0, 0, 1.0);
+        ls.SetMatrixElement(0, 1, 0.0);
+        ls.SetMatrixElement(1, 0, 0.0);
+        ls.SetMatrixElement(1, 1, 1.0);
+
+        ls.SetRhsVectorElement(0, 1e-17);
+        ls.SetRhsVectorElement(1, 0.0);
+
+        Vec init_cond = PetscTools::CreateAndSetVec(2, 0.0);
+        PetscVecTools::SetElement(init_cond, 0, 0.01);
+
+        ls.AssembleFinalLinearSystem();
+
+        Vec solution_vector;
+        solution_vector = ls.Solve(init_cond); // fails to solve..
+    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_
