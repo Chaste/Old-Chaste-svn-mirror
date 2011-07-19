@@ -516,7 +516,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 #else //CHASTE_VTK
 #define COVERAGE_IGNORE //We can't test this in regular builds
     EXCEPTION("VTK is not installed and is required for this functionality");
-#undef //COVERAGE_IGNORE    
+#undef COVERAGE_IGNORE
 #endif //CHASTE_VTK
 }
 
