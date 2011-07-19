@@ -80,7 +80,7 @@ private:
     }
 
 
-    //  - todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
+    ///\todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
     //         - make default Jacobian analytic
 
     virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1>& rPhi,

@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "LinearParabolicPdeSystemWithCoupledOdeSystemSolver.hpp"
 #include "OutputFileHandler.hpp"
+#include "NumericFileComparison.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
@@ -381,7 +382,6 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(mesh.GetNumNodes()-1), p_bc_for_v, 1);
 
         // Create PDE system solver
-        ///\todo #1777 This line will now throw "This test will fail with use_cvode=0"
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<1,1,2> solver(&mesh, &pde, &bcc);
 
         // Set end time and time step
@@ -400,27 +400,28 @@ public:
         solver.SetInitialCondition(initial_condition);
 
         // Solve PDE system and store result
-        Vec result = solver.Solve();
-        ReplicatableVector result_repl(result);
-
-        // Store results in an accessible form
-        ReplicatableVector solution_repl(result);
+        Vec solution = solver.Solve();
+        ReplicatableVector solution_repl(solution);
 
         // Write results for visualization in gnuplot
-        OutputFileHandler handler("TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet");
-        out_stream file = handler.OpenOutputFile("schnackenberg.dat");
+        OutputFileHandler handler("TestSchnackenbergCoupledPdeSystemIn1dWithNonZeroDirichlet", false);
+        out_stream results_file = handler.OpenOutputFile("schnackenberg.dat");
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double u = solution_repl[2*i];
             double v = solution_repl[2*i + 1];
-            (*file) << x << "\t" << u << "\t" << v << "\n" << std::flush;
+            (*results_file) << x << "\t" << u << "\t" << v << "\n" << std::flush;
         }
-        file->close();
+        results_file->close();
+
+        std::string results_filename = handler.GetOutputDirectoryFullPath() + "schnackenberg.dat";
+        NumericFileComparison comp_results(results_filename, "pde/test/data/schnackenberg.dat");
+        TS_ASSERT(comp_results.CompareFiles(1e-15));
 
         // Tidy up
         VecDestroy(initial_condition);
-        VecDestroy(result);
+        VecDestroy(solution);
     }
 };
 

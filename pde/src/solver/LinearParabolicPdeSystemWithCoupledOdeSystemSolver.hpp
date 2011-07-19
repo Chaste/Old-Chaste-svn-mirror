@@ -224,14 +224,12 @@ public:
     void SolveAndWriteResultsToFile();
 
     /**
-     * Solve the coupled PDE/ODE system over a specified time interval,
-     * and record results using mSamplingTimeStep. Called by SolveAndWriteResultsToFile().
+     * Write the solution to VTK. Called by SolveAndWriteResultsToFile().
      *
-     * @param startTime the start time
-     * @param endTime the end time
+     * @param solution the solution of the coupled PDE/ODE system
      * @param numTimeStepsElapsed the number of timesteps that have elapsed
      */
-    void SolveAndWriteResultsToFileForTimes(double startTime, double endTime, unsigned numTimeStepsElapsed);
+    void WriteVtkResultsToFile(Vec solution, unsigned numTimeStepsElapsed);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +339,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     {
         unsigned num_state_variables = mOdeSystemsAtNodes[0]->GetNumberOfStateVariables();
 
-        for (unsigned i=0; i<num_state_variables ; i++)
+        for (unsigned i=0; i<num_state_variables; i++)
         {
             mInterpolatedOdeStateVariables[i] += phiI * mOdeSystemsAtNodes[pNode->GetIndex()]->rGetStateVariables()[i];
         }
@@ -474,6 +472,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SolveAndWriteResultsToFile()
 {
+    // A number of methods must have been called prior to this method
     if (mOutputDirectory == "")
     {
         EXCEPTION("SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");
@@ -499,14 +498,26 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
     *mpVtkMetaFile << "    <Collection>\n";
 
+    // Write initial condition to VTK
+    WriteVtkResultsToFile(this->mInitialCondition, 0);
+
+    // The helper class TimeStepper deals with issues such as small final timesteps so we don't have to 
     TimeStepper stepper(this->mTstart, this->mTend, mSamplingTimeStep);
-    ///\todo (#1777) output VTK for initial conditions
 
     // Main time loop
-    while ( !stepper.IsTimeAtEnd() )
+    while (!stepper.IsTimeAtEnd())
     {
-        SolveAndWriteResultsToFileForTimes(stepper.GetTime(), stepper.GetNextTime(), stepper.GetTotalTimeStepsTaken());
+        // Reset start and end times
+        this->SetTimes(stepper.GetTime(), stepper.GetNextTime());
+
+        // Solve the system up to the new end time
+        Vec soln = this->Solve();
+
+        // Move forward in time
         stepper.AdvanceOneTimeStep();
+
+        // Write solution to VTK
+        WriteVtkResultsToFile(soln, stepper.GetTotalTimeStepsTaken());
     }
 
     // Close .pvd output file
@@ -521,29 +532,22 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SolveAndWriteResultsToFileForTimes(double startTime, double endTime, unsigned numTimeStepsElapsed)
+void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WriteVtkResultsToFile(Vec solution, unsigned numTimeStepsElapsed)
 {
 #ifdef CHASTE_VTK
-    // Store the number of nodes in the mesh
-    unsigned num_nodes = mpMesh->GetNumNodes();
-
-    // Reset start and end times
-    this->SetTimes(startTime, endTime);
 
     // Create a new VTK file for this time step
     std::stringstream time;
     time << numTimeStepsElapsed;
     VtkMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(mOutputDirectory, "results_"+time.str(), false);
 
-    // Solve the system up to the new end time
-    Vec soln = this->Solve();
-    ReplicatableVector soln_repl(soln);
-
     /*
      * We first loop over PDEs. For each PDE we store the solution
      * at each node in a vector, then pass this vector to the mesh
      * writer.
      */
+    ReplicatableVector solution_repl(solution);
+    unsigned num_nodes = mpMesh->GetNumNodes();
     for (unsigned pde_index=0; pde_index<PROBLEM_DIM; pde_index++)
     {
         // Store the solution of this PDE at each node
@@ -551,7 +555,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         pde_index_data.resize(num_nodes, 0.0);
         for (unsigned node_index=0; node_index<num_nodes; node_index++)
         {
-            pde_index_data[node_index] = soln_repl[PROBLEM_DIM*node_index + pde_index];
+            pde_index_data[node_index] = solution_repl[PROBLEM_DIM*node_index + pde_index];
         }
 
         // Add this data to the mesh writer
