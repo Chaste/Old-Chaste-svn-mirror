@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "ChemotacticForce.hpp"
+#include "RepulsionForce.hpp"
 #include "NagaiHondaForce.hpp"
 #include "WelikyOsterForce.hpp"
 #include "CellwiseData.hpp"
@@ -453,6 +454,17 @@ public:
         std::string chemotactic_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + chemotactic_force_results_dir + "chemotactic_results.parameters cell_based/test/data/TestForces/chemotactic_results.parameters").c_str()), 0);
 
+        // Test with RepulsionForce
+        RepulsionForce<2> repulsion_force;
+        TS_ASSERT_EQUALS(repulsion_force.GetIdentifier(), "RepulsionForce-2");
+
+        out_stream repulsion_force_parameter_file = output_file_handler.OpenOutputFile("repulsion_results.parameters");
+        repulsion_force.OutputForceParameters(repulsion_force_parameter_file);
+        repulsion_force_parameter_file->close();
+
+        std::string repulsion_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + repulsion_force_results_dir + "repulsion_results.parameters cell_based/test/data/TestForces/repulsion_results.parameters").c_str()), 0);
+
         // Test with NagaiHondaForce
         NagaiHondaForce<2> nagai_force;
         TS_ASSERT_EQUALS(nagai_force.GetIdentifier(), "NagaiHondaForce-2");
@@ -653,6 +665,82 @@ public:
 
             // Tidy up
             delete p_chemotactic_force;
+        }
+    }
+
+
+    void TestRepulsionForceMethods() throw (Exception)
+    {
+        // Create a NodeBasedCellPopulation
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, true, 0.1, 0.0));
+        nodes.push_back(new Node<2>(2, true, 3.0, 0.0));
+
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        NodeBasedCellPopulation<2> cell_population(mesh, cells);
+        cell_population.SetMechanicsCutOffLength(100.0);
+        cell_population.Update(); //Needs to be called seperately as not in a simulation
+
+        RepulsionForce<2> repulsion_force;
+
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(cell_population.GetNumNodes());
+
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+        repulsion_force.AddForceContribution(node_forces, cell_population);
+
+        // First two cells repel each other and second 2 cells are too far appart
+        TS_ASSERT_DELTA(node_forces[0][0], -34.5387, 1e-4);
+        TS_ASSERT_DELTA(node_forces[0][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(node_forces[1][0], 34.5387, 1e-4);
+        TS_ASSERT_DELTA(node_forces[1][1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(node_forces[2][0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(node_forces[2][1], 0.0, 1e-4);
+    }
+
+    void TestRepulsionForceArchiving() throw (Exception)
+    {
+        // Set up
+        OutputFileHandler handler("archive", false);    // don't erase contents of folder
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "repulsion_force_system.arch";
+
+        {
+            // Create force
+            RepulsionForce<2> repulsion_force;
+
+            // Serialize force via pointer
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            RepulsionForce<2>* const p_repulsion_force = &repulsion_force;
+            output_arch << p_repulsion_force;
+        }
+
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore force from the archive
+            RepulsionForce<2>* p_repulsion_force;
+            input_arch >> p_repulsion_force;
+
+            ///\todo test something here, for example that member variables have been correctly archived
+
+            // Tidy up
+            delete p_repulsion_force;
         }
     }
 
@@ -1167,6 +1255,13 @@ public:
         GeneralisedLinearSpringForce<2> spring_force;
         TS_ASSERT_THROWS_THIS(spring_force.AddForceContribution(node_forces, cell_population),
                 "Subclasses of AbstractTwoBodyInteractionForce are to be used with subclasses of AbstractCentreBasedCellPopulation only");
+
+        // Test that RepulsionForce throws the correct exception
+        RepulsionForce<2> repulsion_force;
+        TS_ASSERT_THROWS_THIS(repulsion_force.AddForceContribution(node_forces, cell_population),
+                 "RepulsionForce is to be used with a NodeBasedCellPopulation only");
+
+
     }
 
     void TestIncorrectForcesWithNodeBasedCellPopulation() throw (Exception)
