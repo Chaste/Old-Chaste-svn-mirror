@@ -45,6 +45,12 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     if (PetscTools::AmMaster())
     {
         p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + type + ".dat");
+        // Check how many digits are to be output in the solution (0 goes to default value of digits)
+        unsigned int num_digits = HeartConfig::Instance()->GetVisualizerOutputPrecision();
+        if (num_digits != 0)
+        {
+           p_file->precision(num_digits);
+        }
     }
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
@@ -61,16 +67,16 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         
         assert(repl_data.GetSize()==num_nodes);
 
-        if(PetscTools::AmMaster())
+        if (PetscTools::AmMaster())
         {
-            for(unsigned i=0; i<num_nodes; i++)
+            for (unsigned i=0; i<num_nodes; i++)
             {
                 *p_file << repl_data[i] << "\n";
             }
         }
     }
     VecDestroy(data);
-    if(PetscTools::AmMaster())
+    if (PetscTools::AmMaster())
     {
     	std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
     	*p_file << comment;

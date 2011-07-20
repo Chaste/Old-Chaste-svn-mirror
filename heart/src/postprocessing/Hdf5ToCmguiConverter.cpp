@@ -62,6 +62,12 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         if (PetscTools::AmMaster())
         {
             p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + time_step_string.str() + ".exnode");
+            // Check how many digits are to be output in the solution (0 goes to default value of digits)
+            unsigned int num_digits = HeartConfig::Instance()->GetVisualizerOutputPrecision();
+            if (num_digits != 0)
+            {
+               p_file->precision(num_digits);
+            }
         }
 
         std::vector<ReplicatableVector*> all_data;

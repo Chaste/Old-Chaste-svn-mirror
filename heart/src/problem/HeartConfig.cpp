@@ -188,7 +188,7 @@ HeartConfig::HeartConfig()
     mEpiFraction = -1.0;
     mEndoFraction =  -1.0;
     mMidFraction = -1.0;
-    mUserAskedForCellularTransmuralHeterogeneities=false;
+    mUserAskedForCellularTransmuralHeterogeneities = false;
     // initialise to senseless values (these should be only 0, 1 and 2)
     // note: the 'minus 3' is for checking purposes as we need to add 0, 1 or 2 to this initial value
     // and UINT_MAX+1 seems to be 0
@@ -258,10 +258,12 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     map["cp21"].schema = "ChasteParameters_2_1.xsd";
     map["cp22"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_2";
     map["cp22"].schema = "ChasteParameters_2_2.xsd";
+    map["cp23"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_3";
+    map["cp23"].schema = "ChasteParameters_2_3.xsd";
     // We use 'cp' as prefix for the latest version to avoid having to change saved
     // versions for comparison at every release.
-    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_3";
-    map["cp"].schema = "ChasteParameters_2_3.xsd";
+    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4";
+    map["cp"].schema = "ChasteParameters_2_4.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -277,7 +279,7 @@ void HeartConfig::CopySchema(const std::string& rToDirectory)
 {
     if (PetscTools::AmMaster())
     {
-        std::string schema_name("ChasteParameters_2_3.xsd");
+        std::string schema_name("ChasteParameters_2_4.xsd");
         FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
         if (!schema_location.Exists())
         {
@@ -311,6 +313,7 @@ void HeartConfig::SetDefaultSchemaLocations()
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"] = root_dir + "ChasteParameters_2_1.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"] = root_dir + "ChasteParameters_2_2.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"] = root_dir + "ChasteParameters_2_3.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"] = root_dir + "ChasteParameters_2_4.xsd";
 }
 
 unsigned HeartConfig::GetVersionFromNamespace(const std::string& rNamespaceUri)
@@ -399,7 +402,8 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
                 XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
             case 2001: // Release 2.1
             case 2002: // Release 2.2
-                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_3");
+            case 2003: // Release 2.3
+                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4");
             default: // Current release - nothing to do
                 break;
         }
@@ -2170,6 +2174,21 @@ bool HeartConfig::GetVisualizeWithVtk() const
     }
 }
 
+unsigned HeartConfig::GetVisualizerOutputPrecision()
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        return 0u;
+    }
+    else
+    {
+        return DecideLocation( & mpUserParameters->Simulation()->OutputVisualizer(),
+                               & mpDefaultParameters->Simulation()->OutputVisualizer(),
+                               "OutputVisualizer")->get().precision();
+    }
+}
+
+
 bool HeartConfig::IsElectrodesPresent() const
 {
     try
@@ -3018,6 +3037,14 @@ void HeartConfig::SetVisualizeWithParallelVtk(bool useParallelVtk)
     mpUserParameters->Simulation()->OutputVisualizer()->parallel_vtk(
         useParallelVtk ? cp::yesno_type::yes : cp::yesno_type::no);
 }
+
+void HeartConfig::SetVisualizerOutputPrecision(unsigned numberOfDigits)
+{
+    EnsureOutputVisualizerExists();
+
+    mpUserParameters->Simulation()->OutputVisualizer()->precision(numberOfDigits);
+}
+
 
 void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
                                          unsigned index, double magnitude,

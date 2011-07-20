@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 
 #include "ArchiveLocationInfo.hpp"
-#include "ChasteParameters_2_3.hpp"
+#include "ChasteParameters_2_4.hpp"
 
 #include "AbstractStimulusFunction.hpp"
 // These are needed here for Boost < 1.37
@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerializationVersion.hpp"
 #include <boost/serialization/split_member.hpp>
 
-namespace cp = chaste::parameters::v2_3;
+namespace cp = chaste::parameters::v2_4;
 
 // Forward declaration to avoid circular includes
 class HeartFileFinder;
@@ -714,6 +714,10 @@ public:
     /** Whether to convert the output from HDF5 to parallel Vtk readable format */
     bool GetVisualizeWithParallelVtk() const;
 
+    /** Get the number of digits to be output in the converted solution data files. */
+     unsigned GetVisualizerOutputPrecision();
+
+
     /**
      * @return true if there is an electrodes section
      */
@@ -892,6 +896,11 @@ public:
      * @param maxCheckpointsOnDisk maximum number of checkpoint archives to keep on disk
      */
      void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0, unsigned maxCheckpointsOnDisk=UINT_MAX);
+
+    /**
+     * Set the number of digits to be output in the solution data files.
+     */
+     void SetNumberOfSolutionDigits(unsigned int numDigits);
 
 
     // Physiological
@@ -1157,6 +1166,14 @@ public:
      * @param useParallelVtk
      */
     void SetVisualizeWithParallelVtk(bool useParallelVtk=true);
+
+    /**
+     * Set the precision with which to output textual visualizer formats (e.g. meshalyzer).
+     * Use '0' for the implementation-defined default precision.
+     *
+     * @param numberOfDigits  how many digits of precision to use
+     */
+    void SetVisualizerOutputPrecision(unsigned numberOfDigits);
 
     /**
      * Setup electrode parameters.

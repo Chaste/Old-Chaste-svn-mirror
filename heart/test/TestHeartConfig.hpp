@@ -69,8 +69,8 @@ public:
         double capacitance = HeartConfig::Instance()->mpUserParameters->Physiological().Capacitance().get();
         TS_ASSERT_EQUALS(capacitance, 1.0);
 
-        double conductivity_1 = HeartConfig::Instance()->mpUserParameters->Physiological().IntracellularConductivities().get().longi();
-        double conductivity_2 = HeartConfig::Instance()->mpUserParameters->Physiological().ExtracellularConductivities().get().longi();
+        double conductivity_1 = HeartConfig::Instance()->mpUserParameters->Physiological().IntracellularConductivities()->longi();
+        double conductivity_2 = HeartConfig::Instance()->mpUserParameters->Physiological().ExtracellularConductivities()->longi();
 
         TS_ASSERT_EQUALS(conductivity_1, 1.75);
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
@@ -84,15 +84,15 @@ public:
         cp::simulation_type default_sim_elt = HeartConfig::Instance()->mpDefaultParameters->Simulation().get();
 
         TS_ASSERT(default_sim_elt.IonicModels().present());
-        TS_ASSERT(default_sim_elt.IonicModels().get().Default().Hardcoded().present());
-        cp::ionic_models_available_type default_ionic_model = default_sim_elt.IonicModels().get().Default().Hardcoded().get();
+        TS_ASSERT(default_sim_elt.IonicModels()->Default().Hardcoded().present());
+        cp::ionic_models_available_type default_ionic_model = default_sim_elt.IonicModels()->Default().Hardcoded().get();
         TS_ASSERT_EQUALS(default_ionic_model, cp::ionic_models_available_type::LuoRudyI);
 
         TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation().present());
         cp::simulation_type user_sim_elt = HeartConfig::Instance()->mpUserParameters->Simulation().get();
         TS_ASSERT(user_sim_elt.IonicModels().present());
-        TS_ASSERT(user_sim_elt.IonicModels().get().Default().Hardcoded().present());
-        cp::ionic_models_available_type user_ionic_model = user_sim_elt.IonicModels().get().Default().Hardcoded().get();
+        TS_ASSERT(user_sim_elt.IonicModels()->Default().Hardcoded().present());
+        cp::ionic_models_available_type user_ionic_model = user_sim_elt.IonicModels()->Default().Hardcoded().get();
         TS_ASSERT_EQUALS(user_ionic_model, cp::ionic_models_available_type::FaberRudy2000);
 
         cp::ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get();
@@ -299,8 +299,8 @@ public:
         TS_ASSERT(ionic_model_regions[0]->DoesContain(ChastePoint<3>(-1.95, 0, 0)));
         std::string model_zero("heart/dynamic/libDynamicallyLoadableLr91.so");
         TS_ASSERT(ionic_models_defined[0].Dynamic().present());
-        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
-        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic()->Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic()->Path(), model_zero);
         TS_ASSERT(ionic_models_defined[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
 
@@ -315,8 +315,8 @@ public:
 
         TS_ASSERT(ionic_model_regions_2D[0]->DoesContain(ChastePoint<2>(-1.95, 0)));
         TS_ASSERT(ionic_models_defined_2D[0].Dynamic().present());
-        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
-        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic()->Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic()->Path(), model_zero);
 
         TS_ASSERT(ionic_model_regions_2D[1]->DoesContain(ChastePoint<2>(-0.5, 0)));
         TS_ASSERT(ionic_models_defined_2D[1].Hardcoded().present());
@@ -337,8 +337,8 @@ public:
 
         TS_ASSERT(ionic_model_regions_1D[0]->DoesContain(ChastePoint<1>(-1.95)));
         TS_ASSERT(ionic_models_defined_1D[0].Dynamic().present());
-        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
-        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic()->Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic()->Path(), model_zero);
         TS_ASSERT(ionic_models_defined_1D[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined_1D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
 
@@ -926,8 +926,8 @@ public:
         TS_ASSERT(ionic_models[0].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models[0].Hardcoded().get(), model1_type);
         TS_ASSERT(ionic_models[1].Dynamic().present());
-        TS_ASSERT_EQUALS(ionic_models[1].Dynamic().get().Path(), model2_path_str);
-        TS_ASSERT_EQUALS(ionic_models[1].Dynamic().get().Path().relative_to(), cp::relative_to_type::cwd);
+        TS_ASSERT_EQUALS(ionic_models[1].Dynamic()->Path(), model2_path_str);
+        TS_ASSERT_EQUALS(ionic_models[1].Dynamic()->Path().relative_to(), cp::relative_to_type::cwd);
 
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
@@ -1325,7 +1325,7 @@ public:
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
-                         "Unable to locate schema file ChasteParameters_2_3.xsd. You will need to ensure it is available when resuming from the checkpoint.");
+                         "Unable to locate schema file ChasteParameters_2_4.xsd. You will need to ensure it is available when resuming from the checkpoint.");
     }
 
     void TestArchiving() throw (Exception)
@@ -1473,6 +1473,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"), 2001u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"), 2002u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"), 2003u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"), 2004u);
         // and exceptions
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/1__1"),
                               "https://chaste.comlab.ox.ac.uk/nss/parameters/1__1 is not a recognised Chaste parameters namespace.");
@@ -1566,6 +1567,18 @@ public:
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_2.xml");
         TS_ASSERT(!HeartConfig::Instance()->HasDrugDose());
+
+        // Check that release 2.3 xml can be loaded with release 2.3 schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_3.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVisualizerOutputPrecision(), 0u);
+
+        // Check that release 2.3 xml can be loaded with latest schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_3.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVisualizerOutputPrecision(), 0u);
     }
 
     /**
@@ -1735,41 +1748,45 @@ public:
     void TestOutputVisualizerSettings() throw (Exception)
     {
         // Defaults file doesn't have the OutputVisualizer element
-        TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation().get().OutputVisualizer().present());
+        TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation()->OutputVisualizer().present());
 
         // Parameters file which doesn't specify OutputVisualizer
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
 
         // Read the user parameters directly - again element missing
-        TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
+        TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer().present());
 
         // And the normal Get methods
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithVtk() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVisualizerOutputPrecision(), 0u);
 
         // Set methods
         HeartConfig::Instance()->SetVisualizeWithMeshalyzer(false);
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->meshalyzer(),
                          cp::yesno_type::no);
 
         HeartConfig::Instance()->SetVisualizeWithCmgui(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->cmgui(),
                          cp::yesno_type::yes);
 
         HeartConfig::Instance()->SetVisualizeWithVtk(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->vtk(),
                          cp::yesno_type::yes);
 
         HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->parallel_vtk(),
                          cp::yesno_type::yes);
 
+        HeartConfig::Instance()->SetVisualizerOutputPrecision(10u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVisualizerOutputPrecision(), 10u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->precision(), 10u);
 
         // Setting one doesn't change the others...
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
@@ -1780,20 +1797,22 @@ public:
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         // Now the element exists...
-        TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
+        TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->meshalyzer(),
                          cp::yesno_type::no);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->cmgui(),
                          cp::yesno_type::no);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->vtk(),
                          cp::yesno_type::yes);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().parallel_vtk(),
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->parallel_vtk(),
                          cp::yesno_type::yes);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation()->OutputVisualizer()->precision(), 16u);
 
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithParallelVtk() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVisualizerOutputPrecision(), 16u);
     }
 
     void TestAdaptivityVariables() throw (Exception)

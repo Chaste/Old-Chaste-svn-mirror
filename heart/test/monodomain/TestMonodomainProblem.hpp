@@ -792,6 +792,7 @@ public:
         HeartConfig::Instance()->SetVisualizeWithCmgui(true);
         HeartConfig::Instance()->SetVisualizeWithVtk(true);
         HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
+        HeartConfig::Instance()->SetVisualizerOutputPrecision(6);
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();

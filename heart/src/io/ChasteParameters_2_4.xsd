@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"
-  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_2" elementFormDefault="qualified">
+  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"
+  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_4" elementFormDefault="qualified">
   <xs:annotation>
     <xs:documentation>This is the schema for Chaste cardiac (monodomain or bidomain)
       simulations</xs:documentation>
@@ -87,6 +87,45 @@
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="uF/cm^2"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="apply_drug_type">
+    <xs:annotation>
+      <xs:documentation>Specifies the use of a single drug block model applied to any
+      number of ion channels within the cell models.  Note that drug is applied globally to every
+      cell at the same concentration.  Multiple IC50 elements may be used to specify its action on
+      each channel.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IC50" type="ic50_type" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="concentration" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The concentration of drug applied, in arbitrary units---must
+      be consistent with the IC50 values supplied.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="ic50_type">
+    <xs:annotation>
+      <xs:documentation>Specifies the action of the enclosing drug on a particular channel,
+      by giving the IC50 value for that channel's dose response curve.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:double">
+        <xs:attribute name="current" type="xs:string" use="required">
+          <xs:annotation>
+            <xs:documentation>The channel this element applies to.  Should be a name taken
+          from the Oxford metadata list, corresponding to an annotated conductance parameter within the
+          cell model.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="hill" type="xs:double" default="1.0">
+          <xs:annotation>
+            <xs:documentation>Hill coefficient of the dose response curve.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -308,7 +347,7 @@
     </xs:annotation>
     <xs:attribute name="node_number" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
-  
+
   <xs:simpleType name="media_type">
     <xs:annotation>
       <xs:documentation>The conductivity media of the tissue. This is taken from an enumeration:
@@ -742,6 +781,12 @@
           www.vtk.org</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="precision" type="xs:nonNegativeInteger" default="0" use="optional">
+      <xs:annotation>
+        <xs:documentation>For textual output formats, the precision with which to write floating point values,
+          i.e. the number of digits to use. The default of '0' gives an implementation-defined precision.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="time_steps_type">
     <xs:annotation>
@@ -801,7 +846,7 @@
       <xs:enumeration value="cg"/>
       <xs:enumeration value="symmlq"/>
       <xs:enumeration value="gmres"/>
-      <xs:enumeration value="chebychev"/>      
+      <xs:enumeration value="chebychev"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="ksp_preconditioner_type">
@@ -827,7 +872,7 @@
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:simpleType name="mesh_partitioning_type">
     <xs:annotation>
       <xs:documentation>The method to use when partitioning a mesh for parallel simulation.</xs:documentation>
@@ -839,7 +884,7 @@
       <xs:enumeration value="petsc"/>
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:complexType name="checkpoint_type">
     <xs:annotation>
       <xs:documentation>Type for specification of a checkpoint in a simulation. It stores
@@ -1128,6 +1173,11 @@ Since the data from the original simulation will be included in the output, this
           <xs:documentation>Surface capacitance (usually denoted Cm in mono-/bidomain PDEs).</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="ApplyDrug" type="apply_drug_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Optionally specify parameters for a drug effect conductance block model.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="numerical_type">
@@ -1160,7 +1210,8 @@ Note that the preconditioners supplied by PETSc (ilu, jacobi and bjacobi) are su
         </xs:annotation>
       </xs:element>
       <xs:element name="MeshPartitioning" type="mesh_partitioning_type" minOccurs="0">
-        <xs:annotation><xs:documentation>The method to use to partition the mesh when running in parallel.</xs:documentation>
+        <xs:annotation>
+          <xs:documentation>The method to use to partition the mesh when running in parallel.</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="UseStateVariableInterpolation" type="yesno_type" minOccurs="0">
@@ -1206,17 +1257,17 @@ situations.  See https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuid
           <xs:documentation>Optional list of requests for conduction velocities at each mesh node for a given source node.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      
-      <xs:element name="TimeTraceAtNode" type="node_number_type" minOccurs="0"
-        maxOccurs="unbounded">
+
+      <xs:element name="TimeTraceAtNode" type="node_number_type" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>Optional list of node indices for which a time trace is requested. The node indices
           refers to the original numbering in the mesh (e.g., in a mesh file). Note that the numbering that can be visualized with previous simulation
           results may or may not correspond to the original numbering  </xs:documentation>
         </xs:annotation>
       </xs:element>
-      
-      <xs:element name="PseudoEcgElectrodePosition" type="point_type" minOccurs="0" maxOccurs="unbounded">
+
+      <xs:element name="PseudoEcgElectrodePosition" type="point_type" minOccurs="0"
+        maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>Optional list of requests to calculate a pseudo-ECG using an electrode at the given position.</xs:documentation>
         </xs:annotation>
