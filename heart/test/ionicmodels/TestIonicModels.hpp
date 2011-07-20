@@ -253,14 +253,14 @@ public:
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
 
         //Stress the lookup table with a silly voltage
-        n98_ode_system.rGetStateVariables()[0] = 70.0;
-        TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 70.0);
+        n98_ode_system.rGetStateVariables()[0] = 100.0;
+        TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 100.0);
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
                 err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
-        n98_ode_system.rGetStateVariables()[0] = 71.0;
+        n98_ode_system.rGetStateVariables()[0] = 101.0;
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
                 err.GetShortMessage().find("membrane_voltage outside lookup table range",0), 0u);
-        n98_ode_system.rGetStateVariables()[0] = 69.0;
+        n98_ode_system.rGetStateVariables()[0] = 99.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
         n98_ode_system.rGetStateVariables()[0] = -100.1;
         TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
