@@ -708,6 +708,13 @@ public:
         TS_ASSERT_DELTA(node_forces[1][1], 0.0, 1e-4);
         TS_ASSERT_DELTA(node_forces[2][0], 0.0, 1e-4);
         TS_ASSERT_DELTA(node_forces[2][1], 0.0, 1e-4);
+
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+
     }
 
     void TestRepulsionForceArchiving() throw (Exception)
