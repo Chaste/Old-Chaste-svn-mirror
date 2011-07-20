@@ -1499,5 +1499,25 @@ public:
         Vec solution_vector;
         solution_vector = ls.Solve(init_cond); // fails to solve..
     }
+
+    void xxxxTestSolveShowingPetscRubbishInEvenMoreWays() throw(Exception)
+    {
+        LinearSystem ls(2);
+
+        ls.SetMatrixElement(0, 0, 1.0);
+        ls.SetMatrixElement(0, 1, 0.0);
+        ls.SetMatrixElement(1, 0, 0.0);
+        ls.SetMatrixElement(1, 1, 1.0);
+
+        ls.SetRhsVectorElement(0, log(0)); // -inf
+        ls.SetRhsVectorElement(1, 0.0);
+
+        ls.AssembleFinalLinearSystem();
+
+        ls.DisplayRhs();
+
+        Vec solution_vector;
+        solution_vector = ls.Solve(); // SHOULD fail with an error, but doesn't
+    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_
