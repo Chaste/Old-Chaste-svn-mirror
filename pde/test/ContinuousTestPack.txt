@@ -6,6 +6,7 @@ TestBoundaryConditionsContainer.hpp
 TestCableTestProblem.hpp 
 TestCompressibleNonlinearElasticitySolver.hpp
 TestConstBoundaryCondition.hpp
+TestCoupledCableTestProblem.hpp
 TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp
 TestIncompressibleNonlinearElasticitySolver.hpp
