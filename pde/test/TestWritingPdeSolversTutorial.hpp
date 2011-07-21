@@ -104,7 +104,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *    Laplacian(v) + u = g(x,y)
  * }}}
  * (`Laplacian(u)` of course representing u,,xx,,+u,,yy,,), and
- * where f and g are chosen so that (with zero-dirichlet boundary conditions)
+ * where f and g are chosen so that, with zero-dirichlet boundary conditions,
  * the solution is: u = sin(pi*x)sin(pi*x), v = sin(2*pi*x)sin(2*pi*x)
  *
  * EMPTYLINE
@@ -123,7 +123,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * the main Chaste solvers assume a STRIPED data format, ie that the unknown vector
  * is `[U_1 V_1 U_2 V_2 .. U_n V_n]`, not `[ U_1 U_2 .. U_n V_1 V_2 .. V_n]`. We write down
  * equations in block form as it makes things clearer, but have to remember that the code
- * deals with striped data structures.
+ * deals with STRIPED data structures.
  *
  * EMPTYLINE
  *
@@ -133,10 +133,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "BoundaryConditionsContainerImplementation.hpp"
-#include "AbstractBoundaryConditionsContainerImplementation.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
+/* We need to include the following two classes if we are going to use a combination of
+ * (element_dim, space_dim, problem_dim) that isn't explicitly instantiated in
+ * `BoundaryConditionsContainer.cpp` (without these two includes this test will
+ * fail to link).
+ */
+#include "BoundaryConditionsContainerImplementation.hpp"
+#include "AbstractBoundaryConditionsContainerImplementation.hpp"
 /* These two classes will be used in writing the solver */
 #include "AbstractAssemblerSolverHybrid.hpp"
 #include "AbstractStaticLinearPdeSolver.hpp"
@@ -169,9 +174,9 @@ private:
     /*
      *  The abstract assembler parent classes know how to assemble matrices and vectors, but the concrete
      *  class needs to provide the integrand of the elemental contribution to A and b. This first
-     *  method returns the elemental contribution, given the provided bases (`rPhi`, `rGradPhi`)
-     *  of the matrix A. The '3's here represent the number of bases per element (ie the number
-     *  of nodes as linear bases are being used). The returned matrix is 6 by 6 (problem_dim times
+     *  method returns the elemental contribution of the matrix A, given the provided bases
+     *  (`rPhi`, `rGradPhi`). The '3's here represent the number of bases per element (ie the number
+     *  of nodes as linear bases are being used). The returned matrix is 6 by 6 (problem_dim *
      *  num_bases_per_element = 2*3 = 6).
      */
     c_matrix<double,2*3,2*3> ComputeMatrixTerm(c_vector<double,3>& rPhi /* the three bases for the current element, evaluated at the current quad pt*/,
@@ -195,10 +200,12 @@ private:
             {
                 for (unsigned k=0; k<2; k++)
                 {
+                    // stiffness matrix on diagonal 'blocks'
                     ret(2*i,  2*j)   += rGradPhi(k,i)*rGradPhi(k,j);
                     ret(2*i+1,2*j+1) += rGradPhi(k,i)*rGradPhi(k,j);
                 }
 
+                // (negative) mass matrix on off-diagonal 'blocks'
                 ret(2*i+1, 2*j)   = -rPhi(i)*rPhi(j);
                 ret(2*i,   2*j+1) = -rPhi(i)*rPhi(j);
             }
@@ -225,7 +232,7 @@ private:
     }
     /* Note: we will not be solving this equation subject to any non-zero Neumann
      * boundary conditions. If we were though, we would have to also provide a method
-     * `ComputeSurfaceVectorTerm(..)`.
+     * `ComputeSurfaceVectorTerm(..)`. (See next example below for an example of this).
      *
      * EMPTYLINE
      *
@@ -243,7 +250,7 @@ public:
      * them to the parent classes.
      */
     MyTwoVariablePdeSolver(TetrahedralMesh<2,2>* pMesh,
-                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
+                           BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
         : AbstractAssemblerSolverHybrid<2,2,2,NORMAL>(pMesh,pBoundaryConditions),
           AbstractStaticLinearPdeSolver<2,2,2>(pMesh)
     {
@@ -268,7 +275,7 @@ public:
  *
  *  EMPTYLINE
  *
- *  We need to choose a time-discretisation. Let us choose an implicit discretisation, eg
+ *  We need to choose a time-discretisation. Let us choose an implicit discretisation, ie
  *  {{{
  *  (u^{n+1} - u^{n})/dt = Laplacian(u^{n+1}) + v^{n+1}
  *  (v^{n+1} - v^{n})/dt = Laplacian(v^{n+1}) + u^{n+1} + 2w^{n+1}
@@ -297,7 +304,7 @@ public:
  * Note that this solver inherits from `AbstractDynamicLinearPdeSolver` and PROBLEM_DIM is now equal
  * to 3.
  */
-class MyParaEllipticSetOfPdesSolver
+class ThreeParabolicPdesSolver
     : public AbstractAssemblerSolverHybrid<2,2,3,NORMAL>,
       public AbstractDynamicLinearPdeSolver<2,2,3>
 {
@@ -333,8 +340,8 @@ private:
 
                 // mass matrix on some off-diagonal blocks
                 ret(3*i,  3*j+1) =  -rPhi(i)*rPhi(j);
-                ret(3*i+1,  3*j) =  -rPhi(i)*rPhi(j);
-                ret(3*i+1,  3*j+2) =  -2*rPhi(i)*rPhi(j);
+                ret(3*i+1,3*j) =  -rPhi(i)*rPhi(j);
+                ret(3*i+1,3*j+2) =  -2*rPhi(i)*rPhi(j);
 
                 // stiffness matrix on the diagonal blocks
                 for (unsigned dim=0; dim<2; dim++)
@@ -380,8 +387,8 @@ private:
      * The base class will decide which elements to call this on, based on which surface elements
      * were put in the boundary conditions container. Note that we could hard-code particular
      * boundary conditions in here but it makes more sense to use those put in the container.
-     * Also note the size of the returned vector: number of nodes per BOUNDARY element * problem_dim
-     * = 2*3 = 6
+     * Also note the size of the returned vector: number of nodes per
+     * BOUNDARY element * problem_dim = 2*3 = 6
      */
     c_vector<double,2*3> ComputeVectorSurfaceTerm(const BoundaryElement<1,2>& rSurfaceElement,
                                                   c_vector<double,2>& rPhi,
@@ -413,8 +420,8 @@ public:
      * and only needs to be assembled once. Make sure we tell the solver this, otherwise performance
      * will be destroyed.
      */
-    MyParaEllipticSetOfPdesSolver(TetrahedralMesh<2,2>* pMesh,
-                                  BoundaryConditionsContainer<2,2,3>* pBoundaryConditions)
+    ThreeParabolicPdesSolver(TetrahedralMesh<2,2>* pMesh,
+                             BoundaryConditionsContainer<2,2,3>* pBoundaryConditions)
         : AbstractAssemblerSolverHybrid<2,2,3,NORMAL>(pMesh,pBoundaryConditions),
           AbstractDynamicLinearPdeSolver<2,2,3>(pMesh)
     {
@@ -429,7 +436,7 @@ public:
    /* Use the first solver to solve the static PDE. We apply zero Dirichlet boundary conditions
     * on the whole of the boundary for both variables.
     */
-    void xTestMyTwoVariablePdeSolver() throw (Exception)
+    void TestMyTwoVariablePdeSolver() throw (Exception)
     {
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRegularSlabMesh(0.01 /*h*/, 1.0 /*width*/, 1.0 /*height*/);
@@ -495,7 +502,7 @@ public:
         }
 
         /* Use our solver */
-        MyParaEllipticSetOfPdesSolver solver(&mesh,&bcc);
+        ThreeParabolicPdesSolver solver(&mesh,&bcc);
 
         /* The interface is exactly the same as the `SimpleLinearParabolicSolver` */
         Vec initial_condition = PetscTools::CreateAndSetVec(3*mesh.GetNumNodes(), 0.0);
@@ -504,7 +511,7 @@ public:
         double start_time = 0.0;
         double end_time   = 2.0;
 
-        /* At this point would could just call `SetTimes(start_time,end_time) and call `Solve()`. However,
+        /* At this point we could just call `SetTimes(start_time,end_time)` and call `Solve()`. However,
          * for this test we show how to put this inside a loop and print results to file for multiple
          * sampling times.
          */
