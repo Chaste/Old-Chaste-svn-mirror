@@ -29,3 +29,4 @@ TestSolveLaplacianWithQuadratics.hpp
 TestTimeAdaptivityController.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp
+TestWritingPdeSolversTutorial.hpp

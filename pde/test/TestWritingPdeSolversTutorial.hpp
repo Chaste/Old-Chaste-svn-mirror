@@ -44,10 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTWRITINGPDESOLVERSTUTORIAL_HPP_
 #define TESTWRITINGPDESOLVERSTUTORIAL_HPP_
 
-#include <cxxtest/TestSuite.h>
-
-
-
 /*
  * == Introduction ==
  *
@@ -64,8 +60,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * There are solvers for general simple (uncoupled) linear PDEs already provided, such
  * as the `SimpleLinearEllipticSolver`. These are for PDEs that can be written in a generic
- * form (`SimpleLinearEllipticPde`, for example). However more general (coupled) PDEs can't be
- * written a generic form, so the user has to write their own solver.
+ * form (`SimpleLinearEllipticPde`, for example). However a general coupled set of PDEs can't be
+ * written in a generic form, so the user has to write their own solver. This tutorial explains
+ * how to do this.
  *
  * EMPTYLINE
  *
@@ -77,7 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * Let us use the terminology "assembled in an FE manner" for any matrix or vector that
+ * Let us use the terminology "assembled in an FE manner" for any matrix or vector that is
  * defined via a volume/surface/line integral, and which is constructed by: looping over
  * elements (or surface elements, etc), computing the elemental contribution (ie a small
  * matrix/vector) using numerical quadrature, and adding to the full matrix/vector.
@@ -85,7 +82,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * We only consider linear problems here. In these problems the discretised FE problem leads to
- * a linear system, Ax=b, to be solved (at each timestep in time-dependent problems).
+ * a linear system, Ax=b, to be solved (once in static problems; at each timestep in time-dependent problems).
  * There are two cases to be distinguished. The first case is where BOTH A and b are
  * 'assembled in an FE manner', b possibly being composed of a volume integral plus a
  * surface integral. The other case is where this is not true, for example where
@@ -106,7 +103,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *    Laplacian(u) + v = f(x,y)
  *    Laplacian(v) + u = g(x,y)
  * }}}
- * (`Laplacian(u)` of course representing u_xx_+u_yy_), and
+ * (`Laplacian(u)` of course representing u,,xx,,+u,,yy,,), and
  * where f and g are chosen so that (with zero-dirichlet boundary conditions)
  * the solution is: u = sin(pi*x)sin(pi*x), v = sin(2*pi*x)sin(2*pi*x)
  *
@@ -119,8 +116,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   [ -M   K  ] [V]     [b2]
  * }}}
  * where `K` is the stiffness matrix, `M` the mass matrix, `U` the vector of nodal values
- * of u, `V` the vector of nodal values of v, `b1_i = integral(f\phi_i dV)` and
- * `b1_i = integral(g\phi_i dV)`, where the basis functions are `phi_i`.
+ * of u, `V` the vector of nodal values of v, `b1` the vector with entries `integral(f\phi_i dV)` (i=1,..,N)
+ * and `b2` has entries `integral(g\phi_i dV)` (here `phi_i` are the linear basis functions).
  *
  * This is the linear system which we now write a solver to set up. Note, however, that
  * the main Chaste solvers assume a STRIPED data format, ie that the unknown vector
@@ -132,16 +129,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * These are some basic includes as in the solving-PDEs tutorial
  */
+#include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "BoundaryConditionsContainer.hpp"
+#include "BoundaryConditionsContainerImplementation.hpp"
+#include "AbstractBoundaryConditionsContainerImplementation.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
-/* These two classes will be used by the solver */
+/* These two classes will be used in writing the solver */
 #include "AbstractAssemblerSolverHybrid.hpp"
 #include "AbstractStaticLinearPdeSolver.hpp"
 /* We will solve a second problem, below, which will be time-dependent and will
- * require this */
+ * require the following class */
 #include "AbstractDynamicLinearPdeSolver.hpp"
 
 /* The linear system is Ax=b where A and b are FE assembled, so we can use the solver-is-an-assembler
@@ -150,7 +150,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * problems, the second parent would be `AbstractDynamicLinearPdeSolver`). Note the template
  * parameter `PROBLEM_DIM` below, in this case it is 2 as there are two unknowns.
  */
-class MyCoupledStaticPdeSolver
+class MyTwoVariablePdeSolver
     : public AbstractAssemblerSolverHybrid<2/*elem_dim*/,2/*space_dim*/,2/*problem_dim*/,NORMAL/*amount of interpolation*/>,
       public AbstractStaticLinearPdeSolver<2,2,2>
 {
@@ -171,11 +171,12 @@ private:
      *  class needs to provide the integrand of the elemental contribution to A and b. This first
      *  method returns the elemental contribution, given the provided bases (`rPhi`, `rGradPhi`)
      *  of the matrix A. The '3's here represent the number of bases per element (ie the number
-     *  of nodes as linear bases are being used).
+     *  of nodes as linear bases are being used). The returned matrix is 6 by 6 (problem_dim times
+     *  num_bases_per_element = 2*3 = 6).
      */
-    c_matrix<double,2*3,2*3> ComputeMatrixTerm(c_vector<double, 3>& rPhi /* the three bases for the current element, evaluated at the current quad pt*/,
-                                               c_matrix<double, 2, 3>& rGradPhi /* gradients of the three bases */,
-                                               ChastePoint<2>& rX           /* phsyical coordinate of quad point */,
+    c_matrix<double,2*3,2*3> ComputeMatrixTerm(c_vector<double,3>& rPhi /* the three bases for the current element, evaluated at the current quad pt*/,
+                                               c_matrix<double,2,3>& rGradPhi /* gradients of the three bases */,
+                                               ChastePoint<2>& rX           /* physical coordinate of quad point */,
                                                c_vector<double,2>& rU       /* current solution (unused here as a linear static problem */,
                                                c_matrix<double,2,2>& rGradU /* current solution gradient (unused here as a linear static problem */,
                                                Element<2,2>* pElement)
@@ -186,7 +187,7 @@ private:
          * (Note: the following can be done more efficiently using matrix slices and products,
          * see `BidomainAssembler` for example).
          */
-        c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
+        c_matrix<double,2*3,2*3> ret = zero_matrix<double>(2*3, 2*3);
 
         for (unsigned i=0; i<3; i++)
         {
@@ -206,14 +207,14 @@ private:
     }
 
     /* Similarly compute the elemental contribution to the RHS vector */
-    c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
-                                               c_matrix<double, 2, 2+1>& rGradPhi,
-                                               ChastePoint<2>& rX,
-                                               c_vector<double,2>& rU,
-                                               c_matrix<double,2,2>& rGradU,
-                                               Element<2,2>* pElement)
+    c_vector<double,2*3> ComputeVectorTerm(c_vector<double, 3>& rPhi,
+                                           c_matrix<double, 2, 2+1>& rGradPhi,
+                                           ChastePoint<2>& rX,
+                                           c_vector<double,2>& rU,
+                                           c_matrix<double,2,2>& rGradU,
+                                           Element<2,2>* pElement)
     {
-       c_vector<double,2*(2+1)> ret;
+        c_vector<double,2*3> ret;
 
         for (unsigned i=0; i<3; i++)
         {
@@ -222,14 +223,15 @@ private:
         }
         return ret;
     }
-    /* NOTE: we will not be solving this equation subject to any non-zero Neumann
+    /* Note: we will not be solving this equation subject to any non-zero Neumann
      * boundary conditions. If we were though, we would have to also provide a method
      * `ComputeSurfaceVectorTerm(..)`.
      *
      * EMPTYLINE
      *
      * These classes which inherit from both assemblers and solvers must
-     * provide the following method, which links the two. Just copy and paste.
+     * provide the following method, which links the two. Just copy and paste
+     * the following.
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
     {
@@ -240,36 +242,205 @@ public:
     /* The constructor takes in a mesh and boundary conditions container, and passes
      * them to the parent classes.
      */
-    MyCoupledStaticPdeSolver(TetrahedralMesh<2,2>* pMesh,
+    MyTwoVariablePdeSolver(TetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
         : AbstractAssemblerSolverHybrid<2,2,2,NORMAL>(pMesh,pBoundaryConditions),
           AbstractStaticLinearPdeSolver<2,2,2>(pMesh)
     {
     }
 };
-
-
 /*
- *  That is the solver written. To solve it, we do the following, which is more-or-less
- *  the same as with the other PDE solvers from the previous tutorials.
+ *  That is the solver written. The usage is the same as see the PDE solvers described in the
+ *  previous tutorials - have a look at the first test below.
  *
+ *  EMPTYLINE
+ *
+ *  == A solver of 3 parabolic equations ==
+ *
+ *  Let us also write a solver for the following problem, which is composed of 3 parabolic PDEs
+ *  {{{
+ *    u_t = Laplacian(u) + v
+ *    v_t = Laplacian(v) + u + 2w
+ *    w_t = Laplacian(w) + g(t,x,y)
+ *  }}}
+ *  where g(t,x,y) = t if x>0.5 and 0 otherwise. We will set up the solver to work with general
+ *  Dirichlet-Neumann boundary conditions.
+ *
+ *  EMPTYLINE
+ *
+ *  We need to choose a time-discretisation. Let us choose an implicit discretisation, eg
+ *  {{{
+ *  (u^{n+1} - u^{n})/dt = Laplacian(u^{n+1}) + v^{n+1}
+ *  (v^{n+1} - v^{n})/dt = Laplacian(v^{n+1}) + u^{n+1} + 2w^{n+1}
+ *  (w^{n+1} - w^{n})/dt = Laplacian(w^{n+1}) + g(t^{n+1},x)
+ *  }}}
+ *
+ *  EMPTYLINE
+ *
+ *  Using linear basis functions, and a mesh with N nodes, the linear system that needs to be set up is
+ *  of size 3N by 3N, and in block form is:
+ *  {{{
+ *    [ M/dt+K     -M       0    ] [U^{n+1}]  =  [b1]  +  [c1]
+ *    [   -M     M/dt+K    -2M   ] [V^{n+1}]     [b2]  +  [c2]
+ *    [    0        0     M/dt+K ] [W^{n+1}]     [b3]  +  [c3]
+ *  }}}
+ * where `K` is the stiffness matrix, `M` the mass matrix, `U^n` the vector of nodal values
+ * of u at time t_n, etc, `b1` has entries `integral( (u^n/dt)phi_i dV )`, and similarly for
+ * `b2` and `b3`. Writing the Neumann boundary conditions for
+ *  u as `du/dn = s(x,y)` on Gamma, a subset of the boundary, then `c1` has entries
+ * `integral_over_Gamma (s*phi_i dS)`, and similarly for `c2` and `c3`.
+ *
+ * EMPTYLINE
+ *
+ * Let us create a solver for this linear system, which will be written in a way in which the RHS
+ * vector is assembled in an FE manner, so that the solver-is-an-assembler design can be used.
+ * Note that this solver inherits from `AbstractDynamicLinearPdeSolver` and PROBLEM_DIM is now equal
+ * to 3.
  */
+class MyParaEllipticSetOfPdesSolver
+    : public AbstractAssemblerSolverHybrid<2,2,3,NORMAL>,
+      public AbstractDynamicLinearPdeSolver<2,2,3>
+{
+private:
+    /* Define the function g(t,x,y) */
+    double g(double t, ChastePoint<2>& rX)
+    {
+        return t*(rX[0]>0.5);
+    }
+
+    /* Provide the (elemental contribution to the) LHS matrix. The matrix is 9 by 9, where
+     * 9 = 3*3 = PROBLEM_DIM * NUM_NODES_PER_ELEMENT */
+    c_matrix<double,3*3,3*3> ComputeMatrixTerm(c_vector<double,3>& rPhi,
+                                               c_matrix<double,2,3>& rGradPhi,
+                                               ChastePoint<2>& rX,
+                                               c_vector<double,3>& rU,
+                                               c_matrix<double,3,2>& rGradU,
+                                               Element<2,2>* pElement)
+    {
+        c_matrix<double,9,9> ret = zero_matrix<double>(9,9);
+
+        // this is how to get the current timestep
+        double dt = PdeSimulationTime::GetPdeTimeStep();
+
+        for (unsigned i=0; i<3; i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                // mass matrix on the diagonal blocks
+                ret(3*i,  3*j)   =  rPhi(i)*rPhi(j)/dt;
+                ret(3*i+1,3*j+1) =  rPhi(i)*rPhi(j)/dt;
+                ret(3*i+2,3*j+2) =  rPhi(i)*rPhi(j)/dt;
+
+                // mass matrix on some off-diagonal blocks
+                ret(3*i,  3*j+1) =  -rPhi(i)*rPhi(j);
+                ret(3*i+1,  3*j) =  -rPhi(i)*rPhi(j);
+                ret(3*i+1,  3*j+2) =  -2*rPhi(i)*rPhi(j);
+
+                // stiffness matrix on the diagonal blocks
+                for (unsigned dim=0; dim<2; dim++)
+                {
+                    ret(3*i,  3*j)   += rGradPhi(dim,i)*rGradPhi(dim,j);
+                    ret(3*i+1,3*j+1) += rGradPhi(dim,i)*rGradPhi(dim,j);
+                    ret(3*i+2,3*j+2) += rGradPhi(dim,i)*rGradPhi(dim,j);
+                }
+            }
+        }
+        return ret;
+    }
+
+    /* Provide the volume elemental contribution to the RHS vector, ie the vector `[b1 b2 b3]` above */
+    c_vector<double,3*3> ComputeVectorTerm(c_vector<double, 3>& rPhi,
+                                           c_matrix<double, 2, 3>& rGradPhi,
+                                           ChastePoint<2>& rX,
+                                           c_vector<double,3>& rU,
+                                           c_matrix<double,3,2>& rGradU,
+                                           Element<2,2>* pElement)
+    {
+        c_vector<double,3*3> ret;
+
+        // get u,v,w out of the provided parameters
+        double u = rU(0);
+        double v = rU(1);
+        double w = rU(2);
+
+        // this is how to get the current time and timestep
+        double t = PdeSimulationTime::GetTime();
+        double dt = PdeSimulationTime::GetPdeTimeStep();
+
+        for (unsigned i=0; i<3; i++)
+        {
+            ret(3*i)   =  (u/dt) * rPhi(i);
+            ret(3*i+1) =  (v/dt) * rPhi(i);
+            ret(3*i+2) =  (w/dt + g(t+dt,rX)) * rPhi(i);
+        }
+        return ret;
+    }
+
+    /* Provide the surface-elemental contribution to the RHS vector, ie the vector `[c1 c2 c3]` above.
+     * The base class will decide which elements to call this on, based on which surface elements
+     * were put in the boundary conditions container. Note that we could hard-code particular
+     * boundary conditions in here but it makes more sense to use those put in the container.
+     * Also note the size of the returned vector: number of nodes per BOUNDARY element * problem_dim
+     * = 2*3 = 6
+     */
+    c_vector<double,2*3> ComputeVectorSurfaceTerm(const BoundaryElement<1,2>& rSurfaceElement,
+                                                  c_vector<double,2>& rPhi,
+                                                  ChastePoint<2>& rX )
+    {
+        double grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+        double grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
+        double grad_w_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 2);
+
+        c_vector<double, 2*3> ret;
+        for (int i=0; i<2; i++)
+        {
+            ret(3*i)   = rPhi(i)*grad_u_dot_n;
+            ret(3*i+1) = rPhi(i)*grad_v_dot_n;
+            ret(3*i+2) = rPhi(i)*grad_w_dot_n;
+        }
+        return ret;
+    }
+
+    /* Define this method as before */
+    void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+    {
+        SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
+    }
+
+public:
+    /* The constructor is similar to before. However: '''important''' - by default the dynamic solvers
+     * will reassemble the matrix each timestep. In this (and most other) problems the matrix is constant
+     * and only needs to be assembled once. Make sure we tell the solver this, otherwise performance
+     * will be destroyed.
+     */
+    MyParaEllipticSetOfPdesSolver(TetrahedralMesh<2,2>* pMesh,
+                                  BoundaryConditionsContainer<2,2,3>* pBoundaryConditions)
+        : AbstractAssemblerSolverHybrid<2,2,3,NORMAL>(pMesh,pBoundaryConditions),
+          AbstractDynamicLinearPdeSolver<2,2,3>(pMesh)
+    {
+        this->mMatrixIsConstant = true;
+    }
+};
+
+/* Now the tests using the two solvers */
 class TestWritingPdeSolversTutorial : public CxxTest::TestSuite
 {
 public:
-    void TestRealCoupledPde() throw (Exception)
+   /* Use the first solver to solve the static PDE. We apply zero Dirichlet boundary conditions
+    * on the whole of the boundary for both variables.
+    */
+    void xTestMyTwoVariablePdeSolver() throw (Exception)
     {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructRegularSlabMesh(0.01 /*h*/, 1.0 /*width*/, 1.0 /*height*/);
 
         // Boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // Purpose-made solver for this problem:
-        MyCoupledStaticPdeSolver solver(&mesh,&bcc);
+        // Use our purpose-made solver for this problem:
+        MyTwoVariablePdeSolver solver(&mesh,&bcc);
 
         /* The `AbstractStaticLinearPdeSolver` class from which our solver
          * inherits, provides a `Solve` method.
@@ -290,11 +461,93 @@ public:
             double u_exact = sin(M_PI*x)*sin(M_PI*y);
             double v_exact = sin(2*M_PI*x)*sin(2*M_PI*y);
 
-            TS_ASSERT_DELTA( u, u_exact, 0.002);
-            TS_ASSERT_DELTA( v, v_exact, 0.007);
+            TS_ASSERT_DELTA(u, u_exact, 0.002);
+            TS_ASSERT_DELTA(v, v_exact, 0.007);
         }
 
         VecDestroy(result);
+    }
+
+    /* Now run a test solving the parabolic-parabolic-parabolic PDE system */
+    void TestMyParaEllipticSetOfPdesSolver() throw (Exception)
+    {
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructRegularSlabMesh(0.05 /*h*/, 1.0 /*width*/, 1.0 /*height*/);
+
+        /* Set up the boundary conditions. v and w are zero on the entire boundary,
+         * and du/dn=1 on the LHS and 0 otherwise.
+         */
+        BoundaryConditionsContainer<2,2,3> bcc;
+
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1 /*index of unknown, ie v*/);
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh,2 /*index of unknown, ie w*/);
+
+        ConstBoundaryCondition<2>* p_neumann_bc = new ConstBoundaryCondition<2>(1.0);
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter
+           = mesh.GetBoundaryElementIteratorBegin();
+        while (iter < mesh.GetBoundaryElementIteratorEnd())
+        {
+            if(fabs((*iter)->CalculateCentroid()[0])<1e-6)
+            {
+                bcc.AddNeumannBoundaryCondition(*iter, p_neumann_bc, 0 /*index of unknown, ie u*/);
+            }
+            iter++;
+        }
+
+        /* Use our solver */
+        MyParaEllipticSetOfPdesSolver solver(&mesh,&bcc);
+
+        /* The interface is exactly the same as the `SimpleLinearParabolicSolver` */
+        Vec initial_condition = PetscTools::CreateAndSetVec(3*mesh.GetNumNodes(), 0.0);
+        solver.SetTimeStep(0.01);
+
+        double start_time = 0.0;
+        double end_time   = 2.0;
+
+        /* At this point would could just call `SetTimes(start_time,end_time) and call `Solve()`. However,
+         * for this test we show how to put this inside a loop and print results to file for multiple
+         * sampling times.
+         */
+        OutputFileHandler handler("ThreeVarCoupledProblem");
+
+        unsigned num_printing_times = 20;
+
+        Vec result; // declared outside the loop so it can be deleted at the end
+
+        for(unsigned i=0; i<num_printing_times; i++)
+        {
+            double t0 = start_time + (end_time-start_time)*i/num_printing_times;
+            double t1 = start_time + (end_time-start_time)*(i+1)/num_printing_times;
+
+            solver.SetTimes(t0, t1);
+            solver.SetInitialCondition(initial_condition); // see below
+
+            result = solver.Solve();
+
+            // get the result write to a file
+            ReplicatableVector result_repl(result);
+            std::stringstream file_name;
+            file_name << "results_" << i+1 << ".txt";
+            out_stream p_file = handler.OpenOutputFile(file_name.str());
+
+            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            {
+                double x = mesh.GetNode(i)->rGetLocation()[0];
+                double y = mesh.GetNode(i)->rGetLocation()[1];
+                *p_file << x << " " << y << " " << result_repl[3*i] << " "
+                        << result_repl[3*i+1] << " " << result_repl[3*i+2] << "\n";
+            }
+            p_file->close();
+
+            // set the current solution as the new initial condition for the next Solve
+            VecDestroy(initial_condition);
+            initial_condition = result; // so this is used in the next SetInitialCondition() call above
+        }
+
+        VecDestroy(result);
+
+        /* The results can be loaded and visualised in matlab or octave, for example. Each file
+         * contains, for each node: x y u v w; and there is one file for each printing time. */
     }
 };
 
