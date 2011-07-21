@@ -198,7 +198,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(GeneralisedLinearSpringForce)
 
 #endif /*GENERALISEDLINEARSPRINGFORCE_HPP_*/

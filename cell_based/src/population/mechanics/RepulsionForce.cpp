@@ -35,9 +35,9 @@ RepulsionForce<DIM>::RepulsionForce()
 
 template<unsigned DIM>
 void RepulsionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-													AbstractCellPopulation<DIM>& rCellPopulation)
+                                               AbstractCellPopulation<DIM>& rCellPopulation)
 {
-        // Throw an exception message if not using a NodeBasedCellPopulation
+    // Throw an exception message if not using a NodeBasedCellPopulation
     if (dynamic_cast<NodeBasedCellPopulation<DIM>*>(&rCellPopulation) == NULL)
     {
         EXCEPTION("RepulsionForce is to be used with a NodeBasedCellPopulation only");

@@ -103,23 +103,16 @@ public:
 
         // Reset cut off length
         linear_force.SetCutOffLength(DBL_MAX);
-        /*
-         ************************************************************************
-         ************************************************************************
-         *  Test node force calculation
-         ************************************************************************
-         ************************************************************************
-         */
 
         // Initialise a vector of node forces
         std::vector<c_vector<double, 2> > node_forces;
         node_forces.reserve(cell_population.GetNumNodes());
-
         for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
              node_forces.push_back(zero_vector<double>(2));
         }
 
+        // Test node force calculation
         linear_force.AddForceContribution(node_forces, cell_population);
 
         // Test forces on non-ghost nodes
@@ -160,14 +153,7 @@ public:
         TS_ASSERT_DELTA(new_node_forces[58][0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
 
-        /*
-         ************************************************************************
-         ************************************************************************
-         *  Test spring force calculation
-         ************************************************************************
-         ************************************************************************
-         */
-
+        // Test spring force calculation
         c_vector<double,2> force_on_spring; // between nodes 59 and 60
 
         // Find one of the elements that nodes 59 and 60 live on
@@ -185,13 +171,7 @@ public:
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
 
-        /*
-         ******************************************
-         ******************************************
-         *  Test force with cutoff point
-         ******************************************
-         ******************************************
-         */
+        // Test force with cutoff point
         double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(),
                               p_element->GetNode(1)->rGetLocation()) );
 
@@ -490,60 +470,42 @@ public:
 
     void TestGeneralisedLinearSpringForceArchiving() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "meineke_spring_system.arch";
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "GeneralisedLinearSpringForce.arch";
 
         {
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-
-            MutableMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
-
-            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
-
-            std::vector<CellPtr> cells;
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-            {
-                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-                p_model->SetCellProliferativeType(STEM);
-
-                CellPtr p_cell(new Cell(p_state, p_model));
-                p_cell->SetBirthTime(-50.0);
-                cells.push_back(p_cell);
-            }
-
-            MeshBasedCellPopulation<2> cell_population(mesh, cells);
-            GeneralisedLinearSpringForce<2> linear_force;
+            GeneralisedLinearSpringForce<2> force;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Serialize via pointer
-            GeneralisedLinearSpringForce<2>* const p_linear_force = &linear_force;
+            // Set member variables
+            force.SetMeinekeSpringStiffness(12.34);
+            force.SetMeinekeDivisionRestingSpringLength(0.856);
+            force.SetMeinekeSpringGrowthDuration(2.593);
 
-            ///\todo set member variables (#1568)
-
-            output_arch << p_linear_force;
+            // Serialize via pointer to most abstract class possible
+            AbstractForce<2>* const p_force = &force;
+            output_arch << p_force;
         }
 
         {
-            ArchiveLocationInfo::SetMeshPathname("mesh/test/data", "square_2_elements");
+            AbstractForce<2>* p_force;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            GeneralisedLinearSpringForce<2>* p_linear_force;
-
             // Restore from the archive
-            input_arch >> p_linear_force;
+            input_arch >> p_force;
 
-            ///\todo Test the member data (#1568)
+            // Test member variables
+            TS_ASSERT_DELTA((static_cast<GeneralisedLinearSpringForce<2>*>(p_force))->GetMeinekeSpringStiffness(), 12.34, 1e-6);
+            TS_ASSERT_DELTA((static_cast<GeneralisedLinearSpringForce<2>*>(p_force))->GetMeinekeDivisionRestingSpringLength(), 0.856, 1e-6);
+            TS_ASSERT_DELTA((static_cast<GeneralisedLinearSpringForce<2>*>(p_force))->GetMeinekeSpringGrowthDuration(), 2.593, 1e-6);
 
             // Tidy up
-            delete p_linear_force;
+            delete p_force;
         }
     }
 
@@ -614,60 +576,39 @@ public:
 
     void TestChemotacticForceArchiving() throw (Exception)
     {
-        // Set up
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "chemotaxis_spring_system.arch";
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ChemotacticForce.arch";
 
         {
-            // Create mesh
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-            MutableMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
+            ChemotacticForce<2> force;
 
-            // SimulationTime is usually set up by a CellBasedSimulation
-            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-
-            // Create cells
-            std::vector<CellPtr> cells;
-            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-            cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-            for (unsigned i=0; i<cells.size(); i++)
-            {
-                cells[i]->SetBirthTime(-50);
-            }
-
-            // Create cell population
-            MeshBasedCellPopulation<2> cell_population(mesh, cells);
-
-            // Create force
-            ChemotacticForce<2> chemotactic_force;
-
-            // Serialize force via pointer
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            ChemotacticForce<2>* const p_chemotactic_force = &chemotactic_force;
-            output_arch << p_chemotactic_force;
+            // No member variables to set
+
+            // Serialize via pointer to most abstract class possible
+            AbstractForce<2>* const p_force = &force;
+            output_arch << p_force;
         }
 
         {
-            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_2_elements");
+            AbstractForce<2>* p_force;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore force from the archive
-            ChemotacticForce<2>* p_chemotactic_force;
-            input_arch >> p_chemotactic_force;
+            // Restore from the archive
+            input_arch >> p_force;
 
-            ///\todo test something here, for example that member variables have been correctly archived
-
+            // No member variables to test, so just test a method
+            TS_ASSERT_DELTA((static_cast<ChemotacticForce<2>*>(p_force))->GetChemotacticForceMagnitude(12.0, 3.5), 12.0, 1e-6);
+            
             // Tidy up
-            delete p_chemotactic_force;
+            delete p_force;
         }
     }
-
 
     void TestRepulsionForceMethods() throw (Exception)
     {
@@ -714,40 +655,46 @@ public:
         {
             delete nodes[i];
         }
-
     }
 
     void TestRepulsionForceArchiving() throw (Exception)
     {
-        // Set up
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "repulsion_force_system.arch";
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "RepulsionForce.arch";
 
         {
-            // Create force
-            RepulsionForce<2> repulsion_force;
+            RepulsionForce<2> force;
 
-            // Serialize force via pointer
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            RepulsionForce<2>* const p_repulsion_force = &repulsion_force;
-            output_arch << p_repulsion_force;
+            // No extra member variables, so set member variables on parent class
+            force.SetMeinekeSpringStiffness(12.35);
+            force.SetMeinekeDivisionRestingSpringLength(0.756);
+            force.SetMeinekeSpringGrowthDuration(2.693);
+
+            // Serialize via pointer to most abstract class possible
+            AbstractForce<2>* const p_force = &force;
+            output_arch << p_force;
         }
 
         {
+            AbstractForce<2>* p_force;
+
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore force from the archive
-            RepulsionForce<2>* p_repulsion_force;
-            input_arch >> p_repulsion_force;
+            // Restore from the archive
+            input_arch >> p_force;
 
-            ///\todo test something here, for example that member variables have been correctly archived
-
+            // No extra member variables, so test member variables on parent class
+            TS_ASSERT_DELTA((static_cast<RepulsionForce<2>*>(p_force))->GetMeinekeSpringStiffness(), 12.35, 1e-6);
+            TS_ASSERT_DELTA((static_cast<RepulsionForce<2>*>(p_force))->GetMeinekeDivisionRestingSpringLength(), 0.756, 1e-6);
+            TS_ASSERT_DELTA((static_cast<RepulsionForce<2>*>(p_force))->GetMeinekeSpringGrowthDuration(), 2.693, 1e-6);
+            
             // Tidy up
-            delete p_repulsion_force;
+            delete p_force;
         }
     }
 
@@ -999,79 +946,43 @@ public:
 
     void TestNagaiHondaForceArchiving() throw (Exception)
     {
-        // Set up
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "nagai_honda.arch";
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "NagaiHondaForce.arch";
 
         {
-            // Construct a 2D vertex mesh consisting of a single element
-            std::vector<Node<2>*> nodes;
-            unsigned num_nodes = 20;
-            std::vector<double> angles = std::vector<double>(num_nodes);
-
-            for (unsigned i=0; i<num_nodes; i++)
-            {
-                angles[i] = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
-                nodes.push_back(new Node<2>(i, true, cos(angles[i]), sin(angles[i])));
-            }
-
-            std::vector<VertexElement<2,2>*> elements;
-            elements.push_back(new VertexElement<2,2>(0, nodes));
-
-            double cell_swap_threshold = 0.01;
-            double edge_division_threshold = 2.0;
-            MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
-
-            // Set up the cell
-            std::vector<CellPtr> cells;
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(-1.0);
-            cells.push_back(p_cell);
-
-            // Create cell population
-            VertexBasedCellPopulation<2> cell_population(mesh, cells);
-            cell_population.InitialiseCells();
-
-            // Create a force system
             NagaiHondaForce<2> force;
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Set member variables
             force.SetNagaiHondaDeformationEnergyParameter(5.8);
             force.SetNagaiHondaMembraneSurfaceEnergyParameter(17.9);
             force.SetNagaiHondaCellCellAdhesionEnergyParameter(0.5);
             force.SetNagaiHondaCellBoundaryAdhesionEnergyParameter(0.6);
             force.SetMatureCellTargetArea(0.7);
 
-            // Serialize force  via pointer
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-
+            // Serialize via pointer to most abstract class possible
             AbstractForce<2>* const p_force = &force;
             output_arch << p_force;
         }
 
         {
-            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_2_elements");
+            AbstractForce<2>* p_force;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore force from the archive
-            AbstractForce<2>* p_force;
+            // Restore from the archive
             input_arch >> p_force;
 
-            NagaiHondaForce<2>* p_static_cast_force = static_cast<NagaiHondaForce<2>*>(p_force);
-
             // Check member variables have been correctly archived
-            TS_ASSERT_DELTA(p_static_cast_force->GetNagaiHondaDeformationEnergyParameter(), 5.8, 1e-12);
-            TS_ASSERT_DELTA(p_static_cast_force->GetNagaiHondaMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
-            TS_ASSERT_DELTA(p_static_cast_force->GetNagaiHondaCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
-            TS_ASSERT_DELTA(p_static_cast_force->GetNagaiHondaCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
-            TS_ASSERT_DELTA(p_static_cast_force->GetMatureCellTargetArea(), 0.7, 1e-12);
+            TS_ASSERT_DELTA(static_cast<NagaiHondaForce<2>*>(p_force)->GetNagaiHondaDeformationEnergyParameter(), 5.8, 1e-12);
+            TS_ASSERT_DELTA(static_cast<NagaiHondaForce<2>*>(p_force)->GetNagaiHondaMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
+            TS_ASSERT_DELTA(static_cast<NagaiHondaForce<2>*>(p_force)->GetNagaiHondaCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
+            TS_ASSERT_DELTA(static_cast<NagaiHondaForce<2>*>(p_force)->GetNagaiHondaCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+            TS_ASSERT_DELTA(static_cast<NagaiHondaForce<2>*>(p_force)->GetMatureCellTargetArea(), 0.7, 1e-12);
 
             // Tidy up
             delete p_force;
@@ -1150,71 +1061,39 @@ public:
         }
     }
 
-    void TestArchivingWelikyOsterForce() throw (Exception)
+    void TestWelikyOsterForceArchiving() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "weliky_oster.arch";
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "WelikyOsterForce.arch";
 
         {
-            // Construct a 2D vertex mesh consisting of a single element
-            std::vector<Node<2>*> nodes;
-            unsigned num_nodes = 20;
-            std::vector<double> angles = std::vector<double>(num_nodes);
-
-            for (unsigned i=0; i<num_nodes; i++)
-            {
-                angles[i] = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
-                nodes.push_back(new Node<2>(i, true, cos(angles[i]), sin(angles[i])));
-            }
-
-            std::vector<VertexElement<2,2>*> elements;
-            elements.push_back(new VertexElement<2,2>(0, nodes));
-
-            double cell_swap_threshold = 0.01;
-            double edge_division_threshold = 2.0;
-            MutableVertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
-
-            // Set up the cell
-            std::vector<CellPtr> cells;
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(-1.0);
-            cells.push_back(p_cell);
-
-            // Create cell population
-            VertexBasedCellPopulation<2> cell_population(mesh, cells);
-            cell_population.InitialiseCells();
-
-            // Create a force system
             WelikyOsterForce<2> force;
-
-            force.SetWelikyOsterAreaParameter(15.0);
-            force.SetWelikyOsterPerimeterParameter(17.0);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Serialize via pointer
-            WelikyOsterForce<2>* const p_force = &force;
+            // Set member variables
+            force.SetWelikyOsterAreaParameter(15.12);
+            force.SetWelikyOsterPerimeterParameter(17.89);
+
+            // Serialize via pointer to most abstract class possible
+            AbstractForce<2>* const p_force = &force;
             output_arch << p_force;
         }
 
         {
+            AbstractForce<2>* p_force;
+
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-
-            WelikyOsterForce<2>* p_force;
 
             // Restore from the archive
             input_arch >> p_force;
 
             // Check member variables have been correctly archived
-            TS_ASSERT_DELTA(p_force->GetWelikyOsterAreaParameter(), 15.0, 1e-6);
-            TS_ASSERT_DELTA(p_force->GetWelikyOsterPerimeterParameter(), 17.0, 1e-6);
+            TS_ASSERT_DELTA(static_cast<WelikyOsterForce<2>*>(p_force)->GetWelikyOsterAreaParameter(), 15.12, 1e-12);
+            TS_ASSERT_DELTA(static_cast<WelikyOsterForce<2>*>(p_force)->GetWelikyOsterPerimeterParameter(), 17.89, 1e-12);
 
             // Tidy up
             delete p_force;
@@ -1267,8 +1146,6 @@ public:
         RepulsionForce<2> repulsion_force;
         TS_ASSERT_THROWS_THIS(repulsion_force.AddForceContribution(node_forces, cell_population),
                  "RepulsionForce is to be used with a NodeBasedCellPopulation only");
-
-
     }
 
     void TestIncorrectForcesWithNodeBasedCellPopulation() throw (Exception)

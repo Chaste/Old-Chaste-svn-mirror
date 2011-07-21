@@ -33,11 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A class for a simple two-body repulsion force law. Designed
- * for use in Node Based simulations
+ * for use in node-based simulations
  *
  * The force just creates a linear repulsive force between cells
  * with a nonlinear separation less than 2. This force does not
- * take the cells age or cell cycle phase into account.
+ * take a cell's age or cell cycle phase into account.
  */
 template<unsigned DIM>
 class RepulsionForce : public GeneralisedLinearSpringForce<DIM>
@@ -57,7 +57,7 @@ private :
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
+        archive & boost::serialization::base_object<GeneralisedLinearSpringForce<DIM> >(*this);
     }
 
 public :
@@ -85,7 +85,6 @@ public :
      * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputForceParameters(out_stream& rParamsFile);
-
 };
 
 #include "SerializationExportWrapper.hpp"

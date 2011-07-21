@@ -96,7 +96,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(ChemotacticForce)
 
 #endif /*CHEMOTACTICFORCE_HPP_*/
