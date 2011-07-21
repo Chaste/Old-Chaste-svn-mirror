@@ -251,7 +251,7 @@ void AbstractFeCableObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASS
     {
         PetscVecTools::Zero(this->mVectorToAssemble);
     }
-    if (this->mAssembleMatrix)
+    if (this->mAssembleMatrix && this->mZeroMatrixBeforeAssembly)
     {
         PetscMatTools::Zero(this->mMatrixToAssemble);
     }

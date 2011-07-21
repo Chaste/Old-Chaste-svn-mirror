@@ -78,6 +78,9 @@ protected:
     /** Whether to assemble the vector. */
     bool mAssembleVector;
 
+    /** Whether to zero the given matrix before assembly, or just add to it. */
+    bool mZeroMatrixBeforeAssembly;
+
     /** Whether to zero the given vector before assembly, or just add to it. */
     bool mZeroVectorBeforeAssembly;
 
@@ -145,8 +148,10 @@ public:
      * Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
      *
      * @param rMatToAssemble Reference to the matrix
+     * @param zeroMatrixBeforeAssembly Whether to zero the vector before assembling
+     *  (otherwise it is just added to)
      */
-    void SetMatrixToAssemble(Mat& rMatToAssemble);
+    void SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly=true);
 
     /**
      * Set the vector that needs to be assembled. Requires CAN_ASSEMBLE_VECTOR==true.
@@ -209,18 +214,20 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool C
 AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeAssemblerCommon()
     : mVectorToAssemble(NULL),
       mMatrixToAssemble(NULL),
+      mZeroMatrixBeforeAssembly(true),
       mZeroVectorBeforeAssembly(true)
 {
     assert(CAN_ASSEMBLE_VECTOR || CAN_ASSEMBLE_MATRIX);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetMatrixToAssemble(Mat& rMatToAssemble)
+void AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly)
 {
     assert(rMatToAssemble);
     MatGetOwnershipRange(rMatToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
 
     mMatrixToAssemble = rMatToAssemble;
+    mZeroMatrixBeforeAssembly = zeroMatrixBeforeAssembly;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>

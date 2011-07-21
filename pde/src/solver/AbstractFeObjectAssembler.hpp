@@ -380,7 +380,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     {
         PetscVecTools::Zero(this->mVectorToAssemble);
     }
-    if (this->mAssembleMatrix)
+    if (this->mAssembleMatrix && this->mZeroMatrixBeforeAssembly)
     {
         PetscMatTools::Zero(this->mMatrixToAssemble);
     }
