@@ -417,7 +417,7 @@ public:
 
         std::string results_filename = handler.GetOutputDirectoryFullPath() + "schnackenberg.dat";
         NumericFileComparison comp_results(results_filename, "pde/test/data/schnackenberg.dat");
-        TS_ASSERT(comp_results.CompareFiles(1e-15));
+        TS_ASSERT(comp_results.CompareFiles(1e-3));
 
         // Tidy up
         VecDestroy(initial_condition);
