@@ -67,10 +67,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * For this tutorial the user certainly ought to have read the solving-PDEs
- * tutorials. Also, it is helpful to read the associated lectures nodes: maybe the
+ * tutorials. Also, it is helpful to read the associated
+ * [wiki:ChasteGuides/NmoodLectureNotes lectures notes] (maybe the
  * slides on solving equations using finite elements if you are not familiar with this
  * (lecture 2), but especially the slides on the general design of the Chaste finite element
- * solvers (lecture 3).
+ * solvers (lecture 3), and the first part of lecture 4).
  *
  * EMPTYLINE
  *
