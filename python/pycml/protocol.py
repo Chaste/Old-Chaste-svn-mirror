@@ -420,14 +420,25 @@ def apply_protocol_file(doc, proto_file_path):
     Hence we assume the protocol file is Python code which has a method
     apply_protocol(doc) to do the donkey work.
     """
-    import imp
-    import os
-    proto_dir = os.path.dirname(proto_file_path)
-    proto_file_name = os.path.basename(proto_file_path)
-    proto_module_name = os.path.splitext(proto_file_name)[0]
-    (file, pathname, desc) = imp.find_module(proto_module_name, [proto_dir])
-    try:
-        proto = imp.load_module(proto_module_name, file, pathname, desc)
-    finally:
-        file.close()
-    proto.apply_protocol(doc)
+    if proto_file_path[-3:] == '.py':
+        import imp
+        import os
+        proto_dir = os.path.dirname(proto_file_path)
+        proto_file_name = os.path.basename(proto_file_path)
+        proto_module_name = os.path.splitext(proto_file_name)[0]
+        (file, pathname, desc) = imp.find_module(proto_module_name, [proto_dir])
+        try:
+            proto = imp.load_module(proto_module_name, file, pathname, desc)
+        finally:
+            file.close()
+        proto.apply_protocol(doc)
+    elif proto_file_path[-4:] == '.xml':
+        proto_xml = amara_parse(proto_file_path)
+        assert hasattr(proto_xml, u'protocol')
+        if hasattr(proto_xml.protocol, u'modelModification'):
+            d = {'doc': doc,
+                 'protocol': sys.modules[__name__],
+                 '__builtins__': __builtins__}
+            exec str(proto_xml.protocol.modelModification) in d
+    else:
+        raise ProtocolError("Unexpected protocol file extension for file: " + proto_file_path)
