@@ -110,7 +110,12 @@ public:
     std::string GetNextWarningMessage();
 };
 
-#define WARNING(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__)
+#define WARNING(message)                                                    \
+{                                                                           \
+    std::stringstream msg_stream;                                           \
+    msg_stream << message;                                                  \
+    Warnings::Instance()->AddWarning(msg_stream.str(), __FILE__, __LINE__); \
+}
 
 /**
  * Warn only the first time line is reached. Note: this does not base whether to not warn
@@ -129,6 +134,10 @@ public:
  *
  * will warn twice.
  */
-#define WARN_ONCE_ONLY(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__, true)
-
+#define WARN_ONCE_ONLY(message)                                                     \
+ {                                                                                  \
+    std::stringstream msg_stream;                                                   \
+    msg_stream << message;                                                          \
+    Warnings::Instance()->AddWarning(msg_stream.str(), __FILE__, __LINE__, true);   \
+ }
 #endif // _WARNINGS_HPP_

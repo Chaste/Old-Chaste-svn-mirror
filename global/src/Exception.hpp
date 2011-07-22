@@ -127,7 +127,7 @@ private:
 //#define OLDEXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
 /**
- * Throw a BacktraceException.
+ * Throw an Exception.
  * @param message  the error message to use, as a streamed expression
  */
 #define EXCEPTION(message)                           \

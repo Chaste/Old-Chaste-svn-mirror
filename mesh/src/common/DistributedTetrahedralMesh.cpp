@@ -1321,10 +1321,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
 #define COVERAGE_IGNORE
         // It's a short mesh and this process owns no nodes.  This problem can only occur on 4 or more processes,
         // so we can't cover it - coverage only runs with 1 and 2 processes.
-        ///\todo #1826 streaming warnings
-        std::stringstream msg;
-        msg << "No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()";
-        WARNING(msg.str());
+        WARNING("No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()");
         return;
 #undef COVERAGE_IGNORE
     }

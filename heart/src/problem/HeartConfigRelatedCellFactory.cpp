@@ -271,10 +271,7 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
             }
             else
             {
-                ///\todo #1826 streaming warnings
-                std::stringstream msg;
-                msg << "Cannot apply drug to cell at node " << nodeIndex << " as it has no parameter named '" << param_name << "'.";
-                WARNING(msg.str());
+                WARNING("Cannot apply drug to cell at node " << nodeIndex << " as it has no parameter named '" << param_name << "'.");
             }
         }
     }

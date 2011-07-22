@@ -77,6 +77,13 @@ public:
             WARN_ONCE_ONLY("Don't get your hopes up, England are not going to win the World Cup.");
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        //And a streaming warning
+        std::string best_hope = "Murray";
+        for (unsigned year=2005; year<2020; year++)
+        {
+            WARN_ONCE_ONLY("Don't get your hopes up, " << best_hope <<" is not winning Wimbledon.");
+        }
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
         Warnings::QuietDestroy();
     }
 
@@ -97,7 +104,8 @@ public:
     void TestLastTestWithWarningsIsNoisy() //Needs to happen last (after any QuietDestroy()), so that a warning is printed
     {
         TS_ASSERT_THROWS_THIS(Warnings::Instance()->GetNextWarningMessage(),"There are no warnings");
-        WARNING("This one will get printed.");
+        unsigned one = 1;
+        WARNING("This one will get printed " << one << " time");
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
     }
 };
