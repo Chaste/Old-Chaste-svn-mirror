@@ -182,7 +182,7 @@ private:
         // assemble the volume integral and Neumann surface part
         mpVolumeIntegralsAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix(), true);
         mpVolumeIntegralsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), true);
-        mpVolumeIntegralsAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
+        mpVolumeIntegralsAssembler->SetApplyNeummanBoundaryConditionsToVector(mpBoundaryConditions);
         mpVolumeIntegralsAssembler->Assemble();
 
         // assemble the cable integral part
