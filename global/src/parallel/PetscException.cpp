@@ -55,17 +55,8 @@ void PetscException(PetscInt petscError,
         {
             p_text=default_message;
         }
-
-        std::stringstream err_string;
-        err_string << p_text;
-        err_string << " in function '";
-        err_string << funct;
-        err_string << "' on line ";
-        err_string << line;
-        err_string << " of file ";
-        err_string << file;
-
-        EXCEPTION(err_string.str());
+        EXCEPTION(p_text << " in function '" << funct  << "' on line "
+                  << line << " of file " << file);
     }
 }
 

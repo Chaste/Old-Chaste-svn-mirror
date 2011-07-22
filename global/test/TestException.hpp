@@ -62,6 +62,20 @@ public:
                                 err.GetMessage().find("Hello. I\'m an exception",0), 51u); // This appears at position 51 in full message (a bit more robust?!)
     }
 
+    
+    void TestCheckStreamingException()
+    {
+        int rule=42;
+        try
+        {
+            EXCEPTION("This is a rule "<<rule<<" exception");
+        }
+        catch (const Exception& e)
+        {
+            TS_ASSERT_EQUALS(e.CheckShortMessage("This is a rule 42 exception"), "");
+        }
+    }
+
     void TestCheckMethods()
     {
         std::string msg("This is our message");

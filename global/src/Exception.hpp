@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * used throughout the code.
  */
 #include <string>
+#include <sstream>
 #include <iostream> // For std::cout in MPIABORTIFNON0
 #include <cfloat>
 #include <climits> //For UINT_MAX etc., necessary in gcc-4.3
@@ -52,7 +53,6 @@ const double DOUBLE_UNSET=DBL_MAX;
  * Exception class.
  * All exceptions thrown by this code are currently instances of this class.
  *
- * \todo Might we want this class to inherit from STL exceptions?
  */
 class Exception
 {
@@ -119,13 +119,23 @@ private:
     std::string mShortMessage; /**< Short exception message - just text of the exception. */
 };
 
-/**
+/*
  * Convenience macro for throwing an exception, in order to add file and line info.
  *
  * @param message  the exception message
  */
-#define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
+//#define OLDEXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
+/**
+ * Throw a BacktraceException.
+ * @param message  the error message to use, as a streamed expression
+ */
+#define EXCEPTION(message)                           \
+    do {                                         \
+        std::stringstream msg_stream;            \
+        msg_stream << message;                       \
+        throw Exception(msg_stream.str(), __FILE__, __LINE__); \
+    } while (false)
 
 #include <boost/preprocessor/stringize.hpp>
 
