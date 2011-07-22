@@ -897,12 +897,6 @@ public:
      */
      void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0, unsigned maxCheckpointsOnDisk=UINT_MAX);
 
-    /**
-     * Set the number of digits to be output in the solution data files.
-     */
-     void SetNumberOfSolutionDigits(unsigned int numDigits);
-
-
     // Physiological
     /**
      * 3D version
