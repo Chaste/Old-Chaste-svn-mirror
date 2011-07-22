@@ -356,18 +356,21 @@ public:
             double phi_e = result_repl[2*index];
             double phi_i = result_repl[2*index+1];
 
-            double phi_e_exact = -(1+z)*log(r)/(2*M_PI);
-            double phi_i_exact = 1+z;
-            std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
-                      << phi_e_exact << " " << phi_i_exact << "\n";
-
             if(fabs(r)<1e-6)
             {
+                double phi_i_exact = 1+z;
+                std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
+                           << " " << phi_i_exact << "\n";
+
 //// TODO: check results and add tolerance here when happy all working, and add test of phi_e
 //                TS_ASSERT_DELTA(phi_i, phi_i_exact, 1e-2);
             }
             else
             {
+                double phi_e_exact = -(1+z)*log(r)/(2*M_PI);
+                double phi_i_exact = 1+z;
+                std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
+                          << phi_e_exact << " " << phi_i_exact << "\n";
                 // check dummy variables correctly being set to zero
                 TS_ASSERT_DELTA(phi_i, 0.0, 1e-12);
             }

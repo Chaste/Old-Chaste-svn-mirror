@@ -955,11 +955,15 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     #endif
 
 //todo
+    ///\todo Todo what? On which ticket?
     KSPSolve(solver,mLinearSystemRhsVector,solution);
 
     KSPConvergedReason reason;
     KSPGetConvergedReason(solver,&reason);
-    KSPEXCEPT(reason);
+    //Revert r13154
+#define COVERAGE_IGNORE    
+    WARNING("A PETSc exception happened in this solve");//KSPEXCEPT(reason);
+#undef COVERAGE_IGNORE    
 
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
