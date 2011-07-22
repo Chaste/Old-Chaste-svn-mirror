@@ -131,10 +131,8 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
         unsigned num_entries = GetTokensAtNextLine();
         if(num_entries < mNumItemsPerLine)
         {
-            std::stringstream string_stream;
-            string_stream << "A line is incomplete in " << mFilePath
-                          << " - each line should contain " << DIM*DIM << " entries";
-            EXCEPTION(string_stream.str());
+            EXCEPTION("A line is incomplete in " << mFilePath
+                          << " - each line should contain " << DIM*DIM << " entries");
         }
         for(unsigned i=0; i<DIM; i++)
         {
@@ -163,10 +161,8 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
 
                 if(fabs(temp(i,j)-val)>1e-4)
                 {
-                    std::stringstream string_stream;
-                    string_stream << "Read fibre-sheet matrix, " << rFibreMatrix << " from file " 
-                                  << " which is not orthogonal (tolerance 1e-4)"; 
-                    EXCEPTION(string_stream.str());
+                    EXCEPTION("Read fibre-sheet matrix, " << rFibreMatrix << " from file " 
+                                  << " which is not orthogonal (tolerance 1e-4)");
                 }
             }
         }
@@ -193,10 +189,8 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
         unsigned num_entries = GetTokensAtNextLine();
         if(num_entries < mNumItemsPerLine)
         {
-            std::stringstream string_stream;
-            string_stream << "A line is incomplete in " << mFilePath
-                          << " - each line should contain " << DIM << " entries";
-            EXCEPTION(string_stream.str());
+            EXCEPTION("A line is incomplete in " << mFilePath
+                          << " - each line should contain " << DIM << " entries");
         }
         for(unsigned i=0; i<DIM; i++)
         {
@@ -207,10 +201,8 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
     
     if(checkNormalised && fabs(norm_2(rFibreVector)-1)>1e-4)
     {
-        std::stringstream string_stream;
-        string_stream << "Read vector " << rFibreVector << " from file " 
-                      << mFilePath << " which is not normalised (tolerance 1e-4)";
-        EXCEPTION(string_stream.str());
+        EXCEPTION("Read vector " << rFibreVector << " from file " 
+                      << mFilePath << " which is not normalised (tolerance 1e-4)");
     }
 }
 

@@ -112,11 +112,9 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_mat
         rJacobianDeterminant = Determinant(rJacobian);
         if (rJacobianDeterminant <= DBL_EPSILON)
         {
-            std::stringstream string_stream;
-            string_stream << "Jacobian determinant is non-positive: "
+            EXCEPTION("Jacobian determinant is non-positive: "
                           << "determinant = " << rJacobianDeterminant
-                          << " for element " << this->mIndex;
-            EXCEPTION(string_stream.str());
+                          << " for element " << this->mIndex);
         }
     }
 }

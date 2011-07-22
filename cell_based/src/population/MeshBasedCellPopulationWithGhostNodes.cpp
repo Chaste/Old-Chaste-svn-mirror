@@ -222,9 +222,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::Validate()
         // If the node attached to this cell is labelled as a ghost node, then throw an error
         if (mIsGhostNode[node_index])
         {
-            std::stringstream ss;
-            ss << "Node " << node_index << " is labelled as a ghost node and has a cell attached";
-            EXCEPTION(ss.str());
+            EXCEPTION("Node " << node_index << " is labelled as a ghost node and has a cell attached");
         }
         validated_node[node_index] = true;
     }
@@ -233,9 +231,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::Validate()
     {
         if (!validated_node[i])
         {
-            std::stringstream ss;
-            ss << "Node " << i << " does not appear to be a ghost node or have a cell associated with it";
-            EXCEPTION(ss.str());
+            EXCEPTION("Node " << i << " does not appear to be a ghost node or have a cell associated with it");
         }
     }
 }

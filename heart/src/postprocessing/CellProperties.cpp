@@ -46,9 +46,7 @@ void CellProperties::CalculateProperties()
 
     if (mrTime.size() != mrVoltage.size())
     {
-        std::stringstream exception_message;
-        exception_message << "Time and Voltage series should be the same length. Time.size() = " << mrTime.size() << ", Voltage.size() = " << mrVoltage.size();
-        EXCEPTION(exception_message.str());
+        EXCEPTION("Time and Voltage series should be the same length. Time.size() = " << mrTime.size() << ", Voltage.size() = " << mrVoltage.size());
     }
 
 

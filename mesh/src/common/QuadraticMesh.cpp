@@ -439,13 +439,10 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(TrianglesMeshReader<DIM,DIM>
                 if (boundary_element_file_has_containing_element_info && !found_this_boundary_element)
                 {
                     #define COVERAGE_IGNORE
-                    std::cout << (*iter)->GetIndex() << " " <<  pMeshReader->GetNextFaceData().ContainingElement << "\n";
-                    std::stringstream ss;
-                    ss << "Boundary element " << (*iter)->GetIndex()
+                    //std::cout << (*iter)->GetIndex() << " " <<  pMeshReader->GetNextFaceData().ContainingElement << "\n";
+                    EXCEPTION("Boundary element " << (*iter)->GetIndex()
                        << "wasn't found in the containing element given for it "
-                       << elem_index;
-
-                    EXCEPTION(ss.str());
+                       << elem_index);
                     #undef COVERAGE_IGNORE
                 }
 

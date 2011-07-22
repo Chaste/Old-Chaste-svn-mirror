@@ -632,11 +632,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         {
             if (mNumElementNodes != mNodesPerElement)
             {
-                std::stringstream error;
-                error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
+                EXCEPTION("Number of nodes per elem, " << mNumElementNodes << ", does not match "
                       << "expected number, " << mNodesPerElement << " (which is calculated given "
-                      << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)";
-                EXCEPTION(error.str());
+                      << "the order of elements chosen, " << mOrderOfElements << " (1=linear, 2=quadratics)");
             }
         }
     }
@@ -838,14 +836,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
 
         if (item_index != expectedItemNumber)
         {
-            std::stringstream error;
             if (!mIndexFromZero)
             {
                 // To fix the exception message to agree with file format
                 expectedItemNumber--;
             }
-            error << "Data for item " << expectedItemNumber << " missing";
-            EXCEPTION(error.str());
+            EXCEPTION("Data for item " << expectedItemNumber << " missing");
         }
 
         for (unsigned i=0; i<rDataPacket.size(); i++)

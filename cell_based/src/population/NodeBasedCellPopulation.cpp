@@ -103,9 +103,7 @@ void NodeBasedCellPopulation<DIM>::Validate()
     {
         if (!validated_node[i])
         {
-            std::stringstream ss;
-            ss << "Node " << i << " does not appear to have a cell associated with it";
-            EXCEPTION(ss.str());
+            EXCEPTION("Node " << i << " does not appear to have a cell associated with it");
         }
     }
 }

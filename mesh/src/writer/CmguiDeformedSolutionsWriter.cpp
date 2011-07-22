@@ -199,11 +199,9 @@ void CmguiDeformedSolutionsWriter<DIM>::ConvertOutput(std::string inputDirectory
                 ifs >> data;
                 if (ifs.fail())
                 {
-                    std::stringstream error_message;
-                    error_message << "Error occurred when reading file " << in_file_stream.str()
+                    EXCEPTION("Error occurred when reading file " << in_file_stream.str()
                                   << ". Expected " << mpQuadraticMesh->GetNumNodes() << " rows and "
-                                  << DIM << " columns";
-                    EXCEPTION(error_message.str());
+                                  << DIM << " columns");
                 }
                 deformed_position[index](j) = data;
             }

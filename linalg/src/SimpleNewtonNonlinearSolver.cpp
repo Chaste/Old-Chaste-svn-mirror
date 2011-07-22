@@ -125,9 +125,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
             VecDestroy(negative_update);
 
             // Raise error
-            std::stringstream error_message;
-            error_message << "Iteration " << counter << ", unable to find damping factor such that residual decreases in update direction";
-            EXCEPTION(error_message.str());
+            EXCEPTION("Iteration " << counter << ", unable to find damping factor such that residual decreases in update direction");
         }
 
         if (mWriteStats)

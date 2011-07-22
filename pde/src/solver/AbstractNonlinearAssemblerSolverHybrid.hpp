@@ -365,10 +365,8 @@ Vec AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>:
     PetscInt problem_size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
     if (size_of_init_guess != problem_size)
     {
-        std::stringstream error_message;
-        error_message << "Size of initial guess vector, " << size_of_init_guess
-                      << ", does not match size of problem, " << problem_size;
-        EXCEPTION(error_message.str());
+        EXCEPTION("Size of initial guess vector, " << size_of_init_guess
+                      << ", does not match size of problem, " << problem_size);
     }
 
     // Run the solver, telling it which global functions to call in order to assemble the residual or jacobian

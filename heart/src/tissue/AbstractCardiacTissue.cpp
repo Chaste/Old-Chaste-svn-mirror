@@ -330,9 +330,7 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
         return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
     }
     // Not here
-    std::stringstream message;
-    message << "Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank();
-    EXCEPTION(message.str().c_str());
+    EXCEPTION("Requested node/halo " << globalIndex << " does not belong to processor " << PetscTools::GetMyRank());
 }
 
 

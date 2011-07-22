@@ -141,9 +141,7 @@ PolynomialMaterialLaw3d::PolynomialMaterialLaw3d(unsigned n, std::vector<std::ve
         {
             if ((p+q>mN) && (fabs(alpha[p][q]) > 1e-12))
             {
-                std::stringstream err_mess;
-                err_mess << "alpha[" << p << "][" << q << "] should be zero, as p+q > " << n;
-                EXCEPTION(err_mess.str());
+                EXCEPTION("alpha[" << p << "][" << q << "] should be zero, as p+q > " << n);
             }
         }
     }

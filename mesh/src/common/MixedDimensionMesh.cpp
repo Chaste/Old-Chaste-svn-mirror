@@ -142,9 +142,7 @@ Element<1u, SPACE_DIM>* MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::GetCableElem
 
     if (element_position == mCableElementsMapping.end())
     {
-        std::stringstream message;
-        message << "Requested cable element " << globalElementIndex << " does not belong to processor " << PetscTools::GetMyRank();
-        EXCEPTION(message.str().c_str());
+        EXCEPTION("Requested cable element " << globalElementIndex << " does not belong to processor " << PetscTools::GetMyRank());
     }
 
     unsigned index = element_position->second;

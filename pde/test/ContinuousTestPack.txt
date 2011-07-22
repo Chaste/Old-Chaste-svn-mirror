@@ -30,4 +30,4 @@ TestTimeAdaptivityController.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp
 TestWritingPdeSolversTutorial.hpp
-TestWritingPdeSolversTutorialTwo.hpp
+TestWritingPdeSolversTwoTutorial.hpp

@@ -208,10 +208,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
 
     if (sum != this->GetNumNodes())
     {
-        std::stringstream string_stream;
-        string_stream << "Sum of nodes per processor, " << sum
-                     << ", not equal to number of nodes in mesh, " << this->GetNumNodes();
-        EXCEPTION(string_stream.str());
+        EXCEPTION("Sum of nodes per processor, " << sum
+                     << ", not equal to number of nodes in mesh, " << this->GetNumNodes());
     }
 
     unsigned num_owned=nodes_per_processor_vec[PetscTools::GetMyRank()];

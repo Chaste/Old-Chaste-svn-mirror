@@ -96,9 +96,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
     if (!(heterogeneity_file.is_open()))
     {
         heterogeneity_file.close();
-        std::stringstream ss;
-        ss << "Could not open heterogeneities file (" << nodeHeterogeneityFileName << ")";
-        EXCEPTION(ss.str());
+        EXCEPTION("Could not open heterogeneities file (" << nodeHeterogeneityFileName << ")");
     }
 
     while(!heterogeneity_file.eof())
@@ -111,10 +109,8 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
         if( (heterogeneity_file.fail() && !heterogeneity_file.eof()) || value < 0 || value > 2)
         {
             heterogeneity_file.close();
-            std::stringstream ss;
-            ss << "A value in the heterogeneities file (" << nodeHeterogeneityFileName
-               << ") is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2";
-            EXCEPTION(ss.str());
+            EXCEPTION("A value in the heterogeneities file (" << nodeHeterogeneityFileName
+               << ") is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2");
         }
 
         if(!heterogeneity_file.eof())

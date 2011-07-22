@@ -392,9 +392,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
                 }
                 catch (Exception &e)
                 {
-                    std::stringstream message;
-                    message << "Face does not appear in element file (Face " << face_index << " in "<<this->mMeshFileBaseName<< ")";
-                    EXCEPTION(message.str().c_str());
+                    EXCEPTION("Face does not appear in element file (Face " << face_index << " in "<<this->mMeshFileBaseName<< ")");
                 }
             }
 
@@ -590,9 +588,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(un
 
     if (node_position == mNodesMapping.end())
     {
-        std::stringstream message;
-        message << "Requested node " << index << " does not belong to processor " << PetscTools::GetMyRank();
-        EXCEPTION(message.str().c_str());
+        EXCEPTION("Requested node " << index << " does not belong to processor " << PetscTools::GetMyRank());
     }
     return node_position->second;
 }
@@ -611,9 +607,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping
 
     if (element_position == mElementsMapping.end())
     {
-        std::stringstream message;
-        message << "Requested element " << index << " does not belong to processor " << PetscTools::GetMyRank();
-        EXCEPTION(message.str().c_str());
+        EXCEPTION("Requested element " << index << " does not belong to processor " << PetscTools::GetMyRank());
     }
 
     return element_position->second;
@@ -626,9 +620,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElemen
 
     if (boundary_element_position == mBoundaryElementsMapping.end())
     {
-        std::stringstream message;
-        message << "Requested boundary element " << index << " does not belong to processor " << PetscTools::GetMyRank();
-        EXCEPTION(message.str().c_str());
+        EXCEPTION("Requested boundary element " << index << " does not belong to processor " << PetscTools::GetMyRank());
     }
 
     return boundary_element_position->second;
@@ -650,9 +642,7 @@ Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeOrH
         return this->mNodes[node_position->second];
     }
     //Not here
-    std::stringstream message;
-    message << "Requested node/halo " << index << " does not belong to processor " << PetscTools::GetMyRank();
-    EXCEPTION(message.str().c_str());
+    EXCEPTION("Requested node/halo " << index << " does not belong to processor " << PetscTools::GetMyRank());
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1331,6 +1321,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
 #define COVERAGE_IGNORE
         // It's a short mesh and this process owns no nodes.  This problem can only occur on 4 or more processes,
         // so we can't cover it - coverage only runs with 1 and 2 processes.
+        ///\todo #1826 streaming warnings
         std::stringstream msg;
         msg << "No nodes were assigned to processor " << PetscTools::GetMyRank() << " in DistributedTetrahedralMesh::ConstructCuboid()";
         WARNING(msg.str());

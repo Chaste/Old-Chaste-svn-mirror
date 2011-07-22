@@ -114,9 +114,7 @@ std::vector<double> VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
     unsigned offset = mIndexFromZero ? 0 : 1;
     if (index != mNodesRead + offset)
     {
-        std::stringstream error;
-        error << "Data for node " << mNodesRead << " missing";
-        EXCEPTION(error.str());
+        EXCEPTION("Data for node " << mNodesRead << " missing");
     }
 
     double node_value;
@@ -147,9 +145,7 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     unsigned offset = mIndexFromZero ? 0 : 1;
     if (element_index != mElementsRead + offset)
     {
-        std::stringstream error;
-        error << "Data for element " << mElementsRead << " missing";
-        EXCEPTION(error.str());
+        EXCEPTION("Data for element " << mElementsRead << " missing");
     }
 
     unsigned num_nodes_in_element;
@@ -198,9 +194,7 @@ VertexElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementDataWi
     unsigned offset = mIndexFromZero ? 0 : 1;
     if (element_index != mElementsRead + offset)
     {
-        std::stringstream error;
-        error << "Data for element " << mElementsRead << " missing";
-        EXCEPTION(error.str());
+        EXCEPTION("Data for element " << mElementsRead << " missing");
     }
 
     // Get number of nodes owned by this element

@@ -211,9 +211,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckOutwardNormals()
 
         if (inner_prod(into_mesh, normal) > 0.0)
         {
-            std::stringstream message;
-            message << "Inward facing normal in boundary element index "<<(*face_iter)->GetIndex();
-            EXCEPTION(message.str());
+            EXCEPTION("Inward facing normal in boundary element index "<<(*face_iter)->GetIndex());
         }
     }
 }

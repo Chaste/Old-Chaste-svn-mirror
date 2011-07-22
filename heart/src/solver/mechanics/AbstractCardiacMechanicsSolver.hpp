@@ -484,18 +484,14 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetVariableFibreShee
 
     if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=this->mrQuadMesh.GetNumElements()) )
     {
-        std::stringstream ss;
-        ss << "Number of entries defined at top of file " << orthoFile << " does not match number of elements in the mesh, "
-           << "found " <<  num_entries << ", expected " << this->mrQuadMesh.GetNumElements();
-        EXCEPTION(ss.str());
+        EXCEPTION("Number of entries defined at top of file " << orthoFile << " does not match number of elements in the mesh, "
+           << "found " <<  num_entries << ", expected " << this->mrQuadMesh.GetNumElements());
     }
 
     if(mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=mTotalQuadPoints) )
     {
-        std::stringstream ss;
-        ss << "Number of entries defined at top of file " << orthoFile << " does not match number of quadrature points defined, "
-           << "found " <<  num_entries << ", expected " << mTotalQuadPoints;
-        EXCEPTION(ss.str());
+        EXCEPTION("Number of entries defined at top of file " << orthoFile << " does not match number of quadrature points defined, "
+           << "found " <<  num_entries << ", expected " << mTotalQuadPoints);
     }
     
     mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(num_entries, zero_matrix<double>(DIM,DIM));
@@ -520,9 +516,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetConstantFibreShee
             double val = (i==j ? 1.0 : 0.0);
             if(fabs(temp(i,j)-val)>1e-4)
             {
-                std::stringstream string_stream;
-                string_stream << "The given fibre-sheet matrix, " << rFibreSheetMatrix << ", is not orthogonal";
-                EXCEPTION(string_stream.str());
+                EXCEPTION("The given fibre-sheet matrix, " << rFibreSheetMatrix << ", is not orthogonal");
             }
         }
     }

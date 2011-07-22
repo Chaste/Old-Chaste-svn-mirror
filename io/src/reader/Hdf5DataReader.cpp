@@ -219,16 +219,12 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(const std::string& rVari
         }
         if ( node_index == mIncompleteNodeIndices.size())
         {
-            std::stringstream ss;
-            ss << "The incomplete file does not contain info of node " << nodeIndex;
-            EXCEPTION(ss.str());
+            EXCEPTION("The incomplete file does not contain info of node " << nodeIndex);
         }
     }
     if (actual_node_index >= mVariablesDatasetSizes[1])
     {
-        std::stringstream ss;
-        ss << "The file doesn't contain info of node " << actual_node_index;
-        EXCEPTION(ss.str());
+        EXCEPTION("The file doesn't contain info of node " << actual_node_index);
     }
 
     std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
@@ -275,9 +271,7 @@ std::vector<std::vector<double> > Hdf5DataReader::GetVariableOverTimeOverMultipl
 
     if (upperIndex > mVariablesDatasetSizes[1])
     {
-        std::stringstream ss;
-        ss << "The file doesn't contain info for node " << upperIndex-1;
-        EXCEPTION(ss.str());
+       EXCEPTION("The file doesn't contain info for node " << upperIndex-1);
     }
 
     std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
@@ -350,9 +344,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data,
     // Check for valid timestep
     if (timestep >= mNumberTimesteps)
     {
-        std::stringstream ss;
-        ss << "The file does not contain data for timestep number " << timestep;
-        EXCEPTION(ss.str());
+        EXCEPTION("The file does not contain data for timestep number " << timestep);
     }
 
     int lo, hi, size;
