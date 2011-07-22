@@ -119,15 +119,9 @@ private:
     std::string mShortMessage; /**< Short exception message - just text of the exception. */
 };
 
-/*
+/**
  * Convenience macro for throwing an exception, in order to add file and line info.
  *
- * @param message  the exception message
- */
-//#define OLDEXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
-
-/**
- * Throw an Exception.
  * @param message  the error message to use, as a streamed expression
  */
 #define EXCEPTION(message)                           \
