@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SolidMechanicsProblemDefinition.hpp"
 #include "DeformedBoundaryElement.hpp"
 
-//#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
+#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
 //#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
 //#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
 //#define MECH_KSP_MONITOR  // Print residual norm each iteration in linear solve (ie -ksp_monitor).
@@ -239,6 +239,11 @@ protected:
      * and is only used in computing mNumDofs and allocating matrix memory.
      */
     CompressibilityType mCompressibilityType;
+
+    /** Whether the boundary elements of the mesh have been checked for whether
+     *  the ordering if such that the normals are outward-facing
+     */
+    bool mCheckedOutwardNormals;
 
     /**
      * Assemble the residual vector and/or Jacobian matrix (using the current solution stored
@@ -954,17 +959,18 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     Timer::PrintAndReset("KSP Setup");
     #endif
 
-//todo
-    ///\todo Todo what? On which ticket?
     KSPSolve(solver,mLinearSystemRhsVector,solution);
 
+    /////////////////////////////////////////////
+    // Error checking for linear solve
+    /////////////////////////////////////////////
+
+    // warn if ksp reports failure
     KSPConvergedReason reason;
     KSPGetConvergedReason(solver,&reason);
-    //Revert r13154
-#define COVERAGE_IGNORE    
-    WARNING("A PETSc exception happened in this solve");//KSPEXCEPT(reason);
-#undef COVERAGE_IGNORE    
+    KSPWARNIFFAILED(reason);
 
+    // quit if no ksp iterations were done
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
     if (num_iters==0)
@@ -974,8 +980,8 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         EXCEPTION("KSP Absolute tolerance was too high, linear system wasn't solved - there will be no decrease in Newton residual. Decrease KspAbsoluteTolerance");
     }
 
-    // See comment on max_iters above
-    if (num_iters==1000)
+    // warn if max ksp iterations was done
+    if (num_iters==1000) // See comment on max_iters above
     {
         #define COVERAGE_IGNORE
         WARNING("Linear solver in mechanics solve may not have converged");
@@ -1186,7 +1192,8 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
       mWriteOutputEachNewtonIteration(false),
       mNumNewtonIterations(0),
       mCurrentTime(0.0),
-      mCompressibilityType(compressibilityType)
+      mCompressibilityType(compressibilityType),
+      mCheckedOutwardNormals(false)
 {
     assert(DIM==2 || DIM==3);
 
@@ -1203,16 +1210,6 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
     if (mWriteOutput)
     {
         mpOutputFileHandler = new OutputFileHandler(mOutputDirectory);
-    }
-
-    // If the problem includes specified pressures on deformed surfaces (as opposed
-    // to specified tractions), the code needs to compute normals, and they need
-    // to be consistently all facing outward (or all facing inward). Check the undeformed
-    // mesh boundary elements has nodes that are ordered so that all normals are
-    // outward-facing
-    if(mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED)
-    {
-        mrQuadMesh.CheckOutwardNormals();
     }
 }
 
@@ -1247,6 +1244,19 @@ void AbstractNonlinearElasticitySolver<DIM>::Solve(double tol,
                                                    unsigned maxNumNewtonIterations,
                                                    bool quitIfNoConvergence)
 {
+    // If the problem includes specified pressures on deformed surfaces (as opposed
+    // to specified tractions), the code needs to compute normals, and they need
+    // to be consistently all facing outward (or all facing inward). Check the undeformed
+    // mesh boundary elements has nodes that are ordered so that all normals are
+    // outward-facing
+    if(mrProblemDefinition.GetTractionBoundaryConditionType()==PRESSURE_ON_DEFORMED && mCheckedOutwardNormals==false)
+    {
+        std::cout << "checking...\n";
+        mrQuadMesh.CheckOutwardNormals();
+        mCheckedOutwardNormals = true;
+    }
+
+
     WriteCurrentDeformation("initial");
 
     if (mWriteOutputEachNewtonIteration)

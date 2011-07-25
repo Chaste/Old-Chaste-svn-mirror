@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscException.hpp"
+#include "Warnings.hpp"
 #include "IsNan.hpp"
 
 /**
@@ -98,6 +99,11 @@ public:
         TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_NONSYMMETRIC), Exception );
         TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_INDEFINITE_PC), Exception );
         TS_ASSERT_THROWS( KSPEXCEPT(-735827), Exception );
+
+
+        KSPWARNIFFAILED(KSP_DIVERGED_ITS);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::QuietDestroy();
     }
 
     void TestDivideOneByZero() throw(Exception)

@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscException.hpp"
 #include "Exception.hpp"
+#include "Warnings.hpp"
+
 
 /*
  * Positive codes mean that there's an error.
@@ -64,6 +66,58 @@ void PetscException(PetscInt petscError,
  * Positive codes mean that the KSP converged.
  * Negative codes mean that the KSP diverged, i.e. there's a problem.
  */
+std::string GetKspErrorMessage(PetscInt kspError)
+{
+    std::string err_string;
+
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    switch (kspError)
+    {
+        case KSP_DIVERGED_ITS:
+            err_string = "KSP_DIVERGED_ITS";
+            break;
+        case KSP_DIVERGED_DTOL:
+            err_string = "KSP_DIVERGED_DTOL";
+            break;
+        case KSP_DIVERGED_BREAKDOWN:
+            err_string = "KSP_DIVERGED_BREAKDOWN";
+            break;
+        case KSP_DIVERGED_BREAKDOWN_BICG:
+            err_string = "KSP_DIVERGED_BREAKDOWN_BICG";
+            break;
+        case KSP_DIVERGED_NONSYMMETRIC:
+            err_string = "KSP_DIVERGED_NONSYMMETRIC";
+            break;
+        case KSP_DIVERGED_INDEFINITE_PC:
+            err_string = "KSP_DIVERGED_INDEFINITE_PC";
+            break;
+        default:
+            err_string = "Unknown KSP error code";
+    }
+#else
+    // This array contains the strings describing KSP convergence/divergence reasons.
+    // It is exported by libpetscksp.a
+    extern const char **KSPConvergedReasons;
+
+    // The code for the last known error (-10) is hardcoded in PETSc, in future releases it might change.
+    // It is defined in src/ksp/ksp/interface/dlregisksp.c
+    if (kspError >= -10)
+    {
+        err_string = KSPConvergedReasons[kspError];
+    }
+    else
+    {
+        err_string = "Unknown KSP error code";
+    }
+    #endif
+
+    return err_string;
+}
+
+/*
+ * Positive codes mean that the KSP converged.
+ * Negative codes mean that the KSP diverged, i.e. there's a problem.
+ */
 void KspException(PetscInt kspError,
                   unsigned line,
                   const char* funct,
@@ -71,48 +125,7 @@ void KspException(PetscInt kspError,
 {
     if (kspError < 0)
     {
-        std::string err_string;
-
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        switch (kspError)
-        {
-            case KSP_DIVERGED_ITS:
-                err_string = "KSP_DIVERGED_ITS";
-                break;
-            case KSP_DIVERGED_DTOL:
-                err_string = "KSP_DIVERGED_DTOL";
-                break;
-            case KSP_DIVERGED_BREAKDOWN:
-                err_string = "KSP_DIVERGED_BREAKDOWN";
-                break;
-            case KSP_DIVERGED_BREAKDOWN_BICG:
-                err_string = "KSP_DIVERGED_BREAKDOWN_BICG";
-                break;
-            case KSP_DIVERGED_NONSYMMETRIC:
-                err_string = "KSP_DIVERGED_NONSYMMETRIC";
-                break;
-            case KSP_DIVERGED_INDEFINITE_PC:
-                err_string = "KSP_DIVERGED_INDEFINITE_PC";
-                break;
-            default:
-                err_string = "Unknown KSP error code";
-          }
-  #else
-        /*
-         * This array contains the strings describing KSP
-         * convergence/divergence reasons. It is exported by
-         * libpetscksp.a
-         */
-        extern const char **KSPConvergedReasons;
-
-        /*
-         * The code for the last known error (-10) is hardcoded in PETSc,
-         * in future releases it might change. It is defined in
-         * src/ksp/ksp/interface/dlregisksp.c
-         */
-        if (kspError >= -10) err_string = KSPConvergedReasons[kspError];
-        else err_string = "Unknown KSP error code";
-  #endif
+        std::string err_string = GetKspErrorMessage(kspError);
 
         err_string += " in function '";
         err_string += funct;
@@ -122,5 +135,14 @@ void KspException(PetscInt kspError,
         err_string += file;
 
         EXCEPTION(err_string);
+    }
+}
+
+void KspWarnIfFailed(PetscInt kspError)
+{
+    if (kspError < 0)
+    {
+        std::string message = "Linear solve failed: " + GetKspErrorMessage(kspError);
+        WARNING(message);
     }
 }

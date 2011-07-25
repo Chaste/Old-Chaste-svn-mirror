@@ -31,24 +31,65 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <petsc.h>
 #include <petscksp.h>
-
+/**
+ * Throw an exception if the Petsc error number (what is generally denoted 'ierr' in
+ * Petsc code) is non-zero - see PETSCEXCEPT
+ *
+ * @param petscError Petsc error number
+ * @param line
+ * @param funct
+ * @param file
+ */
 extern void PetscException(PetscInt petscError, unsigned line,
                            const char* funct, const char* file);
 
+/**
+ * Throw an exception if the KSP error indicates linear solve failure - see
+ * KSPEXCEPT.
+ *
+ * @param kspError KSP error number (obtained using KSPGetConvergedReason)
+ * @param line
+ * @param funct
+ * @param file
+ */
 extern void KspException(PetscInt kspError, unsigned line,
                          const char* funct, const char* file);
 
-/*
+/**
+ * Throw a warning if the KSP error indicates linear solve failure - see
+ * KSPWARNIFFAILED.
+ *
+ * @param kspError KSP error number (obtained using KSPGetConvergedReason)
+ */
+extern void KspWarnIfFailed(PetscInt kspError);
+
+
+/** Helper function for above functions - convert a KSP error number into an error message */
+std::string GetKspErrorMessage(PetscInt kspError);
+
+
+/**
  * Positive codes mean that there's an error.
  * Zero means success.
  * Negative codes should never happen, but we'll throw anyway.
  */
 #define PETSCEXCEPT(n) PetscException(n, __LINE__, __FUNCT__,__FILE__)
 
-/*
+/**
  * Positive codes mean that the KSP converged.
  * Negative codes mean that the KSP diverged, i.e. there's a problem.
+ *
+ * Throw an Exception if KSP failed to solve.
  */
 #define KSPEXCEPT(n)  KspException(n, __LINE__, __FUNCT__,__FILE__)
+
+/**
+ * Positive codes mean that the KSP converged.
+ * Negative codes mean that the KSP diverged, i.e. there's a problem.
+ *
+ * Throw a Warning if KSP failed to solve.
+ */
+#define KSPWARNIFFAILED(n)  KspWarnIfFailed(n)
+
 
 #endif /*PETSCEXCEPTION_HPP_*/
