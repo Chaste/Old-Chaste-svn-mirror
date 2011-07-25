@@ -107,6 +107,8 @@ private:
      */
     unsigned AddNode(Node<DIM>* pNewNode);
 
+
+protected:
     /**
      * Move the node with a given index to a new point in space.
      *
@@ -115,6 +117,7 @@ private:
      */
     void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
+private:
     /**
      * Check consistency of our internal data structures.
      */
