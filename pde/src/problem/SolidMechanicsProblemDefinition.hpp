@@ -83,7 +83,7 @@ private:
     c_vector<double,DIM> mConstantBodyForce;
 
     /** The body force as a function of space and time, only used if mBodyForceType is set appropriately */
-    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>& X, double t);
+    c_vector<double,DIM> (*mpBodyForceFunction)(c_vector<double,DIM>& rX, double t);
 
     //////////////////////////////
     // tractions
@@ -103,7 +103,7 @@ private:
     double mNormalPressure;
 
     /** The tractions as a function of space and time (only used if mTractionBoundaryConditionType is set appropriately) */
-    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& X, double t);
+    c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& rX, double t);
 
     //////////////////////////////
     // fixed nodes
@@ -164,7 +164,7 @@ public:
      * Set the body force to be used - this version sets a functional body force
      * @param pFunction a function of space and time returning a vector
      */
-    void SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
+    void SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t));
 
     /**
      * Get the body force type
@@ -182,7 +182,7 @@ public:
      * @param X spatial location
      * @param t current time
      */
-    c_vector<double,DIM> EvaluateBodyForceFunction(c_vector<double,DIM>& X, double t);
+    c_vector<double,DIM> EvaluateBodyForceFunction(c_vector<double,DIM>& rX, double t);
 
     /**
      * Get the traction (Neumann) boundary condition type
@@ -206,7 +206,7 @@ public:
      * @param pFunction the traction function (a function of space and time, returning a vector)
      */
     void SetTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                       c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t));
+                                       c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t));
 
     /**
      * Set traction (Neumann) boundary conditions. This version says that pressures should be applied
@@ -241,10 +241,10 @@ public:
     /**
      * Evaluate the traction boundary condition function (error if GetTractionBoundaryConditionType()!=FUNCTIONAL_TRACTION)
      *
-     * @param X spatial location
+     * @param rX spatial location
      * @param t current time
      */
-    c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& X, double t);
+    c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& rX, double t);
 
 };
 

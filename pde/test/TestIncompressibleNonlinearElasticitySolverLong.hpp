@@ -49,12 +49,12 @@ public:
     static double b;
     static double c1;
 
-    static c_vector<double,3> GetBodyForce(c_vector<double,3>& X, double t)
+    static c_vector<double,3> GetBodyForce(c_vector<double,3>& rX, double t)
     {
-        assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1 && X(2)>=0 && X(2)<=1);
+        assert(rX(0)>=0 && rX(0)<=1 && rX(1)>=0 && rX(1)<=1 && rX(2)>=0 && rX(2)<=1);
 
-        double lam1 = 1+a*X(0);
-        double lam2 = 1+b*X(1);
+        double lam1 = 1+a*rX(0);
+        double lam2 = 1+b*rX(1);
         double invlam1 = 1.0/lam1;
         double invlam2 = 1.0/lam2;
 
@@ -66,43 +66,43 @@ public:
         return -2*c1*body_force;
     }
 
-    static c_vector<double,3> GetTraction(c_vector<double,3>& X, double t)
+    static c_vector<double,3> GetTraction(c_vector<double,3>& rX, double t)
     {
         c_vector<double,3> traction = zero_vector<double>(3);
 
-        double lam1 = 1+a*X(0);
-        double lam2 = 1+b*X(1);
+        double lam1 = 1+a*rX(0);
+        double lam2 = 1+b*rX(1);
 
         double invlam1 = 1.0/lam1;
         double invlam2 = 1.0/lam2;
 
-        double Z = X(2);
+        double Z = rX(2);
 
-        if ( fabs(X(0)-1)<1e-6 )
+        if ( fabs(rX(0)-1)<1e-6 )
         {
             traction(0) =  lam1 - invlam1;
             traction(1) =  0.0;
             traction(2) =  -a*Z*invlam1*invlam1*invlam2;
         }
-        else if ( fabs(X(1)-0)<1e-6 )
+        else if ( fabs(rX(1)-0)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  0.0;
             traction(2) =  b*Z*invlam1;
         }
-        else if ( fabs(X(1)-1)<1e-6 )
+        else if ( fabs(rX(1)-1)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  lam2 - invlam2;
             traction(2) =  -b*Z*invlam2*invlam2*invlam1;
         }
-        else if ( fabs(X(2)-0)<1e-6 )
+        else if ( fabs(rX(2)-0)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  0.0;
             traction(2) =  lam1*lam2 - invlam1*invlam2;
         }
-        else if ( fabs(X(2)-1)<1e-6 )
+        else if ( fabs(rX(2)-1)<1e-6 )
         {
             traction(0) =  -a*invlam1*invlam1;
             traction(1) =  -b*invlam2*invlam2;

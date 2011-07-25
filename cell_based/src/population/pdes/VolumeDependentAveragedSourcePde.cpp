@@ -81,7 +81,7 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
 }
 
 template<unsigned DIM>
-double VolumeDependentAveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
+double VolumeDependentAveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, , Element<DIM,DIM>* pElement)
 {
     return 0.0;
 }

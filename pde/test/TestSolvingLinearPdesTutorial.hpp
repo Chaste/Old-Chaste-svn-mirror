@@ -113,7 +113,7 @@ public:
     /* The first method which has to be implemented returns the constant
      * (not dependent on u) part of the source term, which for our PDE is
      * x^2^ + y^2^ */
-    double ComputeConstantInUSourceTerm(const ChastePoint<2>& rX)
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>& rX, Element<2,2>* pElement)
     {
         return rX[0]*rX[0] + rX[1]*rX[1];
     }

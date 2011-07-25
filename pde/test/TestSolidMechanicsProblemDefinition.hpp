@@ -34,19 +34,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "SolidMechanicsProblemDefinition.hpp"
 
-c_vector<double,2> SomeFunction(c_vector<double,2>& X, double t)
+c_vector<double,2> SomeFunction(c_vector<double,2>& rX, double t)
 {
     c_vector<double,2> body_force;
-    body_force(0) = X(0)+t;
-    body_force(1) = 2*(X(1)+t);
+    body_force(0) = rX(0)+t;
+    body_force(1) = 2*(rX(1)+t);
     return body_force;
 }
 
-c_vector<double,2> AnotherFunction(c_vector<double,2>& X, double t)
+c_vector<double,2> AnotherFunction(c_vector<double,2>& rX, double t)
 {
     c_vector<double,2> body_force;
-    body_force(0) = X(0)*t;
-    body_force(1) = 10*X(1)*t;
+    body_force(0) = rX(0)*t;
+    body_force(1) = 10*rX(1)*t;
     return body_force;
 }
 

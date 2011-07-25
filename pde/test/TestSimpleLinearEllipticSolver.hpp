@@ -68,7 +68,7 @@ public:
         SimplePoissonEquation<1,1> pde;
 
         double value1 = pde.ComputeConstantInUSourceTermAtNode(*(mesh.GetNode(0)));
-        double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint());
+        double value2 = pde.ComputeConstantInUSourceTerm(mesh.GetNode(0)->GetPoint(), NULL);
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
         value1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*(mesh.GetNode(0)));

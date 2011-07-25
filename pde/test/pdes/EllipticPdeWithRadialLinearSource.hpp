@@ -37,14 +37,14 @@ class EllipticPdeWithRadialLinearSource :public AbstractLinearEllipticPde<2,2>
 {
 public:
 
-    double ComputeConstantInUSourceTerm(const ChastePoint<2>& )
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>&, Element<2,2>*)
     {
         return 0.0;
     }
 
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& rX, Element<2,2>*)
     {
-        return -(x[0]*x[0] + x[1]*x[1]);
+        return -(rX[0]*rX[0] + rX[1]*rX[1]);
     }
 
     c_matrix<double, 2, 2> ComputeDiffusionTerm(const ChastePoint<2>& )

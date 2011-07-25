@@ -61,7 +61,7 @@ void SolidMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM> bod
 }
 
 template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
+void SolidMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t))
 {
     mBodyForceType = FUNCTIONAL_BODY_FORCE;
     mpBodyForceFunction = pFunction;
@@ -81,10 +81,10 @@ c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::GetConstantBodyForce(
 }
 
 template<unsigned DIM>
-c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateBodyForceFunction(c_vector<double,DIM>& X, double t)
+c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateBodyForceFunction(c_vector<double,DIM>& rX, double t)
 {
     assert(mBodyForceType==FUNCTIONAL_BODY_FORCE);
-    return (*mpBodyForceFunction)(X,t);
+    return (*mpBodyForceFunction)(rX,t);
 }
 
 
@@ -107,7 +107,7 @@ void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::ve
 
 template<unsigned DIM>
 void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                                                         c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& X, double t))
+                                                                         c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t))
 {
     mTractionBoundaryConditionType=FUNCTIONAL_TRACTION;
     mTractionBoundaryElements = rTractionBoundaryElements;
@@ -195,10 +195,10 @@ double SolidMechanicsProblemDefinition<DIM>::GetNormalPressure()
 }
 
 template<unsigned DIM>
-c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunction(c_vector<double,DIM>& X, double t)
+c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunction(c_vector<double,DIM>& rX, double t)
 {
     assert(mTractionBoundaryConditionType==FUNCTIONAL_TRACTION);
-    return (*mpTractionBoundaryConditionFunction)(X,t);
+    return (*mpTractionBoundaryConditionFunction)(rX,t);
 }
 
 

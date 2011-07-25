@@ -94,20 +94,20 @@ c_matrix<double,2,2> Compute1stPkStress(double X, double Y)
     return S;
 }
 
-c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
+c_vector<double,2> MyBodyForce(c_vector<double,2>& rX, double t)
 {
-    assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
+    assert(rX(0)>=0 && rX(0)<=1 && rX(1)>=0 && rX(1)<=1);
 
-    double lam = ComputeLambda(X(0));
+    double lam = ComputeLambda(rX(0));
     double a = A_PARAM;
     double q = Q_PARAM;
-    double w3 = ComputeW3(X(0),X(1));
-    double dw3dX = ComputeDW3dX(X(0),X(1));
-    double dw3dY = ComputeDW3dY(X(0),X(1));
+    double w3 = ComputeW3(rX(0),rX(1));
+    double dw3dX = ComputeDW3dX(rX(0),rX(1));
+    double dw3dY = ComputeDW3dY(rX(0),rX(1));
 
     double dS00dX = 2*(w1*q*a - w3*q*a/(lam*lam) + dw3dX*q/(lam));
-    double dS01dX = 2*(2*w1*a*a*X(1)/(lam*lam*lam));
-    double dS10dY = 2*(w3*a*q/(lam*lam) + a*X(1)*q*dw3dY/(lam*lam));
+    double dS01dX = 2*(2*w1*a*a*rX(1)/(lam*lam*lam));
+    double dS10dY = 2*(w3*a*q/(lam*lam) + a*rX(1)*q*dw3dY/(lam*lam));
     double dS11dY = 2*lam*dw3dY*q*q;
 
     c_vector<double,2> body_force;
@@ -116,23 +116,23 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
     return body_force;
 }
 
-c_vector<double,2> MyTraction(c_vector<double,2>& X, double t)
+c_vector<double,2> MyTraction(c_vector<double,2>& rX, double t)
 {
-    c_matrix<double,2,2> S = Compute1stPkStress(X(0), X(1));
+    c_matrix<double,2,2> S = Compute1stPkStress(rX(0), rX(1));
 
     c_vector<double,2> traction = zero_vector<double>(2);
 
-    if (fabs(X(0)-1.0) <= 1e-12) //Right edge
+    if (fabs(rX(0)-1.0) <= 1e-12) //Right edge
     {
         traction(0) = S(0,0);
         traction(1) = S(0,1);
     }
-    else if (fabs(X(1))  <= 1e-12) //Bottom edge
+    else if (fabs(rX(1))  <= 1e-12) //Bottom edge
     {
         traction(0) = -S(1,0);
         traction(1) = -S(1,1);
     }
-    else if (fabs(X(1) - 1.0) <= 1e-12)//Top edge
+    else if (fabs(rX(1) - 1.0) <= 1e-12)//Top edge
     {
         traction(0) = S(1,0);
         traction(1) = S(1,1);

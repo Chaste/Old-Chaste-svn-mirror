@@ -48,7 +48,7 @@ public:
         mConstant = constant;
     }
 
-    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& )
+    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>&, Element<SPACE_DIM,SPACE_DIM>*)
     {
         return mConstant;
     }

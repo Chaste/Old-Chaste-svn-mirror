@@ -44,9 +44,9 @@ public:
         return 0.0;
     }
 
-    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& x, double )
+    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& rX, double )
     {
-        return -exp(-x[0]);
+        return -exp(-rX[0]);
     }
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& , double u)

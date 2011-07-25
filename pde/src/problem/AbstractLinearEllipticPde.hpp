@@ -56,8 +56,9 @@ public:
      * Div(D Grad u)  +  f(x)u + g(x) = 0, at a given point.
      *
      * @param rX The point in space
+     * @param pElement The element
      */
-    virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
+    virtual double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& rX, Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
 
     /**
      * Compute the coefficient of u in the linear part of the source term, i.e f(x) in
@@ -109,7 +110,7 @@ public:
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double AbstractLinearEllipticPde<ELEMENT_DIM, SPACE_DIM>::ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode)
 {
-    return ComputeConstantInUSourceTerm(rNode.GetPoint());
+    return ComputeConstantInUSourceTerm(rNode.GetPoint(), NULL);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

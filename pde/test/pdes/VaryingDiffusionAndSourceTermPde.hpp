@@ -52,9 +52,9 @@ private:
     }
 
 public:
-    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& x)
+    double ComputeConstantInUSourceTerm(const ChastePoint<SPACE_DIM>& rX, Element<SPACE_DIM,SPACE_DIM>*)
     {
-        return pow(DistanceFromOrigin(x),3);
+        return pow(DistanceFromOrigin(rX),3);
     }
 
     double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& , Element<SPACE_DIM,SPACE_DIM>*)

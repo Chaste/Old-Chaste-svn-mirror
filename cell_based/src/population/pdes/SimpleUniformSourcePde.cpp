@@ -36,7 +36,7 @@ SimpleUniformSourcePde<DIM>::SimpleUniformSourcePde(double coefficient)
 }
 
 template<unsigned DIM>
-double SimpleUniformSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
+double SimpleUniformSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
     return 0.0;
 }

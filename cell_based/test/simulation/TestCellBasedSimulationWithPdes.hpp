@@ -55,12 +55,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
 public:
-    double ComputeConstantInUSourceTerm(const ChastePoint<2>& x)
+    double ComputeConstantInUSourceTerm(const ChastePoint<2>&, , Element<2,2>* pElement)
     {
         return -1.0;
     }
 
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>& x, Element<2,2>*)
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<2>&, Element<2,2>*)
     {
         return 0.0;
     }

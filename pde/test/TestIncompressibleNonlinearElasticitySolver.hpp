@@ -48,14 +48,14 @@ double ALPHA = 0.2;
 //   TO TEST THE TIME-DEPENDENCE, THIS REQUIRES THE
 //   CURRENT TIME TO BE SET TO 1.0
 //
-c_vector<double,2> MyBodyForce(c_vector<double,2>& X, double t)
+c_vector<double,2> MyBodyForce(c_vector<double,2>& rX, double t)
 {
-    assert(X(0)>=0 && X(0)<=1 && X(1)>=0 && X(1)<=1);
+    assert(rX(0)>=0 && rX(0)<=1 && rX(1)>=0 && rX(1)<=1);
 
     c_vector<double,2> body_force;
-    double lam = 1+ALPHA*X(0);
+    double lam = 1+ALPHA*rX(0);
     body_force(0) = -2*MATERIAL_PARAM * ALPHA;
-    body_force(1) = -2*MATERIAL_PARAM * 2*ALPHA*ALPHA*X(1)/(lam*lam*lam);
+    body_force(1) = -2*MATERIAL_PARAM * 2*ALPHA*ALPHA*rX(1)/(lam*lam*lam);
 
     // Make sure the time has been passed through to here correctly.
     // This function requires t=1 for the test to pass

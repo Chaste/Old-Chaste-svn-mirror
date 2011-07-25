@@ -60,7 +60,7 @@ c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_
         c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    return mpEllipticPde->ComputeConstantInUSourceTerm(rX) * rPhi;
+    return mpEllipticPde->ComputeConstantInUSourceTerm(rX, pElement) * rPhi;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

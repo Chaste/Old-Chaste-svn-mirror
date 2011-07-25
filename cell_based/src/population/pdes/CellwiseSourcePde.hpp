@@ -59,11 +59,12 @@ public:
      * Overridden ComputeConstantInUSourceTerm() method.
      *
      * @param rX The point in space
+     * @param pElement The element
      *
      * @return the constant in u part of the source term, i.e g(x) in
      *  Div(D Grad u)  +  f(x)u + g(x) = 0.
      */
-    double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX);
+    double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, , Element<DIM,DIM>* pElement);
 
     /**
      * Overridden ComputeLinearInUCoeffInSourceTerm() method.

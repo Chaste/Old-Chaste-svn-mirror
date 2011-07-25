@@ -74,7 +74,7 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
 }
 
 template<unsigned DIM>
-double AveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
+double AveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
     return 0.0;
 }

@@ -104,10 +104,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 /* Ignore this function until later in the tutorial */
-c_vector<double,2> MyTraction(c_vector<double,2>& X, double time)
+c_vector<double,2> MyTraction(c_vector<double,2>& rX, double time)
 {
     c_vector<double,2> traction = zero_vector<double>(2);
-    traction(0) = X(0);
+    traction(0) = rX(0);
     return traction;
 }
 
