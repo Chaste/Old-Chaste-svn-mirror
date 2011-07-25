@@ -993,8 +993,16 @@ double MeshBasedCellPopulation<DIM>::GetVoronoiEdgeLength(unsigned index1, unsig
 {
     unsigned element_index1 = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index1);
     unsigned element_index2 = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index2);
-    double edge_length = mpVoronoiTessellation->GetEdgeLength(element_index1, element_index2);
-    return edge_length;
+    try
+    {
+        double edge_length = mpVoronoiTessellation->GetEdgeLength(element_index1, element_index2);
+        return edge_length;
+    }
+    catch (Exception& e)
+    {
+        //The edge was between two (potentially infinite) cells on the boundary of the mesh
+        EXCEPTION("Spring iterator tried to calculate interaction between degenerate cells on the boundary of the mesh.  Have you set ghost layers correctly?");
+    }
 }
 
 template<unsigned DIM>

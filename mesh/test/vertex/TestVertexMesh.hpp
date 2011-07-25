@@ -1547,8 +1547,8 @@ public:
         nodes.push_back(new Node<2>(0, true,  0.0, 1));
         nodes.push_back(new Node<2>(0, true, -1.0, 0));
         nodes.push_back(new Node<2>(0, true,  1.0, 0));
-        nodes.push_back(new Node<2>(0, true,  0.5, -pow(3,0.5)/2.0));
-        nodes.push_back(new Node<2>(0, true, -0.5, -pow(3,0.5)/2.0));
+        nodes.push_back(new Node<2>(0, true,  0.5, -sqrt(3.0)/2.0));
+        nodes.push_back(new Node<2>(0, true, -0.5, -sqrt(3.0)/2.0));
 
         MutableMesh<2,2> delaunay_mesh(nodes);
         TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
@@ -1559,14 +1559,18 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 6u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 5u);
 
+        //Measure the length of the edge separating the centre element and each of its neighbours
         TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,1), 1.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,2), 0.5 + pow(3,-0.5)/2.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,3), 0.5 + pow(3,-0.5)/2.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,4), pow(3,-0.5), 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,5), pow(3,-0.5), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,2), 0.5 + 1./(sqrt(3.0)*2.0), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,3), 0.5 + 1./(sqrt(3.0)*2.0), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,4), 1./sqrt(3.0), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,5), 1./sqrt(3.0), 1e-6);
 
-        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(0), pow(3, 0.5)/4.0+0.5, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetSurfaceAreaOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
+        //All other neighbouring elements share an infinite edge
+        TS_ASSERT_THROWS_THIS(voronoi_mesh.GetEdgeLength(1,2), "Elements 1 and  2 share only one node.");
+
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(0), sqrt(3.0)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetSurfaceAreaOfElement(0), 2.0 + sqrt(3.0), 1e-6);
     }
 
     void TestTessellationConstructor3dWithGhostNode() throw (Exception)

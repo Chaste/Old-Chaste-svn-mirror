@@ -26,19 +26,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <list>
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
-#include <list>
 
-/**
- * Global method allowing alist of pairs (unsigned, double) to be compared
+
+/// This method would be unnecessary if we were to rely on lexicographic sorting - angle first, index second
+/*
+ * Global method allowing a list of pairs (unsigned, double) to be compared
  * in terms of their second entry and std::list.sort() to be called.
  */
-bool IndexAngleComparison(const std::pair<unsigned, double> lhs, const std::pair<unsigned, double> rhs)
-{
-    return lhs.second < rhs.second;
-}
+//bool IndexAngleComparison(const std::pair<double, unsigned> lhs, const std::pair<double, unsigned> rhs)
+//{
+//    return lhs.first < rhs.first;
+//}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -183,7 +186,8 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
     // Loop over elements of the Delaunay mesh (which are nodes/vertices of this mesh)
     for (unsigned i=0; i<num_nodes; i++)
     {
-        // Loop over nodes owned by this element in the Delaunay mesh
+        // Loop over nodes owned by this triangular element in the Delaunay mesh
+        // Add this node/vertex to each of the 3 vertex elements
         for (unsigned local_index=0; local_index<3; local_index++)
         {
             unsigned elem_index = mpDelaunayMesh->GetElement(i)->GetNodeGlobalIndex(local_index);
@@ -202,7 +206,7 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
          * between the centre of the Voronoi element and each node with that
          * node's global index in the Voronoi mesh.
          */
-        std::list<std::pair<unsigned, double> > index_angle_list;
+        std::list<std::pair<double, unsigned> > index_angle_list;
         for (unsigned local_index=0; local_index<mElements[elem_index]->GetNumNodes(); local_index++)
         {
             c_vector<double, 2> vectorA = mpDelaunayMesh->GetNode(elem_index)->rGetLocation();
@@ -212,22 +216,22 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
             double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
             unsigned global_index = mElements[elem_index]->GetNodeGlobalIndex(local_index);
 
-            std::pair<unsigned, double> pair(global_index, angle);
+            std::pair<double, unsigned> pair(angle, global_index);
             index_angle_list.push_back(pair);
         }
 
         // Sort the list in order of increasing angle
-        index_angle_list.sort(IndexAngleComparison);
+        index_angle_list.sort();
 
         // Create a new Voronoi element and pass in the appropriate Nodes, ordered anticlockwise
         VertexElement<2,2>* p_new_element = new VertexElement<2,2>(elem_index);
         unsigned count = 0;
-        for (std::list<std::pair<unsigned, double> >::iterator list_iter = index_angle_list.begin();
+        for (std::list<std::pair<double, unsigned> >::iterator list_iter = index_angle_list.begin();
              list_iter != index_angle_list.end();
              ++list_iter)
         {
             unsigned local_index = count>1 ? count-1 : 0;
-            p_new_element->AddNode(local_index, mNodes[list_iter->first]);
+            p_new_element->AddNode(local_index, mNodes[list_iter->second]);
             count++;
         }
 
@@ -302,7 +306,7 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
              * between the centre of the Voronoi element and each node with that
              * node's global index in the Voronoi mesh.
              */
-            std::list<std::pair<unsigned, double> > index_angle_list;
+            std::list<std::pair<double, unsigned> > index_angle_list;
 
             // Loop over each element containing this edge (i.e. those containing both nodes of the edge)
             for (std::set<unsigned>::iterator index_iter = edge_element_indices.begin();
@@ -317,23 +321,23 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
 
                 double angle = atan2(local_vertex_dot_basis_vector2, local_vertex_dot_basis_vector1);
 
-                std::pair<unsigned, double> pair(*index_iter, angle);
+                std::pair<double, unsigned> pair(angle, *index_iter);
                 index_angle_list.push_back(pair);
             }
 
             // Sort the list in order of increasing angle
-            index_angle_list.sort(IndexAngleComparison);
+            index_angle_list.sort();
 
             // Create face
             VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index);
             face_index++;
             unsigned count = 0;
-            for (std::list<std::pair<unsigned, double> >::iterator list_iter = index_angle_list.begin();
+            for (std::list<std::pair<double, unsigned> >::iterator list_iter = index_angle_list.begin();
                  list_iter != index_angle_list.end();
                  ++list_iter)
             {
                 unsigned local_index = count>1 ? count-1 : 0;
-                p_face->AddNode(local_index, mNodes[list_iter->first]);
+                p_face->AddNode(local_index, mNodes[list_iter->second]);
                 count++;
             }
 
@@ -442,6 +446,11 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
                           node_indices_2.begin(), node_indices_2.end(),
                           std::inserter(shared_nodes, shared_nodes.begin()));
 
+    if (shared_nodes.size() == 1)
+    {
+        //It's possible that these two elements are actually infinite but are on the edge of the domain
+        EXCEPTION("Elements "<< elementIndex1 <<" and  "<< elementIndex2<< " share only one node.");
+    }
     assert(shared_nodes.size() == 2);
 
     unsigned index1 = *(shared_nodes.begin());
@@ -1022,7 +1031,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
 
             /*
              * In order to calculate the area we map the origin to (x[0],y[0])
-             * then use GetVectorFromAtoB() to get node cooordiantes
+             * then use GetVectorFromAtoB() to get node coordiantes
              */
             c_vector<double, SPACE_DIM> transformed_current_node = GetVectorFromAtoB(first_node, current_node);
             c_vector<double, SPACE_DIM> transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
