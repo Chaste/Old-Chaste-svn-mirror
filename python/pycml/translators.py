@@ -680,8 +680,8 @@ class CellMLTranslator(object):
                     'arcsinh': 'asinh', 'arccosh': 'acosh', 'arctanh': 'atanh'}
     # Inverse reciprocal trig functions; these are represented by
     # key(x) = function_map[val](1/x)
-    recip_trig = {'arcsec': 'arcsin', 'arccsc': 'arccos', 'arccot': 'arctan',
-                  'arcsech': 'arcsinh', 'arccsch': 'arccosh', 'arccoth': 'arctanh'}
+    recip_trig = {'arcsec': 'arccos', 'arccsc': 'arcsin', 'arccot': 'arctan',
+                  'arcsech': 'arccosh', 'arccsch': 'arcsinh', 'arccoth': 'arctanh'}
     # Operators
     nary_ops   = {'plus': '+', 'times': '*',
                   'and': '&&', 'or': '||'}
