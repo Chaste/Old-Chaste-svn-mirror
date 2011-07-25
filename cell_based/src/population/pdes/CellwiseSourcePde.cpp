@@ -37,7 +37,7 @@ CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPop
 }
 
 template<unsigned DIM>
-double CellwiseSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, , Element<DIM,DIM>* pElement)
+double CellwiseSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
     return 0.0;
 }
