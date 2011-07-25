@@ -61,7 +61,7 @@ public:
         c_vector<double,3> body_force;
         body_force(0) = a;
         body_force(1) = b;
-        body_force(2) = 2*X(2)*invlam1*invlam2*( a*a*invlam1*invlam1 + b*b*invlam2*invlam2 );
+        body_force(2) = 2*rX(2)*invlam1*invlam2*( a*a*invlam1*invlam1 + b*b*invlam2*invlam2 );
 
         return -2*c1*body_force;
     }
