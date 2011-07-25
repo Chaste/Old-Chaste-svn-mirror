@@ -26,22 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <list>
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
-
-
-/// This method would be unnecessary if we were to rely on lexicographic sorting - angle first, index second
-/*
- * Global method allowing a list of pairs (unsigned, double) to be compared
- * in terms of their second entry and std::list.sort() to be called.
- */
-//bool IndexAngleComparison(const std::pair<double, unsigned> lhs, const std::pair<double, unsigned> rhs)
-//{
-//    return lhs.first < rhs.first;
-//}
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -202,11 +189,11 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
     for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
     {
         /**
-         * Create a std::list of pairs, where each pair comprises the angle
+         * Create a std::vector of pairs, where each pair comprises the angle
          * between the centre of the Voronoi element and each node with that
          * node's global index in the Voronoi mesh.
          */
-        std::list<std::pair<double, unsigned> > index_angle_list;
+        std::vector<std::pair<double, unsigned> > index_angle_list;
         for (unsigned local_index=0; local_index<mElements[elem_index]->GetNumNodes(); local_index++)
         {
             c_vector<double, 2> vectorA = mpDelaunayMesh->GetNode(elem_index)->rGetLocation();
@@ -221,18 +208,15 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
         }
 
         // Sort the list in order of increasing angle
-        index_angle_list.sort();
+        sort(index_angle_list.begin(), index_angle_list.end());
 
         // Create a new Voronoi element and pass in the appropriate Nodes, ordered anticlockwise
         VertexElement<2,2>* p_new_element = new VertexElement<2,2>(elem_index);
-        unsigned count = 0;
-        for (std::list<std::pair<double, unsigned> >::iterator list_iter = index_angle_list.begin();
-             list_iter != index_angle_list.end();
-             ++list_iter)
+        for (unsigned count = 0; count < index_angle_list.size(); count++)
         {
             unsigned local_index = count>1 ? count-1 : 0;
-            p_new_element->AddNode(local_index, mNodes[list_iter->second]);
-            count++;
+            p_new_element->AddNode(local_index, mNodes[index_angle_list[count].second]);
+
         }
 
         // Replace the relevant member of mElements with this Voronoi element
@@ -302,11 +286,11 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
             basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0];
 
             /**
-             * Create a std::list of pairs, where each pair comprises the angle
+             * Create a std::vector of pairs, where each pair comprises the angle
              * between the centre of the Voronoi element and each node with that
              * node's global index in the Voronoi mesh.
              */
-            std::list<std::pair<double, unsigned> > index_angle_list;
+            std::vector<std::pair<double, unsigned> > index_angle_list;
 
             // Loop over each element containing this edge (i.e. those containing both nodes of the edge)
             for (std::set<unsigned>::iterator index_iter = edge_element_indices.begin();
@@ -326,19 +310,15 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
             }
 
             // Sort the list in order of increasing angle
-            index_angle_list.sort();
+            sort(index_angle_list.begin(), index_angle_list.end());
 
             // Create face
             VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index);
             face_index++;
-            unsigned count = 0;
-            for (std::list<std::pair<double, unsigned> >::iterator list_iter = index_angle_list.begin();
-                 list_iter != index_angle_list.end();
-                 ++list_iter)
+            for (unsigned count = 0; count < index_angle_list.size(); count++)
             {
                 unsigned local_index = count>1 ? count-1 : 0;
-                p_face->AddNode(local_index, mNodes[list_iter->second]);
-                count++;
+                p_face->AddNode(local_index, mNodes[index_angle_list[count].second]);
             }
 
             // Add face to list of faces
