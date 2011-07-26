@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This is the base class for cardiac cells solved using a (decoupled) backward
- * Euler approach.
+ * Euler approach (see http://dx.doi.org/10.1109/TBME.2006.879425).
  *
  * The basic approach to solving such models is:
  *  \li Update the transmembrane potential, either from solving an external PDE,
