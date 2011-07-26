@@ -63,6 +63,7 @@ public:
         // If it doesn't exist - throw exception
         if (!mpFile1->is_open())
         {
+            delete mpFile1;
             mpFile1 = NULL;
             EXCEPTION("Couldn't open file: " + fileName1);
         }
@@ -73,7 +74,9 @@ public:
         if (!mpFile2->is_open())
         {
             mpFile1->close();
+            delete mpFile1;
             mpFile1 = NULL;
+            delete mpFile2;
             mpFile2 = NULL;
             EXCEPTION("Couldn't open file: " + fileName2);
         }
