@@ -91,7 +91,8 @@ def DEBUG(facility, *args):
     Arguments are treated as for the print statement.
     """
     logger = logging.getLogger(facility)
-    logger.debug(' '.join(map(str, args)))
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(' '.join(map(str, args)))
 
 
 def LOG(facility, level, *args):
@@ -100,7 +101,8 @@ def LOG(facility, level, *args):
     Arguments are treated as for the print statement.
     """
     logger = logging.getLogger(facility)
-    logger.log(level, ' '.join(map(str, args)))
+    if logger.isEnabledFor(level):
+        logger.log(level, ' '.join(map(str, args)))
 
 ################################################################################
 #                                                                              #

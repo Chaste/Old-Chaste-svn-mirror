@@ -5020,6 +5020,7 @@ def get_options(args, default_options=None):
 def load_model(model_file, options):
     """Load and validate a CellML model."""
     # Setup logging
+    logging.thread = None # Hack: we're not multi-threaded, so be slightly quicker...
     if options.debug:
         formatter = logging.Formatter(fmt="%(name)s: %(message)s")
         handler = logging.StreamHandler(sys.stderr)

@@ -230,10 +230,12 @@ class element_base(amara.bindery.element_base):
     
     @property
     def rootNode(self):
-        if not self.parentNode and isinstance(self, mathml):
+        p = self.parentNode
+        if p:
+            return p.rootNode
+        elif isinstance(self, mathml):
             raise ValueError('MathML element with no parent!')
-        else:
-            return super(element_base, self).rootNode
+        return self
 
     @property
     def cmeta_id(self):
@@ -1395,8 +1397,7 @@ class cellml_component(element_base):
         """Whether to not include the component name in the full names of contained variables."""
         return self._cml_created_by_pe or self.name == u''
     
-    def parent(self, relationship=u'encapsulation', namespace=None,
-               name=None, reln_key=None):
+    def parent(self, relationship=u'encapsulation', namespace=None, name=None, reln_key=None):
         """Find the parent of this component in the given hierarchy.
         
         We default to the encapsulation hierarchy.
@@ -1410,19 +1411,15 @@ class cellml_component(element_base):
         Results are cached for efficiency.
         """
         key = reln_key or (relationship, namespace, name)
-        if self._cml_parents.has_key(key):
-            return self._cml_parents[key]
-        else:
+        if not key in self._cml_parents:
             assert(reln_key is None)
-            self.xml_parent.build_component_hierarchy(
-                relationship, namespace, name)
+            self.xml_parent.build_component_hierarchy(relationship, namespace, name)
+        return self._cml_parents[key]
 
     def _clear_hierarchy(self, reln_key):
         """Unset our parent & children in the given hierarchy."""
-        if self._cml_parents.has_key(reln_key):
-            del(self._cml_parents[reln_key])
-        if self._cml_children.has_key(reln_key):
-            self._cml_children[reln_key] = []
+        self._cml_parents[reln_key] = None
+        self._cml_children[reln_key] = []
     def _set_parent_component(self, reln_key, parent):
         """
         Set the parent of this component in the relationship hierarchy
@@ -1431,8 +1428,7 @@ class cellml_component(element_base):
         """
 ##        if parent: pn = parent.name
 ##        else: pn = 'None'
-        if not self._cml_parents.has_key(reln_key) or \
-           self._cml_parents[reln_key] is None:
+        if not reln_key in self._cml_parents or  self._cml_parents[reln_key] is None:
             # Only set parent if we don't already have one
 ##            print "Setting parent of",self.name,"under",reln_key,"to",pn
             self._cml_parents[reln_key] = parent
@@ -1446,7 +1442,7 @@ class cellml_component(element_base):
         indexed by reln_key.
         """
 ##        print "Adding child",child.name,"to parent",self.name,"under",reln_key
-        if not self._cml_children.has_key(reln_key):
+        if not reln_key in self._cml_children:
             self._cml_children[reln_key] = []
         self._cml_children[reln_key].append(child)
 
@@ -3577,12 +3573,16 @@ class mathml(element_base):
     def get_component(self):
         "Cache & return the enclosing component element."
         if self._cml_component is None:
-            comp_list = self.xml_xpath(u'ancestor::cml:component')
-            if comp_list:
-                self._cml_component = comp_list[0]
+            def get_ancestor(elt, name):
+                while elt and elt.localName != name:
+                    elt = elt.xml_parent
+                return elt
+            comp = get_ancestor(self, u'component')
+            if comp:
+                self._cml_component = comp
             else:
                 # It may be in the solver_info section, in which case fake a component
-                solver_info = self.xml_xpath(u'ancestor::solver:solver_info')
+                solver_info = get_ancestor(self, u'solver_info')
                 if solver_info:
                     self._cml_component = self.model.get_component_by_name(u'')
                 else:

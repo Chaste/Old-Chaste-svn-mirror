@@ -185,14 +185,14 @@ class ModelModifier(object):
         elif target_var.get_type() == VarTypes.Unknown:
             # We've created this variable, so should be ok, but check for gotchas
             assert not(hasattr(target_var, u'initial_value'))
-            if src_comp == target_comp.parent():
+            if src_comp is target_comp.parent():
                 src_if = u'private'
                 target_if = u'public'
-            elif src_comp.parent() == target_comp:
+            elif src_comp.parent() is target_comp:
                 src_if = u'public'
                 target_if = u'private'
             else:
-                assert src_comp.parent() == target_comp.parent()
+                assert src_comp.parent() is target_comp.parent()
                 src_if = u'public'
                 target_if = u'public'
                 # One special case: if the src_var is actually obtained from a different
@@ -224,15 +224,17 @@ class ModelModifier(object):
         second of which is a boolean indicating whether the variables need to be swapped
         in order to match the order of the components in the connection.
         """
-        xpath_template = u'(cml:map_components/@component_1 = "%s" and cml:map_components/@component_2 = "%s")'
         cn1, cn2 = var1.component.name, var2.component.name
-        xpath_predicate = xpath_template % (cn1, cn2) + u' or ' + xpath_template % (cn2, cn1)
-        conn = self.model.xml_xpath(u'cml:connection[%s]' % (xpath_predicate,))
-        if conn:
-            conn = conn[0]
-            swap = conn.map_components.component_1 == cn2
+        cnames = set([cn1, cn2])
+        for conn in self.model.connection:
+            mc = conn.map_components
+            if set([mc.component_1, mc.component_2]) == cnames:
+                break
         else:
             conn = None
+        if conn:
+            swap = conn.map_components.component_1 == cn2
+        else:
             swap = False
         return conn, swap
     
