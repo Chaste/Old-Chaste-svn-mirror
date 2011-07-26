@@ -179,7 +179,7 @@ public:
     /**
      * Evaluate the body force function (error if GetBodyForceType()!=FUNCTIONAL_BODY_FORCE)
      *
-     * @param X spatial location
+     * @param rX spatial location
      * @param t current time
      */
     c_vector<double,DIM> EvaluateBodyForceFunction(c_vector<double,DIM>& rX, double t);
