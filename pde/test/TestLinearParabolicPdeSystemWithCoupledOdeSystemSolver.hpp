@@ -283,7 +283,6 @@ public:
 
     void TestSolveAndWriteResultsToFileMethod()
     {
-#ifdef CHASTE_VTK
         // Create mesh of the domain [0,1]x[0,1]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
@@ -351,15 +350,15 @@ public:
         // Set sampling time step
         solver.SetSamplingTimeStep(0.1);
 
-
-        solver.SolveAndWriteResultsToFile();
+#ifdef CHASTE_VTK
+        TS_ASSERT_THROWS_NOTHING(solver.SolveAndWriteResultsToFile());
+#else // CHASTE_VTK
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+                "VTK is not installed and is required for this functionality");
+#endif // CHASTE_VTK
 
         // Tidy up
         VecDestroy(initial_condition);
-
-#else // CHASTE_VTK
-        std::cout << "VTK is not installed - not running this test.\n";
-#endif // CHASTE_VTK
     }
 
     /**
