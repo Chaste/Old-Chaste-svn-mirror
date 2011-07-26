@@ -3575,7 +3575,7 @@ class mathml(element_base):
         if self._cml_component is None:
             def get_ancestor(elt, name):
                 while elt and elt.localName != name:
-                    elt = elt.xml_parent
+                    elt = elt.parentNode
                 return elt
             comp = get_ancestor(self, u'component')
             if comp:
