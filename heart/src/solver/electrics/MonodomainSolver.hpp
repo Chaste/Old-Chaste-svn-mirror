@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "MassMatrixAssembler.hpp"
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 #include "MonodomainCorrectionTermAssembler.hpp"
 #include "MonodomainTissue.hpp"
 #include "MonodomainAssembler.hpp"
@@ -80,6 +81,15 @@ private:
     /** The monodomain assembler, used to set up the LHS matrix */
     MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
 
+    /** Assembler for surface integrals coming from any non-zero Neumann boundary conditions */
+    NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,1>* mpNeumannSurfaceTermsAssembler;
+
+    /**
+     * If using state variable interpolation, points to an assembler to use in
+     * computing the correction term to apply to the RHS.
+     */
+    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
+
     /** The mass matrix, used to computing the RHS vector */
     Mat mMassMatrix;
     
@@ -88,11 +98,6 @@ private:
      */
     Vec mVecForConstructingRhs;
 
-    /**
-     * If using state variable interpolation, points to an assembler to use in 
-     * computing the correction term to apply to the RHS.
-     */
-    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
 
     /** 
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the

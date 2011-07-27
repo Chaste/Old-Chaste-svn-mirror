@@ -130,19 +130,6 @@ private:
         Element<ELEMENT_DIM, SPACE_DIM>* pElement);
 
     /**
-     * The term arising from boundary conditions to be added to the element
-     * stiffness vector.
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEMENT_DIM>& rPhi,
-        ChastePoint<SPACE_DIM>& rX);
-
-    /**
      * Reset the member variable mInterpolatedOdeStateVariables.
      */
     void ResetInterpolatedQuantities();
@@ -183,9 +170,7 @@ public:
      *
      * @param pMesh pointer to the mesh
      * @param pPdeSystem pointer to the PDE system
-     * @param pBoundaryConditions pointer to the boundary conditions. Can be NULL, to allow concrete assembler-solver
-     *        to, say, create standard boundary conditions its constructor, and then set it. If so, the concrete solver
-     *        must make sure it calls this->SetApplyNeummanBoundaryConditionsToVector(p_bcc)
+     * @param pBoundaryConditions pointer to the boundary conditions.
      * @param odeSystemsAtNodes optional vector of pointers to ODE systems, defined at nodes
      * @param pOdeSolver optional pointer to an ODE solver (defaults to NULL)
      */
@@ -296,29 +281,6 @@ c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> LinearParabolicPdeSystemWithCouple
     return vector_term;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-c_vector<double, PROBLEM_DIM*ELEMENT_DIM> LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeVectorSurfaceTerm(
-    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-    c_vector<double, ELEMENT_DIM>& rPhi,
-    ChastePoint<SPACE_DIM>& rX)
-{
-    c_vector<double, PROBLEM_DIM*ELEMENT_DIM> vector_surface_term = zero_vector<double>(PROBLEM_DIM*ELEMENT_DIM);
-
-    // Loop over PDEs and populate vector_surface_term
-    for (unsigned pde_index=0; pde_index<PROBLEM_DIM; pde_index++)
-    {
-        // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-        double this_D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, pde_index);
-        c_vector<double, ELEMENT_DIM> this_vector_surface_term = rPhi * this_D_times_gradu_dot_n;
-
-        for (unsigned i=0; i<ELEMENT_DIM; i++)
-        {
-            vector_surface_term(i*PROBLEM_DIM + pde_index) = this_vector_surface_term(i);
-        }
-    }
-
-    return vector_surface_term;
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ResetInterpolatedQuantities()

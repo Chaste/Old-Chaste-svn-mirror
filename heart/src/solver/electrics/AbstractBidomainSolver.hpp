@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "BidomainTissue.hpp"
 #include "HeartConfig.hpp"
-#include "BidomainAssembler.hpp"
 
 /**
  *  Abstract Bidomain class containing some common functionality
@@ -52,11 +51,6 @@ protected:
     /** Boundary conditions */    
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* mpBoundaryConditions;
 
-    /**
-     *  The bidomain assembler, used to set up the LHS matrix
-     */
-    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainAssembler;
-    
     /**
      *  Number of quadrature points per dimension (only saved so it can be
      *  passed to the assembler)
@@ -210,12 +204,8 @@ public:
     {
         assert(pBcc);
         mpBoundaryConditions = pBcc;
-        // Note, we can't reset the bcc on the assembler (even if this
-        // method was implemented in the concrete classes), as the assembler 
-        // might not be created (eg when grounded electrodes are switched off).
-        // Therefore we just reset our own copy. This means that
-        // in SetupLinearSystem() 
-        //   mpAssembler->SetApplyNeumannBcs(mpBcc) 
+        // Note, in SetupLinearSystem() 
+        //   neumann_assembler->ResetBoundaryConditionsContainer(mpBcc) 
         // MUST be called every timestep, in case the bcc was reset. 
     }
 };

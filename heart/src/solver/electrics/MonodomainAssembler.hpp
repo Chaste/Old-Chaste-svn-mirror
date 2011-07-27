@@ -49,15 +49,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  F^{n} the vector of (chi*Iionic + Istim) at each node, and c_surf a vector
  *  arising from any surface stimuli (usually zero).
  * 
- *  This assembler is used for assembling the matrix A :=(chi*C/dt) M  + K,
- *  and the vector c_surf. 
- * 
+ *  This assembler is used for assembling the matrix A :=(chi*C/dt) M  + K.
  *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
- *  methods ComputeMatrixTerm() and ComputeVectorSurfaceTerm().
+ *  method ComputeMatrixTerm().
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainAssembler
-   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>
+   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>
 {
 protected:
     /** Local cache of the configuration singleton instance*/
@@ -91,23 +89,6 @@ protected:
                 c_vector<double,1> &rU,
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-
-    /**
-     * ComputeVectorSurfaceTerm()
-     *
-     * This method is called by AssembleOnSurfaceElement() and tells the
-     * assembler what to add to the element stiffness matrix arising
-     * from surface element contributions.
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(
-                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-                c_vector<double, ELEMENT_DIM>& rPhi,
-                ChastePoint<SPACE_DIM>& rX);
 
 public:
 

@@ -37,19 +37,14 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
 
-    if(!this->mpMonodomainAssembler)
-    {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
-    }        
-
 
     /////////////////////////////////////////
     // set up LHS matrix (and mass matrix)
     /////////////////////////////////////////
     if(computeMatrix)
     {
-        this->mpMonodomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
-        this->mpMonodomainAssembler->AssembleMatrix();
+        mpMonodomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
+        mpMonodomainAssembler->AssembleMatrix();
 
         MassMatrixAssembler<ELEMENT_DIM,SPACE_DIM> mass_matrix_assembler(this->mpMesh, HeartConfig::Instance()->GetUseMassLumping());
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
@@ -106,18 +101,14 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
     MatMult(mMassMatrix, mVecForConstructingRhs, this->mpLinearSystem->rGetRhsVector());
 
     // assembling RHS is not finished yet, as Neumann bcs are added below, but
-    // the event will be begun again inside this->mpMonodomainAssembler->AssembleVector();
+    // the event will be begun again inside mpMonodomainAssembler->AssembleVector();
     HeartEventHandler::EndEvent(HeartEventHandler::ASSEMBLE_RHS);
 
     /////////////////////////////////////////
     // apply Neumann boundary conditions
     /////////////////////////////////////////
-    this->mpMonodomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
-    this->mpMonodomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
-    this->mpMonodomainAssembler->OnlyAssembleOnSurfaceElements();
-    // note: don't need this for neumann bcs, would introduce parallel replication overhead
-    //this->mpMonodomainAssembler->SetCurrentSolution(currentSolution);
-    this->mpMonodomainAssembler->AssembleVector();
+    mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+    mpNeumannSurfaceTermsAssembler->AssembleVector();
   
     /////////////////////////////////////////
     // apply correction term
@@ -198,7 +189,10 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
     assert(pBoundaryConditions);
     this->mMatrixIsConstant = true;
 
-    mpMonodomainAssembler = NULL; // can't initialise until know what dt is
+    mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
+    mpNeumannSurfaceTermsAssembler = new NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,1>(pMesh,pBoundaryConditions);
+
+
     // Tell tissue there's no need to replicate ionic caches
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
@@ -219,10 +213,8 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MonodomainSolver()
 {
-    if(mpMonodomainAssembler)
-    {
-        delete mpMonodomainAssembler;
-    }
+    delete mpMonodomainAssembler;
+    delete mpNeumannSurfaceTermsAssembler;
 
     if(mVecForConstructingRhs)
     {

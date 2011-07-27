@@ -15,6 +15,7 @@ TestLinearHeatEquation.hpp
 TestLinearParabolicPdeSystemForCoupledOdeSystem.hpp
 TestLinearParabolicPdeSystemWithCoupledOdeSystemSolver.hpp
 TestMaterialLaws.hpp
+TestNaturalNeumannSurfaceTermAssembler.hpp
 TestNonlinearElasticityTools.hpp
 TestNonlinearHeatEquationPde.hpp
 TestPdeSimulationTime.hpp

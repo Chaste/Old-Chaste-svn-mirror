@@ -90,15 +90,6 @@ c_vector<double,1*(ELEMENT_DIM+1)> SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPA
     return ret;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, 1*ELEMENT_DIM> SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEMENT_DIM>& rPhi,
-        ChastePoint<SPACE_DIM>& rX)
-{
-    double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
-    return  (-Dgradu_dot_n)* rPhi;
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::SimpleNonlinearEllipticSolver(

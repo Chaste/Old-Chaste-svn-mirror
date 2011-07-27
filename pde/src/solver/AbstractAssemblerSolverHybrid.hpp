@@ -32,40 +32,52 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractFeObjectAssembler.hpp"
 #include "AbstractLinearPdeSolver.hpp"
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 
 /**
- * A class which inherits from AbstractFeObjectAssembler and
- * implements a method SetupGivenLinearSystem(), which sets up
- * the given linear system using the assembler part of this
- * class, which can be called by SetUpLinearSystem() on a
+ * A class which inherits from AbstractFeObjectAssembler and implements a method SetupGivenLinearSystem(), which sets up
+ * the given linear system using the assembler part of this class, which can be called by SetUpLinearSystem() on a
  * concrete solver.
  *
- * See SimpleLinearEllipticSolver for an example.
+ * It assumes natural Neumann boundary conditions are needed and uses a NaturalNeumannSurfaceTermAssembler for this
+ * part of the vector.
+ *
+ * See SimpleLinearEllipticSolver for an example of a concrete class
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
 class AbstractAssemblerSolverHybrid
    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>
 {
+protected:
+
+    /** An assembler for Neumann surface integrals, which are assumed to arise from natural Neumann boundary
+     *  conditions, ie such that this surface integral is (for a 1-unknown problem) integral(g\phi_i dS),
+     *  where g is the Neumann boundary condition function
+     */
+    NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM> mNaturalNeumannSurfaceTermAssembler;
+
+    /** Boundary conditions container */
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* mpBoundaryConditions;
+
+
 public:
 
     /**
      * Constructor.
      *
      * @param pMesh pointer to the mesh
-     * @param pBoundaryConditions pointer to the boundary conditions. Can be NULL, to allow concrete assembler-solver
-     *        to, say, create standard boundary conditions its constructor, and then set it. If so, the concrete solver
-     *        must make sure it calls this->SetApplyNeummanBoundaryConditionsToVector(p_bcc);
+     * @param pBoundaryConditions pointer to the boundary conditions.
      * @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
      */
     AbstractAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
                                   unsigned numQuadPoints=2)
-        : AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints)
+        : AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints),
+          mNaturalNeumannSurfaceTermAssembler(pMesh,pBoundaryConditions),
+          mpBoundaryConditions(pBoundaryConditions)
     {
-        if (pBoundaryConditions)
-        {
-            this->SetApplyNeummanBoundaryConditionsToVector(pBoundaryConditions);
-        }
+        assert(pMesh);
+        assert(pBoundaryConditions);
     }
 
     /**
@@ -91,20 +103,14 @@ public:
 };
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOLATION_LEVEL>::SetupGivenLinearSystem(Vec currentSolution, bool computeMatrix, LinearSystem* pLinearSystem)
+void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOLATION_LEVEL>::SetupGivenLinearSystem(Vec currentSolution,
+                                                                                                                     bool computeMatrix,
+                                                                                                                     LinearSystem* pLinearSystem)
 {
-    /*
-     * The concrete class should have either passed in boundary conditions
-     * into this class's constructor, or passed in NULL and later called
-     * this->SetApplyNeummanBoundaryConditionsToVector(p_bcc) with some boundary
-     * conditions.
-     */
-    assert(this->mpBoundaryConditions != NULL);
-
     assert(pLinearSystem->rGetLhsMatrix() != NULL);
     assert(pLinearSystem->rGetRhsVector() != NULL);
 
-    // Call methods on AbstractFeObjectAssembler
+    // Assemble the matrix and vector calling methods on AbstractFeObjectAssembler
     this->SetMatrixToAssemble(pLinearSystem->rGetLhsMatrix());
     this->SetVectorToAssemble(pLinearSystem->rGetRhsVector(), true);
 
@@ -122,10 +128,16 @@ void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOL
         this->AssembleVector();
     }
 
+    // Add the Neumann boundary conditions. The boundary conditions put into the BoundaryConditionsContainer
+    // are assumed to be natural Neumann BCs.
+    mNaturalNeumannSurfaceTermAssembler.SetVectorToAssemble(pLinearSystem->rGetRhsVector(), false);
+    mNaturalNeumannSurfaceTermAssembler.Assemble();
+
     pLinearSystem->FinaliseRhsVector();
     pLinearSystem->SwitchWriteModeLhsMatrix();
 
-    this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*pLinearSystem, true);
+    // add Dirichlet BCs
+    mpBoundaryConditions->ApplyDirichletToLinearProblem(*pLinearSystem, true);
 
     pLinearSystem->FinaliseRhsVector();
     pLinearSystem->FinaliseLhsMatrix();

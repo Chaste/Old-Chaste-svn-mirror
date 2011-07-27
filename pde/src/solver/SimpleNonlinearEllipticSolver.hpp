@@ -87,21 +87,11 @@ private:
         c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-    /**
-     * This method returns the vector to be added to element stiffness vector
-     * for a given Gauss point in BoundaryElement. The arguments are the bases,
-     * x and current solution computed at the Gauss point. The returned vector
-     * will be multiplied by the Gauss weight and Jacobian determinant and
-     * added to the element stiffness matrix (see AssembleOnElement()).
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEMENT_DIM>& rPhi,
-        ChastePoint<SPACE_DIM>& rX);
+
+    // Note: does not have to provide a ComputeVectorSurfaceTerm for surface integrals,
+    // the parent AbstractAssemblerSolverHybrid assumes natural Neumann BCs and uses a
+    // NaturalNeumannSurfaceTermAssembler for assembling this part of the vector.
+
 
 public:
 

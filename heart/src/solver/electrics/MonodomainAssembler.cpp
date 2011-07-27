@@ -46,25 +46,13 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
             + mStiffnessMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, ELEMENT_DIM> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-       const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-       c_vector<double, ELEMENT_DIM>& rPhi,
-       ChastePoint<SPACE_DIM>& rX)
-{
-    // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-    double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
-    return rPhi * D_times_gradu_dot_n;
-}
-    
- 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         unsigned numQuadPoints)
-    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
+    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
       mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping(),
                            HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio()*HeartConfig::Instance()->GetCapacitance()),
       mStiffnessMatrixAssembler(pMesh, pTissue)

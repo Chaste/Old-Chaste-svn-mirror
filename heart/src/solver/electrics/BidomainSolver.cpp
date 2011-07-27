@@ -64,27 +64,14 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
     assert(currentSolution != NULL);
 
-    // create assembler
-    if(!this->mpBidomainAssembler)
-    {
-        if(this->mBathSimulation)
-        {
-            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
-        }
-        else
-        {
-            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
-        }
-    }    
-
 
     /////////////////////////////////////////
     // set up LHS matrix (and mass matrix)
     /////////////////////////////////////////
     if (computeMatrix)
     {
-        this->mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
-        this->mpBidomainAssembler->AssembleMatrix();
+        mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
+        mpBidomainAssembler->AssembleMatrix();
 
         // the BidomainMassMatrixAssembler deals with the mass matrix
         // for both bath and nonbath problems 
@@ -166,24 +153,16 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     MatMult(mMassMatrix, mVecForConstructingRhs, this->mpLinearSystem->rGetRhsVector());
 
     // assembling RHS is not finished yet, as Neumann bcs are added below, but
-    // the event will be begun again inside this->mpBidomainAssembler->AssembleVector(); 
+    // the event will be begun again inside mpBidomainAssembler->AssembleVector();
     HeartEventHandler::EndEvent(HeartEventHandler::ASSEMBLE_RHS);
 
 
     /////////////////////////////////////////
     // apply Neumann boundary conditions
     /////////////////////////////////////////
-
-    this->mpBidomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
-
-    // MUST be called every timestep in case the bcc has been reset, see comment in
-    // this->ResetBoundaryConditionsContainer()
-    this->mpBidomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
-
-    this->mpBidomainAssembler->OnlyAssembleOnSurfaceElements();
-    // note: don't need this for neumann bcs, would introduce parallel replication overhead
-    //mpBidomainAssembler->SetCurrentSolution(currentSolution);
-    this->mpBidomainAssembler->AssembleVector();
+    mpBidomainNeumannSurfaceTermAssembler->ResetBoundaryConditionsContainer(this->mpBoundaryConditions); // as the BCC can change
+    mpBidomainNeumannSurfaceTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+    mpBidomainNeumannSurfaceTermAssembler->AssembleVector();
 
 
     /////////////////////////////////////////
@@ -227,6 +206,19 @@ BidomainSolver<ELEMENT_DIM,SPACE_DIM>::BidomainSolver(
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
 
+    // create assembler
+    if(bathSimulation)
+    {
+        mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
+    }
+    else
+    {
+        mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
+    }
+
+
+    mpBidomainNeumannSurfaceTermAssembler = new BidomainNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh,pBoundaryConditions);
+
     if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
     {
         mpBidomainCorrectionTermAssembler 
@@ -243,6 +235,9 @@ BidomainSolver<ELEMENT_DIM,SPACE_DIM>::BidomainSolver(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainSolver<ELEMENT_DIM,SPACE_DIM>::~BidomainSolver()
 {
+    delete mpBidomainAssembler;
+    delete mpBidomainNeumannSurfaceTermAssembler;
+
     if(mVecForConstructingRhs)
     {
         VecDestroy(mVecForConstructingRhs);

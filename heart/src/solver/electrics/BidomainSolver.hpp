@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainAssembler.hpp"
 #include "BidomainMassMatrixAssembler.hpp"
 #include "BidomainCorrectionTermAssembler.hpp"
+#include "BidomainNeumannSurfaceTermAssembler.hpp"
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
@@ -74,8 +75,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
 {
 private:
-    // The base class has the assembler for creating the LHS matrix.
-
     /** Mass matrix, used to computing the RHS vector (actually: mass-matrix in
      *  voltage-voltage block, zero elsewhere)
      */
@@ -86,6 +85,12 @@ private:
      *  be solved is Ax=b, this vector is z where b=Mz.
      */
     Vec mVecForConstructingRhs;
+
+    /** The bidomain assembler, used to set up the LHS matrix */
+    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainAssembler;
+
+    /** Assembler for surface integrals coming from any non-zero Neumann boundary conditions */
+    BidomainNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainNeumannSurfaceTermAssembler;
 
     /**
      * If using state variable interpolation, points to an assembler to use in 

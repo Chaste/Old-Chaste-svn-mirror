@@ -110,6 +110,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
+ * (In fact, the solver we write will work with general Dirichlet-Neumann boundary
+ * conditions (the test will only provide all-Dirichlet BCs though), but we save a
+ * discussion on general Dirichlet-Neumann for the second example).
+ *
+ * EMPTYLINE
+ *
  * Using linear basis functions, and a mesh with N nodes, the linear system that needs to be set up is
  * of size 2N by 2N, and in block form is:
  * {{{
@@ -231,13 +237,7 @@ private:
         }
         return ret;
     }
-    /* Note: we will not be solving this equation subject to any non-zero Neumann
-     * boundary conditions. If we were though, we would have to also provide a method
-     * `ComputeSurfaceVectorTerm(..)`. (See next example below for an example of this).
-     *
-     * EMPTYLINE
-     *
-     * These classes which inherit from both assemblers and solvers must
+    /* These classes which inherit from both assemblers and solvers must
      * provide the following method, which links the two. Just copy and paste
      * the following.
      */
@@ -271,8 +271,18 @@ public:
  *    v_t = Laplacian(v) + u + 2w
  *    w_t = Laplacian(w) + g(t,x,y)
  *  }}}
- *  where g(t,x,y) = t if x>0.5 and 0 otherwise. We will set up the solver to work with general
- *  Dirichlet-Neumann boundary conditions.
+ *  where g(t,x,y) = t if x>0.5 and 0 otherwise. This time we assume general
+ *  Dirichlet-Neumann boundary conditions will be specified.
+ *
+ *  EMPTYLINE
+ *
+ *  The `AbstractAssemblerSolverHybrid` deals with the dirichlet and Neumann boundary parts of the implementation,
+ *  so, we, the writer of the solver, don't have to worry about this. However, this assumes that the user will specify
+ *  NATURAL Neumann BCs, which are whatever appears naturally in the weak form of the problem. In this case, natural
+ *  Neumann BCs are specifying: `du/dn = s1, dv/dn = s2, dw/dn = s3`, which coincide with usual Neumann BCs. However,
+ *  suppose the last equation was `w_t = Laplacian(w) + Div(D grad(u))`, then the natural BCs would be:
+ *  `du/dn = s1, dv/dn = s2, dw/dn + (Dgradu).n = s3`. The user needs to realise they are specifying things such as
+ *  the latter.
  *
  *  EMPTYLINE
  *
@@ -296,14 +306,16 @@ public:
  * of u at time t_n, etc, `b1` has entries `integral( (u^n/dt)phi_i dV )`, and similarly for
  * `b2` and `b3`. Writing the Neumann boundary conditions for
  *  u as `du/dn = s(x,y)` on Gamma, a subset of the boundary, then `c1` has entries
- * `integral_over_Gamma (s*phi_i dS)`, and similarly for `c2` and `c3`.
+ * `integral_over_Gamma (s1*phi_i dS)`, and similarly for `c2` and `c3`.
  *
  * EMPTYLINE
  *
  * Let us create a solver for this linear system, which will be written in a way in which the RHS
  * vector is assembled in an FE manner, so that the solver-is-an-assembler design can be used.
  * Note that this solver inherits from `AbstractDynamicLinearPdeSolver` and PROBLEM_DIM is now equal
- * to 3.
+ * to 3. We don't have to worry about setting up [c1 c2 c3] (we just need to take in a `BoundaryConditionsContainer`
+ * and the parent will use it in assembling this vector). We do however have to tell it
+ * how to assemble the volume integral part of the RHS vector, and the LHS matrix.
  */
 class ThreeParabolicPdesSolver
     : public AbstractAssemblerSolverHybrid<2,2,3,NORMAL>,
@@ -380,31 +392,6 @@ private:
             ret(3*i)   =  (u/dt) * rPhi(i);
             ret(3*i+1) =  (v/dt) * rPhi(i);
             ret(3*i+2) =  (w/dt + g(t+dt,rX)) * rPhi(i);
-        }
-        return ret;
-    }
-
-    /* Provide the surface-elemental contribution to the RHS vector, ie the vector `[c1 c2 c3]` above.
-     * The base class will decide which elements to call this on, based on which surface elements
-     * were put in the boundary conditions container. Note that we could hard-code particular
-     * boundary conditions in here but it makes more sense to use those put in the container.
-     * Also note the size of the returned vector: number of nodes per
-     * BOUNDARY element * problem_dim = 2*3 = 6
-     */
-    c_vector<double,2*3> ComputeVectorSurfaceTerm(const BoundaryElement<1,2>& rSurfaceElement,
-                                                  c_vector<double,2>& rPhi,
-                                                  ChastePoint<2>& rX )
-    {
-        double grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
-        double grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
-        double grad_w_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 2);
-
-        c_vector<double, 2*3> ret;
-        for (int i=0; i<2; i++)
-        {
-            ret(3*i)   = rPhi(i)*grad_u_dot_n;
-            ret(3*i+1) = rPhi(i)*grad_v_dot_n;
-            ret(3*i+2) = rPhi(i)*grad_w_dot_n;
         }
         return ret;
     }

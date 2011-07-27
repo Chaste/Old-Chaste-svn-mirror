@@ -80,9 +80,6 @@ private:
     }
 
 
-    ///\todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
-    //         - make default Jacobian analytic
-
     virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1>& rPhi,
                                                          c_matrix<double, DIM, DIM+1>& rGradPhi,
                                                          ChastePoint<DIM>& rX,
@@ -100,23 +97,6 @@ private:
 
             ret(2*i)   = rU(0)*inner_prod(gradU0,grad_phi_i) - rPhi(i);
             ret(2*i+1) = rU(1)*inner_prod(gradU1,grad_phi_i) - mLambda*rPhi(i);
-        }
-        return ret;
-    }
-
-    virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM>& rSurfaceElement,
-                                                             c_vector<double,DIM>& rPhi,
-                                                             ChastePoint<DIM>& rX)
-    {
-        c_vector<double,2*DIM> ret;
-
-        double ugradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
-        double vgradv_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
-
-        for (unsigned i=0; i<DIM; i++)
-        {
-            ret(2*i)   = -ugradu_dot_n * rPhi(i);
-            ret(2*i+1) = -vgradv_dot_n * rPhi(i);
         }
         return ret;
     }

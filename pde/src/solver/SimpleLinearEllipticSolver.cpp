@@ -63,16 +63,6 @@ c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_
     return mpEllipticPde->ComputeConstantInUSourceTerm(rX, pElement) * rPhi;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, ELEMENT_DIM> SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-            c_vector<double, ELEMENT_DIM>& rPhi,
-            ChastePoint<SPACE_DIM>& rX)
-{
-    // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-    double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
-    return rPhi * D_times_gradu_dot_n;
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearEllipticSolver(

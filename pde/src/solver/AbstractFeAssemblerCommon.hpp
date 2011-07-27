@@ -55,7 +55,9 @@ typedef enum InterpolationLevel_
 
 
 /**
- *   A common bass class for AbstractFeObjectAssembler (the main abstract assembler class) and AbstractCableFeObjectAssembler.
+ *   A common bass class for AbstractFeObjectAssembler (the main abstract assembler class), AbstractSurfaceFeObjectAssembler, and
+ *   AbstractCableFeObjectAssembler.
+ *
  *   See AbstractFeObjectAssembler documentation for info on these assembler classes.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
@@ -255,9 +257,6 @@ void AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     // check the size is zero if there isn't a current solution.
     assert(mCurrentSolutionOrGuessReplicated.GetSize() > 0);
 }
-
-
-
 
 
 #endif /* ABSTRACTFEASSEMBLERCOMMON_HPP_ */

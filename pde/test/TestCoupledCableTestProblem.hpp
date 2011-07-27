@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStaticLinearPdeSolver.hpp"
 #include "AbstractFeCableObjectAssembler.hpp"
 #include "ConstBoundaryCondition.hpp"
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 #include "OutputFileHandler.hpp"
 
 //////////////////////////////////////////////////////////
@@ -138,23 +139,6 @@ private:
         return zero_vector<double>(2*(DIM+1));
     }
 
-    c_vector<double,2*DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<DIM-1,DIM>& rSurfaceElement,
-        c_vector<double, DIM>& rPhi,
-        ChastePoint<DIM>& rX)
-    {
-        c_vector<double,2*(DIM)> ret;
-
-        double d_phie_dn = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0 /*ie first unknown*/);
-
-        for (unsigned i=0; i<DIM /*num nodes per surface element*/; i++)
-        {
-            ret(2*i)  = d_phie_dn;
-            ret(2*i+1)= 0.0;
-        }
-        return ret;
-    }
-
 public:
     CoupledCableTestProblemVolumeComponentAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
         : AbstractFeObjectAssembler<DIM,DIM,2,true,true,NORMAL>(pMesh)
@@ -174,6 +158,7 @@ class CoupledCableTestProblemSolver: public AbstractStaticLinearPdeSolver<DIM,DI
 private:
     CoupledCableTestProblemVolumeComponentAssembler<DIM>* mpVolumeIntegralsAssembler;
     CoupledCableTestProblemCableComponentAssembler<DIM>* mpCableIntegralsAssembler;
+    NaturalNeumannSurfaceTermAssembler<DIM,DIM,2>* mpNeumannSurfaceTermsAssembler;
 
     BoundaryConditionsContainer<DIM,DIM,2>* mpBoundaryConditions;
 
@@ -182,8 +167,10 @@ private:
         // assemble the volume integral and Neumann surface part
         mpVolumeIntegralsAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix(), true);
         mpVolumeIntegralsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), true);
-        mpVolumeIntegralsAssembler->SetApplyNeummanBoundaryConditionsToVector(mpBoundaryConditions);
         mpVolumeIntegralsAssembler->Assemble();
+
+        mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false);
+        mpNeumannSurfaceTermsAssembler->Assemble();
 
         // assemble the cable integral part
         mpCableIntegralsAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix(), false /*don't zero matrix!*/);
@@ -238,12 +225,14 @@ public:
     {
         mpVolumeIntegralsAssembler = new CoupledCableTestProblemVolumeComponentAssembler<DIM>(pMesh);
         mpCableIntegralsAssembler = new CoupledCableTestProblemCableComponentAssembler<DIM>(pMesh,beta);
+        mpNeumannSurfaceTermsAssembler = new NaturalNeumannSurfaceTermAssembler<DIM,DIM,2>(pMesh,pBoundaryConditions);
     }
 
     ~CoupledCableTestProblemSolver()
     {
         delete mpCableIntegralsAssembler;
         delete mpVolumeIntegralsAssembler;
+        delete mpNeumannSurfaceTermsAssembler;
     }
 };
 
@@ -280,6 +269,10 @@ public:
 
         BoundaryConditionsContainer<3,3,2> bcc;
 
+        //////////////////////////////////////////
+        // Dirichlet BCs to phi_e and phi_i
+        //////////////////////////////////////////
+
         for (MixedDimensionMesh<3,3>::BoundaryNodeIterator iter
                 = mesh.GetBoundaryNodeIteratorBegin();
              iter != mesh.GetBoundaryNodeIteratorEnd();
@@ -313,6 +306,10 @@ public:
             }
         }
 
+        //////////////////////////////////////////
+        // Neumann BCs to phi_e
+        //////////////////////////////////////////
+
         MyBoundaryCondition* p_top_neumann_bc = new MyBoundaryCondition(-1.0/(2*M_PI));
         MyBoundaryCondition* p_bottom_neumann_bc = new MyBoundaryCondition(1.0/(2*M_PI));
 
@@ -325,11 +322,11 @@ public:
             double z = centroid(2);
             if (fabs(z-1.0) < 1e-5)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_top_neumann_bc);
+                bcc.AddNeumannBoundaryCondition(*iter, p_top_neumann_bc, 0);
             }
             if (fabs(z) < 1e-5)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bottom_neumann_bc);
+                bcc.AddNeumannBoundaryCondition(*iter, p_bottom_neumann_bc, 0);
             }
         }
 

@@ -129,24 +129,6 @@ private:
         return ret;
     }
 
-    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2>& rSurfaceElement,
-                                                           c_vector<double,2>& rPhi,
-                                                           ChastePoint<2>& rX )
-    {
-        // D_times_grad_u_dot_n  = (D gradu) \dot n
-        double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
-        double D_times_grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
-
-        c_vector<double, 2*2> ret;
-        for (int i=0; i<2; i++)
-        {
-            ret(2*i)   = rPhi(i)*D_times_grad_u_dot_n;
-            ret(2*i+1) = rPhi(i)*D_times_grad_v_dot_n;
-        }
-
-        return ret;
-    }
-
     void InitialiseForSolve(Vec initialSolution)
     {
         AbstractLinearPdeSolver<2,2,2>::InitialiseForSolve(initialSolution);

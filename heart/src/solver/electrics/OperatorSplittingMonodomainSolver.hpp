@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainAssembler.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "MassMatrixAssembler.hpp"
-
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 
 /**
  *  A monodomain solver that uses Strang operator splitting of the diffusion (conductivity) term and the reaction
@@ -74,6 +74,9 @@ private:
 
     /** The monodomain assembler, used to set up the LHS matrix */
     MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
+
+    /** Assembler for surface integrals coming from any non-zero Neumann boundary conditions */
+    NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,1>* mpNeumannSurfaceTermsAssembler;
 
     /**
      *  Number of quadrature points per dimension (only saved so it can be

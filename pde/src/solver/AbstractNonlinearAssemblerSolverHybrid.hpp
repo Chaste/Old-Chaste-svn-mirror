@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractFeObjectAssembler.hpp"
 #include "LinearSystem.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 
 /*
  * Definitions of GLOBAL functions used by Petsc nonlinear solver
@@ -112,6 +113,9 @@ protected:
 
     /** Whether to use an analytical expression for the Jacobian. */
     bool mUseAnalyticalJacobian;
+
+    /** An assembler for the surface integral terms in the residual */
+    NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* mpNeumannSurfaceTermsAssembler;
 
     /**
      * Apply Dirichlet boundary conditions to either the residual or Jacobian.
@@ -233,6 +237,8 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Abs
     mWeAllocatedSolverMemory = true;
 
     assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetProblemSize());
+
+    mpNeumannSurfaceTermsAssembler = new NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pMesh,pBoundaryConditions,numQuadPoints);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -242,6 +248,7 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~Ab
     {
         delete mpSolver;
     }
+    delete mpNeumannSurfaceTermsAssembler;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -262,10 +269,18 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeResidual(const Vec currentGuess, Vec residualVector)
 {
+    // Add the volume integral part of the residual. This will call ComputeVectorTerm, which needs to be
+    // implemented in the concrete class.
     this->SetVectorToAssemble(residualVector,true);
     this->SetCurrentSolution(currentGuess);
-    this->SetApplyNeummanBoundaryConditionsToVector(mpBoundaryConditions);
     this->AssembleVector();
+
+    // Add the surface integral contribution - note the negative sign (scale factor).
+    // This contribution is, for example for a 1 unknown problem
+    // -integral(g\phi_id dS), where g is the specfied neumann boundary condition
+    mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(residualVector, false);
+    mpNeumannSurfaceTermsAssembler->SetScaleFactor(-1.0);
+    mpNeumannSurfaceTermsAssembler->Assemble();
 
     PetscVecTools::Finalise(residualVector);
 

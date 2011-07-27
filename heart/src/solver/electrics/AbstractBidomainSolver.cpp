@@ -273,17 +273,11 @@ AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractBidomainSolver(
 
     mRowForAverageOfPhiZeroed = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
     mpConfig = HeartConfig::Instance();
-
-    mpBidomainAssembler = NULL; // can't initialise until know what dt is
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~AbstractBidomainSolver()
 {
-    if(mpBidomainAssembler)
-    {
-        delete mpBidomainAssembler;
-    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

@@ -55,36 +55,42 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  EMPTYLINE
  *
- *  We will take as the test problem the heat equation, `u_t = u_{xx}`, with zero-Dirichlet
- *  boundary conditions on the entire boundary, and write a solver which uses an '''explicit'''
- *  time-discretisation (as opposed to the implicit discretisations used throughout the rest
- *  the code). The FEM linear system that needs to be set up is
+ *  We will take as the test problem the heat equation, `u_t = u_{xx}`, with Dirichlet
+ *  BCs `u = u*` on `Gamma1` and `du/dn = g` on `Gamma2`.
+ *
+ *  EMPTYLINE
+ *
+ *  We write a solver which uses an '''explicit''' time-discretisation (as opposed to the implicit
+ *  discretisations used throughout the rest the code). The FEM linear system that needs to be set up is
  *  {{{
- *  M U^{n+1} = (M + dt K) U^{n}
+ *  M U^{n+1} = (M + dt K) U^{n}  +  c
  *  }}}
  *  where `M` is the mass matrix, `K` the stiffness matrix, and `U^{n}` the vector of nodal
  *  values of u at timestep n. (cf an implicit time-discretisation, for which  `(M - dt K) U^{n+1} = M U^{n}`).
+ *  c is the surface integral term coming from the Neumann Bcs, ie `c_i = integral_over_Gamma2 (g * phi_i dS)`.
  *
  *  EMPTYLINE
  *
  *  Let us call `M + dt*K` the 'RHS matrix'. We will write a solver, inheriting from
- *  `AbstractDynamicLinearPdeSolver`, which is going to ''use'' two assemblers, one which assembles
- *  the mass matrix (this class is already written), and one which we have to write ourselves, which
- *  assembles the RHS matrix.
+ *  `AbstractDynamicLinearPdeSolver`, which is going to ''use'' three assemblers (i) an assembler of
+ *  the mass matrix (already written); (ii) an assembler of the RHS matrix (we have to write this ourselves);
+ *  and (iii) an assembler of surface term, c (already written).
  *
  *  EMPTYLINE
  *
  *  Firstly, include `AbstractFeObjectAssembler` which the assembler we write will inherit from,
- *  `AbstractDynamicLinearPdeSolver`, which the solver we write will inherit from, `MassMatrixAssembler`,
- *  and some other standard includes.
+ *  `AbstractDynamicLinearPdeSolver`, which the solver we write will inherit from.
  */
 #include <cxxtest/TestSuite.h>
 #include "AbstractFeObjectAssembler.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
+/* Some standard includes */
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "MassMatrixAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
+/* The two assemblers that we can use */
+#include "MassMatrixAssembler.hpp"
+#include "NaturalNeumannSurfaceTermAssembler.hpp"
 /* Ignore these for the time being */
 //#include "HeatEquation.hpp"
 //#include "SimpleLinearParabolicSolver.hpp"
@@ -204,12 +210,22 @@ private:
         /* Use the RHS matrix to set up the RHS vector, ie set `b=(M+dtK)U^n` */
         MatMult(mRhsMatrix, currentSolution, this->mpLinearSystem->rGetRhsVector());
 
+        /* The third assembler we use is the `NaturalNeumannSurfaceTermAssembler`, which assembles
+         * the vector `c` defined above, using the Neumann BCs stored in the `BoundaryConditionsContainer`
+         * which is passed in in the constructor
+         */
+        NaturalNeumannSurfaceTermAssembler<DIM,DIM,1> surface_integral_assembler(this->mpMesh, mpBoundaryConditions);
+        surface_integral_assembler.SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false /*don't zero vector before assembling!*/);
+        surface_integral_assembler.Assemble();
+
+        /* Some necessary Petsc communication before applying Dirichet BCs */
         this->mpLinearSystem->FinaliseRhsVector();         // (Petsc communication)
         this->mpLinearSystem->SwitchWriteModeLhsMatrix();  // (Petsc communication - needs to called when going from adding entries to inserting entries)
 
         /* Apply the dirichlet BCs from the BCC to the linear system */
         mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), computeMatrix);
 
+        /* Some necessary Petsc communication to finish */
         this->mpLinearSystem->FinaliseRhsVector();
         this->mpLinearSystem->FinaliseLhsMatrix();
     }

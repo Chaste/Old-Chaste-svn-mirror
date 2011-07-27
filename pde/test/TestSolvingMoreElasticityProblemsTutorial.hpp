@@ -37,28 +37,44 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSOLVINGMOREELASTICITYPROBLEMSTUTORIALS_HPP_
 #define TESTSOLVINGMOREELASTICITYPROBLEMSTUTORIALS_HPP_
 
-/* Comments to be added .. */
-
+/* In this second solid mechanics tutorial, we illustrate some other possibilities. Specifically, we will
+ * show the (very minor) changes required to solve a compressible nonlinear elasticity problem, we will
+ * describe and show how to specify 'pressure on deformed body' boundary conditions, we illustrate how
+ * a quadratic mesh can be generated using a linear mesh input files, and we also illustrate how
+ * `Solve()` can be called repeatedly, with loading changing between the solves.
+ *
+ * EMPTYLINE
+ *
+ * These includes are the same as before
+ */
 #include <cxxtest/TestSuite.h>
-#include "CompressibleNonlinearElasticitySolver.hpp"
-#include "CompressibleMooneyRivlinMaterialLaw.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
+/* These two are specific to compressible problems */
+#include "CompressibleNonlinearElasticitySolver.hpp"
+#include "CompressibleMooneyRivlinMaterialLaw.hpp"
 
 class TestSolvingMoreElasticityProblemsTutorials : public CxxTest::TestSuite
 {
 public:
     void TestSolvingCompressibleProblem() throw (Exception)
     {
+        /* All mechanics problems must take in quadratic meshes, but the mesh files for
+         * (standard) linear meshes in Triangles/Tetgen can be automatically converted
+         * to quadratic meshes, by simply doing the following. (The mesh loaded here is a disk
+         * centred at the origin with radius 1).
+         */
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> reader("mesh/test/data/disk_522_elements");
         mesh.ConstructFromLinearMeshReader(reader);
 
+        /* Compressible problems require a compressible material law, ie one that
+         * inherits from `AbstractCompressibleMaterialLaw`. The `CompressibleMooneyRivlinMaterialLaw`
+         * is one such example; instantiate one of these
+         */
         CompressibleMooneyRivlinMaterialLaw<2> law(1.0, 0.5);
 
-        /* For fixed nodes, we choose the nodes for which Y
-         *
-         */
+        /* For this problem, we fix the nodes on the surface for which Y < -0.9 */
         std::vector<unsigned> fixed_nodes;
         for ( TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
               iter != mesh.GetBoundaryNodeIteratorEnd();
@@ -71,6 +87,12 @@ public:
             }
         }
 
+        /* We will (later) apply Neumann boundary conditions to surface elements which lie below Y=0,
+         * and these are collected here. (Minor, subtle, comment: we don't bother here checking Y>-0.9,
+         * so the surface elements collected here include the ones on the Dirichlet boundary. This doesn't
+         * matter as the Dirichlet boundary conditions to the nonlinear system and essentially overwrite
+         * an Neumann related effects.
+         */
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
@@ -85,6 +107,9 @@ public:
         }
         assert(boundary_elems.size()>0);
 
+        /* Create the problem definition class, and to start off with specify the zero
+         * displacement nodes and an upward body force
+         */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
@@ -94,16 +119,38 @@ public:
 
         problem_defn.SetBodyForce(gravity);
 
+        /* Declare the compressible solver, which has the same interface as the incompressible
+         * one, and call `Solve()`
+         */
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
                                                         &law,
                                                         "CompressibleSolidMechanicsExample");
         solver.Solve();
 
-
-        double external_pressure = -0.4;
+        /* Now we call add additional boundary conditions, and call `Solve() again. Firstly: these
+         * Neumnann conditions here are not specified traction boundary conditions (such BCs are specified
+         * on the undeformed body), but instead, the (more natural) specification of a pressure
+         * exactly in the ''normal direction on the deformed body''. We have to provide a set of boundary
+         * elements of the mesh, and a pressure to act on those elements. The solver will automatically
+         * compute the deformed normal directions on which the pressure acts. Note: with this type of
+         * BC, the ordering of the nodes on the boundary elements needs to be consistent, otherwise some
+         * normals will be computed to be inward and others outward. The solver will check this on the
+         * original mesh and throw an exception if this is not the case. (The required ordering is such that:
+         * in 2D, surface element nodes are ordered anticlockwise (looking at the whole mesh); in 3D, looking
+         * at any surface element from outside the mesh, the three nodes are ordered anticlockwise. (Triangle/tetgen
+         * automatically create boundary elements like this)).
+         */
+        double external_pressure = -0.4; // negative sign => inward pressure
         problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, external_pressure);
-
+        /* Call `Solve()` again, so now solving with fixed nodes, gravity, and pressure. The solution from
+         * the previous solve will be used as the initial guess. Although at the moment the solution from the
+         * previous call to `Solve()` will be over-written, calling `Solve()` repeatedly may be useful for
+         * some problems: sometimes, Newton's method will fail to converge for given force/pressures etc, and can
+         * be (very) helpful to ''increment'' the loading. For example, set the gravity to be (0,-9.81/3), solve,
+         * then set it to be (0,-2*9.81/3), solve again, and finally set it to be (0,-9.81) and solve for a
+         * final time
+         */
         solver.Solve();
     }
 };

@@ -56,15 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  [ (chi*C/dt) M + K1    K1   ]
  *  [        K1            K2   ]
  * 
- *  and also the surface term (usually zero) 
- *  [ c1_surf ]
- *  [ c2_surf ]
- * 
  *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
- *  methods ComputeMatrixTerm() and ComputeVectorSurfaceTerm().
+ *  methods ComputeMatrixTerm()
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>
+class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>
 {
 protected:
     /** Local cache of the configuration singleton instance*/
@@ -90,18 +86,6 @@ protected:
         c_vector<double,2> &rU,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-    /**
-     * ComputeVectorSurfaceTerm()
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        c_vector<double,ELEMENT_DIM> &rPhi,
-        ChastePoint<SPACE_DIM> &rX);
 
 public:
 

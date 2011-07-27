@@ -50,7 +50,7 @@ protected:
     AbstractLinearParabolicPde<ELEMENT_DIM,SPACE_DIM>* mpParabolicPde;
 
     /**
-     * The term to be added to the element stiffness matrix:
+     * The term to be added to the element stiffness matrix - see AbstractFeObjectAssembler
      *
      * grad_phi[row] . ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
@@ -71,7 +71,7 @@ protected:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     * The term to be added to the element stiffness vector.
+     * The term to be added to the element stiffness vector - see AbstractFeObjectAssembler
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
@@ -88,17 +88,12 @@ protected:
         c_matrix<double,1,SPACE_DIM>& rGradU,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-    /**
-     * The term arising from boundary conditions to be added to the element
-     * stiffness vector.
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-            c_vector<double, ELEMENT_DIM>& rPhi,
-            ChastePoint<SPACE_DIM>& rX);
+
+    // Note: does not have to provide a ComputeVectorSurfaceTerm for surface integrals,
+    // the parent AbstractAssemblerSolverHybrid assumes natural Neumann BCs and uses a
+    // NaturalNeumannSurfaceTermAssembler for assembling this part of the vector.
+
+
 
     /**
      * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.

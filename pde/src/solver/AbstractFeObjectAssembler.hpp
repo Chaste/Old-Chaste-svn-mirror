@@ -43,6 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * each element in the mesh and computing the element-wise integrals and adding it to
  * the full matrix or vector.
  *
+ * This class is used for VOLUME integrals. For surface integrals there is a
+ * similar class, AbstractFeSurfaceObjectAssembler.
+ *
  * This class can be used to assemble a matrix OR a vector OR one of each. The
  * template booleans CAN_ASSEMBLE_VECTOR and CAN_ASSEMBLE_MATRIX should be chosen
  * accordingly.
@@ -52,8 +55,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * results to the final matrix or vector. The concrete class which inherits from this
  * must implement either COMPUTE_MATRIX_TERM or COMPUTE_VECTOR_TERM or both, which
  * should return the INTEGRAND, as a function of the basis functions.
- *
- * Adding integrals of surface elements can also be done (but only to vectors).
  *
  * The final template parameter defines how much interpolation (onto quadrature points)
  * is required by the concrete class.
@@ -74,28 +75,15 @@ protected:
     /** Mesh to be solved on. */
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
-    /** Whether to add surface integral contributions to the vector. */
-    bool mApplyNeummanBoundaryConditionsToVector;
-
-    /** Whether to ONLY assemble of the surface elements (defaults to false). */
-    bool mOnlyAssembleOnSurfaceElements;
-
     /** Quadrature rule for use on normal elements. */
     GaussianQuadratureRule<ELEMENT_DIM>* mpQuadRule;
-
-    /** Quadrature rule for use on boundary elements. */
-    GaussianQuadratureRule<ELEMENT_DIM-1>* mpSurfaceQuadRule;
 
     /** Basis function for use with normal elements. */
     typedef LinearBasisFunction<ELEMENT_DIM> BasisFunction;
 
-    /** Basis function for use with boundary elements. */
-    typedef LinearBasisFunction<ELEMENT_DIM-1> SurfaceBasisFunction;
-
-
     /**
      * Compute the derivatives of all basis functions at a point within an element.
-     * This method will transform the results, for use within gaussian quadrature
+     * This method will transform the results, for use within Gaussian quadrature
      * for example.
      *
      * This is almost identical to LinearBasisFunction::ComputeTransformedBasisFunctionDerivatives,
@@ -123,24 +111,7 @@ protected:
      */
     void DoAssemble();
 
-    /**
-     * Applies surface integral contributions to the vector after integrating
-     * over the elements. Requires CAN_ASSEMBLE_VECTOR==true and ComputeVectorSurfaceTerm
-     * to be implemented. Called if SetApplyNeummanBoundaryConditionsToVector()
-     * has been called.
-     */
-    void ApplyNeummanBoundaryConditionsToVector();
-
 protected:
-
-    /**
-     * A boundary conditions container saved if SetApplyNeummanBoundaryConditionsToVector()
-     * is called. Used for determining which surface elements have a Neumann bc and require
-     * integration over it.
-     */
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
-
-
 
     /**
      * This method returns the matrix to be added to element stiffness matrix
@@ -152,8 +123,7 @@ protected:
      *
      *  ** This method has to be implemented in the concrete class if CAN_ASSEMBLE_MATRIX is true. **
      *
-     * NOTE: for linear problems rGradU is NOT set up correctly because it should
-     * not be needed.
+     * NOTE: When INTERPOLATION_LEVEL==NORMAL, rGradU does not get set up and should not be used.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i).
@@ -184,8 +154,7 @@ protected:
      *
      * ** This method has to be implemented in the concrete class if CAN_ASSEMBLE_VECTOR is true. **
      *
-     * NOTE: for linear problems rGradPhi and rGradU are NOT set up correctly because
-     * they should not be needed.
+     * NOTE: When INTERPOLATION_LEVEL==NORMAL, rGradPhi and rGradU do not get set up and should not be used.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
@@ -206,33 +175,6 @@ protected:
         return zero_vector<double>(PROBLEM_DIM*(ELEMENT_DIM+1));
     }
 
-    /**
-     * This method returns the vector to be added to element stiffness vector
-     * for a given Gauss point in BoundaryElement, ie, essentially the
-     * INTEGRAND in the boundary integral part of the definition of the vector.
-     * The arguments are the bases, x and current solution computed at the
-     * Gauss point. The returned vector will be multiplied by the Gauss weight
-     * and Jacobian determinant and added to the element stiffness matrix
-     * (see AssembleOnElement()).
-     *
-     * ** This method has to be implemented in the concrete class if
-     *    CAN_ASSEMBLE_VECTOR is true and SetApplyNeumannBoundaryConditionsToVector
-     *    will be called.**
-     *
-     * @param rSurfaceElement the element which is being considered.
-     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
-     * @param rX The point in space
-     */
-    virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEMENT_DIM>& rPhi,
-        ChastePoint<SPACE_DIM>& rX)
-    {
-        NEVER_REACHED;
-        return zero_vector<double>(PROBLEM_DIM*ELEMENT_DIM);
-    }
-
-
 
     /**
      * Calculate the contribution of a single element to the linear system.
@@ -251,18 +193,6 @@ protected:
     virtual void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement,
                                    c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) >& rAElem,
                                    c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)>& rBElem);
-
-    /**
-     * Calculate the contribution of a single surface element with Neumann
-     * boundary condition to the linear system.
-     *
-     * @param rSurfaceElement The element to assemble on.
-     * @param rBSurfElem The element's contribution to the RHS vector is returned in this
-     *     vector of length n, the no. of nodes in this element. There is no
-     *     need to zero this vector before calling.
-     */
-    virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-                                          c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem);
 
     /**
      * Whether to include this (volume) element when assembling. Returns true
@@ -289,38 +219,11 @@ public:
     AbstractFeObjectAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, unsigned numQuadPoints=2);
 
     /**
-     * Whether to apply surface integrals to the vector.
-     *
-     * @param pBcc A boundary conditions container (boundary elements containing a Neumann bc
-     *   will be looped over). Requires CAN_ASSEMBLE_VECTOR==true.
-     */
-    void SetApplyNeummanBoundaryConditionsToVector(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBcc);
-
-    /**
-     * If SetApplyNeummanBoundaryConditionsToVector() has been called, can call
-     * this to only apply the boundary conditions, not to assemble over the
-     * volume elements. Obviously requires CAN_ASSEMBLE_VECTOR==true
-     * and ComputeVectorSurfaceTerm to be implemented.
-     *
-     * @param onlyAssembleOnSurfaceElements whether to only assemble on the
-     *  surface elements (defaults to true)
-     */
-    void OnlyAssembleOnSurfaceElements(bool onlyAssembleOnSurfaceElements = true)
-    {
-        assert(CAN_ASSEMBLE_VECTOR);
-        mOnlyAssembleOnSurfaceElements = onlyAssembleOnSurfaceElements;
-    }
-
-    /**
      * Destructor.
      */
     virtual ~AbstractFeObjectAssembler()
     {
         delete mpQuadRule;
-        if (mpSurfaceQuadRule)
-        {
-            delete mpSurfaceQuadRule;
-        }
     }
 };
 
@@ -328,24 +231,12 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool C
 AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeObjectAssembler(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, unsigned numQuadPoints)
     : AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>(),
-      mpMesh(pMesh),
-      mApplyNeummanBoundaryConditionsToVector(false),
-      mOnlyAssembleOnSurfaceElements(false),
-      mpBoundaryConditions(NULL)
+      mpMesh(pMesh)
 {
     assert(pMesh);
     assert(numQuadPoints > 0);
 
     mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);
-
-    if (CAN_ASSEMBLE_VECTOR)
-    {
-        mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
-    }
-    else
-    {
-        mpSurfaceQuadRule = NULL;
-    }
 }
 
 
@@ -353,6 +244,8 @@ AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECT
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
 void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::DoAssemble()
 {
+    assert(this->mAssembleMatrix || this->mAssembleVector);
+
     HeartEventHandler::EventType assemble_event;
     if (this->mAssembleMatrix)
     {
@@ -372,7 +265,6 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         EXCEPTION("Vector to be assembled has not been set");
     }
 
-    // This has to be below PrepareForAssembleSystem as in that method the ODEs are solved in cardiac problems
     HeartEventHandler::BeginEvent(assemble_event);
 
     // Zero the matrix/vector if it is to be assembled
@@ -390,90 +282,35 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     c_vector<double, STENCIL_SIZE> b_elem;
 
     // Loop over elements
-    if (this->mAssembleMatrix || (this->mAssembleVector && !mOnlyAssembleOnSurfaceElements))
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = mpMesh->GetElementIteratorBegin();
+         iter != mpMesh->GetElementIteratorEnd();
+         ++iter)
     {
-        for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = mpMesh->GetElementIteratorBegin();
-             iter != mpMesh->GetElementIteratorEnd();
-             ++iter)
+        Element<ELEMENT_DIM, SPACE_DIM>& r_element = *iter;
+
+        // Test for ownership first, since it's pointless to test the criterion on something which we might know nothing about.
+        if ( r_element.GetOwnership() == true && ElementAssemblyCriterion(r_element)==true )
         {
-            Element<ELEMENT_DIM, SPACE_DIM>& r_element = *iter;
+            AssembleOnElement(r_element, a_elem, b_elem);
 
-            // Test for ownership first, since it's pointless to test the criterion on something which we might know nothing about.
-            if ( r_element.GetOwnership() == true && ElementAssemblyCriterion(r_element)==true )
+            unsigned p_indices[STENCIL_SIZE];
+            r_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
+
+            if (this->mAssembleMatrix)
             {
-                AssembleOnElement(r_element, a_elem, b_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mMatrixToAssemble, p_indices, a_elem);
+            }
 
-                unsigned p_indices[STENCIL_SIZE];
-                r_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-
-                if (this->mAssembleMatrix)
-                {
-                    PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mMatrixToAssemble, p_indices, a_elem);
-                }
-
-                if (this->mAssembleVector)
-                {
-                    PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_elem);
-                }
+            if (this->mAssembleVector)
+            {
+                PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_elem);
             }
         }
-    }
-
-    /*
-     * Apply any Neumann boundary conditions.
-     *
-     * NB. We assume that if an element has a boundary condition on any unknown then
-     * there is a boundary condition on unknown 0. This can be so for any problem by
-     * adding zero constant conditions where required although this is a bit inefficient.
-     * Proper solution involves changing the boundary conditions container to have a map
-     * of arrays boundary conditions rather than an array of maps.
-     */
-    if (mApplyNeummanBoundaryConditionsToVector && this->mAssembleVector)
-    {
-        HeartEventHandler::EndEvent(assemble_event);
-        ApplyNeummanBoundaryConditionsToVector();
-        HeartEventHandler::BeginEvent(assemble_event);
     }
 
     HeartEventHandler::EndEvent(assemble_event);
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetApplyNeummanBoundaryConditionsToVector(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBcc)
-{
-    assert(CAN_ASSEMBLE_VECTOR);
-    mApplyNeummanBoundaryConditionsToVector = true;
-    mpBoundaryConditions = pBcc;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::ApplyNeummanBoundaryConditionsToVector()
-{
-    assert(this->mAssembleVector);
-    assert(mpBoundaryConditions != NULL);
-
-    HeartEventHandler::BeginEvent(HeartEventHandler::NEUMANN_BCS);
-    if (mpBoundaryConditions->AnyNonZeroNeumannConditions())
-    {
-        typename BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::NeumannMapIterator
-            neumann_iterator = mpBoundaryConditions->BeginNeumann();
-        c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
-
-        // Iterate over defined conditions
-        while (neumann_iterator != mpBoundaryConditions->EndNeumann())
-        {
-            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& r_surf_element = *(neumann_iterator->first);
-            AssembleOnSurfaceElement(r_surf_element, b_surf_elem);
-
-            const size_t STENCIL_SIZE=PROBLEM_DIM*ELEMENT_DIM; // problem_dim*num_nodes_on_surface_element
-            unsigned p_indices[STENCIL_SIZE];
-            r_surf_element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
-            PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_surf_elem);
-            ++neumann_iterator;
-        }
-    }
-    HeartEventHandler::EndEvent(HeartEventHandler::NEUMANN_BCS);
-}
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation - AssembleOnElement and smaller
@@ -552,7 +389,7 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         {
             const Node<SPACE_DIM>* p_node = rElement.GetNode(i);
 
-            if (INTERPOLATION_LEVEL != CARDIAC) // don't interpolate X if cardiac problem
+            if (INTERPOLATION_LEVEL != CARDIAC) // don't even interpolate X if cardiac problem
             {
                 const c_vector<double, SPACE_DIM>& r_node_loc = p_node->rGetLocation();
                 // interpolate x
@@ -605,48 +442,5 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
     }
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AssembleOnSurfaceElement(
-            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-            c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)
-{
-    c_vector<double, SPACE_DIM> weighted_direction;
-    double jacobian_determinant;
-    mpMesh->GetWeightedDirectionForBoundaryElement(rSurfaceElement.GetIndex(), weighted_direction, jacobian_determinant);
-
-    rBSurfElem.clear();
-
-    // Allocate memory for the basis function values
-    c_vector<double, ELEMENT_DIM>  phi;
-
-    // Loop over Gauss points
-    for (unsigned quad_index=0; quad_index<mpSurfaceQuadRule->GetNumQuadPoints(); quad_index++)
-    {
-        const ChastePoint<ELEMENT_DIM-1>& quad_point = mpSurfaceQuadRule->rGetQuadPoint(quad_index);
-
-        SurfaceBasisFunction::ComputeBasisFunctions(quad_point, phi);
-
-        // Interpolation
-
-        // The location of the Gauss point in the original element will be stored in x
-        ChastePoint<SPACE_DIM> x(0,0,0);
-
-        this->ResetInterpolatedQuantities();
-        for (unsigned i=0; i<rSurfaceElement.GetNumNodes(); i++)
-        {
-            const c_vector<double, SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
-            x.rGetLocation() += phi(i)*node_loc;
-
-            // Allow the concrete version of the assembler to interpolate any desired quantities
-            this->IncrementInterpolatedQuantities(phi(i), rSurfaceElement.GetNode(i));
-        }
-
-        double wJ = jacobian_determinant * mpSurfaceQuadRule->GetWeight(quad_index);
-
-        // Create rAElem and rBElem
-        ///\todo #1321 Improve efficiency of Neumann BC implementation
-        noalias(rBSurfElem) += ComputeVectorSurfaceTerm(rSurfaceElement, phi, x) * wJ;
-    }
-}
 
 #endif /*ABSTRACTFEOBJECTASSEMBLER_HPP_*/
