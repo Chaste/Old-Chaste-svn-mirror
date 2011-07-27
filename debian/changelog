@@ -1,3 +1,9 @@
+chaste-source (2.3.13277) intrepid; urgency=low
+
+  * Add libfltk1.1 to the Recommends of this package.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 27 Jul 2011 10:01:56 +0000
+
 chaste-source (2.3.13060) intrepid; urgency=low
 
   * Package release 2.3 of Chaste, with corrections.
