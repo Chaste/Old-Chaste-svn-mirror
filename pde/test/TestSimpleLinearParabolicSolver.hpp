@@ -53,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeatEquationWithSourceTerm.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
+#include "CompareHdf5ResultsFiles.hpp"
 
 /*
  * Very simple toy time-adaptivity controller, for use in
@@ -318,6 +319,10 @@ public:
         OutputFileHandler file_handler("TestSimpleLinearParabolicSolver2DZeroDirich", false);
         FileFinder h5_file = file_handler.FindFile("results.h5");
         TS_ASSERT(h5_file.Exists());
+
+        TS_ASSERT(CompareFilesViaHdf5DataReader("TestSimpleLinearParabolicSolver2DZeroDirich",
+                                                "results", true,
+                                                "pde/test/data", "results", false));
 
         // Test that there is a .vtu file
         // Test that there is an .pvtu file

@@ -332,7 +332,7 @@ public:
 
         // Solve
 
-//// TODO: raf to add comment about choice of R
+///\todo: raf to add comment about choice of R (#1835)
         double beta = 4*M_PI/(2*log(0.01)-1+4*M_PI);
 
         CoupledCableTestProblemSolver<3> cable_solver(&mesh,&bcc,beta);
@@ -359,7 +359,7 @@ public:
                 std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
                            << " " << phi_i_exact << "\n";
 
-//// TODO: check results and add tolerance here when happy all working, and add test of phi_e
+///\todo: check results and add tolerance here when happy all working, and add test of phi_e (#1835)
 //                TS_ASSERT_DELTA(phi_i, phi_i_exact, 1e-2);
             }
             else

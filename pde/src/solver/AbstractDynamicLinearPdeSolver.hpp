@@ -204,7 +204,7 @@ public:
      */
     void SetPrintingTimestepMultiple(unsigned multiple);
 };
-#include "Debug.hpp"
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::InitialiseHdf5Writer()
 {
@@ -237,7 +237,7 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Initia
 		variable_name << "Variable_" << i;
 		mVariableColumnIds.push_back(mpHdf5Writer->DefineVariable(variable_name.str(),"undefined"));
 	}
-	mpHdf5Writer->DefineUnlimitedDimension("Time","undefined", estimated_num_printing_timesteps);
+	mpHdf5Writer->DefineUnlimitedDimension("Time", "undefined", estimated_num_printing_timesteps);
 
     // End the define mode of the writer
 	mpHdf5Writer->EndDefineMode();
@@ -410,13 +410,6 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
         this->FollowingSolveLinearSystem(next_solution);
 
-        // If required, output next solution to HDF5 file
-        if (print_output)
-        {
-        	WriteOneStep(stepper.GetTime(), next_solution);
-            mpHdf5Writer->AdvanceAlongUnlimitedDimension();
-        }
-
         stepper.AdvanceOneTimeStep();
 
         // Avoid memory leaks
@@ -427,6 +420,13 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
         }
         solution = next_solution;
+
+        // If required, output next solution to HDF5 file
+        if (print_output)
+        {
+        	WriteOneStep(stepper.GetTime(), solution);
+            mpHdf5Writer->AdvanceAlongUnlimitedDimension();
+        }
     }
 
     // Avoid memory leaks
