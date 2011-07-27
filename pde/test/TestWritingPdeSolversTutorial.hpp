@@ -96,7 +96,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * with zero-dirichlet boundary conditions, the solution is given by u = sin(pi*x)sin(pi*x),
  * v = sin(2*pi*x)sin(2*pi*x).
  *
- *( As a brief aside, we note the solver we write will in fact work with general Dirichlet-Neumann
+ *( As a brief aside, note that the solver we write will in fact work with general Dirichlet-Neumann
  * boundary conditions, though the test will only provide all-Dirichlet boundary conditions. We
  * save a discussion on general Dirichlet-Neumann boundary conditions for the second example.)
  *
@@ -254,7 +254,7 @@ public:
  *  where g(t,x,y) = t if x>0.5 and 0 otherwise. This time we assume general
  *  Dirichlet-Neumann boundary conditions will be specified.
  *
- *  The `AbstractAssemblerSolverHybrid` deals with the dirichlet and Neumann boundary parts of the implementation,
+ *  The `AbstractAssemblerSolverHybrid` deals with the Dirichlet and Neumann boundary parts of the implementation,
  *  so, we, the writer of the solver, don't have to worry about this. However, this assumes that the user will specify
  *  NATURAL Neumann BCs, which are whatever appears naturally in the weak form of the problem. In this case, natural
  *  Neumann BCs are specifying: `du/dn = s1, dv/dn = s2, dw/dn = s3`, which coincide with usual Neumann BCs. However,
@@ -279,7 +279,7 @@ public:
  * where `K` is the stiffness matrix, `M` the mass matrix, `U^n` the vector of nodal values
  * of u at time t_n, etc, `b1` has entries `integral( (u^n/dt)phi_i dV )`, and similarly for
  * `b2` and `b3`. Writing the Neumann boundary conditions for
- *  u as `du/dn = s(x,y)` on Gamma, a subset of the boundary, then `c1` has entries
+ *  u as `du/dn = s1(x,y)` on Gamma, a subset of the boundary, then `c1` has entries
  * `integral_over_Gamma (s1*phi_i dS)`, and similarly for `c2` and `c3`.
  *
  * Let us create a solver for this linear system, which will be written in a way in which the RHS

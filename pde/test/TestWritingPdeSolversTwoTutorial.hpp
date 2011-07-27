@@ -229,9 +229,6 @@ private:
         this->mpLinearSystem->FinaliseRhsVector();
         this->mpLinearSystem->FinaliseLhsMatrix();
     }
-    /* Note that we have added anything to the solver for non-zero Neumann BCs - we have assumed there will only
-     * be dirichlet BCs
-     */
 public:
     /* The constructor needs to call the parent constructor, save the BCC, ''say that the (LHS) matrix is constant
      * in time'' (so it is only computed once), and allocate memory for the RHS matrix.
