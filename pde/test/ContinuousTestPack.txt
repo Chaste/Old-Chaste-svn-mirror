@@ -27,6 +27,7 @@ TestSimpleNonlinearEllipticSolver.hpp
 TestSolidMechanicsProblemDefinition.hpp
 TestSolvingCoupledPdes.hpp
 TestSolveLaplacianWithQuadratics.hpp
+TestStokesFlow.hpp
 TestTimeAdaptivityController.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp
