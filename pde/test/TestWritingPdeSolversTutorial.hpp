@@ -47,45 +47,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * == Introduction ==
  *
- * Chaste can be used to set up solvers for more general (coupled) PDEs, for which the
- * user just, essentially, needs to code up the integrands of any finite element (FE) matrices
- * or vectors, without having to deal with set-up, looping over elements, numerical
- * quadrature, assembly, or solving the linear system. If you have a coupled set of
- * linear PDEs for which it is appropriate to use linear basis functions for each unknown
- * (for example, a coupled set of reaction-diffusion equations), then it is relatively
- * straightforward to set up a solver which will be parallel and reliable (as all the base
- * components are heavily tested).
+ * Chaste can be used to set up solvers for more general (coupled) PDEs. To do this the
+ * user just needs to code up the integrands of any finite element (FE) matrices or vectors,
+ * without having to deal with set-up, looping over elements, numerical quadrature, assembly
+ * or solving the linear system. If you have a set of coupled linear PDEs for which it is
+ * appropriate to use linear basis functions for each unknown (for example, a reaction-diffusion
+ * system), then it is relatively straightforward to set up a solver that will be parallel and
+ * reliable, since all the base components are heavily tested.
  *
- * There are solvers for general simple (uncoupled) linear PDEs already provided, such
+ * Some solvers for general simple (uncoupled) linear PDEs are already provided in Chaste, such
  * as the `SimpleLinearEllipticSolver`. These are for PDEs that can be written in a generic
- * form (`SimpleLinearEllipticPde`, for example). However a general coupled set of PDEs can't be
- * written in a generic form, so the user has to write their own solver. This tutorial explains
- * how to do this.
+ * form (`SimpleLinearEllipticPde`, for example). However a general coupled set of PDEs can't
+ * be written in a generic form, so the user has to write their own solver. In this tutorial
+ * we explain how to do this.
  *
- * For this tutorial the user certainly ought to have read the solving-PDEs
- * tutorials. Also, it is helpful to read the associated
- * [wiki:ChasteGuides/NmoodLectureNotes lectures notes] (maybe the
- * slides on solving equations using finite elements if you are not familiar with this
- * (lecture 2), but especially the slides on the general design of the Chaste finite element
- * solvers (lecture 3), and the first part of lecture 4).
+ * For this tutorial the user needs to have read the solving-PDEs tutorials. It may also be
+ * helpful to read the associated [wiki:ChasteGuides/NmoodLectureNotes lectures notes], in
+ * particular the slides on solving equations using finite elements if you are not familiar
+ * with this (lecture 2), the slides on the general design of the Chaste finite element solvers
+ * (lecture 3), and the first part of lecture 4.
  *
  * Let us use the terminology "assembled in an FE manner" for any matrix or vector that is
  * defined via a volume/surface/line integral, and which is constructed by: looping over
- * elements (or surface elements, etc), computing the elemental contribution (ie a small
- * matrix/vector) using numerical quadrature, and adding to the full matrix/vector.
+ * elements (or surface elements, etc.); computing the elemental contribution (i.e. a small
+ * matrix/vector) using numerical quadrature; and adding to the full matrix/vector.
  *
- * We only consider linear problems here. In these problems the discretised FE problem leads to
- * a linear system, Ax=b, to be solved (once in static problems; at each timestep in time-dependent problems).
- * There are two cases to be distinguished. The first case is where BOTH A and b are
- * 'assembled in an FE manner', b possibly being composed of a volume integral plus a
- * surface integral. The other case is where this is not true, for example where
- * b = Mc+d, where d (vector) and M (matrix) are assembled in an FE manner, but not c.
+ * We only consider linear problems here. In these problems the discretised FE problem leads
+ * to a linear system, Ax=b, to be solved once in static problems and at each time step in
+ * time-dependent problems. There are two cases to be distinguished. The first case is where
+ * BOTH A and b are assembled in an FE manner, b possibly being composed of a volume integral
+ * plus a surface integral. The other case is where this is not true, for example where b = Mc+d,
+ * where the vector d and matrix M are assembled in an FE manner, but not the vector c.
  *
- * The chaste PDE classes include ASSEMBLER classes (for setting up anything assembled in an FE manner),
- * and SOLVER classes (for setting up linear systems). In the general case, solvers need to own assemblers
- * for setting up each part of the linear system. However for the former case (both A and b in Ax=b are
- * assembled), we can use the design where the solver IS AN assembler. We illustrate how to do
- * this in this first tutorial
+ * The Chaste PDE classes include ASSEMBLER classes, for setting up anything assembled in an
+ * FE manner, and SOLVER classes, for setting up linear systems. In the general case, solvers
+ * need to own assemblers for setting up each part of the linear system. However for the first
+ * case described above (in which both A and b in Ax=b are assembled), we can use the design
+ * where the solver IS AN assembler. We illustrate how to do this in the first tutorial.
  *
  * == Writing solvers ==
  *
@@ -94,13 +92,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *    Laplacian(u) + v = f(x,y)
  *    Laplacian(v) + u = g(x,y)
  * }}}
- * (`Laplacian(u)` of course representing u,,xx,,+u,,yy,,), and
- * where f and g are chosen so that, with zero-dirichlet boundary conditions,
- * the solution is: u = sin(pi*x)sin(pi*x), v = sin(2*pi*x)sin(2*pi*x)
+ * where `Laplacian(u)` of course represents u,,xx,,+u,,yy,, and where f and g are chosen so that,
+ * with zero-dirichlet boundary conditions, the solution is given by u = sin(pi*x)sin(pi*x),
+ * v = sin(2*pi*x)sin(2*pi*x).
  *
- * (In fact, the solver we write will work with general Dirichlet-Neumann boundary
- * conditions (the test will only provide all-Dirichlet BCs though), but we save a
- * discussion on general Dirichlet-Neumann for the second example).
+ *( As a brief aside, we note the solver we write will in fact work with general Dirichlet-Neumann
+ * boundary conditions, though the test will only provide all-Dirichlet boundary conditions. We
+ * save a discussion on general Dirichlet-Neumann boundary conditions for the second example.)
  *
  * Using linear basis functions, and a mesh with N nodes, the linear system that needs to be set up is
  * of size 2N by 2N, and in block form is:
@@ -452,11 +450,10 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,2 /*index of unknown, ie w*/);
 
         ConstBoundaryCondition<2>* p_neumann_bc = new ConstBoundaryCondition<2>(1.0);
-        TetrahedralMesh<2,2>::BoundaryElementIterator iter
-           = mesh.GetBoundaryElementIteratorBegin();
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter < mesh.GetBoundaryElementIteratorEnd())
         {
-            if(fabs((*iter)->CalculateCentroid()[0])<1e-6)
+            if (fabs((*iter)->CalculateCentroid()[0])<1e-6)
             {
                 bcc.AddNeumannBoundaryCondition(*iter, p_neumann_bc, 0 /*index of unknown, ie u*/);
             }
@@ -483,7 +480,7 @@ public:
 
         Vec result; // declared outside the loop so it can be deleted at the end
 
-        for(unsigned i=0; i<num_printing_times; i++)
+        for (unsigned i=0; i<num_printing_times; i++)
         {
             double t0 = start_time + (end_time-start_time)*i/num_printing_times;
             double t1 = start_time + (end_time-start_time)*(i+1)/num_printing_times;
@@ -493,13 +490,13 @@ public:
 
             result = solver.Solve();
 
-            // get the result write to a file
+            // Get the result write to a file
             ReplicatableVector result_repl(result);
             std::stringstream file_name;
             file_name << "results_" << i+1 << ".txt";
             out_stream p_file = handler.OpenOutputFile(file_name.str());
 
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 double x = mesh.GetNode(i)->rGetLocation()[0];
                 double y = mesh.GetNode(i)->rGetLocation()[1];

@@ -277,10 +277,31 @@ public:
 
         // Solve
         double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.001);
 
+        // Coverage of exception handling
+		TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimes() has not been called");
+        solver.SetTimes(0, t_end);
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimeStep() has not been called");
+        solver.SetTimeStep(0.001);
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetInitialCondition() has not been called");
         solver.SetInitialCondition(initial_condition);
+
+        // Write output to HDF5, then to VTK
+        solver.SetOutputToVtk(true);
+
+        // Write output to HDF5, then to Meshalyzer
+        solver.SetOutputToMeshalyzer(true);
+
+        // Write output to HDF5, then to parallel VTK (.pvtu)
+        solver.SetOutputToParallelVtk(true);
+
+        // Output results every second timestep
+        solver.SetPrintingTimestepMultiple(2);
+
+        // Coverage of exception handling
+		TS_ASSERT_THROWS_THIS(solver.Solve(),"Output directory or filename prefix has not been set");
+
+		solver.SetOutputDirectoryAndPrefix("TestSimpleLinearParabolicSolver2DZeroDirich","results");
 
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
@@ -293,7 +314,14 @@ public:
             double u = exp(-2*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI);
             TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
+        // Test that there is an HDF5 file
+        OutputFileHandler file_handler("TestSimpleLinearParabolicSolver2DZeroDirich", false);
+        FileFinder h5_file = file_handler.FindFile("results.h5");
+        TS_ASSERT(h5_file.Exists());
 
+        // Test that there is a .vtu file
+        // Test that there is an .pvtu file
+        // Test that there are Meshalyzer files
         VecDestroy(initial_condition);
         VecDestroy(result);
     }

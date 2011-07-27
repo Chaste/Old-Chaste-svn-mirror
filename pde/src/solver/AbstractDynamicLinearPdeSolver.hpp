@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearPdeSolver.hpp"
 #include "PdeSimulationTime.hpp"
 #include "AbstractTimeAdaptivityController.hpp"
+#include "Hdf5DataWriter.hpp"
 
 /**
  * Abstract class for dynamic linear PDE solves.
@@ -80,6 +81,58 @@ protected:
     /** A controller which determines what timestep to use (defaults to NULL). */
     AbstractTimeAdaptivityController* mpTimeAdaptivityController;
 
+    /**
+     * Flag to say if we need to output to Meshalyzer.
+     * Defaults to false in the constructor.
+     */
+    bool mOutputToMeshalyzer;
+
+    /**
+     * Flag to say if we need to output to VTK.
+     * Defaults to false in the constructor.
+     */
+    bool mOutputToVtk;
+
+    /**
+     * Flag to say if we need to output to VTK parallel (.pvtu).
+     * Defaults to false in the constructor.
+     */
+    bool mOutputToParallelVtk;
+
+    /** Output directory (a subfolder of tmp/[USERNAME]/testoutput). */
+    std::string mOutputDirectory;
+
+    /** Filename prefix for HDF5 and other files. */
+    std::string mFilenamePrefix;
+
+    /**
+     * The ratio of the number of actual timesteps to the number
+     * of timesteps at which results are output to HDF5 and other files.
+     * Defaults to 1 in the constructor.
+     */
+    unsigned mPrintingTimestepMultiple;
+
+    /**
+     * The object to use to write results to HDF5 file.
+     */
+    Hdf5DataWriter* mpHdf5Writer;
+
+    std::vector<int> mVariableColumnIds;
+
+    /**
+     * Create and initialise the HDF5 writer.
+     * Called by Solve() if results are to be output.
+     */
+    void InitialiseHdf5Writer();
+
+    /**
+     * Write one timestep of output data to HDF5 file.
+     *
+     * @param time  the time
+     * @param solution  the solution vector to write
+     */
+    void WriteOneStep(double time, Vec solution);
+
 public:
 
     /**
@@ -115,23 +168,80 @@ public:
     Vec Solve();
 
     /** Tell the solver to assemble the matrix again next timestep. */
-    void SetMatrixIsNotAssembled()
-    {
-        mMatrixIsAssembled = false;
-    }
+    void SetMatrixIsNotAssembled();
 
     /**
      * Set a controller class which alters the dt used.
      *
      * @param pTimeAdaptivityController the controller
      */
-    void SetTimeAdaptivityController(AbstractTimeAdaptivityController* pTimeAdaptivityController)
-    {
-        assert(pTimeAdaptivityController != NULL);
-        assert(mpTimeAdaptivityController == NULL);
-        mpTimeAdaptivityController = pTimeAdaptivityController;
-    }
+    void SetTimeAdaptivityController(AbstractTimeAdaptivityController* pTimeAdaptivityController);
+
+    /**
+     * @param output whether to output to Meshalyzer files
+     */
+    void SetOutputToMeshalyzer(bool output);
+
+    /**
+     * @param output whether to output to VTK (.vtu) file
+     */
+    void SetOutputToVtk(bool output);
+
+    /**
+     * @param output whether to output to parallel VTK (.pvtu) file
+     */
+    void SetOutputToParallelVtk(bool output);
+
+    /**
+     * @param outputDirectory the output directory
+     * @param prefix the filename prefix
+     */
+    void SetOutputDirectoryAndPrefix(std::string outputDirectory, std::string prefix);
+
+    /**
+     * @param multiple the ratio of the number of actual timesteps to the number
+     * of timesteps at which results are output to HDF5 and other files.
+     */
+    void SetPrintingTimestepMultiple(unsigned multiple);
 };
+#include "Debug.hpp"
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::InitialiseHdf5Writer()
+{
+	// Check that everything is set up correctly
+	if ((mOutputDirectory=="") || (mFilenamePrefix==""))
+	{
+        EXCEPTION("Output directory or filename prefix has not been set");
+	}
+
+	// Create writer
+	mpHdf5Writer = new Hdf5DataWriter(*(this->mpMesh)->GetDistributedVectorFactory(),
+                                      mOutputDirectory,
+                                      mFilenamePrefix);
+
+	// Set writer to output all nodes
+	mpHdf5Writer->DefineFixedDimension((this->mpMesh)->GetNumNodes());
+
+	// Only used to get an estimate of the number of timesteps below
+	unsigned estimated_num_printing_timesteps = 1 + (mTend - mTstart)/(mIdealTimeStep*mPrintingTimestepMultiple);
+
+	/**
+	 * \todo allow user to specify units of time and names and units of
+	 * dependent variables using DefineVariable() and DefineUnlimitedDimension()
+	 * (#1841)
+	 */
+	assert(mVariableColumnIds.empty());
+	for (unsigned i=0; i<PROBLEM_DIM; i++)
+	{
+		std::stringstream variable_name;
+		variable_name << "Variable_" << i;
+		mVariableColumnIds.push_back(mpHdf5Writer->DefineVariable(variable_name.str(),"undefined"));
+	}
+	mpHdf5Writer->DefineUnlimitedDimension("Time","undefined", estimated_num_printing_timesteps);
+
+    // End the define mode of the writer
+	mpHdf5Writer->EndDefineMode();
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDynamicLinearPdeSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
@@ -142,7 +252,14 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDyn
       mMatrixIsConstant(false),
       mIdealTimeStep(-1.0),
       mLastWorkingTimeStep(-1),
-      mpTimeAdaptivityController(NULL)
+      mpTimeAdaptivityController(NULL),
+      mOutputToMeshalyzer(false),
+      mOutputToVtk(false),
+      mOutputToParallelVtk(false),
+      mOutputDirectory(""),
+      mFilenamePrefix(""),
+      mPrintingTimestepMultiple(1),
+      mpHdf5Writer(NULL)
 {
 }
 
@@ -179,11 +296,44 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetIni
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WriteOneStep(double time, Vec solution)
+{
+	mpHdf5Writer->PutUnlimitedVariable(time);
+	if (PROBLEM_DIM == 1)
+	{
+		mpHdf5Writer->PutVector(mVariableColumnIds[0], solution);
+	}
+	else
+	{
+		mpHdf5Writer->PutStripedVector(mVariableColumnIds, solution);
+	}
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 {
-    assert(mTimesSet);
-    assert(mIdealTimeStep > 0.0 || mpTimeAdaptivityController);
-    assert(mInitialCondition != NULL);
+	// Begin by checking that everything has been set up correctly
+	if (!mTimesSet)
+	{
+		EXCEPTION("SetTimes() has not been called");
+	}
+	if ((mIdealTimeStep <= 0.0) && (mpTimeAdaptivityController==NULL))
+	{
+		EXCEPTION("SetTimeStep() has not been called");
+	}
+	if (mInitialCondition == NULL)
+	{
+		EXCEPTION("SetInitialCondition() has not been called");
+	}
+
+	// If required, initialise HDF5 writer and output initial condition to HDF5 file
+	bool print_output = (mOutputToMeshalyzer || mOutputToVtk || mOutputToParallelVtk);
+	if (print_output)
+	{
+		InitialiseHdf5Writer();
+		WriteOneStep(mTstart, mInitialCondition);
+		mpHdf5Writer->AdvanceAlongUnlimitedDimension();
+	}
 
     this->InitialiseForSolve(mInitialCondition);
 
@@ -201,10 +351,10 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
      */
     TimeStepper stepper(mTstart, mTend, mIdealTimeStep, mMatrixIsConstant);
 
-    Vec current_solution = mInitialCondition;
+    Vec solution = mInitialCondition;
     Vec next_solution;
 
-    while ( !stepper.IsTimeAtEnd() )
+    while (!stepper.IsTimeAtEnd())
     {
         bool timestep_changed = false;
 
@@ -215,7 +365,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         if (mpTimeAdaptivityController)
         {
             // Get the timestep the controller wants to use and store it as the ideal timestep
-            mIdealTimeStep = mpTimeAdaptivityController->GetNextTimeStep(stepper.GetTime(), current_solution);
+            mIdealTimeStep = mpTimeAdaptivityController->GetNextTimeStep(stepper.GetTime(), solution);
 
             // Tell the stepper to use this timestep from now on...
             stepper.ResetTimeStep(mIdealTimeStep);
@@ -238,20 +388,20 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
         // Solve
 
-        this->PrepareForSetupLinearSystem(current_solution);
+        this->PrepareForSetupLinearSystem(solution);
 
         bool compute_matrix = (!mMatrixIsConstant || !mMatrixIsAssembled || timestep_changed);
 //        if (compute_matrix) std::cout << " ** ASSEMBLING MATRIX!!! ** " << std::endl;
-        this->SetupLinearSystem(current_solution, compute_matrix);
+        this->SetupLinearSystem(solution, compute_matrix);
 
-        this->FinaliseLinearSystem(current_solution);
+        this->FinaliseLinearSystem(solution);
 
         if (compute_matrix)
         {
             this->mpLinearSystem->ResetKspSolver();
         }
 
-        next_solution = this->mpLinearSystem->Solve(current_solution);
+        next_solution = this->mpLinearSystem->Solve(solution);
 
         if (mMatrixIsConstant)
         {
@@ -260,19 +410,93 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
         this->FollowingSolveLinearSystem(next_solution);
 
+        // If required, output next solution to HDF5 file
+        if (print_output)
+        {
+        	WriteOneStep(stepper.GetTime(), next_solution);
+            mpHdf5Writer->AdvanceAlongUnlimitedDimension();
+        }
+
         stepper.AdvanceOneTimeStep();
 
         // Avoid memory leaks
-        if (current_solution != mInitialCondition)
+        if (solution != mInitialCondition)
         {
             HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-            VecDestroy(current_solution);
+            VecDestroy(solution);
             HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
         }
-        current_solution = next_solution;
+        solution = next_solution;
     }
 
-    return current_solution;
+    // Avoid memory leaks
+    if (mpHdf5Writer != NULL)
+    {
+        delete mpHdf5Writer;
+        mpHdf5Writer = NULL;
+    }
+
+    ///\todo implement the code below (#184)
+//    // Convert HDF5 output to other formats as required
+//	if (mOutputToMeshalyzer)
+//    {
+//        Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh);
+//    }
+//    if  (mOutputToVtk)
+//    {
+//        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh, false);
+//    }
+//    if (mOutputToParallelVtk)
+//    {
+//        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh, true);
+//    }
+
+    return solution;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetMatrixIsNotAssembled()
+{
+	mMatrixIsAssembled = false;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTimeAdaptivityController(AbstractTimeAdaptivityController* pTimeAdaptivityController)
+{
+    assert(pTimeAdaptivityController != NULL);
+    assert(mpTimeAdaptivityController == NULL);
+    mpTimeAdaptivityController = pTimeAdaptivityController;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToMeshalyzer(bool output)
+{
+	mOutputToMeshalyzer = output;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToVtk(bool output)
+{
+	mOutputToVtk = output;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToParallelVtk(bool output)
+{
+	mOutputToParallelVtk = output;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputDirectoryAndPrefix(std::string outputDirectory, std::string prefix)
+{
+	mOutputDirectory = outputDirectory;
+	mFilenamePrefix = prefix;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetPrintingTimestepMultiple(unsigned multiple)
+{
+	mPrintingTimestepMultiple = multiple;
 }
 
 #endif /*ABSTRACTDYNAMICLINEARPDESOLVER_HPP_*/
