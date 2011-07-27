@@ -444,6 +444,8 @@ def RequestedProjects():
     for targ in COMMAND_LINE_TARGETS:
         if str(targ).startswith('projects'):
             projects.append(str(targ))
+    if single_test_suite_dir and single_test_suite_dir in os.listdir('projects'):
+        projects.append(os.path.join('projects', single_test_suite_dir))
     return projects
 
 # Test summary generation

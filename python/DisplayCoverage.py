@@ -67,7 +67,7 @@ for filename in os.listdir(output_dir):
 # Find .gcda files to determine which source files to run gcov on
 # First, find appropriate build directories
 build_dirs = glob.glob('*/build/' + build.build_dir)
-build_dirs.extend(map(lambda p: os.path.join(p, 'build'), projects))
+build_dirs.extend(map(lambda p: os.path.join(p, 'build', build.build_dir), projects))
 # Now find .gcda files within there
 gcda_files = []
 for build_dir in build_dirs:
