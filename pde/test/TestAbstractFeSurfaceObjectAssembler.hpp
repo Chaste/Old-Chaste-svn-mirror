@@ -107,6 +107,42 @@ public:
 
         VecDestroy(vec);
     }
+
+
+    // Test surface element intregral additions in 2d
+    void TestSurfaceElementContributions2d() throw(Exception)
+    {
+        // two element mesh
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructRegularSlabMesh(1.0, 1.0, 1.0);
+
+        // create a BCC with ONE neumann bc
+        BoundaryConditionsContainer<2,2,1> bcc;
+        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(1.0);
+        TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
+
+        //// The following shows the nodes 2 and 3 make up the boundary element
+        //std::cout << (*iter)->GetNodeGlobalIndex(0) << " " << (*iter)->GetNodeGlobalIndex(1) << "\n";
+
+        Vec vec = PetscTools::CreateVec(mesh.GetNumNodes());
+
+        BasicSurfaceAssembler<2> assembler(&mesh,&bcc);
+        assembler.SetVectorToAssemble(vec,true);
+        assembler.Assemble();
+
+        PetscVecTools::Finalise(vec);
+
+        ReplicatableVector vec_repl(vec);
+
+        // nodes 2 and 3 should have 1 (= area-of-surface-elem) added on
+        TS_ASSERT_DELTA(vec_repl[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(vec_repl[1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(vec_repl[2], 1.0, 1e-4);
+        TS_ASSERT_DELTA(vec_repl[3], 1.0, 1e-4);
+
+        VecDestroy(vec);
+    }
 };
 
 #endif // TESTABSTRACTFESURFACETERMASSEMBLER_HPP_
