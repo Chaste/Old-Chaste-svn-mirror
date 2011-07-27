@@ -78,11 +78,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  EMPTYLINE
  *
- *  Firstly, include `AbstractFeObjectAssembler` which the assembler we write will inherit from,
+ *  Firstly, include `AbstractFeVolumeIntegralAssembler` which the assembler we write will inherit from,
  *  `AbstractDynamicLinearPdeSolver`, which the solver we write will inherit from.
  */
 #include <cxxtest/TestSuite.h>
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
 /* Some standard includes */
 #include "TetrahedralMesh.hpp"
@@ -101,17 +101,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * Any new assembler should inherit from `AbstractFeObjectAssembler`, which deals with looping over
+ * Any new assembler should inherit from `AbstractFeVolumeIntegralAssembler`, which deals with looping over
  * elements, looping over quadrature points, etc. Concrete classes need to provide the integrand for the matrix
  * or vector being assembled (exactly as in the previous tutorials). However, in general, the assembler
  * class can be used to assemble a matrix OR a vector OR both. The class we write here needs to assemble
- * a matrix but not a vector. Note that the parent class `AbstractFeObjectAssembler` has two booleans
+ * a matrix but not a vector. Note that the parent class `AbstractFeVolumeIntegralAssembler` has two booleans
  * in the template list (as well as the dimension template parameters as normal) - these booleans say
  * whether this class will be assembling a vector or a matrix (or both).
  */
 template<unsigned DIM>
 class RhsMatrixAssembler
-    : public AbstractFeObjectAssembler<DIM,DIM,1/*problem dim*/,false /*doesn't assemble vectors*/,true/*assembles a matrix*/,NORMAL /*amount of interpolation*/>
+    : public AbstractFeVolumeIntegralAssembler<DIM,DIM,1/*problem dim*/,false /*doesn't assemble vectors*/,true/*assembles a matrix*/,NORMAL /*amount of interpolation*/>
 {
 private:
     /* Even when a class isn't being written for a very general dimensions sometimes it is a good idea
@@ -157,7 +157,7 @@ private:
     /* (If we were (also) assembling a vector, we would also have to provide a `ComputeVectorTerm()` method) */
 public:
     RhsMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh)
     {
     }
 };

@@ -29,11 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STIFFNESSMATRIXASSEMBLER_HPP_
 #define STIFFNESSMATRIXASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "HeartConfig.hpp"
 
 /**
- * Simple implementation of AbstractFeObjectAssembler which provides the stiffness matrix
+ * Simple implementation of AbstractFeVolumeIntegralAssembler which provides the stiffness matrix
  *
  * K_{ij} =  integral_{domain} grad phi_i(x) . grad phi_j(x) dV
  *
@@ -41,12 +41,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class StiffnessMatrixAssembler
-    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
+    : public AbstractFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 public:
 
     /**
-     * Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler.
+     * Implemented ComputeMatrixTerm(), defined in AbstractFeVolumeIntegralAssembler.
      * See documentation in that class.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
@@ -74,7 +74,7 @@ public:
      * @param pMesh the mesh
      */
     StiffnessMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh)
     {
     }
 };

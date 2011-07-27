@@ -96,7 +96,7 @@ BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainAssembler(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainTissue<SPACE_DIM>* pTissue,
             unsigned numQuadPoints)
-    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>(pMesh,pTissue,numQuadPoints)
+    : AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>(pMesh,pTissue,numQuadPoints)
 {
     assert(pTissue != NULL);
     mpConfig = HeartConfig::Instance();

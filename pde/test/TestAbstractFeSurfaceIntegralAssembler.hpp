@@ -26,18 +26,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTABSTRACTFESURFACETERMASSEMBLER_HPP_
-#define TESTABSTRACTFESURFACETERMASSEMBLER_HPP_
+#ifndef TESTABSTRACTFESURFACEINTEGRALASSEMBLER_HPP_
+#define TESTABSTRACTFESURFACEINTEGRALASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "AbstractFeSurfaceObjectAssembler.hpp"
+#include "AbstractFeSurfaceIntegralAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 template<unsigned DIM>
-class BasicSurfaceAssembler : public AbstractFeSurfaceObjectAssembler<DIM,DIM,1>
+class BasicSurfaceAssembler : public AbstractFeSurfaceIntegralAssembler<DIM,DIM,1>
 {
 private:
     c_vector<double, 1*DIM> ComputeVectorSurfaceTerm(
@@ -55,14 +55,14 @@ private:
 
 public:
     BasicSurfaceAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh, BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
-        : AbstractFeSurfaceObjectAssembler<DIM,DIM,1>(pMesh,pBcc)
+        : AbstractFeSurfaceIntegralAssembler<DIM,DIM,1>(pMesh,pBcc)
     {
     }
 };
 
 
 
-class TestAbstractFeSurfaceObjectAssembler : public CxxTest::TestSuite
+class TestAbstractFeSurfaceIntegralAssembler : public CxxTest::TestSuite
 {
 public:
     // Test surface element intregral additions in 1d
@@ -145,4 +145,4 @@ public:
     }
 };
 
-#endif // TESTABSTRACTFESURFACETERMASSEMBLER_HPP_
+#endif // TESTABSTRACTFESURFACEINTEGRALASSEMBLER_HPP_

@@ -52,7 +52,7 @@ MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                         MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         unsigned numQuadPoints)
-    : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
+    : AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>(pMesh,pTissue,numQuadPoints),
       mMassMatrixAssembler(pMesh, HeartConfig::Instance()->GetUseMassLumping(),
                            HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio()*HeartConfig::Instance()->GetCapacitance()),
       mStiffnessMatrixAssembler(pMesh, pTissue)

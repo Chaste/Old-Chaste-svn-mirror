@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NATURALNEUMANNSURFACETERMASSEMBLER_HPP
 #define NATURALNEUMANNSURFACETERMASSEMBLER_HPP
 
-#include "AbstractFeSurfaceObjectAssembler.hpp"
+#include "AbstractFeSurfaceIntegralAssembler.hpp"
 
 
 /**
@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   c1 has entries `integral_over_Gamma (g1*phi_i dS)`, etc.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class NaturalNeumannSurfaceTermAssembler : public AbstractFeSurfaceObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
+class NaturalNeumannSurfaceTermAssembler : public AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
     /** Scale factor to multiply the integrals */
@@ -89,7 +89,7 @@ public:
     NaturalNeumannSurfaceTermAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
                                        unsigned numQuadPoints = 2)
-        : AbstractFeSurfaceObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pMesh, pBoundaryConditions, numQuadPoints),
+        : AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pMesh, pBoundaryConditions, numQuadPoints),
           mScaleFactor(1.0)
     {
     }

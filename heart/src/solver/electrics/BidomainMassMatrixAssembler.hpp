@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINMASSMATRIXASSEMBLER_HPP_
 #define BIDOMAINMASSMATRIXASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 
 /**
  *  Constructs a matrix with the mass matrix in the voltage-voltage block.
@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 template<unsigned DIM>
-class BidomainMassMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,2,false,true,CARDIAC>
+class BidomainMassMatrixAssembler : public AbstractFeVolumeIntegralAssembler<DIM,DIM,2,false,true,CARDIAC>
 {
 protected:
     /**
@@ -89,7 +89,7 @@ public:
      * @param pMesh pointer to the mesh
      */
     BidomainMassMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,2,false,true,CARDIAC>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<DIM,DIM,2,false,true,CARDIAC>(pMesh)
     {
     }                      
 

@@ -26,10 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTABSTRACTFEOBJECTASSEMBLER_HPP_
-#define TESTABSTRACTFEOBJECTASSEMBLER_HPP_
+#ifndef TESTABSTRACTFEVOLUMEINTEGRALASSEMBLER_HPP_
+#define TESTABSTRACTFEVOLUMEINTEGRALASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "MassMatrixAssembler.hpp"
 #include "StiffnessMatrixAssembler.hpp"
@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // simple assembler which just returns a c_vector of ones for each quad point
 //  => final 'b' vector for each element will be equal to elem_vol*(1,..,1)
 template<unsigned DIM>
-class BasicVectorAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,false,NORMAL>
+class BasicVectorAssembler : public AbstractFeVolumeIntegralAssembler<DIM,DIM,1,true,false,NORMAL>
 {
 private:
     c_vector<double,1*(DIM+1)> ComputeVectorTerm(
@@ -65,7 +65,7 @@ private:
 
 public:
     BasicVectorAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
     {
     }
 };
@@ -74,7 +74,7 @@ public:
 // simple assembler which just returns a c_matrix of ones for each quad point
 //  => final 'A' matrix for each element will be equal to elem_vol*(1,..,1)
 template<unsigned DIM>
-class BasicMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,false,true,NORMAL>
+class BasicMatrixAssembler : public AbstractFeVolumeIntegralAssembler<DIM,DIM,1,false,true,NORMAL>
 {
 private:
     c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
@@ -97,7 +97,7 @@ private:
     }
 public:
     BasicMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
     {
     }
 };
@@ -106,7 +106,7 @@ public:
 
 // Assembler which does both of the above
 template<unsigned DIM>
-class BasicVectorAndMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,true,NORMAL>
+class BasicVectorAndMatrixAssembler : public AbstractFeVolumeIntegralAssembler<DIM,DIM,1,true,true,NORMAL>
 {
 private:
     c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
@@ -145,14 +145,14 @@ private:
     }
 public:
     BasicVectorAndMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh)
     {
     }
 };
 
 
 // Assembler for checking the current solution is interpolated and passed up into here
-class TestingAssembler : public AbstractFeObjectAssembler<1,1,1,true,false,NORMAL>
+class TestingAssembler : public AbstractFeVolumeIntegralAssembler<1,1,1,true,false,NORMAL>
 {
 private:
     c_vector<double,1*(1+1)> ComputeVectorTerm(
@@ -169,13 +169,13 @@ private:
     }
 public:
     TestingAssembler(AbstractTetrahedralMesh<1,1>* pMesh)
-        : AbstractFeObjectAssembler<1,1,1,true,false,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<1,1,1,true,false,NORMAL>(pMesh)
     {
     }
 };
 
 
-class TestAbstractFeObjectAssembler : public CxxTest::TestSuite
+class TestAbstractFeVolumeIntegralAssembler : public CxxTest::TestSuite
 {
 private:
 
@@ -608,4 +608,4 @@ public:
         VecDestroy(current_solution);
     }
 };
-#endif /*TESTABSTRACTFEOBJECTASSEMBLER_HPP_*/
+#endif /*TESTABSTRACTFEVOLUMEINTEGRALASSEMBLER_HPP_*/

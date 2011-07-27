@@ -25,13 +25,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTABSTRACTFECABLEOBJECTASSEMBLER_HPP_
-#define TESTABSTRACTFECABLEOBJECTASSEMBLER_HPP_
+#ifndef TESTABSTRACTFECABLEINTEGRALASSEMBLER_HPP_
+#define TESTABSTRACTFECABLEINTEGRALASSEMBLER_HPP_
 
 
 #include <cxxtest/TestSuite.h>
 
-#include "AbstractFeCableObjectAssembler.hpp"
+#include "AbstractFeCableIntegralAssembler.hpp"
 #include "MixedDimensionMesh.hpp"
 #include "PetscMatTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 
 template<unsigned DIM>
-class BasicCableAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,true,true,NORMAL>
+class BasicCableAssembler : public AbstractFeCableIntegralAssembler<DIM,DIM,1,true,true,NORMAL>
 {
 private:
     double mCoefficient;
@@ -70,14 +70,14 @@ private:
 
 public:
     BasicCableAssembler(MixedDimensionMesh<DIM,DIM>* pMesh, double coefficient)
-        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh),
+        : AbstractFeCableIntegralAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh),
           mCoefficient(coefficient)
     {
     }
 };
 
 template<unsigned DIM>
-class SimpleVectorAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>
+class SimpleVectorAssembler : public AbstractFeCableIntegralAssembler<DIM,DIM,1,true,false,NORMAL>
 {
 private:
     c_vector<double,1*2> ComputeCableVectorTerm(
@@ -93,13 +93,13 @@ private:
     }
 public:
     SimpleVectorAssembler(MixedDimensionMesh<DIM,DIM>* pMesh)
-        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
+        : AbstractFeCableIntegralAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
     {
     }
 };
 
 template<unsigned DIM>
-class SimpleMatrixAssembler : public AbstractFeCableObjectAssembler<DIM,DIM,1,false,true,NORMAL>
+class SimpleMatrixAssembler : public AbstractFeCableIntegralAssembler<DIM,DIM,1,false,true,NORMAL>
 {
 private:
     c_matrix<double,1*2,1*2> ComputeCableMatrixTerm(
@@ -114,13 +114,13 @@ private:
     }
 public:
     SimpleMatrixAssembler(MixedDimensionMesh<DIM,DIM>* pMesh)
-        : AbstractFeCableObjectAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
+        : AbstractFeCableIntegralAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
     {
     }
 };
 
 
-class TestAbstractFeCableObjectAssembler : public CxxTest::TestSuite
+class TestAbstractFeCableIntegralAssembler : public CxxTest::TestSuite
 {
 public:
     void TestBasicCableAssemblers() throw(Exception)
@@ -259,4 +259,4 @@ public:
 
 
 
-#endif /*TESTABSTRACTFECABLEOBJECTASSEMBLER_HPP_*/
+#endif /*TESTABSTRACTFECABLEINTEGRALASSEMBLER_HPP_*/

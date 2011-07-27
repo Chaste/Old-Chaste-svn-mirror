@@ -27,19 +27,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ABSTRACTCARDIACFEOBJECTASSEMBLER_HPP_
-#define ABSTRACTCARDIACFEOBJECTASSEMBLER_HPP_
+#ifndef ABSTRACTCARDIACFEVOLUMEINTEGRALASSEMBLER_HPP_
+#define ABSTRACTCARDIACFEVOLUMEINTEGRALASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "HeartConfig.hpp"
 #include "AbstractCardiacTissue.hpp"
 
 /** 
- *  Simple implementation of AbstractFeObjectAssembler which provides access to a cardiac tissue
+ *  Simple implementation of AbstractFeVolumeIntegralAssembler which provides access to a cardiac tissue
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-class AbstractCardiacFeObjectAssembler
-   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>
+class AbstractCardiacFeVolumeIntegralAssembler
+   : public AbstractFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>
 {
 protected:
     /** The Cardiac tissue on which to solve. */
@@ -50,12 +50,12 @@ public:
      *  Constructor
      *  @param pMesh the mesh
      *  @param pTissue  pointer to the tissue used for getting conductivity values
-     *  @param numQuadPoints  The number of quadrature points to use (other constructor takes none and uses default specified in AbstractFeObjectAssembler).
+     *  @param numQuadPoints  The number of quadrature points to use (other constructor takes none and uses default specified in AbstractFeVolumeIntegralAssembler).
      */
-    AbstractCardiacFeObjectAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                             AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
-                             unsigned numQuadPoints)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>(pMesh, numQuadPoints),
+    AbstractCardiacFeVolumeIntegralAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                             AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
+                                             unsigned numQuadPoints)
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>(pMesh, numQuadPoints),
           mpCardiacTissue(pTissue)
     {
         assert(pTissue);
@@ -66,13 +66,13 @@ public:
      *  @param pMesh the mesh
      *  @param pTissue  pointer to the tissue used for getting conductivity values
      */
-    AbstractCardiacFeObjectAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                             AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>(pMesh),
+    AbstractCardiacFeVolumeIntegralAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                             AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue)
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>(pMesh),
           mpCardiacTissue(pTissue)
     {
         assert(pTissue);
     }
 };
 
-#endif /*ABSTRACTCARDIACFEOBJECTASSEMBLER_HPP_*/
+#endif /*ABSTRACTCARDIACFEVOLUMEINTEGRALASSEMBLER_HPP_*/

@@ -30,12 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MONODOMAINSTIFFNESSMATRIXASSEMBLER_HPP_
 
 
-#include "AbstractCardiacFeObjectAssembler.hpp"
+#include "AbstractCardiacFeVolumeIntegralAssembler.hpp"
 #include "HeartConfig.hpp"
 #include "AbstractCardiacTissue.hpp"
 
 /** 
- *  Implementation of AbstractFeObjectAssembler which provides stiffness matrices
+ *  Implementation of AbstractFeVolumeIntegralAssembler which provides stiffness matrices
  *  required in monodomain problems: 
  *   
  *  K_{ij} = integral_{domain}  grad_phi_i(x)^T (sigma * grad_phi_j(x)) dV
@@ -44,10 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainStiffnessMatrixAssembler
-   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
+   : public AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 public:
-    /** Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler. See
+    /** Implemented ComputeMatrixTerm(), defined in AbstractFeVolumeIntegralAssembler. See
      *  documentation in that class.
      * 
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
@@ -82,7 +82,7 @@ public:
      */
     MonodomainStiffnessMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                              AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* pTissue)
-        : AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh,pTissue)
+        : AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh,pTissue)
     {
     }
 };

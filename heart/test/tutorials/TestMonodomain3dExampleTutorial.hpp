@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-
 /*
  *
  *  Chaste tutorial - this page gets automatically changed to a wiki page

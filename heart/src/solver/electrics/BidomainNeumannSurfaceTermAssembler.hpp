@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINNEUMANNSURFACETERMASSEMBLER_HPP_
 #define BIDOMAINNEUMANNSURFACETERMASSEMBLER_HPP_
 
-#include "AbstractFeSurfaceObjectAssembler.hpp"
+#include "AbstractFeSurfaceIntegralAssembler.hpp"
 
 
 
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainNeumannSurfaceTermAssembler : public AbstractFeSurfaceObjectAssembler<ELEMENT_DIM,SPACE_DIM,2>
+class BidomainNeumannSurfaceTermAssembler : public AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2>
 {
 protected:
     /**
@@ -77,7 +77,7 @@ public:
     BidomainNeumannSurfaceTermAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                         BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                                         unsigned numQuadPoints = 2)
-        : AbstractFeSurfaceObjectAssembler<ELEMENT_DIM,SPACE_DIM,2>(pMesh, pBoundaryConditions, numQuadPoints)
+        : AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2>(pMesh, pBoundaryConditions, numQuadPoints)
     {
     }
 };

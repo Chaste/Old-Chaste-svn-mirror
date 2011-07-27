@@ -49,7 +49,7 @@ protected:
     AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM>* mpEllipticPde;
 
     /**
-     * The term to be added to the element stiffness matrix - see AbstractFeObjectAssembler
+     * The term to be added to the element stiffness matrix - see AbstractFeVolumeIntegralAssembler
      *
      * grad_phi[row] . ( pde_diffusion_term * grad_phi[col])
      *
@@ -70,7 +70,7 @@ protected:
 
     /**
      * The term arising from boundary conditions to be added to the element
-     * stiffness vector - see AbstractFeObjectAssembler
+     * stiffness vector - see AbstractFeVolumeIntegralAssembler
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)

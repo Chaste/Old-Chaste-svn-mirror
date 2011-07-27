@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINASSEMBLER_HPP_
 #define BIDOMAINASSEMBLER_HPP_
 
-#include "AbstractCardiacFeObjectAssembler.hpp"
+#include "AbstractCardiacFeVolumeIntegralAssembler.hpp"
 #include "BidomainTissue.hpp"
 #include "HeartConfig.hpp"
 
@@ -56,11 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  [ (chi*C/dt) M + K1    K1   ]
  *  [        K1            K2   ]
  * 
- *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
+ *  Hence, this class inherits from AbstractCardiacFeVolumeIntegralAssembler and implements the 
  *  methods ComputeMatrixTerm()
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainAssembler : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>
+class BidomainAssembler : public AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>
 {
 protected:
     /** Local cache of the configuration singleton instance*/

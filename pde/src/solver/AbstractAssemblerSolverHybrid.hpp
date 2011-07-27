@@ -30,12 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTASSEMBLERSOLVERHYBRID_HPP_
 #define ABSTRACTASSEMBLERSOLVERHYBRID_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "AbstractLinearPdeSolver.hpp"
 #include "NaturalNeumannSurfaceTermAssembler.hpp"
 
 /**
- * A class which inherits from AbstractFeObjectAssembler and implements a method SetupGivenLinearSystem(), which sets up
+ * A class which inherits from AbstractFeVolumeIntegralAssembler and implements a method SetupGivenLinearSystem(), which sets up
  * the given linear system using the assembler part of this class, which can be called by SetUpLinearSystem() on a
  * concrete solver.
  *
@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
 class AbstractAssemblerSolverHybrid
-   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>
+   : public AbstractFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>
 {
 protected:
 
@@ -72,7 +72,7 @@ public:
     AbstractAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
                                   unsigned numQuadPoints=2)
-        : AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints),
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints),
           mNaturalNeumannSurfaceTermAssembler(pMesh,pBoundaryConditions),
           mpBoundaryConditions(pBoundaryConditions)
     {
@@ -110,7 +110,7 @@ void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOL
     assert(pLinearSystem->rGetLhsMatrix() != NULL);
     assert(pLinearSystem->rGetRhsVector() != NULL);
 
-    // Assemble the matrix and vector calling methods on AbstractFeObjectAssembler
+    // Assemble the matrix and vector calling methods on AbstractFeVolumeIntegralAssembler
     this->SetMatrixToAssemble(pLinearSystem->rGetLhsMatrix());
     this->SetVectorToAssemble(pLinearSystem->rGetRhsVector(), true);
 

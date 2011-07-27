@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StiffnessMatrixAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractStaticLinearPdeSolver.hpp"
-#include "AbstractFeCableObjectAssembler.hpp"
+#include "AbstractFeCableIntegralAssembler.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "NaturalNeumannSurfaceTermAssembler.hpp"
 #include "OutputFileHandler.hpp"
@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////
 template<unsigned DIM>
 class CoupledCableTestProblemCableComponentAssembler
-    :  public AbstractFeCableObjectAssembler<DIM,DIM,2,false,true,NORMAL>
+    :  public AbstractFeCableIntegralAssembler<DIM,DIM,2,false,true,NORMAL>
 {
 private:
     static const unsigned PROBLEM_DIM=2;
@@ -87,7 +87,7 @@ private:
 
 public:
     CoupledCableTestProblemCableComponentAssembler(MixedDimensionMesh<DIM,DIM>* pMesh, double beta)
-        : AbstractFeCableObjectAssembler<DIM,DIM,2,false,true,NORMAL>(pMesh),
+        : AbstractFeCableIntegralAssembler<DIM,DIM,2,false,true,NORMAL>(pMesh),
           mBeta(beta)
     {
     }
@@ -99,7 +99,7 @@ public:
 /////////////////////////////////////////////////////////
 template<unsigned DIM>
 class CoupledCableTestProblemVolumeComponentAssembler
-    : public AbstractFeObjectAssembler<DIM,DIM,2,true,true,NORMAL>
+    : public AbstractFeVolumeIntegralAssembler<DIM,DIM,2,true,true,NORMAL>
 {
 private:
    static const unsigned PROBLEM_DIM=2;
@@ -141,7 +141,7 @@ private:
 
 public:
     CoupledCableTestProblemVolumeComponentAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,2,true,true,NORMAL>(pMesh)
+        : AbstractFeVolumeIntegralAssembler<DIM,DIM,2,true,true,NORMAL>(pMesh)
     {
     }
 };

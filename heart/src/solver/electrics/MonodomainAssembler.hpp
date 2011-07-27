@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MONODOMAINASSEMBLER_HPP_
 
 
-#include "AbstractCardiacFeObjectAssembler.hpp"
+#include "AbstractCardiacFeVolumeIntegralAssembler.hpp"
 #include "MonodomainTissue.hpp"
 #include "MassMatrixAssembler.hpp"
 #include "MonodomainStiffnessMatrixAssembler.hpp"
@@ -50,12 +50,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  arising from any surface stimuli (usually zero).
  * 
  *  This assembler is used for assembling the matrix A :=(chi*C/dt) M  + K.
- *  Hence, this class inherits from AbstractCardiacFeObjectAssembler and implements the 
+ *  Hence, this class inherits from AbstractCardiacFeVolumeIntegralAssembler and implements the 
  *  method ComputeMatrixTerm().
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainAssembler
-   : public AbstractCardiacFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>
+   : public AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,CARDIAC>
 {
 protected:
     /** Local cache of the configuration singleton instance*/

@@ -29,11 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MASSMATRIXASSEMBLER_HPP_
 #define MASSMATRIXASSEMBLER_HPP_
 
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "HeartConfig.hpp"
 
 /**
- * Simple implementation of AbstractFeObjectAssembler which provides mass matrices
+ * Simple implementation of AbstractFeVolumeIntegralAssembler which provides mass matrices
  * for a given mesh, multiplied by a scale factor if required. In other words, the matrix
  *
  * M_{ij} = k integral_{domain}  phi_i(x) phi_j(x) dV
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MassMatrixAssembler
-    : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
+    : public AbstractFeVolumeIntegralAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL>
 {
 private:
 
@@ -56,7 +56,7 @@ private:
 public:
 
     /**
-     * Implemented ComputeMatrixTerm(), defined in AbstractFeObjectAssembler.
+     * Implemented ComputeMatrixTerm(), defined in AbstractFeVolumeIntegralAssembler.
      * See documentation in that class.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
@@ -103,7 +103,7 @@ public:
      * @param useMassLumping whether to use mass matrix lumping or not
      */
     MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
+        : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
           mScaleFactor(scaleFactor),
           mUseMassLumping(useMassLumping)
     {

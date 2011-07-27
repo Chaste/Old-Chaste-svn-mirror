@@ -55,10 +55,10 @@ typedef enum InterpolationLevel_
 
 
 /**
- *   A common bass class for AbstractFeObjectAssembler (the main abstract assembler class), AbstractSurfaceFeObjectAssembler, and
+ *   A common bass class for AbstractFeVolumeIntegralAssembler (the main abstract assembler class), AbstractSurfaceFeObjectAssembler, and
  *   AbstractCableFeObjectAssembler.
  *
- *   See AbstractFeObjectAssembler documentation for info on these assembler classes.
+ *   See AbstractFeVolumeIntegralAssembler documentation for info on these assembler classes.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 class AbstractFeAssemblerCommon : boost::noncopyable

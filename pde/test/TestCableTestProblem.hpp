@@ -37,13 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StiffnessMatrixAssembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractStaticLinearPdeSolver.hpp"
-#include "AbstractFeCableObjectAssembler.hpp"
+#include "AbstractFeCableIntegralAssembler.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "OutputFileHandler.hpp"
 
 
 template<unsigned DIM>
-class CableTestProblemRhsAssembler :  public AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>
+class CableTestProblemRhsAssembler :  public AbstractFeCableIntegralAssembler<DIM,DIM,1,true,false,NORMAL>
 {
 private:
     c_vector<double,1*2> ComputeCableVectorTerm(
@@ -59,7 +59,7 @@ private:
 
 public:
     CableTestProblemRhsAssembler(MixedDimensionMesh<DIM,DIM>* pMesh)
-        : AbstractFeCableObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
+        : AbstractFeCableIntegralAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
     {
     }
 };

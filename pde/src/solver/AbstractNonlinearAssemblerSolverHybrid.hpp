@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscMatTools.hpp"
 #include "PetscVecTools.hpp"
-#include "AbstractFeObjectAssembler.hpp"
+#include "AbstractFeVolumeIntegralAssembler.hpp"
 #include "LinearSystem.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
 #include "NaturalNeumannSurfaceTermAssembler.hpp"
@@ -95,7 +95,7 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
  * An abstract solver for solving nonlinear elliptic PDEs.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractNonlinearAssemblerSolverHybrid : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>
+class AbstractNonlinearAssemblerSolverHybrid : public AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>
 {
 protected:
 
@@ -220,7 +220,7 @@ AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Abs
             AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
             unsigned numQuadPoints)
-    :  AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>(pMesh,numQuadPoints),
+    :  AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>(pMesh,numQuadPoints),
        mpMesh(pMesh),
        mpBoundaryConditions(pBoundaryConditions)
 {

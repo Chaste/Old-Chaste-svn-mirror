@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef ABSTRACTFESURFACEOBJECTASSEMBLER_HPP_
-#define ABSTRACTFESURFACEOBJECTASSEMBLER_HPP_
+#ifndef ABSTRACTFESURFACENTEGRALASSEMBLER_HPP_
+#define ABSTRACTFESURFACENTEGRALASSEMBLER_HPP_
 
 #include "AbstractFeAssemblerCommon.hpp"
 #include "GaussianQuadratureRule.hpp"
@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  Similar to AbstractFeObjectAssembler but is used for constructing finite element objects
+ *  Similar to AbstractFeVolumeIntegralAssembler but is used for constructing finite element objects
  *  that are based on SURFACE INTEGRALS, as opposed to volume integrals.
  *
  *  This class assumes that the concrete class only needs to assemble a vector, not a matrix.
@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  The interface is the same the volume assemblers.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractFeSurfaceObjectAssembler : public AbstractFeAssemblerCommon<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,false,NORMAL>
+class AbstractFeSurfaceIntegralAssembler : public AbstractFeAssemblerCommon<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,false,NORMAL>
 {
 protected:
     /** Mesh to be solved on. */
@@ -115,14 +115,14 @@ public:
      * @param pBoundaryConditions The boundary conditions container
      * @param numQuadPoints Number of quad points (per dimension) to use
      */
-    AbstractFeSurfaceObjectAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
-                                     unsigned numQuadPoints = 2);
+    AbstractFeSurfaceIntegralAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                       BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
+                                       unsigned numQuadPoints = 2);
 
     /**
      * Destructor
      */
-    ~AbstractFeSurfaceObjectAssembler();
+    ~AbstractFeSurfaceIntegralAssembler();
 
     /**
      * Reset the internal boundary conditions container pointer
@@ -137,7 +137,7 @@ public:
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractFeSurfaceObjectAssembler(
+AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractFeSurfaceIntegralAssembler(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions,
             unsigned numQuadPoints)
@@ -153,14 +153,14 @@ AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractF
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~AbstractFeSurfaceObjectAssembler()
+AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~AbstractFeSurfaceIntegralAssembler()
 {
     delete mpSurfaceQuadRule;
 }
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoAssemble()
+void AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoAssemble()
 {
     assert(this->mAssembleVector);
 
@@ -193,7 +193,7 @@ void AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoAs
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AssembleOnSurfaceElement(
+void AbstractFeSurfaceIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AssembleOnSurfaceElement(
             const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
             c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)
 {
@@ -241,4 +241,4 @@ void AbstractFeSurfaceObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Asse
     }
 };
 
-#endif // ABSTRACTFESURFACEOBJECTASSEMBLER_HPP_
+#endif // ABSTRACTFESURFACENTEGRALASSEMBLER_HPP_
