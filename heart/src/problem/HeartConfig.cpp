@@ -393,19 +393,19 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         // Test the namespace on the root element
         xercesc::DOMElement* p_root_elt = p_doc->getDocumentElement();
         std::string namespace_uri(X2C(p_root_elt->getNamespaceURI()));
-        switch (GetVersionFromNamespace(namespace_uri))
+        const unsigned version = GetVersionFromNamespace(namespace_uri);
+        if (version < 2000) // Changes made in release 2.0
         {
-            case 1001: // Release 1.1 and earlier
-                XmlTransforms::TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
-            case 2000: // Release 2.0
-                XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
-                XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
-            case 2001: // Release 2.1
-            case 2002: // Release 2.2
-            case 2003: // Release 2.3
-                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4");
-            default: // Current release - nothing to do
-                break;
+            XmlTransforms::TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
+        }
+        if (version < 2001) // Changes made in release 2.1
+        {
+            XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
+            XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
+        }
+        if (version < 2004) // Not the latest release
+        {
+            XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4");
         }
         // Parse DOM to object model
         std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));
