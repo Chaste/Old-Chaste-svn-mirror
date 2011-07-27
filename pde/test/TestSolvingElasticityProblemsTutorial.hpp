@@ -45,8 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * and finite element implementations in ChasteGuides -> Miscellaneous information). It is also best
  * to have read the `SolvingLinearPdes` tutorial.
  *
- * EMPTYLINE
- *
  * In brief, there several facets to solid mechanics models:
  *  * Time-dependent problems versus static problems
  *  * Linear elasticity versus nonlinear elasticity
@@ -54,15 +52,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * The type of material behaviour (elastic, visco-elastic, etc..)
  *  * Specification of geometry, material law, body force, displacement boundary conditions, and traction boundary conditions
  *
- * EMPTYLINE
- *
  * The solvers currently implemented are STATIC (time-independent) and use NONLINEAR ELASTICITY. The main solver
  * solves for an INCOMPRESSIBLE deformation, although there is now a COMPRESSIBLE solver. The material behaviour is
  * assumed to be ELASTIC (stress is just a function of strain, not strain-rate etc), and in particular HYPER-ELASTIC
  * (stress is a function of strain via a 'strain energy function', for which stress is obtained by differentiating the
  * strain energy function with respect to strain).
- *
- * EMPTYLINE
  *
  * To solve a mechanics problem we need to
  *  * Choose the solver (compressible or incompressible)
@@ -73,11 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * Specify TRACTION BOUNDARY CONDITIONS (if non-zero) on the rest of the boundary -- tractions are pressures applied
  *  the rest of the surface of the deformable object.
  *
- * EMPTYLINE
- *
  *  '''VERY IMPORTANT NOTE:''' Make sure you read the comment about HYPRE below before going to 3D or refining the meshes in these tests.
- *
- * EMPTYLINE
  *
  * '''Another note:''' mechanics problems are not currently implemented to scale in parallel yet.
  *

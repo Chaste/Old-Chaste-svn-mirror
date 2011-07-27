@@ -56,15 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * straightforward to set up a solver which will be parallel and reliable (as all the base
  * components are heavily tested).
  *
- * EMPTYLINE
- *
  * There are solvers for general simple (uncoupled) linear PDEs already provided, such
  * as the `SimpleLinearEllipticSolver`. These are for PDEs that can be written in a generic
  * form (`SimpleLinearEllipticPde`, for example). However a general coupled set of PDEs can't be
  * written in a generic form, so the user has to write their own solver. This tutorial explains
  * how to do this.
- *
- * EMPTYLINE
  *
  * For this tutorial the user certainly ought to have read the solving-PDEs
  * tutorials. Also, it is helpful to read the associated
@@ -73,14 +69,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * (lecture 2), but especially the slides on the general design of the Chaste finite element
  * solvers (lecture 3), and the first part of lecture 4).
  *
- * EMPTYLINE
- *
  * Let us use the terminology "assembled in an FE manner" for any matrix or vector that is
  * defined via a volume/surface/line integral, and which is constructed by: looping over
  * elements (or surface elements, etc), computing the elemental contribution (ie a small
  * matrix/vector) using numerical quadrature, and adding to the full matrix/vector.
- *
- * EMPTYLINE
  *
  * We only consider linear problems here. In these problems the discretised FE problem leads to
  * a linear system, Ax=b, to be solved (once in static problems; at each timestep in time-dependent problems).
@@ -88,8 +80,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 'assembled in an FE manner', b possibly being composed of a volume integral plus a
  * surface integral. The other case is where this is not true, for example where
  * b = Mc+d, where d (vector) and M (matrix) are assembled in an FE manner, but not c.
- *
- * EMPTYLINE
  *
  * The chaste PDE classes include ASSEMBLER classes (for setting up anything assembled in an FE manner),
  * and SOLVER classes (for setting up linear systems). In the general case, solvers need to own assemblers
@@ -108,13 +98,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * where f and g are chosen so that, with zero-dirichlet boundary conditions,
  * the solution is: u = sin(pi*x)sin(pi*x), v = sin(2*pi*x)sin(2*pi*x)
  *
- * EMPTYLINE
- *
  * (In fact, the solver we write will work with general Dirichlet-Neumann boundary
  * conditions (the test will only provide all-Dirichlet BCs though), but we save a
  * discussion on general Dirichlet-Neumann for the second example).
- *
- * EMPTYLINE
  *
  * Using linear basis functions, and a mesh with N nodes, the linear system that needs to be set up is
  * of size 2N by 2N, and in block form is:
@@ -131,8 +117,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * is `[U_1 V_1 U_2 V_2 .. U_n V_n]`, not `[ U_1 U_2 .. U_n V_1 V_2 .. V_n]`. We write down
  * equations in block form as it makes things clearer, but have to remember that the code
  * deals with STRIPED data structures.
- *
- * EMPTYLINE
  *
  * These are some basic includes as in the solving-PDEs tutorial
  */
@@ -261,8 +245,6 @@ public:
  *  That is the solver written. The usage is the same as see the PDE solvers described in the
  *  previous tutorials - have a look at the first test below.
  *
- *  EMPTYLINE
- *
  *  == A solver of 3 parabolic equations ==
  *
  *  Let us also write a solver for the following problem, which is composed of 3 parabolic PDEs
@@ -274,8 +256,6 @@ public:
  *  where g(t,x,y) = t if x>0.5 and 0 otherwise. This time we assume general
  *  Dirichlet-Neumann boundary conditions will be specified.
  *
- *  EMPTYLINE
- *
  *  The `AbstractAssemblerSolverHybrid` deals with the dirichlet and Neumann boundary parts of the implementation,
  *  so, we, the writer of the solver, don't have to worry about this. However, this assumes that the user will specify
  *  NATURAL Neumann BCs, which are whatever appears naturally in the weak form of the problem. In this case, natural
@@ -284,16 +264,12 @@ public:
  *  `du/dn = s1, dv/dn = s2, dw/dn + (Dgradu).n = s3`. The user needs to realise they are specifying things such as
  *  the latter.
  *
- *  EMPTYLINE
- *
  *  We need to choose a time-discretisation. Let us choose an implicit discretisation, ie
  *  {{{
  *  (u^{n+1} - u^{n})/dt = Laplacian(u^{n+1}) + v^{n+1}
  *  (v^{n+1} - v^{n})/dt = Laplacian(v^{n+1}) + u^{n+1} + 2w^{n+1}
  *  (w^{n+1} - w^{n})/dt = Laplacian(w^{n+1}) + g(t^{n+1},x)
  *  }}}
- *
- *  EMPTYLINE
  *
  *  Using linear basis functions, and a mesh with N nodes, the linear system that needs to be set up is
  *  of size 3N by 3N, and in block form is:
@@ -307,8 +283,6 @@ public:
  * `b2` and `b3`. Writing the Neumann boundary conditions for
  *  u as `du/dn = s(x,y)` on Gamma, a subset of the boundary, then `c1` has entries
  * `integral_over_Gamma (s1*phi_i dS)`, and similarly for `c2` and `c3`.
- *
- * EMPTYLINE
  *
  * Let us create a solver for this linear system, which will be written in a way in which the RHS
  * vector is assembled in an FE manner, so that the solver-is-an-assembler design can be used.

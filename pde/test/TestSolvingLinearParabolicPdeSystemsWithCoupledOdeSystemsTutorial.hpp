@@ -89,8 +89,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * perturbation of the spatially uniform steady state of the
  * system.
  *
- * EMPTYLINE
- *
  * Next, we define the test suite (a class). It is sensible to name it the same
  * as the filename. The class should inherit from {{{CxxTest::TestSuite}}}.
  */
