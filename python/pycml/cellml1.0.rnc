@@ -61,8 +61,6 @@ namespace local = ""
 # cmeta:id attribute for unique IDs).
 ident = xsd:token { pattern = "_*[0-9a-zA-Z][_0-9a-zA-Z]*" }
 
-oxygen-fix = [] empty # Work around oXygen's parser getting confused by the regexp above
-
 # Extension namespaces are allowed (rule 2.4.3)
 # Foreign elements should not contain CellML elements or attributes. We disallow this entirely,
 # for technical reasons (id attribute conflicts).
