@@ -55,15 +55,17 @@ class Hdf5ToMeshalyzerConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
-    /** A helper method which takes in a string, which must be 'V' or 'Phi_e'
-     *  and reads the data corresponding to that string, writing it out in
-     *  meshalyzer format.
-     * @param type - the type of data stored in this file (V/Phi_e)
+    /**
+     * A helper method which takes in a string, which must be 'V' or 'Phi_e'
+     * and reads the data corresponding to that string, writing it out in
+     * meshalyzer format.
+     *
+     * @param type the type of data stored in this file (V/Phi_e)
      */
     void Write(std::string type);
 
-
 public:
+
     /**
      * Constructor, which does the conversion.
      * 
@@ -75,7 +77,7 @@ public:
      */
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                               std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 };
 
 #endif /*HDF5TOMESHALYZERCONVERTER_HPP_*/

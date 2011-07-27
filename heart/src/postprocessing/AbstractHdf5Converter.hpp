@@ -35,20 +35,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 
 /**
- *  This derived children of this class convert from Hdf5 format to
- *  a range of other formats for postprocessing
+ * The derived children of this class convert output from Hdf5 format to
+ * a range of other formats for postprocessing.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractHdf5Converter
 {
 protected:
-    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
-    unsigned mNumVariables; /**< Read from the reader - number of variables to output*/
-    std::string mFileBaseName; /**< Base name for the files [basename].vtu, [basename].dat etc.*/
-    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
-    OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/
+
+	/** Pointer to reader of the file to be converted. */
+    Hdf5DataReader* mpReader;
+
+    /** Number of variables to output. Read from the reader. */
+    unsigned mNumVariables;
+
+    /** Base name for the files: [basename].vtu, [basename].dat etc.*/
+    std::string mFileBaseName;
+
+    /** Pointer to a mesh. */
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
+
+    /** Initialised as the directory in which to store the results. */
+    OutputFileHandler* mpOutputFileHandler;
 
 public:
+
     /**
      * Constructor, which does the conversion and writes the .info file.
      * 
@@ -57,14 +68,15 @@ public:
      * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      * @param fileBaseName The base name of the data file.
      * @param pMesh Pointer to the mesh.
-     * @param subdirectoryName name for the output directory to be created (relative to HeartConfig::Instance()->GetOutputDirectory())
+     * @param subdirectoryName name for the output directory to be created (relative to inputDirectory)
      */
     AbstractHdf5Converter(std::string inputDirectory,
-                              std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
-                              std::string subdirectoryName);
+                          std::string fileBaseName,
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                          std::string subdirectoryName);
 
-    /** Destructor
+    /**
+     * Destructor.
      */
     ~AbstractHdf5Converter();
 };

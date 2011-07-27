@@ -57,27 +57,33 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Hdf5ToCmguiConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    /** A helper method which takes in a string, which must be 'Mono' or 'Bi'
-     *  and reads the data from the hdf5 file, writing it out in
-     *  Cmgui format.
-     * @param type - the type of simulation (Mono  or Bi)
+
+    /**
+     * A helper method which takes in a string, which must be 'Mono' or 'Bi'
+     * and reads the data from the hdf5 file, writing it out in Cmgui format.
+     *
+     * @param type the type of simulation (Mono  or Bi)
      */
     void Write(std::string type);
 
-
     /**
      * Writes a basic script for visualization of mesh and data.
-     * It loads the nodes and elements. It also asks cmgui to create faces and lines
-     * (because our output files don't have the information). Data are loaded by means of a 'for' loop.
      *
-     * After loading the script, nodes (seen as small dots) and lines connecting them will be displayed.
-     * Both nodes  and lines will be coloured according to the first variable in the Hdf5 file (usually Vm).
-     * The Cmgui default spectrum (0 to 1, blue to red) is used. This can be changed by clicking on 'graphics->spectrum editor'.
-     * Other manual modification can be made by clicking on 'graphics->scene editor'.
+     * It loads the nodes and elements. It also asks cmgui to create faces and
+     * lines (because our output files don't have the information). Data are
+     * loaded by means of a 'for' loop.
+     *
+     * After loading the script, nodes (seen as small dots) and lines connecting
+     * them will be displayed. Both nodes  and lines will be coloured according
+     * to the first variable in the Hdf5 file (usually Vm). The Cmgui default
+     * spectrum (0 to 1, blue to red) is used. This can be changed by clicking
+     * on 'graphics->spectrum editor'. Other manual modification can be made by
+     * clicking on 'graphics->scene editor'.
      */
     void WriteCmguiScript();
 
 public:
+
     /**
      * Constructor, which does the conversion.
      * 
@@ -89,10 +95,9 @@ public:
      * @param hasBath whether the mesh has a bath or not. Defaults to false.
      */
     Hdf5ToCmguiConverter(std::string inputDirectory,
-                              std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
-                              bool hasBath = false);
-
+                         std::string fileBaseName,
+                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                         bool hasBath = false);
 };
 
 #endif /*HDF5TOCMGUICONVERTER_HPP_*/

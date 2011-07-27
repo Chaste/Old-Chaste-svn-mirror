@@ -45,6 +45,7 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     if (PetscTools::AmMaster())
     {
         p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + type + ".dat");
+
         // Check how many digits are to be output in the solution (0 goes to default value of digits)
         unsigned int num_digits = HeartConfig::Instance()->GetVisualizerOutputPrecision();
         if (num_digits != 0)
@@ -84,12 +85,11 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     }
 }
 
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
-                          std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
-                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "output")
+                                                                            std::string fileBaseName,
+                                                                            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    : AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "output")
 {
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     for (unsigned i=0; i<variable_names.size(); i++)
@@ -97,10 +97,11 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
         Write(variable_names[i]);
     }
 
-    //Write mesh in a suitable form for meshalyzer
+    // Write mesh in a suitable form for meshalyzer
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
     MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
-    //Normal case is that the in-memory mesh is converted
+
+    // Normal case is that the in-memory mesh is converted
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false )
     {
         // The second argument tells the writer to not follow original element ordering for performance reasons.
@@ -108,16 +109,15 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     }
     else
     {
-        //In this case we expect the mesh to have been read in from file
+        // In this case we expect the mesh to have been read in from file
         ///\todo What if the mesh has been scaled, translated or rotated?
-        //Note that the next line will throw if the mesh has not been read from file
+        // Note that the next line will throw if the mesh has not been read from file
         std::string original_file=this->mpMesh->GetMeshFileBaseName();
         GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
         mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
     }
     PetscTools::Barrier("Hdf5ToMeshalyzerConverter");
 }
-
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -38,11 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 #include "GenericMeshReader.hpp"    
 
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
-    out_stream p_file=out_stream(NULL);
+    out_stream p_file = out_stream(NULL);
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
@@ -55,13 +54,15 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
-        //create the file for this time step
+        // Create the file for this time step
         std::stringstream time_step_string;
-        //unsigned to string
+
+        // unsigned to string
         time_step_string << time_step;
         if (PetscTools::AmMaster())
         {
             p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + time_step_string.str() + ".exnode");
+
             // Check how many digits are to be output in the solution (0 goes to default value of digits)
             unsigned int num_digits = HeartConfig::Instance()->GetVisualizerOutputPrecision();
             if (num_digits != 0)
@@ -74,34 +75,34 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         unsigned num_vars = this->mpReader->GetVariableNames().size();
         for (unsigned var=0; var<num_vars; var++)
         {
-            //read the data for this time step
+            // Read the data for this time step
             this->mpReader->GetVariableOverNodes(data, this->mpReader->GetVariableNames()[var], time_step);
             ReplicatableVector* p_repl_data = new ReplicatableVector(data);
             assert(p_repl_data->GetSize()==num_nodes);
             all_data.push_back(p_repl_data);
         }
 
-        if(PetscTools::AmMaster())
+        if (PetscTools::AmMaster())
         {
-        	//write provenance info
+        	// Write provenance info
 		    std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
 		    *p_file << comment;
-            //The header first
+            // The header first
             *p_file << "Group name: " << this->mFileBaseName << "\n";
             *p_file << "#Fields=" << num_vars << "\n";
             for (unsigned var=0; var<num_vars; var++)
             {
                 *p_file << " " << var+1 << ") " <<this->mpReader->GetVariableNames()[var]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
-                if (var!=num_vars-1)
+                if (var != num_vars-1)
                 {
                     *p_file << "\n";
                 }
             }
 
-            //write the data
-            for(unsigned i=0; i<num_nodes; i++)
+            // Write the data
+            for (unsigned i=0; i<num_nodes; i++)
             {
-                //cmgui counts nodes from 1
+                // cmgui counts nodes from 1
                 *p_file << "Node: "<< i+1 << "\n";
                 for (unsigned var=0; var<num_vars; var++)
                 {
@@ -119,7 +120,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     VecDestroy(data_phie);
     VecDestroy(data_second_cell);
 
-    if(PetscTools::AmMaster())
+    if (PetscTools::AmMaster())
     {
         p_file->close();
     }
@@ -127,19 +128,20 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
-                          std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
-                          bool hasBath) :
-                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
+                                                                  std::string fileBaseName,
+                                                                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                                                  bool hasBath)
+    : AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
 {
     // Write the node data out
     Write("");
 
-    //Write mesh in a suitable form for cmgui
+    // Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
     
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
-    //Used to inform the mesh of the data names
+
+    // Used to inform the mesh of the data names
     std::vector<std::string> field_names = this->mpReader->GetVariableNames();
     cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
     if (hasBath)
@@ -149,18 +151,17 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         names.push_back("bath");
         cmgui_mesh_writer.SetRegionNames(names);
     }
-    
    
     // Normally the in-memory mesh is converted:
-    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false )
+    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false)
     {
         cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
     }
     else
     {
-        //In this case we expect the mesh to have been read in from file
+        // In this case we expect the mesh to have been read in from file
         ///\todo What if the mesh has been scaled, translated or rotated?
-        //Note that the next line will throw if the mesh has not been read from file
+        // Note that the next line will throw if the mesh has not been read from file
         std::string original_file=this->mpMesh->GetMeshFileBaseName();
         GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
         cmgui_mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
@@ -174,19 +175,20 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
 {
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
-    assert(this->mpReader->GetVariableNames().size() > 0);//seg fault guard
+    assert(this->mpReader->GetVariableNames().size() > 0); // seg fault guard
     std::string variable_name = this->mpReader->GetVariableNames()[0];
 
-    if(PetscTools::AmMaster())
+    if (PetscTools::AmMaster())
     {
         out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
-    	//write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interpretes
+
+    	// Write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interprets
 	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
 	    *p_script_file << comment;
 
 		*p_script_file << "# Read the mesh \n"
 					   << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
-					   << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" //note the mesh file name is taken from HeartConfig
+					   << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" // note the mesh file name is taken from HeartConfig...
 					   << "# Create a window \n"
 					   << "gfx cre win 1 \n"
 					   << "# Modify the scene (obtained by gfx list g_element XXXX commands) to visualize first var on lines and nodes \n"
@@ -195,11 +197,12 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
 					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" node_points glyph point general size \"1*1*1\" centre 0,0,0 font default select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
 					   << "# Load the data \n"
 					   << "for ($i=0; $i<" << num_timesteps << "; $i++) { \n"
-					   << "    gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" //..while the data file from mFileBaseName...
+					   << "    gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" // ...while the data file from mFileBaseName...
 					   << "}\n";
 		p_script_file->close();
     }
 }
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

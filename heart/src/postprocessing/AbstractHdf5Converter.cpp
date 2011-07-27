@@ -26,24 +26,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "AbstractHdf5Converter.hpp"
 #include "HeartConfig.hpp"
 #include "Version.hpp"
 
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string inputDirectory,
-                          std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
-                          std::string subdirectoryName) :
-                    mFileBaseName(fileBaseName),
-                    mpMesh(pMesh)
+                                                                     std::string fileBaseName,
+                                                                     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                                                     std::string subdirectoryName)
+    : mFileBaseName(fileBaseName),
+      mpMesh(pMesh)
 {
     // Store directory, mesh and filenames and create the reader
     this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
+
     // Create new directory in which to store everything
     mpOutputFileHandler = new OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
+
     // Check the data file for basic validity
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     mNumVariables = variable_names.size();
@@ -55,10 +55,10 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
         EXCEPTION("Mesh and HDF5 file have a different number of nodes");
     }
 
-    //Write an info file
+    // Write an info file
     if (PetscTools::AmMaster())
     {
-        //Note that we don't want the child processes to write info files
+        // Note that we don't want the child processes to write info files
         out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_times.info");
         unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
         *p_file << "Number of timesteps " << num_timesteps << std::endl;
@@ -70,7 +70,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
 		*p_file << ChasteBuildInfo::GetProvenanceString();
         p_file->close();
     }
-    //Write the parameters out
+    // Write the parameters out
     HeartConfig::Instance()->Write(false, subdirectoryName);
 
 }
