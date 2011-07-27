@@ -77,7 +77,6 @@ public:
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> mass_matrix = outer_prod(rPhi, rPhi);
 
-        /// \todo: #1637 If we decide to go ahead with mass lumping, reimplement this without nested loops.
         if (mUseMassLumping)
         {
             for (unsigned row=0; row<ELEMENT_DIM+1; row++)
