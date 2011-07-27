@@ -683,6 +683,11 @@ def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
     else:
         runner_obj = env.StaticObject(runner_cpp)
         runner_dummy = env.File(prefix+'.dummy')
+        try:
+            # Work around for some SCons versions
+            runner_exe.get_executor()._morph()
+        except AttributeError:
+            pass
         env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
         env.AlwaysBuild(runner_dummy)
         env.Depends(runner_exe, runner_dummy)
