@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTHDF5TOVISUALIZERCONVERTERS_HPP_
 #define TESTHDF5TOVISUALIZERCONVERTERS_HPP_
 
@@ -54,8 +53,8 @@ typedef Hdf5ToMeshalyzerConverter<3,3> MESHA_3D;
 
 class TestHdf5ToVisualizerConverters : public CxxTest::TestSuite
 {
-private :
-    // copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir
+private:
+    // Copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir
     void CopyToTestOutputDirectory(std::string file, std::string dir)
     {
         if (PetscTools::AmMaster())
@@ -64,20 +63,20 @@ private :
             std::string command = "mkdir -p " + test_output_directory + dir;
             int return_value;
             return_value = system(command.c_str());
-            assert(return_value==0);
+            assert(return_value == 0);
             command = "cp " + file + " " + test_output_directory + dir+"/";
             return_value = system(command.c_str());
-            assert(return_value==0);
+            assert(return_value == 0);
         }
         PetscTools::Barrier();
     }
 
-public :
+public:
     void TestMonodomainMeshalyzerConversion() throw(Exception)
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
 
-        // firstly, copy ./heart/test/data/MonoDg01d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // Firstly, copy ./heart/test/data/MonoDg01d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/Monodomain1d/MonodomainLR91_1d.h5",
                                   "TestHdf5ToMeshalyzerConverter");
@@ -86,11 +85,11 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d", &mesh);
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d", &mesh, true);
 
-        // compare the voltage file with a correct version
+        // Compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
@@ -104,7 +103,7 @@ public :
     {
         OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
 
-        // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // Firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/Bidomain1d/bidomain.h5",
                                   "TestHdf5ToMeshalyzerConverter");
@@ -113,33 +112,33 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter",  "bidomain", &mesh);
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter",  "bidomain", &mesh, true);
 
-        // compare the voltage file
+        // Compare the voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_V.dat "
                                      + "heart/test/data/Bidomain1d/bidomain_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        // compare the Phi_e file
+        // Compare the Phi_e file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-       // compare the time information file
+        // Compare the time information file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
                          + "heart/test/data/Bidomain1d/bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
-    //This test covers the case when the hdf5 file contains 3 variables (e.g., after solving a problem with PROBLEM_DIM=3)
+    // This test covers the case when the hdf5 file contains 3 variables (e.g., after solving a problem with PROBLEM_DIM=3)
     void TestMeshalyzerConversion3Variables() throw(Exception)
     {
         OutputFileHandler handler("TestMeshalyzerConversion3Variables");
 
-        // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // Firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/three_variables/3_vars.h5",
                                   "TestMeshalyzerConversion3Variables");
@@ -148,40 +147,40 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory("TestMeshalyzerConversion3Variables");
-        Hdf5ToMeshalyzerConverter<1,1> converter("TestMeshalyzerConversion3Variables",  "3_vars", &mesh);
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestMeshalyzerConversion3Variables",  "3_vars", &mesh, true);
 
-        // compare the first voltage file
+        // Compare the first voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Vm_1.dat "
                                      + "heart/test/data/three_variables/extended_bidomain_Vm_1.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        // compare the second voltage file
+        // Compare the second voltage file
 
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Vm_2.dat "
                                      + "heart/test/data/three_variables/extended_bidomain_Vm_2.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        // compare the Phi_e file
+        // Compare the Phi_e file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Phi_e.dat "
                          + "heart/test/data/three_variables/extended_bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-       // compare the time information file
+        // Compare the time information file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_times.info "
                          + "heart/test/data/three_variables/extended_bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
-    //This test covers the case when the hdf5 file contains more than 3 variables
+    // This test covers the case when the hdf5 file contains more than 3 variables
     void TestMeshalyzerConversionLotsOfVariables() throw(Exception)
     {
         std::string output_dir = "TestHdf5ToMeshalyzerConversionManyVariables";
         OutputFileHandler handler(output_dir);
 
-        // firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // Firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/many_variables/many_variables.h5",
                                   output_dir);
@@ -190,9 +189,9 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(output_dir);
-        Hdf5ToMeshalyzerConverter<1,1> converter(output_dir,  "many_variables", &mesh);
+        Hdf5ToMeshalyzerConverter<1,1> converter(output_dir,  "many_variables", &mesh, true);
 
         std::vector<std::string> variable_names;
         variable_names.push_back("V");
@@ -201,31 +200,30 @@ public :
         variable_names.push_back("I_Ca_tot");
         variable_names.push_back("I_tot");
         variable_names.push_back("I_Na_tot");
-               
         
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command;        
         for (unsigned i=0; i<variable_names.size(); i++)
         {
-            // compare the results files
+            // Compare the results files
             command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir + "/output/many_variables_" + variable_names[i] + ".dat "
                                          + "heart/test/data/many_variables/many_variables_" + variable_names[i] + ".dat";
             TS_ASSERT_EQUALS(system(command.c_str()), 0);
         }
        
-        // compare the time information file
+        // Compare the time information file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + output_dir + "/output/many_variables_times.info "
                          + "heart/test/data/many_variables/many_variables_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
-    //This test covers the case when the hdf5 file contains more than 3 variables
+    // This test covers the case when the hdf5 file contains more than 3 variables
     void TestCmguiConversionLotsOfVariables() throw(Exception)
     {
         std::string output_dir = "TestHdf5ToCmguiConversionManyVariables";
         OutputFileHandler handler(output_dir);
 
-        // firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter,
+        // Firstly, copy ./heart/test/data/many_variables/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/many_variables/many_variables.h5",
                                   output_dir);
@@ -234,18 +232,18 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(output_dir);
         Hdf5ToCmguiConverter<1,1> converter(output_dir,  "many_variables", &mesh);
       
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
      
-        // compare the results files
+        // Compare the results files
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir + "/cmgui_output/many_variables_0.exnode "
                                      + "heart/test/data/many_variables/many_variables_0.exnode";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        //check validity of cmgui script
+        // Check validity of cmgui script
         std::string command_script = "diff -a -I \"Created by Chaste\" " + test_output_directory + output_dir +"/cmgui_output/script.com"
                                      + " heart/test/data/many_variables/CmguiValidScript.com";
         TS_ASSERT_EQUALS(system(command_script.c_str()), 0);
@@ -256,7 +254,7 @@ public :
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/cube_2mm_12_elements.h5",
                                   working_directory);
@@ -265,11 +263,11 @@ public :
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
-        // compare the voltage file with a correct version
+        // Compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_0.exnode";
@@ -279,7 +277,7 @@ public :
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
 
-        //check validity of cmgui script
+        // Check validity of cmgui script
         std::string command_script = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/script.com"
                                      + " heart/test/data/CmguiData/monodomain/monodomain3dValidScript.com";
         TS_ASSERT_EQUALS(system(command_script.c_str()), 0);
@@ -290,7 +288,7 @@ public :
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/cube_2mm_12_elements.h5",
                                   working_directory);
@@ -299,11 +297,11 @@ public :
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
-        // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
+        // Compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_0.exnode";
@@ -319,7 +317,7 @@ public :
         std::string working_directory = "TestBidomainWithBathCmguiConversion1D";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d.h5",
                                   working_directory);
@@ -328,15 +326,15 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_with_bath_1d");
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<1,1> converter(working_directory, "bidomain_with_bath_1d", &mesh, true);
 
-        // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
+        // Compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         
-        //mesh file first, one exnode, one for bath and one for tissue
+        // Mesh file first, one exnode, one for bath and one for tissue
         std::string command_node_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bidomain_with_bath_1d.exnode"
                                      + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d.exnode";
         TS_ASSERT_EQUALS(system(command_node_file.c_str()), 0);
@@ -349,7 +347,7 @@ public :
                                      + " heart/test/data/CmguiData/bidomain_with_bath/bath.exelem";
         TS_ASSERT_EQUALS(system(command_bath_element_file.c_str()), 0);
         
-        //then the data file
+        // Then the data file
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bidomain_with_bath_1d_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
@@ -364,7 +362,7 @@ public :
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain2D";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain2D,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain2D,
         // as that is where the reader reads from. This data file was generated
         // on this mesh by TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
@@ -374,11 +372,11 @@ public :
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
 
-        // compare the voltage file with a correct version that visualizes Vm correctly in cmgui
+        // Compare the voltage file with a correct version that visualizes Vm correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\"  " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_0.exnode";
@@ -394,7 +392,7 @@ public :
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain1D";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_bidomain1D,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_bidomain1D,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements.h5",
                                   working_directory);
@@ -403,11 +401,11 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<1,1> converter(working_directory, "1D_0_to_1_100_elements", &mesh);
 
-        // compare the voltage file with a correct version that visualizes both Vm and Phie correctly in cmgui
+        // Compare the voltage file with a correct version that visualizes both Vm and Phie correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_0.exnode";
@@ -430,12 +428,12 @@ public :
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputFilenamePrefix("3_vars");
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<1,1> converter(working_directory, "3_vars", &mesh);
 
-        // compare the voltage file with a correct version that visualizes both Vs and Phie correctly in cmgui
+        // Compare the voltage file with a correct version that visualizes both Vs and Phie correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
 
         std::string command_node_mesh_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/3_vars.exnode"
@@ -453,12 +451,11 @@ public :
 
     void TestBidomainVtkConversion3D() throw(Exception)
     {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
+#ifdef CHASTE_VTK // Requires  "sudo aptitude install libvtk5-dev" or similar
         std::string working_directory = "TestHdf5ToVtkConverter_bidomain";
         OutputFileHandler handler(working_directory);
 
-        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToVtkConverter_bidomain,
+        // Firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToVtkConverter_bidomain,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/cube_2mm_12_elements.h5",
                                   working_directory);
@@ -467,52 +464,52 @@ public :
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh, false);
+        Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh, false, true);
 
-        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
-        //This barrier just slows things down a bit
+        // Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        // This barrier just slows things down a bit
         PetscTools::Barrier();
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         
         VtkMeshReader<3,3> vtk_mesh_reader(test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu");
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), 12U);
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(), 12U);
+        TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumNodes(), 12u);
+        TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumElements(), 12u);
         
         std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
-        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
-        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
-        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA(first_node[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(first_node[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(first_node[2], 0.0, 1e-6);
 
         std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
-        TS_ASSERT_DELTA( next_node[0] , 0.2 , 1e-6 );
-        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
-        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA(next_node[0], 0.2, 1e-6);
+        TS_ASSERT_DELTA(next_node[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(next_node[2], 0.0, 1e-6);
         
-        //V_m and phi_e samples 
+        // V_m and phi_e samples
         std::vector<double> v_at_last, phi_at_last;
         vtk_mesh_reader.GetPointData( "V_000001", v_at_last);
-        TS_ASSERT_DELTA( v_at_last[0],  -46.3761, 1e-3 );
-        TS_ASSERT_DELTA( v_at_last[6],  -46.3761, 1e-3 );
-        TS_ASSERT_DELTA( v_at_last[11], -46.3760, 1e-3 );
+        TS_ASSERT_DELTA(v_at_last[0],  -46.3761, 1e-3);
+        TS_ASSERT_DELTA(v_at_last[6],  -46.3761, 1e-3);
+        TS_ASSERT_DELTA(v_at_last[11], -46.3760, 1e-3);
         vtk_mesh_reader.GetPointData( "Phi_e_000001", phi_at_last);
-        TS_ASSERT_DELTA( phi_at_last[0],  0.0, 1e-3 );
-        TS_ASSERT_DELTA( phi_at_last[6],  0.0, 1e-3 );
-        TS_ASSERT_DELTA( phi_at_last[11], 0.0, 1e-3 );
+        TS_ASSERT_DELTA(phi_at_last[0],  0.0, 1e-3);
+        TS_ASSERT_DELTA(phi_at_last[6],  0.0, 1e-3);
+        TS_ASSERT_DELTA(phi_at_last[11], 0.0, 1e-3);
 
         //Show that trying to write pvtu files from a TetrahedralMesh gives a warning (but writes anyway)
-        Hdf5ToVtkConverter<3,3> converter2(working_directory, "cube_2mm_12_elements", &mesh, true);
+        Hdf5ToVtkConverter<3,3> converter2(working_directory, "cube_2mm_12_elements", &mesh, true, true);
         VtkMeshReader<3,3> vtk_mesh_reader2(test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu");
-        TS_ASSERT_EQUALS( vtk_mesh_reader2.GetNumNodes(), 12U);
+        TS_ASSERT_EQUALS(vtk_mesh_reader2.GetNumNodes(), 12u);
  
 #endif //CHASTE_VTK
     }
+
     void TestMonodomainParallelVtkConversion2D() throw(Exception)
     {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
+#ifdef CHASTE_VTK // Requires  "sudo aptitude install libvtk5-dev" or similar
         std::string working_directory = "TestHdf5ToVtkConverter_monodomain2D";
         OutputFileHandler handler(working_directory);
 
@@ -523,12 +520,12 @@ public :
         DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // convert
+        // Convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh, true);
+        Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh, true, true);
 
-        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
-        //This barrier just slows things down a bit
+        // Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        // This barrier just slows things down a bit
         PetscTools::Barrier();
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -543,41 +540,40 @@ public :
             filepath << "_" << PetscTools::GetMyRank() << ".vtu";
         }
         VtkMeshReader<2,2> vtk_mesh_reader(filepath.str());
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes() ); //221 in total;
-        TS_ASSERT_EQUALS( vtk_mesh_reader.GetNumElements(),  mesh.GetNumLocalElements() ); //400 in total
+        TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes()); //221 in total;
+        TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumElements(), mesh.GetNumLocalElements()); //400 in total
         
         if (PetscTools::IsSequential())
         {
             std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
-            TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
-            TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
-            TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+            TS_ASSERT_DELTA(first_node[0], 0.0 , 1e-6);
+            TS_ASSERT_DELTA(first_node[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(first_node[2], 0.0 , 1e-6); // 2d VTK files still carry z-coordinate
     
             std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
-            TS_ASSERT_DELTA( next_node[0] , 0.01, 1e-6 );
-            TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
-            TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );//2d VTK files still carry z-coordinate
+            TS_ASSERT_DELTA(next_node[0], 0.01, 1e-6);
+            TS_ASSERT_DELTA(next_node[1], 0.0 , 1e-6);
+            TS_ASSERT_DELTA(next_node[2], 0.0 , 1e-6); // 2d VTK files still carry z-coordinate
         }
         
-        //V_m samples 
+        // V_m samples
         std::vector<double> v_at_last;
         vtk_mesh_reader.GetPointData( "V_000020", v_at_last);
         if (PetscTools::IsSequential())
         {
-            TS_ASSERT_DELTA( v_at_last[0],   -83.8534, 1e-3 );
-            TS_ASSERT_DELTA( v_at_last[110], -83.8534, 1e-3 );
-            TS_ASSERT_DELTA( v_at_last[220], -83.8530, 1e-3 );
+            TS_ASSERT_DELTA(v_at_last[0],   -83.8534, 1e-3);
+            TS_ASSERT_DELTA(v_at_last[110], -83.8534, 1e-3);
+            TS_ASSERT_DELTA(v_at_last[220], -83.8530, 1e-3);
         }        
-        //Show that trying to write pvtu files with original node ordering gives a warning (but writes anyway)
+        // Show that trying to write pvtu files with original node ordering gives a warning (but writes anyway)
         HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
-        Hdf5ToVtkConverter<2,2> converter2(working_directory, "2D_0_to_1mm_400_elements", &mesh, true);
-        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
-        //This barrier just slows things down a bit
+        Hdf5ToVtkConverter<2,2> converter2(working_directory, "2D_0_to_1mm_400_elements", &mesh, true, true);
+        // Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        // This barrier just slows things down a bit
         PetscTools::Barrier();
         VtkMeshReader<2,2> vtk_mesh_reader2(test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu");
         TS_ASSERT_EQUALS( vtk_mesh_reader2.GetNumNodes(), 221U);
   #endif //CHASTE_VTK
-
     }
 
     void TestExceptions() throw(Exception)

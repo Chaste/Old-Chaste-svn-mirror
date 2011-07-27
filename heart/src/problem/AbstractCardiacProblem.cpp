@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
-    : mMeshFilename(""),               // i.e. undefined
+    : mMeshFilename(""), // i.e. undefined
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
@@ -66,10 +66,9 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem()
-    // it doesn't really matter what we initialise these to, as they'll be overwritten by
+    // It doesn't really matter what we initialise these to, as they'll be overwritten by
     // the serialization methods
     : mMeshFilename(""),
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacTissue
@@ -88,7 +87,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpWriter(NULL)
 {
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
@@ -170,7 +168,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
 
     HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);    
     
-    // if the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here.
+    // If the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here
     if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
     {
         mpCellFactory->FillInCellularTransmuralAreas();
@@ -193,11 +191,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     // Always start at time zero
     mCurrentTime = 0.0;
 
-    //For Bidomain with bath, this is where we set up the electrodes
+    // For Bidomain with bath, this is where we set up the electrodes
 
     SetElectrodes();
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc)
@@ -216,7 +213,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
     {
         EXCEPTION("End time should be in the future");
     }
-    if (mPrintOutput==true)
+    if (mPrintOutput)
     {
         if( (HeartConfig::Instance()->GetOutputDirectory()=="") || (HeartConfig::Instance()->GetOutputFilenamePrefix()==""))
         {
@@ -227,11 +224,14 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
     double end_time = HeartConfig::Instance()->GetSimulationDuration();
     double pde_time = HeartConfig::Instance()->GetPdeTimeStep();
 
-    // MatrixIsConstant stuff requires CONSTANT dt - do some checks to make sure the TimeStepper won't find
-    // non-constant dt.
-    // Note: printing_time does not have to divide end_time, but dt must divide printing_time and end_time.
-    // HeartConfig checks pde_dt divides printing dt
-    if( fabs( end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
+    /*
+     * MatrixIsConstant stuff requires CONSTANT dt - do some checks to make sure
+     * the TimeStepper won't find non-constant dt.
+     * Note: printing_time does not have to divide end_time, but dt must divide
+     * printing_time and end_time.
+     * HeartConfig checks pde_dt divides printing dt.
+     */
+    if( fabs(end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
     {
         EXCEPTION("PDE timestep does not seem to divide end time - check parameters");
     }
@@ -270,10 +270,12 @@ Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCond
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
 {
-    // If this fails the mesh has already been set. We assert rather throw an exception
-    // to avoid a memory leak when checking it throws correctly
-    assert(mpMesh==NULL);
-    assert(pMesh!=NULL);
+    /*
+     * If this fails the mesh has already been set. We assert rather throw
+     * an exception to avoid a memory leak when checking it throws correctly.
+     */
+    assert(mpMesh == NULL);
+    assert(pMesh != NULL);
     mAllocatedMemoryForMesh = false;
     mpMesh = pMesh;
 }
@@ -326,7 +328,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdapti
         bool useAdaptivity, 
         AbstractTimeAdaptivityController* pController)
 {
-    if(useAdaptivity)
+    if (useAdaptivity)
     {
         assert(pController);
         mpTimeAdaptivityController = pController;
@@ -336,8 +338,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdapti
         mpTimeAdaptivityController = NULL;
     } 
 }
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
@@ -394,18 +394,23 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             delete mpSolver;
             if (mSolution != initial_condition)
             {
-                // A PETSc Vec is a pointer, so we *don't* need to free the memory if it is free'd somewhere else (e.g.
-                // in the destructor). If this is a resumed solution we set initial_condition = mSolution earlier. 
-                // mSolution is going to be cleaned up in the constructor. So, only VecDestroy initial_condition when it 
-                // is not equal to mSolution (see #1695). 
+                /*
+                 * A PETSc Vec is a pointer, so we *don't* need to free the memory if it is
+                 * freed somewhere else (e.g. in the destructor). If this is a resumed solution
+                 * we set initial_condition = mSolution earlier. mSolution is going to be
+                 * cleaned up in the constructor. So, only VecDestroy initial_condition when
+                 * it is not equal to mSolution (see #1695).
+                 */
                 VecDestroy(initial_condition);
             }
             throw e;
         }
 
-        // If we are resuming a simulation (i.e. mSolution already exists) there's no need
-        // of writing the initial timestep,
-        // since it was already written as the last timestep of the previous run
+        /*
+         * If we are resuming a simulation (i.e. mSolution already exists) there's no need
+         * to write the initial timestep, since it was already written as the last timestep
+         * of the previous run.
+         */
         if (!mSolution)
         {
             WriteOneStep(stepper.GetTime(), initial_condition);
@@ -420,9 +425,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         progress_reporter_dir = ""; // progress printed to CHASTE_TEST_OUTPUT
     }
 
-    // create a progress reporter so users can track how much has gone and
-    // estimate how much time is left. (Note this has to be done after the
-    // InitialiseWriter above (if mPrintOutput==true)
+    /*
+     * Create a progress reporter so users can track how much has gone and
+     * estimate how much time is left. Note this has to be done after the
+     * InitialiseWriter above (if mPrintOutput==true).
+     */
     ProgressReporter progress_reporter(progress_reporter_dir, mCurrentTime,
                                        HeartConfig::Instance()->GetSimulationDuration());
     progress_reporter.Update(mCurrentTime);
@@ -433,9 +440,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpSolver->SetTimeAdaptivityController(mpTimeAdaptivityController);
     }
 
-    while ( !stepper.IsTimeAtEnd() )
+    while (!stepper.IsTimeAtEnd())
     {
-        // solve from now up to the next printing time
+        // Solve from now up to the next printing time
         mpSolver->SetTimes(stepper.GetTime(), stepper.GetNextTime());
         mpSolver->SetInitialCondition( initial_condition );
 
@@ -447,16 +454,19 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         }
         catch (Exception &e)
         {
-            // Free memory.
+            // Free memory
             delete mpSolver;
             mpSolver=NULL;
             if (initial_condition != mSolution) 
             {
-                // A PETSc Vec is a pointer, so we *don't* need to free the memory if it is free'd somewhere else (e.g.
-                // in the destructor). Later, in this while loop we will set initial_condition = mSolution (or, if this is
-                // a resumed solution it may also have been done when initial_condition was created). mSolution is going 
-                // to be cleaned up in the constructor. So, only VecDestroy initial_condition when it is not equal to 
-                // mSolution (see #1695). 
+                /*
+                 * A PETSc Vec is a pointer, so we *don't* need to free the memory if it is
+                 * freed somewhere else (e.g. in the destructor). Later, in this while loop
+                 * we will set initial_condition = mSolution (or, if this is a resumed solution
+                 * it may also have been done when initial_condition was created). mSolution
+                 * is going to be cleaned up in the constructor. So, only VecDestroy
+                 * initial_condition when it is not equal to mSolution (see #1695).
+                 */
                 VecDestroy(initial_condition);
             }
             
@@ -481,11 +491,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         // Initial condition for next loop is current solution
         initial_condition = mSolution;
 
-        // update the current time
+        // Update the current time
         stepper.AdvanceOneTimeStep();
         mCurrentTime = stepper.GetTime();
 
-        // print out details at current time if asked for
+        // Print out details at current time if asked for
         if (mWriteInfo)
         {
             HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
@@ -513,7 +523,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     delete mpSolver;
     mpSolver = NULL;
 
-    // close the file that stores voltage values
+    // Close the file that stores voltage values
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
     HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
@@ -525,7 +535,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     // Close files
     if (!mPrintOutput)
     {
-        //Nothing to do
+        // Nothing to do
         return;
     }
     delete mpWriter;
@@ -537,26 +547,38 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     {
         if (HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
         {
-            //Convert simulation data to Meshalyzer format
-            Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
+            // Convert simulation data to Meshalyzer format
+            Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
+            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+            std::string subdirectory_name = converter.GetSubdirectory();
+            HeartConfig::Instance()->Write(false, subdirectory_name);
         }
 
         if (HeartConfig::Instance()->GetVisualizeWithCmgui())
         {
-            //Convert simulation data to Cmgui format
-            Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, GetHasBath());
+            // Convert simulation data to Cmgui format
+            Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
+            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, GetHasBath());
+            std::string subdirectory_name = converter.GetSubdirectory();
+            HeartConfig::Instance()->Write(false, subdirectory_name);
         }
 
         if (HeartConfig::Instance()->GetVisualizeWithVtk())
         {
-            //Convert simulation data to VTK format
-            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, false);
+            // Convert simulation data to VTK format
+            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
+            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, false, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+            std::string subdirectory_name = converter.GetSubdirectory();
+            HeartConfig::Instance()->Write(false, subdirectory_name);
         }
 
         if (HeartConfig::Instance()->GetVisualizeWithParallelVtk())
         {
-            //Convert simulation data to parallel VTK (pvtu) format
-            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, true);
+            // Convert simulation data to parallel VTK (pvtu) format
+            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
+            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, true, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+            std::string subdirectory_name = converter.GetSubdirectory();
+            HeartConfig::Instance()->Write(false, subdirectory_name);
         }
     }
     HeartEventHandler::EndEvent(HeartEventHandler::DATA_CONVERSION);

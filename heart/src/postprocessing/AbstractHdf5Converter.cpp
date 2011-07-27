@@ -27,25 +27,25 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractHdf5Converter.hpp"
-#include "HeartConfig.hpp"
 #include "Version.hpp"
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string inputDirectory,
                                                                      std::string fileBaseName,
                                                                      AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                                                      std::string subdirectoryName)
     : mFileBaseName(fileBaseName),
-      mpMesh(pMesh)
+      mpMesh(pMesh),
+      mRelativeSubdirectory(subdirectoryName)
 {
-    // Store directory, mesh and filenames and create the reader
-    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
+	// Store directory, mesh and filenames and create the reader
+    mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
 
     // Create new directory in which to store everything
-    mpOutputFileHandler = new OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
+    mpOutputFileHandler = new OutputFileHandler(inputDirectory + "/" + mRelativeSubdirectory, false);
 
     // Check the data file for basic validity
-    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
+    std::vector<std::string> variable_names = mpReader->GetVariableNames();
     mNumVariables = variable_names.size();
 
     if (mpReader->GetNumberOfRows() != mpMesh->GetNumNodes())
@@ -59,26 +59,36 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     if (PetscTools::AmMaster())
     {
         // Note that we don't want the child processes to write info files
-        out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_times.info");
-        unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
+        out_stream p_file = mpOutputFileHandler->OpenOutputFile(mFileBaseName + "_times.info");
+
+        std::vector<double> time_values = mpReader->GetUnlimitedDimensionValues();
+        unsigned num_timesteps = time_values.size();
+        double first_timestep = time_values.front();
+        double last_timestep = time_values.back();
+
+        double timestep = time_values[1] - time_values[0];
+
         *p_file << "Number of timesteps " << num_timesteps << std::endl;
-        *p_file << "timestep " << HeartConfig::Instance()->GetPrintingTimeStep() << std::endl;
-        double first_timestep=this->mpReader->GetUnlimitedDimensionValues().front();
+        *p_file << "timestep " << timestep << std::endl;
         *p_file << "First timestep " << first_timestep << std::endl;
-        double last_timestep=this->mpReader->GetUnlimitedDimensionValues().back();
         *p_file << "Last timestep " << last_timestep << std::endl;
 		*p_file << ChasteBuildInfo::GetProvenanceString();
+
         p_file->close();
     }
-    // Write the parameters out
-    HeartConfig::Instance()->Write(false, subdirectoryName);
-
 }
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::~AbstractHdf5Converter()
 {
     delete mpReader;
     delete mpOutputFileHandler;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::string AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::GetSubdirectory()
+{
+	return mRelativeSubdirectory;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -91,4 +101,3 @@ template class AbstractHdf5Converter<2,2>;
 template class AbstractHdf5Converter<1,3>;
 template class AbstractHdf5Converter<2,3>;
 template class AbstractHdf5Converter<3,3>;
-

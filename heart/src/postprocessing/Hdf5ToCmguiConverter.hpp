@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   .....
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Hdf5ToCmguiConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
+class Hdf5ToCmguiConverter : public AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 

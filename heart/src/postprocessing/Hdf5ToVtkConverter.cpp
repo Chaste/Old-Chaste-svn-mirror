@@ -41,23 +41,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
-                          std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
-                          bool parallelVtk) :
-                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "vtk_output")
+                                                               std::string fileBaseName,
+                                                               AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                                               bool parallelVtk,
+                                                               bool usingOriginalNodeOrdering)
+    : AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "vtk_output")
 {
-#ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
+#ifdef CHASTE_VTK // Requires "sudo aptitude install libvtk5-dev" or similar
 
-    VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
+    VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(inputDirectory + "/" + this->mRelativeSubdirectory, fileBaseName, false);
 
-    DistributedVectorFactory *p_factory = pMesh->GetDistributedVectorFactory();
-    
+    DistributedVectorFactory* p_factory = pMesh->GetDistributedVectorFactory();
+
     // Make sure that we are never trying to write from an incomplete data HDF5 file
     assert(this->mpReader->GetNumberOfRows() == pMesh->GetNumNodes());
-    
-    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(pMesh);
-   
+
+    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(pMesh);
+
     unsigned num_nodes = pMesh->GetNumNodes();
     if (parallelVtk)
     {
@@ -67,14 +67,14 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             WARNING("Can only write parallel VTK from a DistributedTetrahedralMesh - writing sequential VTK instead");
             parallelVtk = false;
         }
-        
+
         // If the node ordering flag is set, then we can't do this
-        if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering())
+        if (usingOriginalNodeOrdering)
         {
             WARNING("Can't write parallel VTK (pvtu) files with original ordering - writing sequential VTK instead");
             parallelVtk = false;
         }
-        
+
         // Are we now committed to writing .pvtu?
         if (parallelVtk)
         {
@@ -82,26 +82,27 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
            num_nodes = p_distributed_mesh->GetNumLocalNodes();
         }
     }
-    
+
     Vec data = p_factory->CreateVec(); // for V
-    
+
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
 
     // Loop over time steps
-    for (unsigned time_step=0; time_step<num_timesteps; time_step++) //num_timesteps; time_step++)
+    for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
         // Loop over variables
-        for( unsigned variable = 0; variable < this->mNumVariables; variable++ )
+        for (unsigned variable=0; variable<this->mNumVariables; variable++)
         {
             std::string variable_name = this->mpReader->GetVariableNames()[variable];
 
-            this->mpReader->GetVariableOverNodes(data, variable_name, time_step); // Gets variable at this time step from HDF5 archive
-            
+            // Gets variable at this time step from HDF5 archive
+            this->mpReader->GetVariableOverNodes(data, variable_name, time_step);
+
             std::vector<double> data_for_vtk;
             data_for_vtk.resize(num_nodes);
             std::ostringstream variable_point_data_name;
             variable_point_data_name << variable_name << "_" << std::setw(6) << std::setfill('0') << time_step;
-    
+
             if (parallelVtk)
             {
                 // Parallel VTU files
@@ -119,7 +120,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
                 ReplicatableVector repl_data(data);
                 for (unsigned index=0; index<num_nodes; index++)
                 {
-                    data_for_vtk[index]  = repl_data[index];
+                    data_for_vtk[index] = repl_data[index];
                 }
             }
             // Add this variable into the node "point" data
@@ -128,21 +129,20 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     }
     VecDestroy(data);
 
-    // Normally the in-memory mesh is converted:
-    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false)
+    // Normally the in-memory mesh is converted
+    if (!usingOriginalNodeOrdering)
     {
-        vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
+        vtk_writer.WriteFilesUsingMesh(*(this->mpMesh));
     }
     else
     {
         // In this case we expect the mesh to have been read in from file
         ///\todo What if the mesh has been scaled, translated or rotated?
         // Note that the next line will throw if the mesh has not been read from file
-        std::string original_file=this->mpMesh->GetMeshFileBaseName();
+        std::string original_file = this->mpMesh->GetMeshFileBaseName();
         GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
         vtk_writer.WriteFilesUsingMeshReader(original_mesh_reader);
     }
-
 #endif //CHASTE_VTK
 }
 

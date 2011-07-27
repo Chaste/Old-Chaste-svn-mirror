@@ -32,26 +32,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractHdf5Converter.hpp"
 
 /**
- *  This class converts from Hdf5 format to meshalyzer format, ie, for
- *  voltage, one file, which looks like
+ * This class converts from Hdf5 format to meshalyzer format, ie, for
+ * voltage, one file, which looks like
  *
- *  V_node_0_time_0
- *  ..
- *  V_node_N_time_0
- *  V_node_0_time_1
- *  ..
- *  V_node_N_time_1
- *  V_node_0_time_2
- *  ..
- *  V_node_N_time_M
+ * V_node_0_time_0
+ * ..
+ * V_node_N_time_0
+ * V_node_0_time_1
+ * ..
+ * V_node_N_time_1
+ * V_node_0_time_2
+ * ..
+ * V_node_N_time_M
  *
- *  The files that are written are [base_name]_V.dat or [base_name]_Phi_e.dat,
- *  where [base_name] is the base name of the original .h5 file. The new files
- *  are written in the same directory as the .h5 file. All paths are relative
- *  to the CHASTE_TEST_OUTPUT directory.
+ * The files that are written are [base_name]_V.dat or [base_name]_Phi_e.dat,
+ * where [base_name] is the base name of the original .h5 file. The new files
+ * are written in the same directory as the .h5 file. All paths are relative
+ * to the CHASTE_TEST_OUTPUT directory.
  */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Hdf5ToMeshalyzerConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class Hdf5ToMeshalyzerConverter : public AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
@@ -74,10 +74,12 @@ public:
      * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      * @param fileBaseName The base name of the data file.
      * @param pMesh Pointer to the mesh.
+     * @param usingOriginalNodeOrdering Whether HDF5 output was written using the original node ordering
      */
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                               std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                              bool usingOriginalNodeOrdering);
 };
 
 #endif /*HDF5TOMESHALYZERCONVERTER_HPP_*/

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The derived children of this class convert output from Hdf5 format to
  * a range of other formats for postprocessing.
  */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractHdf5Converter
 {
 protected:
@@ -57,6 +57,12 @@ protected:
 
     /** Initialised as the directory in which to store the results. */
     OutputFileHandler* mpOutputFileHandler;
+
+    /**
+     * Get the subdirectory in which the converted output is stored,
+     * relative to the input directory.
+     */
+    std::string mRelativeSubdirectory;
 
 public:
 
@@ -79,6 +85,11 @@ public:
      * Destructor.
      */
     ~AbstractHdf5Converter();
+
+    /**
+     * Get the relative path of the subdirectory in which the converted output is stored.
+     */
+    std::string GetSubdirectory();
 };
 
 #endif /*ABSTRACTHDF5CONVERTER_HPP_*/
