@@ -226,7 +226,7 @@ class ModelModifier(object):
         """
         cn1, cn2 = var1.component.name, var2.component.name
         cnames = set([cn1, cn2])
-        for conn in self.model.connection:
+        for conn in getattr(self.model, u'connection', []):
             mc = conn.map_components
             if set([mc.component_1, mc.component_2]) == cnames:
                 break
