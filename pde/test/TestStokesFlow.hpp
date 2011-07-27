@@ -396,6 +396,113 @@ public:
 
 	    //TODO Test something
 	}
+
+	/*
+	 * Solution is u = [y(1-y), 0], p = 2(2-x)
+	 * Dirichlet BC applied on top and bottom, Neumann on the ends p(x=0)=3, p(x=1)=1,
+	 */
+	void TestPoiseuilleFlow() throw(Exception)
+	{
+		EXIT_IF_PARALLEL; // defined in PetscTools
+
+		// set up a mesh on [0 1]x[0 1]
+		unsigned num_elem = 5;
+		QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+
+		// material params
+		double mu = 1.0;
+
+		// Boundary flow
+		std::vector<unsigned> dirichlet_nodes;
+		std::vector<c_vector<double,2> > dirichlet_flow;
+		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double y=mesh.GetNode(i)->rGetLocation()[1];
+			// Fix top and bottom
+			if ( y == 0.0 || y == 1.0)
+			{
+				dirichlet_nodes.push_back(i);
+				c_vector<double,2> flow = zero_vector<double>(2);
+				dirichlet_flow.push_back(flow);
+			}
+		}
+		assert(dirichlet_flow.size()== 4*num_elem+2);
+
+		// Normal stress boundary
+
+		std::vector<BoundaryElement<1,2>*> boundary_elems;
+		std::vector<c_vector<double,2> > normal_stresses;
+
+		for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[0]) < 1e-4)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+
+                c_vector<double,2> normal_stress = zero_vector<double>(2);
+                normal_stress[0] = 3;
+
+                normal_stresses.push_back(normal_stress);
+            }
+            else if(fabs((*iter)->CalculateCentroid()[0] - 1.0) < 1e-4)
+            {
+            	BoundaryElement<1,2>* p_element = *iter;
+				boundary_elems.push_back(p_element);
+
+				c_vector<double,2> normal_stress = zero_vector<double>(2);
+				//This is negative because the outward pointing normal at this edge is opposite to the other edge
+				normal_stress[0] = -1;
+
+				normal_stresses.push_back(normal_stress);
+            }
+        }
+        assert(boundary_elems.size()==2.0*num_elem);
+
+
+
+		c_vector<double,2> body_force = zero_vector<double>(2);
+
+		StokesFlowSolver<2> solver(mu,
+								   &mesh,
+								   body_force,
+								   "PoiseuilleFlow",
+								   dirichlet_nodes,
+								   &dirichlet_flow);
+
+		solver.SetSurfaceNormalStressBoundaryConditions(boundary_elems, normal_stresses);
+
+		//Uncomment to make errors smaller
+		//solver.SetKspAbsoluteTolerance(1e-12);
+
+		solver.Solve();
+
+		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double y=mesh.GetNode(i)->rGetLocation()[1];
+
+			double exact_flow_x = y*(1-y);
+			double exact_flow_y = 0.0;
+
+			TS_ASSERT_DELTA(solver.rGetVelocities()[i](0), exact_flow_x, 1e-3);
+			TS_ASSERT_DELTA(solver.rGetVelocities()[i](1), exact_flow_y, 1e-3);
+		}
+
+		for (unsigned i=0; i<mesh.GetNumVertices(); i++)
+		{
+			double x=mesh.GetNode(i)->rGetLocation()[0];
+
+			double exact_pressure = 2*(1-x) + 1;
+
+			TS_ASSERT_DELTA( solver.rGetPressures()[i], exact_pressure, 1e-3);
+		}
+	}
+
+
+
 };
 
 #endif // TESTSTOKESFLOWSOLVER_HPP_

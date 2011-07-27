@@ -54,8 +54,8 @@ private:
     std::vector<unsigned> mDirichletNodes;
     std::vector<c_vector<double,DIM> > mDirichletVelocities;
 
-    //std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
-    //std::vector<c_vector<double,DIM> > mSurfaceTractions;
+    std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
+    std::vector<c_vector<double,DIM> > mSurfaceNormalStresses;
 
 
     std::vector<double> mSolution;
@@ -72,7 +72,7 @@ private:
 
     void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
                                    c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-                                   c_vector<double,DIM>& rTraction);
+                                   c_vector<double,DIM>& rNormalStress);
 
     void AllocateMatrixMemory();
 
@@ -98,6 +98,14 @@ public:
 
     std::vector<c_vector<double,DIM> >& rGetVelocities();
     std::vector<double>& rGetPressures();
+
+    void SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
+                                                  std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses)
+    {
+        assert(rBoundaryElements.size()==rSurfaceNormalStresses.size());
+        mBoundaryElements = rBoundaryElements;
+        mSurfaceNormalStresses = rSurfaceNormalStresses;
+    }
 };
 
 
@@ -425,39 +433,39 @@ void StokesFlowSolver<DIM>::AssembleSystem()
         }
     }
 
-//    c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
-//    if (mBoundaryElements.size()>0)
-//    {
-//        for (unsigned i=0; i<mBoundaryElements.size(); i++)
-//        {
-//            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
-//            AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, this->mSurfaceTractions[i]);
-//
-//            unsigned p_indices[BOUNDARY_STENCIL_SIZE];
-//            for (unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
-//            {
-//                for (unsigned j=0; j<DIM; j++)
-//                {
-//                    p_indices[DIM*i+j] = DIM*r_boundary_element.GetNodeGlobalIndex(i) + j;
-//                }
-//            }
-//
-//            for (unsigned i=0; i<DIM /*vertices per boundary elem */; i++)
-//            {
-//                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
-//            }
-//
-//            this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
-//
-//            // some extra checking
-//            if (DIM==2)
-//            {
-//                assert(8==BOUNDARY_STENCIL_SIZE);
-//                assert(b_boundary_elem(6)==0);
-//                assert(b_boundary_elem(7)==0);
-//            }
-//        }
-//    }
+    c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
+    if (mBoundaryElements.size()>0)
+    {
+        for (unsigned i=0; i<mBoundaryElements.size(); i++)
+        {
+            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
+            AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, mSurfaceNormalStresses[i]);
+
+            unsigned p_indices[BOUNDARY_STENCIL_SIZE];
+            for (unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
+            {
+                for (unsigned j=0; j<DIM; j++)
+                {
+                    p_indices[DIM*i+j] = DIM*r_boundary_element.GetNodeGlobalIndex(i) + j;
+                }
+            }
+
+            for (unsigned i=0; i<DIM /*vertices per boundary elem */; i++)
+            {
+                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
+            }
+
+            this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+
+            // some extra checking
+            if (DIM==2)
+            {
+                assert(8==BOUNDARY_STENCIL_SIZE);
+                //assert(b_boundary_elem(6)==0);
+                //assert(b_boundary_elem(7)==0);
+            }
+        }
+    }
 
 
     mpLinearSystem->FinaliseRhsVector();
@@ -632,46 +640,40 @@ template<unsigned DIM>
 void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(
             BoundaryElement<DIM-1,DIM>& rBoundaryElement,
             c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-            c_vector<double,DIM>& rTraction)
+            c_vector<double,DIM>& rNormalStress)
 {
-    assert(0); // needs reimplementing
+    rBelem.clear();
 
+    c_vector<double, DIM> weighted_direction;
+    double jacobian_determinant;
+    mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
-//    rBelem.clear();
-//
-//    c_vector<double, DIM> weighted_direction;
-//    double jacobian_determinant;
-//    mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
-//
-//    c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
-//
-//    for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
-//    {
-//        double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
-//
-//        const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
-//
-//        QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
-//
-//        // get the required traction, interpolating X (slightly inefficiently, as interpolating
-//        // using quad bases) if necessary.
-//        c_vector<double,DIM> traction = zero_vector<double>(DIM);
-//        traction = rTraction;
-//
-//
-//
-//        for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
-//        {
-//            unsigned spatial_dim = index%DIM;
-//            unsigned node_index = (index-spatial_dim)/DIM;
-//
-//            assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
-//
-//            rBelem(index) +=    traction(spatial_dim)
-//                              * phi(node_index)
-//                              * wJ;
-//        }
-//    }
+    c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
+
+    for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
+    {
+        double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
+
+        const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
+
+        QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
+
+        // Get the required normal stress. Note this is constant on each boundary element
+        c_vector<double,DIM> normal_stress = zero_vector<double>(DIM);
+        normal_stress = rNormalStress;
+
+        for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
+        {
+            unsigned spatial_dim = index%DIM;
+            unsigned node_index = (index-spatial_dim)/DIM;
+
+            assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
+
+            rBelem(index) += normal_stress(spatial_dim)
+                             * phi(node_index)
+                             * wJ;
+        }
+    }
 }
 
 
