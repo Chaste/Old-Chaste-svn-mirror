@@ -66,8 +66,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // There's a bug in 1.35 which involves a
 // #include <boost/serialization/extended_type_info_typeid.hpp>
 // missing at the end of <boost/serialization/export.hpp>
-// It's probably not worth fixing.
+// We might have worked around this now, but it's so old it's not worth checking!
 #error "Chaste won't work with Boost 1.35 due to a bug in its serialization library."
+#elif BOOST_VERSION == 104100
+// There's another bug in 1.41 with shared_ptr support; see e.g.
+// http://sourceforge.net/apps/trac/easystroke/ticket/21
+#error "Chaste won't work with Boost 1.41 due to a bug in its serialization library."
 #endif
 
 #endif // CHASTESERIALIZATION_HPP_
