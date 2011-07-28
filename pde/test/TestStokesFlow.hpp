@@ -46,7 +46,7 @@ public:
 	 * Test that the mesh is calculated correctly on the cannonical triangle.
 	 * Tests against the analytical solution calculated by hand.
 	 */
-	void TestAssembleOnElementStokes()	throw(Exception)
+	void noTestAssembleOnElementStokes()	throw(Exception)
 	{
         EXIT_IF_PARALLEL; // defined in PetscTools
 
