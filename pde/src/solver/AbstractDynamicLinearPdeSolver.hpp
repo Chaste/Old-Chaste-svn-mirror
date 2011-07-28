@@ -112,11 +112,10 @@ protected:
      */
     unsigned mPrintingTimestepMultiple;
 
-    /**
-     * The object to use to write results to HDF5 file.
-     */
+    /** The object used to write results to HDF5 file. */
     Hdf5DataWriter* mpHdf5Writer;
 
+    /** List of variable column IDs as written to HDF5 file. */
     std::vector<int> mVariableColumnIds;
 
     /**
