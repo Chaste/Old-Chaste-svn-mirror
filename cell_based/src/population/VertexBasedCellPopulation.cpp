@@ -250,6 +250,11 @@ void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_ve
         // Get new node location
         c_vector<double, DIM> new_node_location = this->GetNode(node_index)->rGetLocation() + displacement;
 
+        for (unsigned i=0; i<DIM; i++)
+        {
+            assert(!std::isnan(new_node_location(i)));
+        }
+
         // Create ChastePoint for new node location
         ChastePoint<DIM> new_point(new_node_location);
 
