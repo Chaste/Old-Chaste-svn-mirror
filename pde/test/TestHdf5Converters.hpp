@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "Hdf5ToVtkConverter.hpp"
+#include "Hdf5ToTxtConverter.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "TetrahedralMesh.hpp"
@@ -40,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 
 #ifdef CHASTE_VTK
-#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#define _BACKWARD_BACKWARD_WARNING_H 1 // Cut out the strstream deprecated warning for now (gcc4.3)
 #include <vtkVersion.h>
 #endif
 
@@ -216,6 +217,42 @@ public:
                                             + "/vtk_output/2D_0_to_1mm_400_elements.vtu");
         TS_ASSERT_EQUALS(vtk_mesh_reader2.GetNumNodes(), 221u);
 #endif //CHASTE_VTK
+    }
+
+    /**
+     * This tests the HDF5 to .txt converter using a 3D example
+     * taken from a bidomain simulation.
+     */
+    void TestBidomainTxtConversion3D() throw(Exception)
+    {
+        std::string working_directory = "TestHdf5ToTxtConverter_bidomain";
+        OutputFileHandler handler(working_directory);
+
+        /*
+         * Firstly, copy the .h5 file to CHASTE_TEST_OUTPUT/TestHdf5ToTxtConverter_bidomain,
+         * as that is where the reader reads from.
+         */
+        CopyToTestOutputDirectory("pde/test/data/cube_2mm_12_elements.h5",
+                                  working_directory);
+
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Convert
+        Hdf5ToTxtConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
+
+        // Compare the voltage file with a correct version
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                              + working_directory +"/txt_output/cube_2mm_12_elements_0.txt"
+                                              + " pde/test/data/cube_2mm_12_elements_0.txt";
+        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                               + working_directory +"/txt_output/cube_2mm_12_elements_1.txt"
+                                               + " pde/test/data/cube_2mm_12_elements_1.txt";
+        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 };
 

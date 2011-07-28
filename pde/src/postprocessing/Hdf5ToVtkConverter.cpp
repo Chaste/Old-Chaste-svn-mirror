@@ -84,7 +84,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         }
     }
 
-    Vec data = p_factory->CreateVec(); // for V
+    Vec data = p_factory->CreateVec();
 
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
 
@@ -128,6 +128,8 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             vtk_writer.AddPointData(variable_point_data_name.str(), data_for_vtk);
         }
     }
+
+    // Tidy up
     VecDestroy(data);
 
     // Normally the in-memory mesh is converted

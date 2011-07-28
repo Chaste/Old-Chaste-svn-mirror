@@ -300,6 +300,9 @@ public:
         // Write output to HDF5, then to parallel VTK (.pvtu)
         solver.SetOutputToParallelVtk(true);
 
+        // Write output to HDF5, then to a .txt format that is readable by Matlab
+        solver.SetOutputToTxt(true);
+
         // Output results every second timestep
         solver.SetPrintingTimestepMultiple(2);
 
@@ -336,6 +339,15 @@ public:
 
         ///\todo  Test that there is an .pvtu file (#1841)        
         ///\todo Test that there are Meshalyzer files (#1841)
+
+        // Test that there are .txt files
+        for (unsigned timestep=0; timestep<101; timestep++)
+        {
+            std::stringstream filename;
+            filename << "txt_output/results_" << timestep << ".txt";
+            FileFinder txt_file = file_handler.FindFile(filename.str());
+            TS_ASSERT(txt_file.Exists());
+        }
 
         // Tidy up
         VecDestroy(initial_condition);
