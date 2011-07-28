@@ -51,7 +51,6 @@ class AbstractAssemblerSolverHybrid
 protected:
 
     /** An assembler for Neumann surface integrals, which are assumed to arise from natural Neumann boundary
-     *  conditions, ie such that this surface integral is (for a 1-unknown problem) integral(g\phi_i dS),
      *  where g is the Neumann boundary condition function
      */
     NaturalNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM> mNaturalNeumannSurfaceTermAssembler;

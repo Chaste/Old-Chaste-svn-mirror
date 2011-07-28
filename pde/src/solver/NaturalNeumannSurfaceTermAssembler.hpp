@@ -37,12 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   Neumann boundary conditions, assuming the prescribed BCs are NATURAL boundary conditions.
  *
  *   Examples of natural BCs:
- *   u_t = u_{xx} +f                ---> natural BCs are specification of (u_x \cdot n) = g
- *   u_t = Laplacian(u) +f          ---> natural BCs are specification of (grad(u) \cdot n) = g
- *   u_t = Div (D grad(u))          ---> natural BCs are specification of ( (D grad(u)) \cdot n) = g
- *   0   = Div (D grad(u))          ---> natural BCs are specification of ( (D grad(u)) \cdot n) = g
+ *   u_t = u_{xx} +f                ---> natural BCs are specification of (u_x . n) = g
+ *   u_t = Laplacian(u) +f          ---> natural BCs are specification of (grad(u) . n) = g
+ *   u_t = Div (D grad(u))          ---> natural BCs are specification of ( (D grad(u)) . n) = g
+ *   0   = Div (D grad(u))          ---> natural BCs are specification of ( (D grad(u)) . n) = g
  *   0   = Div (D1 grad(u1)) + Div (D2 grad(u2)) (one equation of a 2-unknown problem)
- *        ---> natural BCs are specification of ( (D1 grad(u1)) \cdot n + (D2 grad(u2)) \cdot n) = g1
+ *        ---> natural BCs are specification of ( (D1 grad(u1)) . n + (D2 grad(u2)) . n) = g1
  *
  *   In all cases, when in weak form, the surface integral is integral(gv dS), where v is the test function
  *   (or integral_over_Gamma(g1*v1+g2*v2 dS) in the 2-unknown case).

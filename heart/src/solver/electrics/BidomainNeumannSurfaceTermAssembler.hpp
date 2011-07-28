@@ -35,15 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Assembler which sets up the surface integral integrals for the bidomain equations, assuming
- *  that the boundary conditions are written:  div(sigma_i grad phi_i) \dot n = g1  and
- *  div(sigma_e grad phi_e) \dot n = g2.
+ *  that the boundary conditions are written:  div(sigma_i grad phi_i) . n = g1  and
+ *  div(sigma_e grad phi_e) dot n = g2.
  *
  *  These are not 'natural' boundary conditions for the para-elliptic bidomain equations (natural BCs for the second
- *  equation would be specifying: div(sigma_i grad phi_i) \dot n + div(sigma_e grad phi_e) \dot n = g2.
  *
  *  Hence we don't use the NaturalNeumannSurfaceTermAssembler and have a special class here. It means that
  *  any BCs specified for bidomain and put in a BoundaryConditionsContainer should be for
- *  div(sigma_i grad phi_i) \dot n and div(sigma_e grad phi_e) \dot n.
+ *  div(sigma_i grad phi_i) . n and div(sigma_e grad phi_e) . n.
  *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
