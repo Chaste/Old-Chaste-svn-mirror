@@ -94,7 +94,7 @@ check before compiling since this step can be lengthy.
 A simple check would be to see if the include files are in the "usual place":
 ls /usr/include/boost/serialization/
 
-Please don't use Boost versions 1.35 or 1.36 as serialization in these versions is broken.
+Please don't use Boost versions 1.35, 1.36, or 1.41 as serialization in these versions is broken.
 Note that archives created by a newer version of Boost may be unreadable by older versions.
 
 cd $CHASTE_LIBS
