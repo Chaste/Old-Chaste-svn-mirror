@@ -99,7 +99,8 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     }
 
     // Write mesh in a suitable form for meshalyzer
-    MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(inputDirectory + "/" + this->mRelativeSubdirectory, fileBaseName+"_mesh", false);
+    std::string output_directory = inputDirectory + "/" + this->mRelativeSubdirectory;
+    MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, fileBaseName+"_mesh", false);
 
     // Normal case is that the in-memory mesh is converted
     if (!usingOriginalNodeOrdering)

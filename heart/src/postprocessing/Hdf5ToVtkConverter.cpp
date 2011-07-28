@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "UblasCustomFunctions.hpp"
-#include "HeartConfig.hpp"
 #include "Hdf5ToVtkConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
@@ -49,7 +48,9 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
 {
 #ifdef CHASTE_VTK // Requires "sudo aptitude install libvtk5-dev" or similar
 
-    VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(inputDirectory + "/" + this->mRelativeSubdirectory, fileBaseName, false);
+    // Write mesh in a suitable form for VTK
+    std::string output_directory = inputDirectory + "/" + this->mRelativeSubdirectory;
+    VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(output_directory, fileBaseName, false);
 
     DistributedVectorFactory* p_factory = pMesh->GetDistributedVectorFactory();
 
