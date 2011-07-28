@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PdeSimulationTime.hpp"
 #include "AbstractTimeAdaptivityController.hpp"
 #include "Hdf5DataWriter.hpp"
+#include "Hdf5ToVtkConverter.hpp"
 
 /**
  * Abstract class for dynamic linear PDE solves.
@@ -435,20 +436,21 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         mpHdf5Writer = NULL;
     }
 
-    ///\todo implement the code below (#184)
-//    // Convert HDF5 output to other formats as required
+    // Convert HDF5 output to other formats as required
+
+///\todo allow output to Meshalyzer (#1841)
 //	if (mOutputToMeshalyzer)
 //    {
 //        Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh);
 //    }
-//    if  (mOutputToVtk)
-//    {
-//        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh, false);
-//    }
-//    if (mOutputToParallelVtk)
-//    {
-//        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh, true);
-//    }
+    if (mOutputToVtk)
+    {
+        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, this->mpMesh, false, false);
+    }
+    if (mOutputToParallelVtk)
+    {
+        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, this->mpMesh, true, false);
+    }
 
     return solution;
 }

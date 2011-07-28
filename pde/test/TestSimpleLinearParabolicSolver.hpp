@@ -77,7 +77,7 @@ class ToyController : public AbstractTimeAdaptivityController
 
 public:
     ToyController()
-      : AbstractTimeAdaptivityController(0.001, 0.01)
+        : AbstractTimeAdaptivityController(0.001, 0.01)
     {
     }
 };
@@ -86,7 +86,6 @@ class TestSimpleLinearParabolicSolver : public CxxTest::TestSuite
 {
 public:
 
-    /// Test 1D problem
     void TestSimpleLinearParabolicSolver1DZeroDirich()
     {
         // Create mesh from mesh reader
@@ -97,16 +96,23 @@ public:
         // Instantiate PDE object
         HeatEquation<1> pde;
 
-        // Boundary conditions - zero dirichlet at first and last node;
+        // Create zero Dirichlet boundary conditions at first and last node
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        // Initial condition, u(0,x) = sin(x*pi);
+        // Set start and end times and timestep
+        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0),"Starting time has to less than ending time");
+        TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
+        // Set initial condition u(0,x) = sin(x*pi)
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -114,14 +120,9 @@ public:
             init_cond[i] = sin(x*M_PI);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0),"Starting time has to less than ending time");
-        TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.01);
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -137,6 +138,7 @@ public:
         solver.SetMatrixIsNotAssembled();
         TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, false);
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -151,17 +153,22 @@ public:
         // Instantiate PDE object
         HeatEquationWithSourceTerm<1> pde;
 
-        // Boundary conditions
+        // Create zero Dirichlet boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(-0.5);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x) = sin(x*pi)+0.5*x*x
+        // Set start and end times and timestep
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
+        // Set initial condition u(0,x) = sin(x*pi)-0.5*x*x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -169,13 +176,9 @@ public:
             init_cond[i] = sin(x*M_PI)-0.5*x*x;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.01);
-
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -187,6 +190,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.1);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -201,7 +205,7 @@ public:
         // Instantiate PDE object
         HeatEquation<1> pde;
 
-        // Boundary conditions  u(0)=0, u'(1)=1
+        // Create boundary conditions u(0)=0, u'(1)=1
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
@@ -211,26 +215,25 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        // Initial condition
+        // Set start and end times and timestep
+        solver.SetTimes(0, 0.5);
+        solver.SetTimeStep(0.01);
+
+        // Set initial condition u(0,x) = x + sin(pi*x/2)
         const double PI_over_2 = M_PI/2.0;
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
-            init_cond[i] = x + sin(PI_over_2 * x);
+            init_cond[i] = x + sin(PI_over_2*x);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        // Set time and initial condition
-        solver.SetTimes(0, 0.5);
-        solver.SetTimeStep(0.01);
-
         solver.SetInitialCondition(initial_condition);
 
-        // Solve
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -242,6 +245,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.01);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -256,15 +260,25 @@ public:
         // Instantiate PDE object
         HeatEquation<2> pde;
 
-        // Boundary conditions - zero dirichlet everywhere on boundary
+        // Create zero Dirichlet boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
+        // Set start and end times and timestep
+        double t_end = 0.1;
+
+        // Coverage of exception handling
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimes() has not been called");
+        solver.SetTimes(0, t_end);
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimeStep() has not been called");
+        solver.SetTimeStep(0.001);
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetInitialCondition() has not been called");
+
         /*
-         * Choose initial condition sin(x*pi)*sin(y*pi) as this
+         * Set initial condition u(0,x,y) = sin(x*pi)*sin(y*pi) as this
          * is an eigenfunction of the heat equation.
          */
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -275,16 +289,6 @@ public:
             init_cond[i] = sin(x*M_PI)*sin(y*M_PI);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        // Solve
-        double t_end = 0.1;
-
-        // Coverage of exception handling
-		TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimes() has not been called");
-        solver.SetTimes(0, t_end);
-        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetTimeStep() has not been called");
-        solver.SetTimeStep(0.001);
-        TS_ASSERT_THROWS_THIS(solver.Solve(),"SetInitialCondition() has not been called");
         solver.SetInitialCondition(initial_condition);
 
         // Write output to HDF5, then to VTK
@@ -304,6 +308,7 @@ public:
 
 		solver.SetOutputDirectoryAndPrefix("TestSimpleLinearParabolicSolver2DZeroDirich","results");
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -325,14 +330,19 @@ public:
                                                 "pde/test/data", "results", false));
 
         // Test that there is a .vtu file
-        // Test that there is an .pvtu file
-        // Test that there are Meshalyzer files
+        ///\todo Test the file is correct (#1841)
+        FileFinder vtk_file = file_handler.FindFile("vtk_output/results.vtu");
+        TS_ASSERT(vtk_file.Exists());
+
+        ///\todo  Test that there is an .pvtu file (#1841)        
+        ///\todo Test that there are Meshalyzer files (#1841)
+
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
 
-    // Test 2D problem
-    void TestSimpleLinearParabolicSolver2DZeroDirichWithSourceTerm()
+    void TestSimpleLinearParabolicSolver2DNonzeroDirichWithSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -342,10 +352,9 @@ public:
         // Instantiate PDE object
         HeatEquationWithSourceTerm<2> pde;
 
-        // Boundary conditions
+        // Create non-zero Dirichlet boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -356,10 +365,15 @@ public:
             iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2)
+        // Set start and end times and timestep
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+
+        // Set initial condition u(0,x,y) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2)
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -368,13 +382,9 @@ public:
             init_cond[i] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.001);
-
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -387,12 +397,13 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, 0.05);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
 
-    /// Test 2D problem \todo This test fails with current tolerance
-    void xTestSimpleLinearParabolicSolver2DZeroDirichWithSourceTermOnFineMeshWithSmallDt()
+    ///\todo This test fails with current tolerance
+    void xTestSimpleLinearParabolicSolver2DNonzeroDirichletWithSourceTermOnFineMeshWithSmallDt()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -405,10 +416,9 @@ public:
         // Instantiate PDE object
         HeatEquationWithSourceTerm<2> pde;
 
-        // Boundary conditions
+        // Create non-zero Dirichlet boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorEnd();
-
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -419,15 +429,18 @@ public:
             iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2)
-        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
+        // Set start and end times and timestep
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
 
+        // Set initial condition u(0,x,y) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2)
+        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
-
         int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
@@ -438,20 +451,16 @@ public:
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
-
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.001);
-
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
 
         // Check result
         double* p_result;
         VecGetArray(result, &p_result);
 
-        // SCheck solution is u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
+        // Check solution is u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
@@ -461,26 +470,25 @@ public:
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
         VecRestoreArray(result, &p_result);
+
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
 
-    // Test 2D problem
-    void TestSimpleLinearParabolicSolver2DNeumannOnCoarseMesh()
+    void TestSimpleLinearParabolicSolver2DMixedOnCoarseMesh()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
-
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
         HeatEquation<2> pde;
 
-        // Boundary conditions
+        // Create mixed boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
@@ -488,8 +496,7 @@ public:
 
             if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
             {
-                ConstBoundaryCondition<2>* p_dirichlet_boundary_condition
-                = new ConstBoundaryCondition<2>(x);
+                ConstBoundaryCondition<2>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<2>(x);
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
 
@@ -509,14 +516,18 @@ public:
             {
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             }
-
             surf_iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
+        // Set start and end times and timestep
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.01);
+
+        // Set initial condition u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -525,14 +536,9 @@ public:
             init_cond[i] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
-        solver.SetTimeStep(0.01);
-
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -545,12 +551,12 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, u*0.15);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
 
-    // Test 2D problem
-    void TestSimpleLinearParabolicSolver2DNeumann()
+    void TestSimpleLinearParabolicSolver2DMixed()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -564,7 +570,7 @@ public:
         // Instantiate PDE object
         HeatEquation<2> pde;
 
-        // Boundary conditions
+        // Create mixed boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
 
@@ -585,7 +591,6 @@ public:
 
         TetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(1.0);
-
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
@@ -599,10 +604,14 @@ public:
             surf_iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
+        // Set start and end times and timestep
+        solver.SetTimes(0, 0.1);
+        solver.SetTimeStep(0.01);
+
+        // Set initial condition u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -611,12 +620,9 @@ public:
             init_cond[i] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        solver.SetTimes(0, 0.1);
-        solver.SetTimeStep(0.01);
-
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -629,6 +635,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i], u, u*0.1);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -643,7 +650,7 @@ public:
         // Instantiate PDE object
         HeatEquation<2> pde;
 
-        // Boundary conditions - non-zero constant dirichlet on boundary
+        // Create non-zero constant Dirichlet boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<2>* dirichlet_bc = new ConstBoundaryCondition<2>(-84.5);
@@ -653,18 +660,19 @@ public:
             iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        // Initial condition
-        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
-
+        // Set start and end times and timestep
         double t_end = 1.0;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
 
+        // Set initial condition
+        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -674,6 +682,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0002);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -688,7 +697,7 @@ public:
         // Instantiate PDE object
         HeatEquation<1> pde;
 
-        // Boundary conditions - non-zero constant dirichlet on boundary
+        // Create non-zero constant Dirichlet boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         TetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<1>* dirichlet_bc = new ConstBoundaryCondition<1>(-84.5);
@@ -698,18 +707,19 @@ public:
             iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        // Initial condition
-        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
-
+        // Set start and end times and timestep
         double t_end = 1;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
 
+        // Set initial condition
+        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
         solver.SetInitialCondition(initial_condition);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -719,6 +729,7 @@ public:
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0001);
         }
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -726,7 +737,7 @@ public:
     /*
      * Commented out heat equation with 2d mesh and initial condition non-zero at
      * centre, writing out data (doesn't test anything, wanted to see if we get a
-     * circulardiffusion pattern on such a small mesh, to compare with monodomain
+     * circular diffusion pattern on such a small mesh, to compare with monodomain
      * with centre stimulus - result doesn't look like a circle).
      * !Need to change the diffusion coefficient to 0.001 if running this!
      */
@@ -740,21 +751,21 @@ public:
         // Instantiate PDE object
         HeatEquation<2> pde;
 
+        // Create zero Neumann boundary condition
         BoundaryConditionsContainer<2,2,1> bcc;
         TetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             surf_iter++;
         }
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
         /*
-         * Choose initial condition sin(x*pi)*sin(y*pi) as this
+         * Set  initial condition u(0,x,y) = sin(x*pi)*sin(y*pi) as this
          * is an eigenfunction of the heat equation.
          */
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -782,11 +793,12 @@ public:
             }
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
+        solver.SetInitialCondition(initial_condition);
 
+        // Set start and end times and timestep
         double time = 0;
         double t_end = 0.1;
         double dt = 0.001;
-        solver.SetInitialCondition(initial_condition);
 
         int time_var_id = 0;
         int heat_var_id = 0;
@@ -813,6 +825,7 @@ public:
             time += dt;
             solver.SetTimes(time, time+dt);
 
+            // Solve PDE and store solution
             result = solver.Solve();
 
             solver.SetInitialCondition(result);
@@ -821,6 +834,8 @@ public:
             p_test_writer->PutVector(heat_var_id, result);
             p_test_writer->AdvanceAlongUnlimitedDimension();
         }
+
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
@@ -839,16 +854,22 @@ public:
         // Instantiate PDE object
         HeatEquation<1> pde;
 
-        // Boundary conditions - zero dirichlet at first and last node
+        // Create zero Dicihlet boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
 
-        // Solver
+        // Create PDE solver
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        // Initial condition u(0,x) = sin(x*pi)
+        ToyController controller;
+
+        // Set start and end times and timestep
+        double t_end = 0.1;
+        solver.SetTimes(0, t_end);
+
+        // Set initial condition u(0,x) = sin(x*pi)
         std::vector<double> init_cond(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -856,16 +877,12 @@ public:
             init_cond[i] = sin(x*M_PI);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-
-        ToyController controller;
-
-        double t_end = 0.1;
-        solver.SetTimes(0, t_end);
         solver.SetInitialCondition(initial_condition);
 
         // In this test we don't set a timestep, but instead give a timestep controller
         solver.SetTimeAdaptivityController(&controller);
 
+        // Solve PDE and store solution
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
@@ -881,6 +898,7 @@ public:
         solver.SetMatrixIsNotAssembled();
         TS_ASSERT_EQUALS(solver.mMatrixIsAssembled, false);
 
+        // Tidy up
         VecDestroy(initial_condition);
         VecDestroy(result);
     }

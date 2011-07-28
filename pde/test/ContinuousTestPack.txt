@@ -10,6 +10,7 @@ TestConstBoundaryCondition.hpp
 TestCoupledCableTestProblem.hpp
 TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp
+TestHdf5Converters.hpp
 TestIncompressibleNonlinearElasticitySolver.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
