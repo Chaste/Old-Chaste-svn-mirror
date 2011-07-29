@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTimeAdaptivityController.hpp"
 #include "Hdf5DataWriter.hpp"
 #include "Hdf5ToVtkConverter.hpp"
+#include "Hdf5ToTxtConverter.hpp"
 
 /**
  * Abstract class for dynamic linear PDE solves.
@@ -99,6 +100,12 @@ protected:
      * Defaults to false in the constructor.
      */
     bool mOutputToParallelVtk;
+
+    /**
+     * Flag to say if we need to output to a .txt format that is readable by Matlab.
+     * Defaults to false in the constructor.
+     */
+    bool mOutputToTxt;
 
     /** Output directory (a subfolder of tmp/[USERNAME]/testoutput). */
     std::string mOutputDirectory;
@@ -193,6 +200,11 @@ public:
     void SetOutputToParallelVtk(bool output);
 
     /**
+     * @param output whether to output to a .txt format that is readable by Matlab
+     */
+    void SetOutputToTxt(bool output);
+
+    /**
      * @param outputDirectory the output directory
      * @param prefix the filename prefix
      */
@@ -256,6 +268,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDyn
       mOutputToMeshalyzer(false),
       mOutputToVtk(false),
       mOutputToParallelVtk(false),
+      mOutputToTxt(false),
       mOutputDirectory(""),
       mFilenamePrefix(""),
       mPrintingTimestepMultiple(1),
@@ -327,7 +340,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 	}
 
 	// If required, initialise HDF5 writer and output initial condition to HDF5 file
-	bool print_output = (mOutputToMeshalyzer || mOutputToVtk || mOutputToParallelVtk);
+	bool print_output = (mOutputToMeshalyzer || mOutputToVtk || mOutputToParallelVtk || mOutputToTxt);
 	if (print_output)
 	{
 		InitialiseHdf5Writer();
@@ -451,6 +464,10 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
     {
         Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, this->mpMesh, true, false);
     }
+    if (mOutputToTxt)
+    {
+        Hdf5ToTxtConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, this->mpMesh);
+    }
 
     return solution;
 }
@@ -485,6 +502,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToParallelVtk(bool output)
 {
 	mOutputToParallelVtk = output;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToTxt(bool output)
+{
+    mOutputToTxt = output;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
