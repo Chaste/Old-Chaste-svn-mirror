@@ -264,9 +264,6 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.3, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 1.2+0.2*sqrt(41.0), 1e-6);
 
-        TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.3, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 1.2+0.2*sqrt(41.0), 1e-6);
-
         // Perform a T1 swap on nodes 4 and 5
         VertexElementMap map(vertex_mesh.GetNumElements());
         vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), map);
@@ -2664,6 +2661,208 @@ public:
         {
             bool expected_boundary_node = (i!=6);
             TS_ASSERT_EQUALS(mesh.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
+        }
+    }
+
+    void TestPerformIntersectionSwap() throw(Exception)
+    {
+        {
+            //Make 6 nodes to assign to 4 elements.
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(4, false, 0.4, 0.5));
+            nodes.push_back(new Node<2>(5, false, 0.6, 0.5));
+
+            // Make two triangular and two rhomboid elements out of these nodes
+            std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
+            unsigned node_indices_elem_0[3] = {2, 3, 5};
+            unsigned node_indices_elem_1[4] = {2, 5, 4, 1};
+            unsigned node_indices_elem_2[3] = {1, 4, 0};
+            unsigned node_indices_elem_3[4] = {0, 4, 5, 3};
+            for (unsigned i=0; i<4; i++)
+            {
+                if (i < 3)
+                {
+                    nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
+                    nodes_elem_2.push_back(nodes[node_indices_elem_2[i]]);
+                }
+                nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
+                nodes_elem_3.push_back(nodes[node_indices_elem_3[i]]);
+            }
+
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+            vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
+
+            // Make a vertex mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+
+            // Test areas and perimeters of elements
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0), 2.42134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(1), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(1), 2.62134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(2), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(2), 2.42134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 2.62134, 1e-4);
+
+            // Move node 4  so that it overlaps element 0
+            ChastePoint<2> point = vertex_mesh.GetNode(4)->GetPoint();
+            point.SetCoordinate(1u, 0.7);
+            vertex_mesh.SetNode(4, point);
+
+            // Merge intersection to maintain non overlaping elements
+            VertexElementMap map(vertex_mesh.GetNumElements());
+            vertex_mesh.PerformIntersectionSwap(vertex_mesh.GetNode(4),0u);
+
+
+            // Test moved nodes are in the correct place
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.4, 1e-8);
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.7, 1e-8);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.6, 1e-3);
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], 0.5, 1e-3);
+
+            // Test elements have correct nodes
+            unsigned node_indices_element_0[4] = {2, 3, 4, 5};
+            unsigned node_indices_element_1[3] = {2, 5, 1};
+            unsigned node_indices_element_2[4] = {1, 5, 4, 0};
+            unsigned node_indices_element_3[3] = {0, 4, 3};
+            for (unsigned i=0; i<4; i++)
+            {
+                TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(i), node_indices_element_0[i]);
+                TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(i), node_indices_element_2[i]);
+                if (i < 3)
+                {
+                    TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(i), node_indices_element_1[i]);
+                    TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNodeGlobalIndex(i), node_indices_element_3[i]);
+                }
+            }
+
+            // Test areas and perimeters of elements
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.24, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0),  2.4232, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(1), 0.2, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(1), 2.2806, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(2), 0.36, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(2), 2.7294, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.2, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 2.3062, 1e-4);
+        }
+
+        // do other way round for coverage
+        {
+            //Make 6 nodes to assign to 4 elements.
+            std::vector<Node<2>*> nodes;
+            nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+            nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+            nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+            nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+            nodes.push_back(new Node<2>(4, false, 0.4, 0.5));
+            nodes.push_back(new Node<2>(5, false, 0.6, 0.5));
+
+            // Make two triangular and two rhomboid elements out of these nodes
+            std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
+            unsigned node_indices_elem_0[3] = {2, 3, 4};
+            unsigned node_indices_elem_1[4] = {0, 5, 4, 3};
+            unsigned node_indices_elem_2[3] = {1, 5, 0};
+            unsigned node_indices_elem_3[4] = {2, 4, 5, 1};
+            for (unsigned i=0; i<4; i++)
+            {
+                if (i < 3)
+                {
+                    nodes_elem_0.push_back(nodes[node_indices_elem_0[i]]);
+                    nodes_elem_2.push_back(nodes[node_indices_elem_2[i]]);
+                }
+                nodes_elem_1.push_back(nodes[node_indices_elem_1[i]]);
+                nodes_elem_3.push_back(nodes[node_indices_elem_3[i]]);
+            }
+
+            std::vector<VertexElement<2,2>*> vertex_elements;
+            vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+            vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+            vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+            vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
+
+            // Make a vertex mesh
+            MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
+            TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+
+            // Test areas and perimeters of elements
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0), 2.42134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(1), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(1), 2.62134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(2), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(2), 2.42134, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.25, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 2.62134, 1e-4);
+
+            // Move node 5 so that it overlaps element 0
+            ChastePoint<2> point = vertex_mesh.GetNode(5)->GetPoint();
+            point.SetCoordinate(1u, 0.7);
+            vertex_mesh.SetNode(5, point);
+
+            // Merge intersection to maintain non overlaping elements
+            VertexElementMap map(vertex_mesh.GetNumElements());
+            vertex_mesh.PerformIntersectionSwap(vertex_mesh.GetNode(5),0u);
+
+
+            // Test moved nodes are in the correct place
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.4, 1e-8);
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.5, 1e-8);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[0], 0.6, 1e-3);
+            TS_ASSERT_DELTA(vertex_mesh.GetNode(5)->rGetLocation()[1], 0.7, 1e-3);
+
+            // Test elements have correct nodes
+            unsigned node_indices_element_0[4] = {2, 3, 4, 5};
+            unsigned node_indices_element_1[3] = {0, 4, 3};
+            unsigned node_indices_element_2[4] = {1, 5, 4, 0};
+            unsigned node_indices_element_3[3] = {2, 5, 1};
+            for (unsigned i=0; i<4; i++)
+            {
+                TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(i), node_indices_element_0[i]);
+                TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(i), node_indices_element_2[i]);
+                if (i < 3)
+                {
+                    TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(i), node_indices_element_1[i]);
+                    TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNodeGlobalIndex(i), node_indices_element_3[i]);
+                }
+            }
+
+            // Test areas and perimeters of elements
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(0), 0.24, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(0),  2.4232, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(1), 0.2, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(1), 2.2806, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(2), 0.36, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(2), 2.7294, 1e-4);
+
+            TS_ASSERT_DELTA(vertex_mesh.GetVolumeOfElement(3), 0.2, 1e-6);
+            TS_ASSERT_DELTA(vertex_mesh.GetSurfaceAreaOfElement(3), 2.3062, 1e-4);
         }
     }
 };

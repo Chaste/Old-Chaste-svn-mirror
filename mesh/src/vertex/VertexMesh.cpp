@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
+#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -1195,6 +1196,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
             min_distance_edge_index = local_index;
         }
     }
+    assert(min_distance_edge_index<num_nodes);
+
     return min_distance_edge_index;
 }
 
@@ -1222,7 +1225,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
         c_vector<double, 2> original_pos_1 = p_element->GetNodeLocation(node_1);
         c_vector<double, 2> original_pos_2 = p_element->GetNodeLocation(node_2);
 
-        // Node position so centerd on origin
+        // Node position so centered on origin
         c_vector<double, 2> pos_1 = this->GetVectorFromAtoB(centroid, original_pos_1);
         c_vector<double, 2> pos_2 = this->GetVectorFromAtoB(centroid, original_pos_2);
 

@@ -172,6 +172,16 @@ protected:
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, std::set<unsigned>& rElementsContainingNodes);
 
     /**
+     * Helper method for ReMesh to perform an element swap to fix overlaping elements
+     *
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     *
+     * @param pNode pointer to the node
+     * @param elementIndex global index of the element in the mesh
+     */
+    void PerformIntersectionSwap(Node<SPACE_DIM>* pNode, unsigned elementIndex);
+
+    /**
      * Helper method for ReMesh to perform the T2 Swap
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
