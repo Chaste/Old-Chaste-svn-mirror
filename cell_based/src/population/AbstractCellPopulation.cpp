@@ -632,7 +632,11 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
         WriteCellIdDataToFile();
     }
 
-    WriteVtkResultsToFile();
+    // Vtk can only be written in 2 or 3 dimensions.
+    if(DIM>1)
+    {
+     	WriteVtkResultsToFile();
+    }
 }
 
 template<unsigned DIM>
