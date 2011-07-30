@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "Warnings.hpp"
 
-
 class TestStokesFlow : public CxxTest::TestSuite
 {
 public:
@@ -51,7 +50,7 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
 		QuadraticMesh<2> mesh;
-        TrianglesMeshReader<2,2> mesh_reader("pde/test/data/canonical_triangle_quadratic",2,2,false);
+        TrianglesMeshReader<2,2> mesh_reader("pde/test/data/canonical_triangle_quadratic", 2, 2, false);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<unsigned> dirichlet_nodes;
@@ -60,11 +59,7 @@ public:
         double mu = 1.0;
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        StokesFlowSolver<2> solver(mu,
-                                   &mesh,
-                                   body_force,
-                                   "",
-                                   dirichlet_nodes);
+        StokesFlowSolver<2> solver(mu, &mesh, body_force, "", dirichlet_nodes);
 
         c_matrix<double, 15, 15 > A_elem;
         c_matrix<double, 15, 15 > A_elem_precond;
@@ -72,51 +67,49 @@ public:
 
         solver.AssembleOnElement(*(mesh.GetElement(0)), A_elem, A_elem_precond, b_elem);
 
+		double A[6][6] = {
+                           {      1.0,  1.0/6.0,  1.0/6.0,      0.0, -2.0/3.0, -2.0/3.0},
+                           {  1.0/6.0,  1.0/2.0,      0.0,      0.0,      0.0, -2.0/3.0},
+                           {  1.0/6.0,      0.0,  1.0/2.0,      0.0, -2.0/3.0,      0.0},
+                           {      0.0,      0.0,      0.0,  8.0/3.0, -4.0/3.0, -4.0/3.0},
+                           { -2.0/3.0,      0.0, -2.0/3.0, -4.0/3.0,  8.0/3.0,      0.0},
+                           { -2.0/3.0, -2.0/3.0,      0.0, -4.0/3.0,      0.0,  8.0/3.0}
+                         };
 
-		double A[6][6]={
-                            {      1.0,  1.0/6.0,  1.0/6.0,      0.0, -2.0/3.0, -2.0/3.0},
-                            {  1.0/6.0,  1.0/2.0,      0.0,      0.0,      0.0, -2.0/3.0},
-                            {  1.0/6.0,      0.0,  1.0/2.0,      0.0, -2.0/3.0,      0.0},
-                            {      0.0,      0.0,      0.0,  8.0/3.0, -4.0/3.0, -4.0/3.0},
-                            { -2.0/3.0,      0.0, -2.0/3.0, -4.0/3.0,  8.0/3.0,      0.0},
-                            { -2.0/3.0, -2.0/3.0,      0.0, -4.0/3.0,      0.0,  8.0/3.0}
-                       };
-
-		double Bx[6][3]={
+		double Bx[6][3] = {
                             { -1.0/6.0,      0.0,      0.0},
                             {      0.0,  1.0/6.0,      0.0},
                             {      0.0,      0.0,      0.0},
                             {  1.0/6.0,  1.0/6.0,  1.0/3.0},
                             { -1.0/6.0, -1.0/6.0, -1.0/3.0},
                             {  1.0/6.0, -1.0/6.0,      0.0},
-                        };
+                         };
 
-		double By[6][3]={
+		double By[6][3] = {
                             { -1.0/6.0,      0.0,      0.0},
                             {      0.0,      0.0,      0.0},
                             {      0.0,      0.0,  1.0/6.0},
                             {  1.0/6.0,  1.0/3.0,  1.0/6.0},
                             {  1.0/6.0,      0.0, -1.0/6.0},
                             { -1.0/6.0, -1.0/3.0, -1.0/6.0},
-                        };
-
+                          };
 
         c_matrix<double,15,15> exact_ael = zero_matrix<double>(15);
 
         // The diagonal 6x6 blocks
-        for (int i=0; i<6; i++)
+        for (unsigned i=0; i<6; i++)
         {
-            for (int j=0; j<6; j++)
+            for (unsigned j=0; j<6; j++)
             {
                 exact_ael(2*i,  2*j)   = A[i][j];
                 exact_ael(2*i+1,2*j+1) = A[i][j];
             }
         }
 
-         // The 6x3 Blocks
-        for (int i=0; i<6; i++)
+        // The 6x3 Blocks
+        for (unsigned i=0; i<6; i++)
         {
-            for (int j=0; j<3; j++)
+            for (unsigned j=0; j<3; j++)
             {
                 exact_ael(2*i,12+j)   = -Bx[i][j];
                 exact_ael(2*i+1,12+j) = -By[i][j];
@@ -126,18 +119,18 @@ public:
             }
         }
 
-		for (int i=0; i<15; i++)
+		for (unsigned i=0; i<15; i++)
 		{
-			for (int j=0; j<15; j++)
+			for (unsigned j=0; j<15; j++)
 			{
-			    if (fabs(A_elem(i,j))<1e-9)
+			    if (fabs(A_elem(i,j)) < 1e-9)
                 {
                     A_elem(i,j) = 0.0;
                 }
 
-				TS_ASSERT_DELTA(A_elem(i,j),exact_ael(i,j),1e-9);
+				TS_ASSERT_DELTA(A_elem(i,j), exact_ael(i,j), 1e-9);
 			}
-			TS_ASSERT_DELTA(b_elem(i),0.0,1e-9);
+			TS_ASSERT_DELTA(b_elem(i), 0.0, 1e-9);
 		}
 
         // Test Warnings
@@ -147,19 +140,19 @@ public:
 	}
 
 	/*
-	 * solution is u = [x, -y], p = const (= 1 as applying zero-Neumann on RHS)
+	 * Solution is u = [x, -y], p = const (= 1 as applying zero-Neumann on RHS).
 	 * Dirichlet BC applied on three sides, zero-Neumann on the other (so pressure is fully defined)
-	 * Just 2 elements
+	 * Just two elements.
 	 */
 	void TestStokesWithDirichletVerySimple() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        // set up a mesh on [0 1]x[0 1]
+        // Set up a mesh on [0 1]x[0 1]
         unsigned num_elem = 1;
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
-        // material params
+        // Dynamic viscosity
         double mu = 1.0;
 
         // Boundary flow
@@ -167,10 +160,11 @@ public:
         std::vector<c_vector<double,2> > dirichlet_flow;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x=mesh.GetNode(i)->rGetLocation()[0];
-            double y=mesh.GetNode(i)->rGetLocation()[1];
-            // Only apply on Top Bottom and LHS
-            if ( x ==0.0  || y ==0.0 || y == 1.0 )
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            double y = mesh.GetNode(i)->rGetLocation()[1];
+
+            // Only apply on top, bottom and left boundaries
+            if (x == 0.0 || y == 0.0 || y == 1.0)
             {
                 dirichlet_nodes.push_back(i);
                 c_vector<double,2> flow = zero_vector<double>(2);
@@ -180,22 +174,16 @@ public:
                 dirichlet_flow.push_back(flow);
             }
         }
-        assert(dirichlet_flow.size()==7);
+        assert(dirichlet_flow.size() == 7);
 
-
-        StokesFlowSolver<2> solver(mu,
-                                   &mesh,
-                                   zero_vector<double>(2),
-                                   "SimpleStokesFlow",
-                                   dirichlet_nodes,
-                                   &dirichlet_flow);
+        StokesFlowSolver<2> solver(mu, &mesh, zero_vector<double>(2), "SimpleStokesFlow", dirichlet_nodes, &dirichlet_flow);
 
         solver.Solve();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x=mesh.GetNode(i)->rGetLocation()[0];
-            double y=mesh.GetNode(i)->rGetLocation()[1];
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            double y = mesh.GetNode(i)->rGetLocation()[1];
 
             TS_ASSERT_DELTA(solver.rGetVelocities()[i](0), x,  1e-5);
             TS_ASSERT_DELTA(solver.rGetVelocities()[i](1), -y, 1e-5);
@@ -203,7 +191,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
-            TS_ASSERT_DELTA(solver.rGetPressures()[i], 1.0, 1e-5 );
+            TS_ASSERT_DELTA(solver.rGetPressures()[i], 1.0, 1e-5);
         }
 
         // Test Warnings
@@ -212,10 +200,9 @@ public:
         Warnings::QuietDestroy();
     }
 
-
 	/*
-	 * Solution is u = [y(1-y), 0], p = 2(1-x)
-	 * Dirichlet BC applied on three sides, zero-Neumann on the other (so pressure is fully defined)
+	 * Solution is u = [y(1-y), 0], p = 2(1-x).
+	 * Dirichlet BC applied on three sides, zero-Neumann on the other (so pressure is fully defined).
 	 */
 	void TestStokesWithImposedPipeCondition() throw(Exception)
     {
@@ -225,7 +212,7 @@ public:
 		unsigned num_elem = 5;
 		QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
-		// material params
+		// Dynamic viscosity
 		double mu = 1.0;
 
 		// Boundary flow
@@ -233,9 +220,9 @@ public:
 		std::vector<c_vector<double,2> > dirichlet_flow;
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double x=mesh.GetNode(i)->rGetLocation()[0];
-			double y=mesh.GetNode(i)->rGetLocation()[1];
-			if ( x ==0.0 || y == 0.0 || y == 1.0)
+			double x = mesh.GetNode(i)->rGetLocation()[0];
+			double y = mesh.GetNode(i)->rGetLocation()[1];
+			if (x == 0.0 || y == 0.0 || y == 1.0)
 			{
 				dirichlet_nodes.push_back(i);
 				c_vector<double,2> flow = zero_vector<double>(2);
@@ -246,26 +233,20 @@ public:
 			}
 		}
 
-		assert(dirichlet_flow.size()== 6*num_elem +1);
+		assert(dirichlet_flow.size() == 6*num_elem +1);
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu,
-								   &mesh,
-								   body_force,
-								   "PipeStokesFlow",
-								   dirichlet_nodes,
-								   &dirichlet_flow);
+		StokesFlowSolver<2> solver(mu, &mesh, body_force, "PipeStokesFlow", dirichlet_nodes, &dirichlet_flow);
 
-		//Uncomment to make errors smaller
+		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);
 
 		solver.Solve();
 
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double y=mesh.GetNode(i)->rGetLocation()[1];
-
+			double y = mesh.GetNode(i)->rGetLocation()[1];
 			double exact_flow_x = y*(1-y);
 			double exact_flow_y = 0.0;
 
@@ -275,8 +256,7 @@ public:
 
 		for (unsigned i=0; i<mesh.GetNumVertices(); i++)
 		{
-			double x=mesh.GetNode(i)->rGetLocation()[0];
-
+			double x = mesh.GetNode(i)->rGetLocation()[0];
 			double exact_pressure = 2*(1-x);
 
 			TS_ASSERT_DELTA( solver.rGetPressures()[i], exact_pressure, 1e-3);
@@ -284,10 +264,10 @@ public:
     }
 
 	/*
-	 * Solution is u = [20xy^3, 5x^4-5y^4], p = 60x^2y-20y^3+const
+	 * Solution is u = [20xy^3, 5x^4-5y^4], p = 60x^2y-20y^3+const.
 	 * Dirichlet BC applied on all 4 sides so pressure is not fully defined.
-	 * This might not be a great test problem discuss with Dave Kay.
-	 * Just 2 elements
+	 * This might not be a great test problem; discuss with Dave Kay.
+	 * Just two elements.
 	 */
 	void TestStokesWithAnalyticSolution() throw(Exception)
     {
@@ -296,9 +276,9 @@ public:
         // set up a mesh on [-1 1]x[-1 1]
         unsigned num_elem = 20;
         QuadraticMesh<2> mesh(2.0/num_elem, 2.0, 2.0);
-        mesh.Translate(-1.0,-1.0);
+        mesh.Translate(-1.0, -1.0);
 
-        // material params
+        // Dynamic viscosity
         double mu = 1.0;
 
         // Boundary flow
@@ -306,9 +286,9 @@ public:
         std::vector<c_vector<double,2> > dirichlet_flow;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-        	double x=mesh.GetNode(i)->rGetLocation()[0];
-        	double y=mesh.GetNode(i)->rGetLocation()[1];
-            if ( x ==-1.0  || x ==1.0 || y == -1.0 || y == 1.0)
+        	double x = mesh.GetNode(i)->rGetLocation()[0];
+        	double y = mesh.GetNode(i)->rGetLocation()[1];
+            if (x == -1.0 || x == 1.0 || y == -1.0 || y == 1.0)
             {
                 dirichlet_nodes.push_back(i);
                 c_vector<double,2> flow = zero_vector<double>(2);
@@ -319,16 +299,11 @@ public:
             }
         }
 
-        assert(dirichlet_flow.size()== 8*num_elem);
+        assert(dirichlet_flow.size() == 8*num_elem);
 
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        StokesFlowSolver<2> solver(mu,
-                                   &mesh,
-                                   body_force,
-                                   "AnalyticalStokesFlow",
-                                   dirichlet_nodes,
-                                   &dirichlet_flow);
+        StokesFlowSolver<2> solver(mu, &mesh, body_force, "AnalyticalStokesFlow", dirichlet_nodes, &dirichlet_flow);
 
         // Change tolerance for coverage
         solver.SetKspAbsoluteTolerance(1e-8);
@@ -337,8 +312,8 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x=mesh.GetNode(i)->rGetLocation()[0];
-            double y=mesh.GetNode(i)->rGetLocation()[1];
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            double y = mesh.GetNode(i)->rGetLocation()[1];
 
             double exact_flow_x = 20.0*x*y*y*y;
             double exact_flow_y = 5.0*x*x*x*x - 5.0*y*y*y*y;
@@ -347,35 +322,36 @@ public:
             TS_ASSERT_DELTA(solver.rGetVelocities()[i](1), exact_flow_y, 1e-2);
         }
 
-    	double x0=mesh.GetNode(0)->rGetLocation()[0];
-		double y0=mesh.GetNode(0)->rGetLocation()[1];
+    	double x0 = mesh.GetNode(0)->rGetLocation()[0];
+		double y0 = mesh.GetNode(0)->rGetLocation()[1];
 		double exact_pressure_0 = 60.0*x0*x0*y0 -20.0*y0*y0*y0;
 		double pressure_diff = solver.rGetPressures()[0] - exact_pressure_0;
 
         for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
-        	double x=mesh.GetNode(i)->rGetLocation()[0];
-			double y=mesh.GetNode(i)->rGetLocation()[1];
+        	double x = mesh.GetNode(i)->rGetLocation()[0];
+			double y = mesh.GetNode(i)->rGetLocation()[1];
 
 			double exact_pressure = 60.0*x*x*y -20.0*y*y*y;
 
-            TS_ASSERT_DELTA( solver.rGetPressures()[i], exact_pressure + pressure_diff, 1e-0 );//TODO This error is masive!
+            ///\todo This error is massive!
+            TS_ASSERT_DELTA( solver.rGetPressures()[i], exact_pressure + pressure_diff, 1e-0);
         }
     }
 
 	/*
-	 * simulation with regularised lid driven cavity u=1-x^4 on the top
+	 * Simulation with regularised lid driven cavity u=1-x^4 on the top.
 	 */
 	void TestStokesWithLidCavity() throw(Exception)
 	{
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-		// set up a mesh on [-1 1]x[-1 1]
+		// Set up a mesh on [-1 1]x[-1 1]
 		unsigned num_elem = 5;
 		QuadraticMesh<2> mesh(2.0/num_elem, 2.0, 2.0);
-	    mesh.Translate(-1.0,-1.0);
+	    mesh.Translate(-1.0, -1.0);
 
-		// material params
+		// Dynamic viscosity
 		double mu = 1.0;
 
 		// Boundary flow
@@ -383,9 +359,9 @@ public:
 		std::vector<c_vector<double,2> > dirichlet_flow;
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double x=mesh.GetNode(i)->rGetLocation()[0];
-			double y=mesh.GetNode(i)->rGetLocation()[1];
-			if ( x == -1.0 || x == 1.0 || y == -1.0)
+			double x = mesh.GetNode(i)->rGetLocation()[0];
+			double y = mesh.GetNode(i)->rGetLocation()[1];
+			if (x == -1.0 || x == 1.0 || y == -1.0)
 			{
 				dirichlet_nodes.push_back(i);
 				c_vector<double,2> flow = zero_vector<double>(2);
@@ -407,24 +383,19 @@ public:
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu,
-								   &mesh,
-								   body_force,
-								   "LidCavityStokesFlow",
-								   dirichlet_nodes,
-								   &dirichlet_flow);
+		StokesFlowSolver<2> solver(mu, &mesh, body_force, "LidCavityStokesFlow", dirichlet_nodes, &dirichlet_flow);
 
-		//Uncomment to make errors smaller
+		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);
 
 		solver.Solve();
 
-	    //TODO Test something
+	    ///\todo Test something
 	}
 
 	/*
-	 * Solution is u = [y(1-y), 0], p = 2(2-x)
-	 * Dirichlet BC applied on top and bottom, Neumann on the ends p(x=0)=3, p(x=1)=1,
+	 * Solution is u = [y(1-y), 0], p = 2(2-x).
+	 * Dirichlet BC applied on top and bottom, Neumann on the ends p(x=0)=3, p(x=1)=1.
 	 */
 	void TestPoiseuilleFlow() throw(Exception)
 	{
@@ -434,7 +405,7 @@ public:
 		unsigned num_elem = 5;
 		QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
-		// material params
+		// Dynamic viscosity
 		double mu = 1.0;
 
 		// Boundary flow
@@ -443,8 +414,9 @@ public:
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double y=mesh.GetNode(i)->rGetLocation()[1];
+
 			// Fix top and bottom
-			if ( y == 0.0 || y == 1.0)
+			if (y == 0.0 || y == 1.0)
 			{
 				dirichlet_nodes.push_back(i);
 				c_vector<double,2> flow = zero_vector<double>(2);
@@ -458,10 +430,9 @@ public:
 		std::vector<BoundaryElement<1,2>*> boundary_elems;
 		std::vector<c_vector<double,2> > normal_stresses;
 
-		for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
-              = mesh.GetBoundaryElementIteratorBegin();
-            iter != mesh.GetBoundaryElementIteratorEnd();
-            ++iter)
+		for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+             iter != mesh.GetBoundaryElementIteratorEnd();
+             ++iter)
         {
             if (fabs((*iter)->CalculateCentroid()[0]) < 1e-4)
             {
@@ -473,41 +444,35 @@ public:
 
                 normal_stresses.push_back(normal_stress);
             }
-            else if(fabs((*iter)->CalculateCentroid()[0] - 1.0) < 1e-4)
+            else if (fabs((*iter)->CalculateCentroid()[0] - 1.0) < 1e-4)
             {
             	BoundaryElement<1,2>* p_element = *iter;
 				boundary_elems.push_back(p_element);
 
 				c_vector<double,2> normal_stress = zero_vector<double>(2);
-				//This is negative because the outward pointing normal at this edge is opposite to the other edge
+
+				// This is negative because the outward pointing normal at this edge is opposite to the other edge
 				normal_stress[0] = -1;
 
 				normal_stresses.push_back(normal_stress);
             }
         }
-        assert(boundary_elems.size()==2.0*num_elem);
-
-
+        assert(boundary_elems.size() == 2*num_elem);
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu,
-								   &mesh,
-								   body_force,
-								   "PoiseuilleFlow",
-								   dirichlet_nodes,
-								   &dirichlet_flow);
+		StokesFlowSolver<2> solver(mu, &mesh, body_force, "PoiseuilleFlow", dirichlet_nodes, &dirichlet_flow);
 
 		solver.SetSurfaceNormalStressBoundaryConditions(boundary_elems, normal_stresses);
 
-		//Uncomment to make errors smaller
+		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);
 
 		solver.Solve();
 
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double y=mesh.GetNode(i)->rGetLocation()[1];
+			double y = mesh.GetNode(i)->rGetLocation()[1];
 
 			double exact_flow_x = y*(1-y);
 			double exact_flow_y = 0.0;
@@ -518,16 +483,12 @@ public:
 
 		for (unsigned i=0; i<mesh.GetNumVertices(); i++)
 		{
-			double x=mesh.GetNode(i)->rGetLocation()[0];
-
+			double x = mesh.GetNode(i)->rGetLocation()[0];
 			double exact_pressure = 2*(1-x) + 1;
 
 			TS_ASSERT_DELTA( solver.rGetPressures()[i], exact_pressure, 1e-3);
 		}
 	}
-
-
-
 };
 
 #endif // TESTSTOKESFLOWSOLVER_HPP_

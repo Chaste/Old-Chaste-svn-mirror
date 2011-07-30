@@ -43,52 +43,90 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #define MECHLIN_VERBOSE
 
+/**
+ * Finite element solver for Stokes flow problems.
+ * \todo improve documentation (#1806)
+ */
 template<unsigned DIM>
 class StokesFlowSolver
 {
 friend class TestStokesFlow;
 
 private:
-	/** Number of vertices per element */
+
+	/** Number of vertices per element. */
     static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
-    /** Number of nodes per element */
+
+    /** Number of nodes per element. */
     static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
-    /** Stencil size */
+
+    /** Stencil size. */
     static const unsigned STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
-    /** Number of nodes per boundary element */
+
+    /** Number of nodes per boundary element. */
     static const unsigned NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
-    /** Boundary stencil size */
+
+    /** Boundary stencil size. */
     static const unsigned BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
+    /** Dynamic viscosity. */
     double mMu;
+
+    /** Quadratic mesh. */
     QuadraticMesh<DIM>* mpQuadMesh;
+
+    /**
+     * Absolute tolerance for linear systems. Can be set by calling
+     * SetKspAbsoluteTolerances(), but default to -1, in which case
+     * a relative tolerance is used.
+     */
     double mKspAbsoluteTol;
+
+    /**
+     * Number of degrees of freedom (equal to, in the incompressible case:
+     * DIM*N + M if quadratic-linear bases are used, where there are N total
+     * nodes and M vertices; or DIM*N in the compressible case).
+     */
     unsigned mNumDofs;
 
+    /** Gaussian quadrature rule. */
     GaussianQuadratureRule<DIM>* mpQuadratureRule;
+
+    /** Boundary Gaussian quadrature rule. */
     GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
 
+    /** The linear system that will be set up and solved as part of the PDE solve. */
     LinearSystem* mpLinearSystem;
+
     LinearSystem* mpPreconditionMatrixLinearSystem;
 
+    /** Where to write output, relative to CHASTE_TESTOUTPUT. */
     std::string mOutputDirectory;
 
+    /** Applied body force. */
     c_vector<double,DIM> mBodyForce;
 
+    /** Vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity. */
     std::vector<unsigned> mDirichletNodes;
+
+    /** Vctor of Dirichlet boundary conditions for the fluid velocity. */
     std::vector<c_vector<double,DIM> > mDirichletVelocities;
 
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
     std::vector<c_vector<double,DIM> > mSurfaceNormalStresses;
 
-
+    /** The solution at each node. */
     std::vector<double> mSolution;
 
+    /** The velocity component of the solution at each node. */ 
     std::vector<c_vector<double,DIM> > mVelocitiesSolution;
+
+    /** The pressure component of the solution at each node. */
     std::vector<double> mPressureSolution;
 
     void AssembleSystem();
     void ApplyBoundaryConditions();
+
     void AssembleOnElement(Element<DIM, DIM>& rElement,
                            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
                            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
@@ -98,29 +136,65 @@ private:
                                    c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
                                    c_vector<double,DIM>& rNormalStress);
 
+    /**
+     * Allocates memory for the Jacobian and preconditioner matrices.
+     */
     void AllocateMatrixMemory();
 
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param mu the dynamic viscosity
+     * @param pQuadMesh pointer to a quadratic mesh
+     * @param bodyForce an applied body force
+     * @param outDirectory the output directory to use
+     * @param dirichletNodes vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity
+     * @param pDirichletVelocities vector of Dirichlet boundary conditions for the fluid velocity (defaults to NULL)
+     */
     StokesFlowSolver(double mu,
                      QuadraticMesh<DIM>* pQuadMesh,
                      c_vector<double,DIM> bodyForce,
                      std::string outputDirectory,
                      std::vector<unsigned>& dirichletNodes,
-                     std::vector<c_vector<double,DIM> >* pDirichletVelocities = NULL);
+                     std::vector<c_vector<double,DIM> >* pDirichletVelocities=NULL);
 
+    /**
+     * Destructor.
+     */
     virtual ~StokesFlowSolver();
 
+    /**
+     * Solve the system.
+     */
     void Solve();
 
+    /**
+     * Write the solution to file.
+     */
     void WriteOutput();
 
+    /**
+     * Set the absolute tolerance to be used when solving the linear system.
+     * If this is not called a relative tolerance is used.
+     *
+     * @param kspAbsoluteTolerance the tolerance
+     */
     void SetKspAbsoluteTolerance(double kspAbsoluteTolerance)
     {
-        assert(kspAbsoluteTolerance>0);
+        assert(kspAbsoluteTolerance > 0);
         mKspAbsoluteTol = kspAbsoluteTolerance;
     }
 
+    /**
+     * @return mVelocitiesSolution
+     */
     std::vector<c_vector<double,DIM> >& rGetVelocities();
+
+    /**
+     * @return mPressureSolution
+     */
     std::vector<double>& rGetPressures();
 
     void SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
@@ -132,20 +206,17 @@ public:
     }
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::ApplyBoundaryConditions()
 {
-    assert(mDirichletVelocities.size()==mDirichletNodes.size());
+    assert(mDirichletVelocities.size() == mDirichletNodes.size());
 
     std::vector<unsigned> rows;
     rows.resize(DIM*mDirichletNodes.size());
-
 
     for (unsigned i=0; i<mDirichletNodes.size(); i++)
     {
@@ -165,7 +236,6 @@ void StokesFlowSolver<DIM>::ApplyBoundaryConditions()
     mpPreconditionMatrixLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(rows, 1.0);
 }
 
-
 template<unsigned DIM>
 StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
 										QuadraticMesh<DIM>* pQuadMesh,
@@ -181,7 +251,7 @@ StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
       mBodyForce(bodyForce),
       mDirichletNodes(dirichletNodes)
 {
-    assert(mu>0);
+    assert(mu > 0);
     assert(pQuadMesh);
     assert(DIM==2 || DIM==3);
     assert(dirichletNodes.size() > 0);
@@ -196,8 +266,7 @@ StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
     mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
     mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
 
-    // compute the displacements at each of the fixed nodes, given the
-    // fixed nodes locations.
+    // Compute the displacements at each of the fixed nodes, given the fixed nodes locations
     if (pDirichletVelocities == NULL)
     {
         mDirichletVelocities.clear();
@@ -208,16 +277,15 @@ StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
     }
     else
     {
-        assert(pDirichletVelocities->size()==mDirichletNodes.size());
+        assert(pDirichletVelocities->size() == mDirichletNodes.size());
         for (unsigned i=0; i<mDirichletNodes.size(); i++)
         {
             c_vector<double,DIM> velocity = (*pDirichletVelocities)[i];
             mDirichletVelocities.push_back(velocity);
         }
     }
-    assert(mDirichletVelocities.size()==mDirichletNodes.size());
+    assert(mDirichletVelocities.size() == mDirichletNodes.size());
 }
-
 
 template<unsigned DIM>
 StokesFlowSolver<DIM>::~StokesFlowSolver()
@@ -225,6 +293,7 @@ StokesFlowSolver<DIM>::~StokesFlowSolver()
     delete mpLinearSystem;
     delete mpPreconditionMatrixLinearSystem;
     delete mpQuadratureRule;
+    delete mpBoundaryQuadratureRule;
 }
 
 template<unsigned DIM>
@@ -234,9 +303,7 @@ void StokesFlowSolver<DIM>::Solve()
     Timer::Reset();
     #endif
 
-    /////////////////////////////////////////////////////////////
     // Assemble Jacobian (and preconditioner)
-    /////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
     AssembleSystem();
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
@@ -263,10 +330,9 @@ void StokesFlowSolver<DIM>::Solve()
 
     KSPSetOperators(solver, r_jac, r_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
+    KSPSetType(solver, KSPGMRES);
 
-    KSPSetType(solver,KSPGMRES);
-
-    if(mKspAbsoluteTol < 0)
+    if (mKspAbsoluteTol < 0)
     {
         double ksp_rel_tol = 1e-6;
         KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
@@ -287,7 +353,6 @@ void StokesFlowSolver<DIM>::Solve()
 
     PC pc;
     KSPGetPC(solver, &pc);
-
 
 /////// What was going on before, when hypre was being used...
 //    #ifndef *****
@@ -317,9 +382,9 @@ void StokesFlowSolver<DIM>::Solve()
 //    mpLinearSystem->DisplayRhs();
 //
 //    std::cout << "Matrix\n";
-//    for (int i=0; i<22; i++)
+//    for (unsigned i=0; i<22; i++)
 //    {
-//        for (int j=0; j<22; j++)
+//        for (unsigned j=0; j<22; j++)
 //        {
 //            double val = PetscMatTools::GetElement(mpLinearSystem->rGetLhsMatrix(), i, j);
 //            if (fabs(val)<1e-9)
@@ -350,10 +415,10 @@ void StokesFlowSolver<DIM>::Solve()
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
 ///\todo: three copies?!
-    // copy solution into the std::vector
+    // Copy solution into the std::vector
     mSolution.resize(mNumDofs);
     ReplicatableVector solution_repl(solution);
-    for(unsigned i=0; i<mNumDofs; i++)
+    for (unsigned i=0; i<mNumDofs; i++)
     {
         mSolution[i] = solution_repl[i];
     }
@@ -386,7 +451,6 @@ void StokesFlowSolver<DIM>::WriteOutput()
     }
     p_file->close();
 
-
     out_stream p_pressure_file = output_file_handler.OpenOutputFile("pressure.txt");
 
     std::vector<double>& r_pressure = rGetPressures();
@@ -400,10 +464,7 @@ void StokesFlowSolver<DIM>::WriteOutput()
         *p_pressure_file << r_pressure[i] << "\n";
     }
     p_pressure_file->close();
-
 }
-
-
 
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::AssembleSystem()
@@ -412,16 +473,17 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     mpLinearSystem->ZeroLhsMatrix();
     mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
 
-
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
-    // the (element) preconditioner matrix: this is the same as the jacobian, but
-    // with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
+
+    /*
+     * The (element) preconditioner matrix: this is the same as the Jacobian, but
+     * with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
+     */
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond;
+
     c_vector<double, STENCIL_SIZE> b_elem;
 
-    ////////////////////////////////////////////////////////
-    // loop over elements
-    ////////////////////////////////////////////////////////
+    // Loop over elements
     for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
@@ -458,7 +520,7 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     }
 
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
-    if (mBoundaryElements.size()>0)
+    if (mBoundaryElements.size() > 0)
     {
         for (unsigned i=0; i<mBoundaryElements.size(); i++)
         {
@@ -481,7 +543,7 @@ void StokesFlowSolver<DIM>::AssembleSystem()
 
             this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
 
-            // some extra checking
+            // Some extra checking
             if (DIM==2)
             {
                 assert(8==BOUNDARY_STENCIL_SIZE);
@@ -490,7 +552,6 @@ void StokesFlowSolver<DIM>::AssembleSystem()
             }
         }
     }
-
 
     mpLinearSystem->FinaliseRhsVector();
 
@@ -505,13 +566,11 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     mpPreconditionMatrixLinearSystem->FinaliseLhsMatrix();
 }
 
-
 template<unsigned DIM>
-void StokesFlowSolver<DIM>::AssembleOnElement(
-            Element<DIM, DIM>& rElement,
-            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
-            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
-            c_vector<double, STENCIL_SIZE>& rBElem)
+void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
+                                              c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+                                              c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
+                                              c_vector<double, STENCIL_SIZE>& rBElem)
 {
     static c_matrix<double,DIM,DIM> jacobian;
     static c_matrix<double,DIM,DIM> inverse_jacobian;
@@ -524,7 +583,7 @@ void StokesFlowSolver<DIM>::AssembleOnElement(
 
     rBElem.clear();
 
-    // allocate memory for the basis functions values and derivative values
+    // Allocate memory for the basis functions values and derivative values
     static c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
     static c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
     static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
@@ -533,68 +592,45 @@ void StokesFlowSolver<DIM>::AssembleOnElement(
 
     c_vector<double,DIM> body_force;
 
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
-    //// loop over Gauss points
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
+    // Loop over Gauss points
     for (unsigned quadrature_index=0; quadrature_index < mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
     {
         double wJ = jacobian_determinant * mpQuadratureRule->GetWeight(quadrature_index);
         const ChastePoint<DIM>& quadrature_point = mpQuadratureRule->rGetQuadPoint(quadrature_index);
 
-        //////////////////////////////////////
-        // set up basis function info
-        //////////////////////////////////////
+        // Set up basis function info
         LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
         QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
         QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_linear_phi);
         trans_grad_quad_phi = trans(grad_quad_phi);
 
-
-        ////////////////////////////////////
-        // interpolate F(x) and p(x)
-        ////////////////////////////////////
-
+        // Interpolate F(x) and p(x)
         ChastePoint<DIM> physical_quad_point;
         for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
         {
             physical_quad_point.rGetLocation() += linear_phi(vertex_index)*rElement.GetNode(vertex_index)->rGetLocation();
         }
 
-
-        /////////////////////////////////////////
-        // vector
-        /////////////////////////////////////////
-
+        // Vector
 		for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
 		{
 			unsigned spatial_dim = index%DIM;
 			unsigned node_index = (index-spatial_dim)/DIM;
 
-			rBElem(index) +=    mBodyForce(spatial_dim)
-							  * quad_phi(node_index)
-							  * wJ;
+			rBElem(index) += mBodyForce(spatial_dim) * quad_phi(node_index) * wJ;
 		}
 
 		for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
 		{
-			rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   0.0
-																  * wJ;
+			rBElem(NUM_NODES_PER_ELEMENT*DIM + vertex_index) += 0.0 * wJ;
 		}
 
-
-        /////////////////////////////////////////
-        // matrix
-        /////////////////////////////////////////
-
-
+        // Matrix
 		for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
 		{
 			unsigned spatial_dim1 = index1%DIM;
 			unsigned node_index1 = (index1-spatial_dim1)/DIM;
-
 
 			for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
 			{
@@ -609,10 +645,10 @@ void StokesFlowSolver<DIM>::AssembleOnElement(
 						grad_quad_phi_grad_quad_phi += grad_quad_phi(k, node_index1) * grad_quad_phi(k, node_index2);
 				    }
 
-					rAElem(index1,index2)  +=   mMu * grad_quad_phi_grad_quad_phi * wJ;
+					rAElem(index1,index2) += mMu * grad_quad_phi_grad_quad_phi * wJ;
 				}
 
-//                for(unsigned k=0; k<DIM; k++)
+//                for (unsigned k=0; k<DIM; k++)
 //                {
 //                    rAElem(index1,index2)  +=   mMu
 //                                              * (spatial_dim1==spatial_dim2)
@@ -626,9 +662,7 @@ void StokesFlowSolver<DIM>::AssembleOnElement(
 			{
 			    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
 
-                rAElem(index1,index2) +=  - grad_quad_phi(spatial_dim1,node_index1)
-                                          * linear_phi(vertex_index)
-                                          * wJ;
+                rAElem(index1,index2) += -grad_quad_phi(spatial_dim1, node_index1) * linear_phi(vertex_index) * wJ;
 			}
 		}
 
@@ -641,30 +675,25 @@ void StokesFlowSolver<DIM>::AssembleOnElement(
 		        unsigned spatial_dim2 = index2%DIM;
 		        unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
-                rAElem(index1,index2) += - grad_quad_phi(spatial_dim2,node_index2)
-                                         * linear_phi(vertex_index)
-                                         * wJ;
+                rAElem(index1,index2) += -grad_quad_phi(spatial_dim2, node_index2) * linear_phi(vertex_index) * wJ;
 		    }
 		}
     }
 
-
 	rAElemPrecond = rAElemPrecond + rAElem;
-//	for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
+//	for (unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
 //	{
-//		for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
+//		for (unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
 //		{
 //			rAElemPrecond(i,j) = 0.0;
 //		}
 //	}
 }
 
-
 template<unsigned DIM>
-void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(
-            BoundaryElement<DIM-1,DIM>& rBoundaryElement,
-            c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-            c_vector<double,DIM>& rNormalStress)
+void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
+                                                      c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
+                                                      c_vector<double,DIM>& rNormalStress)
 {
     rBelem.clear();
 
@@ -693,21 +722,15 @@ void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(
 
             assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
 
-            rBelem(index) += normal_stress(spatial_dim)
-                             * phi(node_index)
-                             * wJ;
+            rBelem(index) += normal_stress(spatial_dim) * phi(node_index) * wJ;
         }
     }
 }
 
-
-
-
-
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 {
-    if(DIM==2)
+    if (DIM == 2)
     {
         mpLinearSystem = new LinearSystem(mNumDofs, 75);
         mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, 75);
@@ -715,7 +738,7 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
 //        unsigned num_non_zeros = 75;
 //
-//        if(PetscTools::GetNumProcs()==1)
+//        if (PetscTools::GetNumProcs() == 1)
 //        {
 //            MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
 //            MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
@@ -735,12 +758,12 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //        // for the number of non-zeros for each DOF associated with that node.
 //
 //        int* num_non_zeros_each_row = new int[mNumDofs];
-//        for(unsigned i=0; i<mNumDofs; i++)
+//        for (unsigned i=0; i<mNumDofs; i++)
 //        {
 //            num_non_zeros_each_row[i] = 0;
 //        }
 //
-//        for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+//        for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
 //        {
 //            // this upper bound neglects the fact that two containing elements will share the same nodes..
 //            // 4 = max num dofs associated with this node
@@ -751,13 +774,13 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //            num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
 //            num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
 //
-//            if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//            if (i<mpQuadMesh->GetNumVertices()) // then this is a vertex
 //            {
 //                num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
 //            }
 //        }
 //
-//        if(PetscTools::GetNumProcs()==1)
+//        if (PetscTools::GetNumProcs() == 1)
 //        {
 //            MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
 //            MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
@@ -767,7 +790,7 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //            PetscInt lo, hi;
 //            mpLinearSystem->GetOwnershipRange(lo, hi);
 //            int* num_non_zeros_each_row_this_proc = new int[hi-lo];
-//            for(unsigned i=0; i<unsigned(hi-lo); i++)
+//            for (unsigned i=0; i<unsigned(hi-lo); i++)
 //            {
 //                num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
 //            }
@@ -777,7 +800,7 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //        }
 //
 //        //unsigned total_non_zeros = 0;
-//        //for(unsigned i=0; i<mNumDofs; i++)
+//        //for (unsigned i=0; i<mNumDofs; i++)
 //        //{
 //        //   total_non_zeros += num_non_zeros_each_row[i];
 //        //}
@@ -786,9 +809,6 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //        delete [] num_non_zeros_each_row;
     }
 }
-
-
-
 
 template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& StokesFlowSolver<DIM>::rGetVelocities()
@@ -816,7 +836,5 @@ std::vector<double>& StokesFlowSolver<DIM>::rGetPressures()
     }
     return mPressureSolution;
 }
-
-
 
 #endif /* STOKESFLOWSOLVER_HPP_ */

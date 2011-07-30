@@ -97,7 +97,6 @@ MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh(std::vector<Node<SP
     this->mMeshChangesDuringSimulation = true;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh()
     : mCellRearrangementThreshold(0.01), // Overwritten as soon as archiving is complete
@@ -107,7 +106,6 @@ MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh()
     this->mMeshChangesDuringSimulation = true;
     Clear();
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::~MutableVertexMesh()
@@ -121,13 +119,11 @@ double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementThreshold(
     return mCellRearrangementThreshold;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetT2Threshold() const
 {
     return mT2Threshold;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementRatio() const
@@ -135,13 +131,11 @@ double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementRatio() co
     return mCellRearrangementRatio;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double cellRearrangementThreshold)
 {
     mCellRearrangementThreshold = cellRearrangementThreshold;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetT2Threshold(double t2Threshold)
@@ -149,13 +143,11 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetT2Threshold(double t2Threshol
     mT2Threshold = t2Threshold;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementRatio(double cellRearrangementRatio)
 {
     mCellRearrangementRatio = cellRearrangementRatio;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
@@ -166,13 +158,11 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return this->mNodes.size() - mDeletedNodeIndices.size();
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
@@ -186,7 +176,6 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 //{
 //    return mBoundaryElements.size();
 //}
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector< c_vector<double, SPACE_DIM> > MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocationsOfT1Swaps()
@@ -212,7 +201,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::ClearLocationsOfT3Swaps()
     mLocationsOfT3Swaps.clear();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
 {
@@ -232,7 +220,6 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNe
     return pNewNode->GetIndex();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pNewElement)
 {
@@ -250,19 +237,17 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELE
     return pNewElement->GetIndex();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point)
 {
     this->mNodes[nodeIndex]->SetPoint(point);
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision,
+unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                                                                                c_vector<double, SPACE_DIM> axisOfDivision,
                                                                                 bool placeOriginalElementBelow)
 {
-
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
@@ -319,15 +304,13 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(
         std::set<unsigned> elems_containing_node_A = p_node_A->rGetContainingElementIndices();
         std::set<unsigned> elems_containing_node_B = p_node_B->rGetContainingElementIndices();
 
-
         c_vector<double, SPACE_DIM> position_a = p_node_A->rGetLocation();
         c_vector<double, SPACE_DIM> position_b = p_node_B->rGetLocation();
         c_vector<double, SPACE_DIM> a_to_b = GetVectorFromAtoB(position_a, position_b);
 
-
         c_vector<double, SPACE_DIM> intersection;
 
-        if (norm_2(a_to_b)< 2.0*mCellRearrangementRatio*mCellRearrangementThreshold)
+        if (norm_2(a_to_b) < 2.0*mCellRearrangementRatio*mCellRearrangementThreshold)
         {
             WARNING("Edge is too small for normal division, putting node in the middle of a and b, there may be T1Swaps straight away.");
             ///\todo or should we move a and b apart, it may interfere with neighbouring edges? (see #1399)
@@ -448,7 +431,6 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongShortAxis(
     unsigned new_element_index = DivideElementAlongGivenAxis(pElement, short_axis, placeOriginalElementBelow);
     return new_element_index;
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
@@ -578,7 +560,6 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<
     return new_element_index;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned index)
 {
@@ -609,7 +590,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned
     this->mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
@@ -742,7 +722,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::RemoveDeletedNodes()
     }
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
 {
@@ -793,7 +772,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElemen
     }
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 {
@@ -801,11 +779,9 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
     ReMesh(map);
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForT1Swaps(VertexElementMap& rElementMap)
 {
-
     // Loop over elements to check for T1Swaps
     for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = this->GetElementIteratorBegin();
          elem_iter != this->GetElementIteratorEnd();
@@ -895,11 +871,9 @@ bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForT2Swaps(VertexElementMap
     return false;
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForIntersections()
 {
-
     // Check that no boundary nodes have overlapped elements on the boundary
     for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
          node_iter != this->GetNodeIteratorEnd();
@@ -931,7 +905,6 @@ bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForIntersections()
             }
         }
     }
-
 
 //    // Check that no nodes have overlapped elements inside the mesh  // Change to only loop over neighboring elements
 //    for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
@@ -1515,8 +1488,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* p
     }
 }
 
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformIntersectionSwap(Node<SPACE_DIM>* pNode, unsigned elementIndex)
 {
@@ -1603,17 +1574,17 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformIntersectionSwap(Node<SPA
     }
 
     std::set<unsigned> switching_nodes;
-    std::set_intersection( element_a_nodes.begin(), element_a_nodes.end(),
-                           element_b_nodes.begin(), element_b_nodes.end(),
-                           std::inserter(switching_nodes, switching_nodes.begin()));
+    std::set_intersection(element_a_nodes.begin(), element_a_nodes.end(),
+                          element_b_nodes.begin(), element_b_nodes.end(),
+                          std::inserter(switching_nodes, switching_nodes.begin()));
 
-    assert(switching_nodes.size()==2);
+    assert(switching_nodes.size() == 2);
 
-    //Check intersecting node is this set
+    // Check intersecting node is this set
     assert(switching_nodes.find(node_A_index) != switching_nodes.end());
     switching_nodes.erase(node_A_index);
 
-    assert(switching_nodes.size()==1);
+    assert(switching_nodes.size() == 1);
 
     node_B_index = *(switching_nodes.begin());
 
@@ -1621,34 +1592,26 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformIntersectionSwap(Node<SPA
     unsigned node_A_local_index_in_a = p_element_a->GetNodeLocalIndex(node_A_index);
     unsigned node_B_local_index_in_a = p_element_a->GetNodeLocalIndex(node_B_index);
 
-    unsigned node_A_local_index_in_b = p_element_b->GetNodeLocalIndex(node_A_index);
-    unsigned node_B_local_index_in_b = p_element_b->GetNodeLocalIndex(node_B_index);
-
     if ((node_B_local_index_in_a+1)%p_element_a->GetNumNodes() == node_A_local_index_in_a)
     {
-        assert((node_A_local_index_in_b+1)%p_element_b->GetNumNodes() == node_B_local_index_in_b);
+        assert((p_element_b->GetNodeLocalIndex(node_A_index)+1)%p_element_b->GetNumNodes()
+               == p_element_b->GetNodeLocalIndex(node_B_index));
 
-        /*
-         * Element 2 is element a
-         * Element 4 is element b
-         */
+        // Element 2 is element a, element 4 is element b
         element_2_index = element_a_index;
         element_4_index = element_b_index;
-
     }
     else
     {
-        assert((node_B_local_index_in_b+1)%p_element_b->GetNumNodes() == node_A_local_index_in_b);
+        assert((p_element_b->GetNodeLocalIndex(node_B_index)+1)%p_element_b->GetNumNodes()
+               == p_element_b->GetNodeLocalIndex(node_A_index));
 
-        /*
-         * Element 2 is element b
-         * Element 4 is element a
-         */
+        // Element 2 is element b, element 4 is element a
         element_2_index = element_b_index;
         element_4_index = element_a_index;
     }
 
-    unsigned intersected_edge = GetLocalIndexForElementEdgeClosestToPoint(pNode->rGetLocation(),elementIndex);
+    unsigned intersected_edge = GetLocalIndexForElementEdgeClosestToPoint(pNode->rGetLocation(), elementIndex);
 
     unsigned node_A_local_index_in_1 = this->GetElement(element_1_index)->GetNodeLocalIndex(node_A_index);
 
@@ -1660,8 +1623,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformIntersectionSwap(Node<SPA
     unsigned node_A_local_index_in_4 = this->GetElement(element_4_index)->GetNodeLocalIndex(node_A_index);
     unsigned node_B_local_index_in_4 = this->GetElement(element_4_index)->GetNodeLocalIndex(node_B_index);
 
-
-    if(intersected_edge==node_B_local_index_in_3)
+    if (intersected_edge==node_B_local_index_in_3)
     {
         /*
          * Add node B to element 1 after node A
@@ -1697,7 +1659,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformIntersectionSwap(Node<SPA
         this->mElements[element_4_index]->DeleteNode(node_B_local_index_in_4);
     }
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>& rElement)
@@ -1859,7 +1820,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT3Swap(Node<SPACE_DIM>* p
 //                          p_element->GetNodeLocation(node_index));
 //    }
 /////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Get the nodes at either end of the edge to be divided
     unsigned vertexA_index = p_element->GetNodeGlobalIndex(node_A_local_index);
@@ -2025,8 +1985,9 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT3Swap(Node<SPACE_DIM>* p
                 this->GetElement(elementIndex)->ReplaceNode(this->mNodes[common_vertex_index], pNode);
 
                 // Remove common_vertex
-                this->GetElement(intersecting_element_index)->DeleteNode(this->GetElement(intersecting_element_index)->GetNodeLocalIndex(common_vertex_index));
-                assert(this->mNodes[common_vertex_index]->GetNumContainingElements()==0);
+                unsigned common_vertex_local_index = this->GetElement(intersecting_element_index)->GetNodeLocalIndex(common_vertex_index);
+                this->GetElement(intersecting_element_index)->DeleteNode(common_vertex_local_index);
+                assert(this->mNodes[common_vertex_index]->GetNumContainingElements() == 0);
 
                 this->mNodes[common_vertex_index]->MarkAsDeleted();
                 mDeletedNodeIndices.push_back(common_vertex_index);
@@ -2322,7 +2283,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT3Swap(Node<SPACE_DIM>* p
                     pNode->rGetModifiableLocation() = intersection + 0.5*mCellRearrangementRatio*mCellRearrangementThreshold*edge_ab_unit_vector;
                     pNode->SetAsBoundaryNode(false);
 
-                     c_vector<double, SPACE_DIM> new_node_location = intersection - 0.5*mCellRearrangementRatio*mCellRearrangementThreshold*edge_ab_unit_vector;
+                    c_vector<double, SPACE_DIM> new_node_location = intersection - 0.5*mCellRearrangementRatio*mCellRearrangementThreshold*edge_ab_unit_vector;
 
                     // Add new node which will always be a boundary node
                     unsigned new_node_global_index = this->AddNode(new Node<SPACE_DIM>(0, true, new_node_location[0], new_node_location[1]));
@@ -2488,10 +2449,6 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformVoidRemoval(Node<SPACE_DI
     RemoveDeletedNodes();
 }
 
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2502,7 +2459,6 @@ template class MutableVertexMesh<1,3>;
 template class MutableVertexMesh<2,2>;
 template class MutableVertexMesh<2,3>;
 template class MutableVertexMesh<3,3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
