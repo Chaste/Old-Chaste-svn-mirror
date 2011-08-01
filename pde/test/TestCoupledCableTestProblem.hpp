@@ -64,7 +64,7 @@ private:
     {
         c_matrix<double,PROBLEM_DIM*2, PROBLEM_DIM*2> ret = zero_matrix<double>(PROBLEM_DIM*2, PROBLEM_DIM*2);
 
-        double sigma_i = rX[2] + 0.5*rX[2]*rX[2];
+        double sigma_i = 1+rX[2] + 0.5*rX[2]*rX[2];
 
         for(unsigned i=0; i<2; i++)
         {
@@ -331,9 +331,8 @@ public:
         }
 
         // Solve
-
-///\todo: raf to add comment about choice of R (#1835)
-        double beta = 4*M_PI/(2*log(0.01)-1+4*M_PI);
+        double R = 0.015; ///\todo: raf to add comment about choice of R (#1835)
+        double beta = 4*M_PI/(2*log(R)-1+4*M_PI);
 
         CoupledCableTestProblemSolver<3> cable_solver(&mesh,&bcc,beta);
         Vec result = cable_solver.Solve();
@@ -365,9 +364,8 @@ public:
             else
             {
                 double phi_e_exact = -(1+z)*log(r)/(2*M_PI);
-                double phi_i_exact = 1+z;
-                std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
-                          << phi_e_exact << " " << phi_i_exact << "\n";
+                std::cout << x << " " << y << " " << z << " " << phi_e << " "
+                          << phi_e_exact << "\n";
                 // check dummy variables correctly being set to zero
                 TS_ASSERT_DELTA(phi_i, 0.0, 1e-12);
             }
