@@ -82,9 +82,6 @@ private:
     /** Whether ODE systems are present (if not, then the system comprises coupled PDEs only). */
     bool mOdeSystemsPresent;
 
-    /** Output directory (a subfolder of tmp/[USERNAME]/testoutput). */
-    std::string mOutputDirectory;;
-
     /** Meta results file for VTK. */
     out_stream mpVtkMetaFile;
 
@@ -354,8 +351,7 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
       mOdeSystemsAtNodes(odeSystemsAtNodes),
       mpOdeSolver(pOdeSolver),
       mSamplingTimeStep(DOUBLE_UNSET),
-      mOdeSystemsPresent(false),
-      mOutputDirectory("")
+      mOdeSystemsPresent(false)
 {
     this->mpBoundaryConditions = pBoundaryConditions;
 
@@ -421,7 +417,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputDirectory(std::string outputDirectory)
 {
-    mOutputDirectory = outputDirectory;
+    this->mOutputDirectory = outputDirectory;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -435,7 +431,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SolveAndWriteResultsToFile()
 {
     // A number of methods must have been called prior to this method
-    if (mOutputDirectory == "")
+    if (this->mOutputDirectory == "")
     {
         EXCEPTION("SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");
     }
@@ -454,7 +450,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 
 #ifdef CHASTE_VTK
     // Create a .pvd output file
-    OutputFileHandler output_file_handler(mOutputDirectory, false);
+    OutputFileHandler output_file_handler(this->mOutputDirectory, false);
     mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
     *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
     *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
@@ -487,7 +483,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "</VTKFile>\n";
     mpVtkMetaFile->close();
 #else //CHASTE_VTK
-#define COVERAGE_IGNORE //We can't test this in regular builds
+#define COVERAGE_IGNORE // We can't test this in regular builds
     EXCEPTION("VTK is not installed and is required for this functionality");
 #undef COVERAGE_IGNORE
 #endif //CHASTE_VTK
@@ -501,7 +497,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     // Create a new VTK file for this time step
     std::stringstream time;
     time << numTimeStepsElapsed;
-    VtkMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(mOutputDirectory, "results_"+time.str(), false);
+    VtkMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(this->mOutputDirectory, "results_"+time.str(), false);
 
     /*
      * We first loop over PDEs. For each PDE we store the solution

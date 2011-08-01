@@ -463,57 +463,38 @@ public:
         /* Use our solver */
         ThreeParabolicPdesSolver solver(&mesh,&bcc);
 
-        /* The interface is exactly the same as the `SimpleLinearParabolicSolver` */
-        Vec initial_condition = PetscTools::CreateAndSetVec(3*mesh.GetNumNodes(), 0.0);
+        /* The interface is exactly the same as the `SimpleLinearParabolicSolver`. */
         solver.SetTimeStep(0.01);
+        solver.SetTimes(0.0, 2.0);
 
-        double start_time = 0.0;
-        double end_time   = 2.0;
+        Vec initial_condition = PetscTools::CreateAndSetVec(3*mesh.GetNumNodes(), 0.0);
+        solver.SetInitialCondition(initial_condition);
 
-        /* At this point we could just call `SetTimes(start_time,end_time)` and call `Solve()`. However,
-         * for this test we show how to put this inside a loop and print results to file for multiple
-         * sampling times.
+        /* For this test we show how to output results to file for multiple sampling times. We start by
+         * specifying an output directory and filename prefix for our results file:
          */
-        OutputFileHandler handler("ThreeVarCoupledProblem");
+        solver.SetOutputDirectoryAndPrefix("ThreeVarCoupledProblem","results");
 
-        unsigned num_printing_times = 20;
+        /* When an output directory has been specified, the solver writes output in HDF5 format. To
+         * convert this to another output format, we call the relevant method. Here, we wish to generate,
+         * output in a simple .txt format. The esults can be loaded and visualized in Matlab or Octave,
+         * for example. Each file contains, for each node: x y u v w; and there is one file for each printing
+         * time.
+         */
+        solver.SetOutputToTxt(true);
 
-        Vec result; // declared outside the loop so it can be deleted at the end
+        /* Lastly we specify how often we wish to output results. For simplicity, we do this by specifying
+         * the printing timestep multiple (here we are telling the solver to output results to file every
+         * tenth timestep):
+         */
+        solver.SetPrintingTimestepMultiple(10);
 
-        for (unsigned i=0; i<num_printing_times; i++)
-        {
-            double t0 = start_time + (end_time-start_time)*i/num_printing_times;
-            double t1 = start_time + (end_time-start_time)*(i+1)/num_printing_times;
-
-            solver.SetTimes(t0, t1);
-            solver.SetInitialCondition(initial_condition); // see below
-
-            result = solver.Solve();
-
-            // Get the result write to a file
-            ReplicatableVector result_repl(result);
-            std::stringstream file_name;
-            file_name << "results_" << i+1 << ".txt";
-            out_stream p_file = handler.OpenOutputFile(file_name.str());
-
-            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-            {
-                double x = mesh.GetNode(i)->rGetLocation()[0];
-                double y = mesh.GetNode(i)->rGetLocation()[1];
-                *p_file << x << " " << y << " " << result_repl[3*i] << " "
-                        << result_repl[3*i+1] << " " << result_repl[3*i+2] << "\n";
-            }
-            p_file->close();
-
-            // set the current solution as the new initial condition for the next Solve
-            VecDestroy(initial_condition);
-            initial_condition = result; // so this is used in the next SetInitialCondition() call above
-        }
+        /* We are now ready to solve the system.
+         */
+        Vec result = solver.Solve();
+        ReplicatableVector result_repl(result);
 
         VecDestroy(result);
-
-        /* The results can be loaded and visualised in matlab or octave, for example. Each file
-         * contains, for each node: x y u v w; and there is one file for each printing time. */
     }
 };
 
