@@ -235,6 +235,27 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(), 1u);  // No boundary elements now the halo nodes are removed
     }
 
+
+    /*
+     * Failing test for ReMesh. Need to load the cylindrical mesh correctly
+     */
+    void noTestCylindricalReMeshFailingTest() throw (Exception)
+	{
+        // Load the problem mesh this is from one of Sara-Jane's simulations.
+        TrianglesMeshReader<2,2> mesh_reader("cell_based/test/data/TestCylindricalMeshBug/mesh");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        Cylindrical2dMesh* p_mesh = static_cast<Cylindrical2dMesh*>(&mesh);
+
+        p_mesh->mWidth = 20;
+
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0),20,1e-10); // This fails as it still thinks that p_mesh is a Mutable Mesh it should be a Cylindrical2dMesh for the test to fail as expected
+
+        NodeMap map(p_mesh->GetNumNodes());
+		p_mesh->ReMesh(map);
+    }
+
     void TestCylindricalReMeshAfterDelete() throw (Exception)
     {
         unsigned cells_across = 6;
