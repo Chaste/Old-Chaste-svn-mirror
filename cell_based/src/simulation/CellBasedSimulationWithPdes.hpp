@@ -97,6 +97,12 @@ private:
     bool mWriteDailyAverageRadialPdeSolution;
 
     /**
+     * Whether to set the boundary condition on the edge of a coarse mesh, or on
+     * the boundary of the cell population
+     */
+    bool mSetBcsOnCoarseBoundary;
+
+    /**
      * Number of radial 'bins' used to calculate the average
      * radial PDE solution.
      */
@@ -111,7 +117,6 @@ private:
      * Map between cells and the elements of the coarse PDE mesh containing them.
      */
     std::map<CellPtr, unsigned> mCellPdeElementMap;
-
 
     /**
      * Overridden SetupSolve() method.
@@ -201,11 +206,15 @@ private:
 
     /**
      * Method for getting centre of mass of cell population.
+     *
+     * @return The centre of the cell population
      */
     c_vector<double,DIM> GetCellPopulationLocation();
 
     /**
      * Method for getting max size of cell population in each direction.
+     *
+     * @return The dimensions of the cell population in each co-ordinate direction
      */
     c_vector<double,DIM> GetCellPopulationSize();
 
@@ -248,6 +257,8 @@ public:
      * Get the current solution to the PDE problem.
      *
      * @param pdeIndex The index of the PDE in the vector mPdeAndBcCollection
+     *
+     * @return The current solution the to PDE pdeIndex
      */
     Vec GetCurrentPdeSolution(unsigned pdeIndex);
 
@@ -262,6 +273,14 @@ public:
      */
     void SetWriteAverageRadialPdeSolution(unsigned numRadialIntervals=10,
                                           bool writeDailyResults=false);
+
+
+    /**
+     * Impose the PDE boundary conditions on the edge of the cell population when using
+     * the coarse mesh. The default option is to impose the condition on the boundary of the
+     * coarse mesh.
+     */
+    void SetImposeBcsOnPerimeterOfPopulation();
 
     /**
      * Solve the PDE problem on a coarse mesh.

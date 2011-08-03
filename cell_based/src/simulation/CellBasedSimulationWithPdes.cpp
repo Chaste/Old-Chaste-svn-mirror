@@ -38,7 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
+#include "LogFile.hpp"
 
+#include "Debug.hpp"
 template<unsigned DIM>
 CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
                                                         std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
@@ -50,6 +52,7 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
       mPdeAndBcCollection(pdeAndBcCollection),
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
+      mSetBcsOnCoarseBoundary(true),
       mNumRadialIntervals(0), // 'unset' value
       mpCoarsePdeMesh(NULL)
 {
@@ -162,39 +165,64 @@ void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double 
 template<unsigned DIM>
 void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
 {
-    EXCEPTION("This method is only implemented in 2D");
-}
+	if(DIM==3)
+	{
+		EXCEPTION("This method is only implemented in 1 and 2D currently.");
+	}
+	switch(DIM)
+	{
+		case 1:
+		{
 
-/**
- * The CreateCoarsePdeMesh method is currently only implemented in 2D, hence there
- * are two definitions to this method (one templated and one not).
- *
- * @param stepSize horizontal and vertical distance between mesh points
- * @param meshWidth width and height of the mesh
- */
-template<>
-void CellBasedSimulationWithPdes<2>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
-{
-    mpCoarsePdeMesh = new TetrahedralMesh<2,2>;
+			mpCoarsePdeMesh = new TetrahedralMesh<DIM,DIM>;
 
-    mpCoarsePdeMesh->ConstructRegularSlabMesh(	stepSize,
-												meshWidth,
-												meshWidth	);
+			mpCoarsePdeMesh->ConstructRegularSlabMesh(	stepSize,
+														meshWidth);
 
-    // Find centre of coarse PDE mesh
-    c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
-    c_vector<double,2> centre_of_cell_population=this->GetCellPopulationLocation();
-    for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
-    {
-        centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
-    }
-    centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
+			// Find centre of coarse PDE mesh
+			c_vector<double,1> centre_of_coarse_mesh = zero_vector<double>(1);
+			c_vector<double,1> centre_of_cell_population=this->GetCellPopulationLocation();
+			for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
+			{
+				centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+			}
+			centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
 
-    // Translate centre of coarse PDE mesh to the origin
-    mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
+			// Translate centre of coarse PDE mesh to the origin
+			mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0]);
 
-    // Write mesh to file
-    WriteCoarseMeshToFile();
+			// Write mesh to file
+			WriteCoarseMeshToFile();
+			break;
+		}
+		case 2:
+		{
+			mpCoarsePdeMesh = new TetrahedralMesh<DIM,DIM>;
+
+			mpCoarsePdeMesh->ConstructRegularSlabMesh(	stepSize,
+														meshWidth,
+														meshWidth	);
+
+			// Find centre of coarse PDE mesh
+			c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
+			c_vector<double,2> centre_of_cell_population=this->GetCellPopulationLocation();
+			for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
+			{
+				centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+			}
+			centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
+
+			// Translate centre of coarse PDE mesh to the origin
+			mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
+
+			// Write mesh to file
+			WriteCoarseMeshToFile();
+			break;
+		}
+		default:
+			NEVER_REACHED;
+
+	}
 }
 
 template<unsigned DIM>
@@ -384,11 +412,11 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         {
             EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
         }
-        else
+        else if(!mSetBcsOnCoarseBoundary)
         {
             // Get the set of coarse element indices that contain cells
             std::set<unsigned> coarse_element_indices_in_map;
-            for (typename MeshBasedCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+            for (typename AbstractCentreBasedCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
                 cell_iter != this->mrCellPopulation.End();
                 ++cell_iter)
             {
@@ -421,7 +449,32 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
                  iter != coarse_mesh_boundary_node_indices.end();
                  ++iter)
             {
-                bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
+            	bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
+            }
+        }
+        else if(mSetBcsOnCoarseBoundary)
+        {
+
+        	// Find the node indices that associated with elements whose
+            // indices are NOT in the set coarse_element_indices_in_map
+            std::set<unsigned> coarse_mesh_boundary_node_indices;
+
+            for(unsigned i=0;i<mpCoarsePdeMesh->GetNumNodes();i++)
+            {
+            	if(mpCoarsePdeMesh->GetNode(i)->IsBoundaryNode())
+            	{
+            		coarse_mesh_boundary_node_indices.insert(i);
+            	}
+            }
+
+
+
+            // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
+            for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
+                 iter != coarse_mesh_boundary_node_indices.end();
+                 ++iter)
+            {
+            	bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, true);
             }
         }
 
@@ -481,7 +534,12 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			{
 				c_vector<double,DIM> location = mpCoarsePdeMesh->GetNode(i)->rGetLocation();
 				double solution = solution_repl[i];
-				(*mpVizCoarsePdeSolutionResultsFile) << i << " " << location[0] << " " << location[1] << " " << solution << " ";
+				(*mpVizCoarsePdeSolutionResultsFile) << i << " ";
+				for(unsigned k=0; k<DIM;k++)
+				{
+					(*mpVizCoarsePdeSolutionResultsFile) << location[k] << " ";
+				}
+				(*mpVizCoarsePdeSolutionResultsFile) << solution << " ";
 			}
 			(*mpVizCoarsePdeSolutionResultsFile) << "\n";
         }
@@ -670,6 +728,14 @@ void CellBasedSimulationWithPdes<DIM>::SetWriteAverageRadialPdeSolution(unsigned
     mWriteAverageRadialPdeSolution = true;
     mNumRadialIntervals = numRadialIntervals;
     mWriteDailyAverageRadialPdeSolution = writeDailyResults;
+}
+
+template<unsigned DIM>
+void CellBasedSimulationWithPdes<DIM>::SetImposeBcsOnPerimeterOfPopulation()
+{
+	//Perhaps should throw an exception
+	//EXCEPTION("This method is not fully working and tested yet.");
+	mSetBcsOnCoarseBoundary=false;
 }
 
 template<unsigned DIM>

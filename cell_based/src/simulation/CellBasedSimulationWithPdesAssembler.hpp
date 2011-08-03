@@ -73,6 +73,8 @@ protected:
      * @param rU
      * @param rGradU
      * @param pElement
+     *
+     * @return vector term.
      */
     virtual c_vector<double, 1*(DIM+1)> ComputeVectorTerm(
         c_vector<double, DIM+1>& rPhi,
@@ -92,6 +94,8 @@ protected:
      * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
+     *
+     * @return The matrix term for the stiffness matrix
      */
     virtual c_matrix<double, 1*(DIM+1), 1*(DIM+1)> ComputeMatrixTerm(
         c_vector<double, DIM+1>& rPhi,

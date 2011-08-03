@@ -182,6 +182,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Check the correct solution was obtained
@@ -395,6 +396,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // A few hardcoded tests to check nothing has changed
@@ -491,6 +493,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // A few hardcoded tests to check nothing has changed
@@ -578,6 +581,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         // Run the cell-based simulation for one timestep
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Just check that we do indeed have three apoptotic cells
@@ -681,6 +685,7 @@ public:
 
         // Set up cell-based simulation
         CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        //simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
@@ -735,6 +740,7 @@ public:
         }
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         TS_ASSERT(simulator.mpCoarsePdeMesh != NULL);
 
@@ -919,6 +925,7 @@ public:
         }
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_THIS(simulator.Solve(), "Neumann BCs not yet implemented when using a coarse PDE mesh");
 
         // Tidy up
@@ -991,6 +998,7 @@ public:
         simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test that boundary cells experience the right boundary condition
@@ -1076,6 +1084,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Save cell-based simulation
@@ -1175,6 +1184,7 @@ public:
         simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Save cell-based simulation
@@ -1268,9 +1278,10 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Coverage
-        TS_ASSERT_THROWS_THIS(simulator.CreateCoarsePdeMesh(10.0, 50.0), "This method is only implemented in 2D");
+        TS_ASSERT_THROWS_THIS(simulator.CreateCoarsePdeMesh(10.0, 50.0), "This method is only implemented in 1 and 2D currently.");
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // Tidy up
@@ -1345,6 +1356,7 @@ public:
         simulator.AddForce(&linear_force);
 
         // Run cell-based simulation
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Check the correct solution was obtained
@@ -1476,6 +1488,7 @@ public:
 		linear_force.SetCutOffLength(1.5);
 		simulator.AddForce(&linear_force);
 
+		simulator.SetImposeBcsOnPerimeterOfPopulation();
 		TS_ASSERT_THROWS_THIS(simulator.Solve(), "Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
 		// Tell simulator to use the coarse mesh.
 		simulator.UseCoarsePdeMesh(10.0, 50.0);
@@ -1557,6 +1570,7 @@ public:
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
         //Solve the system
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test solution is constant
@@ -1688,6 +1702,7 @@ public:
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
         //Solve the system
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test solution is unchanged at first two cells
@@ -1787,6 +1802,7 @@ public:
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
         //Solve the system
+        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Check the correct cell density is in each element
@@ -1822,6 +1838,84 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
+
+	void TestCoarseMesh1d() throw(Exception)
+	{
+
+		EXIT_IF_PARALLEL; // defined in PetscTools
+
+        // Create mesh
+        std::vector<Node<1>*> nodes;
+        nodes.push_back(new Node<1>(0, true,  0.0));
+
+        NodesOnlyMesh<1> mesh;
+		mesh.ConstructNodesWithoutMesh(nodes);
+
+		// Set up differentiated cells
+		std::vector<CellPtr> cells;
+		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+		{
+			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+			p_model->SetDimension(1);
+			p_model->SetCellProliferativeType(DIFFERENTIATED);
+
+			CellPtr p_cell(new Cell(p_state, p_model));
+			double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
+			p_cell->SetBirthTime(birth_time);
+			cells.push_back(p_cell);
+		}
+
+		// Set up cell population
+		NodeBasedCellPopulation<1> cell_population(mesh, cells);
+		cell_population.SetMechanicsCutOffLength(1.5);
+
+		// Set up CellwiseData and associate it with the cell population
+		CellwiseData<1>* p_data = CellwiseData<1>::Instance();
+		p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+		p_data->SetCellPopulation(&cell_population);
+
+		// Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+		// we need to pass it some initial conditions to avoid memory errors
+		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+		{
+			p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(),0);
+		}
+
+		// Set up PDE
+		AveragedSourcePde<1> pde(cell_population, -1.0);
+
+		// Constant boundary condition on the boundary of the Coarse Mesh
+		ConstBoundaryCondition<1> bc(0.0);
+		bool is_neumann_bc = false;
+		PdeAndBoundaryConditions<1> pde_and_bc(&pde, &bc, is_neumann_bc);
+
+		std::vector<PdeAndBoundaryConditions<1>*> pde_and_bc_collection;
+		pde_and_bc_collection.push_back(&pde_and_bc);
+
+		// Set up cell-based simulation
+		CellBasedSimulationWithPdes<1> simulator(cell_population, pde_and_bc_collection);
+		simulator.SetEndTime(0.01);
+
+		// Set output directory
+		simulator.SetOutputDirectory("1DCoarse_Mesh");
+
+		// Coverage
+		simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+
+		// Tell simulator to use the coarse mesh.
+		unsigned num_nodes=pow(2,3);
+		double mesh_size=2.0/(double)(num_nodes-1);
+
+		simulator.UseCoarsePdeMesh(mesh_size, 2.0);
+
+		//Solve the system
+		simulator.Solve();
+
+		// Tidy up
+		CellwiseData<1>::Destroy();
+
+	}
 
 };
 
