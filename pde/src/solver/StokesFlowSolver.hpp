@@ -98,6 +98,7 @@ private:
     /** The linear system that will be set up and solved as part of the PDE solve. */
     LinearSystem* mpLinearSystem;
 
+    /** The preconditioner matrix. */
     LinearSystem* mpPreconditionMatrixLinearSystem;
 
     /** Where to write output, relative to CHASTE_TESTOUTPUT. */
@@ -112,7 +113,10 @@ private:
     /** Vctor of Dirichlet boundary conditions for the fluid velocity. */
     std::vector<c_vector<double,DIM> > mDirichletVelocities;
 
+    /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
+
+    /** Vector of surface normal stresses. */
     std::vector<c_vector<double,DIM> > mSurfaceNormalStresses;
 
     /** The solution at each node. */
@@ -124,20 +128,51 @@ private:
     /** The pressure component of the solution at each node. */
     std::vector<double> mPressureSolution;
 
+    /**
+     * Assemble the linear system and preconditioner matrix.
+     */
     void AssembleSystem();
+    
+    /**
+     * Apply the Dirichlet boundary conditions to the linear system and preconditioner matrix.
+     */
     void ApplyBoundaryConditions();
 
+    /**
+     * Calculate the contribution of a single element to the linear system.
+     *
+     * @param rElement The element to assemble on.
+     * @param rAElem The element's contribution to the LHS matrix is returned in this
+     *    n by n matrix, where n is the no. of nodes in this element. There is no
+     *    need to zero this matrix before calling.
+     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
+     *     in creating a preconditioner.
+     * @param rBElem The element's contribution to the RHS vector is returned in this
+     *    vector of length n, the no. of nodes in this element. There is no
+     *    need to zero this vector before calling.
+     */
     void AssembleOnElement(Element<DIM, DIM>& rElement,
                            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
                            c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
                            c_vector<double, STENCIL_SIZE>& rBElem);
 
+    /**
+     * Compute the term from the surface integral of s*phi, where s is
+     * a specified rNormalStress (i.e. Neumann boundary condition)
+     * to be added to the RHS vector.
+     *
+     * @param rBoundaryElement the boundary element to be integrated on
+     * @param rBelem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
+     * @param rNormalStress surface normal stress.
+     */
     void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
                                    c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
                                    c_vector<double,DIM>& rNormalStress);
 
     /**
-     * Allocates memory for the Jacobian and preconditioner matrices.
+     * Allocate memory for the Jacobian and preconditioner matrices.
      */
     void AllocateMatrixMemory();
 
@@ -149,7 +184,7 @@ public:
      * @param mu the dynamic viscosity
      * @param pQuadMesh pointer to a quadratic mesh
      * @param bodyForce an applied body force
-     * @param outDirectory the output directory to use
+     * @param outputDirectory the output directory to use
      * @param dirichletNodes vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity
      * @param pDirichletVelocities vector of Dirichlet boundary conditions for the fluid velocity (defaults to NULL)
      */
@@ -181,11 +216,7 @@ public:
      *
      * @param kspAbsoluteTolerance the tolerance
      */
-    void SetKspAbsoluteTolerance(double kspAbsoluteTolerance)
-    {
-        assert(kspAbsoluteTolerance > 0);
-        mKspAbsoluteTol = kspAbsoluteTolerance;
-    }
+    void SetKspAbsoluteTolerance(double kspAbsoluteTolerance);
 
     /**
      * @return mVelocitiesSolution
@@ -197,13 +228,15 @@ public:
      */
     std::vector<double>& rGetPressures();
 
+    /**
+     * Set the surface normal stress boundary conditions by specifying mBoundaryElements
+     * and mSurfaceNormalStresses.
+     * 
+     * @param rBoundaryElements vector of pointers to boundary elements in the mesh
+     * @param rSurfaceNormalStresses vector of surface normal stresses.
+     */
     void SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                                  std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses)
-    {
-        assert(rBoundaryElements.size()==rSurfaceNormalStresses.size());
-        mBoundaryElements = rBoundaryElements;
-        mSurfaceNormalStresses = rSurfaceNormalStresses;
-    }
+                                                  std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -223,11 +256,10 @@ void StokesFlowSolver<DIM>::ApplyBoundaryConditions()
         unsigned node_index = mDirichletNodes[i];
         for (unsigned j=0; j<DIM; j++)
         {
-            unsigned dof_index = DIM*node_index+j;
-            rows[DIM*i+j] = dof_index;
+            unsigned dof_index = DIM*node_index + j;
+            rows[DIM*i + j] = dof_index;
 
             double value = mDirichletVelocities[i](j);
-
             mpLinearSystem->SetRhsVectorElement(dof_index, value);
         }
     }
@@ -254,7 +286,7 @@ StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
     assert(mu > 0);
     assert(pQuadMesh);
     assert(DIM==2 || DIM==3);
-    assert(dirichletNodes.size() > 0);
+    assert(!dirichletNodes.empty());
 
     AllocateMatrixMemory();
 
@@ -311,12 +343,11 @@ void StokesFlowSolver<DIM>::Solve()
     Timer::PrintAndReset("AssembleSystem");
     #endif
 
-    /////////////////////////////////////////////////////////////
-    // Solve the linear system using Petsc GMRES and an LU
-    // factorisation of the preconditioner. Note we
-    // don't call Solve on the linear_system as we want to
-    // set Petsc options..
-    /////////////////////////////////////////////////////////////
+    /*
+     * Solve the linear system using Petsc GMRES and an LU factorisation
+     * of the preconditioner. Note we don't call Solve on the linear_system
+     * as we want to set Petsc options.
+     */
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
     Vec solution;
@@ -477,7 +508,7 @@ void StokesFlowSolver<DIM>::AssembleSystem()
 
     /*
      * The (element) preconditioner matrix: this is the same as the Jacobian, but
-     * with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
+     * with the mass matrix (i.e .\intgl phi_i phi_j) in the pressure-pressure block.
      */
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond;
 
@@ -520,7 +551,7 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     }
 
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
-    if (mBoundaryElements.size() > 0)
+    if (!mBoundaryElements.empty())
     {
         for (unsigned i=0; i<mBoundaryElements.size(); i++)
         {
@@ -544,9 +575,9 @@ void StokesFlowSolver<DIM>::AssembleSystem()
             this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
 
             // Some extra checking
-            if (DIM==2)
+            if (DIM == 2)
             {
-                assert(8==BOUNDARY_STENCIL_SIZE);
+                assert(8 == BOUNDARY_STENCIL_SIZE);
                 //assert(b_boundary_elem(6)==0);
                 //assert(b_boundary_elem(7)==0);
             }
@@ -811,6 +842,13 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 }
 
 template<unsigned DIM>
+void StokesFlowSolver<DIM>::SetKspAbsoluteTolerance(double kspAbsoluteTolerance)
+{
+    assert(kspAbsoluteTolerance > 0);
+    mKspAbsoluteTol = kspAbsoluteTolerance;
+}
+
+template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& StokesFlowSolver<DIM>::rGetVelocities()
 {
     mVelocitiesSolution.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
@@ -835,6 +873,15 @@ std::vector<double>& StokesFlowSolver<DIM>::rGetPressures()
         mPressureSolution[i] = mSolution[DIM*mpQuadMesh->GetNumNodes() + i];
     }
     return mPressureSolution;
+}
+
+template<unsigned DIM>
+void StokesFlowSolver<DIM>::SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
+                                                                     std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses)
+{
+    assert(rBoundaryElements.size() == rSurfaceNormalStresses.size());
+    mBoundaryElements = rBoundaryElements;
+    mSurfaceNormalStresses = rSurfaceNormalStresses;
 }
 
 #endif /* STOKESFLOWSOLVER_HPP_ */
