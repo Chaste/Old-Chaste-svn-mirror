@@ -333,10 +333,11 @@ public:
                                                 "pde/test/data", "results", false));
 
         // Test that there is a .vtu file
+#ifdef CHASTE_VTK
         ///\todo Test the file is correct (#1841)
         FileFinder vtk_file = file_handler.FindFile("vtk_output/results.vtu");
         TS_ASSERT(vtk_file.Exists());
-
+#endif //CHASTE_VTK
         ///\todo  Test that there is an .pvtu file (#1841)        
         ///\todo Test that there are Meshalyzer files (#1841)
 
