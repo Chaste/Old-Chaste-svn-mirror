@@ -117,6 +117,24 @@ private:
         return p_cell;
     }
 
+    void DeleteFile(FileFinder& rFile)
+    {
+        if (PetscTools::AmMaster())
+        {
+            MPIABORTIFNON0(system, "rm " + rFile.GetAbsolutePath()); // Make sure the conversion is re-run
+        }
+        PetscTools::Barrier("TestCellmlConverter_DeleteFile");
+    }
+
+    mode_t ResetMode(FileFinder& rFile, mode_t mode)
+    {
+        struct stat our_stats;
+        int retcode = stat(rFile.GetAbsolutePath().c_str(), &our_stats);
+        EXCEPT_IF_NOT(retcode == 0);
+        chmod(rFile.GetAbsolutePath().c_str(), mode);
+        return our_stats.st_mode;
+    }
+
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
@@ -258,27 +276,43 @@ public:
 
         // Ensure that conversion works if CWD != ChasteSourceRoot
         EXPECT0(chdir, "heart");
-        if (PetscTools::AmMaster())
-        {
-            // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
-            MPIABORTIFNON0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
-        }
-        PetscTools::Barrier("TestCellmlConverter_rm");
+        DeleteFile(so_file);
         TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file, false),
                               "Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
         converter.Convert(cellml_file);
         EXPECT0(chdir, "..");
 
         // This one is tricky!
-        chmod(cellml_file.GetAbsolutePath().c_str(), 0);
-        if (PetscTools::AmMaster())
-        {
-            MPIABORTIFNON0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
-        }
-        PetscTools::Barrier("TestCellmlConverter_rm2");
+        mode_t old_mode = ResetMode(cellml_file, 0);
+        DeleteFile(so_file);
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
                                   "Conversion of CellML to Chaste shared object failed.");
-        chmod(cellml_file.GetAbsolutePath().c_str(), 0644);
+        ResetMode(cellml_file, old_mode);
+
+        // What if the Chaste source tree is missing?
+        FileFinder source_root("", RelativeTo::ChasteSourceRoot);
+        FileFinder parent = source_root.GetParent();
+        old_mode = ResetMode(parent, 0);
+        chmod(parent.GetAbsolutePath().c_str(), 0);
+        TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file),
+                              "No Chaste source tree found at '" + source_root.GetAbsolutePath()
+                              + "' - you need the source to use CellML models directly in Chaste.");
+        ResetMode(parent, old_mode);
+
+        // Or a required project is missing?
+        {
+            CellMLToSharedLibraryConverter failed_converter(true, "not_a_project");
+            TS_ASSERT_THROWS_CONTAINS(failed_converter.Convert(cellml_file),
+                "Unable to convert CellML model: required Chaste component 'not_a_project' does not exist in '"
+                                      + source_root.GetAbsolutePath() + "'.");
+        }
+
+        // Or we can't create the temp folder for some other reason?
+        FileFinder heart("heart/dynamic", RelativeTo::ChasteSourceRoot);
+        old_mode = ResetMode(heart, 0);
+        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
+                                  "Failed to create temporary folder '");
+        ResetMode(heart, old_mode);
     }
 
     void TestArchiving() throw(Exception)

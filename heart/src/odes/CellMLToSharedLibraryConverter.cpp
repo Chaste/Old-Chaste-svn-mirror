@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h> // For getpid()
 #include <sys/stat.h> // For mkdir()
 #include <ctime>
+#include <cstring> // For strerror()
+#include <cerrno> // For errno
 
 #include "Exception.hpp"
 #include "ChasteBuildRoot.hpp"
@@ -103,6 +105,20 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
 {
     std::string tmp_folder, build_folder;
     std::string old_cwd = GetCurrentWorkingDirectory();
+    // Check that the Chaste source tree exists
+    FileFinder chaste_root(ChasteBuildRootDir(), RelativeTo::Absolute);
+    if (!chaste_root.IsDir())
+    {
+        EXCEPTION("No Chaste source tree found at '" << chaste_root.GetAbsolutePath()
+                  << "' - you need the source to use CellML models directly in Chaste.");
+    }
+    FileFinder component_dir(mComponentName, RelativeTo::ChasteSourceRoot);
+    if (!component_dir.IsDir())
+    {
+        EXCEPTION("Unable to convert CellML model: required Chaste component '" << mComponentName
+                  << "' does not exist in '" << ChasteBuildRootDir() << "'.");
+    }
+    // Try the conversion
     try
     {
         // Need to create a .so file from the CellML...
@@ -111,10 +127,14 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Create a temporary folder within heart/dynamic
             std::stringstream folder_name;
             folder_name << "dynamic/tmp_" << getpid() << "_" << time(NULL);
-            tmp_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/" + folder_name.str();
-            build_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/build/" + ChasteBuildDirName() + "/" + folder_name.str();
+            tmp_folder = component_dir.GetAbsolutePath() + "/" + folder_name.str();
+            build_folder = component_dir.GetAbsolutePath() + "/build/" + ChasteBuildDirName() + "/" + folder_name.str();
             int ret = mkdir(tmp_folder.c_str(), 0700);
-            EXCEPT_IF_NOT(ret == 0);
+            if (ret != 0)
+            {
+                EXCEPTION("Failed to create temporary folder '" << tmp_folder << "' for CellML conversion: "
+                          << strerror(errno));
+            }
             // Copy the .cellml file (and any relevant others) into the temporary folder
             size_t dot_pos = rCellmlFullPath.rfind('.');
             std::string cellml_base = rCellmlFullPath.substr(0, dot_pos);
@@ -147,16 +167,19 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
     catch (Exception& e)
     {
         PetscTools::ReplicateException(true);
-        if (mPreserveGeneratedSources)
+        if (FileFinder(tmp_folder, RelativeTo::Absolute).Exists())
         {
-            // Copy any temporary files
-            IGNORE_RET(system, "cp -r " + build_folder + " " + rCellmlFolder + "/build/");
-            IGNORE_RET(system, "cp -r " + tmp_folder + " " + rCellmlFolder + "/tmp/");
+            if (mPreserveGeneratedSources)
+            {
+                // Copy any temporary files
+                IGNORE_RET(system, "cp -r " + build_folder + " " + rCellmlFolder + "/build/");
+                IGNORE_RET(system, "cp -r " + tmp_folder + " " + rCellmlFolder + "/tmp/");
+            }
+            // Delete the temporary folders
+            IGNORE_RET(system, "rm -rf " + build_folder); // -f because folder might not exist
+            IGNORE_RET(system, "rm -r " + tmp_folder);
         }
-        // Delete the temporary folders
-        EXPECT0(system, "rm -rf " + build_folder); // -f because folder might not exist
-        EXPECT0(system, "rm -r " + tmp_folder);
-        EXPECT0(chdir, old_cwd);
+        IGNORE_RET(chdir, old_cwd);
         EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
     // This also has the effect of a barrier, ensuring all processes wait for the
