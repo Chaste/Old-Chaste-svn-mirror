@@ -73,6 +73,10 @@ public:
 
             // Check we can extract the leaf name
             TS_ASSERT_EQUALS(file_finder.GetLeafName(), "FileFinder.hpp");
+
+            // And the parent folder name
+            FileFinder parent("global/src", RelativeTo::ChasteSourceRoot);
+            TS_ASSERT_EQUALS(file_finder.GetParent().GetAbsolutePath(), parent.GetAbsolutePath());
         }
 
         {
@@ -160,6 +164,9 @@ public:
         TS_ASSERT(!missing_dir.IsDir());
         TS_ASSERT(!missing_dir.IsFile());
         TS_ASSERT_EQUALS(missing_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath() + "SubDir");
+
+        // Check the parent folder works for directories too
+        TS_ASSERT_EQUALS(missing_dir.GetParent().GetAbsolutePath(), new_dir.GetAbsolutePath());
     }
 
     void TestFaking()

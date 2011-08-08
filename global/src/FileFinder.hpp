@@ -136,6 +136,11 @@ public:
     std::string GetLeafName() const;
 
     /**
+     * Get a finder for the folder containing this file or directory.
+     */
+    FileFinder GetParent() const;
+
+    /**
      * Test whether a path is absolute. Currently just checks whether the first character is '/'.
      *
      * @param rPath The path to test

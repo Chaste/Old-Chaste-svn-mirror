@@ -39,15 +39,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iostream> // For std::cout in MPIABORTIFNON0
 #include <cfloat>
-#include <climits> //For UINT_MAX etc., necessary in gcc-4.3
-#include <cstdlib> //For system() etc., necessary in gcc-4.3
+#include <climits> // For UINT_MAX etc., necessary in gcc-4.3
+#include <cstdlib> // For system() etc., necessary in gcc-4.3
 
 /** Use when initialising an unsigned variable that doesn't have a sensible default value. */
-const unsigned UNSIGNED_UNSET=UINT_MAX;
+const unsigned UNSIGNED_UNSET = UINT_MAX;
 /** Use when initialising an int variable that doesn't have a sensible default value. */
-const int INT_UNSET=INT_MAX;
+const int INT_UNSET = INT_MAX;
 /** Use when initialising a double variable that doesn't have a sensible default value. */
-const double DOUBLE_UNSET=DBL_MAX;
+const double DOUBLE_UNSET = DBL_MAX;
 
 /**
  * Exception class.
@@ -125,8 +125,8 @@ private:
  * @param message  the error message to use, as a streamed expression
  */
 #define EXCEPTION(message)                           \
-    do {                                         \
-        std::stringstream msg_stream;            \
+    do {                                             \
+        std::stringstream msg_stream;                \
         msg_stream << message;                       \
         throw Exception(msg_stream.str(), __FILE__, __LINE__); \
     } while (false)
@@ -165,10 +165,10 @@ private:
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */
-#define EXPECT0(cmd, arg) { \
-    std::string _arg(arg); \
+#define EXPECT0(cmd, arg) {      \
+    std::string _arg(arg);       \
     int ret = cmd(_arg.c_str()); \
-    if (ret != 0) { \
+    if (ret != 0) {              \
         EXCEPTION("Error executing command: " #cmd "(" + _arg + ")"); \
     } }
 
@@ -179,10 +179,10 @@ private:
  * @param retcode  command return code
  * @param msg  error message to display
  */
-#define MPI_ABORT_IF_NON0_WITH_MSG(retcode, msg) \
-    if (retcode != 0) { \
+#define MPI_ABORT_IF_NON0_WITH_MSG(retcode, msg)     \
+    if (retcode != 0) {                              \
         std::cerr << msg << std::endl << std::flush; \
-        MPI_Abort(PETSC_COMM_WORLD, -1); \
+        MPI_Abort(PETSC_COMM_WORLD, -1);             \
     }
 
 /**
@@ -192,8 +192,8 @@ private:
  * @param arg  its argument (will be converted to std::string)
  */
 #define MPIABORTIFNON0(cmd, arg) { \
-    std::string _arg(arg); \
-    int ret = cmd(_arg.c_str()); \
+    std::string _arg(arg);         \
+    int ret = cmd(_arg.c_str());   \
     MPI_ABORT_IF_NON0_WITH_MSG(ret, "Error executing command: " #cmd "(" + _arg + ")") \
     }
 
@@ -203,10 +203,10 @@ private:
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */
-#define EXPECTNON0(cmd, arg) { \
-    std::string _arg = (arg); \
+#define EXPECTNON0(cmd, arg) {   \
+    std::string _arg = (arg);    \
     int ret = cmd(_arg.c_str()); \
-    if (ret == 0) { \
+    if (ret == 0) {              \
         EXCEPTION("Command: " #cmd "(" + _arg + ") succeeded and it shouldn't have"); \
     } }
 
@@ -216,10 +216,10 @@ private:
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */
-#define IGNORE_RET(cmd, arg) { \
-    std::string _arg = (arg); \
+#define IGNORE_RET(cmd, arg) {   \
+    std::string _arg = (arg);    \
     int ret = cmd(_arg.c_str()); \
-    ret = ret; \
+    ret = ret;                   \
     }
 
 #endif // _EXCEPTION_HPP_
