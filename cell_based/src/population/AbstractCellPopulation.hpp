@@ -82,7 +82,6 @@ private:
         archive & mCellLocationMap;
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
-        archive & mCentroid;
         archive & mCellPopulationContainsMesh;
         archive & mpCellPropertyRegistry;
         archive & mDampingConstantNormal;
@@ -503,10 +502,8 @@ public:
 
     /**
      * Returns the centroid of the cell population.
-     *
      */
     c_vector<double, DIM> GetCentroidOfCellPopulation();
-
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.

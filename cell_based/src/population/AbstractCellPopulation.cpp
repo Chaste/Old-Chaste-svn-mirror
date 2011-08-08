@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellPopulation.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells,
@@ -256,7 +255,7 @@ c_vector<double, DIM> AbstractCellPopulation<DIM>::GetCentroidOfCellPopulation()
     {
     	mCentroid += GetLocationOfCellCentre(*cell_iter);
     }
-    mCentroid/=this->GetNumRealCells();
+    mCentroid /= this->GetNumRealCells();
 
     return mCentroid;
 }
