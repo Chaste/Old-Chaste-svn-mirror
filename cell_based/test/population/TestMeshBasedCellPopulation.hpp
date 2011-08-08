@@ -126,10 +126,10 @@ public:
 
 		// Check position of centroid
 		c_vector<double, 2> expected_centroid_position;
-		expected_centroid_position(0)=0.75;
-		expected_centroid_position(1)=0.25*pow(3,0.5);
-		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(0),expected_centroid_position(0),1e-4);
-		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(1),expected_centroid_position(1),1e-4)
+		expected_centroid_position(0) = 0.75;
+		expected_centroid_position(1) = 0.25*pow(3,0.5);
+		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(0), expected_centroid_position(0), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(1), expected_centroid_position(1), 1e-4)
     }
 
     void TestValidateMeshBasedCellPopulation()
