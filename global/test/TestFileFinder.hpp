@@ -167,6 +167,10 @@ public:
 
         // Check the parent folder works for directories too
         TS_ASSERT_EQUALS(missing_dir.GetParent().GetAbsolutePath(), new_dir.GetAbsolutePath());
+
+        // Can we give an empty local path?
+        FileFinder source_root("", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_EQUALS(dir.GetParent().GetAbsolutePath(), source_root.GetAbsolutePath());
     }
 
     void TestFaking()

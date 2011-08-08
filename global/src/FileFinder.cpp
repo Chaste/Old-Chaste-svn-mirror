@@ -172,7 +172,8 @@ std::string FileFinder::GetLeafName() const
 FileFinder FileFinder::GetParent() const
 {
     std::string full_name = GetAbsolutePath();
-    size_t slash = full_name.rfind('/');
+    size_t limit = full_name.length() > 1 ? full_name.length() - 2 : std::string::npos;
+    size_t slash = full_name.rfind('/', limit);
     EXCEPT_IF_NOT(slash != std::string::npos);
     return FileFinder(full_name.substr(0, slash), RelativeTo::Absolute);
 }
