@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTwoBodyInteractionForce.hpp"
 
-
 template<unsigned DIM>
 AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
    : AbstractForce<DIM>(),
@@ -51,13 +50,11 @@ void AbstractTwoBodyInteractionForce<DIM>::SetCutOffLength(double cutOffLength)
     mMechanicsCutOffLength = cutOffLength;
 }
 
-
 template<unsigned DIM>
 double AbstractTwoBodyInteractionForce<DIM>::GetCutOffLength()
 {
     return mMechanicsCutOffLength;
 }
-
 
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "AbstractCellCycleModel.hpp"
 
 AbstractCellCycleModel::AbstractCellCycleModel()
@@ -246,4 +247,3 @@ void AbstractCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsF
     *rParamsFile << "\t\t\t<G2Duration>" << mG2Duration << "</G2Duration>\n";
     *rParamsFile << "\t\t\t<MDuration>" << mMDuration << "</MDuration>\n";
 }
-

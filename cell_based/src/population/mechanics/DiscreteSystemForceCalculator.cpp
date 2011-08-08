@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "DiscreteSystemForceCalculator.hpp"
 
 DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedCellPopulation<2>& rCellPopulation,
@@ -34,7 +35,6 @@ DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedCellPopula
       mEpsilon(0.01)
 {
 }
-
 
 std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtremalNormalForces()
 {
@@ -78,7 +78,6 @@ std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtre
     return extremal_normal_forces;
 }
 
-
 void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOutputDirectory)
 {
     double time = SimulationTime::Instance()->GetTime();
@@ -118,7 +117,6 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
     mpVizStressResultsFile->close();
 }
 
-
 std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned index, double theta)
 {
     TetrahedralMesh<2,2>& r_mesh = mrCellPopulation.rGetMesh();
@@ -141,7 +139,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
         assert(alpha <= M_PI);
         assert(alpha > -M_PI);
 
-        if ( sin(alpha-theta) > DBL_EPSILON )
+        if (sin(alpha-theta) > DBL_EPSILON)
         {
             // Initialise a zero force vector between neighbouring nodes
             c_vector<double,2> force_between_nodes = zero_vector<double>(2);
@@ -169,7 +167,6 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 
     return ret;
 }
-
 
 std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned index)
 {
@@ -242,7 +239,6 @@ std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned in
     return sampling_angles;
 }
 
-
 double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double angle1, double angle2)
 {
     // We always pass in angle1 and angle2 such that angle1<angle2,
@@ -273,7 +269,6 @@ double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double an
 
     return current_angle;
 }
-
 
 std::vector<double> DiscreteSystemForceCalculator::GetExtremalAngles(unsigned index, std::vector<double> samplingAngles)
 {

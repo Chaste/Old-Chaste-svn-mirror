@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCRYPTSIMULATION2DNIGHTLY_HPP_
 #define TESTCRYPTSIMULATION2DNIGHTLY_HPP_
 
@@ -44,10 +45,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
-
-
 #include "WntCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
+
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
 private:
@@ -553,8 +553,6 @@ public:
         // There should be no cells left after this amount of time
         TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 1u);
     }
-
 };
-
 
 #endif /*TESTCRYPTSIMULATION2DNIGHTLY_HPP_*/

@@ -33,8 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
+
 #ifndef TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
+
 /*
  * = Examples showing how to run crypt simulations on periodic meshes with different cell-cycle models =
  *

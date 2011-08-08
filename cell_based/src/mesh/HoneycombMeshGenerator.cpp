@@ -262,11 +262,10 @@ MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
 
     mpMesh->Translate(-centre[0], -centre[1]);
 
-    // Iterate over nodes, deleting any that lie more
-    // than the specified radius from (0,0)
+    // Iterate over nodes, deleting any that lie more than the specified radius from (0,0)
     for (unsigned i=0; i<mpMesh->GetNumAllNodes(); i++)
     {
-        if ( norm_2(mpMesh->GetNode(i)->rGetLocation()) >= radius)
+        if (norm_2(mpMesh->GetNode(i)->rGetLocation()) >= radius)
         {
             mpMesh->DeleteNodePriorToReMesh(i);
         }

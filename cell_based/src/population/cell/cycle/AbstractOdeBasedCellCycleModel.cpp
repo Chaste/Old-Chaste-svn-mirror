@@ -27,10 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractOdeBasedCellCycleModel.hpp"
-
 #include <iostream>
 #include <cassert>
-
 #include "Exception.hpp"
 
 AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime,

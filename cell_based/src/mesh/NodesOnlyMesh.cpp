@@ -29,10 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include "NodesOnlyMesh.hpp"
 
-///////////////////////////////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////////////////////////////
-
 template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<SPACE_DIM>*>& rNodes)
 {

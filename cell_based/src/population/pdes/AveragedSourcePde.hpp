@@ -25,13 +25,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef AVERAGEDSOURCEPDE_HPP_
 #define AVERAGEDSOURCEPDE_HPP_
 
 #include "AbstractCellPopulation.hpp"
 #include "TetrahedralMesh.hpp"
 #include "AbstractLinearEllipticPde.hpp"
-
 
 /**
  *  A PDE which calculates the source term by adding the number of cells

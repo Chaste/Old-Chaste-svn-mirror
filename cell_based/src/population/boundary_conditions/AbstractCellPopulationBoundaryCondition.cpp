@@ -68,4 +68,3 @@ void AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryC
 template class AbstractCellPopulationBoundaryCondition<1>;
 template class AbstractCellPopulationBoundaryCondition<2>;
 template class AbstractCellPopulationBoundaryCondition<3>;
-

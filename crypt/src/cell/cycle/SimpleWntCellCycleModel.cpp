@@ -224,7 +224,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         CellProliferativeType cell_type = TRANSIT;
 
         // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
-        if ( (wnt_type == RADIAL) && (wnt_level > mWntStemThreshold) )
+        if ((wnt_type == RADIAL) && (wnt_level > mWntStemThreshold))
         {
             cell_type = STEM;
         }

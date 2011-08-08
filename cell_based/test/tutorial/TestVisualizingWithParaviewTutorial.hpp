@@ -33,8 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
+
 #ifndef TESTVISUALIZINGWITHPARAVIEWTUTORIAL_HPP_
 #define TESTVISUALIZINGWITHPARAVIEWTUTORIAL_HPP_
+
 /*
  * = Examples showing how to visualize simulations in Paraview =
  *

@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cylindrical2dMesh.hpp"
 #include "NodesOnlyMesh.hpp"
 
-
 template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh,
                                       std::vector<CellPtr>& rCells,
@@ -239,7 +238,6 @@ unsigned MeshBasedCellPopulation<DIM>::RemoveDeadCells()
 
     return num_removed;
 }
-
 
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
@@ -1000,7 +998,7 @@ double MeshBasedCellPopulation<DIM>::GetVoronoiEdgeLength(unsigned index1, unsig
     }
     catch (Exception& e)
     {
-        //The edge was between two (potentially infinite) cells on the boundary of the mesh
+        // The edge was between two (potentially infinite) cells on the boundary of the mesh
         EXCEPTION("Spring iterator tried to calculate interaction between degenerate cells on the boundary of the mesh.  Have you set ghost layers correctly?");
     }
 }

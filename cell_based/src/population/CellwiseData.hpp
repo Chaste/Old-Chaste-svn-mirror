@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef CELLWISEDATA_HPP_
 #define CELLWISEDATA_HPP_
 
@@ -32,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/vector.hpp>
 
 #include "MeshBasedCellPopulation.hpp"
-
 
 /**
  * A singleton object for storing data that certain cell-cycle models

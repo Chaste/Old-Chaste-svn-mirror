@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTMESHBASEDCELLPOPULATION_HPP_
 #define TESTMESHBASEDCELLPOPULATION_HPP_
 
@@ -1075,6 +1076,5 @@ public:
         }
     }
 };
-
 
 #endif /*TESTMESHBASEDCELLPOPULATION_HPP_*/

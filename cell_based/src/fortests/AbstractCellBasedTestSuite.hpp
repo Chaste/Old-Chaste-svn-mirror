@@ -25,8 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef ABSTRACTCELLBASEDTESTSUITE_HPP_
 #define ABSTRACTCELLBASEDTESTSUITE_HPP_
+
 #define CXXTEST_ABORT_TEST_ON_FAIL
 
 #include "SimulationTime.hpp"
@@ -47,7 +49,7 @@ protected:
      */
     void setUp()
     {
-        //The following won't work.  It returns from this setup method, but not the test suite
+        // The following won't work: it returns from this setup method, but not the test suite
         //EXIT_IF_PARALLEL; // defined in PetscTools
 
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -64,6 +66,5 @@ protected:
         RandomNumberGenerator::Destroy();
     }
 };
-
 
 #endif /*ABSTRACTCELLBASEDTESTSUITE_HPP_*/

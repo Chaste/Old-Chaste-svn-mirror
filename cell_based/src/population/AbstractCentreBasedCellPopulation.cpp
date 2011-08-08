@@ -36,7 +36,6 @@ AbstractCentreBasedCellPopulation<DIM>::AbstractCentreBasedCellPopulation(std::v
 {
 }
 
-
 template<unsigned DIM>
 AbstractCentreBasedCellPopulation<DIM>::AbstractCentreBasedCellPopulation()
     : AbstractCellPopulation<DIM>(),
@@ -44,13 +43,11 @@ AbstractCentreBasedCellPopulation<DIM>::AbstractCentreBasedCellPopulation()
 {
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> AbstractCentreBasedCellPopulation<DIM>::GetLocationOfCellCentre(CellPtr pCell)
 {
     return GetNodeCorrespondingToCell(pCell)->rGetLocation();
 }
-
 
 template<unsigned DIM>
 Node<DIM>* AbstractCentreBasedCellPopulation<DIM>::GetNodeCorrespondingToCell(CellPtr pCell)
@@ -59,7 +56,6 @@ Node<DIM>* AbstractCentreBasedCellPopulation<DIM>::GetNodeCorrespondingToCell(Ce
 
     return this->GetNode(this->mCellLocationMap[pCell.get()]);
 }
-
 
 template<unsigned DIM>
 CellPtr AbstractCentreBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell)
@@ -78,13 +74,11 @@ CellPtr AbstractCentreBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, const 
     return pNewCell;
 }
 
-
 template<unsigned DIM>
 bool AbstractCentreBasedCellPopulation<DIM>::IsCellAssociatedWithADeletedLocation(CellPtr pCell)
 {
     return GetNodeCorrespondingToCell(pCell)->IsDeleted();
 }
-
 
 template<unsigned DIM>
 void AbstractCentreBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
@@ -111,7 +105,6 @@ void AbstractCentreBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vect
     }
 }
 
-
 template<unsigned DIM>
 double AbstractCentreBasedCellPopulation<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
@@ -126,13 +119,11 @@ double AbstractCentreBasedCellPopulation<DIM>::GetDampingConstant(unsigned nodeI
     }
 }
 
-
 template<unsigned DIM>
 bool AbstractCentreBasedCellPopulation<DIM>::IsGhostNode(unsigned index)
 {
     return false;
 }
-
 
 template<unsigned DIM>
 void AbstractCentreBasedCellPopulation<DIM>::GenerateCellResults(unsigned locationIndex,
@@ -150,7 +141,6 @@ void AbstractCentreBasedCellPopulation<DIM>::GenerateCellResults(unsigned locati
                                                  rCellCyclePhaseCounter);
     }
 }
-
 
 template<unsigned DIM>
 void AbstractCentreBasedCellPopulation<DIM>::GenerateCellResultsAndWriteToFiles()
@@ -182,7 +172,7 @@ void AbstractCentreBasedCellPopulation<DIM>::GenerateCellResultsAndWriteToFiles(
         }
 
         // Write cell data to file
-        if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+        if (!(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
         {
             this->GenerateCellResults(node_index, cell_type_counter, cell_cycle_phase_counter);
         }
@@ -210,7 +200,7 @@ void AbstractCentreBasedCellPopulation<DIM>::WriteTimeAndNodeResultsToFiles()
         }
 
         // Write node data to file
-        if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+        if (!(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
         {
             const c_vector<double,DIM>& position = this->GetNode(node_index)->rGetLocation();
 

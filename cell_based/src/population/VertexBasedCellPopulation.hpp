@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef VERTEXBASEDCELLPOPULATION_HPP_
 #define VERTEXBASEDCELLPOPULATION_HPP_
-
 
 #include "AbstractCellPopulation.hpp"
 #include "MutableVertexMesh.hpp"
@@ -173,13 +173,12 @@ public:
 
     /**
      * Overridden GetLocationOfCellCentre() method.
-     * Find where a given cell is in space.
+     * 
+     * Find the centre of mass of a given cell (assuming uniform density).
+     * Note that, as there is no guarantee of convexity, this may lie
+     * outside the VertexElement corresponding to the cell.
      *
-     * \todo If required, we could come up with a more clever definition of cell location
-     *       for a VertexCellPopulation (for example, there is no guarantee of convexity so the
-     *       centre of mass may lie outside the element)
-     *
-     * @param pCell the cell
+     * @param pCell a cell in the population
      *
      * @return the location of the centre of mass of the element corresponding to this cell.
      */

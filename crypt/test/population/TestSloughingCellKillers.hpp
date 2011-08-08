@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSLOUGHINGCELLKILLERS_HPP_
 #define TESTSLOUGHINGCELLKILLERS_HPP_
 
@@ -78,7 +79,7 @@ public:
             double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
             double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
-            if ( (x<0) || (x>0.5) || (y>0.5))
+            if ((x<0) || (x>0.5) || (y>0.5))
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }

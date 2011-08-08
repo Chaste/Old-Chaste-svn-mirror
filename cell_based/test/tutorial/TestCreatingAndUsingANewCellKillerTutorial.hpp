@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
+
 #ifndef TESTCREATINGANDUSINGANEWCELLKILLERTUTORIAL_HPP_
 #define TESTCREATINGANDUSINGANEWCELLKILLERTUTORIAL_HPP_
 
@@ -111,7 +112,7 @@ public:
         {
             c_vector<double, 2> location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
-            if ( pow(location[0]/20, 2) + pow(location[1]/10, 2) > 1.0 )
+            if (pow(location[0]/20, 2) + pow(location[1]/10, 2) > 1.0)
             {
                 cell_iter->Kill();
             }

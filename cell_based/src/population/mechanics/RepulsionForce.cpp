@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "RepulsionForce.hpp"
 
 template<unsigned DIM>
@@ -86,7 +87,6 @@ void RepulsionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 	// Call direct parent class
 	GeneralisedLinearSpringForce<DIM>::OutputForceParameters(rParamsFile);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

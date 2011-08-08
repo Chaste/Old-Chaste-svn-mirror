@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "CellwiseDataGradient.hpp"
 #include "LinearBasisFunction.hpp"
 
@@ -133,7 +134,8 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                     unsigned adjacent_node_global_index = r_adjacent_elem.GetNodeGlobalIndex(local_node_index);
 
                     // If not a ghost node and not the node we started with
-                    if ( p_cell_population->IsGhostNode(adjacent_node_global_index)==false && adjacent_node_global_index != node_global_index )
+                    if (    !(p_cell_population->IsGhostNode(adjacent_node_global_index))
+                         && adjacent_node_global_index != node_global_index )
                     {
 
                         // Calculate the contribution of gradient from this node
@@ -167,7 +169,6 @@ void CellwiseDataGradient<DIM>::SetupGradients()
         }
     }
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

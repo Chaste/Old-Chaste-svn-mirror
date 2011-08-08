@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTNODESONLYMESH_HPP_
 #define TESTNODESONLYMESH_HPP_
 
@@ -39,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodesOnlyMesh.hpp"
 #include "VtkMeshWriter.hpp"
 #include "ArchiveOpener.hpp"
-
 
 class TestNodesOnlyMesh : public CxxTest::TestSuite
 {
@@ -121,7 +121,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 5u);
     }
-
 
     void TestWriteNodesWithoutMeshUsingVtk()
     {
@@ -288,8 +287,6 @@ public:
         // Deleting a deleted node should throw an exception
         TS_ASSERT_THROWS_THIS(mesh.DeleteNode(3),"Trying to delete a deleted node");
 
-
-
         /*
          * Check that mCellRadii is updated correctly when a new cell
          * is added using the most recently deleted index.
@@ -300,8 +297,8 @@ public:
         // Check the most recently deleted node now has the correct cell radius
         TS_ASSERT_DELTA(mesh.GetCellRadius(3), 1.0, 1e-4);
 
-        //Now we have deleted/reused 3, and deleted 1 and 6.
-        //The new nodes are:
+        // Now we have deleted/reused 3, and deleted 1 and 6.
+        // The new nodes are:
         // New:     0     1     2     3     4     5
         // Old:     0     2 (new3)    4     5     7
         // Radius:  1     3     1     5     6     8

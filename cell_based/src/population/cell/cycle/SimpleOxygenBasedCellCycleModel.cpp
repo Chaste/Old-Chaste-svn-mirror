@@ -41,18 +41,15 @@ SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel()
     mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
 }
 
-
 double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxicDuration()
 {
     return mCurrentHypoxicDuration;
 }
 
-
 double SimpleOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 {
     return mCurrentHypoxiaOnsetTime;
 }
-
 
 void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
@@ -107,7 +104,6 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-
 AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
     // Create a new cell-cycle model
@@ -142,7 +138,6 @@ AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 
     return p_model;
 }
-
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
@@ -195,12 +190,10 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     }
 }
 
-
 double SimpleOxygenBasedCellCycleModel::GetHypoxicConcentration()
 {
     return mHypoxicConcentration;
 }
-
 
 void SimpleOxygenBasedCellCycleModel::SetHypoxicConcentration(double hypoxicConcentration)
 {
@@ -209,12 +202,10 @@ void SimpleOxygenBasedCellCycleModel::SetHypoxicConcentration(double hypoxicConc
     mHypoxicConcentration = hypoxicConcentration;
 }
 
-
 double SimpleOxygenBasedCellCycleModel::GetQuiescentConcentration()
 {
     return mQuiescentConcentration;
 }
-
 
 void SimpleOxygenBasedCellCycleModel::SetQuiescentConcentration(double quiescentConcentration)
 {
@@ -223,12 +214,10 @@ void SimpleOxygenBasedCellCycleModel::SetQuiescentConcentration(double quiescent
     mQuiescentConcentration = quiescentConcentration;
 }
 
-
 double SimpleOxygenBasedCellCycleModel::GetCriticalHypoxicDuration()
 {
     return mCriticalHypoxicDuration;
 }
-
 
 void SimpleOxygenBasedCellCycleModel::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {

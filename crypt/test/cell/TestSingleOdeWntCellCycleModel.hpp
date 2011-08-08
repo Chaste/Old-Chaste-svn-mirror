@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSINGLEODEWNTCELLCYCLEMODEL_HPP_
 #define TESTSINGLEODEWNTCELLCYCLEMODEL_HPP_
 
@@ -182,7 +183,7 @@ public:
         TS_ASSERT_DELTA(358.5624, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
 #endif
 
-        TS_ASSERT_DELTA( p_cycle_model->GetBetaCateninDivisionThreshold(), 100, 1e-9);
+        TS_ASSERT_DELTA(p_cycle_model->GetBetaCateninDivisionThreshold(), 100, 1e-9);
         TS_ASSERT_DELTA(p_cycle_model2->GetBetaCateninDivisionThreshold(), 100, 1e-9);
 
         TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
@@ -374,8 +375,6 @@ public:
         std::string single_ode_wnt_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + single_ode_wnt_results_dir + "single_ode_wnt_results.parameters crypt/test/data/TestCellCycleModels/single_ode_wnt_results.parameters").c_str()), 0);
     }
-
 };
-
 
 #endif /* TESTSINGLEODEWNTCELLCYCLEMODEL_HPP_ */

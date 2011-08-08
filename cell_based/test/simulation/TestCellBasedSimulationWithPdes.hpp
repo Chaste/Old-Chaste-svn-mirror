@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCELLBASEDSIMULATIONWITHPDES_HPP_
 #define TESTCELLBASEDSIMULATIONWITHPDES_HPP_
 
@@ -1002,11 +1003,14 @@ public:
         simulator.Solve();
 
         // Test that boundary cells experience the right boundary condition
-        for (AbstractCellPopulation<2>::Iterator cell_iter = simulator.rGetCellPopulation().Begin();
-             cell_iter != simulator.rGetCellPopulation().End();
+        AbstractCentreBasedCellPopulation<2>* p_population 
+            = static_cast<AbstractCentreBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation()));
+
+        for (AbstractCellPopulation<2>::Iterator cell_iter = p_population->Begin();
+             cell_iter != p_population->End();
              ++cell_iter)
         {
-            if ( (static_cast<AbstractCentreBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode() )
+            if (p_population->GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode())
             {
                 TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.0, 1e-1);
             }
@@ -1841,7 +1845,6 @@ public:
 
 	void TestCoarseMesh1d() throw(Exception)
 	{
-
 		EXIT_IF_PARALLEL; // defined in PetscTools
 
         // Create mesh
@@ -1914,9 +1917,7 @@ public:
 
 		// Tidy up
 		CellwiseData<1>::Destroy();
-
 	}
-
 };
 
 #endif /*TESTCELLBASEDSIMULATIONWITHPDES_HPP_*/

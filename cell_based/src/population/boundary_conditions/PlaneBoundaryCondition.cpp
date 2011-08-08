@@ -100,7 +100,7 @@ bool PlaneBoundaryCondition<DIM>::VerifyBoundaryCondition()
         {
             c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
-            if ( inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0 )
+            if (inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0)
             {
                 condition_satisfied = false;
                 break;

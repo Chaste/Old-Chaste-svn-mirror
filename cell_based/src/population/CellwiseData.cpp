@@ -28,10 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellwiseData.hpp"
 
-
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::mpInstance = NULL;
-
 
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::Instance()
@@ -42,7 +40,6 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
     }
     return mpInstance;
 }
-
 
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
@@ -55,12 +52,10 @@ CellwiseData<DIM>::CellwiseData()
     assert(mpInstance == NULL);
 }
 
-
 template<unsigned DIM>
 CellwiseData<DIM>::~CellwiseData()
 {
 }
-
 
 template<unsigned DIM>
 void CellwiseData<DIM>::Destroy()
@@ -71,7 +66,6 @@ void CellwiseData<DIM>::Destroy()
         mpInstance = NULL;
     }
 }
-
 
 template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(CellPtr pCell, unsigned variableNumber)
@@ -96,7 +90,6 @@ double CellwiseData<DIM>::GetValue(CellPtr pCell, unsigned variableNumber)
     return mData[vector_index];
 }
 
-
 template<unsigned DIM>
 void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned variableNumber)
 {
@@ -110,7 +103,6 @@ void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned 
     mData[vector_index] = value;
 }
 
-
 template<unsigned DIM>
 void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopulation)
 {
@@ -122,13 +114,11 @@ void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopu
     mpCellPopulation = pCellPopulation;
 }
 
-
 template<unsigned DIM>
 AbstractCellPopulation<DIM>& CellwiseData<DIM>::rGetCellPopulation()
 {
     return *mpCellPopulation;
 }
-
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetNumCellsAndVars(unsigned numCells, unsigned numberOfVariables)
@@ -148,13 +138,11 @@ void CellwiseData<DIM>::SetNumCellsAndVars(unsigned numCells, unsigned numberOfV
     mAllocatedMemory = true;
 }
 
-
 template<unsigned DIM>
 bool CellwiseData<DIM>::IsSetUp()
 {
     return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpCellPopulation!=NULL));
 }
-
 
 template<unsigned DIM>
 void CellwiseData<DIM>::ReallocateMemory()
@@ -170,7 +158,6 @@ void CellwiseData<DIM>::ReallocateMemory()
     }
 }
 
-
 template<unsigned DIM>
 void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double>& rValues)
 {
@@ -178,7 +165,6 @@ void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double>& rValues)
     mUseConstantDataForTesting = true;
     mNumberOfVariables = 1;
 }
-
 
 template<unsigned DIM>
 unsigned CellwiseData<DIM>::GetNumVariables()

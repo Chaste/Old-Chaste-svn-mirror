@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef CellBasedSimulationWITHPDES_HPP_
 #define CellBasedSimulationWITHPDES_HPP_
 
@@ -32,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 
 #include "CellBasedSimulation.hpp"
-
 #include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
@@ -273,7 +273,6 @@ public:
      */
     void SetWriteAverageRadialPdeSolution(unsigned numRadialIntervals=10,
                                           bool writeDailyResults=false);
-
 
     /**
      * Impose the PDE boundary conditions on the edge of the cell population when using

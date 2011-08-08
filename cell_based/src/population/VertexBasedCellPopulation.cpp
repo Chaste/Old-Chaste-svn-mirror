@@ -60,7 +60,7 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
     }
 
     // Check each element has only one cell attached
-     if (validate)
+    if (validate)
     {
         Validate();
     }
@@ -399,7 +399,7 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
         }
 
         // Write node data to file
-        if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
+        if (!(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
         {
             VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(elem_index);
 
@@ -442,7 +442,7 @@ void VertexBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
         }
 
         // Write node data to file
-        if ( !(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
+        if (!(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
         {
             // Write element index to file
             *(this->mpCellVolumesFile) << elem_index << " ";

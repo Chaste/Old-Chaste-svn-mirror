@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSIMPLECELLCYCLEMODELS_HPP_
 #define TESTSIMPLECELLCYCLEMODELS_HPP_
 
@@ -903,7 +904,6 @@ public:
         std::string stochastic_oxygen_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + stochastic_oxygen_based_results_dir + "stochastic_oxygen_based_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_oxygen_based_results.parameters").c_str()), 0);
     }
-
 };
 
 #endif /*TESTSIMPLECELLCYCLEMODELS_HPP_*/

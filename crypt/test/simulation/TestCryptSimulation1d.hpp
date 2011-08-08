@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCRYPTSIMULATION1D_HPP_
 #define TESTCRYPTSIMULATION1D_HPP_
 
@@ -614,7 +615,7 @@ public:
             {
                 TS_ASSERT_EQUALS(cell_iter->GetCellCycleModel()->GetCellProliferativeType(), STEM);
             }
-            else if ( (fabs(x-1) < 1e-2) || (fabs(x-2) < 1e-2) )
+            else if ((fabs(x-1) < 1e-2) || (fabs(x-2) < 1e-2))
             {
                 TS_ASSERT_EQUALS(cell_iter->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }

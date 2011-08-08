@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTDISCRETESYSTEMFORCECALCULATOR_HPP_
 #define TESTDISCRETESYSTEMFORCECALCULATOR_HPP_
 
@@ -168,35 +169,35 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            if ( !(p_mesh->GetNode(i)->IsBoundaryNode()) )
+            if (!(p_mesh->GetNode(i)->IsBoundaryNode()))
             {
-                TS_ASSERT_DELTA( calculated_results[0][i], expected_minimum_interior, 1e-4);
-                TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);
+                TS_ASSERT_DELTA(calculated_results[0][i], expected_minimum_interior, 1e-4);
+                TS_ASSERT_DELTA(calculated_results[1][i], expected_maximum_interior, 1e-4);
             }
             else
             {
                 // Separate cases for the boundary nodes...
                 if (i==29 || i==30 || i==31 || i==32 || i==33)
                 {
-                    TS_ASSERT_DELTA( calculated_results[0][i], 0.0, 1e-4);
-                    TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[0][i], 0.0, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[1][i], expected_maximum_interior, 1e-4);
                 }
                 if (i==7 || i==20 || i==21)
                 {
-                    TS_ASSERT_DELTA( calculated_results[0][i], spring_stiffness*sin(M_PI/3.0), 1e-4);
-                    TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[0][i], spring_stiffness*sin(M_PI/3.0), 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[1][i], expected_maximum_interior, 1e-4);
 
                 }
                 if (i==1 || i==2 || i==3 || i==4 || i==5)
                 {
-                    TS_ASSERT_DELTA( calculated_results[0][i], 0.0, 1e-4);
-                    TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[0][i], 0.0, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[1][i], expected_maximum_interior, 1e-4);
 
                 }
                 if (i==13 || i==14 || i==27)
                 {
-                    TS_ASSERT_DELTA( calculated_results[0][i], expected_maximum_interior, 1e-4);
-                    TS_ASSERT_DELTA( calculated_results[1][i], expected_maximum_interior, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[0][i], expected_maximum_interior, 1e-4);
+                    TS_ASSERT_DELTA(calculated_results[1][i], expected_maximum_interior, 1e-4);
                 }
             }
         }

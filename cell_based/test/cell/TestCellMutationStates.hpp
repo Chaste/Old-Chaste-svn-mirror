@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCELLMUTATIONSTATES_HPP_
 #define TESTCELLMUTATIONSTATES_HPP_
 
@@ -125,7 +126,6 @@ public:
             delete p_state;
         }
     }
-
 };
 
 #endif /* TESTCELLMUTATIONSTATES_HPP_ */

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "CellwiseData.hpp"
 
@@ -443,11 +444,9 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::OutputCellPopulationParameters(
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-
 template class MeshBasedCellPopulationWithGhostNodes<1>;
 template class MeshBasedCellPopulationWithGhostNodes<2>;
 template class MeshBasedCellPopulationWithGhostNodes<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

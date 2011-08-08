@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GeneralisedLinearSpringForce.hpp"
 
-
 template<unsigned DIM>
 GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
    : AbstractTwoBodyInteractionForce<DIM>(),
@@ -207,7 +206,6 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     }
 }
 
-
 template<unsigned DIM>
 double GeneralisedLinearSpringForce<DIM>::GetMeinekeSpringStiffness()
 {
@@ -223,7 +221,6 @@ double GeneralisedLinearSpringForce<DIM>::GetMeinekeSpringGrowthDuration()
 {
     return mMeinekeSpringGrowthDuration;
 }
-
 
 template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringStiffness(double springStiffness)

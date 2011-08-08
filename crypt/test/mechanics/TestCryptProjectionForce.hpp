@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCRYPTPROJECTIONFORCE_HPP_
 #define TESTCRYPTPROJECTIONFORCE_HPP_
 
@@ -225,8 +226,8 @@ public:
             c_vector<double, 2> force_flat = flat_crypt_projection_force.CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, cell_population);
             c_vector<double, 2> force_meineke = linear_force.CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, cell_population);
 
-            TS_ASSERT_DELTA( force_flat[0], force_meineke[0], 1e-3);
-            TS_ASSERT_DELTA( force_flat[1], force_meineke[1], 1e-3);
+            TS_ASSERT_DELTA(force_flat[0], force_meineke[0], 1e-3);
+            TS_ASSERT_DELTA(force_flat[1], force_meineke[1], 1e-3);
         }
 
         WntConcentration<2>::Destroy();

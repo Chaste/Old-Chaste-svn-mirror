@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef CRYPTCELLSGENERATOR_HPP_
 #define CRYPTCELLSGENERATOR_HPP_
 
@@ -155,7 +156,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
                 y = pMesh->GetNode(i)->GetPoint().rGetLocation()[1];
 
             }
-            else if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+            else if (std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end())
             {
                 y = pMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             }
@@ -238,7 +239,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         {
             rCells.push_back(p_cell);
         }
-        else if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+        else if (std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end())
         {
             rCells.push_back(p_cell);
         }

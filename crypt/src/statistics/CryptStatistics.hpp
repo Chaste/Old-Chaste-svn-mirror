@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef CRYPTSTATISTICS_HPP_
 #define CRYPTSTATISTICS_HPP_
 
@@ -124,6 +125,4 @@ public:
                                                  double xTop = DBL_MAX); //RandomNumberGenerator::Instance()->ranf()*crypt_width,
 };
 
-
 #endif /*CRYPTSTATISTICS_HPP_*/
-

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTODEBASEDCELLCYCLEMODELS_HPP_
 #define TESTODEBASEDCELLCYCLEMODELS_HPP_
 
@@ -515,7 +516,6 @@ public:
         std::string tyson_novak_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + tyson_novak_based_results_dir + "tyson_novak_based_results.parameters cell_based/test/data/TestCellCycleModels/tyson_novak_based_results.parameters").c_str()), 0);
     }
-
 };
 
 #endif /*TESTODEBASEDCELLCYCLEMODELS_HPP_*/

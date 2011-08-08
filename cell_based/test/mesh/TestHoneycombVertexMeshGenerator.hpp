@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTHONEYCOMBVERTEXMESHGENERATOR_HPP_
 #define TESTHONEYCOMBVERTEXMESHGENERATOR_HPP_
 
@@ -59,7 +60,7 @@ public:
         unsigned num_non_boundary_nodes = 0;
         for (unsigned node_index=0; node_index<16u; node_index++)
         {
-            if (! p_mesh->GetNode(node_index)->IsBoundaryNode())
+            if (!p_mesh->GetNode(node_index)->IsBoundaryNode())
             {
                 num_non_boundary_nodes++;
             }

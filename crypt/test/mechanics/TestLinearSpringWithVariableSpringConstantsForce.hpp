@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTLINEARSPRINGWITHVARIABLESPRINGCONSTANTSFORCE_HPP_
 #define TESTLINEARSPRINGWITHVARIABLESPRINGCONSTANTSFORCE_HPP_
 
@@ -545,7 +546,7 @@ public:
 
         squashed_cell_population.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
-        TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_cell_population)), 2.8125, 1e-4);
+        TS_ASSERT_DELTA(norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_cell_population)), 2.8125, 1e-4);
     }
 
     void TestForceOutputParameters()

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -76,7 +77,6 @@ CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCell
     }
 }
 
-
 template<unsigned DIM>
 CellBasedSimulation<DIM>::~CellBasedSimulation()
 {
@@ -106,7 +106,6 @@ CellBasedSimulation<DIM>::~CellBasedSimulation()
         delete &mrCellPopulation;
     }
 }
-
 
 template<unsigned DIM>
 unsigned CellBasedSimulation<DIM>::DoCellBirth()
@@ -145,14 +144,15 @@ unsigned CellBasedSimulation<DIM>::DoCellBirth()
     return num_births_this_step;
 }
 
-
 template<unsigned DIM>
 unsigned CellBasedSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths_this_step = 0;
 
-    // This labels cells as dead or apoptosing. It does not actually remove the cells,
-    // mrCellPopulation.RemoveDeadCells() needs to be called for this.
+    /*
+     * This labels cells as dead or apoptosing. It does not actually remove the cells,
+     * mrCellPopulation.RemoveDeadCells() needs to be called for this.
+     */
     for (typename std::vector<AbstractCellKiller<DIM>*>::iterator killer_iter = mCellKillers.begin();
          killer_iter != mCellKillers.end();
          ++killer_iter)
@@ -164,7 +164,6 @@ unsigned CellBasedSimulation<DIM>::DoCellRemoval()
 
     return num_deaths_this_step;
 }
-
 
 template<unsigned DIM>
 c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
@@ -239,7 +238,6 @@ c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(Cell
         return zero_vector<double>(DIM);
     }
 }
-
 
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
@@ -331,7 +329,6 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
     }
 }
 
-
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::SetDt(double dt)
 {
@@ -339,13 +336,11 @@ void CellBasedSimulation<DIM>::SetDt(double dt)
     mDt = dt;
 }
 
-
 template<unsigned DIM>
 double CellBasedSimulation<DIM>::GetDt()
 {
     return mDt;
 }
-
 
 template<unsigned DIM>
 unsigned CellBasedSimulation<DIM>::GetNumBirths()
@@ -353,13 +348,11 @@ unsigned CellBasedSimulation<DIM>::GetNumBirths()
     return mNumBirths;
 }
 
-
 template<unsigned DIM>
 unsigned CellBasedSimulation<DIM>::GetNumDeaths()
 {
     return mNumDeaths;
 }
-
 
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::SetEndTime(double endTime)
@@ -368,14 +361,12 @@ void CellBasedSimulation<DIM>::SetEndTime(double endTime)
     mEndTime = endTime;
 }
 
-
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
     mSimulationOutputDirectory = mOutputDirectory;
 }
-
 
 template<unsigned DIM>
 std::string CellBasedSimulation<DIM>::GetOutputDirectory()
@@ -390,13 +381,11 @@ void CellBasedSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTime
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
 
-
 template<unsigned DIM>
 AbstractCellPopulation<DIM>& CellBasedSimulation<DIM>::rGetCellPopulation()
 {
     return mrCellPopulation;
 }
-
 
 template<unsigned DIM>
 const AbstractCellPopulation<DIM>& CellBasedSimulation<DIM>::rGetCellPopulation() const
@@ -404,20 +393,17 @@ const AbstractCellPopulation<DIM>& CellBasedSimulation<DIM>::rGetCellPopulation(
     return mrCellPopulation;
 }
 
-
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::SetUpdateCellPopulationRule(bool updateCellPopulation)
 {
     mUpdateCellPopulation = updateCellPopulation;
 }
 
-
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::SetNoBirth(bool noBirth)
 {
     mNoBirth = noBirth;
 }
-
 
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
@@ -448,7 +434,6 @@ std::vector<double> CellBasedSimulation<DIM>::GetNodeLocation(const unsigned& rN
     }
     return location;
 }
-
 
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::Solve()
@@ -627,13 +612,11 @@ void CellBasedSimulation<DIM>::Solve()
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::EVERYTHING);
 }
 
-
 template<unsigned DIM>
 bool CellBasedSimulation<DIM>::StoppingEventHasOccurred()
 {
     return false;
 }
-
 
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::UpdateCellPopulation()
@@ -761,7 +744,6 @@ void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFil
     *rParamsFile << "\t\t<SamplingTimestepMultiple>" << mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
     *rParamsFile << "\t\t<OutputNodeVelocities>" << mOutputNodeVelocities << "</OutputNodeVelocities>\n";
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

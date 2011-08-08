@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
 
-
 CylindricalHoneycombVertexMeshGenerator::CylindricalHoneycombVertexMeshGenerator(unsigned numElementsAcross,
                                                            unsigned numElementsUp,
                                                            bool isFlatBottom,
@@ -131,13 +130,11 @@ CylindricalHoneycombVertexMeshGenerator::CylindricalHoneycombVertexMeshGenerator
     mpMesh = new Cylindrical2dVertexMesh(numElementsAcross, nodes, elements, cellRearrangementThreshold, t2Threshold);
 }
 
-
 MutableVertexMesh<2,2>* CylindricalHoneycombVertexMeshGenerator::GetMesh()
 {
     EXCEPTION("A cylindrical mesh was created but a normal mesh is being requested.");
     return mpMesh; // Not really
 }
-
 
 Cylindrical2dVertexMesh* CylindricalHoneycombVertexMeshGenerator::GetCylindricalMesh()
 {

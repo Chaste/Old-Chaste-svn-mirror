@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef VERTEXCRYPTSIMULATION2D_HPP_
 #define VERTEXCRYPTSIMULATION2D_HPP_
 
@@ -33,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellBasedSimulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
-
 
 /**
  * A 2D vertex-based crypt simulation object.

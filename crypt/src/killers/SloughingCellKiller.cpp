@@ -90,7 +90,7 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
                 double x = location[0];
                 double y = location[1];
 
-                if ( (y>mSloughHeight) ||  (mSloughSides && ((x<0.0) || (x>mSloughWidth))) )
+                if ((y>mSloughHeight) || (mSloughSides && ((x<0.0) || (x>mSloughWidth))))
                 {
                     cell_iter->Kill();
                 }

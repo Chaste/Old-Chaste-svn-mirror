@@ -25,16 +25,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef WELIKYOSTERFORCE_HPP_
 #define WELIKYOSTERFORCE_HPP_
-
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractForce.hpp"
 #include "VertexBasedCellPopulation.hpp"
-
 
 /**
  * A force class for use in vertex-based simulations, based on a mechanical

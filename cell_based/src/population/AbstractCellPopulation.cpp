@@ -570,7 +570,7 @@ void AbstractCellPopulation<DIM>::WriteTimeAndNodeResultsToFiles()
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
-        if ( !GetNode(node_index)->IsDeleted())
+        if (!GetNode(node_index)->IsDeleted())
         {
             const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
 
@@ -632,8 +632,8 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
         WriteCellIdDataToFile();
     }
 
-    // Vtk can only be written in 2 or 3 dimensions.
-    if(DIM>1)
+    // VTK can only be written in 2 or 3 dimensions
+    if (DIM > 1)
     {
      	WriteVtkResultsToFile();
     }

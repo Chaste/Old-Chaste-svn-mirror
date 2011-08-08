@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCELLWISEDATAGRADIENT_HPP_
 #define TESTCELLWISEDATAGRADIENT_HPP_
 
@@ -81,8 +82,8 @@ public:
         // for each of the nodes
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(0), 1.0, 1e-9);
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), 0.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(0), 1.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), 0.0, 1e-9);
         }
 
         CellwiseData<2>::Destroy();
@@ -120,8 +121,8 @@ public:
         // Check gradient
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(0), 0.0, 1e-9);
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), 0.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(0), 0.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), 0.0, 1e-9);
         }
 
         //////////////////////////////////
@@ -138,8 +139,8 @@ public:
         gradient.SetupGradients();
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(0),  1.0, 1e-9);
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), -1.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  1.0, 1e-9);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -1.0, 1e-9);
         }
 
         //////////////////////////////////
@@ -165,8 +166,8 @@ public:
                 tol = 0.6;
             }
 
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(0),  2*x, tol);
-            TS_ASSERT_DELTA( gradient.rGetGradient(i)(1), -2*y, tol);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  2*x, tol);
+            TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -2*y, tol);
         }
 
         CellwiseData<2>::Destroy();
@@ -183,7 +184,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if ( !(mesh.GetNode(i)->IsBoundaryNode()) )
+            if (!(mesh.GetNode(i)->IsBoundaryNode()))
             {
                 cell_location_indices.push_back(i);
             }
@@ -229,7 +230,7 @@ public:
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
 
-            if ( !(mesh.GetNode(i)->IsBoundaryNode()) ) // i.e. not ghost
+            if (!(mesh.GetNode(i)->IsBoundaryNode())) // i.e. not ghost
             {
                 int x_corner = 0;
 

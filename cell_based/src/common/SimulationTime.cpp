@@ -25,10 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "SimulationTime.hpp"
 #include "Exception.hpp"
 #include <cassert>
-
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
@@ -42,7 +42,6 @@ SimulationTime* SimulationTime::Instance()
     return mpInstance;
 }
 
-
 SimulationTime::SimulationTime()
     : mTimeStepsElapsed(0),
       mEndTimeAndNumberOfTimeStepsSet(false),
@@ -54,7 +53,6 @@ SimulationTime::SimulationTime()
     assert(mpInstance == NULL);
 }
 
-
 void SimulationTime::Destroy()
 {
     if (mpInstance)
@@ -64,15 +62,13 @@ void SimulationTime::Destroy()
     }
 }
 
-
 void SimulationTime::SetStartTime(double startTime)
 {
-    assert(mStartTimeSet==false);
+    assert(!mStartTimeSet);
     mStartTime = startTime;
     mCurrentTime = startTime;
     mStartTimeSet = true;
 }
-
 
 double SimulationTime::GetTimeStep() const
 {
@@ -80,7 +76,6 @@ double SimulationTime::GetTimeStep() const
     assert(mEndTimeAndNumberOfTimeStepsSet);
     return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
-
 
 void SimulationTime::IncrementTimeOneStep()
 {
@@ -92,13 +87,11 @@ void SimulationTime::IncrementTimeOneStep()
                    * mDurationOfSimulation;
 }
 
-
 unsigned SimulationTime::GetTimeStepsElapsed() const
 {
     assert(mEndTimeAndNumberOfTimeStepsSet);
     return mTimeStepsElapsed;
 }
-
 
 double SimulationTime::GetTime() const
 {
@@ -107,7 +100,6 @@ double SimulationTime::GetTime() const
 
     return mCurrentTime;
 }
-
 
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
 {
@@ -121,7 +113,6 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
-
 
 void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun)
 {
@@ -143,18 +134,15 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
 
-
 bool SimulationTime::IsStartTimeSetUp() const
 {
     return mStartTimeSet;
 }
 
-
 bool SimulationTime::IsFinished() const
 {
     return(mCurrentTime>=mEndTime);
 }
-
 
 unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
 {

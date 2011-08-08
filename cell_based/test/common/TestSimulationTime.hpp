@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTSIMULATIONTIME_HPP_
 #define TESTSIMULATIONTIME_HPP_
 
@@ -43,8 +44,8 @@ class TestSimulationTime : public CxxTest::TestSuite
 public:
     void TestTime()
     {
-        // create the simulation time object
-        // set the simulation length and number of time steps
+        // Create the simulation time object
+        // Set the simulation length and number of time steps
         SimulationTime* p_simulation_time = SimulationTime :: Instance();
 
         TS_ASSERT_EQUALS(p_simulation_time->IsStartTimeSetUp(), false);
@@ -54,32 +55,32 @@ public:
         TS_ASSERT_EQUALS(p_simulation_time->IsStartTimeSetUp(), true);
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 3);
-        // get the time step
+
+        // Get the time step
         TS_ASSERT_DELTA(p_simulation_time->GetTimeStep(), 3.33333333, 1e-6);
 
-        // get a second instance
-        // check that the time step is set correctly
+        // Get a second instance
+        // Check that the time step is set correctly
         SimulationTime* p_simulation_time2 = SimulationTime :: Instance();
         TS_ASSERT_DELTA(p_simulation_time2->GetTimeStep(), 3.33333333, 1e-6);
 
-
-        // check that number of time steps starts at 0
+        // Check that number of time steps starts at 0
         TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 0u);
 
-        // increment the time
+        // Increment the time
         p_simulation_time->IncrementTimeOneStep();
 
-        // check the number of time steps
+        // Check the number of time steps
         TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 1u);
 
-        // check the simulation time from the second instance
+        // Check the simulation time from the second instance
         TS_ASSERT_DELTA(p_simulation_time2->GetTime(), 3.33333333, 1e-6);
 
-        // increment the time twice
+        // Increment the time twice
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
 
-        // check the simulation time from the first instance
+        // Check the simulation time from the first instance
         TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 10.0);
 
         SimulationTime::Destroy();
@@ -101,8 +102,8 @@ public:
 
     void TestResetTime()
     {
-        // create the simulation time object
-        // set the simulation length and number of time steps
+        // Create the simulation time object
+        // Set the simulation length and number of time steps
         SimulationTime* p_simulation_time = SimulationTime :: Instance();
         p_simulation_time->SetStartTime(0.0);
         unsigned num_steps = 4;
@@ -116,7 +117,8 @@ public:
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), time_should_be, 1e-9);
             p_simulation_time->IncrementTimeOneStep();
         }
-        //Reset the end time and number of steps
+
+        // Reset the end time and number of steps
         num_steps = 20;
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(second_end, num_steps);
 
@@ -128,7 +130,6 @@ public:
         }
 
         TS_ASSERT_DELTA(p_simulation_time->GetTime(), second_end, 1e-9);
-
 
         SimulationTime::Destroy();
     }
@@ -181,7 +182,6 @@ public:
             SimulationTime::Destroy();
         }
     }
-
-
 };
+
 #endif /*TESTSIMULATIONTIME_HPP_*/

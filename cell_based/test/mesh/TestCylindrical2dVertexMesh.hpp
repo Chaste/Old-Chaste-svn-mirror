@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTCYLINDRICAL2DVERTEXMESH_HPP_
 #define TESTCYLINDRICAL2DVERTEXMESH_HPP_
 
@@ -64,11 +65,14 @@ public:
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Test CalculateBoundingBox() method
-        ChasteCuboid<2> bounds=p_mesh->CalculateBoundingBox();
-        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 3.5,              1e-4);// \todo this should really be 4 as mesh is periodic
+        ChasteCuboid<2> bounds = p_mesh->CalculateBoundingBox();
+
+        ///\todo this should really be 4 as mesh is periodic
+        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 3.5, 1e-4);
+
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[1], 13.0*0.5/sqrt(3), 1e-4);
-        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[0], 0.0,    1e-4);
-        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[1], 0.0,    1e-4);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[1], 0.0,1e-4);
 
         // Test GetWidth() method
         double width = p_mesh->GetWidth(0);

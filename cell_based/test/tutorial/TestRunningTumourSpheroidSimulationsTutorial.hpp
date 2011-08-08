@@ -34,8 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
+
 #ifndef TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_
 #define TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_
+
 /*
  * = An example showing how to run tumour spheroid simulations =
  *

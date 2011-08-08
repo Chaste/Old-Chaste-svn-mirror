@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef TESTARCHIVECELL_HPP_
 #define TESTARCHIVECELL_HPP_
 
@@ -51,7 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This test is seperate from TestCell.hpp to avoid strange errors with the
  * intel compiler - see #1569
  */
-
 class TestArchiveCell: public AbstractCellBasedTestSuite
 {
 public:

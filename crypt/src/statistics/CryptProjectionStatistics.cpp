@@ -73,7 +73,7 @@ std::vector<CellPtr> CryptProjectionStatistics::GetCryptSection(double angle)
          ++cell_iter)
     {
 
-        if ( CellIsInSection(angle, mrCrypt.GetLocationOfCellCentre(*cell_iter)) )
+        if (CellIsInSection(angle, mrCrypt.GetLocationOfCellCentre(*cell_iter)))
         {
             // Set up a pair, equal to (cell,r) and insert
             std::pair<CellPtr, double> pair(*cell_iter, norm_2(mrCrypt.GetLocationOfCellCentre(*cell_iter)));

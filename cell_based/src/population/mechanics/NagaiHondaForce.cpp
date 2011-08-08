@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "NagaiHondaForce.hpp"
 
 template<unsigned DIM>
@@ -308,7 +309,6 @@ void NagaiHondaForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
     AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,6 @@ void NagaiHondaForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 template class NagaiHondaForce<1>;
 template class NagaiHondaForce<2>;
 template class NagaiHondaForce<3>;
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

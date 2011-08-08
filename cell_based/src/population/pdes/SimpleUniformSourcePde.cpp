@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "SimpleUniformSourcePde.hpp"
 
 template<unsigned DIM>
@@ -52,7 +51,6 @@ c_matrix<double,DIM,DIM> SimpleUniformSourcePde<DIM>::ComputeDiffusionTerm(const
 {
     return identity_matrix<double>(DIM);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
