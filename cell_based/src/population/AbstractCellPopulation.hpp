@@ -82,6 +82,7 @@ private:
         archive & mCellLocationMap;
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
+        archive & mCentroid;
         archive & mCellPopulationContainsMesh;
         archive & mpCellPropertyRegistry;
         archive & mDampingConstantNormal;
@@ -112,6 +113,9 @@ protected:
 
     /** Current cell cycle phase counts */
     std::vector<unsigned> mCellCyclePhaseCount;
+
+    /** Population centroid */
+    c_vector<double, DIM> mCentroid;
 
     /** Results file for node visualization */
     out_stream mpVizNodesFile;
@@ -496,6 +500,13 @@ public:
      * @return the set of neighbouring node indices.
      */
     virtual std::set<unsigned> GetNeighbouringNodeIndices(unsigned index)=0;
+
+    /**
+     * Returns the centroid of the cell population.
+     *
+     */
+    c_vector<double, DIM> GetCentroidOfCellPopulation();
+
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.

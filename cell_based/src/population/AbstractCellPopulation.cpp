@@ -29,11 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellPopulation.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
+#include "Debug.hpp"
 
 template<unsigned DIM>
 AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
+      mCentroid(zero_vector<double>(DIM)),
       mCellPopulationContainsMesh(false),
       mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership()),
       mDampingConstantNormal(1.0),
@@ -242,6 +244,21 @@ void AbstractCellPopulation<DIM>::SetDefaultMutationStateOrdering()
         mutations.push_back(p_registry->Get<BetaCateninOneHitCellMutationState>());
         p_registry->SpecifyOrdering(mutations);
     }
+}
+
+template<unsigned DIM>
+c_vector<double, DIM> AbstractCellPopulation<DIM>::GetCentroidOfCellPopulation()
+{
+	mCentroid = zero_vector<double>(DIM);
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
+    {
+    	mCentroid += GetLocationOfCellCentre(*cell_iter);
+    }
+    mCentroid/=this->GetNumRealCells();
+
+    return mCentroid;
 }
 
 //////////////////////////////////////////////////////////////////////////////
