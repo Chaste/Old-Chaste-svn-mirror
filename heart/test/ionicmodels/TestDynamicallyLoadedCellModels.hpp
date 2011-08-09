@@ -290,17 +290,14 @@ public:
         ResetMode(cellml_file, old_mode);
 
         // What if the Chaste source tree is missing?
-        FileFinder source_root("", RelativeTo::ChasteSourceRoot);
-        FileFinder parent = source_root.GetParent();
-        old_mode = ResetMode(parent, 0);
-        chmod(parent.GetAbsolutePath().c_str(), 0);
+        FileFinder::FakePath(RelativeTo::ChasteSourceRoot, "/tmp/not-a-chaste-source-tree");
         TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file),
-                              "No Chaste source tree found at '" + source_root.GetAbsolutePath()
-                              + "' - you need the source to use CellML models directly in Chaste.");
-        ResetMode(parent, old_mode);
+                              "No Chaste source tree found at '/tmp/not-a-chaste-source-tree/' - you need the source to use CellML models directly in Chaste.");
+        FileFinder::StopFaking();
 
         // Or a required project is missing?
         {
+            FileFinder source_root("", RelativeTo::ChasteSourceRoot);
             CellMLToSharedLibraryConverter failed_converter(true, "not_a_project");
             TS_ASSERT_THROWS_CONTAINS(failed_converter.Convert(cellml_file),
                 "Unable to convert CellML model: required Chaste component 'not_a_project' does not exist in '"
@@ -308,11 +305,13 @@ public:
         }
 
         // Or we can't create the temp folder for some other reason?
-        FileFinder heart("heart/dynamic", RelativeTo::ChasteSourceRoot);
-        old_mode = ResetMode(heart, 0);
-        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
-                                  "Failed to create temporary folder '");
-        ResetMode(heart, old_mode);
+        {
+            OutputFileHandler fake_chaste_tree("FakeChaste/heart");
+            FileFinder::FakePath(RelativeTo::ChasteSourceRoot, fake_chaste_tree.GetChasteTestOutputDirectory() + "FakeChaste");
+            TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
+                                      "Failed to create temporary folder '");
+            FileFinder::StopFaking();
+        }
     }
 
     void TestArchiving() throw(Exception)

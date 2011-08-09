@@ -106,7 +106,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
     std::string tmp_folder, build_folder;
     std::string old_cwd = GetCurrentWorkingDirectory();
     // Check that the Chaste source tree exists
-    FileFinder chaste_root(ChasteBuildRootDir(), RelativeTo::Absolute);
+    FileFinder chaste_root("", RelativeTo::ChasteSourceRoot);
     if (!chaste_root.IsDir())
     {
         EXCEPTION("No Chaste source tree found at '" << chaste_root.GetAbsolutePath()
