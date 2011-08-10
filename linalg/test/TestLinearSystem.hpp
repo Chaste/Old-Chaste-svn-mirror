@@ -1446,6 +1446,52 @@ public:
         VecDestroy(guess);
     }
 
+    void TestSolveZerosInitialGuessForSmallRhs() throw(Exception)
+    {
+        LinearSystem ls(2);
+
+        ls.SetMatrixElement(0, 0, 1.0);
+        ls.SetMatrixElement(0, 1, 0.0);
+        ls.SetMatrixElement(1, 0, 0.0);
+        ls.SetMatrixElement(1, 1, 1.0);
+
+        ls.SetRhsVectorElement(0, 1e-17);
+        ls.SetRhsVectorElement(1, 0.0);
+
+        Vec init_cond = PetscTools::CreateAndSetVec(2, 0.0);
+        PetscVecTools::SetElement(init_cond, 0, 0.01);
+
+        ls.AssembleFinalLinearSystem();
+
+        Vec solution_vector;
+        solution_vector = ls.Solve(init_cond);
+
+        ReplicatableVector solution_vector_repl(solution_vector);
+        TS_ASSERT_DELTA(solution_vector_repl[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(solution_vector_repl[1], 0.0, 1e-6);
+    }
+
+    /** See #1834 */
+    void xxxxTestSolveShowingPetscRubbishInEvenMoreWays() throw(Exception)
+    {
+        LinearSystem ls(2);
+
+        ls.SetMatrixElement(0, 0, 1.0);
+        ls.SetMatrixElement(0, 1, 0.0);
+        ls.SetMatrixElement(1, 0, 0.0);
+        ls.SetMatrixElement(1, 1, 1.0);
+
+        ls.SetRhsVectorElement(0, log(0)); // -inf
+        ls.SetRhsVectorElement(1, 0.0);
+
+        ls.AssembleFinalLinearSystem();
+
+        ls.DisplayRhs();
+
+        Vec solution_vector;
+        solution_vector = ls.Solve(); // SHOULD fail with an error, but doesn't
+    }
+
     // This test should be the last in the suite
     void TestSetFromOptions()
     {
@@ -1476,48 +1522,5 @@ public:
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
     }
     // The above test should be last in the suite
-
-
-//#1834
-    void xxxxxxxTestSolveShowingPetscIsRubbish() throw(Exception)
-    {
-        LinearSystem ls(2);
-
-        ls.SetMatrixElement(0, 0, 1.0);
-        ls.SetMatrixElement(0, 1, 0.0);
-        ls.SetMatrixElement(1, 0, 0.0);
-        ls.SetMatrixElement(1, 1, 1.0);
-
-        ls.SetRhsVectorElement(0, 1e-17);
-        ls.SetRhsVectorElement(1, 0.0);
-
-        Vec init_cond = PetscTools::CreateAndSetVec(2, 0.0);
-        PetscVecTools::SetElement(init_cond, 0, 0.01);
-
-        ls.AssembleFinalLinearSystem();
-
-        Vec solution_vector;
-        solution_vector = ls.Solve(init_cond); // fails to solve..
-    }
-
-    void xxxxTestSolveShowingPetscRubbishInEvenMoreWays() throw(Exception)
-    {
-        LinearSystem ls(2);
-
-        ls.SetMatrixElement(0, 0, 1.0);
-        ls.SetMatrixElement(0, 1, 0.0);
-        ls.SetMatrixElement(1, 0, 0.0);
-        ls.SetMatrixElement(1, 1, 1.0);
-
-        ls.SetRhsVectorElement(0, log(0)); // -inf
-        ls.SetRhsVectorElement(1, 0.0);
-
-        ls.AssembleFinalLinearSystem();
-
-        ls.DisplayRhs();
-
-        Vec solution_vector;
-        solution_vector = ls.Solve(); // SHOULD fail with an error, but doesn't
-    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

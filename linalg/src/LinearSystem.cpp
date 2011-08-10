@@ -916,6 +916,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     {
         VecCopy(lhsGuess, lhs_vector);
     }
+
+    // Check if the right hand side is small (but non-zero), Petsc can diverge immediately
+    // with a non-zero initial guess. Here we check for this and alter the initial guess to zero.
+    PetscReal rhs_norm;
+    VecNorm(mRhsVector, NORM_1, &rhs_norm);
+    double rhs_zero_tol = 1e-15;
+
+    if (rhs_norm < rhs_zero_tol && rhs_norm > 0.0)
+    {
+        WARNING("Using zero initial guess due to small right hand side vector");
+        PetscVecTools::Zero(lhs_vector);
+    }
+
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 //    // Double check that the mRhsVector contains sensible values
 //    double* p_rhs,* p_guess;
