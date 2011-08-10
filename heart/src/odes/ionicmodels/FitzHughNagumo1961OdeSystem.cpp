@@ -56,14 +56,14 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     double membrane_V = rY[0]; // v
     double recovery_variable = rY[1]; // w
 
-    double i_stim = GetStimulus(time);
+    double i_stim = GetIntracellularAreaStimulus(time);
 
     // dV/dt
-    double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
+    double membrane_V_prime = 0;
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
-    if (mSetVoltageDerivativeToZero)
+    if (!mSetVoltageDerivativeToZero)
     {
-        membrane_V_prime = 0;
+        membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
     }
 
     // dw/dt
