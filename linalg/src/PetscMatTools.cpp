@@ -172,30 +172,42 @@ void PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal(Mat matrix, std::vecto
 
     PetscInt lo, hi;
     GetOwnershipRange(matrix, lo, hi);
-    std::vector<unsigned>* p_nonzero_rows_per_column = new std::vector<unsigned>[rRowColIndices.size()];
+    const unsigned num_cols = rRowColIndices.size();
+    std::vector<unsigned>* p_nonzero_rows_per_column = new std::vector<unsigned>[num_cols];
 
     /*
      * For each column: collect all the row indices corresponding to a non-zero entry.
      * We do all the columns at once, before doing the zeroing, as otherwise a
      * MatAssemblyBegin() & MatAssemblyEnd() would have to be called after every
-     * MatSetValues and before the below GetMatrixElement().
+     * MatSetValues and before the below MatGetValues.
+     *
+     * Note that looping over rows first and getting the column values in one hit is
+     * *much* more efficient than looping over columns first and calling GetElement
+     * for each entry!
      */
-    for (unsigned index=0; index<rRowColIndices.size(); index++)
+    PetscReal* col_values = new PetscReal[num_cols];
+    PetscInt* col_indices = new PetscInt[num_cols];
+    for (unsigned col=0; col<num_cols; col++)
     {
-        unsigned column = rRowColIndices[index];
+        col_indices[col] = rRowColIndices[col];
+    }
+    for (PetscInt row = lo; row < hi; row++)
+    {
+        MatGetValues(matrix, 1, &row, num_cols, col_indices, col_values);
 
-        // Determine which rows in this column are non-zero (and therefore need to be zeroed)
-        for (PetscInt row = lo; row < hi; row++)
+        for (unsigned index=0; index<num_cols; index++)
         {
-            if (GetElement(matrix, row, column) != 0.0)
+            if (col_values[index] != 0)
             {
                 p_nonzero_rows_per_column[index].push_back(row);
             }
         }
     }
+    delete[] col_values;
+    delete[] col_indices;
 
     // Now zero each column in turn
-    for (unsigned index=0; index<rRowColIndices.size(); index++)
+    for (unsigned index=0; index<num_cols; index++)
     {
         // set those rows to be zero by calling MatSetValues
         unsigned size = p_nonzero_rows_per_column[index].size();
