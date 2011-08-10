@@ -58,7 +58,7 @@ public:
         const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_2d_mesh");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("mesh/test/data/trivial_1d_in_2d_mesh");
         TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -93,7 +93,7 @@ public:
         const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_3d_mesh");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
         TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);

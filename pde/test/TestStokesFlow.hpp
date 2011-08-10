@@ -50,7 +50,7 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
 		QuadraticMesh<2> mesh;
-        TrianglesMeshReader<2,2> mesh_reader("pde/test/data/canonical_triangle_quadratic", 2, 2, false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/canonical_triangle_quadratic", 2, 2, false);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<unsigned> dirichlet_nodes;
