@@ -32,5 +32,4 @@ TestStokesFlow.hpp
 TestTimeAdaptivityController.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp
-TestWritingPdeSolversTutorial.hpp
 TestWritingPdeSolversTwoTutorial.hpp

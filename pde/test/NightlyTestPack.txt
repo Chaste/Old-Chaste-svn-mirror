@@ -6,3 +6,4 @@ TestSolvingMoreElasticityProblemsTutorial.hpp
 TestSolvingLinearParabolicPdeSystemsWithCoupledOdeSystemsTutorial.hpp
 TestSolvingLinearPdesTutorial.hpp
 TestSolvingNonlinearPdesTutorial.hpp
+TestWritingPdeSolversTutorial.hpp
