@@ -1,12 +1,8 @@
-TestBoundaryConditionsContainer.hpp
-TestConstBoundaryCondition.hpp
-TestGaussianQuadratureRule.hpp
-TestLinearBasisFunction.hpp
-TestLinearHeatEquation.hpp
-TestNonlinearHeatEquationPde.hpp
 TestSimpleLinearParabolicSolver.hpp
 TestSimpleLinearEllipticSolver.hpp
 TestSimpleNonlinearEllipticSolver.hpp
 TestSolvingCoupledPdes.hpp
-TestTimeDependentDiffusionEquationPde.hpp
-TestVaryingDiffusionAndSourceTermPde.hpp
+utilities/TestBoundaryConditionsContainer.hpp
+utilities/TestConstBoundaryCondition.hpp
+utilities/TestGaussianQuadratureRule.hpp
+utilities/TestLinearBasisFunction.hpp
