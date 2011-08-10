@@ -197,9 +197,10 @@ else:
 # in the order given here.
 comp_deps = {'cell_based': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'crypt': ['cell_based', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
-             'notforrelease': ['heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'notforrelease': ['continuum_mechanics', 'heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'notforrelease_cell_based': ['crypt', 'cell_based', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
-             'heart': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'heart': ['continuum_mechanics', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'continuum_mechanics': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'pde': ['ode', 'mesh', 'linalg', 'io', 'global'],
              'mesh': ['linalg', 'global'],
              'linalg': ['global'],
@@ -208,7 +209,7 @@ comp_deps = {'cell_based': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 SConsTools.comp_deps = comp_deps
-components = ['python', 'global', 'io', 'linalg', 'mesh', 'ode', 'pde',
+components = ['python', 'global', 'io', 'linalg', 'mesh', 'ode', 'pde', 'continuum_mechanics',
               'heart', 'cell_based', 'crypt', 'notforrelease', 'notforrelease_cell_based']
 # Ignore non-existent components
 # e.g. notforrelease wont appear in a release version
@@ -217,7 +218,7 @@ for comp in components[:]:
         components.remove(comp)
 Export('components', 'comp_deps')
 
-Alias('core', Split('global io linalg mesh ode pde'))
+Alias('core', Split('global io linalg mesh ode pde continuum_mechanics'))
 
 # Set extra paths to search for libraries and include files.
 # Paths to PETSc, and any other external libraries, should be set here.

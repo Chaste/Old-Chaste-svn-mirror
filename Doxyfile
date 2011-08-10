@@ -89,6 +89,7 @@ INPUT                  =    heart/src \
                             mesh/src \
                             ode/src \ 
                             pde/src \
+                            continuum_mechanics/src \
                             cell_based/src \
                             crypt/src \
                             notforrelease/src \

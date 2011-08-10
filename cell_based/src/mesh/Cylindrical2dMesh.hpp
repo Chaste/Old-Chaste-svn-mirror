@@ -90,6 +90,9 @@ private:
     /** The indices of nodes on the bottom boundary. */
     std::vector<unsigned > mBottomHaloNodes;
 
+    /** Whether the number of left hand boundary nodes does not equal the number of right hand boundary nodes */
+    bool mMismatchedBoundaryElements;
+
     /**
      * Calls AbstractMesh<2,2>::CalculateBoundingBox() to calculate mTop and mBottom
      * for the cylindrical mesh.
@@ -282,6 +285,12 @@ public:
      * @return the global index of the new node
      */
     unsigned AddNode(Node<2>* pNewNode);
+
+
+//    /**
+//     * Return whether you have mismatched numbers of left and right boundary nodes
+//     */
+//    bool GetInstanceOfMismatchedBoundaryNodes();
 };
 
 namespace boost

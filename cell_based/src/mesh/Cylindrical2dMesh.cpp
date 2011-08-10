@@ -51,6 +51,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
     mWidth(width)
 {
     assert(width > 0.0);
+//    mMismatchedBoundaryElements = false;
     for (unsigned index=0; index<nodes.size(); index++)
     {
         Node<2>* p_temp_node = nodes[index];
@@ -63,6 +64,11 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
     NodeMap node_map(nodes.size());
     ReMesh(node_map);
 }
+
+//bool Cylindrical2dMesh::GetInstanceOfMismatchedBoundaryNodes()
+//{
+//    return mMismatchedBoundaryElements;
+//}
 
 void Cylindrical2dMesh::UpdateTopAndBottom()
 {
@@ -534,6 +540,13 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
      */
     std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
     std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
+
+//    if ( (mLeftPeriodicBoundaryElementIndices.size()!=mRightPeriodicBoundaryElementIndices.size())
+//            || (temp_left_hand_side_elements.size() <= 2)
+//            || (temp_right_hand_side_elements.size() <= 2) )
+//    {
+//        mMismatchedBoundaryElements = true;
+//    }
     assert(mLeftPeriodicBoundaryElementIndices.size()==mRightPeriodicBoundaryElementIndices.size());
 
     // Go through all of the elements on the left periodic boundary
@@ -542,6 +555,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
          ++left_iter)
     {
         unsigned elem_index = *left_iter;
+
         Element<2,2>* p_element = GetElement(elem_index);
 
         /*
@@ -562,6 +576,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
              ++right_iter)
         {
             unsigned corresponding_elem_index = *right_iter;
+
             Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
 
             bool is_corresponding_node = true;
@@ -591,8 +606,8 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
      * of how to mesh. If it does ever throw you need to be cleverer and match up the
      * elements into as many pairs as possible on the left hand and right hand sides.
      */
-    assert(temp_left_hand_side_elements.size() <= 2);
-    assert(temp_right_hand_side_elements.size() <= 2);
+//    assert(temp_left_hand_side_elements.size() <= 2);
+//    assert(temp_right_hand_side_elements.size() <= 2);
 
     /*
      * Now we just have to use the first pair of elements and copy their info over to the other side.
@@ -605,20 +620,25 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
     else
     {
-        assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
-        if (temp_right_hand_side_elements.size() == 2)
+//        assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
+
+        if(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2)
         {
-            // Use the right hand side meshing and map to left
-            UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
-        }
-        else
-        {
-            /*
-             * If you get here there are more than two mixed up elements on the periodic edge.
-             * We need to knock the pair out and then rerun this function. This shouldn't be
-             * too hard to do but is as yet unnecessary.
-             */
-            NEVER_REACHED;
+
+            if (temp_right_hand_side_elements.size() == 2)
+            {
+                // Use the right hand side meshing and map to left
+                UseTheseElementsToDecideMeshing(temp_right_hand_side_elements);
+            }
+            else
+            {
+                /*
+                 * If you get here there are more than two mixed up elements on the periodic edge.
+                 * We need to knock the pair out and then rerun this function. This shouldn't be
+                 * too hard to do but is as yet unnecessary.
+                 */
+                NEVER_REACHED;
+            }
         }
     }
 }
@@ -710,6 +730,9 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
     mLeftPeriodicBoundaryElementIndices.clear();
     mRightPeriodicBoundaryElementIndices.clear();
 
+    unsigned incidences_of_zero_left_image_nodes = 0;
+    unsigned incidences_of_zero_right_image_nodes = 0;
+
     for (MutableMesh<2,2>::ElementIterator elem_iter = GetElementIteratorBegin();
          elem_iter != GetElementIteratorEnd();
          ++elem_iter)
@@ -717,9 +740,11 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         // Left images are on the right of the mesh
         unsigned number_of_left_image_nodes = 0;
         unsigned number_of_right_image_nodes = 0;
+
         for (unsigned i=0; i<3; i++)
         {
             unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
+
             if (mImageToLeftOriginalNodeMap.find(this_node_index) != mImageToLeftOriginalNodeMap.end())
             {
                 number_of_left_image_nodes++;
@@ -729,6 +754,25 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
                 number_of_right_image_nodes++;
             }
         }
+
+        if ( (number_of_left_image_nodes == 0) && (number_of_right_image_nodes == 1 || number_of_right_image_nodes == 2) )
+        {
+            incidences_of_zero_left_image_nodes++;
+        }
+        if ( (number_of_right_image_nodes == 0) && (number_of_left_image_nodes == 1 || number_of_left_image_nodes == 2) )
+        {
+            incidences_of_zero_right_image_nodes++;
+        }
+
+        /* SJ - Have checked the following:
+         * - It is never the case that number_of_left_image_nodes + number_of_right_image_nodes > 3
+         * - There are 1264 incidences of zero left image nodes, and 1252 incidences of zero right image nodes
+         * - There are 450 incidences of zero left image nodes and non-zero right image nodes; 438 incidences of zero right image nodes and non-zero left
+         *   image nodes
+         * - There are 40 incidences of 0 left image nodes, and 1/2 right image nodes; 39 incidences of 0 right image nodes and 1/2 left image nodes
+         * As this corresponds to 40 left-hand boundary elements and 39 right-hand boundary elements, then it is this extra occurrence of a 0 left
+         * image node with 1/2 right image nodes that is responsible for the extra element.
+         */
 
         // Elements on the left hand side (images of right nodes)
         if (number_of_right_image_nodes == 1 || number_of_right_image_nodes == 2)
@@ -742,6 +786,13 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
             mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
     }
+
+//    if (mLeftPeriodicBoundaryElementIndices.size() != mRightPeriodicBoundaryElementIndices.size())
+//    {
+//        mMismatchedBoundaryElements = true;
+//        // In here - if you hit this case, we want to stop the test and move on, so we work with a stopping event
+//
+//    }
 
     // Every boundary element on the left must have a corresponding element on the right
     assert(mLeftPeriodicBoundaryElementIndices.size() == mRightPeriodicBoundaryElementIndices.size());
