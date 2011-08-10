@@ -404,7 +404,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         this->PrepareForSetupLinearSystem(solution);
 
         bool compute_matrix = (!mMatrixIsConstant || !mMatrixIsAssembled || timestep_changed);
-//        if (compute_matrix) std::cout << " ** ASSEMBLING MATRIX!!! ** " << std::endl;
+
         this->SetupLinearSystem(solution, compute_matrix);
 
         this->FinaliseLinearSystem(solution);

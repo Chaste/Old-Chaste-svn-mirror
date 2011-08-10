@@ -33,6 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class converts from Hdf5 format to a .txt format that is readable by Matlab.
+ *
+ * There is one output file per variable per timestep, giving the values of that variable
+ * at that time over each of the nodes.
+ *
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Hdf5ToTxtConverter : public AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>

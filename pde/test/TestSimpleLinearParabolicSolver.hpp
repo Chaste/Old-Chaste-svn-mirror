@@ -345,7 +345,7 @@ public:
         for (unsigned timestep=0; timestep<101; timestep++)
         {
             std::stringstream filename;
-            filename << "txt_output/results_" << timestep << ".txt";
+            filename << "txt_output/results_Variable_0_" << timestep << ".txt";
             FileFinder txt_file = file_handler.FindFile(filename.str());
             TS_ASSERT(txt_file.Exists());
         }

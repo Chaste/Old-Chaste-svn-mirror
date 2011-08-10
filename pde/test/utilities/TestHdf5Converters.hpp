@@ -244,16 +244,26 @@ public:
 
         // Compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory
-                                              + working_directory +"/txt_output/cube_2mm_12_elements_0.txt"
-                                              + " pde/test/data/cube_2mm_12_elements_0.txt";
-        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                              + working_directory +"/txt_output/cube_2mm_12_elements_V_0.txt"
+                                              + " pde/test/data/cube_2mm_12_elements_V_0.txt";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory
-                                               + working_directory +"/txt_output/cube_2mm_12_elements_1.txt"
-                                               + " pde/test/data/cube_2mm_12_elements_1.txt";
-        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
-    }
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                              + working_directory +"/txt_output/cube_2mm_12_elements_V_1.txt"
+                                              + " pde/test/data/cube_2mm_12_elements_V_1.txt";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                              + working_directory +"/txt_output/cube_2mm_12_elements_Phi_e_0.txt"
+                                              + " pde/test/data/cube_2mm_12_elements_Phi_e_0.txt";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory
+                                              + working_directory +"/txt_output/cube_2mm_12_elements_Phi_e_1.txt"
+                                              + " pde/test/data/cube_2mm_12_elements_Phi_e_1.txt";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+}
 };
 
 #endif /*TESTHDF5CONVERTERS_HPP_*/

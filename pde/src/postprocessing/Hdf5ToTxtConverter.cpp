@@ -49,44 +49,39 @@ Hdf5ToTxtConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToTxtConverter(std::string input
     std::string output_directory = inputDirectory + "/" + this->mRelativeSubdirectory;
     OutputFileHandler handler(output_directory);
 
-    DistributedVectorFactory* p_factory = pMesh->GetDistributedVectorFactory();
-    Vec data = p_factory->CreateVec();
-
     unsigned num_nodes = pMesh->GetNumNodes();
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
+
+    DistributedVectorFactory* p_factory = pMesh->GetDistributedVectorFactory();
+    Vec data = p_factory->CreateVec();
+    ReplicatableVector repl_data(num_nodes);
 
     // Loop over time steps
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
-        // Create a .txt file for this time step
-        std::stringstream file_name;
-        file_name << fileBaseName << "_" << time_step << ".txt";
-        out_stream p_file = handler.OpenOutputFile(file_name.str());
-
-        ///\todo this seems like a very inefficient way to do this! (#1841)
-
-        // Loop over nodes
-        for (unsigned node_index=0; node_index<num_nodes; node_index++)
+        // Loop over variables
+        for (unsigned var_index=0; var_index<this->mNumVariables; var_index++)
         {
-            // Get node location
-            c_vector<double, SPACE_DIM> node_location = pMesh->GetNode(node_index)->rGetLocation();
-            *p_file << node_location[0];
-            for (unsigned dim=1; dim<SPACE_DIM; dim++)
-            {
-                *p_file << " " << node_location[dim];
-            }
+        	std::string variable_name = this->mpReader->GetVariableNames()[var_index];
 
-            // Loop over variables
-            for (unsigned var_index=0; var_index<this->mNumVariables; var_index++)
-            {
-                // Get variable at this time step from HDF5 archive
-                std::string variable_name = this->mpReader->GetVariableNames()[var_index];
-                this->mpReader->GetVariableOverNodes(data, variable_name, time_step);
-                ReplicatableVector repl_data(data);
+        	// Create a .txt file for this time step and this variable
+        	std::stringstream file_name;
+        	file_name << fileBaseName << "_" << variable_name << "_" << time_step << ".txt";
+        	out_stream p_file = handler.OpenOutputFile(file_name.str());
 
-                *p_file << " " << repl_data[node_index];
-            }
-            *p_file << "\n";
+            this->mpReader->GetVariableOverNodes(data, variable_name, time_step);
+            repl_data.ReplicatePetscVector(data);
+
+        	assert(repl_data.GetSize() == num_nodes);
+
+        	if (PetscTools::AmMaster())
+        	{
+        	    for (unsigned i=0; i<num_nodes; i++)
+        	    {
+        	        *p_file << repl_data[i] << "\n";
+        	    }
+        	}
+        	p_file->close();
         }
     }
 
