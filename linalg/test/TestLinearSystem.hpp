@@ -1469,6 +1469,9 @@ public:
         ReplicatableVector solution_vector_repl(solution_vector);
         TS_ASSERT_DELTA(solution_vector_repl[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(solution_vector_repl[1], 0.0, 1e-6);
+
+        VecDestroy(init_cond);
+        VecDestroy(solution_vector);
     }
 
     /** See #1834 */
