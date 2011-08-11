@@ -88,6 +88,9 @@ parser.add_option('--backward-euler', action='store_true', default=False,
                   help="generate a version of the cell model that can be"
                   " solved using a backward Euler method.  Requires the"
                   " presence of a .out file accompanying the CellML.")
+parser.add_option('--rush-larsen', action='store_true', default=False,
+                  help="generate a version of the cell model that can be"
+                  " solved using the Rush-Larsen method.")
 parser.add_option('--output-dir', action='store',
                   help="directory to place output files in")
 parser.add_option('--show-outputs', action='store_true', default=False,
@@ -111,7 +114,7 @@ parser.add_option('--assume-valid',
                   help="skip some of the model validation checks")
 options, args = parser.parse_args()
 
-option_names = ['opt', 'normal', 'cvode', 'backward_euler']
+option_names = ['opt', 'normal', 'cvode', 'backward_euler', 'rush_larsen']
 def arg2name(arg):
     return str(arg)[2:].replace('-', '_')
 
@@ -199,20 +202,20 @@ if number_of_options == 0:
     else:
         number_of_options = 1
 
-# Special case for -y --cvode --opt
-if number_of_options == 2 and options.cvode and options.opt:
-    dyn_cvode_opt = True
+# Special case for -y --[something] --opt
+if number_of_options == 2 and options.opt:
+    dyn_opt = True
 else:
-    dyn_cvode_opt = False
+    dyn_opt = False
 
 # Check for .so creation
 if options.dynamically_loadable:
-    if number_of_options > 1 and not dyn_cvode_opt:
+    if number_of_options > 1 and not dyn_opt:
         parser.error("Only one output type may be specified if creating a dynamic library")
     essential_options.append('-y')
 
 # Whether to do a separate validation run
-if number_of_options > 1 or options.assume_valid:
+if (number_of_options > 1 and not dyn_opt) or options.assume_valid:
     essential_options.append('--assume-valid')
 
 # What options should be passed on to PyCml?
@@ -283,7 +286,7 @@ def convert(model, output_dir):
     if not output_dir:
         output_dir = model_dir
 
-    if number_of_options > 1 and not options.assume_valid:
+    if (number_of_options > 1 and not dyn_opt) and not options.assume_valid:
         # Run validation separately
         cmd = [os.path.join(pycml_dir, 'validator.py')] + validation_options + [model]
         do_cmd(cmd, [])
@@ -303,7 +306,7 @@ def convert(model, output_dir):
     
     if options.cvode:
         # For use with CVODE
-        if not dyn_cvode_opt:
+        if not dyn_opt:
             cmd, outputs = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
                                         class_name + 'Cvode', model_base, 'Cvode')
             do_cmd(cmd, outputs)
@@ -324,6 +327,20 @@ def convert(model, output_dir):
                                     class_name + 'BackwardEuler',
                                     model_base, 'BackwardEuler')
         do_cmd(cmd, outputs)
+    
+    if options.rush_larsen:
+        opts = ['--rush-larsen']
+        if not dyn_opt:
+            cmd, outputs = add_out_opts(command_base + opts, output_dir,
+                                        class_name + 'RushLarsen', model_base, 'RushLarsen')
+            do_cmd(cmd, outputs)
+            
+        if options.opt:
+            opts.extend(['-p', '-l'])
+            cmd, outputs = add_out_opts(command_base + opts, output_dir,
+                                        class_name + 'RushLarsenOpt',
+                                        model_base, 'RushLarsenOpt')
+            do_cmd(cmd, outputs)
 
 
 

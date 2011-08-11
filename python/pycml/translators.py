@@ -891,8 +891,10 @@ class CellMLTranslator(object):
             key_var = key_var.get_source_variable(recurse=True)
             res.add(key_var)
         elif isinstance(expr, mathml_ci):
-            varname = unicode(expr)
-            varobj = self.varobj(varname.strip())
+            varobj = getattr(expr, '_cml_variable', None)
+            if not varobj:
+                varname = unicode(expr)
+                varobj = self.varobj(varname.strip())
             if varobj:
                 res.add(varobj)
         elif isinstance(expr, mathml_apply) and expr.operator().localName == u'diff':
@@ -1359,6 +1361,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('#include "CardiacNewtonSolver.hpp"')
             self.base_class_name = 'AbstractBackwardEulerCardiacCell<' + \
                 str(self.nonlinear_system_size) + '>'
+        elif self.options.rush_larsen:
+            self.base_class_name = 'AbstractRushLarsenCardiacCell'
+            self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
         elif base_class:
             self.base_class_name = base_class
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
@@ -1660,7 +1665,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Start output
         self.output_includes()
         
-        if self.use_backward_euler:
+        if self.use_backward_euler or self.options.rush_larsen:
             # Keep the same signature as forward cell models, but note that the solver
             # isn't used
             solver1 = 'boost::shared_ptr<AbstractIvpOdeSolver> /* unused; should be empty */'
@@ -2177,6 +2182,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
          * ComputeOneStepExceptVoltage  co-ordinates a backward Euler step
          * ComputeResidual and ComputeJacobian are used in the Newton iteration
          * GetIIonic returns the total ionic current
+        
+        Rush-Larsen is implemented similarly, with:
+         * EvaluateEquations  evaluate the model derivatives and alpha/beta terms
+         * ComputeOneStepExceptVoltage  does a Rush-Larsen update for eligible variables,
+           and a forward Euler step for other non-V state variables
 
         For other solvers, only 2 methods are needed:
          * EvaluateYDerivatives computes the RHS of the ODE system
@@ -2186,7 +2196,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         ComputeDerivedQuantities method.
         """
         self.output_get_i_ionic()
-        if self.use_backward_euler:
+        if self.options.rush_larsen:
+            self.output_rush_larsen_mathematics()
+        elif self.use_backward_euler:
             self.output_backward_euler_mathematics()
         else:
             self.output_evaluate_y_derivatives()
@@ -2252,9 +2264,21 @@ class CellMLToChasteTranslator(CellMLTranslator):
             return
         self.output_comment('Inputs:')
         self.output_comment('Time units: ', self.free_vars[0].units)
+        self.output_derivative_calculations(self.state_vars)
+        # Assign to derivatives vector
+        for i, var in enumerate(self.state_vars):
+            self.writeln(self.vector_index('rDY', i), self.EQ_ASSIGN, self.code_name(var, True), self.STMT_END)
+        self.close_block()
+        
+    def output_derivative_calculations(self, state_vars, extra_nodes=set(), assign_rY=False):
+        """
+        This is used by self.output_evaluate_y_derivatives and self.output_rush_larsen_mathematics
+        to compute the derivatives (and any extra nodes, if given).  It contains the special logic
+        to obey the mSetVoltageDerivativeToZero member variable in the generated code.
+        """
         # Work out what equations are needed to compute the derivatives
-        derivs = set(map(lambda v: (v, self.free_vars[0]), self.state_vars))
-        if self.v_variable in self.state_vars:
+        derivs = set(map(lambda v: (v, self.free_vars[0]), state_vars))
+        if self.v_variable in state_vars:
             dvdt = (self.v_variable, self.free_vars[0])
             derivs.remove(dvdt) #907: Consider dV/dt separately
         else:
@@ -2263,14 +2287,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
             i_stim = [self.doc._cml_config.i_stim_var]
         else:
             i_stim = []
-        nonv_nodeset = self.calculate_extended_dependencies(derivs, prune_deps=i_stim)
+        nonv_nodeset = self.calculate_extended_dependencies(derivs|extra_nodes, prune_deps=i_stim)
         if dvdt:
             v_nodeset = self.calculate_extended_dependencies([dvdt], prune=nonv_nodeset, prune_deps=i_stim)
         else:
             v_nodeset = set()
         # State variable inputs
         all_nodes = nonv_nodeset|v_nodeset
-        self.output_state_assignments(assign_rY=False, nodeset=all_nodes)
+        self.output_state_assignments(assign_rY=assign_rY, nodeset=all_nodes)
         self.writeln()
         if self.use_lookup_tables:
             self.output_table_index_generation(nodeset=all_nodes)
@@ -2291,11 +2315,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.open_block()
             self.output_equations(v_nodeset)
             self.close_block()
-        # Assign to derivatives vector
-        for i, var in enumerate(self.state_vars):
-            self.writeln(self.vector_index('rDY', i), self.EQ_ASSIGN, self.code_name(var, True), self.STMT_END)
-        self.close_block()
-        return
 
     def output_backward_euler_mathematics(self):
         """Output the mathematics methods used in a backward Euler cell.
@@ -2455,6 +2474,69 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Update state
         for j, i in enumerate(idx_map):
             self.writeln('rY[', i, '] = _guess[', j, '];')
+        self.close_block()
+    
+    def output_rush_larsen_mathematics(self):
+        """Output the special methods needed for Rush-Larsen style cell models.
+        
+        We generate:
+         * EvaluateEquations  evaluate the model derivatives and alpha/beta terms
+         * ComputeOneStepExceptVoltage  does a Rush-Larsen update for eligible variables,
+           and a forward Euler step for other non-V state variables
+        
+        TODO: Make the generated code produce a WARNING if there aren't any RL variables.
+        """
+        rl_vars = self.doc._cml_rush_larsen
+        # EvaluateEquations
+        ###################
+        self.output_method_start('EvaluateEquations',
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
+                                  'std::vector<double> &rDY',
+                                  'std::vector<double> &rAlpha',
+                                  'std::vector<double> &rBeta'],
+                                 'void', access='public')
+        self.open_block()
+        normal_vars = [v for v in self.state_vars if not v in rl_vars]
+        nodes = set()
+        for alpha, beta in rl_vars.itervalues():
+            nodes.update(self._vars_in(alpha))
+            nodes.update(self._vars_in(beta))
+        self.output_derivative_calculations(normal_vars, nodes, True)
+        # Now assign input vectors
+        for i, var in enumerate(self.state_vars):
+            if var in rl_vars:
+                # Fill in rAlpha & rBeta
+                self.writeln(self.vector_index('rAlpha', i), self.EQ_ASSIGN, nl=False)
+                self.output_expr(rl_vars[var][0], False)
+                self.writeln(self.STMT_END, indent=False)
+                self.writeln(self.vector_index('rBeta', i), self.EQ_ASSIGN, nl=False)
+                self.output_expr(rl_vars[var][1], False)
+                self.writeln(self.STMT_END, indent=False)
+            else:
+                # Fill in rDY
+                self.writeln(self.vector_index('rDY', i), self.EQ_ASSIGN, self.code_name(var, True), self.STMT_END)
+        self.close_block()
+        
+        # ComputeOneStepExceptVoltage
+        #############################
+        self.output_method_start('ComputeOneStepExceptVoltage',
+                                 ['const std::vector<double> &rDY',
+                                  'const std::vector<double> &rAlpha',
+                                  'const std::vector<double> &rBeta'],
+                                 'void', access='public')
+        self.open_block()
+        self.writeln('std::vector<double>& rY = rGetStateVariables();')
+        for i, var in enumerate(self.state_vars):
+            if var in rl_vars:
+                # Rush-Larsen update
+                self.open_block()
+                self.writeln(self.TYPE_CONST_DOUBLE, 'tau_inv = rAlpha[', i, '] + rBeta[', i, '];')
+                self.writeln(self.TYPE_CONST_DOUBLE, 'y_inf = rAlpha[', i, '] / tau_inv;')
+                self.writeln('rY[', i, '] = y_inf + (rY[', i, '] - y_inf)*exp(-mDt*tau_inv);')
+                self.close_block(blank_line=False)
+            elif var is not self.v_variable:
+                # Forward Euler update
+                self.writeln('rY[', i, '] += mDt * rDY[', i, '];')
         self.close_block()
     
     def output_model_attributes(self):
@@ -4879,6 +4961,11 @@ def get_options(args, default_options=None):
                       help="file containing output from a Maple script "
                       "generated using -J.  The generated code/CellML will "
                       "then contain a symbolic Jacobian as computed by Maple.")
+    parser.add_option('--rush-larsen',
+                      action='store_true', default=False,
+                      help="use the Rush-Larsen method to solve Hodgkin-Huxley style gating variable"
+                      " equations.  Not compatible with the backward Euler transformation."
+                      " Implies -t Chaste.")
     # Settings tweaking the generated code
     parser.add_option('-c', '--class-name', default=None,
                       help="explicitly set the name of the generated class")
@@ -5013,6 +5100,10 @@ def get_options(args, default_options=None):
     if options.do_jacobian_analysis:
         options.translate_type = 'Maple'
         options.maple_output = False # Just in case...!
+    if options.maple_output:
+        options.rush_larsen = False
+    if options.rush_larsen:
+        options.translate_type = 'Chaste'
 
     return options, args[0]
 
@@ -5160,6 +5251,11 @@ def run():
         # Do the lookup table analysis
         lut.analyse_model(doc, solver_info)
         DEBUG('translate', "+++ Done LT analysis")
+    
+    if options.rush_larsen:
+        rl = optimize.RushLarsenAnalyser()
+        rl.analyse_model(doc)
+        DEBUG('translate', "+++ Done Rush-Larsen analysis")
 
     if options.translate:
         # Translate to code

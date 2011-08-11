@@ -152,9 +152,13 @@ void PetscTools::EndRoundRobin()
 
 bool PetscTools::ReplicateBool(bool flag)
 {
+    CheckCache();
     unsigned my_flag = (unsigned) flag;
-    unsigned anyones_flag_is_true;
-    MPI_Allreduce(&my_flag, &anyones_flag_is_true, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
+    unsigned anyones_flag_is_true = my_flag;
+    if (mPetscIsInitialised)
+    {
+        MPI_Allreduce(&my_flag, &anyones_flag_is_true, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
+    }
     return (anyones_flag_is_true == 1);
 }
 

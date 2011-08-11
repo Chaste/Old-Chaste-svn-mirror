@@ -33,6 +33,8 @@ This part of PyCml applies various optimising transformations to CellML
 models, in particular partial evaluation and the use of lookup tables.
 """
 
+import operator
+
 # Common CellML processing stuff
 import pycml
 from pycml import *  # Put contents in the local namespace as well
@@ -1310,3 +1312,123 @@ class LinearityAnalyser(object):
             print "ODE:", var.get_ode_dependency(
                 var.model._cml_free_var).xml()
             print
+
+
+######################################################################
+#                        Rush-Larsen analysis                        #
+######################################################################
+
+class ExpressionMatcher(object):
+    """Test whether a MathML expression matches a given tree pattern.
+    
+    Patterns are instances of the nested Pattern class, or more specifically
+    one of its subclasses.  The static method match on this class checks an
+    expression against a pattern, returning True iff there is a match.
+    """
+    
+    class Pattern(object):
+        """Abstract base class for tree patterns."""
+        def match(self, expr):
+            """
+            Method implemented by concrete subclasses to test a given expression.
+            Returns True iff there is a match.
+            """
+            raise NotImplementedError
+    
+    class A(Pattern):
+        """An apply expression."""
+        def __init__(self, operator, operands):
+            self.operator = operator
+            self.operands = operands
+        
+        def match(self, expr):
+            matched = False
+            if isinstance(expr, mathml_apply):
+                if expr.operator().localName == self.operator:
+                    expr_operands = list(expr.operands())
+                    if len(expr_operands) == len(self.operands):
+                        matched = reduce(operator.and_,
+                                         map(lambda (pat, op): pat.match(op),
+                                             zip(self.operands, expr_operands)))
+            return matched
+    
+    class V(Pattern):
+        """A variable reference."""
+        def __init__(self, var=None):
+            self.set_variable(var)
+        
+        def set_variable(self, var):
+            if var:
+                self.var = var.get_source_variable(recurse=True)
+            else:
+                self.var = var
+        
+        def match(self, expr):
+            matched = False
+            if isinstance(expr, mathml_ci) and self.var is expr.variable.get_source_variable(recurse=True):
+                matched = True
+            return matched
+    
+    class N(Pattern):
+        """A constant number, optionally with the value specified."""
+        def __init__(self, value=None):
+            self.value = value
+        
+        def match(self, expr):
+            matched = False
+            if isinstance(expr, mathml_cn):
+                if self.value is None or self.value == expr.evaluate():
+                    matched = True
+            return matched
+    
+    class X(Pattern):
+        """A placeholder, matching anything (and noting what was matched)."""
+        def __init__(self):
+            self.matched = None
+        
+        def match(self, expr):
+            self.matched = expr
+            return True
+    
+    @staticmethod
+    def match(pattern, expression):
+        """Test for a match."""
+        return pattern.match(expression)
+
+class RushLarsenAnalyser(object):
+    """Analyse a model to identify Hodgkin-Huxley style gating variable equations.
+    
+    Stores a dictionary on the document root mapping cellml_variable instances to
+    (alpha, beta) expression pairs.  Note that these are not cloned copies - they
+    are the original objects still embedded within the relevant ODE.
+    """
+    def __init__(self):
+        """Create the pattern to match against."""
+        em = ExpressionMatcher
+        self._alpha = em.X()
+        self._beta = em.X()
+        self._var = em.V()
+        self._pattern = em.A('minus', [em.A('times', [self._alpha,
+                                                      em.A('minus', [em.N(1), self._var])]),
+                                       em.A('times', [self._beta, self._var])])
+    
+    def analyse_model(self, doc):
+        # First, find linear ODEs that have the potential to be gating variables
+        la = LinearityAnalyser()
+        V = doc._cml_config.V_variable
+        state_vars = doc.model.find_state_vars()
+        free_var = doc.model.find_free_vars()[0]
+        linear_vars = la.find_linear_odes(state_vars, V, free_var)
+        # Next, check they match dn/dt = a (1-n) - b n
+        doc._cml_rush_larsen = {}
+        for var in linear_vars:
+            ode_expr = var.get_ode_dependency(free_var)
+            self._check_var(var, ode_expr, doc._cml_rush_larsen)
+    
+    def _check_var(self, var, ode_expr, mapping):
+        rhs = ode_expr.eq.rhs
+        while isinstance(rhs, mathml_ci):
+            rhs = rhs.variable.get_source_variable(recurse=True).get_dependencies()[0].eq.rhs
+        self._var.set_variable(ode_expr.eq.lhs.diff.dependent_variable)
+        if self._pattern.match(rhs):
+            mapping[var] = (self._alpha.matched, self._beta.matched)
