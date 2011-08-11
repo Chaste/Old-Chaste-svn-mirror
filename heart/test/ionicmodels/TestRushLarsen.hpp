@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 #include "DynamicCellModelLoader.hpp"
+#include "Warnings.hpp"
 
 /**
  * This test is based on code contributed by Megan Lewis, University of Saskatchewan.
@@ -99,6 +100,9 @@ public:
     {
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
         GenerateCells();
+
+        // Check the models really use Rush-Larsen
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
 
         // Normal Luo-Rudy for comparison
         boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver());

@@ -1364,6 +1364,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         elif self.options.rush_larsen:
             self.base_class_name = 'AbstractRushLarsenCardiacCell'
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
+            if not self.doc._cml_rush_larsen:
+                self.writeln('#include "Warnings.hpp"')
         elif base_class:
             self.base_class_name = base_class
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
@@ -1763,6 +1765,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.config.options.include_dt_in_tables:
             self.writeln(self.lt_class_name, '::Instance()->SetTimestep(mDt);')
         self.writeln('Init();\n')
+        
+        #1861 - Rush-Larsen
+        if self.options.rush_larsen and not self.doc._cml_rush_larsen:
+            self.writeln('WARNING("No elligible gating variables found for this Rush-Larsen cell model; using normal forward Euler.");')
         
         #1463 - default cellML stimulus
         if self.has_default_stimulus:
@@ -2483,8 +2489,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
          * EvaluateEquations  evaluate the model derivatives and alpha/beta terms
          * ComputeOneStepExceptVoltage  does a Rush-Larsen update for eligible variables,
            and a forward Euler step for other non-V state variables
-        
-        TODO: Make the generated code produce a WARNING if there aren't any RL variables.
         """
         rl_vars = self.doc._cml_rush_larsen
         # EvaluateEquations
