@@ -644,7 +644,7 @@ class cellml_model(element_base):
                 hiers.add(hier)
         # Now build & check each hierarchy
         for hier in hiers:
-            self.build_component_hierarchy(*hier, rels=rels)
+            self.build_component_hierarchy(hier[0], hier[1], hier[2], rels=rels)
         DEBUG('validator', 'Checked component hierachies')
     
     def _check_variable_mappings(self):
