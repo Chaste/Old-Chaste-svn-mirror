@@ -4942,6 +4942,12 @@ def get_options(args, default_options=None):
                       " multiple sources.  Implies -d.")
     parser.add_option('--profile', action='store_true', default=False,
                       help="turn on profiling of PyCml")
+    # To examine the profile do something like:
+    #    import os,pstats
+    #    os.chdir('/tmp')
+    #    files = filter(lambda f: f.startswith('pycml'), os.listdir('.'))
+    #    p = pstats.Stats(*files)
+    #    p.strip_dirs().sort_stats('cum').print_stats(15)
     # What optimisations/transformations to do
     parser.add_option('-l', '--lookup-tables',
                       dest='lut', action='store_true', default=False,

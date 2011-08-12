@@ -2499,6 +2499,7 @@ class cellml_units(Colourable, element_base):
     def __init__(self):
         super(cellml_units, self).__init__()
         self._cml_expanded = None
+        self._cml_simplified = {}
         self._cml_generated = False
         self._cml_quotients = {}
         self._cml_hash = None
@@ -2538,8 +2539,7 @@ class cellml_units(Colourable, element_base):
     def __hash__(self):
         """Generate a hash for these units.
 
-        Hashes a tuple, the first element of which is the result of
-        self.is_base_unit(),
+        Hashes a tuple, the first element of which is the result of self.is_base_unit(),
         the second of which is our name if we are not auto-generated,
         and the remaining elements of which are our <unit> elements.
         """
@@ -2943,12 +2943,13 @@ class cellml_units(Colourable, element_base):
         there are multiple <unit> elements.  Hence when a product of units
         is taken, any offsets are discarded.
         """
-        # It might be possible to cache using (id(other_units),other_exponent)
-        # as a key, but I don't think it'd be significantly more efficient.
-        # Maybe check with profiling later. (TODO)
         if isinstance(other_units, UnitsSet):
             # Use the set version of simplify
             return UnitsSet([self]).simplify(other_units, other_exponent)
+        
+        # Check for result in cache (see #1714)
+        if (other_units, other_exponent) in self._cml_simplified:
+            return self._cml_simplified[(other_units, other_exponent)]
 
         # Make a list of all <unit> elements to be included
         units = []
@@ -3084,7 +3085,10 @@ class cellml_units(Colourable, element_base):
                     # Add name to units dictionary
 ##                    print "Adding",uname,hash(new_units),new_units.description()
                     new_units.xml_parent.add_units(uname, new_units)
-        return self.model._get_units_obj(new_units)
+        # Cache and return result
+        new_units = self.model._get_units_obj(new_units)
+        self._cml_simplified[(other_units, other_exponent)] = new_units
+        return new_units
 
     def _best_parent(self, other_units):
         """Return a suitable parent for units formed from self and other_units.
