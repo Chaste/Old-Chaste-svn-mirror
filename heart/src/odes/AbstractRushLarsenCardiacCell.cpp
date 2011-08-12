@@ -78,7 +78,7 @@ OdeSolution AbstractRushLarsenCardiacCell::Compute(double tStart, double tEnd, d
     // Loop over time
     for (unsigned i=0; i<n_steps; i++)
     {
-        double curr_time;
+        double curr_time = tStart;
         for (unsigned j=0; j<n_small_steps; j++)
         {
             curr_time = tStart + i*tSamp + j*mDt;
