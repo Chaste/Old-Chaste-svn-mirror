@@ -132,8 +132,9 @@ else:
 essential_options = ['--conf=' + os.path.join(pycml_dir, 'config.xml'),
                      '--use-chaste-stimulus',
                      '--convert-interfaces',
+                     '--warn-on-unit-conversions',
                      '--Wu']
-validation_options = ['-u', '--Wu']
+#essential_options.append('--profile')
 # Options supplied if the user doesn't give a config file
 default_options = []
 
@@ -214,10 +215,6 @@ if options.dynamically_loadable:
         parser.error("Only one output type may be specified if creating a dynamic library")
     essential_options.append('-y')
 
-# Whether to do a separate validation run
-if (number_of_options > 1 and not dyn_opt) or options.assume_valid:
-    essential_options.append('--assume-valid')
-
 # What options should be passed on to PyCml?
 pycml_options = filter(lambda a: not a.endswith('.cellml'), args)
 if not pycml_options:
@@ -257,11 +254,15 @@ def do_cmd(cmd, outputs):
             tidy_up()
             sys.exit(rc)
 
+# We should only do validation once
+done_validation = False
+
 def add_out_opts(base_options, output_dir, classname, file_base, file_extra=''):
     """Add options specifying output path and class name.
     
     Returns extended options list and list of output file paths.
     """
+    global done_validation
     if options.dynamically_loadable:
         filename = file_base + '.cpp'
     else:
@@ -269,6 +270,9 @@ def add_out_opts(base_options, output_dir, classname, file_base, file_extra=''):
     cpp_path = os.path.join(output_dir, filename)
     full_options = base_options + ['-c', classname, '-o', cpp_path]
     outputs = [cpp_path, cpp_path[:-3] + 'hpp']
+    if done_validation or options.assume_valid:
+        full_options.append('--assume-valid')
+    done_validation = True # Don't do validation next time
     return (full_options, outputs)
 
 def convert(model, output_dir):
@@ -285,11 +289,6 @@ def convert(model, output_dir):
     class_name = name_prefix + model_base.replace('-', '_') + "FromCellML"
     if not output_dir:
         output_dir = model_dir
-
-    if (number_of_options > 1 and not dyn_opt) and not options.assume_valid:
-        # Run validation separately
-        cmd = [os.path.join(pycml_dir, 'validator.py')] + validation_options + [model]
-        do_cmd(cmd, [])
 
     command_base = [os.path.join(pycml_dir, 'translate.py'), model] + pycml_options
 

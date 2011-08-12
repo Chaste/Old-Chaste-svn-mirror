@@ -51,10 +51,13 @@ __version__ = "$Revision$"[11:-2]
 
 
 class CellMLValidator(object):
-    def __init__(self):
+    def __init__(self, create_relaxng_validator=True):
         """Initialise a validator for CellML files."""
         # Create validator from RELAX NG schema
-        self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path, 'cellml1.0.rnc'))
+        if create_relaxng_validator:
+            self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path, 'cellml1.0.rnc'))
+        else:
+            self.relaxng_validator = None
 
     def quit(self):
         """
@@ -63,7 +66,8 @@ class CellMLValidator(object):
         is finished with, or you'll get an interesting error when the program
         terminates.
         """
-        self.relaxng_validator.quit()
+        if self.relaxng_validator:
+            self.relaxng_validator.quit()
         return
     
     @staticmethod

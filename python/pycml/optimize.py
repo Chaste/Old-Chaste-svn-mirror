@@ -405,7 +405,7 @@ class LookupTableAnalyser(object):
         variable object.
         """
         var = var.get_source_variable(recurse=True)
-        allowed = (self.config.lut_config.has_key(var) or
+        allowed = (var in self.config.lut_config or
                    (self.config.options.include_dt_in_tables and
                     var is self.solver_info.get_dt().get_source_variable(recurse=True)))
         return allowed
@@ -417,8 +417,7 @@ class LookupTableAnalyser(object):
         name must match self.table_var.
         """
         if self.config:
-            return self.config.lut_config.has_key(
-                var.get_source_variable(recurse=True))
+            return var.get_source_variable(recurse=True) in self.config.lut_config
         else:
             return var.name == self.table_var
 
@@ -439,7 +438,7 @@ class LookupTableAnalyser(object):
         """
         defaults = self._LT_DEFAULTS
         for attr in defaults:
-            if kw.has_key(attr):
+            if attr in kw:
                 setattr(self, attr, kw[attr])
             else:
                 setattr(self, attr, getattr(self, attr, defaults[attr]))
@@ -802,7 +801,7 @@ class LookupTableAnalyser(object):
             comp = expr.get_component()
             var = comp.get_variable_by_name(expr.var).get_source_variable(recurse=True)
             key = (expr.min, expr.max, expr.step, var)
-            if not doc.lookup_table_indexes.has_key(key):
+            if not key in doc.lookup_table_indexes:
                 doc.lookup_table_indexes[key] = unicode(n)
                 n += 1
             expr.xml_set_attribute((u'lut:table_index', NSS['lut']), doc.lookup_table_indexes[key])

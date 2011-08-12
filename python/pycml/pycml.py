@@ -1576,7 +1576,7 @@ class cellml_component(element_base):
         """Return an object representing the element that defines the units named `uname'."""
         if not self._cml_units:
             self._build_units_dictionary()
-        if self._cml_units.has_key(uname):
+        if uname in self._cml_units:
             # Units are defined in this component
             return self._cml_units[uname]
         else:
@@ -2147,26 +2147,22 @@ class cellml_variable(Colourable, element_base):
         If ode is given, it should be an instance of cellml_variable.
         In this case, we're getting the value of d(self)/d(ode).
         """
-        # TODO: Might want to alter the handling of initial value for
-        # an ODE?
-        if self._cml_value.has_key(ode):
+        # TODO: Might want to alter the handling of initial value for an ODE?
+        if ode in self._cml_value:
             val = self._cml_value[ode]
         elif self.get_type() == VarTypes.Mapped:
             val = self.get_source_variable().get_value(ode=ode)
-        elif ode is None and \
-                 self.get_type() in [VarTypes.Unknown,
-                                     VarTypes.State, VarTypes.Constant]:
+        elif ode is None and self.get_type() in [VarTypes.Unknown,
+                                                 VarTypes.State, VarTypes.Constant]:
             if hasattr(self, 'initial_value'):
                 val = float(self.initial_value)
             else:
-                raise EvaluationError("Variable " + self.fullname() +
-                                      " has no initial value set.")
+                raise EvaluationError("Variable " + self.fullname() + " has no initial value set.")
         elif self.get_type() == VarTypes.Computed and self._get_binding_time() == BINDING_TIMES.static:
             # Evaluate the defining expression
             val = self._cml_depends_on[0].evaluate()
         else:
-            raise EvaluationError("Unable to find a suitable value for" +
-                                  " variable " + self.fullname())
+            raise EvaluationError("Unable to find a suitable value for variable " + self.fullname())
         return val
 
     @property
@@ -2401,7 +2397,7 @@ class UnitsSet(set):
         doing an n-ary times operation.  In this case, we add its list of
         sources for src_units to our sources list instead.
         """
-        if not self._sources.has_key(units):
+        if not units in self._sources:
             self._sources[units] = []
         if not hasattr(src_units_set, '_expression'):
             print self.description(), units.description()
@@ -2419,11 +2415,7 @@ class UnitsSet(set):
     
     def _get_sources(self, units):
         """Return the sources list for the given units."""
-        if self._sources.has_key(units):
-            srcs = self._sources[units]
-        else:
-            srcs = []
-        return srcs
+        return self._sources.get(units, [])
 
     def get_expression(self):
         """Return an expression that has these units."""
@@ -3003,7 +2995,7 @@ class cellml_units(Colourable, element_base):
         d = {dimensionless: []}
         for unit in units:
             obj = unit.get_units_element()
-            if d.has_key(obj):
+            if obj in d:
                 d[obj].append(unit)
             else:
                 d[obj] = [unit]
@@ -3111,11 +3103,10 @@ class cellml_units(Colourable, element_base):
         This method does not simplify the resulting units.
         Quotient units will be cached.
         """
-        if not self._cml_quotients.has_key(other_units):
+        if not other_units in self._cml_quotients:
             # Create new <units> element
             self.units_name_counter[0] += 1
             uname = u'___units_' + str(self.units_name_counter[0])
-##            print ".quotient", uname
             quotient_units = self.xml_create_element(
                 u'units', NSS[u'cml'], attributes={u'name': uname})
             quotient_units._cml_generated = True
@@ -3257,7 +3248,7 @@ class cellml_unit(element_base):
         m = self.get_multiplier()
         e = self.get_exponent()
         p = getattr(self, u'prefix_', 0) # Since prefix is a method :(
-        if self.SI_PREFIXES.has_key(p):
+        if p in self.SI_PREFIXES:
             p = self.SI_PREFIXES[p]
         else:
             p = int(p) # RELAX NG schema says it's an integer

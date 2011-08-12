@@ -365,12 +365,8 @@ class CellMLTranslator(object):
         indent = kwargs.get('indent', True)
         nl = kwargs.get('nl', True)
         if indent:
-            if kwargs.has_key('indent_level'):
-                level = kwargs['indent_level']
-            else:
-                level = self.indent_level
-            if kwargs.has_key('indent_offset'):
-                level += kwargs['indent_offset']
+            level = kwargs.get('indent_level', self.indent_level)
+            level += kwargs.get('indent_offset', 0)
             target.write(self.indent_char * self.indent_factor * level)
         target.write(''.join(map(str, args)))
         if nl:
@@ -695,21 +691,20 @@ class CellMLTranslator(object):
         paren is True if the context has requested parentheses.
         """
         op = expr.operator()
-        if self.function_map.has_key(op.localName):
+        if op.localName in self.function_map:
             self.output_function(self.function_map[op.localName],
                                  expr.operands(), paren)
-        elif self.recip_trig.has_key(op.localName):
-            self.output_function(
-                self.function_map[self.recip_trig[op.localName]],
-                expr.operands(), paren, reciprocal=True)
+        elif op.localName in self.recip_trig:
+            self.output_function(self.function_map[self.recip_trig[op.localName]],
+                                 expr.operands(), paren, reciprocal=True)
         elif op.localName == u'root':
             self.output_root(expr, paren)
         elif op.localName == u'log':
             self.output_log(expr, paren)
-        elif self.nary_ops.has_key(op.localName):
+        elif op.localName in self.nary_ops:
             self.output_nary_operator(self.nary_ops[op.localName],
                                       expr.operands(), paren)
-        elif self.binary_ops.has_key(op.localName):
+        elif op.localName in self.binary_ops:
             self.output_binary_operator(self.binary_ops[op.localName],
                                         expr.operands(), paren, expr)
         elif op.localName == u'minus':
@@ -964,7 +959,7 @@ class CellMLTranslator(object):
             var = comp.get_variable_by_name(expr.var)
             var = var.get_source_variable(recurse=True)
             key = (expr.min, expr.max, expr.step, var)
-            if not doc.lookup_table_indexes.has_key(key):
+            if not key in doc.lookup_table_indexes:
                 if hasattr(expr, u'table_index'):
                     doc.lookup_table_indexes[key] = expr.table_index
                 else:
@@ -4754,7 +4749,7 @@ class ConfigurationStore(object):
             var_type = getattr(lt.var, u'type', u'name')
             var_name = unicode(lt.var).strip()
             config_key = (var_type, var_name)
-            if not self.lut_config.has_key(config_key):
+            if not config_key in self.lut_config:
                 self.lut_config[config_key] = {}
                 self._set_lut_defaults(self.lut_config[config_key])
                 self.lut_config_keys.append(config_key)
@@ -4957,6 +4952,9 @@ def get_options(args, default_options=None):
     parser.add_option('-u', '--units-conversions',
                       action='store_true', default=False,
                       help="add explicit units conversion mathematics")
+    parser.add_option('--warn-on-unit-conversions',
+                      action='store_true', default=False,
+                      help="generate a warning if unit conversions are required")
     parser.add_option('--Wu', '--warn-on-units-errors',
                       action='store_true', default=False,
                       dest='warn_on_units_errors',
@@ -5131,8 +5129,9 @@ def load_model(model_file, options):
     # model is invalid
     notifier = NotifyHandler(level=logging.WARNING_TRANSLATE_ERROR)
     logging.getLogger('validator').addHandler(notifier)
-    v = validator.CellMLValidator()
+    v = validator.CellMLValidator(create_relaxng_validator=not options.assume_valid)
     valid, doc = v.validate(model_file, True,
+                            check_for_units_conversions=options.warn_on_unit_conversions,
                             warn_on_units_errors=options.warn_on_units_errors,
                             assume_valid=options.assume_valid)
     v.quit()
