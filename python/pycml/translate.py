@@ -40,7 +40,12 @@ sys.path[0:0] = [pycml_path]
 import translators # The actual code
 
 if __name__ == '__main__':
-    translators.run()
+    if '--profile' in sys.argv:
+        import time, cProfile
+        profile_name = '/tmp/pycml-profile-%f-%d' % (time.time(), os.getpid())
+        cProfile.run('translators.run()', profile_name)
+    else:
+        translators.run()
 
     # For use in testing
     def euler(doc, t, nsteps=1000, dt=0.01):

@@ -55,22 +55,6 @@ class CellMLValidator(object):
         """Initialise a validator for CellML files."""
         # Create validator from RELAX NG schema
         self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path, 'cellml1.0.rnc'))
-        
-        # Create validator from Schematron schema
-        regen = False
-        stron_file = os.path.join(pycml_path, 'cellml1.0.stron')
-        stron_py = os.path.join(pycml_path, 'schematron.py')
-        t1 = os.stat(stron_file)
-        try:
-            t2 = os.stat(stron_py)
-        except OSError:
-            regen = True
-        if regen or t1.st_mtime > t2.st_mtime:
-            # Re-generate validator script
-            os.system('scimitar -o %s %s' % (stron_py, stron_file))
-        # Import script
-        import schematron
-        self.schematron_validator = schematron.validate
 
     def quit(self):
         """
@@ -125,9 +109,7 @@ class CellMLValidator(object):
             handler.flush()
             logger.removeHandler(handler)
 
-    def validate(self, source, return_doc=False,
-                 assume_valid=False,
-                 **kw):
+    def validate(self, source, return_doc=False, assume_valid=False, **kw):
         """Validate the given document.
 
         source should be a file-like object, URI, local file name,
@@ -142,9 +124,9 @@ class CellMLValidator(object):
         If xml_context is True, then the failing XML tree will be displayed
         with every units error.
 
-        The assume_valid option allows you to skip RELAX NG and
-        Schematron checks.  This is useful for speeding transformation
-        of models that are known to pass these checks.
+        The assume_valid option allows you to skip RELAX NG validation, along
+        with many of the checks in the Python code.  This is useful for speeding
+        transformation of models that are known to pass these checks.
         
         See cellml_model.validate and setup_logging for other keyword arguments.
         """
@@ -176,27 +158,8 @@ class CellMLValidator(object):
                 source.seek(0)
             DEBUG('validator', 'Finished RELAX NG:', res)
 
-        if res and not assume_valid:
-            DEBUG('validator', 'Starting Schematron validation')
-            # Validate against Schematron schema
-            enc, dec, inwrap, outwrap = codecs.lookup('utf-8')
-            sio = StringIO()
-            sch_out = outwrap(sio)
-            self.schematron_validator(source, sch_out)
-            # Check the output
-            sio.reset()
-            okline = re.compile(r'<\?xml|Processing')
-            for line in sio:
-                if line.strip() and not okline.match(line):
-                    res = False
-                    break
-            if not res:
-                logging.getLogger('validator').error(sio.getvalue())
-            sio.close()
-            DEBUG('validator', 'Finished Schematron:', res)
-            
-        # Check further rules that can't be expressed by a schema.
-        # We use Amara for this.
+        # Check further rules that can't be expressed by a (RELAX NG) schema.
+        # We use our own Python code for this.
         if res:
             DEBUG('validator', 'Loading model with Amara')
             if stream == source:
@@ -572,6 +535,8 @@ def get_options(args):
                       " after validation")
     parser.add_option('-d', '--debug', action='store_true', default=False,
                       help="output debug info to stderr")
+    parser.add_option('--profile', action='store_true', default=False,
+                      help="turn on profiling of PyCml")
 
     options, args = parser.parse_args(args)
     if len(args) < 1:
@@ -636,4 +601,9 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    if '--profile' in sys.argv:
+        import time, cProfile
+        profile_name = '/tmp/pycml-profile-%f-%d' % (time.time(), os.getpid()) 
+        cProfile.run('run()', profile_name)
+    else:
+        run()

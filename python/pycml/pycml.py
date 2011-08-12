@@ -536,9 +536,10 @@ class cellml_model(element_base):
                  assume_valid=False, **ignored_kwargs):
         """Validate this model.
 
-        Assumes that RELAX NG and Schematron validation has been done.
-        Checks rules 3.4.6.4, 4.4.4, 5.4.2.2 (2) and 6.4.3.2 (4) in
-        the CellML 1.0 spec, and performs units checking.
+        Assumes that RELAX NG validation has been done.  Checks rules
+        3.4.2.2, 3.4.3.2, 3.4.3.3, 3.4.5.2, 3.4.5.3, 3.4.5.4, 3.4.6.2, 3.4.6.3, 3.4.6.4,
+        4.4.2.1, 4.4.3.2, 4.4.4, 5.4.1.2, 5.4.2.2, 6.4.2.5, 6.4.3.2, and 6.4.3.3
+        in the CellML 1.0 spec, and performs units checking.
 
         Note that if some checks fail, most of the remaining checks
         will not be performed.  Hence when testing a model validate
@@ -560,23 +561,31 @@ class cellml_model(element_base):
         """
         self._validate_component_hierarchies()
 
-        # Rule 5.4.2.2 (2): units definitions may not be circular.
-        self._build_units_dictionary()
+        # Rule 5.4.2.2: units definitions may not be circular.
+        # Also checks 5.4.1.2: no duplicate units names.
         if not assume_valid:
             for unit in self.get_all_units():
                 self._check_unit_cycles(unit)
             DEBUG('validator', 'Checked for units cycles')
+            # Check rule 3.4.3.3 too.
+            self._check_variable_units_exist()
 
         if not self._cml_validation_errors:
-            self._check_variable_mappings()
+            self._check_variable_mappings() # This sets up source variable links
+        if not self._cml_validation_errors and not assume_valid:
             self._check_connection_units(check_for_units_conversions)
 
-        # Rule 4.4.4: mathematical expressions may only modify
-        # variables belonging to the current component.
+        # Rules 4.4.2.1 and 4.4.3.2: check name references in mathematics
         if not self._cml_validation_errors:
             assignment_exprs = self.search_for_assignments()
             if not assume_valid:
-                self._check_assigned_vars(assignment_exprs, xml_context)
+                for expr in assignment_exprs:
+                    self._check_maths_name_references(expr, xml_context)
+
+        # Rule 4.4.4: mathematical expressions may only modify
+        # variables belonging to the current component.
+        if not self._cml_validation_errors and not assume_valid:
+            self._check_assigned_vars(assignment_exprs, xml_context)
 
         # Warn if mathematics outside the CellML subset is used.
         if not self._cml_validation_errors and not assume_valid:
@@ -591,8 +600,7 @@ class cellml_model(element_base):
             self._order_variables(assignment_exprs, xml_context)
 
         # Appendix C.3.6: Equation dimension checking.
-        if not self._cml_validation_errors and (
-              not assume_valid or check_for_units_conversions):
+        if not self._cml_validation_errors and (not assume_valid or check_for_units_conversions):
             self._check_dimensional_consistency(assignment_exprs,
                                                 xml_context,
                                                 warn_on_units_errors,
@@ -612,26 +620,44 @@ class cellml_model(element_base):
         """Check Rule 6.4.3.2 (4): hierarchies must not be circular.
         
         Builds all the hierarchies, and checks for cycles.
+        In the process, we also check the other rules in 6.4.3, and 6.4.2.5.
         """
         # First, we find the hierarchies that are defined.
-        rels = self.xml_xpath(u'cml:group/cml:relationship_ref')
         hiers = set()
-        for rel in rels:
-            reln = rel.relationship
-            ns = rel.xml_attributes[u'relationship'][1]
-            name = getattr(rel, u'name', None)
-            hiers.add((reln, ns, name))
+        rels = []
+        for group in getattr(self, u'group', []):
+            local_hiers = set()
+            for rel in getattr(group, u'relationship_ref', []):
+                rels.append(rel)
+                reln = rel.relationship
+                ns = rel.xml_attributes[u'relationship'][1]
+                name = getattr(rel, u'name', None)
+                hier = (reln, ns, name)
+                if hier in local_hiers:
+                    self.validation_error("A group element must not contain two or more relationship_ref"
+                                          " elements that define a relationship attribute in a common"
+                                          " namespace with the same value and that have the same name"
+                                          " attribute value (which may be non-existent) (6.4.2.5)."
+                                          " Relationship '%s' name '%s' in namespace '%s' is repeated."
+                                          % (reln, name or '', ns))
+                local_hiers.add(hier)
+                hiers.add(hier)
         # Now build & check each hierarchy
         for hier in hiers:
-            self.build_component_hierarchy(hier[0], hier[1], hier[2],
-                                           rels=rels)
+            self.build_component_hierarchy(*hier, rels=rels)
         DEBUG('validator', 'Checked component hierachies')
     
     def _check_variable_mappings(self):
-        """Check Rule 3.4.6.4: check variable mappings and interfaces are sane."""
+        """Check Rules 3.4.{5,6}: check variable mappings and interfaces are sane."""
         # First check connection elements and build mappings dict
         self.build_name_dictionaries()
+        connected_components = set()
         for connection in getattr(self, u'connection', []):
+            comps = frozenset([connection.map_components.component_1, connection.map_components.component_2])
+            if comps in connected_components:
+                self.validation_error("Each map_components element must map a unique pair of components "
+                                      "(3.4.5.4). The pair ('%s', '%s') is repeated." % tuple(comps))
+            connected_components.add(comps)
             self._validate_connection(connection)
         # Now check for variables that should receive a value but don't
         for comp in getattr(self, u'component', []):
@@ -642,25 +668,37 @@ class cellml_model(element_base):
                             var.get_source_variable()
                         except TypeError:
                             # No source variable found
-                            self.validation_error(u' '.join([
-                                u'Variable',var.fullname(),u'has a',iface,
-                                u'attribute with value "in", but no component exports a value to that variable.']))
+                            self.validation_error("Variable '%s' has a %s attribute with value 'in', "
+                                                  "but no component exports a value to that variable."
+                                                  % (var.fullname(), iface))
         DEBUG('validator', 'Checked variable mappings')
     
     def _validate_connection(self, conn):
         """Validate the given connection element.
         
         Check that the given connection object defines valid mappings
-        between variables, according to rule 3.4.6.4.
+        between variables, according to rules 3.4.5 and 3.4.6.
         """
         # Check we are allowed to connect these components
-        comp1 = self.get_component_by_name(conn.map_components.component_1)
-        comp2 = self.get_component_by_name(conn.map_components.component_2)
+        try:
+            comp1 = self.get_component_by_name(conn.map_components.component_1)
+        except KeyError:
+            self.validation_error("Connections must be between components defined in the current model "
+                                  "(3.4.5.2). There is no component '%s'." % conn.map_components.component_1)
+            return
+        try:
+            comp2 = self.get_component_by_name(conn.map_components.component_2)
+        except KeyError:
+            self.validation_error("Connections must be between components defined in the current model "
+                                  "(3.4.5.3). There is no component '%s'." % conn.map_components.component_2)
+            return
+        if comp1 is comp2:
+            self.validation_error("A connection must link two different components (3.4.5.4). "
+                                  "The component '%s' is being connected to itself." % comp1.name)
+            return
         # Get the parent of each component in the encapsulation hierarchy
         par1, par2 = comp1.parent(), comp2.parent()
-##        print "P", par1, par2, "C", comp1.name, comp2.name
-        # The two components must either be siblings (maybe top-level) or
-        # parent & child.
+        # The two components must either be siblings (maybe top-level) or parent & child.
         if not (par1 == comp2 or par2 == comp1 or par1 == par2):
             self.validation_error(u' '.join([
                 'Connections are only permissible between sibling',
@@ -669,10 +707,21 @@ class cellml_model(element_base):
             return
         # Now check each variable mapping
         for mapping in conn.map_variables:
-            var1 = self.get_variable_by_name(comp1.name, mapping.variable_1)
-            var2 = self.get_variable_by_name(comp2.name, mapping.variable_2)
-            errm, e = ['Interface mismatch mapping',var1.fullname(),'and',
-                       var2.fullname(),':\n'], None
+            try:
+                var1 = self.get_variable_by_name(comp1.name, mapping.variable_1)
+            except KeyError:
+                self.validation_error("A variable mapping must be between existing variables (3.4.6.2). "
+                                      "Variable '%s' doesn't exist in component '%s'."
+                                       % (mapping.variable_1, comp1.name))
+                continue
+            try:
+                var2 = self.get_variable_by_name(comp2.name, mapping.variable_2)
+            except KeyError:
+                self.validation_error("A variable mapping must be between existing variables (3.4.6.2). "
+                                      "Variable '%s' doesn't exist in component '%s'."
+                                       % (mapping.variable_2, comp2.name))
+                continue
+            errm, e = ['Interface mismatch mapping',var1.fullname(),'and',var2.fullname(),':\n'], None
             if par1 == par2:
                 # Siblings, so should have differing public interfaces
                 if not hasattr(var1, 'public_interface'):
@@ -708,6 +757,18 @@ class cellml_model(element_base):
             if e:
                 errm.append(e)
                 self.validation_error(u' '.join(errm))
+    
+    def _check_variable_units_exist(self):
+        """Check rule 3.4.3.3: that the units declared for variables exist."""
+        for var in self.get_all_variables():
+            try:
+                var.get_units()
+            except KeyError:
+                self.validation_error("The value of the units attribute on a variable must be either "
+                                      "one of the standard units or the name of a unit defined in the "
+                                      "current component or model (3.4.3.3). The units '%s' on the "
+                                      "variable '%s' in component '%s' do not exist."
+                                      % (var.units, var.name, var.component.name))
 
     def _check_connection_units(self, check_for_units_conversions=False):
         """Check that the units of mapped variables are dimensionally consistent.
@@ -734,6 +795,36 @@ class cellml_model(element_base):
                             u' '.join(['Warning: mapping between', var1.fullname(), 'and',
                                        var2.fullname(), 'will require a units conversion.']),
                             level=logging.WARNING_TRANSLATE_ERROR)
+
+    def _check_maths_name_references(self, expr, xml_context=False):
+        """Check rules 4.4.2.1 and 4.4.3.2: name references in mathematics."""
+        if isinstance(expr, mathml_ci):
+            # Check variable exists
+            try:
+                _ = expr.variable
+            except KeyError:
+                self._report_exception(
+                        MathsError(expr,
+                                   "The content of a MathML ci element must match the name of a variable "
+                                   "in the enclosing component, once whitespace normalisation has been "
+                                   "performed (4.4.2.1). Variable '%s' does not exist in component '%s'."
+                                   % (unicode(expr).strip(), expr.component.name)),
+                        xml_context)
+        elif isinstance(expr, mathml_cn):
+            # Check units exist
+            try:
+                expr.get_units()
+            except KeyError:
+                self._report_exception(
+                        MathsError(expr,
+                                   "Units on a cn element must be standard or defined in the current "
+                                   "component or model (4.4.3.2). Units '%s' are not defined in "
+                                   "component '%s'." % (expr.units, expr.component.name)),
+                        xml_context)
+        else:
+            # Recurse
+            for child in expr.xml_element_children():
+                self._check_maths_name_references(child, xml_context)
 
     def _check_assigned_vars(self, assignments, xml_context=False):
         """Check Rule 4.4.4: mathematical expressions may only modify
@@ -839,26 +930,29 @@ class cellml_model(element_base):
             self._cml_components = {}
         if not self._cml_components:
             for comp in getattr(self, u'component', []):
+                if comp.name in self._cml_components:
+                    self.validation_error("Component names must be unique within a model (3.4.2.2)."
+                                          " The name '%s' is repeated." % comp.name)
                 self._cml_components[comp.name] = comp
                 for var in getattr(comp, u'variable', []):
-                    self._cml_variables[(comp.name, var.name)] = var
+                    key = (comp.name, var.name)
+                    if key in self._cml_variables:
+                        self.validation_error("Variable names must be unique within a component (3.4.3.2)."
+                                              " The name '%s' is repeated in component '%s'."
+                                              % (var.name, comp.name))
+                    self._cml_variables[key] = var
 
-    def build_component_hierarchy(self, relationship,
-                                  namespace=None, name=None,
-                                  rels = None):
+    def build_component_hierarchy(self, relationship, namespace=None, name=None, rels=None):
         """
-        Create all the parent-child links for the given component
-        hierarchy.
+        Create all the parent-child links for the given component hierarchy.
 
-        relationship gives the type of the hierarchy. If it is not one
-        of the CellML types (i.e. encapsulation or containment) then
-        the namespace URI must be specified.  Multiple non-encapsulation
-        hierarchies of the same type can be specified by giving the name
-        argument.
+        relationship gives the type of the hierarchy. If it is not one of the
+        CellML types (i.e. encapsulation or containment) then the namespace URI
+        must be specified.  Multiple non-encapsulation hierarchies of the same
+        type can be specified by giving the name argument.
         """
         key = (relationship, namespace, name)
-        # Set all components to have no parent or children,
-        # under this hierarchy
+        # Set all components to have no parent or children, under this hierarchy
         for comp in getattr(self, u'component', []):
             comp._clear_hierarchy(key)
         self.build_name_dictionaries()
@@ -876,6 +970,7 @@ class cellml_model(element_base):
                     'attributes in different namespaces:\n'] + 
                         map(lambda qn,ns: '('+qn+','+ns+')',
                             rel.xml_attributes.values())))
+                return
             if rel.relationship == relationship and \
                rel.xml_attributes[u'relationship'][1] == namespace and \
                getattr(rel, u'name', None) == name:
@@ -885,42 +980,50 @@ class cellml_model(element_base):
         def set_parent(p, crefs):
             for cref in crefs:
                 # Find component cref refers to
-                c = self.get_component_by_name(cref.component)
+                try:
+                    c = self.get_component_by_name(cref.component)
+                except KeyError:
+                    self.validation_error("A component_ref element must reference a component in the current"
+                                          " model (6.4.3.3). Component '%s' does not exist." % cref.component)
+                    return
                 # Set c's parent to p
                 c._set_parent_component(key, p)
                 if hasattr(cref, 'component_ref'):
+                    # If we already have children under this hierarchy it's a validation error
+                    if c._has_child_components(key):
+                        self.validation_error("In a given hierarchy, only one component_ref element "
+                                              "referencing a given component may contain children (6.4.3.2)."
+                                              " Component '%s' has children in multiple locations." % c.name)
                     # Set parent of c's children to c
                     set_parent(c, cref.component_ref)
+                elif p is None and namespace is None:
+                    self.validation_error("Containment and encapsulation relationships must be hierarchical"
+                                          " (6.4.3.2). Potentially top-level component '%s' has not been"
+                                          " given children." % cref.component)
         for group in groups:
             set_parent(None, group.component_ref)
+        if self._cml_validation_errors:
+            return
         # Check for a cycle in the hierarchy (rule 6.4.3.2 (4)).
-        # Note that since we have already ensured that no
-        # component is a parent in more than one location, nor is
-        # any component a child more than once, so the only
-        # possibility for a cycle is if one of the components
-        # referenced as a child of a group element is also
-        # referenced as a (leaf) descendent of one of its
-        # children.  We check for this by following parent links
-        # backwards.
+        # Note that since we have already ensured that no component is a parent in more than one location,
+        # nor is any component a child more than once, so the only possibility for a cycle is if one of
+        # the components referenced as a child of a group element is also referenced as a (leaf) descendent
+        # of one of its children.  We check for this by following parent links backwards.
         def has_cycle(root_comp, cur_comp):
             if cur_comp is None:
                 return False
             elif cur_comp is root_comp:
                 return True
             else:
-##                print key, repr(root_comp), repr(cur_comp), repr(cur_comp.parent(reln_key=key))
-                return has_cycle(root_comp,
-                                 cur_comp.parent(reln_key=key))
+                return has_cycle(root_comp, cur_comp.parent(reln_key=key))
         for group in groups:
             for cref in group.component_ref:
                 # Find component cref refers to
                 c = self.get_component_by_name(cref.component)
                 if has_cycle(c, c.parent(reln_key = key)):
                     n, ns = name or "", namespace or ""
-                    self.validation_error(
-                        u'The "'+relationship+
-                        u'" relationship hierarchy with name "'+n+
-                        u'" and namespace "'+ns+'" has a cycle')
+                    self.validation_error("The '%s' relationship hierarchy with name '%s' and namespace"
+                                          " '%s' has a cycle" % (relationship, n, ns))
         return
 
     def topological_sort(self, node):
@@ -1052,17 +1155,14 @@ class cellml_model(element_base):
             boolean = self.get_units_by_name('cellml:boolean')
             for expr in assignment_exprs:
                 try:
-                    DEBUG('validator', "Checking units in",
-                          element_xpath(expr),
-                          expr.component.name)
+                    DEBUG('validator', "Checking units in", element_xpath(expr), expr.component.name)
                     expr._set_in_units(boolean, no_act=True)
                 except UnitsError:
                     pass
             # Warn if conversions used
             if self._cml_conversions_needed:
-                self.validation_warning(
-                    u'The mathematics in this model require units conversions.',
-                    level=logging.WARNING)
+                self.validation_warning('The mathematics in this model require units conversions.',
+                                        level=logging.WARNING)
         DEBUG('validator', 'Checked units')
 
     def _check_unit_cycles(self, unit):
@@ -1076,31 +1176,28 @@ class cellml_model(element_base):
         unit.set_colour(DFS.Gray)
         # Get the object unit is defined in
         parent = unit.xml_parent or self
-        if hasattr(unit, u'unit'):
+        for u in getattr(unit, u'unit', []):
             # Explore units that this unit is defined in terms of
-            for v in [parent.get_units_by_name(u.units)
-                      for u in unit.unit]:
-                if v.get_colour() == DFS.White:
-                    self._check_unit_cycles(v)
-                elif v.get_colour() == DFS.Gray:
-                    # We have a cycle
-                    self.validation_error(u' '.join([
-                        u'Units',unit.name,u'and',v.name,
-                        u'are in a cyclic units definition']))
+            try:
+                v = parent.get_units_by_name(u.units)
+            except KeyError:
+                self.validation_error("The value of the units attribute on a unit element must be taken"
+                                      " from the dictionary of standard units or be the name of a"
+                                      " user-defined unit in the current component or model (5.4.2.2)."
+                                      " Units '%s' are not defined." % u.units)
+            if v.get_colour() == DFS.White:
+                self._check_unit_cycles(v)
+            elif v.get_colour() == DFS.Gray:
+                # We have a cycle
+                self.validation_error("Units %s and %s are in a cyclic units definition"
+                                      % (unit.name, v.name))
         unit.set_colour(DFS.Black)
 
     def _build_units_dictionary(self):
-        """
-        Create a dictionary mapping units names to objects, for all units
-        definitions in this element.
-        """
-        # User-defined units
-        if hasattr(self, u'units'):
-            for units in self.units:
-                self._cml_units[units.name] = units
+        """Create a dictionary mapping units names to objects, for all units definitions in this element."""
         # Standard units
         def make(name, bases):
-            return cellml_units.create_new(self, name, bases)
+            return cellml_units.create_new(self, name, bases, standard=True)
         # SI base units & dimensionless
         base_units = [u'ampere', u'candela',  u'dimensionless', u'kelvin',
                       u'kilogram', u'metre', u'mole', u'second']
@@ -1165,14 +1262,25 @@ class cellml_model(element_base):
         # American spellings
         self._cml_units[u'meter'] = self._cml_units[u'metre']
         self._cml_units[u'liter'] = self._cml_units[u'litre']
+        # User-defined units
+        if hasattr(self, u'units'):
+            for units in self.units:
+                if units.name in self._cml_units:
+                    self.validation_error("Units names must be unique within the parent component or model,"
+                                          " and must not redefine the standard units (5.4.1.2)."
+                                          " The units definition named '%s' in the model is a duplicate." % units.name)
+                self._cml_units[units.name] = units
         # Update units hashmap
         for u in self._cml_units.itervalues():
             self._add_units_obj(u)
 
     def get_all_units(self):
         """Get a list of all units objects, including the standard units."""
+        if not self._cml_units:
+            self._build_units_dictionary()
         units = self._cml_units.values()
-        units.extend(self.xml_xpath(u'cml:component/cml:units'))
+        for comp in getattr(self, u'component', []):
+            units.extend(comp.get_all_units())
         return units
 
     def get_units_by_name(self, uname):
@@ -1182,10 +1290,10 @@ class cellml_model(element_base):
         """
         if not self._cml_units:
             self._build_units_dictionary()
-        # Units must be defined somewhere (we checked that rule already)
-        # so must be in our dictionary; either user-defined or standard
-        # units.
-        return self._cml_units[uname]
+        try:
+            return self._cml_units[uname]
+        except KeyError:
+            raise KeyError("Units '%s' are not defined in the current component or model." % uname)
 
     def add_units(self, name, units):
         """
@@ -1397,6 +1505,7 @@ class cellml_component(element_base):
         """Whether to not include the component name in the full names of contained variables."""
         return self._cml_created_by_pe or self.name == u''
     
+    
     def parent(self, relationship=u'encapsulation', namespace=None, name=None, reln_key=None):
         """Find the parent of this component in the given hierarchy.
         
@@ -1420,44 +1529,51 @@ class cellml_component(element_base):
         """Unset our parent & children in the given hierarchy."""
         self._cml_parents[reln_key] = None
         self._cml_children[reln_key] = []
+
     def _set_parent_component(self, reln_key, parent):
+        """Set the parent of this component in the relationship hierarchy indexed by reln_key to parent.
+        Trigger a validation error if we already have a parent in this hierarchy.
+        Also add ourselves to parent's children.
         """
-        Set the parent of this component in the relationship hierarchy
-        indexed by reln_key to parent.  Also add ourselves to parent's
-        children.
-        """
-##        if parent: pn = parent.name
-##        else: pn = 'None'
-        if not reln_key in self._cml_parents or  self._cml_parents[reln_key] is None:
+        if not reln_key in self._cml_parents or self._cml_parents[reln_key] is None:
             # Only set parent if we don't already have one
-##            print "Setting parent of",self.name,"under",reln_key,"to",pn
             self._cml_parents[reln_key] = parent
-##        else:
-##            print "Not set par of",self.name,"under",reln_key,"to",pn,"since was",self._cml_parents[reln_key].name
+        else:
+            self.xml_parent.validation_error("In a given hierarchy, a component may not be a child more"
+                                             " than once (6.4.3.2). Component '%s' has multiple parents."
+                                             % self.name)
         if not parent is None:
             parent._add_child_component(reln_key, self)
+    
     def _add_child_component(self, reln_key, child):
-        """
-        Add child to our list of children in the relationship hierarchy
-        indexed by reln_key.
-        """
-##        print "Adding child",child.name,"to parent",self.name,"under",reln_key
+        """Add child to our list of children in the relationship hierarchy indexed by reln_key."""
         if not reln_key in self._cml_children:
             self._cml_children[reln_key] = []
         self._cml_children[reln_key].append(child)
+    
+    def _has_child_components(self, reln_key):
+        """Determine whether we have any children in the given relationship hierarchy."""
+        return self._cml_children.get(reln_key, []) != []
+
 
     def _build_units_dictionary(self):
-        """
-        Create a dictionary mapping units names to objects, for all units
-        definitions in this element.
-        """
+        """Create a dictionary mapping units names to objects, for all units definitions in this element."""
         for units in getattr(self, u'units', []):
+            if units.name in self._cml_units:
+                self.validation_error("Units names must be unique within the parent component (5.4.1.2)."
+                                      " The name '%s' in component '%s' is duplicated."
+                                      % (units.name, self.name))
+            try:
+                if self.xml_parent.get_units_by_name(units.name).standard == u'yes':
+                    self.validation_error("Units definitions must not redefine the standard units (5.4.1.2)."
+                                          " The name '%s' in component '%s' is not allowed."
+                                          % (units.name, self.name))
+            except:
+                pass
             self._cml_units[units.name] = units
+            self.xml_parent._add_units_obj(units)
     def get_units_by_name(self, uname):
-        """
-        Return an object representing the element that defines the units
-        named `uname'.
-        """
+        """Return an object representing the element that defines the units named `uname'."""
         if not self._cml_units:
             self._build_units_dictionary()
         if self._cml_units.has_key(uname):
@@ -1476,6 +1592,12 @@ class cellml_component(element_base):
         self._cml_units[name] = units
         self.xml_parent._add_units_obj(units)
         return
+
+    def get_all_units(self):
+        """Get a list of all units objects defined in this component."""
+        if not self._cml_units:
+            self._build_units_dictionary()
+        return self._cml_units.values()
 
     def get_variable_by_name(self, varname):
         """
@@ -2558,10 +2680,7 @@ class cellml_units(Colourable, element_base):
         return desc
 
     def get_units_by_name(self, uname):
-        """
-        Return an object representing the element that defines the units
-        named `uname'.
-        """
+        """Return an object representing the element that defines the units named `uname'."""
         # Look up units in our parent model or component element instead
         return self.xml_parent.get_units_by_name(uname)
 
@@ -2748,7 +2867,7 @@ class cellml_units(Colourable, element_base):
         return o
     
     @staticmethod
-    def create_new(parent, name, bases, add_to_parent=False):
+    def create_new(parent, name, bases, add_to_parent=False, standard=False):
         """Create a new units definition element.
 
         It requires either a cellml_model or cellml_component element
@@ -2764,8 +2883,9 @@ class cellml_units(Colourable, element_base):
         attrs = {u'name': unicode(name)}
         if not bases:
             attrs[u'base_units'] = u'yes'
-        u = parent.xml_create_element(u'units', NSS[u'cml'],
-                                      attributes=attrs)
+        if standard:
+            attrs[u'standard'] = u'yes'
+        u = parent.xml_create_element(u'units', NSS[u'cml'], attributes=attrs)
         if add_to_parent:
             parent.xml_append(u)
         else:
@@ -3996,9 +4116,7 @@ class mathml_cn(mathml, mathml_units_mixin_tokens):
     def get_units(self, return_set=True):
         """Return the units this number is expressed in."""
         if not self._cml_units:
-            self._cml_units = UnitsSet(
-                [self.component.get_units_by_name(self.units)],
-                expression=self)
+            self._cml_units = UnitsSet([self.component.get_units_by_name(self.units)], expression=self)
         if not return_set:
             u = self._cml_units.extract()
         else:
@@ -4045,9 +4163,8 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
     def get_units(self, return_set=True):
         """Return the units of the variable represented by this element."""
         if not self._cml_units:
-            self._cml_units = UnitsSet(
-                [self.component.get_units_by_name(self.variable.units)],
-                expression=self)
+            self._cml_units = UnitsSet([self.component.get_units_by_name(self.variable.units)],
+                                       expression=self)
         if not return_set:
             u = self._cml_units.extract()
         else:

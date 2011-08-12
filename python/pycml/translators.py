@@ -4935,8 +4935,7 @@ def get_options(args, default_options=None):
                       help="skip some of the model validation checks")
     parser.add_option('-V', '--transmembrane-potential',
                       default=None, metavar='POT_VAR',
-                      help=
-                      "POT_VAR is the full name of the variable representing"
+                      help="POT_VAR is the full name of the variable representing"
                       " the transmembrane potential.  If not specified here,"
                       " the configuration file will be used.  Defaults to "
                       "'membrane,V'.")
@@ -4946,6 +4945,8 @@ def get_options(args, default_options=None):
                       help="only show debug info from the specified part of the"
                       " code.  This option may appear more than once to select"
                       " multiple sources.  Implies -d.")
+    parser.add_option('--profile', action='store_true', default=False,
+                      help="turn on profiling of PyCml")
     # What optimisations/transformations to do
     parser.add_option('-l', '--lookup-tables',
                       dest='lut', action='store_true', default=False,
