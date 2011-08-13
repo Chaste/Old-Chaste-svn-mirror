@@ -167,7 +167,7 @@ class BuildType(object):
         elif status == 'MPI':
             return 'MPI semaphore error'
         elif status == 'Killed':
-            return 'Test killed'
+            return 'Test exceeded time limit'
         else:
             return status.replace('_', '/') + ' tests failed (RED)'
 
@@ -704,7 +704,7 @@ class MemoryTesting(GccDebug):
             return 'orange'
         else:
             return 'red'
-        
+
     def DisplayStatus(self, status):
         "Return a (more) human readable version of the given status string."
         if status == 'OK':
@@ -713,6 +713,8 @@ class MemoryTesting(GccDebug):
             return 'Test output unrecognised'
         elif status == 'Warn':
             return 'Possible leak found'
+        elif status == 'Killed':
+            return 'Test exceeded time limit'
         else:
             return 'Memory leaks found (RED)'
 
@@ -735,10 +737,14 @@ class MemoryTesting(GccDebug):
         uninit = re.compile(r'==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
         open_files = re.compile(r'==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
         orte_init = re.compile(r'==(\d+)==    (?:by|at) .*(: orte_init)?.*')
+        test_killed = 'Test killed due to exceeding time limit'
         
         if outputLines is None:
             outputLines = logFile.readlines()
         for lineno in range(len(outputLines)):
+            if outputLines[lineno].startswith(test_killed):
+                status = 'Killed'
+                break
             m = petsc.match(outputLines[lineno])
             if m and int(m.group(1)) > 0:
                 # PETSc Vec or Mat allocated and not destroyed
