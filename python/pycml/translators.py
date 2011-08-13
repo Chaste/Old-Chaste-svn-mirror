@@ -2492,27 +2492,27 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_method_start('EvaluateEquations',
                                  [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
                                   'std::vector<double> &rDY',
-                                  'std::vector<double> &rAlpha',
-                                  'std::vector<double> &rBeta'],
+                                  'std::vector<double> &rAlphaOrTau',
+                                  'std::vector<double> &rBetaOrInf'],
                                  'void', access='public')
         self.open_block()
         normal_vars = [v for v in self.state_vars if not v in rl_vars]
         nodes, table_nodes = set(), set()
-        for alpha, beta, _ in rl_vars.itervalues():
-            table_nodes.add(alpha)
-            nodes.update(self._vars_in(alpha))
-            table_nodes.add(beta)
-            nodes.update(self._vars_in(beta))
+        for _, alpha_or_tau, beta_or_inf, _ in rl_vars.itervalues():
+            table_nodes.add(alpha_or_tau)
+            nodes.update(self._vars_in(alpha_or_tau))
+            table_nodes.add(beta_or_inf)
+            nodes.update(self._vars_in(beta_or_inf))
         self.output_derivative_calculations(normal_vars, True, nodes, table_nodes)
         # Now assign input vectors
         for i, var in enumerate(self.state_vars):
             if var in rl_vars:
-                # Fill in rAlpha & rBeta
-                self.writeln(self.vector_index('rAlpha', i), self.EQ_ASSIGN, nl=False)
-                self.output_expr(rl_vars[var][0], False)
-                self.writeln(self.STMT_END, indent=False)
-                self.writeln(self.vector_index('rBeta', i), self.EQ_ASSIGN, nl=False)
+                # Fill in rAlphaOrTau & rBetaOrInf
+                self.writeln(self.vector_index('rAlphaOrTau', i), self.EQ_ASSIGN, nl=False)
                 self.output_expr(rl_vars[var][1], False)
+                self.writeln(self.STMT_END, indent=False)
+                self.writeln(self.vector_index('rBetaOrInf', i), self.EQ_ASSIGN, nl=False)
+                self.output_expr(rl_vars[var][2], False)
                 self.writeln(self.STMT_END, indent=False)
             else:
                 # Fill in rDY
@@ -2523,21 +2523,27 @@ class CellMLToChasteTranslator(CellMLTranslator):
         #############################
         self.output_method_start('ComputeOneStepExceptVoltage',
                                  ['const std::vector<double> &rDY',
-                                  'const std::vector<double> &rAlpha',
-                                  'const std::vector<double> &rBeta'],
+                                  'const std::vector<double> &rAlphaOrTau',
+                                  'const std::vector<double> &rBetaOrInf'],
                                  'void', access='public')
         self.open_block()
         self.writeln('std::vector<double>& rY = rGetStateVariables();')
         for i, var in enumerate(self.state_vars):
             if var in rl_vars:
                 # Rush-Larsen update
-                self.open_block()
-                self.writeln(self.TYPE_CONST_DOUBLE, 'tau_inv = rAlpha[', i, '] + rBeta[', i, '];')
-                self.writeln(self.TYPE_CONST_DOUBLE, 'y_inf = rAlpha[', i, '] / tau_inv;')
-                conv = rl_vars[var][2] or ''
+                conv = rl_vars[var][3] or ''
                 if conv: conv = '*' + str(conv)
-                self.writeln('rY[', i, '] = y_inf + (rY[', i, '] - y_inf)*exp(-mDt', conv, '*tau_inv);')
-                self.close_block(blank_line=False)
+                if rl_vars[var][0] == 'ab':
+                    # Alpha & beta formulation
+                    self.open_block()
+                    self.writeln(self.TYPE_CONST_DOUBLE, 'tau_inv = rAlphaOrTau[', i, '] + rBetaOrInf[', i, '];')
+                    self.writeln(self.TYPE_CONST_DOUBLE, 'y_inf = rAlphaOrTau[', i, '] / tau_inv;')
+                    self.writeln('rY[', i, '] = y_inf + (rY[', i, '] - y_inf)*exp(-mDt', conv, '*tau_inv);')
+                    self.close_block(blank_line=False)
+                else:
+                    # Tau & inf formulation
+                    self.writeln('rY[', i, '] = rBetaOrInf[', i, '] + (rY[', i, '] - rBetaOrInf[', i, '])',
+                                 '*exp(-mDt', conv, '/rAlphaOrTau[', i, ']);')
             elif var is not self.v_variable:
                 # Forward Euler update
                 self.writeln('rY[', i, '] += mDt * rDY[', i, '];')

@@ -146,12 +146,12 @@ protected:
      * \note This method must be provided by subclasses.
      *
      * @param rDY  vector containing dy/dt values
-     * @param rAlpha  vector containing alpha values
-     * @param rBeta  vector containing beta values
+     * @param rAlpha  vector containing alpha or tau values, depending on the formulation
+     * @param rBeta  vector containing beta or inf values, depending on the formulation
      */
     virtual void ComputeOneStepExceptVoltage(const std::vector<double> &rDY,
-                                             const std::vector<double> &rAlpha,
-                                             const std::vector<double> &rBeta)=0;
+                                             const std::vector<double> &rAlphaOrTau,
+                                             const std::vector<double> &rBetaOrInf)=0;
 
     /**
      * Perform a forward Euler step to update the transmembrane potential.
@@ -164,15 +164,16 @@ protected:
      * Compute dy/dt and alpha and beta values.
      *
      * \note This method must be provided by subclasses.
+     *
      * @param time  start of this timestep
      * @param rDY  vector to fill in with dy/dt values
-     * @param rAlpha  vector to fill in with alpha values
-     * @param rBeta  vector to fill in with beta values
+     * @param rAlphaOrTau  vector to fill in with alpha or tau values, depending on the formulation
+     * @param rBetaOrInf  vector to fill in with beta or inf values, depending on the formulation
      */
     virtual void EvaluateEquations(double time,
                                    std::vector<double> &rDY,
-                                   std::vector<double> &rAlpha,
-                                   std::vector<double> &rBeta)=0;
+                                   std::vector<double> &rAlphaOrTau,
+                                   std::vector<double> &rBetaOrInf)=0;
 };
 
 CLASS_IS_ABSTRACT(AbstractRushLarsenCardiacCell)

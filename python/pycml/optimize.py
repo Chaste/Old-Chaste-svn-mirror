@@ -1423,28 +1423,39 @@ class RushLarsenAnalyser(object):
     """Analyse a model to identify Hodgkin-Huxley style gating variable equations.
     
     We look for ODEs whose definition matches "alpha*(1-x) - beta*x" (where x is
-    the state variable, and alpha & beta are any expression).  To allow for when
-    units conversions have been performed, we chase 'simple' assignments and (the
-    semantically equivalent) variable mappings until reaching an 'interesting'
-    defining equation.  We also need to allow the whole RHS to be multiplied by a
-    constant.  If this occurs, the constant conversion factor is also stored;
-    otherwise we store None.
+    the state variable, and alpha & beta are any expression).  Alternatively for
+    models which already have tau & inf variables, we match against "(inf-x)/tau".
+    
+    To allow for when units conversions have been performed, we chase 'simple'
+    assignments and (the semantically equivalent) variable mappings until reaching
+    an 'interesting' defining equation.  We also need to allow the whole RHS to be
+    multiplied by a constant.  If this occurs, the constant conversion factor is
+    also stored; otherwise we store None.
     
     Stores a dictionary on the document root mapping cellml_variable instances to
-    (alpha, beta, conv) expression tuples.  Note that these are not cloned copies
-    - they are the original objects still embedded within the relevant ODE.
+    4-tuples.  The tuple is either ('ab', alpha, beta, conv) or ('ti', tau, inf, conv)
+    depending on which formulation has been used.  Note that the expressions in these
+    are not cloned copies - they are the original objects still embedded within the
+    relevant ODE.  The units conversion factor 'conv' is stored as a Python double.
     """
     def __init__(self):
-        """Create the pattern to match against."""
+        """Create the patterns to match against."""
         em = ExpressionMatcher
+        self._var = em.V()
+        self._conv = em.N()
+        # Alpha/beta form
         self._alpha = em.X()
         self._beta = em.X()
-        self._var = em.V()
-        self._pattern = em.R(em.A('minus', [em.A('times', [self._alpha,
-                                                           em.A('minus', [em.N(1), self._var])]),
-                                            em.A('times', [self._beta, self._var])]))
-        self._conv = em.N()
-        self._alt_pattern = em.R(em.A('times', [self._conv, self._pattern]))
+        self._ab_pattern = em.R(em.A('minus', [em.A('times', [self._alpha,
+                                                              em.A('minus', [em.N(1), self._var])]),
+                                               em.A('times', [self._beta, self._var])]))
+        self._alt_ab_pattern = em.R(em.A('times', [self._conv, self._ab_pattern]))
+        # Tau/inf form
+        self._tau = em.X()
+        self._inf = em.X()
+        self._ti_pattern = em.R(em.A('divide', [em.A('minus', [self._inf, self._var]),
+                                                self._tau]))
+        self._alt_ti_pattern = em.R(em.A('times', [self._conv, self._ti_pattern]))
     
     def analyse_model(self, doc):
         # First, find linear ODEs that have the potential to be gating variables
@@ -1462,7 +1473,11 @@ class RushLarsenAnalyser(object):
     def _check_var(self, var, ode_expr, mapping):
         rhs = ode_expr.eq.rhs
         self._var.set_variable(ode_expr.eq.lhs.diff.dependent_variable)
-        if self._pattern.match(rhs):
-            mapping[var] = (self._alpha.matched, self._beta.matched, None)
-        elif self._alt_pattern.match(rhs):
-            mapping[var] = (self._alpha.matched, self._beta.matched, self._conv.value)
+        if self._ab_pattern.match(rhs):
+            mapping[var] = ('ab', self._alpha.matched, self._beta.matched, None)
+        elif self._alt_ab_pattern.match(rhs):
+            mapping[var] = ('ab', self._alpha.matched, self._beta.matched, self._conv.value)
+        elif self._ti_pattern.match(rhs):
+            mapping[var] = ('ti', self._tau.matched, self._inf.matched, None)
+        elif self._alt_ti_pattern.match(rhs):
+            mapping[var] = ('ti', self._tau.matched, self._inf.matched, self._conv.value)
