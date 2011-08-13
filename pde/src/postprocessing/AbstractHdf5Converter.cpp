@@ -66,7 +66,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
         double first_timestep = time_values.front();
         double last_timestep = time_values.back();
 
-        double timestep = time_values[1] - time_values[0];
+        double timestep = num_timesteps > 1 ? time_values[1] - time_values[0] : DOUBLE_UNSET;
 
         *p_file << "Number of timesteps " << num_timesteps << std::endl;
         *p_file << "timestep " << timestep << std::endl;

@@ -167,6 +167,9 @@ public:
     /**
      * Set the initial condition.
      *
+     * @note We do *not* take responsibility for destroying this vector - the caller must
+     * do so once the solver is no longer in use.
+     *
      * @param initialCondition the initial condition
      */
     void SetInitialCondition(Vec initialCondition);

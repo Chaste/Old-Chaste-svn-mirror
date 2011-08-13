@@ -415,8 +415,7 @@ public:
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        /* Compare against the exact solution
-         */
+        /* Compare against the exact solution. */
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
@@ -432,10 +431,11 @@ public:
             TS_ASSERT_DELTA(v, v_exact, 0.007);
         }
 
+        /* We have responsibility for freeing memory used for the results vector. */
         VecDestroy(result);
     }
 
-    /* Now run a test solving the parabolic-parabolic-parabolic PDE system */
+    /* Now run a test solving the parabolic-parabolic-parabolic PDE system. */
     void TestMyParaEllipticSetOfPdesSolver() throw (Exception)
     {
         TetrahedralMesh<2,2> mesh;
@@ -489,11 +489,12 @@ public:
          */
         solver.SetPrintingTimestepMultiple(10);
 
-        /* We are now ready to solve the system.
-         */
+        /* We are now ready to solve the system. */
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
+        /* Note that we need to destroy the initial condition vector as well as the solution. */
+        VecDestroy(initial_condition);
         VecDestroy(result);
     }
 };
