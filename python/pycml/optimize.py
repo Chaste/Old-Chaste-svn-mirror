@@ -1376,7 +1376,10 @@ class ExpressionMatcher(object):
         def match(self, expr):
             matched = False
             if isinstance(expr, mathml_cn):
-                if self.value is None or self.value == expr.evaluate():
+                value = expr.evaluate()
+                if self.value is None:
+                    self.value = value
+                if self.value == value:
                     matched = True
             return matched
     
@@ -1389,6 +1392,28 @@ class ExpressionMatcher(object):
             self.matched = expr
             return True
     
+    class R(Pattern):
+        """A container that matches any number of levels of indirection/recursion.
+        
+        This can be used to wrap a pattern where we wish to allow for variable mappings
+        or equations such as "var1 = var2" before we reach the 'interesting' equation.
+        If the expression we're matching is a ci element we recursively find the
+        ultimate non-ci defining expression and match our sub-pattern against that.  If
+        the expression isn't a ci, or the ultimate definition isn't an expression, we
+        match our sub-pattern against it directly.
+        """
+        def __init__(self, pat):
+            self.sub_pattern = pat
+        
+        def match(self, expr):
+            while isinstance(expr, mathml_ci):
+                # Find this variable's defining expression, if it is an equation
+                var = expr.variable.get_source_variable(recurse=True)
+                defn = var.get_dependencies()
+                if defn and isinstance(defn[0], mathml_apply):
+                    expr = defn[0].eq.rhs
+            return self.sub_pattern.match(expr)
+    
     @staticmethod
     def match(pattern, expression):
         """Test for a match."""
@@ -1397,9 +1422,17 @@ class ExpressionMatcher(object):
 class RushLarsenAnalyser(object):
     """Analyse a model to identify Hodgkin-Huxley style gating variable equations.
     
+    We look for ODEs whose definition matches "alpha*(1-x) - beta*x" (where x is
+    the state variable, and alpha & beta are any expression).  To allow for when
+    units conversions have been performed, we chase 'simple' assignments and (the
+    semantically equivalent) variable mappings until reaching an 'interesting'
+    defining equation.  We also need to allow the whole RHS to be multiplied by a
+    constant.  If this occurs, the constant conversion factor is also stored;
+    otherwise we store None.
+    
     Stores a dictionary on the document root mapping cellml_variable instances to
-    (alpha, beta) expression pairs.  Note that these are not cloned copies - they
-    are the original objects still embedded within the relevant ODE.
+    (alpha, beta, conv) expression tuples.  Note that these are not cloned copies
+    - they are the original objects still embedded within the relevant ODE.
     """
     def __init__(self):
         """Create the pattern to match against."""
@@ -1407,9 +1440,11 @@ class RushLarsenAnalyser(object):
         self._alpha = em.X()
         self._beta = em.X()
         self._var = em.V()
-        self._pattern = em.A('minus', [em.A('times', [self._alpha,
-                                                      em.A('minus', [em.N(1), self._var])]),
-                                       em.A('times', [self._beta, self._var])])
+        self._pattern = em.R(em.A('minus', [em.A('times', [self._alpha,
+                                                           em.A('minus', [em.N(1), self._var])]),
+                                            em.A('times', [self._beta, self._var])]))
+        self._conv = em.N()
+        self._alt_pattern = em.R(em.A('times', [self._conv, self._pattern]))
     
     def analyse_model(self, doc):
         # First, find linear ODEs that have the potential to be gating variables
@@ -1426,8 +1461,8 @@ class RushLarsenAnalyser(object):
     
     def _check_var(self, var, ode_expr, mapping):
         rhs = ode_expr.eq.rhs
-        while isinstance(rhs, mathml_ci):
-            rhs = rhs.variable.get_source_variable(recurse=True).get_dependencies()[0].eq.rhs
         self._var.set_variable(ode_expr.eq.lhs.diff.dependent_variable)
         if self._pattern.match(rhs):
-            mapping[var] = (self._alpha.matched, self._beta.matched)
+            mapping[var] = (self._alpha.matched, self._beta.matched, None)
+        elif self._alt_pattern.match(rhs):
+            mapping[var] = (self._alpha.matched, self._beta.matched, self._conv.value)

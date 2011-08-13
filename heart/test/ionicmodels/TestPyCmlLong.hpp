@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellInterface.hpp"
 #include "AbstractCvodeCell.hpp"
+#include "AbstractRushLarsenCardiacCell.hpp"
 
 #include "DynamicLoadingHelperFunctions.hpp"
 
@@ -105,7 +106,7 @@ private:
                   boost::shared_ptr<AbstractCardiacCellInterface> pCell)
     {
         double end_time = GetAttribute(pCell, "SuggestedCycleLength", 700.0); // ms
-        if (pCell->GetSolver())
+        if (pCell->GetSolver() || dynamic_cast<AbstractRushLarsenCardiacCell*>(pCell.get()))
         {
             double dt = GetAttribute(pCell, "SuggestedForwardEulerTimestep", 0.0);
             if (dt > 0.0)
@@ -148,7 +149,8 @@ private:
                   const std::vector<std::string>& rModels,
                   const std::vector<std::string>& rArgs,
                   bool testLookupTables=false,
-                  double tableTestV=-1000)
+                  double tableTestV=-1000,
+                  bool warningsOk=true)
     {
         OutputFileHandler handler(rOutputDirName); // Clear folder
         std::vector<std::string> failures;
@@ -163,6 +165,11 @@ private:
                 failures.push_back(rModels[i]);
                 TS_FAIL("Failure testing cell model " + rModels[i] + ": " + e.GetMessage());
             }
+            if (!warningsOk)
+            {
+                TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
+            }
+            Warnings::NoisyDestroy(); // Print out any warnings now, not at program exit
         }
 
         if (!failures.empty())
@@ -192,9 +199,11 @@ private:
         }
 
         // Create options file
-        if (!rArgs.empty())
+        std::vector<std::string> args(rArgs);
+//        args.push_back("--profile");
+        if (!args.empty())
         {
-            CreateOptionsFile(handler, rModelName, rArgs);
+            CreateOptionsFile(handler, rModelName, args);
         }
 
         // Do the conversion
@@ -242,7 +251,6 @@ private:
             p_cell->SetVoltage(v);
         }
         Simulate(rOutputDirName, rModelName, p_cell);
-        Warnings::NoisyDestroy(); // Print out any warnings now, not at program exit
     }
 
     void AddAllModels(std::vector<std::string>& rModels)
@@ -378,6 +386,30 @@ public:
         models.push_back("pandit_model_2001_epi");
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.1, 1.0);
         RunTests(dirname, models, args, true);
+    }
+
+    void TestRushLarsenCells() throw (Exception)
+    {
+        std::string dirname("TestPyCmlNightlyRushLarsen");
+        std::vector<std::string> args;
+        args.push_back("--Wu");
+        args.push_back("--rush-larsen");
+        std::vector<std::string> models;
+        AddAllModels(models);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.1, 1.0);
+        RunTests(dirname, models, args, false, 0, false);
+    }
+
+    void TestRushLarsenOptCells() throw (Exception)
+    {
+        std::string dirname("TestPyCmlNightlyRushLarsenOpt");
+        std::vector<std::string> args;
+        args.push_back("--Wu");
+        args.push_back("--rush-larsen");
+        args.push_back("--opt");
+        std::vector<std::string> models;
+        AddAllModels(models);
+        RunTests(dirname, models, args, true, -1000, false);
     }
 };
 

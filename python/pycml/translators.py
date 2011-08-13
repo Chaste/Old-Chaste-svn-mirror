@@ -2271,7 +2271,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln(self.vector_index('rDY', i), self.EQ_ASSIGN, self.code_name(var, True), self.STMT_END)
         self.close_block()
         
-    def output_derivative_calculations(self, state_vars, extra_nodes=set(), assign_rY=False):
+    def output_derivative_calculations(self, state_vars, assign_rY=False, extra_nodes=set(),
+                                       extra_table_nodes=set()):
         """
         This is used by self.output_evaluate_y_derivatives and self.output_rush_larsen_mathematics
         to compute the derivatives (and any extra nodes, if given).  It contains the special logic
@@ -2298,7 +2299,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_state_assignments(assign_rY=assign_rY, nodeset=all_nodes)
         self.writeln()
         if self.use_lookup_tables:
-            self.output_table_index_generation(nodeset=all_nodes)
+            self.output_table_index_generation(nodeset=all_nodes|extra_table_nodes)
         self.output_comment('Mathematics')
         #907: Declare dV/dt
         if dvdt:
@@ -2496,11 +2497,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                  'void', access='public')
         self.open_block()
         normal_vars = [v for v in self.state_vars if not v in rl_vars]
-        nodes = set()
-        for alpha, beta in rl_vars.itervalues():
+        nodes, table_nodes = set(), set()
+        for alpha, beta, _ in rl_vars.itervalues():
+            table_nodes.add(alpha)
             nodes.update(self._vars_in(alpha))
+            table_nodes.add(beta)
             nodes.update(self._vars_in(beta))
-        self.output_derivative_calculations(normal_vars, nodes, True)
+        self.output_derivative_calculations(normal_vars, True, nodes, table_nodes)
         # Now assign input vectors
         for i, var in enumerate(self.state_vars):
             if var in rl_vars:
@@ -2531,7 +2534,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.open_block()
                 self.writeln(self.TYPE_CONST_DOUBLE, 'tau_inv = rAlpha[', i, '] + rBeta[', i, '];')
                 self.writeln(self.TYPE_CONST_DOUBLE, 'y_inf = rAlpha[', i, '] / tau_inv;')
-                self.writeln('rY[', i, '] = y_inf + (rY[', i, '] - y_inf)*exp(-mDt*tau_inv);')
+                conv = rl_vars[var][2] or ''
+                if conv: conv = '*' + str(conv)
+                self.writeln('rY[', i, '] = y_inf + (rY[', i, '] - y_inf)*exp(-mDt', conv, '*tau_inv);')
                 self.close_block(blank_line=False)
             elif var is not self.v_variable:
                 # Forward Euler update
