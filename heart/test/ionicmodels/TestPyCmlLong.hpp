@@ -396,7 +396,9 @@ public:
         args.push_back("--rush-larsen");
         std::vector<std::string> models;
         AddAllModels(models);
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.1, 1.0);
+        // Three models require a slightly smaller timestep with RL than normal forward Euler:
+        // Courtemanche 1998, Demir 1994, and Grandi 2010.
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.1, 1.0);
         RunTests(dirname, models, args, false, 0, false);
     }
 
