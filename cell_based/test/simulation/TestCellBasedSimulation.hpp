@@ -86,6 +86,9 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        // Output Voronoi Data
+        cell_population.SetOutputVoronoiData(true);
+
         // Set up simulation
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocities");
@@ -110,6 +113,19 @@ public:
         std::string node_velocities_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/nodevelocities.dat";
         NumericFileComparison node_velocities(node_velocities_file, "cell_based/test/data/TestOutputNodeVelocities/nodevelocities.dat");
         TS_ASSERT(node_velocities.CompareFiles(1e-2));
+
+        // Test vtk files exist.
+#ifdef CHASTE_VTK
+        std::string results_dir = handler.GetOutputDirectoryFullPath();
+
+        // Initial condition file
+        FileFinder vtk_file(results_dir + "results_from_time_0/results_0.vtu", RelativeTo::Absolute);
+        TS_ASSERT(vtk_file.Exists());
+
+        // Final file
+        FileFinder vtk_file2(results_dir + "results_from_time_0/results_60.vtu", RelativeTo::Absolute);
+        TS_ASSERT(vtk_file2.Exists());
+#endif //CHASTE_VTK
     }
 
     void TestOutputNodeVelocitiesWithGhostNodes() throw(Exception)
@@ -134,6 +150,9 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
+        //Output Voronoi data
+        cell_population.SetOutputVoronoiData(true);
+
         // Set up simulation
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocitiesWithGhostNodes");
@@ -149,6 +168,28 @@ public:
 
         // Run simulation
         simulator.Solve();
+
+        // Test Node Velocities File.
+        std::string output_directory = "TestOutputNodeVelocitiesWithGhostNodes";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        std::string node_velocities_file = output_file_handler.GetOutputDirectoryFullPath() + "results_from_time_0/nodevelocities.dat";
+        NumericFileComparison node_velocities(node_velocities_file, "cell_based/test/data/TestOutputNodeVelocitiesWithGhostNodes/nodevelocities.dat");
+        TS_ASSERT(node_velocities.CompareFiles(1e-2));
+
+        // Test vtk files exist.
+#ifdef CHASTE_VTK
+
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+
+        // Initial condition file
+        FileFinder vtk_file(results_dir + "results_from_time_0/results_0.vtu", RelativeTo::Absolute);
+        TS_ASSERT(vtk_file.Exists());
+
+        // Final file
+        FileFinder vtk_file2(results_dir + "results_from_time_0/results_60.vtu", RelativeTo::Absolute);
+        TS_ASSERT(vtk_file2.Exists());
+#endif //CHASTE_VTK
     }
 
     /**

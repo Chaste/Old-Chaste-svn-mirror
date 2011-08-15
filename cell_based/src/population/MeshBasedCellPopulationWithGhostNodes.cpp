@@ -272,6 +272,10 @@ template<unsigned DIM>
 void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
+    if (SimulationTime::Instance()->GetTimeStepsElapsed() == 0 && this->mpVoronoiTessellation == NULL)
+    {
+        this->TessellateIfNeeded();
+    }
     if (this->mpVoronoiTessellation != NULL)
     {
         VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
@@ -420,7 +424,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                 mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
             }
         }
-
+        
         mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
         *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
         *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();

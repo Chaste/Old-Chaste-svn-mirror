@@ -301,13 +301,20 @@ public:
     /**
      * Overridden Update(bool hasHadBirthsOrDeaths) method.
      * Fixes up the mappings between cells and nodes.
-     *
+     * 
      * @param hasHadBirthsOrDeaths - a bool saying whether cell population has had Births Or Deaths
      * not needed in this cell population class
      */
     virtual void Update(bool hasHadBirthsOrDeaths=true);
 
-    /**
+   	/**
+     *  Tessellates when required
+     *  If areas or volumes are needed for mUseAreaBasedDampingConstant or mOutputCellPopulationVolumes or mOutputCellVolumes
+     *  If Voronoi data is to be output
+     */
+    void TessellateIfNeeded();
+
+	/**
      * Overridden GetNode() method.
      *
      * @param index  global index of the specified Node
