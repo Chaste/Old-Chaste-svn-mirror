@@ -146,8 +146,8 @@ protected:
      * \note This method must be provided by subclasses.
      *
      * @param rDY  vector containing dy/dt values
-     * @param rAlpha  vector containing alpha or tau values, depending on the formulation
-     * @param rBeta  vector containing beta or inf values, depending on the formulation
+     * @param rAlphaOrTau  vector containing alpha or tau values, depending on the formulation
+     * @param rBetaOrInf  vector containing beta or inf values, depending on the formulation
      */
     virtual void ComputeOneStepExceptVoltage(const std::vector<double> &rDY,
                                              const std::vector<double> &rAlphaOrTau,
