@@ -457,8 +457,9 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
     }
     *mpVizElementsFile << "\n";
 
-    if (mpVoronoiTessellation != NULL)
+    if (mpVoronoiTessellation != NULL || SimulationTime::Instance()->GetTimeStepsElapsed()==0)
     {
+    	TessellateIfNeeded();
         if (mOutputVoronoiData)
         {
             WriteVoronoiResultsToFile();
