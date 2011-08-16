@@ -1270,7 +1270,8 @@ public:
         // Set up cell-based simulation
         CellBasedSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("CellBasedSimulationWithOxygen3d");
-        simulator.SetEndTime(0.5);
+        simulator.SetSamplingTimestepMultiple(12);
+        simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<3> linear_force;
@@ -1290,7 +1291,6 @@ public:
 
         // Tidy up
         CellwiseData<3>::Destroy();
-
         delete p_killer;
     }
 
@@ -1349,18 +1349,14 @@ public:
         CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestPostSolveMethod");
 
-        double end_time = 5;
+        double end_time = 0.5;
         simulator.SetEndTime(end_time);
 
-        // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-
-        // Use an extremely small cutoff so that no cells interact mechanically
-        linear_force.SetCutOffLength(0.0001);
-        simulator.AddForce(&linear_force);
+        // Do not pass in a force law so that no cells interact mechanically
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetSamplingTimestepMultiple(12);
         simulator.Solve();
 
         // Check the correct solution was obtained
@@ -1375,6 +1371,7 @@ public:
             TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), analytic_solution, 0.02);
         }
 
+        // Tidy up
         CellwiseData<2>::Destroy();
     }
 

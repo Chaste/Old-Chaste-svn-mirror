@@ -293,7 +293,7 @@ public:
          * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMyForce");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         /* We create our force law and pass it to the {{{CellBasedSimulation}}}. */
         MyForce force(0.5);

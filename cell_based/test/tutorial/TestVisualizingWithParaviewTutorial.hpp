@@ -215,7 +215,7 @@ public:
          * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(0.1);
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         NagaiHondaForce<2> nagai_honda_force;

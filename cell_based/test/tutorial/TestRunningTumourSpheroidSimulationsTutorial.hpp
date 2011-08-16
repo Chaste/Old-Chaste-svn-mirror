@@ -274,7 +274,7 @@ public:
          * We next set the output directory and end time.
          */
         simulator.SetOutputDirectory("SpheroidTutorial");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         /*
          * We must now create one or more force laws, which determine the mechanics of

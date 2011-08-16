@@ -518,7 +518,6 @@ public:
         Warnings::QuietDestroy();
     }
 
-
     /*
      * This test is to stress test the vertex simulations by creating a massive monolayer,
      * it would also be useful for benchmarking.
@@ -578,7 +577,6 @@ public:
         }
         Warnings::QuietDestroy();
     }
-
 
     // Test archiving of a CellBasedSimulation that uses a VertexBasedCellPopulation.
     void TestArchiving() throw (Exception)

@@ -231,7 +231,7 @@ public:
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<2,2,1> solver(&mesh, &pde, &bcc, ode_systems);
 
         // Set end time and timestep
-        double t_end = 0.1;
+        double t_end = 0.01;
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.001);
 

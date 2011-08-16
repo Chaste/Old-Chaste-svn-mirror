@@ -335,7 +335,7 @@ public:
          * and set the output directory and end time. */
         CellBasedSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithMyBoundaryCondition");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
