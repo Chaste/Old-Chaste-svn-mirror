@@ -173,7 +173,7 @@ unsigned BoxCollection<DIM>::CalculateContainingBox(c_vector<double, DIM>& rLoca
     {
         if ( (rLocation[i] < mDomainSize(2*i)) || (rLocation[i] > mDomainSize(2*i+1)) )
         {
-            EXCEPTION("The point provided in outside all of the boxes");
+            EXCEPTION("The point provided is outside all of the boxes");
         }
     }
 

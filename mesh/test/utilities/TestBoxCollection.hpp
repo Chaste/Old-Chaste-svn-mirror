@@ -136,7 +136,7 @@ public:
 
         c_vector<double,1> miles_away;
         miles_away(0) = 47323854;
-        TS_ASSERT_THROWS_CONTAINS(box_collection.CalculateContainingBox(miles_away), "The point provided in outside all of the boxes");
+        TS_ASSERT_THROWS_CONTAINS(box_collection.CalculateContainingBox(miles_away), "The point provided is outside all of the boxes");
     }
 
     // very simple test
