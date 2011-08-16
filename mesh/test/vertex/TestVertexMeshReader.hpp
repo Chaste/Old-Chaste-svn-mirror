@@ -297,6 +297,6 @@ public:
         TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("mesh/test/data/baddata/vertex_mesh_without_element_file"),
                 "Could not open data file: mesh/test/data/baddata/vertex_mesh_without_element_file.cell");
     }
-
 };
+
 #endif /*TESTVERTEXMESHREADER2D_HPP_*/
