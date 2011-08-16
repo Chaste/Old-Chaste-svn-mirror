@@ -226,13 +226,6 @@ public:
     void Update(bool hasHadBirthsOrDeaths=true);
 
     /**
-     * Method for getting all nodes in the cell population.
-     *
-     * @return vector of Nodes
-     */
-    std::vector<Node<DIM>*>& rGetNodes();
-
-    /**
      * @return pointer to a node box collection.
      */
     BoxCollection<DIM>* GetBoxCollection();
