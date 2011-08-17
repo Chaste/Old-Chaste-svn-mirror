@@ -255,6 +255,12 @@ public:
     //
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * Get where the user parameters were read from.
+     * The result is undefined if no parameters file has been read.
+     */
+    FileFinder GetParametersFilePath();
+
     // Methods for asking the configuration file about which sections are defined.
 
     /**
@@ -1272,6 +1278,11 @@ private:
 
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
+
+    /**
+     * Where the user parameters were read from.
+     */
+    FileFinder mParametersFilePath;
 
     /**
      * Whether to read the schema location from the XML file (false) or use the schema

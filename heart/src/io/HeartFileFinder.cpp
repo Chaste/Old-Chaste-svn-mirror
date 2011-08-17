@@ -32,24 +32,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 HeartFileFinder::HeartFileFinder(const cp::path_type& rPath)
 {
     std::string relative_path(rPath);
-    RelativeTo::Value relative_to;
-    switch (rPath.relative_to())
+    if (rPath.relative_to() == cp::relative_to_type::this_file)
     {
-        case cp::relative_to_type::cwd:
-            relative_to = RelativeTo::CWD;
-            break;
-        case cp::relative_to_type::chaste_test_output:
-            relative_to = RelativeTo::ChasteTestOutput;
-            break;
-        case cp::relative_to_type::chaste_source_root:
-            relative_to = RelativeTo::ChasteSourceRoot;
-            break;
-        case cp::relative_to_type::absolute:
-            relative_to = RelativeTo::Absolute;
-            break;
-        default:
-            NEVER_REACHED;
-            break;
+        SetPath(rPath, HeartConfig::Instance()->GetParametersFilePath());
     }
-    SetPath(relative_path, relative_to);
+    else
+    {
+        RelativeTo::Value relative_to;
+        switch (rPath.relative_to())
+        {
+            case cp::relative_to_type::cwd:
+                relative_to = RelativeTo::CWD;
+                break;
+            case cp::relative_to_type::chaste_test_output:
+                relative_to = RelativeTo::ChasteTestOutput;
+                break;
+            case cp::relative_to_type::chaste_source_root:
+                relative_to = RelativeTo::ChasteSourceRoot;
+                break;
+            case cp::relative_to_type::absolute:
+                relative_to = RelativeTo::Absolute;
+                break;
+            default:
+                NEVER_REACHED;
+                break;
+        }
+        SetPath(relative_path, relative_to);
+    }
 }

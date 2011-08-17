@@ -92,12 +92,31 @@ public:
     FileFinder(const std::string& rPath, RelativeTo::Value relativeTo);
 
     /**
+     * Find a file (or folder) relative to some file or directory.
+     * If the second argument is a directory, we look for the given leaf name within it.
+     * If the second argument is a file, then we look for a sibling.
+     * An exception is raised if rParentOrSibling does not exist.
+     *
+     * @param rLeafName  the leaf name of the file/dir to find
+     * @param rParentOrSibling  where to look for it
+     */
+    FileFinder(const std::string& rLeafName, const FileFinder& rParentOrSibling);
+
+    /**
      * Change this FileFinder to point at a new location.
      *
      * @param rPath  the path to the file/dir to find
      * @param relativeTo  how to interpret this path
      */
     void SetPath(const std::string& rPath, RelativeTo::Value relativeTo);
+
+    /**
+     * Change this FileFinder to point at a new location, relative to some file or directory.
+     *
+     * @param rLeafName  the leaf name of the file/dir to find
+     * @param rParentOrSibling  where to look for it
+     */
+    void SetPath(const std::string& rLeafName, const FileFinder& rParentOrSibling);
 
     /**
      * Test whether we exist.

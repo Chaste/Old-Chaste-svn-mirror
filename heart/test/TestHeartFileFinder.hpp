@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartFileFinder.hpp"
 #include "ChasteBuildRoot.hpp"
 #include "OutputFileHandler.hpp"
+#include "HeartConfig.hpp"
 
 class TestHeartFileFinder : public CxxTest::TestSuite
 {
@@ -81,6 +82,17 @@ public:
             HeartFileFinder file_finder2(path_abs);
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+        }
+
+        {
+            // Check we can find a sibling to the XML parameters file
+            HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+            std::string file_name = "SConstruct";
+            cp::path_type sibling_path(file_name);
+            sibling_path.relative_to(cp::relative_to_type::this_file);
+            HeartFileFinder sibling(sibling_path);
+            TS_ASSERT(sibling.IsFile());
+            TS_ASSERT_EQUALS(sibling.GetAbsolutePath(), ChasteBuildRootDir() + file_name);
         }
     }
 };

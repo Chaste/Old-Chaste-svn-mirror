@@ -434,10 +434,15 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
 void HeartConfig::SetParametersFile(const std::string& rFileName)
 {
     mpUserParameters = ReadFile(rFileName);
+    mParametersFilePath.SetPath(rFileName, RelativeTo::AbsoluteOrCwd);
 
     CheckTimeSteps(); // For consistency with SetDefaultsFile
 }
 
+FileFinder HeartConfig::GetParametersFilePath()
+{
+    return mParametersFilePath;
+}
 
 void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::chaste_parameters_type> pResumeParameters)
 {

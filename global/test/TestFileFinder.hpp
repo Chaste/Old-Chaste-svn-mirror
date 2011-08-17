@@ -93,10 +93,18 @@ public:
             std::string abs_path = handler.GetOutputDirectoryFullPath() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
 
+            // Check finding a sibling fails
+            TS_ASSERT_THROWS_THIS(FileFinder("sibling", file_finder),
+                                  "Reference path '" + abs_path + "' does not exist.");
+
             // Create the file
             out_stream fp = handler.OpenOutputFile(file_name);
             fp->close();
             TS_ASSERT(file_finder.Exists());
+
+            // Finding a sibling is now ok
+            FileFinder sibling("sibling", file_finder);
+            TS_ASSERT_EQUALS(sibling.GetAbsolutePath(), handler.GetOutputDirectoryFullPath() + "sibling");
 
             // Check when providing an absolute path
             FileFinder file_finder2(abs_path, RelativeTo::Absolute);
@@ -171,6 +179,10 @@ public:
         // Can we give an empty local path?
         FileFinder source_root("", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_EQUALS(dir.GetParent().GetAbsolutePath(), source_root.GetAbsolutePath());
+
+        // Finding children also works
+        FileFinder child("src", dir);
+        TS_ASSERT_EQUALS(child.GetAbsolutePath(), abs_path + "src/");
     }
 
     void TestFaking()

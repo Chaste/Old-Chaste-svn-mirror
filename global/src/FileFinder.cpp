@@ -53,6 +53,11 @@ FileFinder::FileFinder(const std::string& rRelativePath, RelativeTo::Value relat
     SetPath(rRelativePath, relativeTo);
 }
 
+FileFinder::FileFinder(const std::string& rLeafName, const FileFinder& rParentOrSibling)
+{
+    SetPath(rLeafName, rParentOrSibling);
+}
+
 void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {
     switch (relativeTo)
@@ -102,6 +107,22 @@ void FileFinder::SetPath(const std::string& rRelativePath, RelativeTo::Value rel
         {
             mAbsPath = mAbsPath + "/";
         }
+    }
+}
+
+void FileFinder::SetPath(const std::string& rLeafName, const FileFinder& rParentOrSibling)
+{
+    if (!rParentOrSibling.Exists())
+    {
+        EXCEPTION("Reference path '" << rParentOrSibling.GetAbsolutePath() << "' does not exist.");
+    }
+    if (rParentOrSibling.IsDir())
+    {
+        SetPath(rParentOrSibling.GetAbsolutePath() + rLeafName, RelativeTo::Absolute);
+    }
+    else
+    {
+        SetPath(rParentOrSibling.GetParent().GetAbsolutePath() + rLeafName, RelativeTo::Absolute);
     }
 }
 
