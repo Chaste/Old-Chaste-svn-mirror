@@ -172,6 +172,7 @@ public:
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
+
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
         // (we need to call Solve to set up the .vizpdesolution file)
@@ -215,7 +216,6 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
-
 
     void TestWithOxygen() throw(Exception)
     {
@@ -625,7 +625,6 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-
     void TestCoarseSourceMesh() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
@@ -686,7 +685,6 @@ public:
 
         // Set up cell-based simulation
         CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        //simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
@@ -732,8 +730,8 @@ public:
         simulator.InitialiseCoarsePdeMesh(); // coverage
 
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-            cell_iter != cell_population.End();
-            ++cell_iter)
+             cell_iter != cell_population.End();
+             ++cell_iter)
         {
             unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
             TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
@@ -780,21 +778,16 @@ public:
             unsigned elem_index = simulator.mpCoarsePdeMesh->GetContainingElementIndex(cell_population.GetLocationOfCellCentre(*cell_iter));
             Element<2,2>* p_element = simulator.mpCoarsePdeMesh->GetElement(elem_index);
 
-
-            double max0 = std::max(pde_solution0[p_element->GetNodeGlobalIndex(0)],
-                                  pde_solution0[p_element->GetNodeGlobalIndex(1)]);
+            double max0 = std::max(pde_solution0[p_element->GetNodeGlobalIndex(0)], pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             max0 = std::max(max0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
 
-            double max1 = std::max(pde_solution1[p_element->GetNodeGlobalIndex(0)],
-                                   pde_solution1[p_element->GetNodeGlobalIndex(1)]);
+            double max1 = std::max(pde_solution1[p_element->GetNodeGlobalIndex(0)], pde_solution1[p_element->GetNodeGlobalIndex(1)]);
             max1 = std::max(max1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
-            double min0 = std::min(pde_solution0[p_element->GetNodeGlobalIndex(0)],
-                                  pde_solution0[p_element->GetNodeGlobalIndex(1)]);
+            double min0 = std::min(pde_solution0[p_element->GetNodeGlobalIndex(0)], pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             min0 = std::min(min0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
 
-            double min1 = std::min(pde_solution1[p_element->GetNodeGlobalIndex(0)],
-                                  pde_solution1[p_element->GetNodeGlobalIndex(1)]);
+            double min1 = std::min(pde_solution1[p_element->GetNodeGlobalIndex(0)], pde_solution1[p_element->GetNodeGlobalIndex(1)]);
             min1 = std::min(min1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
             double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
@@ -917,8 +910,8 @@ public:
         simulator.InitialiseCoarsePdeMesh(); // coverage
 
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-            cell_iter != cell_population.End();
-            ++cell_iter)
+             cell_iter != cell_population.End();
+             ++cell_iter)
         {
             unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
             TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
@@ -939,14 +932,14 @@ public:
 
         // Create a cigar-shaped mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        MutableMesh<2,2>* p_mesh = new MutableMesh<2,2>;
-        p_mesh->ConstructFromMeshReader(mesh_reader);
-        p_mesh->Scale(5.0,1.0);
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.Scale(5.0,1.0);
 
         // Set up cells
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
@@ -956,7 +949,6 @@ public:
             p_model->SetStemCellG1Duration(8.0);
             p_model->SetTransitCellG1Duration(8.0);
 
-
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
             p_cell->SetBirthTime(birth_time);
@@ -965,7 +957,7 @@ public:
         }
 
         // Set up cell population
-        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Set up CellwiseData and associate it with the cell population
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -974,9 +966,9 @@ public:
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -1018,7 +1010,6 @@ public:
 
         // Tidy up
         CellwiseData<2>::Destroy();
-        delete p_mesh;
     }
 
     void TestArchivingWithSimplePde() throw (Exception)
@@ -1279,8 +1270,8 @@ public:
         simulator.AddForce(&linear_force);
 
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&cell_population);
-        simulator.AddCellKiller(p_killer);
+        OxygenBasedCellKiller<3> killer(&cell_population);
+        simulator.AddCellKiller(&killer);
 
         // Coverage
         TS_ASSERT_THROWS_THIS(simulator.CreateCoarsePdeMesh(10.0, 50.0), "This method is only implemented in 1 and 2D currently.");
@@ -1291,7 +1282,6 @@ public:
 
         // Tidy up
         CellwiseData<3>::Destroy();
-        delete p_killer;
     }
 
     /**
@@ -1570,7 +1560,7 @@ public:
         // Tell simulator to use the coarse mesh.
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
-        //Solve the system
+        // Solve the system
         simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
@@ -1793,8 +1783,8 @@ public:
         simulator.SetEndTime(0.01);
 
         // Coverage
-        c_vector<double,2> centre=simulator.GetCellPopulationLocation();
-        c_vector<double,2> size=simulator.GetCellPopulationSize();
+        c_vector<double,2> centre = simulator.GetCellPopulationLocation();
+        c_vector<double,2> size = simulator.GetCellPopulationSize();
 
         // Coverage
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
@@ -1802,7 +1792,7 @@ public:
         // Tell simulator to use the coarse mesh.
         simulator.UseCoarsePdeMesh(10.0, 50.0);
 
-        //Solve the system
+        // Solve the system
         simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
@@ -1903,17 +1893,23 @@ public:
 		// Coverage
 		simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
-		// Tell simulator to use the coarse mesh.
-		unsigned num_nodes=pow(2,3);
-		double mesh_size=2.0/(double)(num_nodes-1);
+		// Tell simulator to use the coarse mesh
+		unsigned num_nodes = pow(2,3);
+		double mesh_size = 2.0/(double)(num_nodes-1);
 
 		simulator.UseCoarsePdeMesh(mesh_size, 2.0);
 
-		//Solve the system
+		// Solve the system
 		simulator.Solve();
 
 		// Tidy up
 		CellwiseData<1>::Destroy();
+
+        // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
 	}
 };
 
