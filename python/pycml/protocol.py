@@ -147,6 +147,7 @@ class Protocol(processors.ModelModifier):
         The input is wanted in the given units, which must be added to the model if they don't exist.
         If they differ from its current units, a conversion will be needed, and hence a new version
         of this variable will be added to the protocol component, with a suitable assignment.
+        
         TODO: does not units-convert the initial value.
         
         The variable that is the input must be set as a modifiable parameter, and any existing definition
@@ -163,13 +164,21 @@ class Protocol(processors.ModelModifier):
             if not hasattr(var, u'initial_value'):
                 var.initial_value = u'0'
         else:
-            units = self.add_units(units)
-            input_var = cellml_variable.create_new(var, var.name, units.name, id=var.cmeta_id,
-                                                   initial_value=getattr(var, u'initial_value', u'0'))
+            input_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id,
+                                          initial_value=getattr(var, u'initial_value', u'0'))
             self.del_attr(var, u'id', NSS['cmeta'])
-            input_defn = mathml_apply.create_new(var, u'eq', [u'protocol,' + var.name,
-                                                               var.component.name + u',' + var.name])
-            self.inputs.update([input_defn])
+            self.del_attr(var, u'initial_value', None)
+            # Set all variables connected to the original variable (including itself) to be mapped to the new one
+            vars = [v for v in self.model.get_all_variables() if v.get_source_variable(True) is var]
+            # Remove old connections, including interfaces and types so creating the new connection works
+            for v in vars:
+                self.remove_connections(v)
+                self.del_attr(v, u'public_interface')
+                self.del_attr(v, u'private_interface')
+                v.clear_dependency_info()
+            # Create new connections
+            for v in vars:
+                self.connect_variables(input_var, v)
         input_var._set_type(VarTypes.Constant)
         input_var._cml_ok_as_input = True
         self.inputs.add(input_var)
