@@ -47,7 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "TrianglesMeshReader.hpp"
-#include "PetscSetupAndFinalize.hpp"
 /* The incompressible solver */
 #include "IncompressibleNonlinearElasticitySolver.hpp"
 /* An incompressible material law */
@@ -55,6 +54,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* These two are specific to compressible problems */
 #include "CompressibleNonlinearElasticitySolver.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
+/* This include should generally go last to avoid issues on old library versions */
+#include "PetscSetupAndFinalize.hpp"
 
 /* This function is used in the first test */
 c_vector<double,2> MyTraction(c_vector<double,2>& rX, double time)
