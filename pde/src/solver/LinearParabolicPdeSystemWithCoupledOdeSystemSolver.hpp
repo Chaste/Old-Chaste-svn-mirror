@@ -178,6 +178,11 @@ public:
                                                        AbstractIvpOdeSolver* pOdeSolver=NULL);
 
     /**
+     * Destructor.
+     */
+   ~LinearParabolicPdeSystemWithCoupledOdeSystemSolver();
+
+    /**
      * Overridden PrepareForSetupLinearSystem() method.
      * Pass the current solution to the PDE system to the ODE system and solve it over the next timestep.
      *
@@ -376,6 +381,20 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
 #else
             mpOdeSolver = new BackwardEulerIvpOdeSolver(mOdeSystemsAtNodes[0]->GetNumberOfStateVariables());
 #endif //CHASTE_CVODE
+        }
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~LinearParabolicPdeSystemWithCoupledOdeSystemSolver()
+{
+    delete mpOdeSolver;
+
+    if (mOdeSystemsPresent)
+    {
+        for (unsigned i=0; i<mOdeSystemsAtNodes.size(); i++)
+        {
+            delete mOdeSystemsAtNodes[i];
         }
     }
 }
