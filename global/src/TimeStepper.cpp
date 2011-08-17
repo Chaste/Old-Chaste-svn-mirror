@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 #include <cassert>
 
-const double SMIDGE = 1e-10;
+const double SMIDGE = 2e-10;  ///\todo #1827 Correlate this code with the use of Divides in UblasCustomFunctions (which is used for setting time steps)
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
     : mStart(startTime),
