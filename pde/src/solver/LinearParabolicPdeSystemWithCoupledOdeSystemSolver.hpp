@@ -38,8 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "VtkMeshWriter.hpp"
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/void.hpp>
+#include <boost/shared_ptr.hpp>
 
 /**
  * A class for solving systems of parabolic PDEs and ODEs, which may be coupled
@@ -70,7 +69,7 @@ private:
     std::vector<double> mInterpolatedOdeStateVariables;
 
     /** The ODE solver. */
-    AbstractIvpOdeSolver* mpOdeSolver;
+    boost::shared_ptr<AbstractIvpOdeSolver> mpOdeSolver;
 
     /**
      * A sampling timestep for writing results to file. Set to
@@ -175,12 +174,12 @@ public:
                                                        AbstractLinearParabolicPdeSystemForCoupledOdeSystem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pPdeSystem,
                                                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
                                                        std::vector<AbstractOdeSystemForCoupledPdeSystem*> odeSystemsAtNodes=std::vector<AbstractOdeSystemForCoupledPdeSystem*>(),
-                                                       AbstractIvpOdeSolver* pOdeSolver=NULL);
+                                                       boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver=boost::shared_ptr<AbstractIvpOdeSolver>());
 
     /**
      * Destructor.
      */
-   ~LinearParabolicPdeSystemWithCoupledOdeSystemSolver();
+    ~LinearParabolicPdeSystemWithCoupledOdeSystemSolver();
 
     /**
      * Overridden PrepareForSetupLinearSystem() method.
@@ -324,7 +323,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         preallocation *= PROBLEM_DIM;
 
         /*
-         * Use the currrent solution (ie the initial solution) as the
+         * Use the current solution (ie the initial solution) as the
          * template in the alternative constructor of LinearSystem.
          * This is to avoid problems with VecScatter.
          */
@@ -348,7 +347,7 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
         AbstractLinearParabolicPdeSystemForCoupledOdeSystem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pPdeSystem,
         BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
         std::vector<AbstractOdeSystemForCoupledPdeSystem*> odeSystemsAtNodes,
-        AbstractIvpOdeSolver* pOdeSolver)
+        boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver)
     : AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NORMAL>(pMesh, pBoundaryConditions),
       AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>(pMesh),
       mpMesh(pMesh),
@@ -377,9 +376,9 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
         if (!mpOdeSolver)
         {
 #ifdef CHASTE_CVODE
-            mpOdeSolver = new CvodeAdaptor;
+            mpOdeSolver.reset(new CvodeAdaptor);
 #else
-            mpOdeSolver = new BackwardEulerIvpOdeSolver(mOdeSystemsAtNodes[0]->GetNumberOfStateVariables());
+            mpOdeSolver.reset(new BackwardEulerIvpOdeSolver(mOdeSystemsAtNodes[0]->GetNumberOfStateVariables()));
 #endif //CHASTE_CVODE
         }
     }
@@ -388,8 +387,6 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~LinearParabolicPdeSystemWithCoupledOdeSystemSolver()
 {
-    delete mpOdeSolver;
-
     if (mOdeSystemsPresent)
     {
         for (unsigned i=0; i<mOdeSystemsAtNodes.size(); i++)
@@ -402,28 +399,24 @@ LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBL
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::PrepareForSetupLinearSystem(Vec currentPdeSolution)
 {
-    double time = PdeSimulationTime::GetTime();
-    double dt = PdeSimulationTime::GetPdeTimeStep();
-
-    ReplicatableVector soln_repl(currentPdeSolution);
-    std::vector<double> current_soln_this_node;
-
-    // Loop over nodes
-    for (unsigned node_index=0; node_index<mpMesh->GetNumNodes(); node_index++)
+    if (mOdeSystemsPresent)
     {
-        // Reset the vector current_soln_this_node
-        current_soln_this_node.clear();
-        current_soln_this_node.resize(PROBLEM_DIM, 0.0);
+        double time = PdeSimulationTime::GetTime();
+        double dt = PdeSimulationTime::GetPdeTimeStep();
 
-        // Store the current solution to the PDE system at this node
-        for (unsigned pde_index=0; pde_index<PROBLEM_DIM; pde_index++)
-        {
-            double current_soln_this_pde_this_node = soln_repl[PROBLEM_DIM*node_index + pde_index];
-            current_soln_this_node[pde_index] = current_soln_this_pde_this_node;
-        }
+        ReplicatableVector soln_repl(currentPdeSolution);
+        std::vector<double> current_soln_this_node(PROBLEM_DIM);
 
-        if (mOdeSystemsPresent)
+        // Loop over nodes
+        for (unsigned node_index=0; node_index<mpMesh->GetNumNodes(); node_index++)
         {
+            // Store the current solution to the PDE system at this node
+            for (unsigned pde_index=0; pde_index<PROBLEM_DIM; pde_index++)
+            {
+                double current_soln_this_pde_this_node = soln_repl[PROBLEM_DIM*node_index + pde_index];
+                current_soln_this_node[pde_index] = current_soln_this_pde_this_node;
+            }
+
             // Pass it into the ODE system at this node
             mOdeSystemsAtNodes[node_index]->SetPdeSolution(current_soln_this_node);
 
@@ -495,6 +488,12 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
 
         // Write solution to VTK
         WriteVtkResultsToFile(soln, stepper.GetTotalTimeStepsTaken());
+
+        // Free memory
+        if (soln != this->mInitialCondition)
+        {
+            VecDestroy(soln);
+        }
     }
 
     // Close .pvd output file
@@ -551,11 +550,10 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
          */
         std::vector<std::vector<double> > ode_data;
         unsigned num_odes = mOdeSystemsAtNodes[0]->rGetStateVariables().size();
+        ode_data.resize(num_odes);
         for (unsigned ode_index=0; ode_index<num_odes; ode_index++)
         {
-            std::vector<double> ode_index_data;
-            ode_index_data.resize(num_nodes, 0.0);
-            ode_data.push_back(ode_index_data);
+            ode_data[ode_index].resize(num_nodes, 0.0);
         }
 
         for (unsigned node_index=0; node_index<num_nodes; node_index++)

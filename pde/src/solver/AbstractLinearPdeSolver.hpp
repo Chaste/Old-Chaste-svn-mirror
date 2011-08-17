@@ -80,7 +80,7 @@ public:
      * is not already set up. Can use an initial solution as PETSc template,
      * or base it on the mesh size.
      *
-     * @param initialSolution Initial solution (defaults to NULL) for Petsc
+     * @param initialSolution Initial solution (defaults to NULL) for PETSc
      *  to use as a template.
      */
     virtual void InitialiseForSolve(Vec initialSolution = NULL);
@@ -170,7 +170,7 @@ void AbstractLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::InitialiseFor
         else
         {
             /*
-             * Use the currrent solution (ie the initial solution)
+             * Use the current solution (ie the initial solution)
              * as the template in the alternative constructor of
              * LinearSystem. This is to avoid problems with VecScatter.
              */

@@ -75,7 +75,7 @@ public:
     }
 
     /**
-     * Get mPdeSolution.
+     * Get #mPdeSolution.
      */
     std::vector<double>& rGetPdeSolution()
     {
@@ -83,7 +83,7 @@ public:
     }
 
     /**
-     * Set mPdeSolution.
+     * Set #mPdeSolution.
      *
      * @param pdeSolution the PDE solution at a point in space
      */
@@ -97,7 +97,7 @@ public:
     }
 
     /**
-     * Get mPdeSolutionSize.
+     * Get #mPdeSolutionSize.
      */
     unsigned GetPdeSolutionSize()
     {

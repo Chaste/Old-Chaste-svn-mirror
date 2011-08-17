@@ -255,8 +255,12 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
              * at each time step.
              * Make a new vector to store the Dirichlet offsets in.
              */
-            VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
-            PetscVecTools::Zero(rLinearSystem.rGetDirichletBoundaryConditionsVector());
+            Vec& r_bcs_vec = rLinearSystem.rGetDirichletBoundaryConditionsVector();
+            if (!r_bcs_vec)
+            {
+                VecDuplicate(rLinearSystem.rGetRhsVector(), &r_bcs_vec);
+            }
+            PetscVecTools::Zero(r_bcs_vec);
             /*
              * If the matrix is symmetric, calls to GetMatrixRowDistributed()
              * require the matrix to be in assembled state. Otherwise we can
@@ -265,7 +269,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             rLinearSystem.AssembleFinalLinearSystem();
         }
 
-        // Work out where we're setting dirichlet boundary conditions *everywhere*, not just those locally known
+        // Work out where we're setting Dirichlet boundary conditions *everywhere*, not just those locally known
         ReplicatableVector dirichlet_conditions(rLinearSystem.GetSize());
         unsigned lo, hi;
         {
