@@ -351,7 +351,7 @@ public:
         solver.SetSamplingTimeStep(0.1);
 
 #ifdef CHASTE_VTK
-        TS_ASSERT_THROWS_NOTHING(solver.SolveAndWriteResultsToFile());
+        solver.SolveAndWriteResultsToFile();
 #else // CHASTE_VTK
         TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
                 "VTK is not installed and is required for this functionality");

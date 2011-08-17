@@ -395,6 +395,15 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         else
         {
             new_dt = stepper.GetNextTimeStep();
+#define COVERAGE_IGNORE
+            //new_dt should be roughly the same size as mIdealTimeStep - we should never need to take a tiny step
+            ///\todo #1827 Get simple failing test and fix
+            if (mMatrixIsConstant && new_dt/mIdealTimeStep < (1.0 - 1e-5))
+            {
+
+                EXCEPTION("Timestep changed unexpectedly from "<<mIdealTimeStep<< " to " <<new_dt);
+            }
+#undef COVERAGE_IGNORE
         }
 
         // Save the timestep as the last one use, and also put it in PdeSimulationTime
