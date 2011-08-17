@@ -744,15 +744,6 @@ void MeshBasedCellPopulation<DIM>::WriteVoronoiResultsToFile()
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteCellPopulationVolumeResultsToFile()
 {
-    if (mpVoronoiTessellation == NULL)
-    {
-        // Check its the first time step
-        assert(SimulationTime::Instance()->GetTimeStepsElapsed()==0);
-
-        // Create the Voronoi Tessellation
-        TessellateIfNeeded();
-    }
-
     assert(DIM==2 || DIM==3);
 
     // Write time to file
