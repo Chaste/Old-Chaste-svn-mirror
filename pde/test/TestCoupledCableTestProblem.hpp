@@ -189,8 +189,6 @@ private:
 
         this->mpLinearSystem->FinaliseRhsVector();
         this->mpLinearSystem->FinaliseLhsMatrix();
-
-        this->mpLinearSystem->DisplayRhs();
     }
 
     // Hardcoded for the expected mesh
@@ -262,7 +260,7 @@ class TestCoupledCableTestProblem : public CxxTest::TestSuite
 public:
     void TestSolvingTestProblem() throw(Exception)
     {
-        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/cylinder");
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/cylinder_refined");
         TrianglesMeshReader<3,3> reader(mesh_base);
         MixedDimensionMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
@@ -330,13 +328,14 @@ public:
             }
         }
 
-        // Solve
-        double R = 0.015; ///\todo: raf to add comment about choice of R (#1835)
+        // This is the radius of the true fibre.
+        // For R >> 0, the approximation of the fibre as 1D manifold breaks down and the analytical solution is invalid
+        double R = 0.015;
         double beta = 4*M_PI/(2*log(R)-1+4*M_PI);
 
+        // Solve
         CoupledCableTestProblemSolver<3> cable_solver(&mesh,&bcc,beta);
         Vec result = cable_solver.Solve();
-
 
         ReplicatableVector result_repl(result);
         for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
@@ -351,25 +350,29 @@ public:
             unsigned index = current_node->GetIndex();
             double phi_e = result_repl[2*index];
             double phi_i = result_repl[2*index+1];
-
             if(fabs(r)<1e-6)
             {
                 double phi_i_exact = 1+z;
-                std::cout << x << " " << y << " " << z << " " << phi_e << " " << phi_i << " "
-                           << " " << phi_i_exact << "\n";
-
-///\todo: check results and add tolerance here when happy all working, and add test of phi_e (#1835)
-//                TS_ASSERT_DELTA(phi_i, phi_i_exact, 1e-2);
+                // Tolerance is quite high, as the mesh is fairly coarse for this problem (node spacing ~2mm)
+                TS_ASSERT_DELTA(phi_i, phi_i_exact, 3e-2);
             }
             else
             {
                 double phi_e_exact = -(1+z)*log(r)/(2*M_PI);
-                std::cout << x << " " << y << " " << z << " " << phi_e << " "
-                          << phi_e_exact << "\n";
-                // check dummy variables correctly being set to zero
+
+                // Tolerance is quite high, as the mesh is fairly coarse for this problem (node spacing ~2mm)
+                TS_ASSERT_DELTA(phi_e, phi_e_exact, 2e-1);
+
+                // Errors should be higher closer to the fibre and lower further away.
+                // The error weighted by r should be more uniform across the mesh.
+                ///\todo: Ideally, this would be checked using the H^1_\alpha norm. Dependent on #1868.
+                TS_ASSERT_DELTA(r*phi_e, r*phi_e_exact, 3e-2);
+
+                // check dummy phi_i variable is correctly set to zero
                 TS_ASSERT_DELTA(phi_i, 0.0, 1e-12);
             }
         }
+
         VecDestroy(result);
     }
 };
