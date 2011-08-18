@@ -155,7 +155,6 @@ public:
      * This method must be overridden in concrete classes.
      */
     void WriteFiles();
-
 };
 
 #endif /*VERTEXMESHWRITER_HPP_*/

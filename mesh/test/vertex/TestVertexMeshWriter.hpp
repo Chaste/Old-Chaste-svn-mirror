@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshReader.hpp"
 
 #ifdef CHASTE_VTK
-#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#define _BACKWARD_BACKWARD_WARNING_H 1 // Cut out the strstream deprecated warning for now (gcc4.3)
 #include <vtkVersion.h>
 #endif
 
@@ -262,6 +262,61 @@ public:
         // We should have one less element and three less nodes
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 27u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 8u);
+    }
+
+    void TestReadingAndWritingElementAttributes() throw(Exception)
+    {
+        // Read in a mesh with element attributes
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+
+        // Construct the mesh
+        VertexMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetRegion(), 97u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetRegion(), 152u);
+
+        // Write the mesh to file
+        VertexMeshWriter<2,2> mesh_writer("TestReadingAndWritingElementAttributes", "vertex_mesh_with_element_attributes");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+
+        // Now read in the mesh that was written
+        OutputFileHandler handler("TestReadingAndWritingElementAttributes", false);
+        VertexMeshReader<2,2> mesh_reader2(handler.GetOutputDirectoryFullPath() + "vertex_mesh_with_element_attributes");
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElementAttributes(), 1u);
+
+        // Construct the mesh again
+        VertexMesh<2,2> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh2.GetElement(0)->GetRegion(), 97u);
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetRegion(), 152u);
+
+        // For coverage, repeat this test for a vertex mesh whose elements have faces
+        VertexMeshReader<3,3> mesh_reader3d("mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces_and_attributes");
+        TS_ASSERT_EQUALS(mesh_reader3d.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh_reader3d.GetNumElementAttributes(), 1u);
+
+        // Construct the mesh
+        VertexMesh<3,3> mesh3d;
+        mesh3d.ConstructFromMeshReader(mesh_reader3d);
+        TS_ASSERT_EQUALS(mesh3d.GetElement(0)->GetRegion(), 49u);
+
+        // Write the mesh to file
+        VertexMeshWriter<3,3> mesh_writer3d("TestReadingAndWritingElementAttributes", "vertex_mesh_3d_with_faces_and_attributes");
+        mesh_writer3d.WriteFilesUsingMesh(mesh3d);
+
+        // Now read in the mesh that was written
+        OutputFileHandler handler3d("TestReadingAndWritingElementAttributes", false);
+        VertexMeshReader<3,3> mesh_reader3d2(handler3d.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces_and_attributes");
+        TS_ASSERT_EQUALS(mesh_reader3d2.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh_reader3d2.GetNumElementAttributes(), 1u);
+
+        // Construct the mesh again
+        VertexMesh<3,3> mesh3d2;
+        mesh3d2.ConstructFromMeshReader(mesh_reader3d);
+        TS_ASSERT_EQUALS(mesh3d2.GetElement(0)->GetRegion(), 49u);
     }
 };
 

@@ -161,7 +161,7 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 
     if (mNumElementAttributes > 0)
     {
-        assert(mNumElementAttributes==1);
+        assert(mNumElementAttributes == 1);
 
         unsigned attribute_value;
         buffer_stream >> attribute_value;

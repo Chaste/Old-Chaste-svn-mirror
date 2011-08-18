@@ -64,7 +64,6 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rD
 #endif //CHASTE_VTK
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 {
@@ -160,8 +159,10 @@ VertexElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElementWithFa
         ///\todo Store face orientations? (#1076/#1377)
     }
 
-    ///\todo set attribute (#1076)
+    // Set attribute
+    elem_data.AttributeValue = (*(mpIters->pElemIter))->GetRegion();
     ++(*(mpIters->pElemIter));
+
     return elem_data;
 }
 
@@ -181,8 +182,11 @@ ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
             unsigned old_index = (*(mpIters->pElemIter))->GetNodeGlobalIndex(j);
             elem_data.NodeIndices[j] = mpMesh->IsMeshChanging() ? mpNodeMap->GetNewIndex(old_index) : old_index;
         }
-        ///\todo: set attribute (#1076)
+
+        // Set attribute
+        elem_data.AttributeValue = (*(mpIters->pElemIter))->GetRegion();
         ++(*(mpIters->pElemIter));
+
         return elem_data;
     }
     else
@@ -237,12 +241,11 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
         p_cell->Delete(); //Reference counted
     }
 
-    //Vtk mesh is now made
+    // Vtk mesh is now made
     assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
     vtkXMLUnstructuredGridWriter* p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
-    //Uninitialised stuff arises (see #1079), but you can remove
-    //valgrind problems by removing compression:
+    // Uninitialised stuff arises (see #1079), but you can remove valgrind problems by removing compression:
     // **** REMOVE WITH CAUTION *****
     p_writer->SetCompressor(NULL);
     // **** REMOVE WITH CAUTION *****
@@ -257,10 +260,9 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
     p_writer->SetFileName(vtk_file_name.c_str());
     //p_writer->PrintSelf(std::cout, vtkIndent());
     p_writer->Write();
-    p_writer->Delete(); //Reference counted
+    p_writer->Delete(); // Reference counted
 #endif //CHASTE_VTK
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
@@ -275,10 +277,9 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddCellData(std::string dataName,
 
     vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
     p_cell_data->AddArray(p_scalars);
-    p_scalars->Delete(); //Reference counted
+    p_scalars->Delete(); // Reference counted
 #endif //CHASTE_VTK
 }
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
@@ -293,9 +294,10 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName
 
     vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
     p_point_data->AddArray(p_scalars);
-    p_scalars->Delete(); //Reference counted
+    p_scalars->Delete(); // Reference counted
 #endif //CHASTE_VTK
 }
+
 ///\todo Mesh should be const (#1076)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
@@ -367,6 +369,12 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write the element header
     unsigned num_elements = this->GetNumElements();
 
+    unsigned first_elem_attribute_value = (*(mpIters->pElemIter))->GetRegion();
+    if (first_elem_attribute_value != 0)
+    {
+        num_attr = 1;
+    }
+
     *p_element_file << num_elements << "\t";
     *p_element_file << num_attr << "\n";
 
@@ -390,7 +398,11 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
                 *p_element_file << "\t" << node_indices[i];
             }
 
-            ///\todo write element attributes if necessary
+            // Write the element attribute
+            if (elem_data.AttributeValue != 0)
+            {
+                *p_element_file << "\t" << elem_data.AttributeValue;
+            }
 
             // New line
             *p_element_file << "\n";
@@ -437,7 +449,11 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
                 ///\todo Store face orientations? (#1076/#1377)
             }
 
-            ///\todo write element attribute (#1076/#1377)
+            // Write the element attribute if necessary
+            if (elem_data_with_faces.AttributeValue != 0)
+            {
+                *p_element_file << "\t" << elem_data_with_faces.AttributeValue;
+            }
 
             // New line
             *p_element_file << "\n";

@@ -102,7 +102,6 @@ public:
      */
     virtual std::vector<double> GetNextNode();
 
-
     /**
      * @return the data (indices/attributes) of the next element to be written to file
      */
@@ -118,7 +117,6 @@ public:
      */
     virtual ElementData GetNextCableElement();
 
-
     /**
      * Write mesh data to files.
      * This method must be overridden in concrete classes.
@@ -131,7 +129,6 @@ public:
      * @param rMeshReader the mesh reader
      */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
-
 };
 
 #endif /*ABSTRACTMESHWRITER_HPP_*/
