@@ -273,10 +273,16 @@ class Protocol(processors.ModelModifier):
                     yield ci_elt
     
     def _add_units_conversions(self):
-        """Add units conversions, in particular 'special' ones, to the protocol component."""
+        """Apply units conversions, in particular 'special' ones, to the protocol component.
+        
+        Also convert any equations that have been added to the model, even if they don't appear
+        in the protocol component, since otherwise we might not do all necessary conversions
+        between model & protocol mathematics.
+        """
         converter = self.get_units_converter()
         proto_comp = self._get_protocol_component()
         converter.add_conversions_for_component(proto_comp)
+        converter.convert_assignments(filter(lambda i: isinstance(i, mathml_apply), self.inputs))
         converter.finalize(self._error_handler, check_units=False)
         
     def get_units_converter(self):
