@@ -128,7 +128,7 @@ public:
      * Reset the internal boundary conditions container pointer
      * @param pBoundaryConditions
      */
-    void ResetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions)
+    void ResetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions)
     {
         assert(pBoundaryConditions);
         this->mpBoundaryConditions = pBoundaryConditions;
