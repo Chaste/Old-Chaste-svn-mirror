@@ -562,12 +562,56 @@ protected:
     std::vector<unsigned> mReordering;
 
     /**
+     * Get the mode to use when opening files.
+     *
+     * @param append  whether to append to the file, or overwrite it
+     */
+    std::ios_base::openmode GetOpenMode(bool append);
+
+    /**
+     * Open the file node information is written to.
+     *
+     * @param append whether to clear (append=false) or to append (append=true). False by default.
+     */
+    out_stream OpenNodeFile(bool append = false);
+
+    /**
+     * Helper method that open all the elements files (one per region in this case)
+     *
+     * @param append whether to clear (append=false) or to append (append=true). False by default. It applies to all files.
+     */
+    std::vector<boost::shared_ptr<std::ofstream> > OpenElementFiles(bool append = false);
+
+    /**
      *  Write the header part of a node file, depending on the dimension. Short helper method,
      *  also called in CmguiDeformedSolutionsWriter. (Note, without the & below this method
      *  seg faults).
      *  @param rpNodeFile reference to the out_stream used for the node file
      */
     void WriteNodeFileHeader(out_stream& rpNodeFile);
+
+    /**
+     * Write the headers of each element file (as many as number of regions defined).
+     *
+     * @param rElemFiles vector of pointers to file streams
+     */
+    void WriteElementsFileHeader(std::vector<boost::shared_ptr<std::ofstream> >& rElemFiles);
+
+
+    /**
+     * Create output files and add headers.
+     */
+    void CreateFilesWithHeaders();
+
+    /**
+     * Append local mesh data to output files.
+     */
+    void AppendLocalDataToFiles();
+
+    /**
+     * Append footers to output files.
+     */
+    void WriteFilesFooter();
 
 public:
 

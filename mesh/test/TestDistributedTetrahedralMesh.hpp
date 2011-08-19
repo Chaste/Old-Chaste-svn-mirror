@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <sstream>
 
 #include "UblasCustomFunctions.hpp"
 #include "DistributedTetrahedralMesh.hpp"
@@ -42,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveOpener.hpp"
 #include "FileFinder.hpp"
 #include "MeshalyzerMeshWriter.hpp"
+#include "CmguiMeshWriter.hpp"
 
 #include "RandomNumberGenerator.hpp"
 
@@ -1724,6 +1726,8 @@ public:
         mesh_writer.WriteFilesUsingMesh(sequential_mesh);
         MeshalyzerMeshWriter<3,3> mesh_writer_cg("TestDistributedMeshWriter", "seq_cube_2mm_12_elements_cg", false, true); //Don't clean, Do use CG
         mesh_writer_cg.WriteFilesUsingMesh(sequential_mesh);
+        CmguiMeshWriter<3,3> cmgui_writer("TestDistributedMeshWriter", "seq_cube_2mm_12_elements_cmgui", false); //Don't clean
+        cmgui_writer.WriteFilesUsingMesh(sequential_mesh);
 
         DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMeshPartitionType::DUMB); //Makes sure that there is no permutation
         AbstractTetrahedralMesh<3,3> *p_distributed_mesh = &distributed_mesh; //Hide the fact that it's distributed from the compiler
@@ -1735,12 +1739,18 @@ public:
         MeshalyzerMeshWriter<3,3> mesh_writer_par_cg("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements_cg", false, true); //Don't clean, Do use CG
         mesh_writer_par_cg.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't preserve element ordering
 
+        CmguiMeshWriter<3,3> cmgui_writer_par("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements_cmgui", false);
+        cmgui_writer_par.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't preserve element ordering
+
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements.pts "+ output_dir + "/seq_cube_2mm_12_elements.pts").c_str()), 0);
 
         // cg output is indexed from 1, but the pts file doesn't have indices
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements_cg.pts "+ output_dir + "/seq_cube_2mm_12_elements_cg.pts").c_str()), 0);
+
+        //cmgui
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" -I \"Group name:\" " + output_dir + "/par_efficient_cube_2mm_12_elements_cmgui.exnode "+ output_dir + "/seq_cube_2mm_12_elements_cmgui.exnode").c_str()), 0);
 
         // Master process sorts element and face file and the rest wait before comparing.
         if (PetscTools::AmMaster())
@@ -1750,11 +1760,30 @@ public:
 
             system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tri > " + output_dir + "seq_sorted.tri").c_str());
             system(("sort " + output_dir + "/par_efficient_cube_2mm_12_elements.tri > " + output_dir + "par_eff_sorted.tri").c_str());
+
+            //for the cmgui, we employ some grep trickery to sort the files. We create one file per element containing the element number and the nodes that make it.
+            for (unsigned elem_index = 1; elem_index<=sequential_mesh.GetNumAllElements(); elem_index++)
+            {
+                std::stringstream ss;
+                ss << elem_index;
+                std::string elem_string(ss.str());
+                system(("grep -i '" + elem_string + " 0 0' " + output_dir + "par_efficient_cube_2mm_12_elements_cmgui.exelem > " + output_dir + "element_" + elem_string + "_efficient ").c_str());
+                system(("grep -i '" + elem_string + " 0 0' " + output_dir + "seq_cube_2mm_12_elements_cmgui.exelem > " + output_dir + "element_" + elem_string + "_sequential ").c_str());
+            }
         }
         PetscTools::Barrier();
 
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tetras " + output_dir + "par_eff_sorted.tetras").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tri " + output_dir + "par_eff_sorted.tri").c_str()), 0);
+
+        //compare teh cmgui element, one element at a time.
+        for (unsigned elem_index = 1; elem_index<=sequential_mesh.GetNumAllElements(); elem_index++)
+        {
+            std::stringstream ss;
+            ss << elem_index;
+            std::string elem_string(ss.str());
+            TS_ASSERT_EQUALS(system(("diff " + output_dir + "element_" + elem_string + "_efficient " + output_dir + "element_" + elem_string + "_sequential").c_str()), 0);
+        }
     }
 
     void TestArchiveOfConstructedMesh() throw(Exception)
