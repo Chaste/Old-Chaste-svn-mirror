@@ -170,10 +170,26 @@ std::vector<boost::shared_ptr<std::ofstream> > CmguiMeshWriter<ELEMENT_DIM, SPAC
     }
     elem_files.resize(mRegionNames.size());
 
+    std::string directory = this->mpOutputFileHandler->GetOutputDirectoryFullPath();
     for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)
     {
         std::string elem_file_name = mRegionNames[region_index] + ".exelem";
-        elem_files[region_index]  = this->mpOutputFileHandler->OpenOutputFile(elem_file_name, GetOpenMode(append));
+
+        boost::shared_ptr<std::ofstream> p_output_file(new std::ofstream((directory+elem_file_name).c_str(), GetOpenMode(append)));
+#define COVERAGE_IGNORE
+        if (!p_output_file->is_open())
+        {
+            EXCEPTION("Could not open file \"" + elem_file_name + "\" in " + directory);
+        }
+#undef COVERAGE_IGNORE
+
+        // NOTE THAT one could simply do:
+        //
+        // elem_files[region_index]  = this->mpOutputFileHandler->OpenOutputFile(elem_file_name, GetOpenMode(append));
+        //
+        // but that implies automatic conversion between std::auto_ptr to boost::shared_ptr.
+        // That is OK with most compilers, but the combination of gcc 4.1 and boost 1.33 complains about that
+        elem_files[region_index]  = p_output_file;
     }
     return elem_files;
 }
