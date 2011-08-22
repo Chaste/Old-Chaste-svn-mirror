@@ -48,7 +48,7 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const std::vector<Node<
 }
 
 template<unsigned SPACE_DIM>
-void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh)
+void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const AbstractMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh)
 {
     ConstructNodesWithoutMesh(rGeneratingMesh.mNodes);
 }

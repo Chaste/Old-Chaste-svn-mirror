@@ -97,9 +97,9 @@ public:
      * If this is the only way of constructing a mesh of this type, then we can be certain that
      * elements and boundary elements are always unused.
      *
-     * @param rGeneratingMesh TetrahedralMesh used to generate the NodesOnlyMesh
+     * @param rGeneratingMesh any mesh with nodes, used to generate the NodesOnlyMesh
      */
-    void ConstructNodesWithoutMesh(const TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh);
+    void ConstructNodesWithoutMesh(const AbstractMesh<SPACE_DIM,SPACE_DIM>& rGeneratingMesh);
 
     /**
      * Overridden Clear() method for NodesOnlyMesh.
