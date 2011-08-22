@@ -286,7 +286,6 @@ class ModelModifier(object):
         Removes each relevant map_variables element.
         If this results in an empty connection element, removes that as well.
         """
-#        print "Removing all connections to", var
         cname, vname = var.component.name, var.name
         for conn in list(getattr(self.model, u'connection', [])):
             if cname == conn.map_components.component_1:
@@ -303,6 +302,19 @@ class ModelModifier(object):
                         conn.xml_parent.xml_remove_child(conn)
                     # There can't be any more matching map_variables in this connection
                     break
+    
+    def _update_connections(self, oldVar, newVar):
+        """Change all variables connected to oldVar to be mapped to newVar instead."""
+        vars = [v for v in self.model.get_all_variables() if v.get_source_variable(True) is oldVar]
+        # Remove old connections, including interfaces and types so creating the new connection works
+        for v in vars:
+            self.remove_connections(v)
+            self.del_attr(v, u'public_interface')
+            self.del_attr(v, u'private_interface')
+            v.clear_dependency_info()
+        # Create new connections
+        for v in vars:
+            self.connect_variables(newVar, v)
     
     def _find_common_tail(self, l1, l2):
         """Find the first element at which both lists are identical from then on."""
@@ -458,6 +470,19 @@ class ModelModifier(object):
             if ns_ == ns and name == localName:
                 delattr(elt, pyname)
 
+    def _uniquify_var_name(self, varname, comp):
+        """Ensure varname is unique within the given component.
+        
+        Underscores will be appended to the name until it is unique.  The unique name will be returned.
+        """
+        while True:
+            try:
+                comp.get_variable_by_name(varname)
+                varname += u'_'
+            except:
+                break
+        return varname
+
 
 class InterfaceGenerator(ModelModifier):
     """Class for generating an interface between a CellML model and external code.
@@ -539,17 +564,7 @@ class InterfaceGenerator(ModelModifier):
         if t == VarTypes.Constant and annotate:
             newvar.set_is_modifiable_parameter(True)
 
-        # Set all variables connected to the original variable to be mapped to the new one
-        vars = [v for v in self.model.get_all_variables() if v.get_source_variable(True) is var]
-        # Remove old connections, including interfaces and types so creating the new connection works
-        for v in vars:
-            self.remove_connections(v)
-            self.del_attr(v, u'public_interface')
-            self.del_attr(v, u'private_interface')
-            v.clear_dependency_info()
-        # Create new connections
-        for v in vars:
-            self.connect_variables(newvar, v)
+        self._update_connections(var, newvar)
         return newvar
     
     def add_output(self, var, units, annotate=True):
@@ -681,19 +696,6 @@ class InterfaceGenerator(ModelModifier):
         new_ode = mathml_diff.create_new(self.model, free_var.name, newVar.name, mapped_rhs_var.name)
         self.add_expr_to_comp(newVar.component, new_ode)
         new_ode.classify_variables(root=True, dependencies_only=True)
-    
-    def _uniquify_var_name(self, varname, comp):
-        """Ensure varname is unique within the given component.
-        
-        Underscores will be appended to the name until it is unique.  The unique name will be returned.
-        """
-        while True:
-            try:
-                comp.get_variable_by_name(varname)
-                varname += u'_'
-            except:
-                break
-        return varname
     
     def _add_all_odes_to_interface(self):
         """All the derivatives should be considered as model outputs, and state variables as model inputs.

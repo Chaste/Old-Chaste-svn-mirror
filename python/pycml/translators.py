@@ -4827,8 +4827,7 @@ class ConfigurationStore(object):
         if self.options.transmembrane_potential:
             self.V_definitions[0:0] = [self.options.transmembrane_potential.strip().split(',')]
             if len(self.V_definitions[0]) != 2:
-                raise ConfigurationError('The name of V must contain both '
-                                         'component and variable name')
+                raise ConfigurationError('The name of V must contain both component and variable name')
         self.V_variable = self._find_var('membrane_voltage', self.V_definitions)
         DEBUG('config', 'Found V', self.V_variable)
         if not self.V_variable:
@@ -5182,12 +5181,7 @@ def run():
         protocol.apply_protocol_file(doc, options.protocol)
         DEBUG('translate', "+++ Applied protocol")
 
-    if options.config_file:
-        config.finalize_config()
-    else:
-        # Use defaults
-        config.find_transmembrane_potential()
-        config.find_current_vars()
+    config.finalize_config()
     DEBUG('translate', "+++ Processed config")
 
     solver_info = SolverInfo(doc.model)

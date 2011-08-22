@@ -38,36 +38,18 @@ class ProtocolError(ValueError):
     pass
 
 class Protocol(processors.ModelModifier):
-    """A class representing a simulation protocol.
+    """A class representing part of a simulation protocol for the functional curation system.
 
-     * When a protocol is initialised, it should be passed a cellml_model, and
-       alter the model equations to reflect the protocol: remove ODEs for
-       state variables that are set by the protocol, replace equations for
-       protocol inputs with forms specified by the protocol.  Then redo the
-       topological sort to ensure the equations are ordered correctly?
-     * The main translator classes should then not need to do anything special
-       when using a protocol, except for considering the case where there are
-       no ODEs.
-     * Classes need a ComputeDerivedQuantities method, which takes an (optional)
-       state variable vector, and time, and computes all quantities in the model
-       which are non-state-var outputs.  The protocol system, possibly via
-       model annotations, will need to be able to specify what goes in here.  We
-       may need the ComputedVariable functionality in OdeSystemInformation to
-       name entries in the result vector.  The pe:keep behaviour for computed
-       vars could change to store variables in this vector?  Although we don't
-       necessarily want all ionic currents in here - the main reason they get
-       annotated is so that we can generate GetIIonic.  So I think we need
-       separate annotations for specifying parameters and computed vars (which
-       both imply pe:keep).
-     * GetIIonic may need a time parameter, since protocol inputs may depend on
-       time, and the generated code wouldn't compile otherwise.
-    
-    A fully initialised protocol contains the following attributes:
-     * inputs - an iterable of protocol inputs.  These may be cellml_variable instances,
-       to (re)define a variable in the model, or mathml_apply instances, to add or
-       modify an equation.  Once modify_model has been called, these objects will
-       also exist in the model.
-     * outputs - an iterable of protocol output variables.
+    PyCml is responsible for implementing the 'model interface' section of protocols.
+    See https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/SimulationProtocolNotes#Modelinterface
+    for further details.  The main user-facing methods here implement the XML elements defined
+    there:
+     - specify_input_variable
+     - specify_output_variable
+     - set_independent_variable_units
+     - declare_new_variable
+     - add_or_replace_equation
+     - define_units_conversion_rule
     """
     def __init__(self, model, multi_stage=False):
         """Create a new protocol.
@@ -79,11 +61,89 @@ class Protocol(processors.ModelModifier):
         """
         self._protocol_component = None
         self._units_converter = None
+        self._pending_oxmeta_assignments = []
+        self._free_var_has_changed = None
         self.model = model
         self.inputs = set()
         self.outputs = set()
         if not multi_stage:
             raise NotImplementedError
+    
+    def specify_output_variable(self, oxmeta_name, units=None):
+        """Set the variable with given oxmeta name as a protocol output, optionally in the given units.
+        
+        The units must be added to the model if they don't exist.  If they differ from the
+        variable's original units, a conversion will be needed, and hence a new version
+        of the variable will be added to the protocol component, with a suitable connection.
+        Otherwise, we can just record the existing variable as an output.
+        
+        If units are not given, then keep the variable in its original units.
+        
+        The actual output variable is returned, although code shouldn't need to use it.
+        """
+        try:
+            var = self.model.get_variable_by_oxmeta_name(oxmeta_name)
+        except KeyError:
+            raise ProtocolError("There is no model variable annotated with the term " + oxmeta_name)
+        if units is None:
+            units = var.get_units()
+        new_var = self.specify_as_output(var, units)
+        if var.get_type() is VarTypes.Free:
+            self.set_independent_variable_units(units, new_var)
+        return new_var
+    
+    def specify_input_variable(self, oxmeta_name, units=None, initial_value=None):
+        """Set the given variable as a protocol input, optionally in the given units.
+        
+        The variable will become a constant parameter that can be set from the protocol.  If units
+        are given and differ from its original units, they must be added to the model if they don't
+        exist, and a new version of the variable added to the protocol component, with a suitable
+        assignment.
+        
+        If the initial_value is given then this will overwrite the original setting if present.
+        Any assignment to the variable will be removed.
+        
+        If the variable does not exist, this is only an error if an initial_value or units are not given.
+        Otherwise we just create the variable.
+        
+        TODO: does not units-convert the initial value.
+        """
+        try:
+            var = self.model.get_variable_by_oxmeta_name(oxmeta_name)
+        except KeyError:
+            if initial_value is None or units is None:
+                raise ProtocolError("There is no model variable annotated with the term " + oxmeta_name)
+            else:
+                var = None
+        if units is None:
+            units = var.get_units()
+        if var is None:
+            var = self.add_variable(self._get_protocol_component(), oxmeta_name, units, id=oxmeta_name)
+            var.set_oxmeta_name(oxmeta_name)
+            self._pending_oxmeta_assignments.append((var, oxmeta_name))
+        var = self.specify_as_input(var, units)
+        if initial_value:
+            var.initial_value = unicode(initial_value)
+        return var
+    
+    def set_independent_variable_units(self, units, newVar=None):
+        """Set the independent variable to occur in the given units.
+        
+        If newVar is given, then this is being called by self.specify_output_variable, since the
+        independent variable is also a protocol output, and the new version has already been
+        created.
+        
+        Since this may mean we're called twice, we ensure the second call is a no-op.
+        """
+        if self._free_var_has_changed:
+            assert self._free_var_has_changed.get_units().equals(units)
+            assert newVar is None or newVar is self._free_var_has_changed
+        else:
+            t = self.model.find_free_vars()[0]
+            units = self._get_units_object(units)
+            if not units.equals(t.get_units()):
+                # We'll need a conversion, and to convert all ODEs too
+                self._free_var_has_changed = newVar or self._replace_variable(t, units)
 
     def modify_model(self):
         """Actually apply protocol modifications to the model.
@@ -116,9 +176,14 @@ class Protocol(processors.ModelModifier):
         for input in filter(lambda i: isinstance(i, mathml_apply), self.inputs):
             self._check_input(input)
             self._add_maths_to_model(input)
+        if self._free_var_has_changed:
+            self._split_all_odes()
         self._fix_model_connections()
         self.finalize(self._error_handler, self._add_units_conversions)
         self._filter_assignments()
+        # This is a bit of a hack!
+        for var, oxmeta_name in self._pending_oxmeta_assignments:
+            var.set_oxmeta_name(oxmeta_name)
     
     def specify_as_output(self, var, units):
         """Specify the given variable within the model as a protocol output.
@@ -132,14 +197,22 @@ class Protocol(processors.ModelModifier):
         if units.equals(var.get_units()):
             output_var = var
         else:
-            units = self.add_units(units)
-            output_var = cellml_variable.create_new(var, var.name, units.name, id=var.cmeta_id)
-            self.del_attr(var, u'id', NSS['cmeta'])
-            self._get_protocol_component()._add_variable(output_var)
+            output_var = self._replace_variable(var, units)
             self.connect_variables(var, output_var)
-            self.inputs.add(output_var)
         self.outputs.add(output_var)
         return output_var
+    
+    def _replace_variable(self, var, units):
+        """Replace the given variable with a version in the given units in the protocol component.
+        
+        Ensures that the units are added to the model if needed, and transfers the cmeta:id if
+        present.  It doesn't transfer the initial_value, since this would break the output variable
+        case.
+        """
+        units = self.add_units(units)
+        new_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id)
+        self.del_attr(var, u'id', NSS['cmeta'])
+        return new_var
     
     def specify_as_input(self, var, units):
         """Specify the given variable within the model as a protocol input.
@@ -164,21 +237,11 @@ class Protocol(processors.ModelModifier):
             if not hasattr(var, u'initial_value'):
                 var.initial_value = u'0'
         else:
-            input_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id,
-                                          initial_value=getattr(var, u'initial_value', u'0'))
-            self.del_attr(var, u'id', NSS['cmeta'])
+            input_var = self._replace_variable(var, units)
+            input_var.initial_value = getattr(var, u'initial_value', u'0')
             self.del_attr(var, u'initial_value', None)
             # Set all variables connected to the original variable (including itself) to be mapped to the new one
-            vars = [v for v in self.model.get_all_variables() if v.get_source_variable(True) is var]
-            # Remove old connections, including interfaces and types so creating the new connection works
-            for v in vars:
-                self.remove_connections(v)
-                self.del_attr(v, u'public_interface')
-                self.del_attr(v, u'private_interface')
-                v.clear_dependency_info()
-            # Create new connections
-            for v in vars:
-                self.connect_variables(input_var, v)
+            self._update_connections(var, input_var)
         input_var._set_type(VarTypes.Constant)
         input_var._cml_ok_as_input = True
         self.inputs.add(input_var)
@@ -198,6 +261,58 @@ class Protocol(processors.ModelModifier):
     def _error_handler(self, errors):
         """Deal with errors found when re-analysing a modified model."""
         raise ProtocolError("Applying protocol created an invalid model.")
+    
+    def _split_all_odes(self):
+        """The free variable has been units-converted, so adjust all ODEs to account for this.
+        
+        We copy all state variables into the protocol component, assign their RHS to a new variable,
+        and create a new derivative in the protocol component to which this is assigned.
+        
+        Also check all equations for occurrences of derivatives on the RHS, and change them to refer
+        to the new variable instead.
+        """
+        free_var = self._free_var_has_changed
+        old_free_var = self.model.find_free_variables()[0]
+        self._update_connections(old_free_var, free_var)
+        deriv_rhs = {}
+        comp = self._get_protocol_component()
+        for old_var in self.model.find_state_vars():
+            if old_var.component is not comp:
+                new_var = self._replace_variable(old_var, old_var.get_units())
+                self.del_attr(old_var, u'initial_value')
+                # Add a new variable to assign the RHS to, with units of the original derivative
+                deriv_name = self._uniquify_var_name(u'd_%s_d_%s' % (old_var.name, free_var.name), old_var.component)
+                orig_ode = old_var.get_all_expr_dependencies()[0]
+                orig_rhs_var = self.add_variable(old_var.component, deriv_name, orig_ode.eq.lhs.get_units().extract())
+                deriv_rhs[new_var] = orig_rhs_var
+                # Add an output version of this in the interface, with desired units
+                desired_units = new_var.get_units().quotient(free_var.get_units())
+                mapped_rhs_var = self.add_output(orig_rhs_var, desired_units, annotate=False)
+                # Replace the original ODE with an assignment
+                orig_rhs = orig_ode.eq.rhs
+                orig_ode.safe_remove_child(orig_rhs)
+                self.remove_expr(orig_ode)
+                self.add_expr_to_comp(old_var.component,
+                                      mathml_apply.create_new(self.model, u'eq',
+                                                              [orig_rhs_var.name, orig_rhs]))
+                # Create a new ODE in the interface component
+                new_ode = mathml_diff.create_new(self.model, free_var.name, new_var.name, mapped_rhs_var.name)
+                self.add_expr_to_comp(new_var.component, new_ode)
+                new_ode.classify_variables(root=True, dependencies_only=True)
+                # Update connections to the state variable
+                self._update_connections(old_var, new_var)
+        # Transform references to derivatives
+        def xform(expr):
+            state_var = expr.diff.dependent_variable.get_source_variable(recurse=True)
+            rhs_var = deriv_rhs[state_var]
+            # Ensure there's something mapped to it in this component
+            rhs_var = self.connect_variables(rhs_var, (expr.component.name, rhs_var.name))
+            # Update this expression
+            parent = expr.xml_parent
+            parent.xml_insert_after(expr, mathml_ci.create_new(parent, rhs_var.name))
+            parent.safe_remove_child(expr)
+        for expr in self.model.search_for_assignments():
+            self._process_operator(list(expr.operands())[1], u'diff', xform)
 
     def _fix_model_connections(self):
         """Ensure the modified model has all the necessary connections between variables.
