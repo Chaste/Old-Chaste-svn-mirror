@@ -94,7 +94,7 @@ public:
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
@@ -145,7 +145,7 @@ public:
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(node_based_cell_population);
         simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
