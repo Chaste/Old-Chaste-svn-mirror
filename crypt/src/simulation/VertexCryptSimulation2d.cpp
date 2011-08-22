@@ -37,7 +37,6 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
     : CellBasedSimulation<2>(rCellPopulation,
                              deleteCellPopulationAndForceCollection,
                              initialiseCells),
-      mUseJiggledBottomCells(false),
       mWriteBetaCatenin(false)
 {
     /*
@@ -50,6 +49,10 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
     {
         mWriteBetaCatenin = true;
     }
+
+    // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+    CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);
+    mBoundaryConditions.push_back(p_boundary_condition);
 }
 
 c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
@@ -165,50 +168,8 @@ void VertexCryptSimulation2d::AfterSolve()
 
 void VertexCryptSimulation2d::UseJiggledBottomCells()
 {
-    mUseJiggledBottomCells = true;
-}
-
-void VertexCryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
-{
-    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
-    if (!is_wnt_included)
-    {
-        WntConcentration<2>::Destroy();
-    }
-
-    // Iterate over all nodes and update their positions according to the boundary conditions
-    unsigned num_nodes = mrCellPopulation.GetNumNodes();
-    for (unsigned node_index=0; node_index<num_nodes; node_index++)
-    {
-        Node<2>* p_node = mrCellPopulation.GetNode(node_index);
-        c_vector<double, 2> old_location = rOldLocations[node_index];
-
-        if (!is_wnt_included)
-        {
-            /**
-             * If WntConcentration is not set up then the stem cells must be pinned
-             * to y=0, so any node whose old height was close to zero is moved back
-             * to zero.
-             */
-            if (rOldLocations[node_index][1] < DBL_EPSILON)
-            {
-                // Return node to its old height, but allow it to slide left or right
-                p_node->rGetModifiableLocation()[1] = rOldLocations[node_index][1];
-            }
-        }
-
-        // Any node that has moved below the bottom of the crypt must be moved back up
-        if (p_node->rGetLocation()[1] < 0.0)
-        {
-            p_node->rGetModifiableLocation()[1] = 0.0;
-            if (this->mUseJiggledBottomCells)
-            {
-                // Give the node a push upwards so that it doesn't get stuck on the bottom of the crypt.
-                p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
-            }
-        }
-        assert(p_node->rGetLocation()[1] >= 0.0);
-    }
+    // The CryptSimulationBoundaryCondition object is the first element of mBoundaryConditions
+    static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
 }
 
 void VertexCryptSimulation2d::SetBottomCellAncestors()
@@ -227,8 +188,11 @@ void VertexCryptSimulation2d::SetBottomCellAncestors()
 
 void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>" << mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
-    *rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
+    double width = mrCellPopulation.GetWidth(0);
+    bool use_jiggled_bottom_cells = static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->GetUseJiggledBottomCells();
+
+    *rParamsFile << "\t\t<CryptCircumference>" << width << "</CryptCircumference>\n";
+    *rParamsFile << "\t\t<UseJiggledBottomCells>" << use_jiggled_bottom_cells << "</UseJiggledBottomCells>\n";
 
     // Call method on direct parent class
     CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);

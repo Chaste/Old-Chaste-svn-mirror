@@ -263,7 +263,7 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
          bcs_iter != mBoundaryConditions.end();
          ++bcs_iter)
     {
-        (*bcs_iter)->ImposeBoundaryCondition();
+        (*bcs_iter)->ImposeBoundaryCondition(old_node_locations);
     }
 
     // Verify that each boundary condition is now satisfied
@@ -276,9 +276,6 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
             EXCEPTION("The cell population boundary conditions are incompatible.");
         }
     }
-
-    ///\todo #1589 this should be removed
-    ApplyCellPopulationBoundaryConditions(old_node_locations);
 
     // Write node velocities to file if required
     if (mOutputNodeVelocities)

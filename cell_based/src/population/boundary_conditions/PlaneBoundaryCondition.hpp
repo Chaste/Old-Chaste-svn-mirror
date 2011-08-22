@@ -37,9 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A plane cell population boundary condition class, which stops nodes moving through
- * a specified plane in the domain.
- *
- * \todo The naming of this class indicates that it is specific to 3D (see #1589)
+ * a specified plane in the domain. Although the name of this class suggests it is
+ * specific to 3D, it is actually also implemented for 1D and 2D, for which it is
+ * really a 'point' and 'line' boundary condition respectively.
  */
 template<unsigned DIM>
 class PlaneBoundaryCondition : public AbstractCellPopulationBoundaryCondition<DIM>
@@ -132,7 +132,7 @@ namespace serialization
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const PlaneBoundaryCondition<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const PlaneBoundaryCondition<DIM>* t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
@@ -156,7 +156,7 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, PlaneBoundaryCondition<DIM> * t, const unsigned int file_version)
+    Archive & ar, PlaneBoundaryCondition<DIM>* t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;

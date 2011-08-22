@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "Debug.hpp"
 
 class TestCryptSimulationBoundaryCondition : public AbstractCellBasedTestSuite
 {
@@ -62,12 +61,8 @@ public:
 		TS_ASSERT_EQUALS(boundary_condition2d.GetUseJiggledBottomCells(), true);
 	}
 
-    void TestConstructorWithCellPopulation() throw (Exception)
+    void TestConstructorWithCellPopulation1d() throw (Exception)
     {
-        ///////
-        // 1D
-        ///////
-
         // Create 1D cell population
         unsigned num_cells = 5;
         MutableMesh<1,1> mesh;
@@ -84,11 +79,10 @@ public:
         // Test access to the cell population
         const AbstractCellPopulation<1>* p_population1d = boundary_condition1d.GetCellPopulation();
         TS_ASSERT(p_population1d != NULL);
+    }
 
-        ///////
-        // 2D
-        ///////
-
+    void TestConstructorWithCellPopulation2d() throw (Exception)
+    {
         // Create a 2d mesh-based cell population
         CylindricalHoneycombMeshGenerator generator(4, 4, 0, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();

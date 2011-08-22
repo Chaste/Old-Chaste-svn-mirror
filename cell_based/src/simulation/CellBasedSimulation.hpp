@@ -224,16 +224,6 @@ protected:
     virtual void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces);
 
     /**
-     * Apply any cell population boundary conditions. Can be overridden in subclasses.
-     * \todo #1589 this should be removed
-     *
-     * @param rOldLocations the node locations before any boundary conditions are applied
-     */
-    virtual void ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
-    {
-    }
-
-    /**
      * A method for subclasses to do something at the end of each timestep
      */
     virtual void PostSolve()
@@ -444,7 +434,7 @@ namespace serialization
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const CellBasedSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const CellBasedSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
@@ -456,7 +446,7 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, CellBasedSimulation<DIM> * t, const unsigned int file_version)
+    Archive & ar, CellBasedSimulation<DIM>* t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;

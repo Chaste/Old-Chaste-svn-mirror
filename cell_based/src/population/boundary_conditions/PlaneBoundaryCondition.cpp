@@ -36,8 +36,6 @@ PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>*
         : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
           mPointOnPlane(point)
 {
-    assert( (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation)) || (this->mpCellPopulation == NULL));
-
     assert(norm_2(normal) > 0.0);
     mNormalToPlane = normal/norm_2(normal);
 }
@@ -57,13 +55,14 @@ const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() co
 template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
+    assert(dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation));
+
     if (DIM==2)
     {
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
              cell_iter != this->mpCellPopulation->End();
              ++cell_iter)
         {
-            ///\todo this is only for AbstractCentreBasedCellPopulations (see #1589)
             c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
