@@ -55,7 +55,7 @@ const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() co
 }
 
 template<unsigned DIM>
-void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition()
+void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
     if (DIM==2)
     {

@@ -91,7 +91,7 @@ public:
             old_locations.push_back(p_node->rGetLocation());
         }
 
-        boundary_condition.ImposeBoundaryCondition();
+        boundary_condition.ImposeBoundaryCondition(old_locations);
 
         // Test that all nodes satisfy the boundary condition
         for (std::list<CellPtr>::iterator cell_iter = cell_population.rGetCells().begin();
@@ -125,23 +125,23 @@ public:
     {
         // Set up singleton classes
         OutputFileHandler handler("archive", false); // don't erase contents of folder
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_boundary_conditon.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "PlaneBoundaryCondition.arch";
 
         {
             // Create an output archive
             PlaneBoundaryCondition<2> boundary_condition(NULL, zero_vector<double>(2), unit_vector<double>(2,1));
 
+            TS_ASSERT_DELTA(boundary_condition.rGetPointOnPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(boundary_condition.rGetPointOnPlane()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(boundary_condition.rGetNormalToPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(boundary_condition.rGetNormalToPlane()[1], 1.0, 1e-6);
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            PlaneBoundaryCondition<2>* const p_boundary_condition = &boundary_condition;
+            AbstractCellPopulationBoundaryCondition<2>* const p_boundary_condition = &boundary_condition;
             output_arch << p_boundary_condition;
-
-            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[1], 1.0, 1e-6);
         }
 
         {
@@ -149,17 +149,18 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            PlaneBoundaryCondition<2>* p_boundary_condition;
+            AbstractCellPopulationBoundaryCondition<2>* p_boundary_condition;
 
             // Restore from the archive
             input_arch >> p_boundary_condition;
 
             // Test we have restored the plane geometry correctly
-            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetPointOnPlane()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(p_boundary_condition->rGetNormalToPlane()[1], 1.0, 1e-6);
+            TS_ASSERT_DELTA(static_cast<PlaneBoundaryCondition<2>*>(p_boundary_condition)->rGetPointOnPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(static_cast<PlaneBoundaryCondition<2>*>(p_boundary_condition)->rGetPointOnPlane()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(static_cast<PlaneBoundaryCondition<2>*>(p_boundary_condition)->rGetNormalToPlane()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(static_cast<PlaneBoundaryCondition<2>*>(p_boundary_condition)->rGetNormalToPlane()[1], 1.0, 1e-6);
 
+            // Tidy up
             delete p_boundary_condition;
        }
     }

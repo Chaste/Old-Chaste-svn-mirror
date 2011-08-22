@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulation.hpp"
 #include "SimpleDataWriter.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "CryptSimulationBoundaryCondition.hpp"
 
 /**
  * A 2D crypt simulation object. For more details, see the paper by
@@ -62,12 +63,8 @@ protected:
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
-        archive & mUseJiggledBottomCells;
         archive & mWriteBetaCatenin;
     }
-
-    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
-    bool mUseJiggledBottomCells;
 
     /**
      * Whether the simulation includes the cell-cycle models
@@ -151,17 +148,6 @@ public:
 
     /** Set method for mUseJiggledBottomCells. */
     void UseJiggledBottomCells();
-
-    /**
-     * Overridden ApplyCellPopulationBoundaryConditions() method.
-     *
-     * If an instance of WntConcentration is not set up, then stem cells at the
-     * bottom of the crypt are pinned. Any cell that has moved below the bottom
-     * of the crypt is moved back up.
-     *
-     * @param rOldLocations the node locations at the previous time step
-     */
-    void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
 
     /**
      * Sets the Ancestor index of all the cells at the bottom in order,

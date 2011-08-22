@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <iostream>
 
+#include "CryptSimulationBoundaryCondition.hpp"
 #include "CellBasedSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 
@@ -95,17 +96,6 @@ public:
                       bool initialiseCells=true);
 
     /**
-     * Overridden ApplyCellPopulationBoundaryConditions() method.
-     *
-     * If an instance of WntConcentration is not set up, then stem cells at the
-     * bottom of the crypt are pinned. Any cell that has moved below the bottom
-     * of the crypt is moved back up.
-     *
-     * @param rOldLocations the node locations at the previous time step
-     */
-    void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,1> >& rOldLocations);
-
-    /**
      * Outputs simulation parameters to file
      *
      * As this method is pure virtual, it must be overridden
@@ -115,7 +105,6 @@ public:
      */
     void OutputSimulationParameters(out_stream& rParamsFile);
 };
-
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"

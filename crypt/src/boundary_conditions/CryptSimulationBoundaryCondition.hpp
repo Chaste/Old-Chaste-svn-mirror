@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CRYPTSIMULATION2DBOUNDARYCONDITION_HPP_
-#define CRYPTSIMULATION2DBOUNDARYCONDITION_HPP_
+#ifndef CRYPTSIMULATIONBOUNDARYCONDITION_HPP_
+#define CRYPTSIMULATIONBOUNDARYCONDITION_HPP_
 
 #include "AbstractCellPopulationBoundaryCondition.hpp"
 
@@ -40,7 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in the absence of a Wnt stimulus, and optionally prevents cells moving below the
  * y=0 boundary via random jiggling.
  */
-class CryptSimulation2dBoundaryCondition : public AbstractCellPopulationBoundaryCondition<2>
+template<unsigned DIM>
+class CryptSimulationBoundaryCondition : public AbstractCellPopulationBoundaryCondition<DIM>
 {
 private:
 
@@ -61,7 +62,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<2> >(*this);
+        archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<DIM> >(*this);
         archive & mUseJiggledBottomCells;
     }
 
@@ -72,7 +73,7 @@ public:
      *
      * @param pCellPopulation pointer to the cell population
      */
-    CryptSimulation2dBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation);
+    CryptSimulationBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation);
 
     /**
      * Overridden ImposeBoundaryCondition() method.
@@ -81,7 +82,7 @@ public:
      *
      * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    void ImposeBoundaryCondition(const std::vector< c_vector<double, 2> >& rOldLocations);
+    void ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations);
 
     /**
      * Overridden VerifyBoundaryCondition() method.
@@ -112,39 +113,39 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(CryptSimulation2dBoundaryCondition)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CryptSimulationBoundaryCondition)
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a CryptSimulation2dBoundaryCondition.
+ * Serialize information required to construct a CryptSimulationBoundaryCondition.
  */
-template<class Archive>
+template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const CryptSimulation2dBoundaryCondition * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const CryptSimulationBoundaryCondition<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
+    const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
     ar << p_cell_population;
 }
 
 /**
- * De-serialize constructor parameters and initialize a CryptSimulation2dBoundaryCondition.
+ * De-serialize constructor parameters and initialize a CryptSimulationBoundaryCondition.
  */
-template<class Archive>
+template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, CryptSimulation2dBoundaryCondition * t, const unsigned int file_version)
+    Archive & ar, CryptSimulationBoundaryCondition<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractCellPopulation<2>* p_cell_population;
+    AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CryptSimulation2dBoundaryCondition(p_cell_population);
+    ::new(t)CryptSimulationBoundaryCondition<DIM>(p_cell_population);
 }
 }
 } // namespace ...
 
-#endif /* CRYPTSIMULATION2DBOUNDARYCONDITION_HPP_ */
+#endif /* CRYPTSIMULATIONBOUNDARYCONDITION_HPP_ */

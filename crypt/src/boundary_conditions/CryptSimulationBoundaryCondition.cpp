@@ -26,57 +26,68 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "CryptSimulation2dBoundaryCondition.hpp"
+#include "CryptSimulationBoundaryCondition.hpp"
 #include "WntConcentration.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "Debug.hpp"
 
-CryptSimulation2dBoundaryCondition::CryptSimulation2dBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation)
-        : AbstractCellPopulationBoundaryCondition<2>(pCellPopulation),
+template<unsigned DIM>
+CryptSimulationBoundaryCondition<DIM>::CryptSimulationBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation)
+        : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
           mUseJiggledBottomCells(false)
 {
 }
 
-void CryptSimulation2dBoundaryCondition::ImposeBoundaryCondition(const std::vector< c_vector<double, 2> >& rOldLocations)
+template<unsigned DIM>
+void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
-    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
+	// We only allow jiggling of bottom cells in 2D
+	if (DIM == 1)
+	{
+		mUseJiggledBottomCells = false;
+	}
+
+    bool is_wnt_included = WntConcentration<DIM>::Instance()->IsWntSetUp();
     if (!is_wnt_included)
     {
-        WntConcentration<2>::Destroy();
+        WntConcentration<DIM>::Destroy();
     }
 
-    // Iterate over all nodes associated with real cells to update their positions
-    // according to any cell population boundary conditions
-    for (AbstractCellPopulation<2>::Iterator cell_iter = mpCellPopulation->Begin();
-         cell_iter != mpCellPopulation->End();
+    /*
+     * Iterate over all nodes associated with real cells to update their positions
+     * according to any cell population boundary conditions.
+     */
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+         cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+        unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<2>* p_node = mpCellPopulation->GetNode(node_index);
+        Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
 
         if (!is_wnt_included)
         {
-            /**
+        	/*
              * If WntConcentration is not set up then stem cells must be pinned,
              * so we reset the location of each stem cell.
              */
-            if (cell_iter->GetCellCycleModel()->GetCellProliferativeType()==STEM)
+            if (cell_iter->GetCellCycleModel()->GetCellProliferativeType() == STEM)
             {
                 // Get old node location
-                c_vector<double, 2> old_node_location = rOldLocations[node_index];
+                c_vector<double, DIM> old_node_location = rOldLocations[node_index];
 
                 // Return node to old location
-                p_node->rGetModifiableLocation()[0] = old_node_location[0];
-                p_node->rGetModifiableLocation()[1] = old_node_location[1];
+                p_node->rGetModifiableLocation() = old_node_location;
             }
         }
 
         // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (p_node->rGetLocation()[1] < 0.0)
+        if (p_node->rGetLocation()[DIM-1] < 0.0)
         {
-            p_node->rGetModifiableLocation()[1] = 0.0;
+            p_node->rGetModifiableLocation()[DIM-1] = 0.0;
+
             if (mUseJiggledBottomCells)
             {
                /*
@@ -87,14 +98,15 @@ void CryptSimulation2dBoundaryCondition::ImposeBoundaryCondition(const std::vect
                 * we use a random perturbation to help ensure we are not simply
                 * faced with the same problem at a different height!
                 */
-                p_node->rGetModifiableLocation()[1] = 0.05*RandomNumberGenerator::Instance()->ranf();
+                p_node->rGetModifiableLocation()[DIM-1] = 0.05*RandomNumberGenerator::Instance()->ranf();
             }
         }
-        assert(p_node->rGetLocation()[1] >= 0.0);
+        assert(p_node->rGetLocation()[DIM-1] >= 0.0);
     }
 }
 
-bool CryptSimulation2dBoundaryCondition::VerifyBoundaryCondition()
+template<unsigned DIM>
+bool CryptSimulationBoundaryCondition<DIM>::VerifyBoundaryCondition()
 {
 	bool boundary_condition_satisfied = true;
 
@@ -102,18 +114,18 @@ bool CryptSimulation2dBoundaryCondition::VerifyBoundaryCondition()
 	 * Here we verify that the boundary condition is still satisfied by simply
 	 * checking that no cells lies below the y=0 boundary.
 	 */
-    for (AbstractCellPopulation<2>::Iterator cell_iter = mpCellPopulation->Begin();
-         cell_iter != mpCellPopulation->End();
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+         cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+        unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<2>* p_node = mpCellPopulation->GetNode(node_index);
+        Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
 
         // If this node lies below the y=0 boundary, break and return false
-        if (p_node->rGetLocation()[1] < 0.0)
+        if (p_node->rGetLocation()[DIM-1] < 0.0)
         {
         	boundary_condition_satisfied = false;
         	break;
@@ -123,24 +135,35 @@ bool CryptSimulation2dBoundaryCondition::VerifyBoundaryCondition()
     return boundary_condition_satisfied;
 }
 
-void CryptSimulation2dBoundaryCondition::SetUseJiggledBottomCells(bool useJiggledBottomCells)
+template<unsigned DIM>
+void CryptSimulationBoundaryCondition<DIM>::SetUseJiggledBottomCells(bool useJiggledBottomCells)
 {
     mUseJiggledBottomCells = useJiggledBottomCells;
 }
 
-bool CryptSimulation2dBoundaryCondition::GetUseJiggledBottomCells()
+template<unsigned DIM>
+bool CryptSimulationBoundaryCondition<DIM>::GetUseJiggledBottomCells()
 {
     return mUseJiggledBottomCells;
 }
 
-void CryptSimulation2dBoundaryCondition::OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
+template<unsigned DIM>
+void CryptSimulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
 
     // Call method on direct parent class
-	AbstractCellPopulationBoundaryCondition<2>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
+	AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class CryptSimulationBoundaryCondition<1>;
+template class CryptSimulationBoundaryCondition<2>;
+template class CryptSimulationBoundaryCondition<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(CryptSimulation2dBoundaryCondition)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CryptSimulationBoundaryCondition)

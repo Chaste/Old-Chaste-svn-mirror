@@ -97,8 +97,10 @@ public:
      * Overridden ImposeBoundaryCondition() method.
      *
      * Apply the cell population boundary conditions.
+     *
+     * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    void ImposeBoundaryCondition();
+    void ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations);
 
     /**
      * Overridden VerifyBoundaryCondition() method.

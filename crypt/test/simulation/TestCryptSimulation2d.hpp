@@ -156,7 +156,6 @@ public:
         GeneralisedLinearSpringForce<2> linear_force;
         simulator.AddForce(&linear_force);
 
-
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -1761,7 +1760,6 @@ public:
 
         ///\todo check output of simulator.OutputSimulationSetup();
     }
-
 
     void TestAncestorCryptSimulations() throw (Exception)
     {

@@ -80,8 +80,10 @@ public:
      *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
+     *
+     * @param rOldLocations the node locations before any boundary conditions are applied
      */
-    virtual void ImposeBoundaryCondition()=0;
+    virtual void ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)=0;
 
     /**
      * Pure method which should verify the boundary condition has been applied.

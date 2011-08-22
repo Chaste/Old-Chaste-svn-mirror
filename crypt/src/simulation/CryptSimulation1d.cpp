@@ -38,6 +38,10 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                           initialiseCells)
 {
     mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
+
+    // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+    CryptSimulationBoundaryCondition<1>* p_boundary_condition = new CryptSimulationBoundaryCondition<1>(&rCellPopulation);
+    mBoundaryConditions.push_back(p_boundary_condition);
 }
 
 
@@ -93,52 +97,6 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(CellPtr pPare
     mrCellPopulation.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
-}
-
-
-void CryptSimulation1d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 1> >& rOldLocations)
-{
-    bool is_wnt_included = WntConcentration<1>::Instance()->IsWntSetUp();
-    if (!is_wnt_included)
-    {
-        WntConcentration<1>::Destroy();
-    }
-
-    // Iterate over all nodes associated with real cells to update their positions
-    // according to any cell population boundary conditions
-    for (AbstractCellPopulation<1>::Iterator cell_iter = mrCellPopulation.Begin();
-         cell_iter != mrCellPopulation.End();
-         ++cell_iter)
-    {
-        // Get index of node associated with cell
-        unsigned node_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-
-        // Get pointer to this node
-        Node<1>* p_node = mpStaticCastCellPopulation->GetNodeCorrespondingToCell(*cell_iter);
-
-        if (!is_wnt_included)
-        {
-            /**
-             * If WntConcentration is not set up then stem cells must be pinned,
-             * so we reset the location of each stem cell.
-             */
-            if (cell_iter->GetCellCycleModel()->GetCellProliferativeType()==STEM)
-            {
-                // Get old node location
-                c_vector<double, 1> old_node_location = rOldLocations[node_index];
-
-                // Return node to old location
-                p_node->rGetModifiableLocation()[0] = old_node_location[0];
-            }
-        }
-
-        // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (p_node->rGetLocation()[0] < 0.0)
-        {
-            p_node->rGetModifiableLocation()[0] = 0.0;
-        }
-        assert(p_node->rGetLocation()[0] >= 0.0);
-    }
 }
 
 void CryptSimulation1d::OutputSimulationParameters(out_stream& rParamsFile)

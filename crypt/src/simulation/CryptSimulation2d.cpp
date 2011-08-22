@@ -37,7 +37,6 @@ CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
     : CellBasedSimulation<2>(rCellPopulation,
                              deleteCellPopulationAndForceCollection,
                              initialiseCells),
-      mUseJiggledBottomCells(false),
       mWriteBetaCatenin(false)
 {
     mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulationWithGhostNodes<2>*>(&mrCellPopulation);
@@ -52,6 +51,10 @@ CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
     {
         mWriteBetaCatenin = true;
     }
+
+    // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+    CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);
+    mBoundaryConditions.push_back(p_boundary_condition);
 }
 
 c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
@@ -210,65 +213,8 @@ void CryptSimulation2d::AfterSolve()
 
 void CryptSimulation2d::UseJiggledBottomCells()
 {
-    mUseJiggledBottomCells = true;
-}
-
-void CryptSimulation2d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
-{
-    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
-    if (!is_wnt_included)
-    {
-        WntConcentration<2>::Destroy();
-    }
-
-    // Iterate over all nodes associated with real cells to update their positions
-    // according to any cell population boundary conditions
-    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
-         cell_iter != mrCellPopulation.End();
-         ++cell_iter)
-    {
-        // Get index of node associated with cell
-        unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
-
-        // Get pointer to this node
-        Node<2>* p_node = mrCellPopulation.GetNode(node_index);
-
-        if (!is_wnt_included)
-        {
-            /**
-             * If WntConcentration is not set up then stem cells must be pinned,
-             * so we reset the location of each stem cell.
-             */
-            if (cell_iter->GetCellCycleModel()->GetCellProliferativeType()==STEM)
-            {
-                // Get old node location
-                c_vector<double, 2> old_node_location = rOldLocations[node_index];
-
-                // Return node to old location
-                p_node->rGetModifiableLocation()[0] = old_node_location[0];
-                p_node->rGetModifiableLocation()[1] = old_node_location[1];
-            }
-        }
-
-        // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (p_node->rGetLocation()[1] < 0.0)
-        {
-            p_node->rGetModifiableLocation()[1] = 0.0;
-            if (mUseJiggledBottomCells)
-            {
-               /*
-                * Here we give the cell a push upwards so that it doesn't
-                * get stuck on the bottom of the crypt (as per #422).
-                *
-                * Note that all stem cells may get moved to the same height, so
-                * we use a random perturbation to help ensure we are not simply
-                * faced with the same problem at a different height!
-                */
-                p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
-            }
-        }
-        assert(p_node->rGetLocation()[1] >= 0.0);
-    }
+	// The CryptSimulationBoundaryCondition object is the first element of mBoundaryConditions
+	static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
 }
 
 void CryptSimulation2d::SetBottomCellAncestors()
@@ -287,8 +233,11 @@ void CryptSimulation2d::SetBottomCellAncestors()
 
 void CryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CryptCircumference>" << mrCellPopulation.GetWidth(0) << "</CryptCircumference>\n";
-    *rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
+    double width = mrCellPopulation.GetWidth(0);
+    bool use_jiggled_bottom_cells = static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->GetUseJiggledBottomCells();
+
+    *rParamsFile << "\t\t<CryptCircumference>" << width << "</CryptCircumference>\n";
+    *rParamsFile << "\t\t<UseJiggledBottomCells>" << use_jiggled_bottom_cells << "</UseJiggledBottomCells>\n";
 
     // Call method on direct parent class
     CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
