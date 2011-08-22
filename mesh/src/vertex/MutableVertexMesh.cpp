@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "Warnings.hpp"
 #include "LogFile.hpp"
+#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -40,7 +41,8 @@ MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh(std::vector<Node<SP
                                                double cellRearrangementRatio)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mCellRearrangementRatio(cellRearrangementRatio),
-      mT2Threshold(t2Threshold)
+      mT2Threshold(t2Threshold),
+      mCheckForInternalIntersections(false)
 {
     assert(cellRearrangementThreshold > 0.0);
     assert(t2Threshold > 0.0);
@@ -132,6 +134,12 @@ double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementRatio() co
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCheckForInternalIntersections() const
+{
+	return mCheckForInternalIntersections;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double cellRearrangementThreshold)
 {
     mCellRearrangementThreshold = cellRearrangementThreshold;
@@ -147,6 +155,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementRatio(double cellRearrangementRatio)
 {
     mCellRearrangementRatio = cellRearrangementRatio;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCheckForInternalIntersections(bool checkForInternalIntersections)
+{
+	mCheckForInternalIntersections=checkForInternalIntersections;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -906,30 +920,33 @@ bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForIntersections()
         }
     }
 
-//    // Check that no nodes have overlapped elements inside the mesh  // Change to only loop over neighboring elements
-//    for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
-//         node_iter != this->GetNodeIteratorEnd();
-//         ++node_iter)
-//    {
-//         assert(!(node_iter->IsDeleted()));
-//
-//        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = this->GetElementIteratorBegin();
-//             elem_iter != this->GetElementIteratorEnd();
-//             ++elem_iter)
-//        {
-//            unsigned elem_index = elem_iter->GetIndex();
-//
-//            // Check that the node is not part of this element.
-//            if (node_iter->rGetContainingElementIndices().count(elem_index) == 0)
-//            {
-//                if (ElementIncludesPoint(node_iter->rGetLocation(), elem_index))
-//                {
-//                    PerformIntersectionSwap(&(*node_iter), elem_index);
-//                    return true;
-//                }
-//            }
-//        }
-//    }
+    if (mCheckForInternalIntersections)
+    {
+		// Check that no nodes have overlapped elements inside the mesh  // Change to only loop over neighboring elements
+		for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
+			 node_iter != this->GetNodeIteratorEnd();
+			 ++node_iter)
+		{
+			 assert(!(node_iter->IsDeleted()));
+
+			for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = this->GetElementIteratorBegin();
+				 elem_iter != this->GetElementIteratorEnd();
+				 ++elem_iter)
+			{
+				unsigned elem_index = elem_iter->GetIndex();
+
+				// Check that the node is not part of this element.
+				if (node_iter->rGetContainingElementIndices().count(elem_index) == 0)
+				{
+					if (ElementIncludesPoint(node_iter->rGetLocation(), elem_index))
+					{
+						PerformIntersectionSwap(&(*node_iter), elem_index);
+						return true;
+					}
+				}
+			}
+		}
+    }
 
     return false;
 }

@@ -67,6 +67,9 @@ protected:
     /** The area threshold at which T2 swaps occur in an apoptotic, triangular cell/element */
     double mT2Threshold;
 
+    /** Either to check for edges intersections (true) or not (false) */
+    bool mCheckForInternalIntersections;
+
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
 
@@ -232,6 +235,7 @@ protected:
         archive & mT2Threshold;
         archive & mDeletedNodeIndices;
         archive & mDeletedElementIndices;
+        archive & mCheckForInternalIntersections;
 //        archive & mLocationsOfT1Swaps;
 //        archive & mLocationsOfT3Swaps;
 
@@ -296,6 +300,13 @@ public:
     virtual void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
 
     /**
+     * Set method for mCheckForInternalIntersections.
+     *
+     * @param checkForInternalIntersections
+     */
+    void SetCheckForInternalIntersections(bool checkForInternalIntersections);
+
+    /**
      * @return mCellRearrangementThreshold
      */
     double GetCellRearrangementThreshold() const;
@@ -319,6 +330,11 @@ public:
      * @return the number of VertexElements in the mesh.
      */
     unsigned GetNumElements() const;
+
+    /**
+     * @return mCheckForInternalIntersections, either to check for edges intersections or not.
+     */
+    bool GetCheckForInternalIntersections() const;
 
     /**
      * @return the locations of the T1Swaps

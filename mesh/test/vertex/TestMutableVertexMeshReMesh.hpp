@@ -2724,9 +2724,8 @@ public:
             vertex_mesh.SetNode(4, point);
 
             // Merge intersection to maintain non overlaping elements
-            VertexElementMap map(vertex_mesh.GetNumElements());
-            vertex_mesh.PerformIntersectionSwap(vertex_mesh.GetNode(4),0u);
-            //vertex_mesh.CheckForIntersections(); change the above call to this  see #1852
+            vertex_mesh.SetCheckForInternalIntersections(true);
+            vertex_mesh.CheckForIntersections();
 
 
             // Test moved nodes are in the correct place
@@ -2825,9 +2824,8 @@ public:
             vertex_mesh.SetNode(5, point);
 
             // Merge intersection to maintain non overlaping elements
-            VertexElementMap map(vertex_mesh.GetNumElements());
-            vertex_mesh.PerformIntersectionSwap(vertex_mesh.GetNode(5),0u);
-            //vertex_mesh.CheckForIntersections(); change the above call to this  see #1852
+            vertex_mesh.SetCheckForInternalIntersections(true);
+            vertex_mesh.CheckForIntersections();
 
 
             // Test moved nodes are in the correct place
