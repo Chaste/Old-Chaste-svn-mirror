@@ -2212,10 +2212,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_method_start('GetIIonic', ['const std::vector<double>* pStateVariables'],
                                  self.TYPE_DOUBLE, access='public', defaults=['NULL'])
         self.open_block()
-        # Output mathematics to calculate ionic current, using
-        # solver_info.ionic_current.
-        if hasattr(self.model, u'solver_info') and \
-               hasattr(self.model.solver_info, u'ionic_current'):
+        # Output mathematics to calculate ionic current, using solver_info.ionic_current.
+        if (hasattr(self.model, u'solver_info') and hasattr(self.model.solver_info, u'ionic_current')):
             if not hasattr(self.model.solver_info.ionic_current, u'var'):
                 raise ValueError('No ionic currents found; check your configuration file')
             nodes = map(lambda elt: self.varobj(unicode(elt)),
@@ -2836,8 +2834,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
         config.V_variable = generator.add_input(config.V_variable, mV)
         ionic_vars = config.i_ionic_vars
-        i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, current_units)
-        config.i_ionic_vars = [i_ionic]
+        if ionic_vars:
+            i_ionic = generator.add_output_function('i_ionic', 'plus', ionic_vars, current_units)
+            config.i_ionic_vars = [i_ionic]
         # Finish up
         def errh(errors):
             raise TranslationError("Creation of Chaste interface component failed:\n  " + str(errors))
@@ -2848,7 +2847,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             converter.finalize(errh, check_units=False)
             if notifier.messages:
                 msg = 'Problems occurred converting model variables to Chaste units.\n'
-                if ionic_vars[0].get_units().dimensionally_equivalent(microamps):
+                if ionic_vars and ionic_vars[0].get_units().dimensionally_equivalent(microamps):
                     msg += 'To convert the ionic currents for this model, '\
                            'the model membrane capacitance needs to be identified.'
                 if config.options.fully_automatic:
@@ -4061,13 +4060,14 @@ class SolverInfo(object):
         # The total ionic current.  This relies on having a configuration store.
         if hasattr(model.xml_parent, '_cml_config') and not hasattr(solver_info, u'ionic_current'):
             conf = model.xml_parent._cml_config
-            ionic_elt = model.xml_create_element(u'ionic_current', NSS[u'solver'])
-            # Adds each ionic var to the xml doc from the config store
-            for var in conf.i_ionic_vars:
-                varelt = model.xml_create_element(u'var', NSS[u'solver'],
-                                                  content=var.fullname())
-                ionic_elt.xml_append(varelt)
-            solver_info.xml_append(ionic_elt)
+            if conf.i_ionic_vars:
+                ionic_elt = model.xml_create_element(u'ionic_current', NSS[u'solver'])
+                # Adds each ionic var to the xml doc from the config store
+                for var in conf.i_ionic_vars:
+                    varelt = model.xml_create_element(u'var', NSS[u'solver'],
+                                                      content=var.fullname())
+                    ionic_elt.xml_append(varelt)
+                solver_info.xml_append(ionic_elt)
         return
     
     def add_linear_ode_update_equations(self):
@@ -4412,7 +4412,8 @@ class ConfigurationStore(object):
         # Identify the variables in the model
         self.find_transmembrane_potential()
         self.find_membrane_capacitance()
-        self.find_current_vars()
+        if not self.options.protocol:
+            self.find_current_vars()
 
     def _create_var_def(self, content, defn_type):
         """Create a variable definition object."""
