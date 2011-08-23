@@ -273,6 +273,30 @@ public:
 
         TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
     }
+    
+    void TestAbstractionOfCardiacBug() throw(Exception)
+    {
+        /* This is abstracted from TestWalmsleyArchiveLoader -- see #1827 
+         * FAILS when  
+         *       * SMIDGE is 1e-10 (see changeset:13535) 
+         *       * Build type is (Anything?)
+         */
+        
+        // Abstracted from AbstractCardiacProblem
+        TimeStepper print_stepper(16383.00, 16384.30, 0.1, false);
+        while (!print_stepper.IsTimeAtEnd())
+        {
+            // Abstracted from AbstractDynamicLinearPdeSolver
+            TimeStepper pde_stepper(print_stepper.GetTime(), print_stepper.GetNextTime(), 0.01, true);
+            while (!pde_stepper.IsTimeAtEnd())
+            {
+                TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, 1e-10);
+                
+                pde_stepper.AdvanceOneTimeStep();
+            }
+            print_stepper.AdvanceOneTimeStep();
+        }
+    }
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/
