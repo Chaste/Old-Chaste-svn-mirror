@@ -70,8 +70,8 @@ class Protocol(processors.ModelModifier):
         if not multi_stage:
             raise NotImplementedError
     
-    def specify_output_variable(self, oxmeta_name, units=None):
-        """Set the variable with given oxmeta name as a protocol output, optionally in the given units.
+    def specify_output_variable(self, prefixed_name, units=None):
+        """Set the given variable as a protocol output, optionally in the given units.
         
         The units must be added to the model if they don't exist.  If they differ from the
         variable's original units, a conversion will be needed, and hence a new version
@@ -83,9 +83,9 @@ class Protocol(processors.ModelModifier):
         The actual output variable is returned, although code shouldn't need to use it.
         """
         try:
-            var = self.model.get_variable_by_oxmeta_name(oxmeta_name)
-        except KeyError:
-            raise ProtocolError("There is no model variable annotated with the term " + oxmeta_name)
+            var = self._lookup_ontology_term(prefixed_name)
+        except ValueError:
+            raise ProtocolError("There is no model variable annotated with the term " + prefixed_name)
         if units is None:
             units = var.get_units()
         new_var = self.specify_as_output(var, units)
@@ -93,7 +93,7 @@ class Protocol(processors.ModelModifier):
             self.set_independent_variable_units(units, new_var)
         return new_var
     
-    def specify_input_variable(self, oxmeta_name, units=None, initial_value=None):
+    def specify_input_variable(self, prefixed_name, units=None, initial_value=None):
         """Set the given variable as a protocol input, optionally in the given units.
         
         The variable will become a constant parameter that can be set from the protocol.  If units
@@ -110,15 +110,16 @@ class Protocol(processors.ModelModifier):
         TODO: does not units-convert the initial value.
         """
         try:
-            var = self.model.get_variable_by_oxmeta_name(oxmeta_name)
-        except KeyError:
+            var = self._lookup_ontology_term(prefixed_name)
+        except ValueError:
             if initial_value is None or units is None:
-                raise ProtocolError("There is no model variable annotated with the term " + oxmeta_name)
+                raise ProtocolError("There is no model variable annotated with the term " + prefixed_name)
             else:
                 var = None
         if units is None:
             units = var.get_units()
         if var is None:
+            oxmeta_name = prefixed_name.split(':')[1]
             var = self.add_variable(self._get_protocol_component(), oxmeta_name, units, id=oxmeta_name)
             var.set_oxmeta_name(oxmeta_name)
             self._pending_oxmeta_assignments.append((var, oxmeta_name))
@@ -157,6 +158,15 @@ class Protocol(processors.ModelModifier):
         if initial_value:
             var.initial_value = unicode(initial_value)
         return var
+    
+    def add_or_replace_equation(self, assignment):
+        """Add the given assignment equation to the model.
+        
+        It will replace any existing definition of the same variable.
+        """
+        assert isinstance(assignment, mathml_apply)
+        assert assignment.operator().localName == u'eq'
+        self.inputs.add(assignment)
     
     def add_units_conversion_rule(self, from_units, to_units, conv_expr):
         """Add a new biology-aware units conversion rule.
@@ -433,18 +443,21 @@ class Protocol(processors.ModelModifier):
                 for ci_elt in self._find_ci_elts(child):
                     yield ci_elt
     
-    def _identify_referenced_variables(self, expr, special_name):
+    def _identify_referenced_variables(self, expr, special_name=None):
         """Figure out which variables are referenced in the given expression, and update ci elements.
         
         The expression should contain names as used in the protocol, i.e. prefixed names giving an
         ontology name for model variables, and bare names for variables added by the protocol.
-        Change each ci element to use the full (compname, varname) format.
+        Change each ci element to use the full "compname,varname" format.
         A ValueError is raised if any referenced variable doesn't exist.
         However, any reference to special_name is not checked and left as-is.
+        Also, names already in fully qualified form are assumed to be ok and left as-is.
         """
         for ci_elt in self._find_ci_elts(expr):
             vname = unicode(ci_elt)
             if vname == special_name:
+                continue
+            if ',' in vname:
                 continue
             if ':' in vname:
                 var = self._lookup_ontology_term(vname)
@@ -578,6 +591,7 @@ class Protocol(processors.ModelModifier):
         """
         assert isinstance(expr, mathml_apply)
         assert expr.operator().localName == u'eq', 'Expression is not an assignment'
+        self._identify_referenced_variables(expr)
         # Figure out what's on the LHS of the assignment
         lhs = expr.operands().next()
         if lhs.localName == u'ci':
