@@ -328,7 +328,7 @@ class Protocol(processors.ModelModifier):
         to the new variable instead.
         """
         free_var = self._free_var_has_changed
-        old_free_var = self.model.find_free_variables()[0]
+        old_free_var = self.model.find_free_vars()[0]
         self._update_connections(old_free_var, free_var)
         deriv_rhs = {}
         comp = self._get_protocol_component()
