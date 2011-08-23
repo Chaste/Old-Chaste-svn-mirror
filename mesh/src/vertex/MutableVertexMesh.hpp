@@ -67,7 +67,7 @@ protected:
     /** The area threshold at which T2 swaps occur in an apoptotic, triangular cell/element */
     double mT2Threshold;
 
-    /** Either to check for edges intersections (true) or not (false) */
+    /** Whether to check for edges intersections (true) or not (false) */
     bool mCheckForInternalIntersections;
 
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
@@ -233,9 +233,9 @@ protected:
         archive & mCellRearrangementThreshold;
         archive & mCellRearrangementRatio;
         archive & mT2Threshold;
+        archive & mCheckForInternalIntersections;
         archive & mDeletedNodeIndices;
         archive & mDeletedElementIndices;
-        archive & mCheckForInternalIntersections;
 //        archive & mLocationsOfT1Swaps;
 //        archive & mLocationsOfT3Swaps;
 

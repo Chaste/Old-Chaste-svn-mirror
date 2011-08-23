@@ -102,7 +102,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh()
     : mCellRearrangementThreshold(0.01), // Overwritten as soon as archiving is complete
       mCellRearrangementRatio(1.5), // Overwritten as soon as archiving is complete
-      mT2Threshold(0.001) // Overwritten as soon as archiving is complete
+      mT2Threshold(0.001), // Overwritten as soon as archiving is complete
+      mCheckForInternalIntersections(false) // Overwritten as soon as archiving is complete
 {
     this->mMeshChangesDuringSimulation = true;
     Clear();
