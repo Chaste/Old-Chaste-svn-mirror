@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 #include <cassert>
 
+//const double SMIDGE = 1e-10;  ///\todo #1827 Correlate this code with the use of Divides in UblasCustomFunctions (which is used for setting time steps)
 const double SMIDGE = 2e-10;  ///\todo #1827 Correlate this code with the use of Divides in UblasCustomFunctions (which is used for setting time steps)
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
@@ -59,7 +60,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
         }
 
         double test_value = (additionalTimes[i]-startTime)/mDt;
-        if (fabs(floor(test_value+0.5)-test_value) > 1e-12)
+        if (fabs(floor(test_value+0.5)-test_value) > 1e-12) ///\todo #1827 Magic number 
         {
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
@@ -70,7 +71,9 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     // If enforceConstantTimeStep check whether the times are such that we won't have a variable dt
     if (enforceConstantTimeStep)
     {
-        if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )
+        ///\todo #1827  Note that in most cases we are doing:
+        /// Divides(GetPdeTimeStep(), GetPrintingTimeStep())
+        if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )///\todo #1827 Magic number
         {
             EXCEPTION("TimeStepper estimate non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
         }
@@ -86,6 +89,7 @@ double TimeStepper::CalculateNextTime()
         next_time = mEnd;
     }
 
+    ///\todo #1827 Magic number
     if (    (mAdditionalTimes.size() > 0)                          // any additional times given
          && (mAdditionalTimesReached < mAdditionalTimes.size())    // not yet done all the additional times
          && ((next_time) + SMIDGE*(mDt) >= mAdditionalTimes[mAdditionalTimesReached]) ) // this next step takes us over an additional time
@@ -156,7 +160,7 @@ unsigned TimeStepper::GetTotalTimeStepsTaken() const
 
 void TimeStepper::ResetTimeStep(double dt)
 {
-    if (fabs(mDt-dt) > 1e-8)
+    if (fabs(mDt-dt) > 1e-8)///\todo #1827 Magic number
     {
         assert(dt > 0);
         mDt = dt;

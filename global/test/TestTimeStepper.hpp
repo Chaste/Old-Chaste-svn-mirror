@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cfloat>
 
+
 class TestTimeStepper : public CxxTest::TestSuite
 {
 public:
@@ -282,19 +283,13 @@ public:
          *       * Build type is (Anything?)
          */
         
-        // Abstracted from AbstractCardiacProblem
-        TimeStepper print_stepper(16383.00, 16384.30, 0.1, false);
-        while (!print_stepper.IsTimeAtEnd())
+        // Abstracted from AbstractDynamicLinearPdeSolver
+        TimeStepper pde_stepper(16384.1, 16384.2, 0.01, true);
+        while (!pde_stepper.IsTimeAtEnd())
         {
-            // Abstracted from AbstractDynamicLinearPdeSolver
-            TimeStepper pde_stepper(print_stepper.GetTime(), print_stepper.GetNextTime(), 0.01, true);
-            while (!pde_stepper.IsTimeAtEnd())
-            {
-                TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, 1e-10);
-                
-                pde_stepper.AdvanceOneTimeStep();
-            }
-            print_stepper.AdvanceOneTimeStep();
+            TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, 1e-10);
+            
+            pde_stepper.AdvanceOneTimeStep();
         }
     }
 };
