@@ -49,7 +49,8 @@ public:
 
         // run to 125 ms - about where the width is at its minimum (see figures
         // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))
-        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     NHS,
                                                      1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      60,   /* elec elem each dir */
@@ -75,7 +76,8 @@ public:
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     NHS,
                                                      1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      96,   /* elec elem each dir */
@@ -129,7 +131,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
-        CardiacElectroMechanicsProblem<3> problem(NHS,
+        CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
+                                                  NHS,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
@@ -165,7 +168,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,2,0.0);
 
-        CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
+        CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
+                                                  KERCHOFFS2003,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
@@ -248,7 +252,8 @@ public:
 //        }
 //        assert(impact_region.size() > 0);
 //
-//        CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
+//        CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
+//                                                  KERCHOFFS2003,
 //                                                  &electrics_mesh,
 //                                                  &mechanics_mesh,
 //                                                  fixed_nodes,

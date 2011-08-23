@@ -43,12 +43,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToCmguiConverter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "PetscTools.hpp"
-#include "NashHunterPoleZeroLaw.hpp"
 #include "ImplicitCardiacMechanicsSolver.hpp"
 #include "ExplicitCardiacMechanicsSolver.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "VoltageInterpolaterOntoMechanicsMesh.hpp"
+// default material laws
+#include "NashHunterPoleZeroLaw.hpp"
+
 
 
 template<unsigned DIM>
@@ -224,6 +226,7 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
+            CompressibilityType compressibilityType,
             ContractionModel contractionModel,
             TetrahedralMesh<DIM,DIM>* pElectricsMesh,
             QuadraticMesh<DIM>* pMechanicsMesh,
@@ -234,6 +237,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             double mechanicsSolveTimestep,
             double contractionModelOdeTimeStep,
             std::string outputDirectory = "") :
+        mCompressibilityType(compressibilityType),
         mpProblemDefinition(NULL),
         mpMeshPair(NULL)
 {
@@ -397,7 +401,16 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     // set up default material law if SetMaterialLaw() hasn't been called
     if(mpMaterialLaw == NULL)
     {
-        mpMaterialLaw = new NashHunterPoleZeroLaw<DIM>();
+        if(mCompressibilityType==INCOMPRESSIBLE)
+        {
+            mpMaterialLaw = new NashHunterPoleZeroLaw<DIM>();
+        }
+        else
+        {
+        	NEVER_REACHED; // in the process of being coded..
+            //mpMaterialLaw = new CompressibleMooneyRivlinMaterialLaw<DIM>(1.0,0.1);
+        }
+
         mAllocatedMaterialLawMemory = true;
     }
 
@@ -412,9 +425,18 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
                         mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case KERCHOFFS2003:
-            // stretch independent, so should use implicit (explicit may be unstable)
-            mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
+            if(mCompressibilityType==INCOMPRESSIBLE)
+            {
+                // stretch independent, so should use implicit (explicit may be unstable)
+                mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
                         mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+            }
+            else
+            {
+                // stretch independent, so should use implicit (explicit may be unstable)
+                mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+            }
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
@@ -439,7 +461,6 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMeshPair->SetUpBoxesOnFineMesh();
     mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechSolver->GetQuadratureRule()), false);
     mpMeshPair->DeleteFineBoxCollection();
-
 
 
 

@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define IMPLICITCARDIACMECHANICSSOLVER_HPP_
 
 #include "AbstractCardiacMechanicsSolver.hpp"
+#include "AbstractCardiacMechanicsSolverInterface.hpp"
 #include "LogFile.hpp"
 #include <cfloat>
 

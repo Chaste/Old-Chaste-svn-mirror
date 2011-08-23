@@ -41,11 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * = Cardiac Electro-mechanical Problems =
  * 
- * EMPTYLINE
-
  * == Introduction ==
- * 
- * EMPTYLINE
  * 
  * The tutorial explains how electro-mechanics problems can be solved in Chaste. The reader should certainly read
  * the electro-physiological tutorials before this tutorial, and it is helpful to have also had a look at
@@ -56,8 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * not solve these full equations: the mechanics information is not coupled back to electrics, ie by default
  * the conductivities do not depend  on deformation, and cell models do not get affected by stretch.
  * This has to be switched on if required - see comments on mechano-electric feedback below.
- *
- * EMPTYLINE
  *
  * Before going to the code, we list the sub-models/parameters that need to be set, or can be varied,
  * in electro-mechanical problems. The last four of the below are mechanics-specific.
@@ -88,11 +82,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * ''Timesteps:'' The should-divide rules are: (a) ode_timestep should-divide pde_timestep should-divide
  *  mechanics_update_timestep and (b) contraction_model_ode_timestep should-divide mechanics_update_timestep.
  * 
- * EMPTYLINE
- * 
  * '''Another note:''' mechanics problems are not currently implemented to scale in parallel yet.
- *
- * EMPTYLINE
  *
  * The basic includes are */
 #include <cxxtest/TestSuite.h>
@@ -105,8 +95,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 /*
- * EMPTYLINE
- *
  * == IMPORTANT: using HYPRE ==
  *
  * Mechanics solves involve solving a nonlinear system, which is broken down into a sequence of linear solves.
@@ -117,33 +105,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * although this will change in the future. HYPRE should be considered a pre-requisite for large mechanics problems.
  * You can run the first test below without HYPRE, but it is certainly recommended for the second test.
  *
- * EMPTYLINE
- *
  * To use HYRPE in mechanics solves, you need to have Petsc installed with HYPRE. However, if you followed installation
  * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
- *
- * EMPTYLINE
  *
  * To switch on HYPRE, open the file `pde/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
  * #define MECH_USE_HYPRE
  * near the top of the file (currently: line 53).
  *
- * EMPTYLINE
- *
  * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
  * on larger problems.
- *
- * EMPTYLINE
  *
  * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
  *
  */
 
-/* EMPTYLINE
- *
- * == Simple 2d test ==
- *
- * EMPTYLINE
+/* == Simple 2d test ==
  *
  * This test shows how to use the `CardiacElectroMechProbRegularGeom` class, which
  * inherits from the more general class `CardiacElectroMechanicsProblem` class but
@@ -156,36 +132,32 @@ public:
     {
         /* All electro-mechanics problems require a cell factory as normal. This particular
          * factory stimulates the LHS side (X=0) surface. */
-        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-5000*1000);
 
         /* The `CardiacElectroMechProbRegularGeom<2>` defines an electro-mechanics problem on a square. Two meshes are created
          * internally. We use a PDE timestep of 0.01 for the electrics, solving the mechanics every 1ms. */
-        CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,  // The contraction model (see below)
-                                                     0.1,  // width of square (cm) 
-                                                     5,    // Number mechanics elements in each direction 
-                                                     10,   // Number electrics elements in each direction  
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     KERCHOFFS2003,  // The contraction model (see below)
+                                                     0.1,  // width of square (cm)
+                                                     5,    // Number mechanics elements in each direction
+                                                     10,   // Number electrics elements in each direction
                                                      &cell_factory,
                                                      40.0, // end time
-                                                     0.01, // electrics timestep (ms) 
+                                                     0.01, // electrics timestep (ms)
                                                      1.0,  // mechanics solve timestep
-                                                     0.01, // contraction model ode timestep 
+                                                     0.01, // contraction model ode timestep
                                                      "TestCardiacElectroMechanicsExample" /* output directory */);
+
         /* The contraction model chosen above is KERCHOFFS2003 (Kerchoffs, Journal of Engineering Mathematics, 2003). Other possibilities
          * are 'NHS' (Niederer, Hunter, Smith, 2006), and 'NASH2004' (Nash, Progress in biophysics and molecular biology, 2004).
          *
-         * EMPTYLINE
-         *
          * Two meshes are created, one with five elements in each direction for the mechanics (so 5*5*2 triangles in total),
          * and a finer one for the electrics.
-         * 
-         * EMPTYLINE 
          * 
          * This leaves the material law, fibres direction and fixed nodes from the list above: the material
          * law is hard-coded to the Pole-zero material law, the fibre direction is by default the X-direction, and the fixed
          * nodes are automatically set (when `CardiacElectroMechProbRegularGeom` is used) to be those satistying X=0, ie
          * the left-hand edge. We discuss how to change these in the second test.
-         *
-         * EMPTYLINE
          *
          * Then all we have to do is call Solve.
          */
@@ -199,15 +171,11 @@ public:
          * matlab-readable files, and a cmgui output directory. The latter has a script for automatically loading
          * all the results.
          * 
-         * EMPTYLINE
-         * 
          * Visualise the results by calling `cmgui LoadSolutions.com` in the directory
          * `TestCardiacElectroMechanicsExample/deformation/cmgui` . The electrics data can be visualised on the
          * deforming mesh by using the scene (and spectrum) editor. (See cmgui website for information on how
          * to use cmgui, but very briefy: graphics -> scene editor -> select surfaces -> add, then check 'Data'. Then
          * graphics -> Spectrum editor -> min=-90, max=50.).
-         *
-         * EMPTYLINE
          *
          * To observe the tissue relaxing you can re-run the simulation with an end time of more than 350ms.
          */
@@ -215,17 +183,11 @@ public:
 
 
 
-    /* EMPTYLINE
-     * 
-     * == Twisting cube: 3d example with varying fibre directions ==
-     * 
-     * EMPTYLINE
+    /* == Twisting cube: 3d example with varying fibre directions ==
      * 
      * The second test is a longer running 3d test - the 'dont' in the name of the test
      * means it isn't run automatically. To run, remove the 'dont'. It is worth running
      * with `build=GccOpt_ndebug`, and '''see the comments about HYPRE above.'''
-     * 
-     * EMPTYLINE
      * 
      * This test shows how to do 3d simulations (trivial changes), and how to use 
      * `CardiacElectroMechanicsProblem`, which requires meshes and fixed nodes to be passed 
@@ -253,7 +215,8 @@ public:
 
         /* Create the problem object, which has the same interface as the the child class used
          * in the first test, except it takes in meshes and fixed nodes (as std vectors). */
-        CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
+        CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
+                                                  KERCHOFFS2003,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
@@ -266,8 +229,6 @@ public:
 
         /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Here we show
          * how this can be changed.
-         *
-         * EMPTYLINE
          *
          * Fibre files should be .ortho type files (not .axi), since the sheet direction is used in the default material
          * law (see file formats documentation if you haven't come across these files, basically .axi files specify the
@@ -331,11 +292,7 @@ public:
      * (ii) if you want a cell model that includes SAC you have to implement one. There is a single example of this in
      * the code base at the moment, see  `heart/src/odes/ionicmodels/NobleVargheseKohlNoble1998WithSac.hpp`.
      *
-     * EMPTYLINE
-     *
      * Further functionality and examples using M.E.F. will be added in the near future.
-     *
-     * EMPTYLINE
      *
      * == Other comments ==
      *

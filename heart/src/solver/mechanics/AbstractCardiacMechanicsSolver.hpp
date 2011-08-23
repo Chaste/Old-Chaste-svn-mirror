@@ -31,8 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "IncompressibleNonlinearElasticitySolver.hpp"
 #include "CompressibleNonlinearElasticitySolver.hpp"
-#include "NashHunterPoleZeroLaw.hpp"
-#include "QuadraticBasisFunction.hpp" // not included in *NonlinearElasticitySolver.hpp, just the cpp
+#include "QuadraticBasisFunction.hpp"
 #include "LinearBasisFunction.hpp"
 #include "AbstractContractionModel.hpp"
 #include "FibreReader.hpp"

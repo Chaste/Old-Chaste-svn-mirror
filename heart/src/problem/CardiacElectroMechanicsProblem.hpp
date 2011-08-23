@@ -78,6 +78,9 @@ class CardiacElectroMechanicsProblem
 friend class TestCardiacElectroMechanicsProblem;
 
 protected :
+    /** Either COMPRESSIBLE or INCOMPRESSIBLE */
+    CompressibilityType mCompressibilityType;
+
     /** Contraction model (from enumeration) */
     ContractionModel mContractionModel;
     /** The cardiac problem class */
@@ -194,6 +197,7 @@ public :
 
     /**
      * Constructor.
+     * @param compressibilityType Should be either INCOMPRESSIBLE or COMPRESSIBLE
      * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param pElectricsMesh  Mesh on which to solve electrics (Monodomain)
      * @param pMechanicsMesh  Mesh (2nd order) on which to solve mechanics
@@ -205,7 +209,8 @@ public :
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
-    CardiacElectroMechanicsProblem(ContractionModel contractionModel,
+    CardiacElectroMechanicsProblem(CompressibilityType compressibilityType,
+                                   ContractionModel contractionModel,
                                    TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
                                    std::vector<unsigned> fixedMechanicsNodes,

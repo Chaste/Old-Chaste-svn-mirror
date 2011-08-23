@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NumericFileComparison.hpp"
 #include "Hdf5DataReader.hpp"
+#include "NashHunterPoleZeroLaw.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
@@ -51,7 +52,8 @@ public:
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     NHS,
                                                      1.0, /* width (cm) */
                                                      1,   /* mech elem each dir */
                                                      96,  /* elec elem each dir */
@@ -93,7 +95,8 @@ public:
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     NHS,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
@@ -128,10 +131,10 @@ public:
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // coverage
-        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,1,0.01,"");
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,1,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid contraction model");
 
-        TS_ASSERT_THROWS_CONTAINS(CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NHS,0.05,1,5,&cell_factory,1,0.01,0.025,0.01,""),"does not divide");
+        TS_ASSERT_THROWS_CONTAINS(CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,NHS,0.05,1,5,&cell_factory,1,0.01,0.025,0.01,""),"does not divide");
 
 
         MechanicsEventHandler::Headings();
@@ -144,7 +147,8 @@ public:
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     KERCHOFFS2003,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
@@ -189,7 +193,8 @@ public:
 
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(-1000*1000);
 
-        CardiacElectroMechProbRegularGeom<2> problem(NASH2004,
+        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
+                                                     NASH2004,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
@@ -237,7 +242,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
-        CardiacElectroMechanicsProblem<2> problem(NASH2004,
+        CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                  NASH2004,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
@@ -334,7 +340,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
-        CardiacElectroMechanicsProblem<2> problem(NASH2004,
+        CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                  NASH2004,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
@@ -403,5 +410,27 @@ public:
         }
     }
 
+///// #1699
+//    void TestWithCompressibleApproach() throw(Exception)
+//    {
+//        HeartEventHandler::Disable();
+//
+//        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+//
+//        CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
+//                                                     KERCHOFFS2003,
+//                                                     0.05, /* width (cm) */
+//                                                     1,    /* mech mesh size*/
+//                                                     5,    /* elec elem each dir */
+//                                                     &cell_factory,
+//                                                     20,    /* end time */
+//                                                     0.01,  /* electrics timestep (ms) */
+//                                                     1.0,   /* mechanics solve timestep */
+//                                                     0.01,  /* Kerchoffs ode timestep */
+//                                                     "TestCompressibleWithKerchoffs");
+//        problem.Solve();
+//
+//        // todo - add tests
+//    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

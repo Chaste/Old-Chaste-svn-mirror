@@ -44,6 +44,7 @@ public:
     /**
      * Constructor.
      *
+     * @param compressibilityType Should be either INCOMPRESSIBLE or COMPRESSIBLE
      * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param width Width and height of the square
      * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
@@ -55,7 +56,8 @@ public:
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
-    CardiacElectroMechProbRegularGeom(ContractionModel contractionModel,
+    CardiacElectroMechProbRegularGeom(CompressibilityType compressibilityType,
+                                      ContractionModel contractionModel,
                                       double width,
                                       unsigned numMechanicsElementsEachDir,
                                       unsigned numElectricsElementsEachDir,
@@ -65,7 +67,8 @@ public:
                                       double mechanicsSolveTimestep,
                                       double contractionModelOdeTimeStep,
                                       std::string outputDirectory = "")
-        : CardiacElectroMechanicsProblem<DIM>(contractionModel,
+        : CardiacElectroMechanicsProblem<DIM>(compressibilityType,
+                                              contractionModel,
                                               NULL, NULL, std::vector<unsigned>(), // all these set below
                                               pCellFactory, endTime,
                                               electricsPdeTimeStep,
