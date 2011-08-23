@@ -138,14 +138,14 @@ public:
         boundary_condition_parameter_file->close();
 
         std::string boundary_condition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + boundary_condition_results_dir + "results.parameters crypt/test/data/TestCryptSimulationBoundaryCondition/results2d.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + boundary_condition_results_dir + "results2d.parameters crypt/test/data/TestCryptSimulationBoundaryCondition/results2d.parameters").c_str()), 0);
 
         // Test OutputCellPopulationBoundaryConditionInfo() method
         out_stream boundary_condition_info_file = output_file_handler.OpenOutputFile("results2d.info");
         boundary_condition.OutputCellPopulationBoundaryConditionInfo(boundary_condition_info_file);
         boundary_condition_info_file->close();
 
-        TS_ASSERT_EQUALS(system(("diff " + boundary_condition_results_dir + "results.info crypt/test/data/TestCryptSimulationBoundaryCondition/results2d.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + boundary_condition_results_dir + "results2d.info crypt/test/data/TestCryptSimulationBoundaryCondition/results2d.info").c_str()), 0);
     }
 
     void TestImposeBoundaryConditionWithNoWnt1d() throw(Exception)
