@@ -472,6 +472,7 @@ class cellml_model(element_base):
 
     def _add_variable(self, var, varname, compname):
         """Add a new variable to the model."""
+        assert (compname, varname) not in self._cml_variables
         self._cml_variables[(compname, varname)] = var
 
     def _del_variable(self, varname, compname):
@@ -4121,10 +4122,10 @@ class mathml_cn(mathml, mathml_units_mixin_tokens):
     @staticmethod
     def create_new(elt, value, units):
         """Create a new <cn> element with the given value and units."""
-        attrs = {(u'cml:units', NSS[u'cml']): units}
+        attrs = {(u'cml:units', NSS[u'cml']): unicode(units)}
         new_elt = elt.xml_create_element(u'cn', NSS[u'm'],
                                          attributes=attrs,
-                                         content=value)
+                                         content=unicode(value))
         return new_elt
 
 class mathml_ci(mathml, mathml_units_mixin_tokens):
@@ -4263,7 +4264,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
     def create_new(elt, variable_name):
         """Create a new <ci> element with the given variable name."""
         new_elt = elt.xml_create_element(u'ci', NSS[u'm'],
-                                         content=variable_name)
+                                         content=unicode(variable_name))
         return new_elt
 
 class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
@@ -4953,10 +4954,10 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             check_append_safety(qual)
             app.xml_append(qual)
         for op in operands:
-            if isinstance(op, unicode):
+            if isinstance(op, basestring):
                 # Variable name
                 op = app.xml_create_element(u'ci', NSS[u'm'],
-                                            content=op)
+                                            content=unicode(op))
             elif isinstance(op, tuple):
                 # Constant with units
                 if isinstance(op[1], dict):
@@ -5343,6 +5344,28 @@ class mathml_piecewise(mathml_constructor, mathml_units_mixin):
         return piecewise
 
 
+class mathml_lambda(mathml_constructor):
+    """Class representing the MathML lambda construct.
+    
+    Note that we don't support lambda occuring in CellML models.  However, it is used
+    for defining special units conversion rules using the protocol syntax.
+    """
+    def __init__(self):
+        super(mathml_lambda, self).__init__()
+    
+    @staticmethod
+    def create_new(elt, bound_var_names, body_expr):
+        """Create a new lambda from the sequence of bvar names and expression."""
+        lambda_ = elt.xml_create_element(u'lambda', NSS[u'm'])
+        for bvar_name in bound_var_names:
+            bvar = elt.xml_create_element(u'bvar', NSS[u'm'])
+            bvar.xml_append(mathml_ci.create_new(elt, bvar_name))
+            lambda_.xml_append(bvar)
+        check_append_safety(body_expr)
+        lambda_.xml_append(body_expr)
+        return lambda_
+
+
 class mathml_operator(mathml):
     """Base class for MathML operator elements."""
     def __init__(self):
@@ -5359,10 +5382,9 @@ class mathml_operator(mathml):
             "Wrong number of operands for <", self.localName, "> ",
             "(found ", str(found), "; wanted", ' or '.join(map(str, wanted)), ")"]))
 
+
 class mathml_diff(mathml_operator):
-    """
-    Class representing the diff element, containing some useful methods.
-    """
+    """Class representing the diff element, containing some useful methods."""
     def __init__(self):
         super(mathml_diff, self).__init__()
         return

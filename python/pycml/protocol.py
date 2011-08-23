@@ -51,7 +51,7 @@ class Protocol(processors.ModelModifier):
      - add_or_replace_equation
      - define_units_conversion_rule
     """
-    def __init__(self, model, multi_stage=False):
+    def __init__(self, model, multi_stage=False, namespaces={}):
         """Create a new protocol.
         
         Eventually this will have arguments to parse a protocol definition file
@@ -63,6 +63,7 @@ class Protocol(processors.ModelModifier):
         self._units_converter = None
         self._pending_oxmeta_assignments = []
         self._free_var_has_changed = None
+        self.set_protocol_namespaces(namespaces)
         self.model = model
         self.inputs = set()
         self.outputs = set()
@@ -144,6 +145,51 @@ class Protocol(processors.ModelModifier):
             if not units.equals(t.get_units()):
                 # We'll need a conversion, and to convert all ODEs too
                 self._free_var_has_changed = newVar or self._replace_variable(t, units)
+    
+    def declare_new_variable(self, name, units, initial_value=None):
+        """Declare a new variable for use in the model interface.
+        
+        The variable will be added to the protocol component, and the units added to the model
+        if they're not already present.  An assertion will be tripped if a variable with the
+        given name already exists.
+        """
+        var = self.add_variable(self._get_protocol_component(), name, units)
+        if initial_value:
+            var.initial_value = unicode(initial_value)
+        return var
+    
+    def add_units_conversion_rule(self, from_units, to_units, conv_expr):
+        """Add a new biology-aware units conversion rule.
+        
+        The third argument must be an instance of mathml_lambda taking a single parameter.
+        It will effectively be passed the RHS of an assignment expression, which has units
+        dimensionally equivalent to from_units, and must return an expression with units
+        dimensionally equivalent to to_units.
+        
+        Note that the UnitsConverter class needs a function object that will modify the
+        assignment equation in-place, so that's what we create and store.
+        """
+        converter = self.get_units_converter()
+        children = list(conv_expr.xml_element_children())
+        assert len(children) == 2, "A units conversion rule must have a single bound variable: " + conv_expr.xml()
+        assert children[0].localName == u'bvar', "A units conversion rule must have a single bound variable: " + conv_expr.xml()
+        bvar_name = unicode(children[0].ci).strip()
+        body_expr = children[1]
+        # Modify variable references within the body_expr so they use fully qualified names
+        # (compname, varname), except for uses of the bound variable
+        try:
+            self._identify_referenced_variables(body_expr, bvar_name)
+        except ValueError:
+            # We can't apply this rule as some required variables are missing
+            print "Warning: unable to utilise units conversion rule below as required variables missing;",
+            print "this may lead to later units conversion errors:"
+            print "  From", from_units.description(), "to", to_units.description(), "via", conv_expr.xml()
+        func = lambda assignment: self._apply_conversion_rule(assignment, body_expr, bvar_name)
+        converter.add_special_conversion(from_units, to_units, func)
+    
+    def set_protocol_namespaces(self, mapping):
+        """Set the prefix->URI mapping used by the protocol file."""
+        self._protocol_namespaces = mapping
 
     def modify_model(self):
         """Actually apply protocol modifications to the model.
@@ -202,18 +248,6 @@ class Protocol(processors.ModelModifier):
         self.outputs.add(output_var)
         return output_var
     
-    def _replace_variable(self, var, units):
-        """Replace the given variable with a version in the given units in the protocol component.
-        
-        Ensures that the units are added to the model if needed, and transfers the cmeta:id if
-        present.  It doesn't transfer the initial_value, since this would break the output variable
-        case.
-        """
-        units = self.add_units(units)
-        new_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id)
-        self.del_attr(var, u'id', NSS['cmeta'])
-        return new_var
-    
     def specify_as_input(self, var, units):
         """Specify the given variable within the model as a protocol input.
         
@@ -247,6 +281,18 @@ class Protocol(processors.ModelModifier):
         self.inputs.add(input_var)
         return input_var
         
+    def _replace_variable(self, var, units):
+        """Replace the given variable with a version in the given units in the protocol component.
+        
+        Ensures that the units are added to the model if needed, and transfers the cmeta:id if
+        present.  It doesn't transfer the initial_value, since this would break the output variable
+        case.
+        """
+        units = self.add_units(units)
+        new_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id)
+        self.del_attr(var, u'id', NSS['cmeta'])
+        return new_var
+    
     def _check_input(self, input):
         """New inputs must not already exist in the model!"""
         if isinstance(input, cellml_units):
@@ -349,7 +395,7 @@ class Protocol(processors.ModelModifier):
         return self._protocol_component
     
     def _split_name(self, full_name):
-        """Split a full name into cname,vname, creating the component if needed.
+        """Split a full name into cname,vname, creating the protocol component if needed.
         
         If the full_name doesn't contain a component part, the 'protocol' component
         will be used.
@@ -365,9 +411,9 @@ class Protocol(processors.ModelModifier):
         return cname, vname
         
     def _rename_local_variables(self, expr):
-        """
-        Change local variable references in the given expression to refer
-        explicitly to the protocol component.
+        """Change local variable references in the given expression to refer to the protocol component.
+        
+        TODO: not actually used!  Remove?
         """
         for ci_elt in self._find_ci_elts(expr):
             vname = unicode(ci_elt)
@@ -375,7 +421,7 @@ class Protocol(processors.ModelModifier):
                 # Do the rename
                 cname = self._get_protocol_component().name
                 full_name = cname + u',' + vname
-                expr._rename(full_name)
+                ci_elt._rename(full_name)
     
     def _find_ci_elts(self, expr):
         """Get an iterator over all ci elements on the descendent-or-self axis of the given element."""
@@ -387,6 +433,84 @@ class Protocol(processors.ModelModifier):
                 for ci_elt in self._find_ci_elts(child):
                     yield ci_elt
     
+    def _identify_referenced_variables(self, expr, special_name):
+        """Figure out which variables are referenced in the given expression, and update ci elements.
+        
+        The expression should contain names as used in the protocol, i.e. prefixed names giving an
+        ontology name for model variables, and bare names for variables added by the protocol.
+        Change each ci element to use the full (compname, varname) format.
+        A ValueError is raised if any referenced variable doesn't exist.
+        However, any reference to special_name is not checked and left as-is.
+        """
+        for ci_elt in self._find_ci_elts(expr):
+            vname = unicode(ci_elt)
+            if vname == special_name:
+                continue
+            if ':' in vname:
+                var = self._lookup_ontology_term(vname)
+            else:
+                try:
+                    var = self._get_protocol_component().get_variable_by_name(vname)
+                except KeyError:
+                    raise ValueError("The variable name '%s' has not been declared in the protocol"
+                                     % vname)
+            full_name = var.component.name + u',' + var.name
+            ci_elt._rename(full_name)
+    
+    def _lookup_ontology_term(self, prefixed_name):
+        """Find the variable annotated with the given term, if it exists.
+        
+        The term should be given in prefixed form, with the prefix appearing in the protocol's namespace
+        mapping (prefix->uri, as found e.g. at elt.rootNode.xmlns_prefixes).
+        
+        Currently we just support the oxmeta annotations.
+        
+        Will throw ValueError if the variable doesn't exist in the model, or the given term is invalid.
+        """
+        try:
+            prefix, localname = prefixed_name.split(':')
+        except ValueError:
+            raise ValueError("Ontology term '%s' is not a qname - it doesn't have a namespace prefix"
+                             % prefixed_name)
+        try:
+            nsuri = self._protocol_namespaces[prefix]
+        except KeyError:
+            raise ValueError("The namespace prefix '%s' has not been declared" % prefix)
+        if nsuri != NSS['oxmeta']:
+            raise ValueError("We only support 'oxmeta' annotations at present")
+        return self.model.get_variable_by_oxmeta_name(localname)
+    
+    def _apply_conversion_rule(self, assignment, conv_template, placeholder_name):
+        """Apply a units conversion rule defined by self.add_units_conversion_rule.
+        
+        Modify the given assignment in-place, replacing the RHS by a copy of conv_template, except
+        ci references to placeholder_name are replaced by (a copy of) the original RHS.
+        
+        TODO: check connection creation for used vars
+        """
+        rhs = assignment.eq.rhs
+        assignment.safe_remove_child(rhs)
+        new_rhs = mathml.clone(conv_template)
+        copy_rhs = False
+        for ci_elt in self._find_ci_elts(new_rhs):
+            vname = unicode(ci_elt).strip()
+            if vname == placeholder_name:
+                # Copy the original RHS here, except if it's the first use don't bother copying
+                if copy_rhs:
+                    rhs = mathml.clone(rhs)
+                else:
+                    copy_rhs = True
+                ci_elt.xml_parent.replace_child(ci_elt, rhs)
+            else:
+                # Ensure we have connections needed to get the variable in this component
+                cname, local_name = vname.split(',')
+                our_cname = assignment.component.name
+                if cname != our_cname:
+                    local_var = self.connect_variables((cname, local_name), (our_cname, local_name))
+                    local_name = local_var.name
+                ci_elt._rename(local_name)
+        assignment.xml_append(new_rhs)
+
     def _add_units_conversions(self):
         """Apply units conversions, in particular 'special' ones, to the protocol component.
         
