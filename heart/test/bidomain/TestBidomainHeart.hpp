@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudy1991.hpp"
-#include "TrianglesMeshWriter.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "SimpleStimulus.hpp"
 #include "PetscTools.hpp"

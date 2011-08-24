@@ -116,7 +116,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * equations in block form as it makes things clearer, but have to remember that the code
  * deals with STRIPED data structures.
  *
- * These are some basic includes as in the solving-PDEs tutorial
+ * These are some basic includes as in the solving-PDEs tutorials
  */
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
@@ -124,6 +124,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "TrianglesMeshWriter.hpp"
 /* We need to include the following two classes if we are going to use a combination of
  * (element_dim, space_dim, problem_dim) that isn't explicitly instantiated in
  * `BoundaryConditionsContainer.cpp` (without these two includes this test will
@@ -476,26 +477,50 @@ public:
         solver.SetOutputDirectoryAndPrefix("ThreeVarCoupledProblem","results");
 
         /* When an output directory has been specified, the solver writes output in HDF5 format. To
-         * convert this to another output format, we call the relevant method. Here, we wish to generate,
-         * output in a simple .txt format. The esults can be loaded and visualized in Matlab or Octave,
-         * for example. Each file contains, for each node: x y u v w; and there is one file for each printing
-         * time.
+         * convert this to another output format, we call the relevant method. Here, we convert
+         * the output to plain txt files. We also say how often to write the data, telling the
+         * solver to output results to file every tenth timestep. The solver will create
+         * one file for each variable and for each time, so for example, the file
+         * results_Variable_0_10 is the results for u, over all nodes, at the 11th printed time.
+         * Have a look in the output directory after running the test. (Note: The HDF5 data can also be
+         * converted to meshalyzer, VTK or cmgui formats).
          */
         solver.SetOutputToTxt(true);
-
-        /* Lastly we specify how often we wish to output results. For simplicity, we do this by specifying
-         * the printing timestep multiple (here we are telling the solver to output results to file every
-         * tenth timestep):
-         */
         solver.SetPrintingTimestepMultiple(10);
 
         /* We are now ready to solve the system. */
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
+        /* The plain txt output can be loaded into matlab for easy visualisation. For this we
+         * also need the mesh data - at the very least the nodal locations - so we also write out
+         * the mesh
+         */
+        TrianglesMeshWriter<2,2> mesh_writer("ThreeVarCoupledProblem", "mesh", false /*don't clean (ie delete everything in) directory!*/);
+        mesh_writer.WriteFilesUsingMesh(mesh);
+
         /* Note that we need to destroy the initial condition vector as well as the solution. */
         VecDestroy(initial_condition);
         VecDestroy(result);
+        /*
+         *
+         * '''Visualisation:''' To visualise in MATLAB/OCTAVE, you can load the node file,
+         * and then the data files. However, the node file needs to be edited to remove any
+         * comment lines (lines starting with '#') and the header line (which says how
+         * many nodes there are). (The little matlab script 'anim/matlab/read_chaste_node_file.m'
+         * can be used to do this, though it is not claimed to be very robust). As an
+         * example matlab visualisation script, the following, if run from the output
+         * directory, plots w:
+         *
+         * pos = read_chaste_node_file('mesh.node');
+         * for i=0:200
+         *   file = ['txt_output/results_Variable_2_',num2str(i),'.txt'];
+         *   u = load(file);
+         *   plot3(pos(:,1),pos(:,2),u,'*');
+         *   pause;
+         * end;
+         *
+         */
     }
 };
 
