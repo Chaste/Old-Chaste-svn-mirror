@@ -52,9 +52,25 @@ CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
         mWriteBetaCatenin = true;
     }
 
-    // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
-    CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);
-    mBoundaryConditions.push_back(p_boundary_condition);
+    if (!mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    {
+		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+		CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);
+		AddCellPopulationBoundaryCondition(p_boundary_condition);
+    }
+}
+
+CryptSimulation2d::~CryptSimulation2d()
+{
+	// Delete the CryptSimulationBoundaryCondition object from mBoundaryConditions
+	for (std::vector<AbstractCellPopulationBoundaryCondition<2>*>::iterator it=mBoundaryConditions.begin();
+         it != mBoundaryConditions.end();
+         ++it)
+    {
+		delete *it;
+    }
+    // Now clear the container in case another piece of code tries to delete it
+    mBoundaryConditions.clear();
 }
 
 c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)

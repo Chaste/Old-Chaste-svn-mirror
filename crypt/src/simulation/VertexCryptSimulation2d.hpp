@@ -135,6 +135,13 @@ public:
                       bool initialiseCells=true);
 
     /**
+     * Destructor.
+     *
+     * This frees the CryptSimulationBoundaryCondition.
+     */
+    virtual ~VertexCryptSimulation2d();
+
+    /**
      * Set method for mUseJiggledBottomCells.
      */
     void UseJiggledBottomCells();

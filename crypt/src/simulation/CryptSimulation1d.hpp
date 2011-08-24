@@ -96,6 +96,13 @@ public:
                       bool initialiseCells=true);
 
     /**
+     * Destructor.
+     *
+     * This frees the CryptSimulationBoundaryCondition.
+     */
+    virtual ~CryptSimulation1d();
+
+    /**
      * Outputs simulation parameters to file
      *
      * As this method is pure virtual, it must be overridden

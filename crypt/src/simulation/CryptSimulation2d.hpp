@@ -146,6 +146,13 @@ public:
                       bool deleteCellPopulationAndForceCollection=false,
                       bool initialiseCells=true);
 
+    /**
+     * Destructor.
+     *
+     * This frees the CryptSimulationBoundaryCondition.
+     */
+    virtual ~CryptSimulation2d();
+
     /** Set method for mUseJiggledBottomCells. */
     void UseJiggledBottomCells();
 

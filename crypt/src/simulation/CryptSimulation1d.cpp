@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation1d.hpp"
 #include "WntConcentration.hpp"
 
-
 CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
@@ -39,11 +38,26 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
 {
     mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
 
-    // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
-    CryptSimulationBoundaryCondition<1>* p_boundary_condition = new CryptSimulationBoundaryCondition<1>(&rCellPopulation);
-    mBoundaryConditions.push_back(p_boundary_condition);
+    if (!mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    {
+		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+		CryptSimulationBoundaryCondition<1>* p_boundary_condition = new CryptSimulationBoundaryCondition<1>(&rCellPopulation);
+		AddCellPopulationBoundaryCondition(p_boundary_condition);
+    }
 }
 
+CryptSimulation1d::~CryptSimulation1d()
+{
+    // Delete the CryptSimulationBoundaryCondition object from mBoundaryConditions
+	for (std::vector<AbstractCellPopulationBoundaryCondition<1>*>::iterator it=mBoundaryConditions.begin();
+         it != mBoundaryConditions.end();
+         ++it)
+    {
+		delete *it;
+    }
+    // Now clear the container in case another piece of code tries to delete it
+    mBoundaryConditions.clear();
+}
 
 c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(CellPtr pParentCell)
 {
