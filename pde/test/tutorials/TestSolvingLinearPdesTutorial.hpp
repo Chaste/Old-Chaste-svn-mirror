@@ -333,6 +333,26 @@ public:
         solver.SetTimes(t_start, t_end);
         solver.SetTimeStep(dt);
 
+        /* When we call Solve() below we will just get the solution at the final time. If we want
+         * to have intermediate solutions written to file, we do the following. We start by
+         * specifying an output directory and filename prefix for our results file:
+         */
+        solver.SetOutputDirectoryAndPrefix("ParabolicSolverTutorial","results");
+        /* When an output directory has been specified, the solver writes output in HDF5 format. To
+         * convert this to another output format, we call the relevant method. Here, we convert
+         * the output to plain txt files. We also say how often to write the data, telling the
+         * solver to output results to file every tenth timestep. The solver will create
+         * one file for each variable (in this case there is only one variable) and for each time,
+         * so for example, the file
+         * results_Variable_0_10 is the results for u, over all nodes, at the 11th printed time.
+         * Have a look in the output directory after running the test. (Note: The HDF5 data can also be
+         * converted to meshalyzer, VTK or cmgui formats). (For comments in visualising the data in
+         * matlab or octave, see the end of the tutorial UserTutorials/WritingPdeSolvers)
+         */
+        solver.SetOutputToTxt(true);
+        solver.SetPrintingTimestepMultiple(10);
+
+
         /* Now we can solve the problem. The {{{Vec}}} that is returned can be passed into a
          * {{{ReplicatableVector}}} as before
          */
