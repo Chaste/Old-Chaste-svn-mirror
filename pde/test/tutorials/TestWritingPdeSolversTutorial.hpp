@@ -504,14 +504,14 @@ public:
         VecDestroy(result);
         /*
          *
-         * '''Visualisation:''' To visualise in MATLAB/OCTAVE, you can load the node file,
+         * '''Visualisation:''' To visualise in matlab/octave, you can load the node file,
          * and then the data files. However, the node file needs to be edited to remove any
          * comment lines (lines starting with '#') and the header line (which says how
          * many nodes there are). (The little matlab script 'anim/matlab/read_chaste_node_file.m'
          * can be used to do this, though it is not claimed to be very robust). As an
          * example matlab visualisation script, the following, if run from the output
          * directory, plots w:
-         *
+         * {{{
          * pos = read_chaste_node_file('mesh.node');
          * for i=0:200
          *   file = ['txt_output/results_Variable_2_',num2str(i),'.txt'];
@@ -519,6 +519,7 @@ public:
          *   plot3(pos(:,1),pos(:,2),u,'*');
          *   pause;
          * end;
+         * }}}
          *
          */
     }
