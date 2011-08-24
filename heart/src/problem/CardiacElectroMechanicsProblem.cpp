@@ -407,7 +407,8 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         }
         else
         {
-        	NEVER_REACHED; // in the process of being coded..
+            // in the process of being coded..
+        	NEVER_REACHED;
             //mpMaterialLaw = new CompressibleMooneyRivlinMaterialLaw<DIM>(1.0,0.1);
         }
 
@@ -425,17 +426,18 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
                         mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             break;
         case KERCHOFFS2003:
+            // stretch independent, so should use implicit solver (explicit may be unstable)
             if(mCompressibilityType==INCOMPRESSIBLE)
             {
-                // stretch independent, so should use implicit (explicit may be unstable)
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
                         mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             }
             else
             {
-                // stretch independent, so should use implicit (explicit may be unstable)
-                mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                // in the process of being coded..
+                NEVER_REACHED;
+                //mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
+                //        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             }
             break;
         case NHS:
