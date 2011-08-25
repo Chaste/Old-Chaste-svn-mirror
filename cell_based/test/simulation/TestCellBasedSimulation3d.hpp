@@ -361,8 +361,6 @@ public:
         // Set up cells by iterating through the mesh nodes
         unsigned num_nodes = p_mesh->GetNumAllNodes();
 
-        unsigned num_epithelial_cells = (width+1)*(height+1);
-
     	boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
     	std::vector<CellPtr> cells;
