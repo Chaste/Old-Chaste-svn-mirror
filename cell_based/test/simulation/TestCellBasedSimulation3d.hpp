@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "Debug.hpp"
 
 class TestCellBasedSimulation3d : public AbstractCellBasedTestSuite
 {
@@ -212,8 +211,6 @@ public:
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_nodes = p_mesh->GetNumAllNodes();
-
-        PRINT_VARIABLE(num_nodes);
 
         std::vector<CellPtr> cells;
         std::vector<CellPtr> cells2;
