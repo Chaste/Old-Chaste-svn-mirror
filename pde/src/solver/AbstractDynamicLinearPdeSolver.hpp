@@ -238,7 +238,7 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Initia
 	mpHdf5Writer->DefineFixedDimension((this->mpMesh)->GetNumNodes());
 
 	// Only used to get an estimate of the number of timesteps below
-	unsigned estimated_num_printing_timesteps = 1 + (mTend - mTstart)/(mIdealTimeStep*mPrintingTimestepMultiple);
+	unsigned estimated_num_printing_timesteps = 1u + (unsigned)((mTend - mTstart)/(mIdealTimeStep*mPrintingTimestepMultiple));
 
 	/**
 	 * \todo allow user to specify units of time and names and units of
