@@ -85,7 +85,7 @@ public:
         LinearParabolicPdeSystemWithCoupledOdeSystemSolver<1,1,1> solver(&mesh, &pde, &bcc, ode_systems);
 
         // Test setting end time and timestep
-        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0), "Starting time has to less than ending time");
+        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0), "Start time has to be less than end time");
         TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
 
         // Set end time and timestep

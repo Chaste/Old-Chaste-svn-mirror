@@ -282,6 +282,10 @@ public:
         //HeatEquation<2> pde;
         //SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
+        /* The interface is exactly the same as the `SimpleLinearParabolicSolver`. */
+        solver.SetTimeStep(0.0001);
+        solver.SetTimes(0.0, 0.2);
+
         std::vector<double> init_cond(mesh.GetNumNodes(), 0.0);
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -294,62 +298,21 @@ public:
             }
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-        solver.SetTimeStep(0.0001);
+        solver.SetInitialCondition(initial_condition);
 
-        double start_time = 0.0;
-        double end_time   = 0.2;
+        solver.SetOutputDirectoryAndPrefix("ExplicitHeatEquationSolver","results");
 
-        /* All of the below is just for writing out the solution at various times  */
-        OutputFileHandler handler("ExplicitHeatEquationSolver");
+        solver.SetOutputToTxt(true);
 
-        out_stream p_file = handler.OpenOutputFile("results_0.txt");
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNode(i)->rGetLocation()[0];
-            double y = mesh.GetNode(i)->rGetLocation()[1];
-            *p_file << x << " " << y << " " << init_cond[i] << "\n";
-        }
-        p_file->close();
-
-
-        unsigned num_printing_times = 20;
-
-        Vec result; // declared outside the loop so it can be deleted at the end
-
-
-        for(unsigned i=0; i<num_printing_times; i++)
-        {
-            double t0 = start_time + (end_time-start_time)*i/num_printing_times;
-            double t1 = start_time + (end_time-start_time)*(i+1)/num_printing_times;
-
-            solver.SetTimes(t0, t1);
-            solver.SetInitialCondition(initial_condition); // see below
-
-            result = solver.Solve();
-
-            // get the result write to a file
-            ReplicatableVector result_repl(result);
-            std::stringstream file_name;
-            file_name << "results_" << i+1 << ".txt";
-            out_stream p_file = handler.OpenOutputFile(file_name.str());
-
-            for(unsigned i=0; i<mesh.GetNumNodes(); i++)
-            {
-                double x = mesh.GetNode(i)->rGetLocation()[0];
-                double y = mesh.GetNode(i)->rGetLocation()[1];
-                *p_file << x << " " << y << " " << result_repl[i] << "\n";
-            }
-            p_file->close();
-
-            // set the current solution as the new initial condition for the next Solve
-            VecDestroy(initial_condition);
-            initial_condition = result; // so this is used in the next SetInitialCondition() call above
-        }
-
-        // check nothing has changed in this tutorial
+        solver.SetPrintingTimestepMultiple(100);
+        /* We are now ready to solve the system. */
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
+
+        // Check nothing has changed in this tutorial
         TS_ASSERT_DELTA(result_repl[220], 0.019512, 1e-4);
 
+        // Tidy up
         VecDestroy(result);
     }
 };

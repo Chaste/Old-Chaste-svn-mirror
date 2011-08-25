@@ -26,14 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "TimeStepper.hpp"
-#include "Exception.hpp"
-#include <cmath>
-#include <cfloat>
 #include <cassert>
 
-//const double SMIDGE = 1e-10;  ///\todo #1827 Correlate this code with the use of Divides in UblasCustomFunctions (which is used for setting time steps)
-const double SMIDGE = 2e-10;  ///\todo #1827 Correlate this code with the use of Divides in UblasCustomFunctions (which is used for setting time steps)
+#include "TimeStepper.hpp"
+#include "Exception.hpp"
+#include "MathsCustomFunctions.hpp"
+
+const double JUST_LESS_THAN_ONE = (1.0-DBL_EPSILON);
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
     : mStart(startTime),
@@ -49,7 +48,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     }
 
     // Remove any additionalTimes entries which fall too close to a time when the stepper would stop anyway
-    for (unsigned i=0;i<additionalTimes.size();i++)
+    for (unsigned i=0; i<additionalTimes.size(); i++)
     {
         if (i > 0)
         {
@@ -59,8 +58,10 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
             }
         }
 
-        double test_value = (additionalTimes[i]-startTime)/mDt;
-        if (fabs(floor(test_value+0.5)-test_value) > 1e-12) ///\todo #1827 Magic number 
+        double time_interval = additionalTimes[i] - startTime;
+
+        // When mDt divides this interval (and the interval is positive) then we are going there anyway
+        if (!Divides(mDt, time_interval) && (time_interval > DBL_EPSILON))
         {
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
@@ -71,33 +72,47 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     // If enforceConstantTimeStep check whether the times are such that we won't have a variable dt
     if (enforceConstantTimeStep)
     {
-        ///\todo #1827  Note that in most cases we are doing:
-        /// Divides(GetPdeTimeStep(), GetPrintingTimeStep())
-        if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )///\todo #1827 Magic number
+    	double expected_end_time = mStart + mDt*EstimateTimeSteps();
+
+    	/*
+         * Note that when mEnd is large then the error of subtracting two numbers of
+         * that magnitude is about DBL_EPSILON*mEnd (1e-16*mEnd). When mEnd is small
+         * then the error should be around DBL_EPSILON.
+         */
+        double scale = DBL_EPSILON*mEnd;
+        if (mEnd < 1.0)
         {
-            EXCEPTION("TimeStepper estimate non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
+            scale = DBL_EPSILON;
+        }
+        if (fabs( expected_end_time - mEnd ) > scale)
+        {
+            EXCEPTION("TimeStepper estimates non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
         }
     }
 }
 
 double TimeStepper::CalculateNextTime()
 {
-    double next_time = mStart + (mTotalTimeStepsTaken-mAdditionalTimesReached+1) * mDt;
+    double next_time = mStart + (mTotalTimeStepsTaken - mAdditionalTimesReached + 1)*mDt;
 
-    if ((next_time) + SMIDGE*(mDt) >= mEnd)
+    // Does the next time bring us very close to the end time?
+    if (next_time >= mEnd*JUST_LESS_THAN_ONE)
     {
         next_time = mEnd;
     }
 
-    ///\todo #1827 Magic number
-    if (    (mAdditionalTimes.size() > 0)                          // any additional times given
-         && (mAdditionalTimesReached < mAdditionalTimes.size())    // not yet done all the additional times
-         && ((next_time) + SMIDGE*(mDt) >= mAdditionalTimes[mAdditionalTimesReached]) ) // this next step takes us over an additional time
+    if (!mAdditionalTimes.empty())
     {
-        next_time = mAdditionalTimes[mAdditionalTimesReached];
-        mAdditionalTimesReached++;
+    	if (mAdditionalTimesReached < mAdditionalTimes.size())
+    	{
+            // Does this next step take us very close to, or over, an additional time?
+            if (next_time >= mAdditionalTimes[mAdditionalTimesReached]*JUST_LESS_THAN_ONE)
+            {
+		        next_time = mAdditionalTimes[mAdditionalTimesReached];
+		        mAdditionalTimesReached++;
+            }
+    	}
     }
-
     return next_time;
 }
 
@@ -133,11 +148,13 @@ double TimeStepper::GetNextTimeStep()
     }
 
     // If the next time or the current time is one of the additional times, the timestep will not be mDt
-    if ((mAdditionalTimesReached > 0)  &&
-        ( (mNextTime == mAdditionalTimes[mAdditionalTimesReached-1]) || (mTime == mAdditionalTimes[mAdditionalTimesReached-1]) ) )
+    if (mAdditionalTimesReached > 0)
     {
-        dt = mNextTime - mTime;
-        assert(dt > 0);
+        if ((mNextTime == mAdditionalTimes[mAdditionalTimesReached-1]) || (mTime == mAdditionalTimes[mAdditionalTimesReached-1]))
+        {
+            dt = mNextTime - mTime;
+            assert(dt > 0);
+        }
     }
 
     return dt;
@@ -145,12 +162,12 @@ double TimeStepper::GetNextTimeStep()
 
 bool TimeStepper::IsTimeAtEnd() const
 {
-    return mTime >= mEnd;
+    return (mTime >= mEnd);
 }
 
 unsigned TimeStepper::EstimateTimeSteps() const
 {
-    return (unsigned) floor((mEnd - mStart)/mDt+0.5) + mAdditionalTimes.size();
+    return (unsigned) floor((mEnd - mStart)/mDt + 0.5) + mAdditionalTimes.size();
 }
 
 unsigned TimeStepper::GetTotalTimeStepsTaken() const
@@ -160,7 +177,18 @@ unsigned TimeStepper::GetTotalTimeStepsTaken() const
 
 void TimeStepper::ResetTimeStep(double dt)
 {
-    if (fabs(mDt-dt) > 1e-8)///\todo #1827 Magic number
+	/*
+	 * The error in subtracting two numbers of the same magnitude is about
+	 * DBL_EPSILON times that magnitude (we use the sum of the two numbers
+	 * here as a conservative estimate of their maximum). When both mDt and
+     * dt are small then the error should be around DBL_EPSILON.
+	 */
+    double scale = DBL_EPSILON*(mDt + dt);
+    if (mDt + dt < 1.0)
+    {
+        scale = DBL_EPSILON;
+    }
+    if (fabs(mDt-dt) > scale)
     {
         assert(dt > 0);
         mDt = dt;

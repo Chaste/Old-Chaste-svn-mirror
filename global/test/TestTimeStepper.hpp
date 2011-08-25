@@ -122,11 +122,11 @@ public:
         TimeStepper stepper(0.0, 1.0, 0.3); // timestep does not divide, but no checking
 
         TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true),
-                "TimeStepper estimate non-constant timesteps will need to be used: "
+                "TimeStepper estimates non-constant timesteps will need to be used: "
                 "check timestep divides (end_time-start_time) (or divides printing timestep)" );
 
         TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true),
-                "TimeStepper estimate non-constant timesteps will need to be used: "
+                "TimeStepper estimates non-constant timesteps will need to be used: "
                 "check timestep divides (end_time-start_time) (or divides printing timestep)" );
 
         TimeStepper const_dt_stepper(0.0, 1.0, 0.1, true);
@@ -275,14 +275,8 @@ public:
         TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
     }
     
-    void TestAbstractionOfCardiacBug() throw(Exception)
+    void TestWithLargerStartTime() throw(Exception)
     {
-        /* This is abstracted from TestWalmsleyArchiveLoader -- see #1827 
-         * FAILS when  
-         *       * SMIDGE is 1e-10 (see changeset:13535) 
-         *       * Build type is (Anything?)
-         */
-        
         // Abstracted from AbstractDynamicLinearPdeSolver
         TimeStepper pde_stepper(16384.1, 16384.2, 0.01, true);
         while (!pde_stepper.IsTimeAtEnd())

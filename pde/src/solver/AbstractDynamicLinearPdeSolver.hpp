@@ -287,7 +287,7 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTim
 
     if (mTstart >= mTend)
     {
-        EXCEPTION("Starting time has to less than ending time");
+        EXCEPTION("Start time has to be less than end time");
     }
 
     mTimesSet = true;
@@ -389,21 +389,19 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             // ..but now get the timestep from the stepper, as the stepper might need
             // to trim the timestep if it would take us over the end time
             new_dt = stepper.GetNextTimeStep();
-
+            ///\todo #1827 replace magic number?
             timestep_changed = (fabs(mLastWorkingTimeStep-new_dt) > 1e-8);
         }
         else
         {
             new_dt = stepper.GetNextTimeStep();
-#define COVERAGE_IGNORE
+
             //new_dt should be roughly the same size as mIdealTimeStep - we should never need to take a tiny step
-            ///\todo #1827 Get simple failing test and fix
+            ///\todo #1827 replace magic number?
             if (mMatrixIsConstant && new_dt/mIdealTimeStep < (1.0 - 1e-5))
             {
-
-                EXCEPTION("Timestep changed unexpectedly from "<<mIdealTimeStep<< " to " <<new_dt);
+            	NEVER_REACHED;
             }
-#undef COVERAGE_IGNORE
         }
 
         // Save the timestep as the last one use, and also put it in PdeSimulationTime

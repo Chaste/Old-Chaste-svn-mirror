@@ -71,6 +71,7 @@ def CopySharedLibraries(executablePath, librariesPath):
     print 'Making a subdirectory of library dependencies'
     found_chaste_libraries = False
     ldd = subprocess.Popen(['ldd', executablePath], stdout=subprocess.PIPE ).communicate()[0]
+    print ldd
     os.mkdir(librariesPath)
     #Look for "LIB WHITESPACE => WHITESPACE PATH WHITESPACE"
     lib_location = re.compile(r'(\S*)\s*=>\s*(\S*)\s*')

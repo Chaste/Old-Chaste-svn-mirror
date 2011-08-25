@@ -106,7 +106,7 @@ public:
         SimpleLinearParabolicSolver<1,1> solver(&mesh,&pde,&bcc);
 
         // Set start and end times and timestep
-        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0),"Starting time has to less than ending time");
+        TS_ASSERT_THROWS_THIS(solver.SetTimes(1.0, 0.0),"Start time has to be less than end time");
         TS_ASSERT_THROWS_THIS(solver.SetTimeStep(0.0), "Time step has to be greater than zero");
         double t_end = 0.1;
         solver.SetTimes(0, t_end);

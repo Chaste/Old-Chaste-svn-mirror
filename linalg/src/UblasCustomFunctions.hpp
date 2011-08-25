@@ -42,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
 
-#include <cfloat>
 #include "petsc.h"
 #include "petscblaslapack.h"
 //Promote universal LAPACK name if it's an old version of PETSc
@@ -51,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "Exception.hpp"
+#include "MathsCustomFunctions.hpp"
 #include "PetscTools.hpp"
 
 using namespace boost::numeric::ublas;
@@ -663,24 +663,5 @@ c_vector<double, 2> Create_c_vector(double x, double y);
  * @returns vector=(x,y,z)
  */
 c_vector<double, 3> Create_c_vector(double x, double y, double z);
-
-/**
- * Replacement "pow" function.
- *
- * @param x number to be raised to a small power
- * @param exponent small integer exponent
- * @return x^exponent a.k.a x**exponent.
- */
-double SmallPow(double x, unsigned exponent);
-
-/**
- * Uses fmod to determine if smallerNumber divides the largerNumber.
- * We expect smallerNumber/largerNumber <= 1 and therefore
- * fmod(largerNumber,smallerNumber) should be close zero or close to smallerNumber.
- *
- * @param smallerNumber the smaller
- * @param largerNumber the larger
- */
-bool Divides(double smallerNumber, double largerNumber);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/

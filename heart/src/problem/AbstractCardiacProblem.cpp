@@ -231,6 +231,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
      * printing_time and end_time.
      * HeartConfig checks pde_dt divides printing dt.
      */
+    ///\todo use Divide() method? (#1884) 
     if( fabs(end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
     {
         EXCEPTION("PDE timestep does not seem to divide end time - check parameters");
@@ -430,12 +431,13 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
      * estimate how much time is left. Note this has to be done after the
      * InitialiseWriter above (if mPrintOutput==true).
      */
-    ProgressReporter progress_reporter(progress_reporter_dir, mCurrentTime,
+    ProgressReporter progress_reporter(progress_reporter_dir,
+                                       mCurrentTime,
                                        HeartConfig::Instance()->GetSimulationDuration());
     progress_reporter.Update(mCurrentTime);
 
     mpSolver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());
-    if(mpTimeAdaptivityController)
+    if (mpTimeAdaptivityController)
     {
         mpSolver->SetTimeAdaptivityController(mpTimeAdaptivityController);
     }
