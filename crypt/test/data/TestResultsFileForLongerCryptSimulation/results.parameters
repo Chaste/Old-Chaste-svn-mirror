@@ -60,6 +60,9 @@
 	</CellKillers>
 
 	<CellPopulationBoundaryConditions>
+		<CryptSimulationBoundaryCondition-2>
+			<UseJiggledBottomCells>1</UseJiggledBottomCells>
+		</CryptSimulationBoundaryCondition-2>
 	</CellPopulationBoundaryConditions>
 
 </Chaste>
