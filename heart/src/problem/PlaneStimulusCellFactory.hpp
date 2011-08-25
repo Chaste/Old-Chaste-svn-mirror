@@ -67,6 +67,7 @@ public:
     {
         double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
 
+        ///\todo remove magic number? (#1884)
         if (x*x<=1e-10)
         {
             return new CELL(this->mpSolver, mpStimulus);

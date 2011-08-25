@@ -32,8 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "Exception.hpp"
 
-const double smidge = 1e-10;
-
 /*
  * PROTECTED FUNCTIONS =========================================================
  */

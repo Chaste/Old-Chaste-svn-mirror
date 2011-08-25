@@ -320,6 +320,7 @@ void AdaptiveBidomainProblem::SetupNeumannBoundaryConditionOnMesh()
     while (iter != mpMesh->GetBoundaryElementIteratorEnd())
     {
         double x = ((*iter)->CalculateCentroid())[mNeumannStimulusIndex];
+        ///\todo remove magic number? (#1884)
         if ( (x-mNeumannStimulusLowerValue)*(x-mNeumannStimulusLowerValue) <= 1e-10 )
         {
             p_new_bcc->AddNeumannBoundaryCondition(*iter, mpNeumannStimulusBoundaryCondition);

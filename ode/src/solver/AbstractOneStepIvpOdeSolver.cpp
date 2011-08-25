@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <cmath>
 
-const double smidge = 1e-10;
-
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
                                                std::vector<double>& rYValues,
                                                double startTime,

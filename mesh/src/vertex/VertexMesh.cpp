@@ -1272,6 +1272,8 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     // This is always the largest eigenvalue as both eigenvalues are real as it is a
     // symmetric matrix
     largest_eigenvalue = (moments(0) + moments(1) + discriminant)*0.5;
+    
+    ///\todo remove magic number? (#1884)
     if (fabs(discriminant) < 1e-10)
     {
         // Return a random unit vector

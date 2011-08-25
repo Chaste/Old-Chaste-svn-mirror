@@ -231,7 +231,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
      * printing_time and end_time.
      * HeartConfig checks pde_dt divides printing dt.
      */
-    ///\todo use Divide() method? (#1884) 
+    ///\todo remove magic number? (#1884)
     if( fabs(end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
     {
         EXCEPTION("PDE timestep does not seem to divide end time - check parameters");

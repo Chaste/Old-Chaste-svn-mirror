@@ -75,6 +75,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     assert(node_index != UNSIGNED_UNSET); // should def have found something
     c_vector<double,DIM> pos = mpElectricsMesh->GetNode(node_index)->rGetLocation();
 
+    ///\todo remove magic number? (#1884)
     if(min_dist > 1e-8)
     {
         #define COVERAGE_IGNORE
@@ -115,6 +116,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     // set up watched node, if close enough
     assert(node_index != UNSIGNED_UNSET); // should def have found something
 
+    ///\todo remove magic number? (#1884)
     if(min_dist > 1e-8)
     {
         #define COVERAGE_IGNORE

@@ -89,6 +89,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
 
     for (unsigned timestep=0; timestep<times1.size(); timestep++)
     {
+        ///\todo remove magic number? (#1884)
         if (fabs(times1[timestep]-times2[timestep]) > 1e-8)
         {
             std::cout << "Time steps " << times1[timestep]

@@ -57,6 +57,7 @@ void AbstractLookupTableCollection::SetTableProperties(const std::string& rKeyin
 {
     // Check inputs
     unsigned num_steps = (unsigned) ((max-min)/step+0.5);
+    ///\todo remove magic number? (#1884)
     if (fabs(max - min - num_steps*step) > 1e-10)
     {
         EXCEPTION("Table step size does not divide range between table limits.");

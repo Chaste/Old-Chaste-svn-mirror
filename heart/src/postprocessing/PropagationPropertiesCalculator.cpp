@@ -201,6 +201,7 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
         t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity()[aps_near_node-1];
     }
 
+    ///\todo remove magic number? (#1884)
     if ((globalNearNodeIndex == globalFarNodeIndex) || ( fabs(t_far - t_near) < 1e-8))
     {
         // globalNearNodeIndex and globalFarNodeIndex are the same node, preventing a 0/0
@@ -264,6 +265,7 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
     {
         for (unsigned i = 0 ; i < number_of_aps;i++)
         {
+            ///\todo remove magic number? (#1884)
             if ( fabs(t_far[i] - t_near[i]) < 1e-8)
             {
                 // AP number i is happening at the same time at nodes globalNearNodeIndex and globalFarNodeIndex

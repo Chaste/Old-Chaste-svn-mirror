@@ -1388,7 +1388,8 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* p
     perpendicular_vector(0) = -a_to_b(1);
     perpendicular_vector(1) = a_to_b(0);
 
-    if (norm_2(a_to_b) < 1e-10) ///\todo this is a magic number - think of something better
+    ///\todo remove magic number? (#1884)
+    if (norm_2(a_to_b) < 1e-10)
     {
         EXCEPTION("Nodes are too close together, this shouldn't happen");
     }

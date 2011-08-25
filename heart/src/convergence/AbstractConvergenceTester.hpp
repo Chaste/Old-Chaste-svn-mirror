@@ -395,6 +395,7 @@ public:
                 while (iter != r_mesh.GetBoundaryElementIteratorEnd())
                 {
                     double x = ((*iter)->CalculateCentroid())[0];
+                    ///\todo remove magic number? (#1884)
                     if (x*x<=1e-10)
                     {
                         p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim);
