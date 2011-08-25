@@ -339,67 +339,6 @@ public:
             delete p_simulator;
         }
     }
-
-    /* A test that fails with the following error:
-     *
-     * scons: building terminated because of errors.
-     * cell_based/build/optimised/src/population/MeshBasedCellPopulationWithGhostNodes.o: In function
-     * `MeshBasedCellPopulationWithGhostNodes<1u>::WriteVtkResultsToFile()':
-     * MeshBasedCellPopulationWithGhostNodes.cpp:(.text._ZN37MeshBasedCellPopulationWithGhostNodesILj1EE21WriteVtkResultsToFileEv
-     * [MeshBasedCellPopulationWithGhostNodes<1u>::WriteVtkResultsToFile()]+0xb8e): undefined reference to `MeshBasedCellPopulation<1u>::
-     * TessellateIfNeeded()'
-     *
-     */
-    void xTestSimpleCubeFailingTest() throw (Exception)
-    {
-        unsigned width = 5;
-        unsigned height = 5;
-        unsigned depth = 4;
-
-        MutableMesh<3,3>* p_mesh = Make3dMesh(width, height, depth);
-
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_nodes = p_mesh->GetNumAllNodes();
-
-    	boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-
-    	std::vector<CellPtr> cells;
-		for (unsigned i=0; i<num_nodes; i++)
-		{
-			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(DIFFERENTIATED);
-            p_model->SetDimension(3);
-
-            CellPtr p_differentiated_cell(new Cell(p_state, p_model));
-			cells.push_back(p_differentiated_cell);
-        }
-
-        MeshBasedCellPopulation<3> cell_population(*p_mesh, cells);
-
-    	// Make sure we have a Voronoi tessellation to begin with
-        cell_population.CreateVoronoiTessellation();
-
-        cell_population.SetWriteVtkAsPoints(true);
-        cell_population.SetOutputVoronoiData(true);
-        cell_population.SetOutputCellMutationStates(true);
-        cell_population.SetOutputCellProliferativeTypes(true);
-        cell_population.SetOutputCellAncestors(true);
-
-        // CryptSimulation3d(rCellPopulation, bool deleteCellPopulationAndForceCollection, bool initialiseCells, width, depth,
-        // bool mRigidBoundaryConditions)
-        CellBasedSimulation<3> simulator(cell_population);
-
-		simulator.SetOutputDirectory("TestSimpleCube3d");
-    	double normal_timestep = simulator.GetDt();		// This is 1/120 => every 30 seconds
-    	double timestep_used = normal_timestep*0.5;
-    	simulator.SetDt(timestep_used);
-    	simulator.SetSamplingTimestepMultiple(240);		// Every hour
-		simulator.SetEndTime(1.0);
-        simulator.Solve();
-
-        delete p_mesh;
-    }
-
 };
 
 #endif /*TESTCELLBASEDSIMULATION3D_HPP_*/
