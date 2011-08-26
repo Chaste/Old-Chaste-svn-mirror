@@ -194,6 +194,7 @@ class Protocol(processors.ModelModifier):
             print "Warning: unable to utilise units conversion rule below as required variables missing;",
             print "this may lead to later units conversion errors:"
             print "  From", from_units.description(), "to", to_units.description(), "via", conv_expr.xml()
+            return
         func = lambda assignment: self._apply_conversion_rule(assignment, body_expr, bvar_name)
         converter.add_special_conversion(from_units, to_units, func)
     
@@ -248,11 +249,15 @@ class Protocol(processors.ModelModifier):
         If they differ from its current units, a conversion will be needed, and hence a new version
         of this variable will be added to the protocol component, with a suitable connection.
         Otherwise, we can just record the existing variable as an output.
+        
+        TODO: We can't yet specify a variable as both an output and an input but in different units.
         """
         units = self._get_units_object(units)
         if units.equals(var.get_units()):
             output_var = var
         else:
+            if var in self.inputs:
+                raise ProtocolError("You can't specify a variable as output and input in different units!")
             output_var = self._replace_variable(var, units)
             self.connect_variables(var, output_var)
         self.outputs.add(output_var)
@@ -291,16 +296,31 @@ class Protocol(processors.ModelModifier):
         self.inputs.add(input_var)
         return input_var
         
-    def _replace_variable(self, var, units):
+    def _replace_variable(self, var, units, allow_existing=False):
         """Replace the given variable with a version in the given units in the protocol component.
         
         Ensures that the units are added to the model if needed, and transfers the cmeta:id if
         present.  It doesn't transfer the initial_value, since this would break the output variable
         case.
+        
+        The new variable will be given a local name equal to the full name of the original, to avoid
+        potential conflicts.  If allow_existing is False then it's an error if the variable has
+        already been replaced.  If allow_existing is True, then we just reuse the existing replacement.
         """
         units = self.add_units(units)
-        new_var = self.add_variable(self._get_protocol_component(), var.name, units, id=var.cmeta_id)
-        self.del_attr(var, u'id', NSS['cmeta'])
+        new_name = var.fullname(cellml=True)
+        comp = self._get_protocol_component()
+        try:
+            existing_replacement = comp.get_variable_by_name(new_name)
+        except KeyError:
+            existing_replacement = None
+        if existing_replacement:
+            if not allow_existing:
+                raise ProtocolError("Variable '%s' has already been replaced!" % new_name)
+            new_var = existing_replacement
+        else:
+            new_var = self.add_variable(comp, new_name, units, id=var.cmeta_id)
+            self.del_attr(var, u'id', NSS['cmeta'])
         return new_var
     
     def _check_input(self, input):
@@ -326,6 +346,9 @@ class Protocol(processors.ModelModifier):
         
         Also check all equations for occurrences of derivatives on the RHS, and change them to refer
         to the new variable instead.
+        
+        TODO: How to deal with ODEs added by the protocol?  Will they be picked up?
+        TODO: Require explicit call to set free var units even if an output?
         """
         free_var = self._free_var_has_changed
         old_free_var = self.model.find_free_vars()[0]
@@ -334,16 +357,21 @@ class Protocol(processors.ModelModifier):
         comp = self._get_protocol_component()
         for old_var in self.model.find_state_vars():
             if old_var.component is not comp:
-                new_var = self._replace_variable(old_var, old_var.get_units())
-                self.del_attr(old_var, u'initial_value')
+                new_var = self._replace_variable(old_var, old_var.get_units(), allow_existing=True)
+                new_var.initial_value = old_var.initial_value
+                del old_var.initial_value
+                if old_var in self.outputs:
+                    self.outputs.remove(old_var)
+                    self.outputs.add(new_var)
                 # Add a new variable to assign the RHS to, with units of the original derivative
                 deriv_name = self._uniquify_var_name(u'd_%s_d_%s' % (old_var.name, free_var.name), old_var.component)
                 orig_ode = old_var.get_all_expr_dependencies()[0]
                 orig_rhs_var = self.add_variable(old_var.component, deriv_name, orig_ode.eq.lhs.get_units().extract())
                 deriv_rhs[new_var] = orig_rhs_var
-                # Add an output version of this in the interface, with desired units
+                # Add a version of this in the protocol component, with desired units
                 desired_units = new_var.get_units().quotient(free_var.get_units())
-                mapped_rhs_var = self.add_output(orig_rhs_var, desired_units, annotate=False)
+                mapped_rhs_var = self._replace_variable(orig_rhs_var, desired_units)
+                self.connect_variables(orig_rhs_var, mapped_rhs_var)
                 # Replace the original ODE with an assignment
                 orig_rhs = orig_ode.eq.rhs
                 orig_ode.safe_remove_child(orig_rhs)
@@ -357,6 +385,9 @@ class Protocol(processors.ModelModifier):
                 new_ode.classify_variables(root=True, dependencies_only=True)
                 # Update connections to the state variable
                 self._update_connections(old_var, new_var)
+            else:
+                print "Ignoring state var", old_var
+                raise NotImplementedError # TODO
         # Transform references to derivatives
         def xform(expr):
             state_var = expr.diff.dependent_variable.get_source_variable(recurse=True)
@@ -532,10 +563,16 @@ class Protocol(processors.ModelModifier):
         between model & protocol mathematics.
         """
         converter = self.get_units_converter()
+        notifier = NotifyHandler(level=logging.WARNING)
+        logging.getLogger('units-converter').addHandler(notifier)
         proto_comp = self._get_protocol_component()
         converter.add_conversions_for_component(proto_comp)
         converter.convert_assignments(filter(lambda i: isinstance(i, mathml_apply), self.inputs))
         converter.finalize(self._error_handler, check_units=False)
+        notifier.flush()
+        logging.getLogger('units-converter').removeHandler(notifier)
+        if notifier.messages:
+            raise ProtocolError("Unable to apply units conversions to the model/protocol interface")
         
     def get_units_converter(self):
         """Get the protocol's units converter object, in order to add 'special' conversions."""
@@ -584,7 +621,7 @@ class Protocol(processors.ModelModifier):
         the type of variable assigned to, depending on the expression.
         
         Note: variable references within ci elements in the given expression
-        should use full names (i.e. cname,vname).  Any local names will be
+        should use full names (i.e. cname,vname) or ontology terms.  Any local names will be
         assumed to refer to variables in the protocol component, and modified
         by self._rename_local_variables.  Later, self._fix_model_connections
         will change all references to use local names.
@@ -684,9 +721,9 @@ class Protocol(processors.ModelModifier):
 def apply_protocol_file(doc, proto_file_path):
     """Apply the protocol defined in the given file to a model.
     
-    Initially, this method is primarily to allow testing the protocol system.
-    Hence we assume the protocol file is Python code which has a method
-    apply_protocol(doc) to do the donkey work.
+    New protocols should be written in the pure XML syntax, which we parse and build up
+    the protocol object ourselves.  However, legacy protocols may be Python code with a
+    method apply_protocol(doc) to do the donkey work.
     """
     if proto_file_path[-3:] == '.py':
         import imp
@@ -701,12 +738,41 @@ def apply_protocol_file(doc, proto_file_path):
             file.close()
         proto.apply_protocol(doc)
     elif proto_file_path[-4:] == '.xml':
-        proto_xml = amara_parse(proto_file_path)
+        proto_xml = amara_parse_cellml(proto_file_path)
         assert hasattr(proto_xml, u'protocol')
-        if hasattr(proto_xml.protocol, u'modelModification'):
-            d = {'doc': doc,
-                 'protocol': sys.modules[__name__],
-                 '__builtins__': __builtins__}
-            exec str(proto_xml.protocol.modelModification) in d
+        proto = Protocol(doc.model, multi_stage=True, namespaces=proto_xml.xmlns_prefixes)
+        proto_units = {}
+        # TODO: Tidy up the units code so that we can refer to standard units without getting those in
+        # the model too!
+        if hasattr(proto_xml.protocol, u'units'):
+            # Parse units definitions
+            for defn in getattr(proto_xml.protocol.units, u'units', []):
+                proto_units[defn.name] = defn
+                defn.xml_parent = doc.model
+        def get_units(elt, attr='units'):
+            if hasattr(elt, attr):
+                uname = getattr(elt, attr)
+                try:
+                    return proto_units[uname]
+                except KeyError:
+                    raise ProtocolError("Units '%s' have not been defined in the protocol" % uname)
+            else:
+                return None
+        if hasattr(proto_xml.protocol, u'modelInterface'):
+            if hasattr(proto_xml.protocol.modelInterface, u'setIndependentVariableUnits'):
+                proto.set_independent_variable_units(get_units(proto_xml.protocol.modelInterface.setIndependentVariableUnits))
+            for input in getattr(proto_xml.protocol.modelInterface, u'specifyInputVariable', []):
+                proto.specify_input_variable(input.name, get_units(input), getattr(input, u'initial_value', None))
+            for output in getattr(proto_xml.protocol.modelInterface, u'specifyOutputVariable', []):
+                proto.specify_output_variable(output.name, get_units(output))
+            for vardecl in getattr(proto_xml.protocol.modelInterface, u'declareNewVariable', []):
+                proto.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
+            for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
+                proto.add_or_replace_equation(expr.xml_element_children().next())
+            for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
+                proto.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
+                                                get_units(rule, 'desiredDimensions'),
+                                                rule.xml_element_children().next())
+        proto.modify_model()
     else:
         raise ProtocolError("Unexpected protocol file extension for file: " + proto_file_path)

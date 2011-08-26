@@ -2845,6 +2845,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if config.options.convert_interfaces:
             converter.add_conversions_for_component(iface_comp)
             converter.finalize(errh, check_units=False)
+            notifier.flush()
+            logging.getLogger('units-converter').removeHandler(notifier)
             if notifier.messages:
                 msg = 'Problems occurred converting model variables to Chaste units.\n'
                 if ionic_vars and ionic_vars[0].get_units().dimensionally_equivalent(microamps):

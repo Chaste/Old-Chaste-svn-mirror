@@ -500,10 +500,7 @@ class cellml_model(element_base):
         self._cml_validation_errors.append(errmsg)
         logging.getLogger('validator').log(level, errmsg.encode('UTF-8'))
     def get_validation_errors(self):
-        """
-        Return the list of all errors found (so far) while validating
-        this model.
-        """
+        """Return the list of all errors found (so far) while validating this model."""
         return self._cml_validation_errors
     def validation_warning(self, errmsg, level=logging.WARNING):
         """Log a validation warning message.
@@ -513,9 +510,7 @@ class cellml_model(element_base):
         self._cml_validation_warnings.append(errmsg)
         logging.getLogger('validator').log(level, errmsg.encode('UTF-8'))
     def get_validation_warnings(self):
-        """
-        Return the list of all warnings found (so far) while validating
-        this model.
+        """Return the list of all warnings found (so far) while validating this model.
         """
         return self._cml_validation_warnings
     def _report_exception(self, e, show_xml_context):

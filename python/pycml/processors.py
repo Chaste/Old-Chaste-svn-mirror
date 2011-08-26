@@ -403,6 +403,8 @@ class ModelModifier(object):
         If the definition isn't in the model, at whole-model level, it will be added.  If the same
         definition is already available, however, that definition should be used by preference.
         Will return the actual units object to use.
+        
+        TODO: Ensure we avoid name conflicts!
         """
 #        print "add_units(",repr(units),")",
         units = self.model._get_units_obj(units)
