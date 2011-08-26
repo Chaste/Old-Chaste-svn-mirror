@@ -167,15 +167,15 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     }
 
     rest_length = a_rest_length + b_rest_length;
-    assert(rest_length <= 1.0+1e-12);
+    assert(rest_length <= 1.0+1e-12); ///\todo #1884 Magic number: would "<= 1.0" do?  
 
-    bool is_closer_than_rest_length = (distance_between_nodes - rest_length <= 0);
 
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
+    double overlap = distance_between_nodes - rest_length;
+    bool is_closer_than_rest_length = (overlap <= 0);
     double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation, is_closer_than_rest_length);
     double spring_stiffness = mMeinekeSpringStiffness;
-    double overlap = distance_between_nodes - rest_length;
 
     if (rCellPopulation.IsMeshBasedCellPopulation())
     {
@@ -184,23 +184,17 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     else
     {
         // A reasonably stable simple force law
-        if (distance_between_nodes > rest_length)
+        if (is_closer_than_rest_length) //overlap is negative
         {
-            double alpha = 5;
-            c_vector<double, DIM> temp = spring_stiffness * unit_difference * overlap * exp(-alpha * overlap);
-            for (unsigned i=0; i<DIM; i++)
-            {
-                assert(!std::isnan(temp[i]));
-            }
+            //log(x+1) is undefined for x<=-1
+            assert(overlap > -1);
+            c_vector<double, DIM> temp = spring_stiffness * unit_difference * log(1 + overlap);
             return temp;
         }
         else
         {
-            c_vector<double, DIM> temp = spring_stiffness * unit_difference * log(1 + overlap);
-            for (unsigned i=0; i<DIM; i++)
-            {
-                assert(!std::isnan(temp[i]));
-            }
+            double alpha = 5;
+            c_vector<double, DIM> temp = spring_stiffness * unit_difference * overlap * exp(-alpha * overlap);
             return temp;
         }
     }
