@@ -313,6 +313,7 @@ public:
         TS_ASSERT_DELTA(result_repl[220], 0.019512, 1e-4);
 
         // Tidy up
+        VecDestroy(initial_condition);
         VecDestroy(result);
     }
 };
