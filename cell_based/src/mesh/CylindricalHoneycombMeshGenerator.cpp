@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CylindricalHoneycombMeshGenerator.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "UblasCustomFunctions.hpp"
+#include "MathsCustomFunctions.hpp"
 
 CylindricalHoneycombMeshGenerator::CylindricalHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, double scaleFactor)
 {

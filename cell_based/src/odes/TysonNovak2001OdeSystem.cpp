@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TysonNovak2001OdeSystem.hpp"
 #include "OdeSystemInformation.hpp"
-#include "UblasCustomFunctions.hpp"
+#include "MathsCustomFunctions.hpp"
 
 TysonNovak2001OdeSystem::TysonNovak2001OdeSystem(std::vector<double> stateVariables)
     : AbstractOdeSystemWithAnalyticJacobian(6)

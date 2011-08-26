@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "UblasCustomFunctions.hpp"
+#include "MathsCustomFunctions.hpp"
 
 HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, double scaleFactor)
   : mpMesh(NULL),

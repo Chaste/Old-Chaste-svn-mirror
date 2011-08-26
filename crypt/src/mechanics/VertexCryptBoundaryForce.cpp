@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VertexCryptBoundaryForce.hpp"
-#include "UblasCustomFunctions.hpp"
+#include "MathsCustomFunctions.hpp"
 
 template<unsigned DIM>
 VertexCryptBoundaryForce<DIM>::VertexCryptBoundaryForce(double forceStrength)
