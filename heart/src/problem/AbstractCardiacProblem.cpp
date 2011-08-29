@@ -794,3 +794,8 @@ template class AbstractCardiacProblem<3,3,1>;
 template class AbstractCardiacProblem<1,1,2>;
 template class AbstractCardiacProblem<2,2,2>;
 template class AbstractCardiacProblem<3,3,2>;
+
+// Extended Bidomain
+template class AbstractCardiacProblem<1,1,3>;
+template class AbstractCardiacProblem<2,2,3>;
+template class AbstractCardiacProblem<3,3,3>;
