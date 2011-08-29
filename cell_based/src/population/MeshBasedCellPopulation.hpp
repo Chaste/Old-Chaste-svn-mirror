@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "VertexMesh.hpp"
 #include "Exception.hpp"
-#include "ArchiveLocationInfo.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #include "ChasteSerialization.hpp"

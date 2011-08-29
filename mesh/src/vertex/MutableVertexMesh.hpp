@@ -42,7 +42,6 @@ class VertexMeshWriter;
 #include <boost/serialization/split_member.hpp>
 
 #include "VertexMesh.hpp"
-#include "ArchiveLocationInfo.hpp"
 
 /**
  * A vertex-based mesh class, for use in vertex-based cell-based simulations.

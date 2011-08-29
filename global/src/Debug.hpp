@@ -59,12 +59,14 @@ std::string FormDebugHead();
 /** Print the name and value of the given variable.
  * @param var */
 #define PRINT_VARIABLE(var) std::cout << FormDebugHead() << #var " = " << var << std::endl << std::flush;
+
 /** Print the name and value of the given variables.
  * @param var1
  * @param var2
  */
 #define PRINT_2_VARIABLES(var1,var2) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
     #var2 " = " << var2 << std::endl << std::flush;
+
 /** Print the name and value of the given variables.
  * @param var1
  * @param var2
@@ -72,6 +74,7 @@ std::string FormDebugHead();
  */
 #define PRINT_3_VARIABLES(var1,var2,var3) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
     #var2 " = " << var2 << ", " #var3 " = " << var3 << std::endl << std::flush;
+
 /** Print the name and value of the given variables.
  * @param var1
  * @param var2
@@ -81,6 +84,7 @@ std::string FormDebugHead();
 #define PRINT_4_VARIABLES(var1,var2,var3,var4) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
     #var2 " = " << var2 << ", " #var3 " = " << var3 << ", " \
     #var4 " = " << var4 << std::endl << std::flush;
+
 /** Print the name and value of the given variables.
  * @param var1
  * @param var2

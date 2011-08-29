@@ -33,12 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodesOnlyMesh.hpp"
 #include "BoxCollection.hpp"
 
-#include "ArchiveLocationInfo.hpp"
-
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/set.hpp>
-#include <boost/serialization/vector.hpp>
 
 /**
  * A NodeBasedCellPopulation is a CellPopulation consisting of only nodes in space with associated cells.
