@@ -272,10 +272,6 @@ template<unsigned DIM>
 void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
 {
 #ifdef CHASTE_VTK
-    if (SimulationTime::Instance()->GetTimeStepsElapsed() == 0 && this->mpVoronoiTessellation == NULL)
-    {
-        this->TessellateIfNeeded();
-    }
     if (this->mpVoronoiTessellation != NULL)
     {
         VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);

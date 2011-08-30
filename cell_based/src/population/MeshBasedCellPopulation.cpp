@@ -417,6 +417,11 @@ void MeshBasedCellPopulation<DIM>::CloseOutputFiles()
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
 {
+    if (SimulationTime::Instance()->GetTimeStepsElapsed() == 0 && this->mpVoronoiTessellation == NULL)
+    {
+        TessellateIfNeeded();//Update isn't run on time-step zero 
+    }
+
     AbstractCentreBasedCellPopulation<DIM>::WriteResultsToFiles();
 
     // Write element data to file
@@ -476,11 +481,6 @@ void MeshBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     // Write time to file
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
-
-    if (SimulationTime::Instance()->GetTimeStepsElapsed() == 0 && this->mpVoronoiTessellation == NULL)
-    {
-        TessellateIfNeeded();
-    }
 
     unsigned num_points = GetNumNodes();
     if (!mWriteVtkAsPoints && (mpVoronoiTessellation != NULL))
@@ -711,7 +711,7 @@ template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteVoronoiResultsToFile()
 {
     assert(DIM==2 || DIM==3);
-
+    assert(mpVoronoiTessellation != NULL);
     // Write time to file
     *mpVoronoiFile << SimulationTime::Instance()->GetTime() << " ";
 
@@ -748,6 +748,7 @@ void MeshBasedCellPopulation<DIM>::WriteCellPopulationVolumeResultsToFile()
 
     // Write time to file
     *mpCellPopulationVolumesFile << SimulationTime::Instance()->GetTime() << " ";
+    assert (this->mpVoronoiTessellation != NULL);
 
     // Don't use the Voronoi tessellation to calculate the total area of the mesh because it gives huge areas for boundary cells
     double total_area = mrMesh.GetVolume();
@@ -785,15 +786,7 @@ void MeshBasedCellPopulation<DIM>::WriteCellPopulationVolumeResultsToFile()
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
 {
-    if (mpVoronoiTessellation == NULL)
-    {    
-        // Check its the first time step
-        assert(SimulationTime::Instance()->GetTimeStepsElapsed()==0);
-
-        // Create the Voronoi Tessellation
-        TessellateIfNeeded();
-    }
-
+    assert (mpVoronoiTessellation != NULL);
     assert(DIM==2 || DIM==3);
 
     // Write time to file
