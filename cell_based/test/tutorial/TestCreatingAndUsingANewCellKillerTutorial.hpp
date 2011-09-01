@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
 /*
  * == Defining the cell killer class ==
@@ -288,7 +288,7 @@ public:
      * We now provide a test demonstrating how {{{MyCellKiller}}} can be used
      * in a cell-based simulation.
      */
-    void TestCellBasedSimulationWithMyCellKiller() throw(Exception)
+    void TestOffLatticeSimulationWithMyCellKiller() throw(Exception)
     {
         /* We proceed as before, creating a mesh-based cell population. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -305,13 +305,13 @@ public:
         /* We now use the cell population to construct a cell killer object. */
         MyCellKiller my_cell_killer(&cell_population);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellKiller");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyCellKiller");
         simulator.SetEndTime(1.0);
 
-        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);

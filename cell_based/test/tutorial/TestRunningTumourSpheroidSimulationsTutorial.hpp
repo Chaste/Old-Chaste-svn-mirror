@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * As in the crypt simulation tutorial, we begin by including the necessary header files. We have
  * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}}
- * or {{{CellBasedSimulationArchiver.hpp}}} must be included the first Chaste header.
+ * or {{{OffLatticeSimulationArchiver.hpp}}} must be included the first Chaste header.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
@@ -98,9 +98,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OxygenBasedCellKiller.hpp"
 /*
  * The extra functionality required for the solution of one or more PDEs at each timestep
- * is implemented in a subclass of {{{CellBasedSimulation}}} called {{{CellBasedSimulationWithPdes}}}.
+ * is implemented in a subclass of {{{OffLatticeSimulation}}} called {{{OffLatticeSimulationWithPdes}}}.
  */
-#include "CellBasedSimulationWithPdes.hpp"
+#include "OffLatticeSimulationWithPdes.hpp"
 /*
  * The header file {{{PetscSetupAndFinalize.hpp}}} must be included in all tests which use Petsc. This is
  * a suite of data structures and routines that are used in the finite element
@@ -220,7 +220,7 @@ public:
 
         /*
          * Next we instantiate an instance of the PDE class which we defined above.
-         * This will be passed into the {{{CellBasedSimulationWithPdes}}} object. The
+         * This will be passed into the {{{OffLatticeSimulationWithPdes}}} object. The
          * {{{CellwiseSourcePde}}} is a {{{PDE}}} class which inherits from
          * {{{AbstractLinearEllipticPde}}} and represents
          * the PDE ''u_xx'' + ''u_yy'' = ''k''(''x'',''y'') ''u'', where ''u''(''x'',''y'') denotes
@@ -265,10 +265,10 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         /*
-         * We are now in a position to construct a {{{CellBasedSimulationWithPdes}}} object,
+         * We are now in a position to construct a {{{OffLatticeSimulationWithPdes}}} object,
          * using the cell population and the PDE collection.
          */
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
 
         /*
          * We next set the output directory and end time.

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <set>
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <typeinfo>
 
 template<unsigned DIM>
-CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
+OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                                               bool deleteCellPopulationAndForcesAndBCsInDestructor,
                                               bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
@@ -78,7 +78,7 @@ CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCell
 }
 
 template<unsigned DIM>
-CellBasedSimulation<DIM>::~CellBasedSimulation()
+OffLatticeSimulation<DIM>::~OffLatticeSimulation()
 {
     if (mDeleteCellPopulationAndForcesAndBCsInDestructor)
     {
@@ -108,7 +108,7 @@ CellBasedSimulation<DIM>::~CellBasedSimulation()
 }
 
 template<unsigned DIM>
-unsigned CellBasedSimulation<DIM>::DoCellBirth()
+unsigned OffLatticeSimulation<DIM>::DoCellBirth()
 {
     if (mNoBirth)
     {
@@ -145,7 +145,7 @@ unsigned CellBasedSimulation<DIM>::DoCellBirth()
 }
 
 template<unsigned DIM>
-unsigned CellBasedSimulation<DIM>::DoCellRemoval()
+unsigned OffLatticeSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths_this_step = 0;
 
@@ -166,7 +166,7 @@ unsigned CellBasedSimulation<DIM>::DoCellRemoval()
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
+c_vector<double, DIM> OffLatticeSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
 {
     /**
      * \todo Could remove this dynamic_cast by moving the code block below into
@@ -240,7 +240,7 @@ c_vector<double, DIM> CellBasedSimulation<DIM>::CalculateCellDivisionVector(Cell
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
+void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
     unsigned num_nodes = mrCellPopulation.GetNumNodes();
 
@@ -327,102 +327,102 @@ void CellBasedSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<d
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetDt(double dt)
+void OffLatticeSimulation<DIM>::SetDt(double dt)
 {
     assert(dt > 0);
     mDt = dt;
 }
 
 template<unsigned DIM>
-double CellBasedSimulation<DIM>::GetDt()
+double OffLatticeSimulation<DIM>::GetDt()
 {
     return mDt;
 }
 
 template<unsigned DIM>
-unsigned CellBasedSimulation<DIM>::GetNumBirths()
+unsigned OffLatticeSimulation<DIM>::GetNumBirths()
 {
     return mNumBirths;
 }
 
 template<unsigned DIM>
-unsigned CellBasedSimulation<DIM>::GetNumDeaths()
+unsigned OffLatticeSimulation<DIM>::GetNumDeaths()
 {
     return mNumDeaths;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetEndTime(double endTime)
+void OffLatticeSimulation<DIM>::SetEndTime(double endTime)
 {
     assert(endTime > 0);
     mEndTime = endTime;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
+void OffLatticeSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
     mSimulationOutputDirectory = mOutputDirectory;
 }
 
 template<unsigned DIM>
-std::string CellBasedSimulation<DIM>::GetOutputDirectory()
+std::string OffLatticeSimulation<DIM>::GetOutputDirectory()
 {
     return mOutputDirectory;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)
+void OffLatticeSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)
 {
     assert(samplingTimestepMultiple > 0);
     mSamplingTimestepMultiple = samplingTimestepMultiple;
 }
 
 template<unsigned DIM>
-AbstractCellPopulation<DIM>& CellBasedSimulation<DIM>::rGetCellPopulation()
+AbstractCellPopulation<DIM>& OffLatticeSimulation<DIM>::rGetCellPopulation()
 {
     return mrCellPopulation;
 }
 
 template<unsigned DIM>
-const AbstractCellPopulation<DIM>& CellBasedSimulation<DIM>::rGetCellPopulation() const
+const AbstractCellPopulation<DIM>& OffLatticeSimulation<DIM>::rGetCellPopulation() const
 {
     return mrCellPopulation;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetUpdateCellPopulationRule(bool updateCellPopulation)
+void OffLatticeSimulation<DIM>::SetUpdateCellPopulationRule(bool updateCellPopulation)
 {
     mUpdateCellPopulation = updateCellPopulation;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetNoBirth(bool noBirth)
+void OffLatticeSimulation<DIM>::SetNoBirth(bool noBirth)
 {
     mNoBirth = noBirth;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
+void OffLatticeSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::AddForce(AbstractForce<DIM>* pForce)
+void OffLatticeSimulation<DIM>::AddForce(AbstractForce<DIM>* pForce)
 {
     mForceCollection.push_back(pForce);
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition)
+void OffLatticeSimulation<DIM>::AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition)
 {
     mBoundaryConditions.push_back(pBoundaryCondition);
 }
 
 
 template<unsigned DIM>
-std::vector<double> CellBasedSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
+std::vector<double> OffLatticeSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
     std::vector<double> location;
     for (unsigned i=0; i<DIM; i++)
@@ -433,7 +433,7 @@ std::vector<double> CellBasedSimulation<DIM>::GetNodeLocation(const unsigned& rN
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::Solve()
+void OffLatticeSimulation<DIM>::Solve()
 {
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::EVERYTHING);
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::SETUP);
@@ -610,13 +610,13 @@ void CellBasedSimulation<DIM>::Solve()
 }
 
 template<unsigned DIM>
-bool CellBasedSimulation<DIM>::StoppingEventHasOccurred()
+bool OffLatticeSimulation<DIM>::StoppingEventHasOccurred()
 {
     return false;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::UpdateCellPopulation()
+void OffLatticeSimulation<DIM>::UpdateCellPopulation()
 {
     /////////////////////////
     // Remove dead cells
@@ -657,7 +657,7 @@ void CellBasedSimulation<DIM>::UpdateCellPopulation()
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::OutputSimulationSetup()
+void OffLatticeSimulation<DIM>::OutputSimulationSetup()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
 
@@ -722,19 +722,19 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 }
 
 template<unsigned DIM>
-bool CellBasedSimulation<DIM>::GetOutputNodeVelocities()
+bool OffLatticeSimulation<DIM>::GetOutputNodeVelocities()
 {
     return mOutputNodeVelocities;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities)
+void OffLatticeSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities)
 {
     mOutputNodeVelocities = outputNodeVelocities;
 }
 
 template<unsigned DIM>
-void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
+void OffLatticeSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t<Dt>" << mDt << "</Dt>\n";
     *rParamsFile << "\t\t<EndTime>" << mEndTime << "</EndTime>\n";
@@ -744,12 +744,12 @@ void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFil
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(OffLatticeSimulation)
 
 ////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 ////////////////////////////////////////////////////////////////////////////
 
-template class CellBasedSimulation<1>;
-template class CellBasedSimulation<2>;
-template class CellBasedSimulation<3>;
+template class OffLatticeSimulation<1>;
+template class OffLatticeSimulation<2>;
+template class OffLatticeSimulation<3>;

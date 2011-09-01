@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. You will have encountered some these files already in previous
  * cell-based Chaste tutorials. */
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexBasedCellPopulation.hpp"
@@ -109,7 +109,7 @@ public:
     }
 
     /* The second public method overrides {{{ImposeBoundaryCondition()}}}.
-     * This method is called during the {{{Solve()}}} method in {{{CellBasedSimulation}}}
+     * This method is called during the {{{Solve()}}} method in {{{OffLatticeSimulation}}}
      * at the end of each timestep, just after the position of each node
      * in the cell population has been updated according to its equation of motion.
      * The method iterates over all cells in the population, and moves any cell whose
@@ -147,7 +147,7 @@ public:
     }
 
     /* The third public method overrides {{{VerifyBoundaryCondition()}}}.
-     * This method is called during the {{{Solve()}}} method in {{{CellBasedSimulation}}}
+     * This method is called during the {{{Solve()}}} method in {{{OffLatticeSimulation}}}
      * at the end of each timestep, just after {{{ImposeBoundaryCondition()}}}, and checks
      * that each cell in the population now satisfies {{{MyBoundaryCondition}}}.
      */
@@ -320,7 +320,7 @@ public:
      * We now provide a test demonstrating how {{{MyBoundaryCondition}}} can be used
      * in a cell-based simulation.
      */
-    void TestCellBasedSimulationWithMyBoundaryCondition() throw(Exception)
+    void TestOffLatticeSimulationWithMyBoundaryCondition() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -338,13 +338,13 @@ public:
         /* We use the cell population to construct a cell population boundary condition object. */
         MyBoundaryCondition my_bc(&cell_population);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyBoundaryCondition");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyBoundaryCondition");
         simulator.SetEndTime(1.0);
 
-        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);

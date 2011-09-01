@@ -70,7 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
 
 /*
@@ -274,7 +274,7 @@ public:
      * We now provide a test demonstrating how {{{MyForce}}} can be used
      * in a cell-based simulation.
      */
-    void TestCellBasedSimulationWithMyBoundaryCondition() throw(Exception)
+    void TestOffLatticeSimulationWithMyBoundaryCondition() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -289,13 +289,13 @@ public:
 
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyForce");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyForce");
         simulator.SetEndTime(1.0);
 
-        /* We create our force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create our force law and pass it to the {{{OffLatticeSimulation}}}. */
         MyForce force(0.5);
         simulator.AddForce(&force);
 

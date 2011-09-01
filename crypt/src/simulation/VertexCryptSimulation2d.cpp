@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
                                                  bool deleteCellPopulationAndForceCollection,
                                                  bool initialiseCells)
-    : CellBasedSimulation<2>(rCellPopulation,
+    : OffLatticeSimulation<2>(rCellPopulation,
                              deleteCellPopulationAndForceCollection,
                              initialiseCells),
       mWriteBetaCatenin(false)
@@ -211,7 +211,7 @@ void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile
     *rParamsFile << "\t\t<UseJiggledBottomCells>" << use_jiggled_bottom_cells << "</UseJiggledBottomCells>\n";
 
     // Call method on direct parent class
-    CellBasedSimulation<2>::OutputSimulationParameters(rParamsFile);
+    OffLatticeSimulation<2>::OutputSimulationParameters(rParamsFile);
 }
 
 // Serialization for Boost >= 1.36

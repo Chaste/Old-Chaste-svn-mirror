@@ -26,20 +26,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "CellBasedSimulationWithMyStoppingEvent.hpp"
+#include "OffLatticeSimulationWithMyStoppingEvent.hpp"
 
-bool CellBasedSimulationWithMyStoppingEvent::StoppingEventHasOccurred()
+bool OffLatticeSimulationWithMyStoppingEvent::StoppingEventHasOccurred()
 {
     return  (SimulationTime::Instance()->GetTime() > 3.1415);
 }
 
-CellBasedSimulationWithMyStoppingEvent::CellBasedSimulationWithMyStoppingEvent(
+OffLatticeSimulationWithMyStoppingEvent::OffLatticeSimulationWithMyStoppingEvent(
         AbstractCellPopulation<2>& rCellPopulation)
-    : CellBasedSimulation<2>(rCellPopulation)
+    : OffLatticeSimulation<2>(rCellPopulation)
 {
 }
 
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(CellBasedSimulationWithMyStoppingEvent)
+CHASTE_CLASS_EXPORT(OffLatticeSimulationWithMyStoppingEvent)

@@ -106,7 +106,7 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
                 double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ SmallPow(-1,i+1)));
                 double y = y0 + vertical_spacing*(double)i;
 
-                // Avoid floating point errors which upset CellBasedSimulation
+                // Avoid floating point errors which upset OffLatticeSimulation
                 if ( (y<0.0) && (y>-1e-12) )
                 {
                     // Difficult to cover - just corrects floating point errors that have occurred from time to time!

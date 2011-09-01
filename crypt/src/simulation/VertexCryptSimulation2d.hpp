@@ -32,14 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
 
 /**
  * A 2D vertex-based crypt simulation object.
  */
-class VertexCryptSimulation2d : public CellBasedSimulation<2>
+class VertexCryptSimulation2d : public OffLatticeSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
@@ -53,7 +53,7 @@ private:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
+        archive & boost::serialization::base_object<OffLatticeSimulation<2> >(*this);
         archive & mWriteBetaCatenin;
     }
 

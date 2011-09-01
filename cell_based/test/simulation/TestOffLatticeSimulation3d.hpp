@@ -26,17 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATION3D_HPP_
-#define TESTCELLBASEDSIMULATION3D_HPP_
+#ifndef TESTOFFLATTICESIMULATION3D_HPP_
+#define TESTOFFLATTICESIMULATION3D_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+#include "OffLatticeSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
 
-class TestCellBasedSimulation3d : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulation3d : public AbstractCellBasedTestSuite
 {
 private:
     double mLocationGhosts;
@@ -96,7 +96,7 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
-        CellBasedSimulation<3> simulator(cell_population);
+        OffLatticeSimulation<3> simulator(cell_population);
 
         unsigned num_births = simulator.DoCellBirth();
 
@@ -127,7 +127,7 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
-        CellBasedSimulation<3> simulator(cell_population);
+        OffLatticeSimulation<3> simulator(cell_population);
 
         TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth", "StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
@@ -171,7 +171,7 @@ public:
 
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
-        CellBasedSimulation<3> simulator(cell_population);
+        OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
 
         // Create a force law and pass it to the simulation
@@ -267,7 +267,7 @@ public:
         cell_population.SetOutputCellMutationStates(true);
         cell_population.SetOutputCellVolumes(true);
 
-        CellBasedSimulation<3> simulator(cell_population);
+        OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
         simulator.SetEndTime(0.1);
 
@@ -277,7 +277,7 @@ public:
         simulator.AddForce(&linear_force);
 
         simulator.Solve();
-        CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Save(&simulator);
+        OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator);
 
         // To check consistency with for test below
         mLocationGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
@@ -294,7 +294,7 @@ public:
         cell_population2.SetOutputCellMutationStates(true);
         cell_population2.SetOutputCellVolumes(true);
 
-        CellBasedSimulation<3> simulator2(cell_population2);
+        OffLatticeSimulation<3> simulator2(cell_population2);
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
         simulator2.SetEndTime(0.1);
 
@@ -302,7 +302,7 @@ public:
         simulator2.AddForce(&linear_force);
 
         simulator2.Solve();
-        CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Save(&simulator2);
+        OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator2);
 
         // To check consistency with for test below
         mLocationWithoutGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
@@ -313,7 +313,7 @@ public:
     {
         {
             // With ghost nodes - 56 ghosts 8 real cells
-            CellBasedSimulation<3>* p_simulator = CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+            OffLatticeSimulation<3>* p_simulator = OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetCellPopulation().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
@@ -328,7 +328,7 @@ public:
 
         {
             // Without ghost nodes - all 65 are real cells
-            CellBasedSimulation<3>* p_simulator = CellBasedSimulationArchiver<3, CellBasedSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
+            OffLatticeSimulation<3>* p_simulator = OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetCellPopulation().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);
@@ -341,5 +341,5 @@ public:
     }
 };
 
-#endif /*TESTCELLBASEDSIMULATION3D_HPP_*/
+#endif /*TESTOFFLATTICESIMULATION3D_HPP_*/
 

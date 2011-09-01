@@ -26,15 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATIONWITHPDES_HPP_
-#define TESTCELLBASEDSIMULATIONWITHPDES_HPP_
+#ifndef TESTOFFLATTICESIMULATIONWITHPDES_HPP_
+#define TESTOFFLATTICESIMULATIONWITHPDES_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+#include "OffLatticeSimulationArchiver.hpp"
 
-#include "CellBasedSimulationWithPdes.hpp"
+#include "OffLatticeSimulationWithPdes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OxygenBasedCellKiller.hpp"
@@ -73,7 +73,7 @@ public:
 };
 
 /**
- * For use in TestCellBasedSimulationWithPdes::TestWithBoundaryConditionVaryingInTime.
+ * For use in TestOffLatticeSimulationWithPdes::TestWithBoundaryConditionVaryingInTime.
  */
 double bc_func(const ChastePoint<2>& p)
 {
@@ -81,7 +81,7 @@ double bc_func(const ChastePoint<2>& p)
     return value;
 }
 
-class TestCellBasedSimulationWithPdes : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulationWithPdes : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -166,7 +166,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
@@ -267,10 +267,10 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        boost::shared_ptr<CellBasedSimulation<2> > p_simulator(new CellBasedSimulationWithPdes<2>(cell_population, pde_and_bc_collection));
-        TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        boost::shared_ptr<OffLatticeSimulation<2> > p_simulator(new OffLatticeSimulationWithPdes<2>(cell_population, pde_and_bc_collection));
+        TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "OffLatticeSimulationWithPdes-2");
 
-        p_simulator->SetOutputDirectory("CellBasedSimulationWithOxygen");
+        p_simulator->SetOutputDirectory("OffLatticeSimulationWithOxygen");
         p_simulator->SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -301,24 +301,24 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
         // Work out where one of the previous tests wrote its files
-        OutputFileHandler handler("CellBasedSimulationWithOxygen", false);
+        OutputFileHandler handler("OffLatticeSimulationWithOxygen", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-        NumericFileComparison comp_nut(results_dir + "/results.vizpdesolution", "cell_based/test/data/CellBasedSimulationWithOxygen/results.vizpdesolution");
+        NumericFileComparison comp_nut(results_dir + "/results.vizpdesolution", "cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizpdesolution");
         TS_ASSERT(comp_nut.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizpdesolution cell_based/test/data/CellBasedSimulationWithOxygen/results.vizpdesolution").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizpdesolution cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizpdesolution").c_str()), 0);
 
-        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/CellBasedSimulationWithOxygen/results.vizelements");
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/CellBasedSimulationWithOxygen/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizelements").c_str()), 0);
 
-        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/CellBasedSimulationWithOxygen/results.viznodes");
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/OffLatticeSimulationWithOxygen/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles(1e-15));
 
-        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/CellBasedSimulationWithOxygen/results.vizcelltypes");
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/CellBasedSimulationWithOxygen/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/OffLatticeSimulationWithOxygen/results.vizsetup").c_str()), 0);
     }
 
     void TestWithPointwiseSource() throw(Exception)
@@ -383,8 +383,8 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("CellBasedSimulationWithPdes");
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPdes");
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -480,8 +480,8 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("CellBasedSimulationWithPointwiseSource");
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPointwiseSource");
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -567,7 +567,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialPdeSolution(5);
@@ -684,7 +684,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
@@ -864,7 +864,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
@@ -980,7 +980,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation to use a coarse PDE mesh
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
         simulator.SetEndTime(0.01);
         simulator.UseCoarsePdeMesh(10.0,50.0);
@@ -1065,8 +1065,8 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("CellBasedSimulationWithPdesSaveAndLoad");
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPdesSaveAndLoad");
         simulator.SetEndTime(0.2);
 
         // Create a force law and pass it to the simulation
@@ -1083,10 +1083,10 @@ public:
         simulator.Solve();
 
         // Save cell-based simulation
-        CellBasedSimulationArchiver<2, CellBasedSimulationWithPdes<2> >::Save(&simulator);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
 
-        CellBasedSimulationWithPdes<2>* p_simulator
-            = CellBasedSimulationArchiver<2, CellBasedSimulationWithPdes<2> >::Load("CellBasedSimulationWithPdesSaveAndLoad", 0.2);
+        OffLatticeSimulationWithPdes<2>* p_simulator
+            = OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load("OffLatticeSimulationWithPdesSaveAndLoad", 0.2);
 
         p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
         p_simulator->SetEndTime(0.5);
@@ -1114,7 +1114,7 @@ public:
     }
 
     /**
-     * This test demonstrates how to archive a CellBasedSimulationWithPdes
+     * This test demonstrates how to archive a OffLatticeSimulationWithPdes
      * in the case where the PDE has the cell population as a member variable.
      */
     void TestArchivingWithCellwisePde() throw (Exception)
@@ -1169,7 +1169,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
 
@@ -1183,11 +1183,11 @@ public:
         simulator.Solve();
 
         // Save cell-based simulation
-        CellBasedSimulationArchiver<2, CellBasedSimulationWithPdes<2> >::Save(&simulator);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
 
         // Load simulation
-        CellBasedSimulationWithPdes<2>* p_simulator
-            = CellBasedSimulationArchiver<2, CellBasedSimulationWithPdes<2> >::Load(output_directory, end_time);
+        OffLatticeSimulationWithPdes<2>* p_simulator
+            = OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load(output_directory, end_time);
 
         /**
          * In this case, the PDE had a reference to the cell population. To avoid a
@@ -1215,7 +1215,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void Test3DCellBasedSimulationWithPdes() throw(Exception)
+    void Test3DOffLatticeSimulationWithPdes() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -1259,8 +1259,8 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("CellBasedSimulationWithOxygen3d");
+        OffLatticeSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithOxygen3d");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(0.1);
 
@@ -1336,7 +1336,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestPostSolveMethod");
 
         double end_time = 0.5;
@@ -1365,7 +1365,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void TestCellBasedSimulationWithPdesParameterOutputMethods() throw (Exception)
+    void TestOffLatticeSimulationWithPdesParameterOutputMethods() throw (Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -1390,22 +1390,22 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulationWithPdes-2");
 
         // Create a force law and pass it to the simulation
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
 
-        std::string output_directory = "TestCellBasedSimulationOutputParameters";
+        std::string output_directory = "TestOffLatticeSimulationOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
         out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_with_pde_results.parameters");
         simulator.OutputSimulationParameters(parameter_file);
         parameter_file->close();
 
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_with_pde_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_with_pde_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_with_pde_results.parameters  cell_based/test/data/TestOffLatticeSimulationOutputParameters/cell_based_sim_with_pde_results.parameters").c_str()), 0);
 
         ///\todo check output of simulator.OutputSimulationSetup();
     }
@@ -1467,7 +1467,7 @@ public:
 		pde_and_bc_collection.push_back(&pde_and_bc);
 
 		// Set up cell-based simulation
-		CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+		OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
 		simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithpoutCoarseMeshThrowsException");
 		simulator.SetEndTime(0.01);
 
@@ -1545,7 +1545,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithCoarseMeshPDE");
         simulator.SetEndTime(0.01);
 
@@ -1682,7 +1682,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased");
         simulator.SetEndTime(0.01);
 
@@ -1778,7 +1778,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased");
         simulator.SetEndTime(0.01);
 
@@ -1884,7 +1884,7 @@ public:
 		pde_and_bc_collection.push_back(&pde_and_bc);
 
 		// Set up cell-based simulation
-		CellBasedSimulationWithPdes<1> simulator(cell_population, pde_and_bc_collection);
+		OffLatticeSimulationWithPdes<1> simulator(cell_population, pde_and_bc_collection);
 		simulator.SetEndTime(0.01);
 
 		// Set output directory
@@ -1913,4 +1913,4 @@ public:
 	}
 };
 
-#endif /*TESTCELLBASEDSIMULATIONWITHPDES_HPP_*/
+#endif /*TESTOFFLATTICESIMULATIONWITHPDES_HPP_*/

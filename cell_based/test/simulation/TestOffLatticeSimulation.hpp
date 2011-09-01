@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATION_HPP_
-#define TESTCELLBASEDSIMULATION_HPP_
+#ifndef TESTOFFLATTICESIMULATION_HPP_
+#define TESTOFFLATTICESIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "CheckpointArchiveTypes.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -50,9 +50,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "CellBasedSimulationWithMyStoppingEvent.hpp"
+#include "OffLatticeSimulationWithMyStoppingEvent.hpp"
 
-class TestCellBasedSimulation : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -90,7 +90,7 @@ public:
         cell_population.SetOutputVoronoiData(true);
 
         // Set up simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocities");
         simulator.SetEndTime(0.5);
 
@@ -154,7 +154,7 @@ public:
         cell_population.SetOutputVoronoiData(true);
 
         // Set up simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOutputNodeVelocitiesWithGhostNodes");
         simulator.SetEndTime(0.5);
 
@@ -199,7 +199,7 @@ public:
      * check that the numbers of nodes and cells match at the end of the
      * simulation.
      */
-    void TestCellBasedSimulationWithCellDeath() throw (Exception)
+    void TestOffLatticeSimulationWithCellDeath() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;
@@ -216,8 +216,8 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithCellDeath");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithCellDeath");
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -248,7 +248,7 @@ public:
     /**
      * Test a cell-based simulation with multiple forces.
      */
-    void TestCellBasedSimulationWithMultipleForces() throw (Exception)
+    void TestOffLatticeSimulationWithMultipleForces() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;
@@ -265,8 +265,8 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleForces");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMultipleForces");
         simulator.SetEndTime(0.5);
 
         // Create some force laws and pass them to the simulation
@@ -298,7 +298,7 @@ public:
     /**
      * Test a cell-based simulation with multiple boundary conditions. y<2 and y>0
      */
-    void TestCellBasedSimulationWithMultipleCellBoundaryConditions() throw (Exception)
+    void TestOffLatticeSimulationWithMultipleCellBoundaryConditions() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;
@@ -315,8 +315,8 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithMultipleCellBoundaryConditions");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMultipleCellBoundaryConditions");
         simulator.SetEndTime(0.5);
 
         // Create some force laws and pass them to the simulation
@@ -353,7 +353,7 @@ public:
         CellBasedEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
     }
 
-    void TestCellBasedSimulationWithStoppingEvent() throw (Exception)
+    void TestOffLatticeSimulationWithStoppingEvent() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -437,7 +437,7 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation WITH the stopping event
-        CellBasedSimulationWithMyStoppingEvent simulator(cell_population);
+        OffLatticeSimulationWithMyStoppingEvent simulator(cell_population);
         simulator.SetOutputDirectory("TestCellPopulationSimWithStoppingEvent");
 
         // Set the end time to 10.0 - the stopping event is, however, t>3.1415.
@@ -475,7 +475,7 @@ public:
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         // Create crypt simulation from cell population and force law
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
 
@@ -546,7 +546,7 @@ public:
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 2u);
     }
 
-    void TestCellBasedSimulationParameterOutputMethods() throw (Exception)
+    void TestOffLatticeSimulationParameterOutputMethods() throw (Exception)
     {
         // Create a simple mesh
         HoneycombMeshGenerator generator(5, 5, 0);
@@ -561,25 +561,25 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
+        OffLatticeSimulation<2> simulator(cell_population);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulation-2");
 
         //#1453 should have forces and cell killer included here to make it a better test.
 
-        std::string output_directory = "TestCellBasedSimulationOutputParameters";
+        std::string output_directory = "TestOffLatticeSimulationOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
         out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_results.parameters");
         simulator.OutputSimulationParameters(parameter_file);
         parameter_file->close();
 
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_results.parameters  cell_based/test/data/TestOffLatticeSimulationOutputParameters/cell_based_sim_results.parameters").c_str()), 0);
 
-        simulator.SetOutputDirectory("TestCellBasedSimulationOutputParameters");
+        simulator.SetOutputDirectory("TestOffLatticeSimulationOutputParameters");
         simulator.OutputSimulationSetup();
         ///\todo #1453 This is to do with the pre Boost 1.37 problem ---
-        //TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff --ignore-matching-lines=\"CellPopulation\" " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
+        //TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestOffLatticeSimulationOutputParameters/results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff --ignore-matching-lines=\"CellPopulation\" " + results_dir + "results.parameters  cell_based/test/data/TestOffLatticeSimulationOutputParameters/results.parameters").c_str()), 0);
 
         // Check that the files which we don't want to compare actually exist
         std::ifstream machine_file;
@@ -599,7 +599,7 @@ public:
      * The purpose of this test is to check that it is possible to construct and run
      * a short 1D cell-based simulation without throwing any exceptions.
      */
-    void Test1dCellBasedSimulation() throw (Exception)
+    void Test1dOffLatticeSimulation() throw (Exception)
     {
         // Create mesh
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -624,8 +624,8 @@ public:
         cell_population.SetOutputCellIdData(true);
 
         // Set up cell-based simulation
-        CellBasedSimulation<1> simulator(cell_population);
-        simulator.SetOutputDirectory("Test1DCellBasedSimulation");
+        OffLatticeSimulation<1> simulator(cell_population);
+        simulator.SetOutputDirectory("Test1DOffLatticeSimulation");
         simulator.SetEndTime(0.6);
 
         // Create a force law and pass it to the simulation
@@ -659,7 +659,7 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create a cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestMeshBasedMonolayer");
         simulator.SetEndTime(1.0);
 
@@ -674,4 +674,4 @@ public:
     }
 };
 
-#endif /*TESTCELLBASEDSIMULATION_HPP_*/
+#endif /*TESTOFFLATTICESIMULATION_HPP_*/

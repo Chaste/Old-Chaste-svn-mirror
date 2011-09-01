@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Any test in which the {{{GetIdentifier()}}} method is used, even via the main
  * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
- * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
+ * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{OffLatticeSimulationArchiver.hpp}}}
  * as the first Chaste header file.
  */
 #include "CheckpointArchiveTypes.hpp"

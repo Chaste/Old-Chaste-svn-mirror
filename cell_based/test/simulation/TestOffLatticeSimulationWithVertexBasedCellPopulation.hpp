@@ -26,16 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_
-#define TESTCELLBASEDSIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_
+#ifndef TESTOFFLATTICESIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_
+#define TESTOFFLATTICESIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+#include "OffLatticeSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "VertexBasedCellPopulation.hpp"
@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Warnings.hpp"
 #include "LogFile.hpp"
 
-class TestCellBasedSimulationWithVertexBasedCellPopulation : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulationWithVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -103,7 +103,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellRelaxationNagaiHonda");
         simulator.SetEndTime(1.0);
 
@@ -156,7 +156,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellRelaxationWelikyOster");
         simulator.SetEndTime(1.0);
 
@@ -198,7 +198,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestSingleCellDividing");
         simulator.SetEndTime(1.0);
 
@@ -252,7 +252,7 @@ public:
         unsigned old_num_cells = cell_population.GetNumRealCells();
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
@@ -308,7 +308,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithVoid");
         simulator.SetEndTime(20.0);
 
@@ -366,7 +366,7 @@ public:
         unsigned old_num_cells = cell_population.GetNumRealCells();
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
         simulator.SetEndTime(0.5);
 
@@ -433,7 +433,7 @@ public:
         cell_population.SetOutputCellMutationStates(true);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexMonolayerWithTwoMutationStates");
         simulator.SetEndTime(1.0);
 
@@ -486,7 +486,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexSingleCellApoptosis");
         simulator.SetEndTime(2.0);
 
@@ -543,7 +543,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(end_time);
@@ -558,7 +558,7 @@ public:
         // Archive now and then reload
 
         // Save simulation in steady state
-        CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(&simulator);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
 
         // Now save and reload to find where it breaks!
         for (unsigned i=0; i<40; i++)
@@ -566,19 +566,19 @@ public:
             start_time = end_time;
             end_time = end_time + 10.0;
 
-            CellBasedSimulation<2>* p_simulator = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load(output_directory,start_time);
+            OffLatticeSimulation<2>* p_simulator = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load(output_directory,start_time);
             p_simulator->SetDt(0.002);
             p_simulator->SetSamplingTimestepMultiple(50);
             p_simulator->SetEndTime(end_time);
             p_simulator->Solve();
 
-            CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(p_simulator);
+            OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator);
             delete p_simulator;
         }
         Warnings::QuietDestroy();
     }
 
-    // Test archiving of a CellBasedSimulation that uses a VertexBasedCellPopulation.
+    // Test archiving of a OffLatticeSimulation that uses a VertexBasedCellPopulation.
     void TestArchiving() throw (Exception)
     {
         // Set end time
@@ -597,8 +597,8 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithVertexBasedCellPopulationSaveAndLoad");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithVertexBasedCellPopulationSaveAndLoad");
         simulator.SetEndTime(end_time);
 
         TS_ASSERT_DELTA(simulator.GetDt(), 0.002, 1e-12);
@@ -610,7 +610,7 @@ public:
         // Run and save simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(&simulator);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 36u);
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), 96u);
@@ -624,8 +624,8 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         // Load simulation
-        CellBasedSimulation<2>* p_simulator
-            = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithVertexBasedCellPopulationSaveAndLoad", end_time);
+        OffLatticeSimulation<2>* p_simulator
+            = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithVertexBasedCellPopulationSaveAndLoad", end_time);
 
         p_simulator->SetEndTime(0.2);
 
@@ -650,4 +650,4 @@ public:
     }
 };
 
-#endif /*TESTCELLBASEDSIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_*/
+#endif /*TESTOFFLATTICESIMULATIONWITHVERTEXBASEDCELLPOPULATION_HPP_*/

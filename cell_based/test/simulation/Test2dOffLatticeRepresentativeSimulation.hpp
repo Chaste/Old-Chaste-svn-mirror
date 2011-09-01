@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TEST2DMONOLAYERREPRESENTATIVESIMULATION_HPP_
-#define TEST2DMONOLAYERREPRESENTATIVESIMULATION_HPP_
+#ifndef TEST2DOFFLATTICEREPRESENTATIVESIMULATION_HPP_
+#define TEST2DOFFLATTICEREPRESENTATIVESIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include "CheckpointArchiveTypes.hpp"
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -84,7 +84,7 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("Test2DMonolayerRepresentativeSimulationForProfiling");
         simulator.SetEndTime(50.0);
 
@@ -102,4 +102,4 @@ public:
     }
 };
 
-#endif /*TEST2DMONOLAYERREPRESENTATIVESIMULATION_HPP_*/
+#endif /*TEST2DOFFLATTICEREPRESENTATIVESIMULATION_HPP_*/

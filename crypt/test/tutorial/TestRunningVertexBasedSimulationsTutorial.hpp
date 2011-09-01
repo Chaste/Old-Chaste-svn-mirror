@@ -68,7 +68,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptCellsGenerator.hpp"
 #include "WntConcentration.hpp"
 #include "SloughingCellKiller.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 /*
  * The next three header files define three different types of cell-cycle model,
  * one with fixed cell-cycle times, one with stochastic cell-cycle times and one
@@ -136,15 +136,15 @@ public:
         */
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("MonolayerFixedCellCycle");
         simulator.SetEndTime(0.1);
 
         /* We must now create one or more force laws, which determine the mechanics of the vertices
         * of each cell in a cell population. For this test, we use one force law, based on the
-        * Nagai-Honda mechanics, and pass it to the {{{CellBasedSimulation}}}
+        * Nagai-Honda mechanics, and pass it to the {{{OffLatticeSimulation}}}
         */
         NagaiHondaForce<2> force;
         simulator.AddForce(&force);

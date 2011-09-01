@@ -1,6 +1,6 @@
 cell/TestWntConcentration.hpp
 odes/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
 odes/TestWntCellCycleOdeSystem.hpp
-simulation/TestCellBasedSimulationForCrypt.hpp
+simulation/TestOffLatticeSimulationForCrypt.hpp
 simulation/TestCryptSimulation1d.hpp
 simulation/TestCryptSimulation2d.hpp

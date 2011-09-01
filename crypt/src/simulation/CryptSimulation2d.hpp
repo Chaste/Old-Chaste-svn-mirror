@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "SimpleDataWriter.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A 2D crypt simulation object. For more details, see the paper by
  * van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  */
-class CryptSimulation2d : public CellBasedSimulation<2>
+class CryptSimulation2d : public OffLatticeSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
@@ -62,7 +62,7 @@ protected:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
+        archive & boost::serialization::base_object<OffLatticeSimulation<2> >(*this);
         archive & mWriteBetaCatenin;
     }
 

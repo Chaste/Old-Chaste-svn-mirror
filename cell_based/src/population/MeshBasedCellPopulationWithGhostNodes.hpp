@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * but are necessary for remeshing (because the remesher tries to create a convex hull
  * of the set of nodes) and visualization purposes. The MeshBasedCellPopulationWithGhostNodes
  * class deals with these ghost nodes, hiding the 'ghost nodes' concept from the
- * CellBasedSimulation class, so the latter only ever deals with real cells.
+ * OffLatticeSimulation class, so the latter only ever deals with real cells.
  */
 template<unsigned DIM>
 class MeshBasedCellPopulationWithGhostNodes : public MeshBasedCellPopulation<DIM>

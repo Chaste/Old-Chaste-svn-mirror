@@ -8,8 +8,8 @@ mesh/TestHoneycombMeshGenerator.hpp
 mesh/TestHoneycombVertexMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
-simulation/TestCellBasedSimulation3d.hpp
-simulation/TestCellBasedSimulationWithPdes.hpp
+simulation/TestOffLatticeSimulation3d.hpp
+simulation/TestOffLatticeSimulationWithPdes.hpp
 population/TestCellKillers.hpp
 population/TestCellwiseData.hpp
 population/TestMeshBasedCellPopulation.hpp

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HoneycombMeshGenerator.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
@@ -238,9 +238,9 @@ public:
         // Run a simulation to generate some results.viz<other things> files
         // so the visualizer can display the results.vizstress file.
         // (These lines are not actually necessary for generating results.vizstress)
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
 
-        // Add the force to to CellBasedSimulation
+        // Add the force to to OffLatticeSimulation
         simulator.AddForce(&force);
 
         simulator.SetEndTime(0.05);

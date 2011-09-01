@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTPDESFORCELLBASEDSIMULATIONS_HPP_
-#define TESTPDESFORCELLBASEDSIMULATIONS_HPP_
+#ifndef TESTPDESFOROFFLATTICESIMULATIONS_HPP_
+#define TESTPDESFOROFFLATTICESIMULATIONS_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-class TestPdesForCellBasedSimulations : public AbstractCellBasedTestSuite
+class TestPdesForOffLatticeSimulations : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -140,4 +140,4 @@ public:
     }
 };
 
-#endif /*TESTPDESFORCELLBASEDSIMULATIONS_HPP_*/
+#endif /*TESTPDESFOROFFLATTICESIMULATIONS_HPP_*/

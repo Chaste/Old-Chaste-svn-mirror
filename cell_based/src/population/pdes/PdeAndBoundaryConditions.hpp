@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- * A helper class for use in CellBasedSimulationWithPdes. The class
+ * A helper class for use in OffLatticeSimulationWithPdes. The class
  * contains a pointer to a linear elliptic PDE, which is to be solved
  * on the domain defined by the cell population. The class also contains
  * information describing the boundary condition that is to be imposed

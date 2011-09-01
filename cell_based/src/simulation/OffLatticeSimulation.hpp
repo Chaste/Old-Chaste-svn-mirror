@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CELLBASEDSIMULATION_HPP_
-#define CELLBASEDSIMULATION_HPP_
+#ifndef OFFLATTICESIMULATION_HPP_
+#define OFFLATTICESIMULATION_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
@@ -52,24 +52,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * based cell populations, each cell is represented by a polytope
  * (corresponding to its membrane) with a variable number of vertices.
  *
- * The CellBasedSimulation is constructed with a CellPopulation, which
+ * The OffLatticeSimulation is constructed with a CellPopulation, which
  * updates the correspondence between each Cell and its spatial representation
  * and handles cell division (governed by the CellCycleModel associated
  * with each cell). Once constructed, one or more Force laws may be passed
- * to the CellBasedSimulation object, to define the mechanical properties
+ * to the OffLatticeSimulation object, to define the mechanical properties
  * of the CellPopulation. Similarly, one or more CellKillers may be passed
- * to the CellBasedSimulation object to specify conditions in which Cells
+ * to the OffLatticeSimulation object to specify conditions in which Cells
  * may die, and one or more CellPopulationBoundaryConditions to specify
  * regions in space beyond which Cells may not move.
  */
 template<unsigned DIM>
-class CellBasedSimulation : public Identifiable
+class OffLatticeSimulation : public Identifiable
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;
-    friend class TestCellBasedSimulation3d;
-    friend class TestCellBasedSimulation;
+    friend class TestOffLatticeSimulation3d;
+    friend class TestOffLatticeSimulation;
 
 protected:
 
@@ -271,7 +271,7 @@ public:
      * @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
-    CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
+    OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                         bool deleteCellPopulationAndForceCollection=false,
                         bool initialiseCells=true);
 
@@ -280,7 +280,7 @@ public:
      *
      * This frees the cell population and cell killers, if they were created by de-serialization.
      */
-    virtual ~CellBasedSimulation();
+    virtual ~OffLatticeSimulation();
 
     /**
      * Get a node's location (ONLY FOR TESTING).
@@ -421,7 +421,7 @@ public:
 
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(OffLatticeSimulation)
 
 
 namespace boost
@@ -429,12 +429,12 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a CellBasedSimulation.
+ * Serialize information required to construct a OffLatticeSimulation.
  *
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const CellBasedSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const OffLatticeSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
@@ -442,21 +442,21 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a CellBasedSimulation.
+ * De-serialize constructor parameters and initialise a OffLatticeSimulation.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, CellBasedSimulation<DIM>* t, const unsigned int file_version)
+    Archive & ar, OffLatticeSimulation<DIM>* t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulation<DIM>(*p_cell_population, true, false);
+    ::new(t)OffLatticeSimulation<DIM>(*p_cell_population, true, false);
 }
 }
 } // namespace
 
 
-#endif /*CELLBASEDSIMULATION_HPP_*/
+#endif /*OFFLATTICESIMULATION_HPP_*/

@@ -26,13 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CellBasedSimulationWITHPDES_HPP_
-#define CellBasedSimulationWITHPDES_HPP_
+#ifndef OFFLATTICESIMULATIONWITHPDES_HPP_
+#define OFFLATTICESIMULATIONWITHPDES_HPP_
 
 #include <map>
 #include "ChasteSerialization.hpp"
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
@@ -45,10 +45,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * the transport of nutrients and/or signalling molecules.
  */
 template<unsigned DIM>
-class CellBasedSimulationWithPdes : public CellBasedSimulation<DIM>
+class OffLatticeSimulationWithPdes : public OffLatticeSimulation<DIM>
 {
     // Allow tests to access private members, in order to test computation of private functions
-    friend class TestCellBasedSimulationWithPdes;
+    friend class TestOffLatticeSimulationWithPdes;
 
 private:
 
@@ -58,7 +58,7 @@ private:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<CellBasedSimulation<DIM> >(*this);
+        archive & boost::serialization::base_object<OffLatticeSimulation<DIM> >(*this);
         archive & mWriteAverageRadialPdeSolution;
         archive & mWriteDailyAverageRadialPdeSolution;
         archive & mNumRadialIntervals;
@@ -229,7 +229,7 @@ public:
      * @param deleteCellPopulationAndForceCollection Whether to delete the cell population on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
-     CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
+     OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
                               std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
                               bool deleteCellPopulationAndForceCollection=false,
                               bool initialiseCells=true);
@@ -240,7 +240,7 @@ public:
      * Free any memory allocated by the constructor.
      * This frees the current PDE solution, if it exists.
      */
-    ~CellBasedSimulationWithPdes();
+    ~OffLatticeSimulationWithPdes();
 
     /**
      * A small hack until we fully archive this class -
@@ -302,18 +302,18 @@ public:
 
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulationWithPdes)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(OffLatticeSimulationWithPdes)
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a CellBasedSimulationWithPdes.
+ * Serialize information required to construct a OffLatticeSimulationWithPdes.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const CellBasedSimulationWithPdes<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const OffLatticeSimulationWithPdes<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<DIM> * p_cell_population = &(t->rGetCellPopulation());
@@ -321,21 +321,21 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a CellBasedSimulationWithPdes.
+ * De-serialize constructor parameters and initialise a OffLatticeSimulationWithPdes.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, CellBasedSimulationWithPdes<DIM> * t, const unsigned int file_version)
+    Archive & ar, OffLatticeSimulationWithPdes<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulationWithPdes<DIM>(*p_cell_population, std::vector<PdeAndBoundaryConditions<DIM>*>(), true, false);
+    ::new(t)OffLatticeSimulationWithPdes<DIM>(*p_cell_population, std::vector<PdeAndBoundaryConditions<DIM>*>(), true, false);
 }
 }
 } // namespace ...
 
 
-#endif /*CellBasedSimulationWITHPDES_HPP_*/
+#endif /*OFFLATTICESIMULATIONWITHPDES_HPP_*/

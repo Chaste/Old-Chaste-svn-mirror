@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptProjectionStatistics.hpp"
 #include "CryptProjectionForce.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
@@ -118,9 +118,9 @@ public:
         }
 
         // Make a cell-based simulation
-        CellBasedSimulation<2> crypt_projection_simulator(crypt, false, false);
+        OffLatticeSimulation<2> crypt_projection_simulator(crypt, false, false);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the OffLatticeSimulation
         CryptProjectionForce crypt_projection_force;
         crypt_projection_simulator.AddForce(&crypt_projection_force);
 

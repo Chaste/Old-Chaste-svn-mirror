@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "CellBasedSimulationWithPdes.hpp"
+#include "OffLatticeSimulationWithPdes.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
-#include "CellBasedSimulationWithPdesAssembler.hpp"
+#include "OffLatticeSimulationWithPdesAssembler.hpp"
 #include "CellwiseData.hpp"
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -41,11 +41,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 
 template<unsigned DIM>
-CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
+OffLatticeSimulationWithPdes<DIM>::OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
                                                         std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
                                                         bool deleteCellPopulationAndForceCollection,
                                                         bool initialiseCells)
-    : CellBasedSimulation<DIM>(rCellPopulation,
+    : OffLatticeSimulation<DIM>(rCellPopulation,
                                deleteCellPopulationAndForceCollection,
                                initialiseCells),
       mPdeAndBcCollection(pdeAndBcCollection),
@@ -55,7 +55,7 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
       mNumRadialIntervals(0), // 'unset' value
       mpCoarsePdeMesh(NULL)
 {
-    // We must be using a mesh-based cell population
+    // We must be using a mesh-based or node based cell population
     // assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL);
 	assert((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) || (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL));
 
@@ -64,7 +64,7 @@ CellBasedSimulationWithPdes<DIM>::CellBasedSimulationWithPdes(AbstractCellPopula
 }
 
 template<unsigned DIM>
-CellBasedSimulationWithPdes<DIM>::~CellBasedSimulationWithPdes()
+OffLatticeSimulationWithPdes<DIM>::~OffLatticeSimulationWithPdes()
 {
     if (mpCoarsePdeMesh)
     {
@@ -73,13 +73,13 @@ CellBasedSimulationWithPdes<DIM>::~CellBasedSimulationWithPdes()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection)
+void OffLatticeSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection)
 {
     mPdeAndBcCollection = pdeAndBcCollection;
 }
 
 template<unsigned DIM>
-Vec CellBasedSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
+Vec OffLatticeSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 {
     assert(pdeIndex<mPdeAndBcCollection.size());
     return mPdeAndBcCollection[pdeIndex]->GetSolution();
@@ -90,7 +90,7 @@ Vec CellBasedSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
+void OffLatticeSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
 {
     for (unsigned i=0; i<this->mForceCollection.size(); i++)
     {
@@ -103,7 +103,7 @@ void CellBasedSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetupSolve()
+void OffLatticeSimulationWithPdes<DIM>::SetupSolve()
 {
 	// If we're using a NodeBasedCellPopulation - assert that we have a CoarsePdeMesh to solve it on
 	if ((dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)) != NULL) && mpCoarsePdeMesh==NULL)
@@ -125,7 +125,7 @@ void CellBasedSimulationWithPdes<DIM>::SetupSolve()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetupWritePdeSolution()
+void OffLatticeSimulationWithPdes<DIM>::SetupWritePdeSolution()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/", false);
     if (PetscTools::AmMaster())
@@ -140,7 +140,7 @@ void CellBasedSimulationWithPdes<DIM>::SetupWritePdeSolution()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetupWriteCoarsePdeSolution()
+void OffLatticeSimulationWithPdes<DIM>::SetupWriteCoarsePdeSolution()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/", false);
     if (PetscTools::AmMaster())
@@ -150,7 +150,7 @@ void CellBasedSimulationWithPdes<DIM>::SetupWriteCoarsePdeSolution()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double meshWidth)
+void OffLatticeSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double meshWidth)
 {
     assert(!mPdeAndBcCollection.empty());
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
@@ -162,7 +162,7 @@ void CellBasedSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double 
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
+void OffLatticeSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
 {
 	if (DIM == 3)
 	{
@@ -220,7 +220,7 @@ void CellBasedSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, doub
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::InitialiseCoarsePdeMesh()
+void OffLatticeSimulationWithPdes<DIM>::InitialiseCoarsePdeMesh()
 {
     mCellPdeElementMap.clear();
 
@@ -236,7 +236,7 @@ void CellBasedSimulationWithPdes<DIM>::InitialiseCoarsePdeMesh()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::AfterSolve()
+void OffLatticeSimulationWithPdes<DIM>::AfterSolve()
 {
     if (this->mrCellPopulation.GetNumRealCells() != 0 && PetscTools::AmMaster())
     {
@@ -255,7 +255,7 @@ void CellBasedSimulationWithPdes<DIM>::AfterSolve()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SolvePde()
+void OffLatticeSimulationWithPdes<DIM>::SolvePde()
 {
     if (mpCoarsePdeMesh != NULL)
     {
@@ -312,7 +312,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
          * interpolate contributions to source terms from nodes onto Gauss points,
          * because the PDE solution is only stored at the cells (nodes).
          */
-        CellBasedSimulationWithPdesAssembler<DIM> solver(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
+        OffLatticeSimulationWithPdesAssembler<DIM> solver(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
 
         PetscInt size_of_soln_previous_step = 0;
 
@@ -356,7 +356,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePde()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
+void OffLatticeSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 {
     assert(!mPdeAndBcCollection.empty());
 
@@ -568,7 +568,7 @@ void CellBasedSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 }
 
 template<unsigned DIM>
-unsigned CellBasedSimulationWithPdes<DIM>::FindCoarseElementContainingCell(CellPtr pCell)
+unsigned OffLatticeSimulationWithPdes<DIM>::FindCoarseElementContainingCell(CellPtr pCell)
 {
     // Get containing element at last timestep from mCellPdeElementMap
     unsigned old_element_index = mCellPdeElementMap[pCell];
@@ -602,7 +602,7 @@ unsigned CellBasedSimulationWithPdes<DIM>::FindCoarseElementContainingCell(CellP
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::PostSolve()
+void OffLatticeSimulationWithPdes<DIM>::PostSolve()
 {
 	CellBasedEventHandler::BeginEvent(CellBasedEventHandler::PDE);
     SolvePde();
@@ -634,7 +634,7 @@ void CellBasedSimulationWithPdes<DIM>::PostSolve()
 }
 
 template<unsigned DIM>
-c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationLocation()
+c_vector<double,DIM> OffLatticeSimulationWithPdes<DIM>::GetCellPopulationLocation()
 {
 	// Loop over cells and calculate centre of mass
 	c_vector<double,DIM> cell_population_centre = zero_vector<double>(DIM);
@@ -650,7 +650,7 @@ c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationLocation
 }
 
 template<unsigned DIM>
-c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationSize()
+c_vector<double,DIM> OffLatticeSimulationWithPdes<DIM>::GetCellPopulationSize()
 {
 	// Find cell population size
 	c_vector<double,DIM> population_centre=this->GetCellPopulationLocation();
@@ -684,7 +684,7 @@ c_vector<double,DIM> CellBasedSimulationWithPdes<DIM>::GetCellPopulationSize()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::WritePdeSolution(double time)
+void OffLatticeSimulationWithPdes<DIM>::WritePdeSolution(double time)
 {
     if (PetscTools::AmMaster())
     {
@@ -714,7 +714,7 @@ void CellBasedSimulationWithPdes<DIM>::WritePdeSolution(double time)
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetWriteAverageRadialPdeSolution(unsigned numRadialIntervals, bool writeDailyResults)
+void OffLatticeSimulationWithPdes<DIM>::SetWriteAverageRadialPdeSolution(unsigned numRadialIntervals, bool writeDailyResults)
 {
     mWriteAverageRadialPdeSolution = true;
     mNumRadialIntervals = numRadialIntervals;
@@ -722,7 +722,7 @@ void CellBasedSimulationWithPdes<DIM>::SetWriteAverageRadialPdeSolution(unsigned
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::SetImposeBcsOnPerimeterOfPopulation()
+void OffLatticeSimulationWithPdes<DIM>::SetImposeBcsOnPerimeterOfPopulation()
 {
 	// Perhaps should throw an exception
 	// EXCEPTION("This method is not fully working and tested yet.");
@@ -730,7 +730,7 @@ void CellBasedSimulationWithPdes<DIM>::SetImposeBcsOnPerimeterOfPopulation()
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time, unsigned numRadialIntervals)
+void OffLatticeSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time, unsigned numRadialIntervals)
 {
     (*mpAverageRadialPdeSolutionResultsFile) << time << " ";
 
@@ -798,30 +798,30 @@ void CellBasedSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::WriteCoarseMeshToFile()
+void OffLatticeSimulationWithPdes<DIM>::WriteCoarseMeshToFile()
 {
     TrianglesMeshWriter<DIM,DIM> mesh_writer(this->mSimulationOutputDirectory+"/coarse_mesh_output", "coarse_mesh",false);
 	mesh_writer.WriteFilesUsingMesh(*mpCoarsePdeMesh);
 }
 
 template<unsigned DIM>
-void CellBasedSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
+void OffLatticeSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t<WriteAverageRadialPdeSolution>" << mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
     *rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>" << mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
 
     // Call method on direct parent class
-    CellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
+    OffLatticeSimulation<DIM>::OutputSimulationParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class CellBasedSimulationWithPdes<1>;
-template class CellBasedSimulationWithPdes<2>;
-template class CellBasedSimulationWithPdes<3>;
+template class OffLatticeSimulationWithPdes<1>;
+template class OffLatticeSimulationWithPdes<2>;
+template class OffLatticeSimulationWithPdes<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulationWithPdes)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(OffLatticeSimulationWithPdes)

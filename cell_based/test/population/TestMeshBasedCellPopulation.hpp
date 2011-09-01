@@ -295,7 +295,7 @@ public:
 
         TS_ASSERT_EQUALS(cell_population.UseAreaBasedDampingConstant(), true);
 
-        // Note that this method is usually called by CellBasedSimulation::Solve()
+        // Note that this method is usually called by OffLatticeSimulation::Solve()
         cell_population.CreateVoronoiTessellation();
 
         double area_based_damping_const = cell_population.GetDampingConstant(8);

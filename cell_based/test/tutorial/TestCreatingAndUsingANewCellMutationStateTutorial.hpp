@@ -75,7 +75,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
 
 /*
@@ -237,7 +237,7 @@ public:
      * We conclude with a brief test demonstrating how {{{P53GainOfFunctionCellMutationState}}} can be used
      * in a cell-based simulation.
      */
-    void TestCellBasedSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
+    void TestOffLatticeSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -259,13 +259,13 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithp_motile");
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithp_motile");
         simulator.SetEndTime(10.0);
 
-        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(3);
         simulator.AddForce(&linear_force);

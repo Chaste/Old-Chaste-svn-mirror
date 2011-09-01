@@ -52,7 +52,7 @@ public:
     /**
      * This test is required because Test2DCryptRepresentativeSimulation loads
      * an archive stored in crypt/test/data. When the archiving of
-     * CellBasedSimulation and associate classes is updated, the stored archive
+     * OffLatticeSimulation and associate classes is updated, the stored archive
      * needs to be updated. This test checks that the archive can be loaded,
      * and will seg fault if not. It does nothing more, so it runs quickly
      * and can be in the continuous test pack.

@@ -37,14 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "CryptSimulationBoundaryCondition.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 
 /**
  * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model
  * developed by Meineke et al (doi:10.1046/j.0960-7722.2001.00216.x).
  */
-class CryptSimulation1d : public CellBasedSimulation<1>
+class CryptSimulation1d : public OffLatticeSimulation<1>
 {
     // Allow tests to access private members to test private functions
     friend class TestCryptSimulation1d;
@@ -64,7 +64,7 @@ private:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<CellBasedSimulation<1> >(*this);
+        archive & boost::serialization::base_object<OffLatticeSimulation<1> >(*this);
     }
 
     /** Helper member that is a static cast of the cell population. */

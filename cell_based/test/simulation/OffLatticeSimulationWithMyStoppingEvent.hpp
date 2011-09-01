@@ -26,39 +26,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CELLBASEDSIMULATIONWITHMYSTOPPINGEVENT_HPP_
-#define CELLBASEDSIMULATIONWITHMYSTOPPINGEVENT_HPP_
+#ifndef OFFLATTICESIMULATIONWITHMYSTOPPINGEVENT_HPP_
+#define OFFLATTICESIMULATIONWITHMYSTOPPINGEVENT_HPP_
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 
 /**
- * Simple subclass of CellBasedSimulation which just overloads StoppingEventHasOccurred
+ * Simple subclass of OffLatticeSimulation which just overloads StoppingEventHasOccurred
  * for testing the stopping event functionality..
  */
-class CellBasedSimulationWithMyStoppingEvent : public CellBasedSimulation<2>
+class OffLatticeSimulationWithMyStoppingEvent : public OffLatticeSimulation<2>
 {
 private:
     /** Define a stopping event which says stop if t>3.14 */
     bool StoppingEventHasOccurred();
 
 public:
-    CellBasedSimulationWithMyStoppingEvent(AbstractCellPopulation<2>& rCellPopulation);
+    OffLatticeSimulationWithMyStoppingEvent(AbstractCellPopulation<2>& rCellPopulation);
 };
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(CellBasedSimulationWithMyStoppingEvent)
+CHASTE_CLASS_EXPORT(OffLatticeSimulationWithMyStoppingEvent)
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a CellBasedSimulationWithMyStoppingEvent.
+ * Serialize information required to construct a OffLatticeSimulationWithMyStoppingEvent.
  */
 template<class Archive>
 inline void save_construct_data(
-    Archive & ar, const CellBasedSimulationWithMyStoppingEvent * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const OffLatticeSimulationWithMyStoppingEvent * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractCellPopulation<2>* p_cell_population = &(t->rGetCellPopulation());
@@ -66,20 +66,20 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a CellBasedSimulationWithMyStoppingEvent.
+ * De-serialize constructor parameters and initialise a OffLatticeSimulationWithMyStoppingEvent.
  */
 template<class Archive>
 inline void load_construct_data(
-    Archive & ar, CellBasedSimulationWithMyStoppingEvent * t, const unsigned int file_version)
+    Archive & ar, OffLatticeSimulationWithMyStoppingEvent * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractCellPopulation<2>* p_cell_population;
     ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulationWithMyStoppingEvent(*p_cell_population);
+    ::new(t)OffLatticeSimulationWithMyStoppingEvent(*p_cell_population);
 }
 }
 } // namespace
 
-#endif /*CELLBASEDSIMULATIONWITHMYSTOPPINGEVENT_HPP_*/
+#endif /*OFFLATTICESIMULATIONWITHMYSTOPPINGEVENT_HPP_*/

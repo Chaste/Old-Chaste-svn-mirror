@@ -26,16 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_
-#define TESTCELLBASEDSIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_
+#ifndef TESTOFFLATTICESIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_
+#define TESTOFFLATTICESIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+#include "OffLatticeSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-class TestCellBasedSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -92,8 +92,8 @@ public:
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
+        OffLatticeSimulation<2> simulator(node_based_cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
@@ -143,8 +143,8 @@ public:
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulation");
+        OffLatticeSimulation<2> simulator(node_based_cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNodeBasedCellPopulation");
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
@@ -198,8 +198,8 @@ public:
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationCellPtrDeath");
+        OffLatticeSimulation<2> simulator(node_based_cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNodeBasedCellPopulationCellPtrDeath");
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -248,8 +248,8 @@ public:
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationStandardResult");
+        OffLatticeSimulation<2> simulator(node_based_cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNodeBasedCellPopulationStandardResult");
         simulator.SetEndTime(2.5);
 
         // Create a force law and pass it to the simulation
@@ -299,8 +299,8 @@ public:
         node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(node_based_cell_population);
-        simulator.SetOutputDirectory("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad");
+        OffLatticeSimulation<2> simulator(node_based_cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad");
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
@@ -318,7 +318,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(&simulator);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
     }
 
     // Testing Load (based on previous two tests)
@@ -326,16 +326,16 @@ public:
     {
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 1.0
-        CellBasedSimulation<2>* p_simulator1;
-        p_simulator1 = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
+        OffLatticeSimulation<2>* p_simulator1;
+        p_simulator1 = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
 
         // Save, then reload and run from 1.0 to 2.5
-        CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Save(p_simulator1);
-        CellBasedSimulation<2>* p_simulator2
-            = CellBasedSimulationArchiver<2, CellBasedSimulation<2> >::Load("TestCellBasedSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
+        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator1);
+        OffLatticeSimulation<2>* p_simulator2
+            = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
 
         p_simulator2->SetEndTime(2.5);
         p_simulator2->Solve();
@@ -355,4 +355,4 @@ public:
     }
 };
 
-#endif /*TESTCELLBASEDSIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_*/
+#endif /*TESTOFFLATTICESIMULATIONWITHNODEBASEDCELLPOPULATION_HPP_*/

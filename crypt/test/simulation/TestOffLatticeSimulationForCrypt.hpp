@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTCELLBASEDSIMULATIONFORCRYPT_HPP_
-#define TESTCELLBASEDSIMULATIONFORCRYPT_HPP_
+#ifndef TESTOFFLATTICESIMULATIONFORCRYPT_HPP_
+#define TESTOFFLATTICESIMULATIONFORCRYPT_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CheckpointArchiveTypes.hpp"
 
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptCellsGenerator.hpp"
 #include "SimpleWntCellCycleModel.hpp"
@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 
-class TestCellBasedSimulationForCrypt : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulationForCrypt : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -105,9 +105,9 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Set up cell-based simulation
-        CellBasedSimulation<2> simulator(cell_population);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
-        simulator.SetOutputDirectory("CellBasedSimulationWritingProteins");
+        OffLatticeSimulation<2> simulator(cell_population);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulation-2");
+        simulator.SetOutputDirectory("OffLatticeSimulationWritingProteins");
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
@@ -118,21 +118,21 @@ public:
         TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
 
         // Run cell-based simulation
-        TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "CellBasedSimulationWritingProteins");
+        TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "OffLatticeSimulationWritingProteins");
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        OutputFileHandler handler("CellBasedSimulationWritingProteins", false);
+        OutputFileHandler handler("OffLatticeSimulationWritingProteins", false);
 
         std::string cell_variables_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
-        NumericFileComparison comp_cell_variables(cell_variables_file, "crypt/test/data/CellBasedSimulationWritingProteins/cellvariables.dat");
+        NumericFileComparison comp_cell_variables(cell_variables_file, "crypt/test/data/OffLatticeSimulationWritingProteins/cellvariables.dat");
         TS_ASSERT(comp_cell_variables.CompareFiles(1e-2));
 
         std::string cell_cycle_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
-        NumericFileComparison comp_cell_cycle(cell_cycle_file, "crypt/test/data/CellBasedSimulationWritingProteins/cellcyclephases.dat");
+        NumericFileComparison comp_cell_cycle(cell_cycle_file, "crypt/test/data/OffLatticeSimulationWritingProteins/cellcyclephases.dat");
         TS_ASSERT(comp_cell_cycle.CompareFiles(1e-2));
 
         std::string cell_ages_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellages.dat";
-        NumericFileComparison comp_cell_ages(cell_ages_file, "crypt/test/data/CellBasedSimulationWritingProteins/cellages.dat");
+        NumericFileComparison comp_cell_ages(cell_ages_file, "crypt/test/data/OffLatticeSimulationWritingProteins/cellages.dat");
         TS_ASSERT(comp_cell_ages.CompareFiles(1e-2));
 
         // Tidy up
@@ -147,7 +147,7 @@ public:
      * depends on a radial Wnt gradient, and the crypt projection model spring
      * system, and store the results for use in later archiving tests.
      */
-    void TestCellBasedSimulationWithCryptProjectionSpringSystem() throw (Exception)
+    void TestOffLatticeSimulationWithCryptProjectionSpringSystem() throw (Exception)
     {
         double a = 0.2;
         double b = 2.0;
@@ -201,7 +201,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Make a cell-based simulation
-        CellBasedSimulation<2> crypt_projection_simulator(crypt, false, false);
+        OffLatticeSimulation<2> crypt_projection_simulator(crypt, false, false);
 
         // Create a force law and pass it to the simulation
         CryptProjectionForce crypt_projection_force;
@@ -240,4 +240,4 @@ public:
     }
 };
 
-#endif /*TESTCELLBASEDSIMULATIONFORCRYPT_HPP_*/
+#endif /*TESTOFFLATTICESIMULATIONFORCRYPT_HPP_*/

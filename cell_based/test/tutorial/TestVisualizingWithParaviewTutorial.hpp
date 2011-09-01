@@ -76,7 +76,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "NagaiHondaForce.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
@@ -137,13 +137,13 @@ public:
          */
         cell_population.SetOutputVoronoiData(true);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("Test2DMonolayerSimulationForVisualizing");
         simulator.SetEndTime(1.0);
 
-        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -211,13 +211,13 @@ public:
 
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{CellBasedSimulation}}},
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
-        CellBasedSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
         simulator.SetEndTime(0.1);
 
-        /* We create a force law and pass it to the {{{CellBasedSimulation}}}. */
+        /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         NagaiHondaForce<2> nagai_honda_force;
         simulator.AddForce(&nagai_honda_force);
 

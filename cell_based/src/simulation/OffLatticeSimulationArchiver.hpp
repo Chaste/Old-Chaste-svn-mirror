@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CELLBASEDSIMULATIONARCHIVER_HPP_
-#define CELLBASEDSIMULATIONARCHIVER_HPP_
+#ifndef OFFLATTICESIMULATIONARCHIVER_HPP_
+#define OFFLATTICESIMULATIONARCHIVER_HPP_
 
 // Must be included before any other serialization headers
 #include "CheckpointArchiveTypes.hpp"
@@ -43,12 +43,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 
 /**
- * CellBasedSimulationArchiver handles the checkpointing (saving and loading)
- * of all the various CellBasedSimulation objects. It has no explicit constructor
+ * OffLatticeSimulationArchiver handles the checkpointing (saving and loading)
+ * of all the various OffLatticeSimulation objects. It has no explicit constructor
  * (just uses a default one) and no member variables.
  */
 template<unsigned DIM, class SIM>
-class CellBasedSimulationArchiver
+class OffLatticeSimulationArchiver
 {
 public:
 
@@ -79,7 +79,7 @@ public:
 
 
 template<unsigned DIM, class SIM>
-SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+SIM* OffLatticeSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     /**
      * Find the right archive (and mesh) to load.  The files are contained within
@@ -122,7 +122,7 @@ SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDire
 }
 
 template<unsigned DIM, class SIM>
-void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
+void OffLatticeSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
 {
     // Get the simulation time as a string
     const SimulationTime* p_sim_time = SimulationTime::Instance();
@@ -156,4 +156,4 @@ void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     (*p_arch) & pSim; // const-ness would be a pain here
 }
 
-#endif /*CELLBASEDSIMULATIONARCHIVER_HPP_*/
+#endif /*OFFLATTICESIMULATIONARCHIVER_HPP_*/

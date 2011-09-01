@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                   bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
-    : CellBasedSimulation<1>(rCellPopulation,
+    : OffLatticeSimulation<1>(rCellPopulation,
                           deleteCellPopulationAndForceCollection,
                           initialiseCells)
 {
@@ -118,7 +118,7 @@ void CryptSimulation1d::OutputSimulationParameters(out_stream& rParamsFile)
     // No parameters to output
 
     // Call method on direct parent class
-    CellBasedSimulation<1>::OutputSimulationParameters(rParamsFile);
+    OffLatticeSimulation<1>::OutputSimulationParameters(rParamsFile);
 }
 
 // Serialization for Boost >= 1.36

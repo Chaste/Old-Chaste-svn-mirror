@@ -26,16 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TEST3DTISSUEREPRESENTATIVESIMULATION_HPP_
-#define TEST3DTISSUEREPRESENTATIVESIMULATION_HPP_
+#ifndef TEST3DOFFLATTICEPRESENTATIVESIMULATION_HPP_
+#define TEST3DOFFLATTICEPRESENTATIVESIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "CellBasedSimulationArchiver.hpp"
+#include "OffLatticeSimulationArchiver.hpp"
 
 #include "TrianglesMeshReader.hpp"
-#include "CellBasedSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -195,12 +195,12 @@ public:
 
         TS_ASSERT_EQUALS(ghost_node_indices.size(), cell_population.GetGhostNodeIndices().size());
 
-        CellBasedSimulation<3> simulator(cell_population);
+        OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
         simulator.SetEndTime(1.0);
         simulator.SetSamplingTimestepMultiple(12);
 
-        // Create a force law and pass it to the CellBasedSimulation
+        // Create a force law and pass it to the OffLatticeSimulation
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.SetCutOffLength(1.5);
         simulator.AddForce(&linear_force);
@@ -209,4 +209,4 @@ public:
     }
 };
 
-#endif /*TEST3DTISSUEREPRESENTATIVESIMULATION_HPP_*/
+#endif /*TEST3DOFFLATTICEPRESENTATIVESIMULATION_HPP_*/

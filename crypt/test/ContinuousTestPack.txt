@@ -13,7 +13,7 @@ odes/TestWntCellCycleOdeSystem.hpp
 population/TestCryptSimulationBoundaryCondition.hpp
 population/TestSloughingCellKillers.hpp
 population/TestVertexBasedCellPopulationForCrypt.hpp
-simulation/TestCellBasedSimulationForCrypt.hpp
+simulation/TestOffLatticeSimulationForCrypt.hpp
 simulation/TestArchiveFormat.hpp
 simulation/TestCryptSimulation1d.hpp
 simulation/TestCryptSimulation2d.hpp
