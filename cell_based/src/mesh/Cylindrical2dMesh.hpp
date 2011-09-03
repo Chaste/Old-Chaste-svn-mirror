@@ -25,7 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #ifndef CYLINDRICAL2DMESH_HPP_
 #define CYLINDRICAL2DMESH_HPP_
 
@@ -286,11 +285,10 @@ public:
      */
     unsigned AddNode(Node<2>* pNewNode);
 
-
-//    /**
-//     * Return whether you have mismatched numbers of left and right boundary nodes
-//     */
-//    bool GetInstanceOfMismatchedBoundaryNodes();
+    /**
+     * Return whether you have mismatched numbers of left and right boundary nodes
+     */
+    bool GetInstanceOfMismatchedBoundaryNodes();
 };
 
 namespace boost
