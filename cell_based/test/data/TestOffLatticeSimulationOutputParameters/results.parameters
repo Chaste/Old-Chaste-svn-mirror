@@ -1,10 +1,10 @@
 <Chaste>
 
 	<OffLatticeSimulation-2>
+		<OutputNodeVelocities>0</OutputNodeVelocities>
 		<Dt>0.00833333</Dt>
 		<EndTime>0</EndTime>
 		<SamplingTimestepMultiple>1</SamplingTimestepMultiple>
-		<OutputNodeVelocities>0</OutputNodeVelocities>
 	</OffLatticeSimulation-2>
 
 	<MeshBasedCellPopulation-2>
@@ -36,11 +36,11 @@
 		</FixedDurationGenerationBasedCellCycleModel>
 	</CellCycleModels>
 
-	<Forces>
-	</Forces>
-
 	<CellKillers>
 	</CellKillers>
+
+	<Forces>
+	</Forces>
 
 	<CellPopulationBoundaryConditions>
 	</CellPopulationBoundaryConditions>
