@@ -74,8 +74,8 @@ protected:
     /** Facade encapsulating cells in the cell population being simulated. */
     AbstractCellPopulation<DIM>& mrCellPopulation;
 
-    /** Whether to delete the cell population, force laws and boundary conditions in the destructor. */
-    bool mDeleteCellPopulationAndForcesAndBCsInDestructor;
+    /** Whether to delete the cell population, and cell killers (plus forces and boundary conditions in the OffLatticeSimulation sub class) in the destructor. */
+    bool mDeleteCellPopulationAndCellKillersInDestructor;
 
     /** Whether to initialise the cells. */
     bool mInitialiseCells;
@@ -252,11 +252,11 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationAndForceCollection Whether to delete the cell population and cell killer collection on destruction to free up memory
+     * @param deleteCellPopulationAndCellKillersInDestructor Whether to delete the cell population and cell killer collection on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                        bool deleteCellPopulationAndForceCollection=false,
+                        bool deleteCellPopulationAndCellKillersInDestructor=false,
                         bool initialiseCells=true);
 
     /**
@@ -376,45 +376,5 @@ public:
      */
     virtual void OutputSimulationParameters(out_stream& rParamsFile)=0;
 };
-
-//
-//#include "SerializationExportWrapper.hpp"
-//EXPORT_TEMPLATE_CLASS_SAME_DIMS(AbstractCellBasedSimulation)
-//
-//
-//namespace boost
-//{
-//namespace serialization
-//{
-///**
-// * Serialize information required to construct a AbstractCellBasedSimulation.
-// *
-// */
-//template<class Archive, unsigned DIM>
-//inline void save_construct_data(
-//    Archive & ar, const AbstractCellBasedSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
-//{
-//    // Save data required to construct instance
-//    const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
-//    ar & p_cell_population;
-//}
-//
-///**
-// * De-serialize constructor parameters and initialise a AbstractCellBasedSimulation.
-// */
-//template<class Archive, unsigned DIM>
-//inline void load_construct_data(
-//    Archive & ar, AbstractCellBasedSimulation<DIM>* t, const unsigned int file_version)
-//{
-//    // Retrieve data from archive required to construct new instance
-//    AbstractCellPopulation<DIM>* p_cell_population;
-//    ar >> p_cell_population;
-//
-//    // Invoke inplace constructor to initialise instance
-//    ::new(t)AbstractCellBasedSimulation<DIM>(*p_cell_population, true, false);
-//}
-//}
-//} // namespace
-
 
 #endif /*ABSTRACTCELLBASEDSIMULATION_HPP_*/

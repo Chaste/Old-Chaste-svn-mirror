@@ -131,11 +131,11 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationAndForceCollection Whether to delete the cell population cell killer, force, and boundary conditions collections on destruction to free up memory
+     * @param deleteCellPopulationAndCellKillersInDestructor Whether to delete the cell population cell killer, force, and boundary conditions collections on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                         bool deleteCellPopulationAndForceCollection=false,
+                         bool deleteCellPopulationAndCellKillersInDestructor=false,
                          bool initialiseCells=true);
 
     /**
@@ -219,8 +219,9 @@ inline void load_construct_data(
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
-    // Invoke inplace constructor to initialise instance
-    ::new(t)OffLatticeSimulation<DIM>(*p_cell_population);
+    // Invoke inplace constructor to initialise instance, last two variables set extra
+    // member variables to be deleted as they are loaded from archive and to not initialise sells.
+    ::new(t)OffLatticeSimulation<DIM>(*p_cell_population, true, false);
 }
 }
 } // namespace

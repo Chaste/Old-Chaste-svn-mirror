@@ -144,7 +144,8 @@ inline void load_construct_data(
     AbstractCellPopulation<1>* p_cell_population;
     ar & p_cell_population;
 
-    // Invoke inplace constructor to initialise instance
+    // Invoke inplace constructor to initialise instance, last two variables set extra
+    // member variables to be deleted as they are loaded from archive and to not initialise sells.
     ::new(t)CryptSimulation1d(*p_cell_population, true, false);
 }
 }

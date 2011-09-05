@@ -43,11 +43,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                              bool deleteCellPopulationAndForcesAndBCsInDestructor,
+                                              bool deleteCellPopulationAndCellKillersInDestructor,
                                               bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
       mrCellPopulation(rCellPopulation),
-      mDeleteCellPopulationAndForcesAndBCsInDestructor(deleteCellPopulationAndForcesAndBCsInDestructor),
+      mDeleteCellPopulationAndCellKillersInDestructor(deleteCellPopulationAndCellKillersInDestructor),
       mInitialiseCells(initialiseCells),
       mNoBirth(false),
       mUpdateCellPopulation(true),
@@ -79,7 +79,7 @@ AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopula
 template<unsigned DIM>
 AbstractCellBasedSimulation<DIM>::~AbstractCellBasedSimulation()
 {
-    if (mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    if (mDeleteCellPopulationAndCellKillersInDestructor)
     {
         for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
              it != mCellKillers.end();

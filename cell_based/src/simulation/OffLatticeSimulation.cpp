@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                                bool deleteCellPopulationAndForcesAndBCsInDestructor,
+                                                bool deleteCellPopulationAndCellKillersInDestructor,
                                                 bool initialiseCells)
-    : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationAndForcesAndBCsInDestructor, initialiseCells),
+    : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationAndCellKillersInDestructor, initialiseCells),
       mOutputNodeVelocities(false)
 {
 }
@@ -48,7 +48,7 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::~OffLatticeSimulation()
 {
-    if (this->mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    if (this->mDeleteCellPopulationAndCellKillersInDestructor)
     {
         for (typename std::vector<AbstractForce<DIM>*>::iterator force_iter = mForceCollection.begin();
              force_iter != mForceCollection.end();
