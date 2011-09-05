@@ -197,7 +197,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a OffLatticeSimulation.
+ * Serialize information required to construct an OffLatticeSimulation.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -209,7 +209,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a OffLatticeSimulation.
+ * De-serialize constructor parameters and initialise an OffLatticeSimulation.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

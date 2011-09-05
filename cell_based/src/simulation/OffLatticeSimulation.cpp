@@ -29,12 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 
 #include "AbstractCentreBasedCellPopulation.hpp"
+#include "VertexBasedCellPopulation.hpp"
 
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
 
+#include "Debug.hpp"
 
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
@@ -43,6 +45,10 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
     : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationAndCellKillersInDestructor, initialiseCells),
       mOutputNodeVelocities(false)
 {
+    if ( (!dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation)) && (!dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation)))
+    {
+        EXCEPTION("OffLaticeSimulations require a VertexBasedCellPopulation or a subclass of AbstractCentreBasedCellPopulation.");
+    }
 }
 
 template<unsigned DIM>
