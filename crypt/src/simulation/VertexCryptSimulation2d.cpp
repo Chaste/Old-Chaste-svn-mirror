@@ -50,7 +50,7 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
         mWriteBetaCatenin = true;
     }
 
-    if (!mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    if (!mDeleteCellPopulationAndCellKillersInDestructor)
     {
 		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
 		CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);

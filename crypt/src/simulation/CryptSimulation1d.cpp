@@ -38,7 +38,7 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
 {
     mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
 
-    if (!mDeleteCellPopulationAndForcesAndBCsInDestructor)
+    if (!mDeleteCellPopulationAndCellKillersInDestructor)
     {
 		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
 		CryptSimulationBoundaryCondition<1>* p_boundary_condition = new CryptSimulationBoundaryCondition<1>(&rCellPopulation);
