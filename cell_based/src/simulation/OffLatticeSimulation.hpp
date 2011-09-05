@@ -30,6 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define OFFLATTICESIMULATION_HPP_
 
 #include "AbstractCellBasedSimulation.hpp"
+#include "AbstractForce.hpp"
+#include "AbstractCellPopulationBoundaryCondition.hpp"
+
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
  * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre-

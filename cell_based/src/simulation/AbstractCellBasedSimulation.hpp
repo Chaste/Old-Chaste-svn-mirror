@@ -35,9 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-#include "AbstractForce.hpp"
 #include "AbstractCellKiller.hpp"
-#include "AbstractCellPopulationBoundaryCondition.hpp"
 #include "AbstractCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "Identifiable.hpp"
@@ -379,44 +377,44 @@ public:
     virtual void OutputSimulationParameters(out_stream& rParamsFile)=0;
 };
 
-
-#include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(AbstractCellBasedSimulation)
-
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Serialize information required to construct a AbstractCellBasedSimulation.
- *
- */
-template<class Archive, unsigned DIM>
-inline void save_construct_data(
-    Archive & ar, const AbstractCellBasedSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
-{
-    // Save data required to construct instance
-    const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
-    ar & p_cell_population;
-}
-
-/**
- * De-serialize constructor parameters and initialise a AbstractCellBasedSimulation.
- */
-template<class Archive, unsigned DIM>
-inline void load_construct_data(
-    Archive & ar, AbstractCellBasedSimulation<DIM>* t, const unsigned int file_version)
-{
-    // Retrieve data from archive required to construct new instance
-    AbstractCellPopulation<DIM>* p_cell_population;
-    ar >> p_cell_population;
-
-    // Invoke inplace constructor to initialise instance
-    ::new(t)AbstractCellBasedSimulation<DIM>(*p_cell_population, true, false);
-}
-}
-} // namespace
+//
+//#include "SerializationExportWrapper.hpp"
+//EXPORT_TEMPLATE_CLASS_SAME_DIMS(AbstractCellBasedSimulation)
+//
+//
+//namespace boost
+//{
+//namespace serialization
+//{
+///**
+// * Serialize information required to construct a AbstractCellBasedSimulation.
+// *
+// */
+//template<class Archive, unsigned DIM>
+//inline void save_construct_data(
+//    Archive & ar, const AbstractCellBasedSimulation<DIM>* t, const BOOST_PFTO unsigned int file_version)
+//{
+//    // Save data required to construct instance
+//    const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
+//    ar & p_cell_population;
+//}
+//
+///**
+// * De-serialize constructor parameters and initialise a AbstractCellBasedSimulation.
+// */
+//template<class Archive, unsigned DIM>
+//inline void load_construct_data(
+//    Archive & ar, AbstractCellBasedSimulation<DIM>* t, const unsigned int file_version)
+//{
+//    // Retrieve data from archive required to construct new instance
+//    AbstractCellPopulation<DIM>* p_cell_population;
+//    ar >> p_cell_population;
+//
+//    // Invoke inplace constructor to initialise instance
+//    ::new(t)AbstractCellBasedSimulation<DIM>(*p_cell_population, true, false);
+//}
+//}
+//} // namespace
 
 
 #endif /*ABSTRACTCELLBASEDSIMULATION_HPP_*/

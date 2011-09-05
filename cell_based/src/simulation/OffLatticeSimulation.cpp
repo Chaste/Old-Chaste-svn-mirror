@@ -278,6 +278,11 @@ void OffLatticeSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFi
 
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
 template class OffLatticeSimulation<1>;
 template class OffLatticeSimulation<2>;
 template class OffLatticeSimulation<3>;
