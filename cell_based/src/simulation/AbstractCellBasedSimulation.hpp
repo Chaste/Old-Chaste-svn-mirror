@@ -240,6 +240,8 @@ protected:
     /**
      * Helper method to output additional simulations parameters and information defined in
      * subclasses to file.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputAdditionalSimulationSetup(out_stream& rParamsFile)
     {

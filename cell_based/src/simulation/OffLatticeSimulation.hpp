@@ -173,7 +173,9 @@ public:
 
     /**
      * Overridden OutputAdditionalSimulationSetup method to output the force and cell
-     * population boundary condition information
+     * population boundary condition information.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputAdditionalSimulationSetup(out_stream& rParamsFile);
 
