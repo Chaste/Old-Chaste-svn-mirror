@@ -30,13 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
-
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
-
-#include "Debug.hpp"
 
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
