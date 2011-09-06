@@ -44,7 +44,7 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
 {
     if ( (!dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation)) && (!dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation)))
     {
-        EXCEPTION("OffLaticeSimulations require a VertexBasedCellPopulation or a subclass of AbstractCentreBasedCellPopulation.");
+        EXCEPTION("OffLatticeSimulations require a VertexBasedCellPopulation or a subclass of AbstractCentreBasedCellPopulation.");
     }
 }
 
