@@ -43,12 +43,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 
 /**
- * OffLatticeSimulationArchiver handles the checkpointing (saving and loading)
+ * CellBasedSimulationArchiver handles the checkpointing (saving and loading)
  * of all the various OffLatticeSimulation objects. It has no explicit constructor
  * (just uses a default one) and no member variables.
  */
 template<unsigned DIM, class SIM>
-class OffLatticeSimulationArchiver
+class CellBasedSimulationArchiver
 {
 public:
 
@@ -79,7 +79,7 @@ public:
 
 
 template<unsigned DIM, class SIM>
-SIM* OffLatticeSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     /**
      * Find the right archive (and mesh) to load.  The files are contained within
@@ -122,7 +122,7 @@ SIM* OffLatticeSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDir
 }
 
 template<unsigned DIM, class SIM>
-void OffLatticeSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
+void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
 {
     // Get the simulation time as a string
     const SimulationTime* p_sim_time = SimulationTime::Instance();

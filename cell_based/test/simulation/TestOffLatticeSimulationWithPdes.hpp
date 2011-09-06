@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "OffLatticeSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "OffLatticeSimulationWithPdes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -1083,10 +1083,10 @@ public:
         simulator.Solve();
 
         // Save cell-based simulation
-        OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
 
         OffLatticeSimulationWithPdes<2>* p_simulator
-            = OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load("OffLatticeSimulationWithPdesSaveAndLoad", 0.2);
+            = CellBasedSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load("OffLatticeSimulationWithPdesSaveAndLoad", 0.2);
 
         p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
         p_simulator->SetEndTime(0.5);
@@ -1183,11 +1183,11 @@ public:
         simulator.Solve();
 
         // Save cell-based simulation
-        OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Save(&simulator);
 
         // Load simulation
         OffLatticeSimulationWithPdes<2>* p_simulator
-            = OffLatticeSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load(output_directory, end_time);
+            = CellBasedSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load(output_directory, end_time);
 
         /**
          * In this case, the PDE had a reference to the cell population. To avoid a

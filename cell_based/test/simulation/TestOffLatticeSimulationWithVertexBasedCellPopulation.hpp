@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "OffLatticeSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -558,7 +558,7 @@ public:
         // Archive now and then reload
 
         // Save simulation in steady state
-        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
 
         // Now save and reload to find where it breaks!
         for (unsigned i=0; i<40; i++)
@@ -566,13 +566,13 @@ public:
             start_time = end_time;
             end_time = end_time + 10.0;
 
-            OffLatticeSimulation<2>* p_simulator = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load(output_directory,start_time);
+            OffLatticeSimulation<2>* p_simulator = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load(output_directory,start_time);
             p_simulator->SetDt(0.002);
             p_simulator->SetSamplingTimestepMultiple(50);
             p_simulator->SetEndTime(end_time);
             p_simulator->Solve();
 
-            OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator);
+            CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator);
             delete p_simulator;
         }
         Warnings::QuietDestroy();
@@ -610,7 +610,7 @@ public:
         // Run and save simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 36u);
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), 96u);
@@ -625,7 +625,7 @@ public:
 
         // Load simulation
         OffLatticeSimulation<2>* p_simulator
-            = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithVertexBasedCellPopulationSaveAndLoad", end_time);
+            = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithVertexBasedCellPopulationSaveAndLoad", end_time);
 
         p_simulator->SetEndTime(0.2);
 

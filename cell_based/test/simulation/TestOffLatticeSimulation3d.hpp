@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "OffLatticeSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -277,7 +277,7 @@ public:
         simulator.AddForce(&linear_force);
 
         simulator.Solve();
-        OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator);
+        CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator);
 
         // To check consistency with for test below
         mLocationGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
@@ -302,7 +302,7 @@ public:
         simulator2.AddForce(&linear_force);
 
         simulator2.Solve();
-        OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator2);
+        CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator2);
 
         // To check consistency with for test below
         mLocationWithoutGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
@@ -313,7 +313,7 @@ public:
     {
         {
             // With ghost nodes - 56 ghosts 8 real cells
-            OffLatticeSimulation<3>* p_simulator = OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+            OffLatticeSimulation<3>* p_simulator = CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetCellPopulation().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
@@ -328,7 +328,7 @@ public:
 
         {
             // Without ghost nodes - all 65 are real cells
-            OffLatticeSimulation<3>* p_simulator = OffLatticeSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
+            OffLatticeSimulation<3>* p_simulator = CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetCellPopulation().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);

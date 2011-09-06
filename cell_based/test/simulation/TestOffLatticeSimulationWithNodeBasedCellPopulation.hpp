@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "OffLatticeSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -318,7 +318,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Save(&simulator);
     }
 
     // Testing Load (based on previous two tests)
@@ -327,15 +327,15 @@ public:
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 1.0
         OffLatticeSimulation<2>* p_simulator1;
-        p_simulator1 = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
+        p_simulator1 = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
 
         // Save, then reload and run from 1.0 to 2.5
-        OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator1);
+        CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Save(p_simulator1);
         OffLatticeSimulation<2>* p_simulator2
-            = OffLatticeSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
+            = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load("TestOffLatticeSimulationWithNodeBasedCellPopulationSaveAndLoad", 1.0);
 
         p_simulator2->SetEndTime(2.5);
         p_simulator2->Solve();

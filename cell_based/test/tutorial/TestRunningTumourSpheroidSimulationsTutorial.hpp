@@ -67,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * As in the crypt simulation tutorial, we begin by including the necessary header files. We have
  * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}}
- * or {{{OffLatticeSimulationArchiver.hpp}}} must be included the first Chaste header.
+ * or {{{CellBasedSimulationArchiver.hpp}}} must be included the first Chaste header.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
