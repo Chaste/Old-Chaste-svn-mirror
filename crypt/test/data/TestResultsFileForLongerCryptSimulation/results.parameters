@@ -3,10 +3,10 @@
 	<CryptSimulation2d>
 		<CryptCircumference>16</CryptCircumference>
 		<UseJiggledBottomCells>1</UseJiggledBottomCells>
+        <OutputNodeVelocities>0</OutputNodeVelocities>
 		<Dt>0.00833333</Dt>
 		<EndTime>20</EndTime>
 		<SamplingTimestepMultiple>10</SamplingTimestepMultiple>
-		<OutputNodeVelocities>0</OutputNodeVelocities>
 	</CryptSimulation2d>
 
 	<MeshBasedCellPopulation-2>
@@ -41,6 +41,14 @@
 		</SimpleWntCellCycleModel>
 	</CellCycleModels>
 
+    <CellKillers>
+        <SloughingCellKiller-2>
+            <SloughLength>16.4545</SloughLength> 
+            <SloughSides>0</SloughSides> 
+            <SloughWidth>10</SloughWidth> 
+        </SloughingCellKiller-2>
+    </CellKillers>
+    
 	<Forces>
 		<GeneralisedLinearSpringForce-2>
 			<MeinekeSpringStiffness>30</MeinekeSpringStiffness> 
@@ -50,14 +58,6 @@
 			<CutOffLength>1.79769e+308</CutOffLength> 
 		</GeneralisedLinearSpringForce-2>
 	</Forces>
-
-	<CellKillers>
-		<SloughingCellKiller-2>
-			<SloughLength>16.4545</SloughLength> 
-			<SloughSides>0</SloughSides> 
-			<SloughWidth>10</SloughWidth> 
-		</SloughingCellKiller-2>
-	</CellKillers>
 
 	<CellPopulationBoundaryConditions>
 		<CryptSimulationBoundaryCondition-2>
