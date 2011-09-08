@@ -295,7 +295,7 @@ protected:
      * @param assembleResidual see documentation for AssembleSystem
      * @param assembleLinearSystem see documentation for AssembleSystem
      */
-    void FinishAssembleSystem(bool assembleResidual, bool assembleLinearSystem);
+    virtual void FinishAssembleSystem(bool assembleResidual, bool assembleLinearSystem);
 
     /**
      * Set up the residual vector (using the current solution), and get its
