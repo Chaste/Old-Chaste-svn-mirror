@@ -2437,16 +2437,6 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
         cp::var_type temp(rOutputVariables[i]);
         var_type_sequence.push_back(temp);
     }
-
-//    if (rOutputVariables.size() > 0)
-//    {
-//        // Turn off Meshalyzer etc. output, to avoid errors
-//        /// \todo #1502 is this no longer needed?
-//        SetVisualizeWithMeshalyzer(false);
-//        SetVisualizeWithCmgui(false);
-//        SetVisualizeWithVtk(false);
-//        SetVisualizeWithParallelVtk(false);
-//    }
 }
 
 void  HeartConfig::SetOutputUsingOriginalNodeOrdering(bool useOriginal)

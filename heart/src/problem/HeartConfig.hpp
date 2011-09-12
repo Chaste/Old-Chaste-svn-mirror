@@ -876,11 +876,6 @@ public:
      * of each variable that should be outputted at each time step.
      *
      * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE
-     *
-     * Warning: when specifying output variables, you cannot convert the HDF5
-     * output to Meshalyzer, Cmgui or VTK formats, since the converter will get
-     * confused by the presence of extra data.  This method thus also turns off
-     * visualizer output if the provided vector is non-empty.
      */
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
