@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * CellBasedSimulationArchiver handles the checkpointing (saving and loading)
- * of all the various OffLatticeSimulation objects. It has no explicit constructor
+ * of all the various AbstractCellBasedSimulation objects. It has no explicit constructor
  * (just uses a default one) and no member variables.
  */
 template<unsigned DIM, class SIM>
