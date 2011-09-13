@@ -738,6 +738,8 @@ def apply_protocol_file(doc, proto_file_path):
             else:
                 return None
         if hasattr(proto_xml.protocol, u'modelInterface'):
+            for vardecl in getattr(proto_xml.protocol.modelInterface, u'declareNewVariable', []):
+                proto.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
             for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
                 proto.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
                                                 get_units(rule, 'desiredDimensions'),
@@ -748,8 +750,6 @@ def apply_protocol_file(doc, proto_file_path):
                 proto.specify_input_variable(input.name, get_units(input), getattr(input, u'initial_value', None))
             for output in getattr(proto_xml.protocol.modelInterface, u'specifyOutputVariable', []):
                 proto.specify_output_variable(output.name, get_units(output))
-            for vardecl in getattr(proto_xml.protocol.modelInterface, u'declareNewVariable', []):
-                proto.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
             for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
                 proto.add_or_replace_equation(expr.xml_element_children().next())
         proto.modify_model()
