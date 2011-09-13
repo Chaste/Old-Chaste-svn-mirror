@@ -387,6 +387,7 @@ class cellml_model(element_base):
         self._cml_variables = {}
         self._cml_components = {}
         self._cml_units = {}
+        self._cml_standard_units = {}
         self._cml_units_map = {}
         # Topologically sorted assignments list
         self._cml_assignments = []
@@ -1192,6 +1193,7 @@ class cellml_model(element_base):
     def _build_units_dictionary(self):
         """Create a dictionary mapping units names to objects, for all units definitions in this element."""
         # Standard units
+        std_units = self._cml_standard_units
         def make(name, bases):
             return cellml_units.create_new(self, name, bases, standard=True)
         # SI base units & dimensionless
@@ -1199,10 +1201,10 @@ class cellml_model(element_base):
                       u'kilogram', u'metre', u'mole', u'second']
         base_units.append(u'#FUDGE#') # Used for PE of naughty models
         for units in base_units:
-            self._cml_units[units] = make(units, [])
+            std_units[units] = make(units, [])
         # Special cellml:boolean units
         boolean = make(u'cellml:boolean', [])
-        self._cml_units[u'cellml:boolean'] = boolean
+        std_units[u'cellml:boolean'] = boolean
         # Convenience derived units
         gram = make('gram', [{'units': 'kilogram', 'multiplier': '0.001'}])
         litre = make('litre', [{'multiplier': '1000', 'prefix': 'centi',
@@ -1254,21 +1256,29 @@ class cellml_model(element_base):
                       hertz, joule, katal, litre, lumen, lux, newton, ohm,
                       pascal, radian, siemens, sievert, steradian, tesla,
                       volt, watt, weber]:
-            self._cml_units[units.name] = units
+            std_units[units.name] = units
         # American spellings
-        self._cml_units[u'meter'] = self._cml_units[u'metre']
-        self._cml_units[u'liter'] = self._cml_units[u'litre']
+        std_units[u'meter'] = std_units[u'metre']
+        std_units[u'liter'] = std_units[u'litre']
         # User-defined units
+        model_units = self._cml_units
+        model_units.update(std_units)
         if hasattr(self, u'units'):
             for units in self.units:
-                if units.name in self._cml_units:
+                if units.name in model_units:
                     self.validation_error("Units names must be unique within the parent component or model,"
                                           " and must not redefine the standard units (5.4.1.2)."
                                           " The units definition named '%s' in the model is a duplicate." % units.name)
-                self._cml_units[units.name] = units
+                model_units[units.name] = units
         # Update units hashmap
-        for u in self._cml_units.itervalues():
+        for u in model_units.itervalues():
             self._add_units_obj(u)
+    
+    def get_standard_units(self):
+        """Get a dictionary mapping the names of the standard CellML units to their definitions."""
+        if not self._cml_standard_units:
+            self._build_units_dictionary()
+        return self._cml_standard_units
 
     def get_all_units(self):
         """Get a list of all units objects, including the standard units."""

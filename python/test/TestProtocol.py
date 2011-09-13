@@ -353,7 +353,7 @@ class TestProtocol(unittest.TestCase):
         mapped = p.model.get_variable_by_name(u'fast_sodium_current', u'alpha_m_')
         source = p.model.get_variable_by_name(u'fast_sodium_current_m_gate', u'alpha_m')
         self.assertEqual(mapped.get_source_variable(), source)
-        self.assertEqual(target.get_source_variable(), mapped)
+        self.assertEqual(tdef.get_dependencies()[0].get_source_variable(), mapped)
         # Where we use the real source variable as target
         p = self.CreateLr91Test()
         time2 = self.NewVariable(u'fast_sodium_current,time2', u'millisecond')

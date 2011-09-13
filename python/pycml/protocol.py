@@ -517,8 +517,6 @@ class Protocol(processors.ModelModifier):
         
         Modify the given assignment in-place, replacing the RHS by a copy of conv_template, except
         ci references to placeholder_name are replaced by (a copy of) the original RHS.
-        
-        TODO: check connection creation for used vars
         """
         rhs = assignment.eq.rhs
         assignment.safe_remove_child(rhs)
@@ -722,12 +720,12 @@ def apply_protocol_file(doc, proto_file_path):
         proto_xml = amara_parse_cellml(proto_file_path)
         assert hasattr(proto_xml, u'protocol')
         proto = Protocol(doc.model, multi_stage=True, namespaces=proto_xml.xmlns_prefixes)
-        proto_units = {}
-        # TODO: Tidy up the units code so that we can refer to standard units without getting those in
-        # the model too!
+        proto_units = doc.model.get_standard_units().copy()
         if hasattr(proto_xml.protocol, u'units'):
             # Parse units definitions
             for defn in getattr(proto_xml.protocol.units, u'units', []):
+                if defn.name in proto_units:
+                    raise ProtocolError("Duplicate definition of units named '%s'" % defn.name)
                 proto_units[defn.name] = defn
                 defn.xml_parent = doc.model
         def get_units(elt, attr='units'):
