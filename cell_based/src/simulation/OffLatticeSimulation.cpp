@@ -195,7 +195,7 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
                 if (is_real_node)
                 {
                     const c_vector<double,DIM>& position = this->mrCellPopulation.GetNode(node_index)->rGetLocation();
-                    c_vector<double, 2> velocity = this->mDt * rNodeForces[node_index] / this->mrCellPopulation.GetDampingConstant(node_index);
+                    c_vector<double, DIM> velocity = this->mDt * rNodeForces[node_index] / this->mrCellPopulation.GetDampingConstant(node_index);
 
                     *mpNodeVelocitiesFile << node_index  << " ";
                     for (unsigned i=0; i<DIM; i++)
