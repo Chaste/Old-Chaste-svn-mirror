@@ -31,7 +31,6 @@ simulation protocol.
 import pycml
 from pycml import *
 import processors
-import validator
 
 class ProtocolError(ValueError):
     """Error thrown if a Protocol instance is invalid."""
@@ -67,6 +66,8 @@ class Protocol(processors.ModelModifier):
         self.model = model
         self.inputs = set()
         self.outputs = set()
+        warn_only = not model.get_option('fully_automatic') and model.get_option('warn_on_units_errors')
+        self.set_units_converter(processors.UnitsConverter(self.model, warn_only))
         if not multi_stage:
             raise NotImplementedError
     
@@ -106,8 +107,6 @@ class Protocol(processors.ModelModifier):
         
         If the variable does not exist, this is only an error if an initial_value or units are not given.
         Otherwise we just create the variable.
-        
-        TODO: does not units-convert the initial value.
         """
         try:
             var = self._lookup_ontology_term(prefixed_name)
@@ -123,7 +122,7 @@ class Protocol(processors.ModelModifier):
             var = self.add_variable(self._get_protocol_component(), oxmeta_name, units, id=oxmeta_name)
             var.set_oxmeta_name(oxmeta_name)
             self._pending_oxmeta_assignments.append((var, oxmeta_name))
-        var = self.specify_as_input(var, units)
+        var = self.specify_as_input(var, units, copy_initial_value=not initial_value)
         if initial_value:
             var.initial_value = unicode(initial_value)
         return var
@@ -263,14 +262,12 @@ class Protocol(processors.ModelModifier):
         self.outputs.add(output_var)
         return output_var
     
-    def specify_as_input(self, var, units):
+    def specify_as_input(self, var, units, copy_initial_value=True):
         """Specify the given variable within the model as a protocol input.
         
         The input is wanted in the given units, which must be added to the model if they don't exist.
         If they differ from its current units, a conversion will be needed, and hence a new version
         of this variable will be added to the protocol component, with a suitable assignment.
-        
-        TODO: does not units-convert the initial value.
         
         The variable that is the input must be set as a modifiable parameter, and any existing definition
         removed.
@@ -287,7 +284,10 @@ class Protocol(processors.ModelModifier):
                 var.initial_value = u'0'
         else:
             input_var = self._replace_variable(var, units)
-            input_var.initial_value = getattr(var, u'initial_value', u'0')
+            if copy_initial_value:
+                if not hasattr(var, u'initial_value'):
+                    raise ProtocolError("No initial value available for input " + str(var))
+                input_var.initial_value = self._convert_initial_value(var, units)
             self.del_attr(var, u'initial_value', None)
             # Set all variables connected to the original variable (including itself) to be mapped to the new one
             self._update_connections(var, input_var)
@@ -336,7 +336,8 @@ class Protocol(processors.ModelModifier):
         
     def _error_handler(self, errors):
         """Deal with errors found when re-analysing a modified model."""
-        raise ProtocolError("Applying protocol created an invalid model.")
+        raise ProtocolError('Applying protocol created an invalid model:\n  '
+                            + '\n  '.join(map(str, errors)))
     
     def _split_all_odes(self):
         """The free variable has been units-converted, so adjust all ODEs to account for this.
@@ -451,19 +452,6 @@ class Protocol(processors.ModelModifier):
             raise ValueError("Invalid variable name: " + full_name)
         return cname, vname
         
-    def _rename_local_variables(self, expr):
-        """Change local variable references in the given expression to refer to the protocol component.
-        
-        TODO: not actually used!  Remove?
-        """
-        for ci_elt in self._find_ci_elts(expr):
-            vname = unicode(ci_elt)
-            if u',' not in vname:
-                # Do the rename
-                cname = self._get_protocol_component().name
-                full_name = cname + u',' + vname
-                ci_elt._rename(full_name)
-    
     def _find_ci_elts(self, expr):
         """Get an iterator over all ci elements on the descendent-or-self axis of the given element."""
         if isinstance(expr, mathml_ci):
@@ -574,13 +562,6 @@ class Protocol(processors.ModelModifier):
         if notifier.messages:
             raise ProtocolError("Unable to apply units conversions to the model/protocol interface")
         
-    def get_units_converter(self):
-        """Get the protocol's units converter object, in order to add 'special' conversions."""
-        if not self._units_converter:
-            warn_only = not self.model.get_option('fully_automatic') and self.model.get_option('warn_on_units_errors')
-            self._units_converter = processors.UnitsConverter(self.model, warn_only)
-        return self._units_converter
-
     def _add_variable_to_model(self, var):
         """Add or replace a variable in our model.
         
@@ -759,6 +740,10 @@ def apply_protocol_file(doc, proto_file_path):
             else:
                 return None
         if hasattr(proto_xml.protocol, u'modelInterface'):
+            for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
+                proto.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
+                                                get_units(rule, 'desiredDimensions'),
+                                                rule.xml_element_children().next())
             if hasattr(proto_xml.protocol.modelInterface, u'setIndependentVariableUnits'):
                 proto.set_independent_variable_units(get_units(proto_xml.protocol.modelInterface.setIndependentVariableUnits))
             for input in getattr(proto_xml.protocol.modelInterface, u'specifyInputVariable', []):
@@ -769,10 +754,6 @@ def apply_protocol_file(doc, proto_file_path):
                 proto.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
             for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
                 proto.add_or_replace_equation(expr.xml_element_children().next())
-            for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
-                proto.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
-                                                get_units(rule, 'desiredDimensions'),
-                                                rule.xml_element_children().next())
         proto.modify_model()
     else:
         raise ProtocolError("Unexpected protocol file extension for file: " + proto_file_path)

@@ -1280,10 +1280,7 @@ class cellml_model(element_base):
         return units
 
     def get_units_by_name(self, uname):
-        """
-        Return an object representing the element that defines the units
-        named `uname'.
-        """
+        """Return an object representing the element that defines the units named `uname'."""
         if not self._cml_units:
             self._build_units_dictionary()
         try:
@@ -1292,12 +1289,10 @@ class cellml_model(element_base):
             raise KeyError("Units '%s' are not defined in the current component or model." % uname)
 
     def add_units(self, name, units):
-        """
-        Add an entry in our units dictionary for units named `name' with
-        element object `units'.
-        """
+        """Add an entry in our units dictionary for units named `name' with element object `units'."""
         if not self._cml_units:
             self._build_units_dictionary()
+        assert name not in self._cml_units
         self._cml_units[name] = units
         self._add_units_obj(units)
         return
@@ -1311,6 +1306,7 @@ class cellml_model(element_base):
         if not units.uniquify_tuple in self._cml_units_map:
             self._cml_units_map[units.uniquify_tuple] = units
         return
+    
     def _get_units_obj(self, units):
         """Unique-ify this units object.
 
@@ -1322,8 +1318,8 @@ class cellml_model(element_base):
         which would be given to these units, since that really *must*
         be unique in generated models.
         """
-        ##print id(units), units.description(), units._hash_tuple
         return self._cml_units_map.get(units.uniquify_tuple, units)
+    
     def _is_new_units_obj(self, units):
         """Have these units been generated already?
 

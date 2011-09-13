@@ -341,15 +341,19 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(targ1.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(targ2.get_type(), pycml.VarTypes.Computed)
         
-        # Also check error cases:
+        # The following are odd cases that do actually work!
         # Where we try to create a connection but there's an existing conflicting variable
         p = self.CreateLr91Test()
-        time2 = self.NewVariable(u'environment,time2', u'millisecond')
-        t2def = self.NewAssign(time2.name, u'membrane,time')
-        p.inputs = [time2, t2def]
-        self.assertRaises(processors.ModelModificationError, p.modify_model)
-        
-        # The following are odd cases that do actually work!
+        conflict = self.NewVariable(u'fast_sodium_current,alpha_m', u'per_millisecond', initial_value=u'0')
+        conflict._set_type(pycml.VarTypes.Constant)
+        target = self.NewVariable(u'membrane,my_alpha_m', u'per_millisecond')
+        tdef = self.NewAssign(target.name, u'fast_sodium_current_m_gate,alpha_m')
+        p.inputs = [conflict, target, tdef]
+        p.modify_model()
+        mapped = p.model.get_variable_by_name(u'fast_sodium_current', u'alpha_m_')
+        source = p.model.get_variable_by_name(u'fast_sodium_current_m_gate', u'alpha_m')
+        self.assertEqual(mapped.get_source_variable(), source)
+        self.assertEqual(target.get_source_variable(), mapped)
         # Where we use the real source variable as target
         p = self.CreateLr91Test()
         time2 = self.NewVariable(u'fast_sodium_current,time2', u'millisecond')

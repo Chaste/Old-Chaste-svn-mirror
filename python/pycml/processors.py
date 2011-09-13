@@ -51,6 +51,7 @@ class ModelModifier(object):
     def __init__(self, model):
         """Constructor."""
         self.model = model
+        self._units_converter = None
         
     def finalize(self, error_handler, pre_units_check_hook=None, check_units=True):
         """Re-do the model validation steps needed for further processing of the model.
@@ -132,8 +133,10 @@ class ModelModifier(object):
         its value from target.  Or they might both obtain their value from a common source.
         
         If the variable names are not identical, any variables created will have the same name as the
-        target.  Note that we do check for variables in intermediate components that have the same
-        name as the source and are connected to it, to avoid adding unnecessary variables.
+        target, if possible.  If there's an existing variable with that name, not connected to the
+        source, then underscores will be appended to the name to avoid conflicts.  Note that we do
+        check for variables in intermediate components that have the same name as the source and are
+        connected to it, to avoid adding unnecessary variables.
         
         Returns the target variable object.
         """
@@ -160,26 +163,23 @@ class ModelModifier(object):
             path.append(src_path[meeting_index])
         path.extend(reversed(target_path[:meeting_index]))
         # Traverse this path, adding connections at each step
+        next_src_var = src_comp.get_variable_by_name(src_vname)
         for i, src_comp in enumerate(path[:-1]):
             target_comp = path[i+1]
-            target_var = self._make_connection(src_comp, target_comp, src_vname, target_vname)
-        return target_var
+            next_src_var = self._make_connection(next_src_var, target_comp, target_vname)
+        return next_src_var
     
-    def _make_connection(self, src_comp, target_comp, src_vname, target_vname):
-        """Make a connection between two components using the given variable names.
+    def _make_connection(self, src_var, target_comp, target_vname):
+        """Make a connection from a source variable to a given component and suggested local name.
         
         Note that in the case that both variables already exist and are connected, the existing
         connection is allowed to flow in either direction.
         """
-        try:
-            src_var = src_comp.get_variable_by_name(src_vname)
-        except KeyError:
-            src_var = src_comp.get_variable_by_name(target_vname)
+        src_comp = src_var.component
         target_var = self._find_or_create_variable(target_comp.name, target_vname, src_var)
         # Sanity check the target variable
-        if target_var.get_type() == VarTypes.Mapped:
-            # They must have the same ultimate source variable
-            assert target_var.get_source_variable(recurse=True) is src_var.get_source_variable(recurse=True)
+        if (target_var.get_type() == VarTypes.Mapped
+            and target_var.get_source_variable(recurse=True) is src_var.get_source_variable(recurse=True)):
 #            print "Connection exists between", src_var, "and target", target_var
             return target_var
         elif target_var.get_type() == VarTypes.Unknown:
@@ -212,9 +212,8 @@ class ModelModifier(object):
             # Ensure we handle a later connection attempt between these variables correctly
             target_var._set_source_variable(src_var)
         else:
-            # Ouch!  The model has used the same variable name for different things...
-            raise ModelModificationError("Cannot connect " + target_var.fullname() + " to source " +
-                                         src_var.fullname() + " as the target has the wrong type.")
+            # Naming conflict; try again with a different target name
+            return self._make_connection(src_var, target_comp, target_vname + u'_')
         return target_var
     
     def _find_connection_element(self, var1, var2):
@@ -359,6 +358,7 @@ class ModelModifier(object):
         """
         try:
             var = self.model.get_variable_by_name(cname, source.name)
+            raise KeyError()
         except KeyError:
             # Have we created it already?
             try:
@@ -403,21 +403,17 @@ class ModelModifier(object):
         If the definition isn't in the model, at whole-model level, it will be added.  If the same
         definition is already available, however, that definition should be used by preference.
         Will return the actual units object to use.
-        
-        TODO: Ensure we avoid name conflicts!
         """
-#        print "add_units(",repr(units),")",
         units = self.model._get_units_obj(units)
-#        print "now",repr(units),
         try:
             model_units = self.model.get_units_by_name(units.name)
         except KeyError:
             model_units = None
         if model_units:
-#            print "in model", repr(model_units)
-            units = model_units # TODO: Check they're the same definition!
+            assert units.uniquify_tuple == model_units.uniquify_tuple
+            units = model_units
         else:
-#            print "adding with name", units.name
+            units.name = self._uniquify_name(units.name, self.model.get_units_by_name)
             self.model.add_units(units.name, units)
             self.model.xml_append(units)
             # Ensure referenced units exist
@@ -477,32 +473,32 @@ class ModelModifier(object):
         
         Underscores will be appended to the name until it is unique.  The unique name will be returned.
         """
+        return self._uniquify_name(varname, comp.get_variable_by_name)
+    
+    def _uniquify_name(self, name, callable):
+        """Ensure the given name is unique within a particular context.
+        
+        The context is determined by the given function: it will be passed candidate names to test
+        for existence, and is expected to throw iff the name is not already used.  Underscores will
+        be appended to the given name until callable throws, and the resulting unique name returned.
+        """
         while True:
             try:
-                comp.get_variable_by_name(varname)
-                varname += u'_'
+                callable(name)
+                name += u'_'
             except:
                 break
-        return varname
-
-
-class InterfaceGenerator(ModelModifier):
-    """Class for generating an interface between a CellML model and external code.
-    
-    This contains functionality for users to describe the interface desired by the external code, i.e.
-    which variables are inputs and/or outputs, and expected units.  It will then create a new component
-    within the CellML model containing these variables, and add units conversions where required.  The
-    external code then only needs to interact with this new component.
-    """
-    def __init__(self, model, name='interface', units_converter=None):
-        super(InterfaceGenerator, self).__init__(model)
-        self._interface_component = None
-        self._interface_component_name = name
-        self._units_converter = units_converter
+        return name
     
     def set_units_converter(self, converter):
         """Set the object used to units-convert variable initial values."""
         self._units_converter = converter
+    
+    def get_units_converter(self):
+        """Get the units converter object, if any has been set."""
+        if not self._units_converter:
+            raise ModelModificationError("No units converter has been set.")
+        return self._units_converter
 
     def _convert_initial_value(self, var, units, do_conversion=True):
         """Convert any initial value of the given variable into the given units.
@@ -520,6 +516,22 @@ class InterfaceGenerator(ModelModifier):
                                                  + str(e))
         return value
 
+
+
+class InterfaceGenerator(ModelModifier):
+    """Class for generating an interface between a CellML model and external code.
+    
+    This contains functionality for users to describe the interface desired by the external code, i.e.
+    which variables are inputs and/or outputs, and expected units.  It will then create a new component
+    within the CellML model containing these variables, and add units conversions where required.  The
+    external code then only needs to interact with this new component.
+    """
+    def __init__(self, model, name='interface', units_converter=None):
+        super(InterfaceGenerator, self).__init__(model)
+        self._interface_component = None
+        self._interface_component_name = name
+        self.set_units_converter(units_converter)
+    
     def add_input(self, var, units, annotate=True, convert_initial_value=True):
         """Specify a variable as an input to the model.
         
