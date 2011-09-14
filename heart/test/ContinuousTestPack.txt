@@ -33,6 +33,7 @@ postprocessing/TestPostProcessingWriter.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
 postprocessing/TestPseudoEcgCalculator.hpp
 postprocessing/TestVoltageInterpolaterOntoMechanicsMesh.hpp
+TestAbstractPurkinjeCellFactory.hpp
 TestAdaptiveTetrahedralMesh.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp
