@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractPurkinjeCellFactory.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "MixedDimensionMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "FakeBathCell.hpp"
 #include "SimpleStimulus.hpp"
 #include "LuoRudy1991.hpp"
@@ -77,12 +78,14 @@ class TestAbstractPurkinjeCellFactory : public CxxTest::TestSuite
 public:
     void TestPurkinjeCellFactory() throw (Exception)
     {
+    	EXIT_IF_PARALLEL;
         TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         MixedDimensionMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructFromMeshReader(reader);
 
         PurkinjeCellFactory cell_factory;
-        cell_factory.SetMixedMesh(&mixed_mesh);
+        TS_ASSERT_THROWS_THIS(cell_factory.GetMixedDimensionMesh(),"The mixed dimension mesh object has not been set in the cell factory");
+        cell_factory.SetMesh(&mixed_mesh);
 
         AbstractCardiacCell* p_cell = cell_factory.CreateCardiacCellForNode(0);
         TS_ASSERT(dynamic_cast<CellLuoRudy1991FromCellML*>(p_cell) != NULL);
@@ -91,18 +94,25 @@ public:
         for(unsigned i=0; i<mixed_mesh.GetNumNodes(); i++)
         {
             AbstractCardiacCell* p_cell = cell_factory.CreatePurkinjeCellForNode(i);
-            if(i>=56 && i<=65)
+            if(i>=55 && i<=65)
             {
+            	std::cout<<i<<std::endl;
             	TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_cell) != NULL);
             }
             else
             {
-//            	TS_ASSERT(dynamic_cast<FakeBathCell*>(p_cell) != NULL);
+            	std::cout<<i<<std::endl;
+            	TS_ASSERT(dynamic_cast<FakeBathCell*>(p_cell) != NULL);
             }
           	delete p_cell;
         }
 
         TS_ASSERT_EQUALS(cell_factory.GetMixedDimensionMesh(), &mixed_mesh);
+        TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader2);
+        TS_ASSERT_THROWS_THIS(cell_factory.SetMesh(&mesh), "AbstractPurkinjeCellFactory must take a MixedDimensionMesh");
+
     }
 };
 

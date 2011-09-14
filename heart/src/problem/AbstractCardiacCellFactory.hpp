@@ -128,7 +128,7 @@ public:
     /**
      * @param pMesh  the mesh for which to create cardiac cells.
      */
-    void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+    virtual void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * @return  the mesh used to create the cells.

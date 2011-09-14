@@ -40,10 +40,22 @@ AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractPurkinjeCellFactory(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMixedMesh(MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMixedMesh)
+void AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
 {
-	mpMixedDimensionMesh = pMixedMesh;
-	AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(pMixedMesh);
+	mpMixedDimensionMesh = dynamic_cast<MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>*>(pMesh);
+	if (mpMixedDimensionMesh ==NULL)
+	{
+		EXCEPTION("AbstractPurkinjeCellFactory must take a MixedDimensionMesh");
+	}
+	mLocalPurkinjeNodes.clear();
+	for (typename MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>::CableElementIterator iter = mpMixedDimensionMesh->GetCableElementIteratorBegin();
+	      iter != mpMixedDimensionMesh->GetCableElementIteratorEnd();
+	      ++iter)
+	{
+		mLocalPurkinjeNodes.insert((*iter)->GetNodeGlobalIndex(0u));
+		mLocalPurkinjeNodes.insert((*iter)->GetNodeGlobalIndex(1u));
+	}
+	AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(pMesh);
 }
 
 
@@ -51,13 +63,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCell*  AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>::CreatePurkinjeCellForNode(
     unsigned nodeIndex)
 {
-//    if (HeartRegionCode::IsRegionBath( mpMesh->GetNodeOrHaloNode(nodeIndex)->GetRegion() ))
-//    {
-//        return new FakeBathCell(this->mpSolver, this->mpZeroStimulus);
-//    }
-//    else
+    if(mLocalPurkinjeNodes.count(nodeIndex)>0)
     {
-        return CreatePurkinjeCellForTissueNode(nodeIndex);
+	    return CreatePurkinjeCellForTissueNode(nodeIndex);
+    }
+    else
+    {
+    	return new FakeBathCell(this->mpSolver, this->mpZeroStimulus);
     }
 }
 

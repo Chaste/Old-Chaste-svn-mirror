@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "MixedDimensionMesh.hpp"
-
+#include "FakeBathCell.hpp"
 /**
  *  Subclass for also creating cell models for Purkinje cells.
  *  The user has to implement the CreatePurkinjeCellForTissueNode() method.
@@ -45,6 +45,8 @@ protected:
 	/** Saved pointer to the mixed dimension mesh */
 	MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* mpMixedDimensionMesh;
 
+	/** A set of local purkinje node indices */
+	std::set<unsigned> mLocalPurkinjeNodes;
     /**
      * Must be overridden by subclasses to return a Purkinje cell object for the given node.
      * @param nodeIndex  Global node index.
@@ -70,8 +72,8 @@ public:
 	AbstractPurkinjeCellFactory();
 
 
-	/** Set the mixed dimension mesh.*/
-	void SetMixedMesh(MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMixedMesh);
+	/** Overridden set mesh which must take a MixedDimensionMesh */
+	void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Create a cell object for the given node.
