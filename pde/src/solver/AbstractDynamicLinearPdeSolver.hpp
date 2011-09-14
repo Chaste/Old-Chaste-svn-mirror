@@ -389,8 +389,8 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             // ..but now get the timestep from the stepper, as the stepper might need
             // to trim the timestep if it would take us over the end time
             new_dt = stepper.GetNextTimeStep();
-            ///\todo #1827 replace magic number?
-            timestep_changed = (fabs(mLastWorkingTimeStep-new_dt) > 1e-8);
+            // Changes in timestep bigger than 0.001% will trigger matrix re-computation
+            timestep_changed = ( new_dt/mLastWorkingTimeStep >= (1.0 - 1e-5));
         }
         else
         {
