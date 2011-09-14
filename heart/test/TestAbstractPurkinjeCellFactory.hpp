@@ -78,7 +78,6 @@ class TestAbstractPurkinjeCellFactory : public CxxTest::TestSuite
 public:
     void TestPurkinjeCellFactory() throw (Exception)
     {
-    	EXIT_IF_PARALLEL;
         TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         MixedDimensionMesh<2,2> mixed_mesh;
         mixed_mesh.ConstructFromMeshReader(reader);
@@ -87,21 +86,21 @@ public:
         TS_ASSERT_THROWS_THIS(cell_factory.GetMixedDimensionMesh(),"The mixed dimension mesh object has not been set in the cell factory");
         cell_factory.SetMesh(&mixed_mesh);
 
-        AbstractCardiacCell* p_cell = cell_factory.CreateCardiacCellForNode(0);
-        TS_ASSERT(dynamic_cast<CellLuoRudy1991FromCellML*>(p_cell) != NULL);
-        delete p_cell;
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = mixed_mesh.GetNodeIteratorBegin();
+        	 current_node != mixed_mesh.GetNodeIteratorEnd();
+        	 ++current_node)
+		{
+        	unsigned index = current_node->GetIndex();
+            AbstractCardiacCell* p_cell = cell_factory.CreatePurkinjeCellForNode(index);
+            double y = current_node->rGetLocation()[1];
 
-        for(unsigned i=0; i<mixed_mesh.GetNumNodes(); i++)
-        {
-            AbstractCardiacCell* p_cell = cell_factory.CreatePurkinjeCellForNode(i);
-            if(i>=55 && i<=65)
+            // cable nodes are on y=0.05 (we don't test by index because indices may be permuted in parallel).
+            if( fabs(y-0.05) < 1e-8 )
             {
-            	std::cout<<i<<std::endl;
             	TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_cell) != NULL);
             }
             else
             {
-            	std::cout<<i<<std::endl;
             	TS_ASSERT(dynamic_cast<FakeBathCell*>(p_cell) != NULL);
             }
           	delete p_cell;
