@@ -51,6 +51,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
+#include "DiFrancescoNoble1985.hpp"
+
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -120,6 +122,41 @@ public:
 };
 
 
+class PurkinjeCellFactory : public AbstractPurkinjeCellFactory<2>
+{
+private:
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+
+public:
+    PurkinjeCellFactory()
+        : AbstractPurkinjeCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-6000.0, 0.5))
+    {
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
+    {
+        ChastePoint<2> location = GetMesh()->GetNode(node)->GetPoint();
+
+        if (fabs(location[0])<1e-6)
+        {
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        }
+        else
+        {
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        }
+    }
+
+    AbstractCardiacCell* CreatePurkinjeCellForTissueNode(unsigned node)
+    {
+        return new CellDiFrancescoNoble1985FromCellML(mpSolver, mpZeroStimulus);
+    }
+};
+
+
+
+
 class SimpleConductivityModifier : public AbstractConductivityModifier<1,1>
 {
 private:
@@ -162,6 +199,9 @@ public:
         boost::shared_ptr<ZeroStimulus> p_zero_stim(new ZeroStimulus);
 
         MonodomainTissue<1> monodomain_tissue( &cell_factory );
+
+        // check the purkinje cells vector is empty
+		TS_ASSERT_EQUALS(monodomain_tissue.mPurkinjeCellsDistributed.size(), 0u);
 
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -544,6 +584,24 @@ public:
             delete p_monodomain_tissue;
         }
     }
+
+    void TestMonodomainTissueUsingPurkinjeCellFactory() throw(Exception)
+	{
+		HeartConfig::Instance()->Reset();
+
+		TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+		MixedDimensionMesh<2,2> mixed_mesh;
+		mixed_mesh.ConstructFromMeshReader(reader);
+
+		PurkinjeCellFactory cell_factory;
+		cell_factory.SetMesh(&mixed_mesh);
+
+		MonodomainTissue<2> tissue( &cell_factory );
+
+		TS_ASSERT_EQUALS(tissue.mCellsDistributed.size(), tissue.mPurkinjeCellsDistributed.size());
+
+		///\todo #1898  add more Get methods and add tests
+	}
 };
 
 

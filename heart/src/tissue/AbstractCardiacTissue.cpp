@@ -62,6 +62,9 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
 
+    /////////////////////////////////////////////////////
+    // Set up normal cardiac cells
+    /////////////////////////////////////////////////////
     try
     {
         for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
@@ -104,6 +107,57 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
+
+    //////////////////////////////////////////////////////////////////
+    // Set up Purkinje cells (if a purkinje cell factory was given
+    //////////////////////////////////////////////////////////////////
+    AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>* p_purkinje_cell_factory
+       = dynamic_cast<AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>*>(pCellFactory);
+
+    if ( p_purkinje_cell_factory != NULL )
+    {
+    	mPurkinjeCellsDistributed.resize(num_local_nodes);
+
+		try
+		{
+			for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
+			{
+				unsigned global_index = ownership_range_low + local_index;
+				mPurkinjeCellsDistributed[local_index] = p_purkinje_cell_factory->CreatePurkinjeCellForNode(global_index);
+				mPurkinjeCellsDistributed[local_index]->SetUsedInTissueSimulation();
+			}
+
+			p_purkinje_cell_factory->FinalisePurkinjeCellCreation(&mPurkinjeCellsDistributed,
+															      mpDistributedVectorFactory->GetLow(),
+															      mpDistributedVectorFactory->GetHigh());
+		}
+		catch (const Exception& e)
+		{
+			// This catch statement is quite tricky to cover, but it is actually done in TestCardiacSimulation::TestMono1dSodiumBlockBySettingNamedParameter
+
+			// Errors thrown creating cells will often be process-specific
+			PetscTools::ReplicateException(true);
+
+			// Delete cells
+			// Should really do this for other processes too, but this is all we need
+			// to get memory testing to pass, and leaking when we're about to die isn't
+			// that bad!
+			for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mPurkinjeCellsDistributed.begin();
+				 cell_iterator != mPurkinjeCellsDistributed.end();
+				 ++cell_iterator)
+			{
+				delete (*cell_iterator);
+			}
+
+			throw e;
+		}
+		PetscTools::ReplicateException(false);
+
+		HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
+		mPurkinjeIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
+		//mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
+		HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
+    }
 
     if(HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
     {

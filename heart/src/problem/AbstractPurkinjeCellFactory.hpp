@@ -53,19 +53,6 @@ protected:
      */
     virtual AbstractCardiacCell* CreatePurkinjeCellForTissueNode(unsigned nodeIndex)=0;
 
-    /**
-     * May be overridden by subclasses to perform any necessary work after all Purkinje cells
-     * have been created.
-     *
-     * @param pPurkinjeCellsDistributed  Pointer to a vector of Purkinje cell pointers.
-     * @param lo  Lowest index owned by this process.
-     * @param hi  Highest index owned by this process.
-     */
-    virtual void FinalisePurkinjeCellCreation(std::vector< AbstractCardiacCell* >* pPurkinjeCellsDistributed,
-											  unsigned lo, unsigned hi)
-    {
-    }
-
 public:
 
     /* Constructor does nothing */
@@ -86,7 +73,20 @@ public:
      */
 	AbstractCardiacCell* CreatePurkinjeCellForNode(unsigned nodeIndex);
 
-	/**
+    /**
+     * May be overridden by subclasses to perform any necessary work after all Purkinje cells
+     * have been created.
+     *
+     * @param pPurkinjeCellsDistributed  Pointer to a vector of Purkinje cell pointers.
+     * @param lo  Lowest index owned by this process.
+     * @param hi  Highest index owned by this process.
+     */
+    virtual void FinalisePurkinjeCellCreation(std::vector< AbstractCardiacCell* >* pPurkinjeCellsDistributed,
+											  unsigned lo, unsigned hi)
+    {
+    }
+
+    /**
 	 *  Get the mixed dimension mesh (for possible use in CreatePurkinjeCellForTissueNode()).
 	 *  Note: GetMesh() just returns a pointer to an AbstractTetrahedralMesh.
 	 */

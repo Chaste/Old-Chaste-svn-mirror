@@ -88,5 +88,8 @@ MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* AbstractPurkinjeCellFactory<ELEMENT_D
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
+template class AbstractPurkinjeCellFactory<1,1>;
 template class AbstractPurkinjeCellFactory<2,2>;
 template class AbstractPurkinjeCellFactory<3,3>;
+template class AbstractPurkinjeCellFactory<1,2>;
+template class AbstractPurkinjeCellFactory<1,3>;

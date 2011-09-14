@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FakeBathCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractConductivityTensors.hpp"
-
+#include "AbstractPurkinjeCellFactory.hpp"
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
 #include "ArchiveLocationInfo.hpp"
@@ -74,6 +74,8 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+    friend class TestMonodomainTissue;
+
     /**
      * Archive the member variables.
      *
@@ -221,11 +223,20 @@ protected:
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
+    /** The vector of the purkinje cells. Distributed. Empty unless a `AbstractPurkinjeCellFactory` is given to the constructor. */
+	std::vector< AbstractCardiacCell* > mPurkinjeCellsDistributed;
+
     /**
      *  Cache containing all the ionic currents for each node,
      *  replicated over all processes.
      */
     ReplicatableVector mIionicCacheReplicated;
+
+    /**
+	 *  Cache containing all the ionic currents for each purkinje node,
+	 *  replicated over all processes.
+	 */
+	ReplicatableVector mPurkinjeIionicCacheReplicated;
 
     /**
      *  Cache containing all the stimulus currents for each node,
@@ -324,7 +335,7 @@ public:
      *
      * Note that pCellFactory contains a pointer to the mesh
      *
-     * @param pCellFactory  factory to use to create cells.
+     * @param pCellFactory  factory to use to create cardiac cells. If this is actually an `AbstractPurkinjeCellFactory` it creates purkinje cells.
      * @param exchangeHalos used in state-variable interpolation.  Defaults to false.
      */
     AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
