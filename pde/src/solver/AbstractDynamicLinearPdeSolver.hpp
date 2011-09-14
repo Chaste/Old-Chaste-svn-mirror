@@ -397,10 +397,12 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             new_dt = stepper.GetNextTimeStep();
 
             //new_dt should be roughly the same size as mIdealTimeStep - we should never need to take a tiny step
-            ///\todo #1827 replace magic number?
+
             if (mMatrixIsConstant && new_dt/mIdealTimeStep < (1.0 - 1e-5))
             {
-            	NEVER_REACHED;
+            	// Here we allow for changes of up to 0.001%
+                // Note that the TimeStepper guarantees that changes in dt are no bigger than DBL_EPSILON*current_time
+                NEVER_REACHED;
             }
         }
 

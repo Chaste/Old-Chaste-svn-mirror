@@ -281,10 +281,33 @@ public:
         TimeStepper pde_stepper(16384.1, 16384.2, 0.01, true);
         while (!pde_stepper.IsTimeAtEnd())
         {
-            TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, 1e-10);
-            
+            TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, DBL_EPSILON*16384.2);
             pde_stepper.AdvanceOneTimeStep();
         }
+    }
+
+    void TestWithLargeEndTime() throw(Exception)
+    {
+        TimeStepper stepper(0.01*999999999, 1e7, 0.01, true);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 1u);
+        while (!stepper.IsTimeAtEnd())
+        {
+            TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.01, DBL_EPSILON*1e7);
+            stepper.AdvanceOneTimeStep();
+        }
+        TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 1u);
+    }
+
+    void TestWithSingleTimeStep() throw(Exception)
+    {
+        TimeStepper stepper(4.02, 4.04, 0.02, true);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 1u);
+        while (!stepper.IsTimeAtEnd())
+        {
+            TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.02, 4.04*DBL_EPSILON);
+            stepper.AdvanceOneTimeStep();
+        }
+        TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 1u);
     }
 };
 

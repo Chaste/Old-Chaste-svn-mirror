@@ -32,15 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "MathsCustomFunctions.hpp"
 
-const double JUST_LESS_THAN_ONE = (1.0-DBL_EPSILON);
-
 TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
     : mStart(startTime),
       mEnd(endTime),
       mDt(dt),
       mTotalTimeStepsTaken(0),
       mAdditionalTimesReached(0),
-      mTime(startTime)
+      mTime(startTime),
+      mEpsilon(DBL_EPSILON)
 {
     if (startTime > endTime)
     {
@@ -67,28 +66,28 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
         }
     }
 
-    mNextTime = CalculateNextTime();
+    /*
+     * Note that when mEnd is large then the error of subtracting two numbers of
+     * that magnitude is about DBL_EPSILON*mEnd (1e-16*mEnd). When mEnd is small
+     * then the error should be around DBL_EPSILON.
+     */
+    if (mEnd > 1.0)
+    {
+        mEpsilon = DBL_EPSILON*mEnd;
+    }
 
     // If enforceConstantTimeStep check whether the times are such that we won't have a variable dt
     if (enforceConstantTimeStep)
     {
-    	double expected_end_time = mStart + mDt*EstimateTimeSteps();
+        double expected_end_time = mStart + mDt*EstimateTimeSteps();
 
-    	/*
-         * Note that when mEnd is large then the error of subtracting two numbers of
-         * that magnitude is about DBL_EPSILON*mEnd (1e-16*mEnd). When mEnd is small
-         * then the error should be around DBL_EPSILON.
-         */
-        double scale = DBL_EPSILON*mEnd;
-        if (mEnd < 1.0)
-        {
-            scale = DBL_EPSILON;
-        }
-        if (fabs( expected_end_time - mEnd ) > scale)
+        if (fabs( mEnd - expected_end_time ) > mEpsilon)
         {
             EXCEPTION("TimeStepper estimates non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
         }
     }
+
+    mNextTime = CalculateNextTime();
 }
 
 double TimeStepper::CalculateNextTime()
@@ -96,22 +95,26 @@ double TimeStepper::CalculateNextTime()
     double next_time = mStart + (mTotalTimeStepsTaken - mAdditionalTimesReached + 1)*mDt;
 
     // Does the next time bring us very close to the end time?
-    if (next_time >= mEnd*JUST_LESS_THAN_ONE)
+    // Note that the inequality in this guard matches the inversion of the guard in the enforceConstantTimeStep
+    // calculation of the constructor
+    if (mEnd - next_time <= mEpsilon)
     {
         next_time = mEnd;
     }
 
     if (!mAdditionalTimes.empty())
     {
-    	if (mAdditionalTimesReached < mAdditionalTimes.size())
-    	{
+        if (mAdditionalTimesReached < mAdditionalTimes.size())
+        {
             // Does this next step take us very close to, or over, an additional time?
-            if (next_time >= mAdditionalTimes[mAdditionalTimesReached]*JUST_LESS_THAN_ONE)
+            double next_additional_time = mAdditionalTimes[mAdditionalTimesReached];
+            double epsilon = next_additional_time > 1 ? next_additional_time*DBL_EPSILON : DBL_EPSILON;
+            if (next_additional_time - next_time <= epsilon)
             {
-		        next_time = mAdditionalTimes[mAdditionalTimesReached];
-		        mAdditionalTimesReached++;
+                next_time = next_additional_time;
+                mAdditionalTimesReached++;
             }
-    	}
+        }
     }
     return next_time;
 }
@@ -177,12 +180,13 @@ unsigned TimeStepper::GetTotalTimeStepsTaken() const
 
 void TimeStepper::ResetTimeStep(double dt)
 {
-	/*
-	 * The error in subtracting two numbers of the same magnitude is about
-	 * DBL_EPSILON times that magnitude (we use the sum of the two numbers
-	 * here as a conservative estimate of their maximum). When both mDt and
+    assert(dt > 0);
+    /*
+     * The error in subtracting two numbers of the same magnitude is about
+     * DBL_EPSILON times that magnitude (we use the sum of the two numbers
+     * here as a conservative estimate of their maximum). When both mDt and
      * dt are small then the error should be around DBL_EPSILON.
-	 */
+     */
     double scale = DBL_EPSILON*(mDt + dt);
     if (mDt + dt < 1.0)
     {
@@ -190,7 +194,6 @@ void TimeStepper::ResetTimeStep(double dt)
     }
     if (fabs(mDt-dt) > scale)
     {
-        assert(dt > 0);
         mDt = dt;
         mStart = mTime;
         mTotalTimeStepsTaken = 0;

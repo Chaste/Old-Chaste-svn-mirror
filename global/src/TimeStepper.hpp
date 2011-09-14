@@ -127,6 +127,13 @@ private:
     /** What the time will be after the next time step. */
     double mNextTime;
 
+    /** An architecture-dependent scaling factor.  This is so that we can compare
+     * relative to the end time when mEnd is large.
+     * mEpsilon = DBL_EPSILON when mEnd is small
+     *          = mEnd*DBL_EPSILON when mEnd is large
+     */
+    double mEpsilon;
+
     /** Compute what the time will be after the next time step. */
     double CalculateNextTime();
 
