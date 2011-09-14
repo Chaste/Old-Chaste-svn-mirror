@@ -35,17 +35,12 @@ cd 5ms_extended
 
 The `ResumeParameters.xml` file is the new parameters file to be given to the executable, and has to be edited before being run. Open the `ResumeParameters.xml` file and change `SimulationDuration` to 10ms.
 
-Also, when running the new simulation, you need to first do
+If you wish to append results to the original .h5 file, you need to either move the `ChasteResults` folder into your test output folder, or do
 {{{
 #!sh
 export CHASTE_TEST_OUTPUT=.
 }}}
-so that the line
-{{{
-#!xml
-<ArchiveDirectory relative_to='chaste_test_output'>ChasteResults_1ms</ArchiveDirectory>
-}}}
-in `ResumeParameters.xml` finds the checkpoint files.
+so that the original results file saved with the checkpoint can be located.
 
 Finally, run the simulation again with `ResumeParameters.xml` as the input xml file. The new results folder is `./ChasteResults`, or, from the original directory `testoutput/ChasteResults_checkpoints/5ms_extended/ChasteResults`. The output files in here include the simulation results from ''before and after'' the checkpoint.
 

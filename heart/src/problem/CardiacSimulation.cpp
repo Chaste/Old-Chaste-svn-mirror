@@ -56,12 +56,12 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     {
         out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
         (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-        (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_2' "
+        (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_4' "
                   << "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
-                  << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_2 ChasteParameters_2_2.xsd'>" << std::endl;
+                  << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_4 ChasteParameters_2_4.xsd'>" << std::endl;
         (*p_file) << std::endl;
         (*p_file) << "    <ResumeSimulation>" << std::endl;
-        (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
+        (*p_file) << "        <ArchiveDirectory relative_to='this_file'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
         (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
         (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration> <!-- Edit with new simulation duration. Please "
                   << "note that the simulation does not restart at t=0 but at the time where the checkpoint was created.-->" << std::endl;

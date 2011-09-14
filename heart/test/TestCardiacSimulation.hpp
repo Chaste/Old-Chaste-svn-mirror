@@ -287,7 +287,10 @@ public:
     {
         // run a bidomain simulation
         HeartConfig::Instance()->SetSpaceDimension(1);
-        CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
+        FileFinder resume_xml("heart/test/data/xml/resume_bidomain_short.xml", RelativeTo::ChasteSourceRoot);
+        OutputFileHandler checkpoint_dir("SaveBidomainShort_checkpoints/0.2ms", false);
+        FileFinder copied_xml = checkpoint_dir.CopyFileTo(resume_xml);
+        CardiacSimulation simulation(copied_xml.GetAbsolutePath());
         std::string foldername = "SaveBidomainShort";
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
