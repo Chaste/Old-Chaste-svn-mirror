@@ -390,7 +390,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
             // to trim the timestep if it would take us over the end time
             new_dt = stepper.GetNextTimeStep();
             // Changes in timestep bigger than 0.001% will trigger matrix re-computation
-            timestep_changed = ( new_dt/mLastWorkingTimeStep >= (1.0 - 1e-5));
+            timestep_changed = (fabs(new_dt/mLastWorkingTimeStep - 1.0) > 1e-5);
         }
         else
         {
@@ -398,7 +398,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
             //new_dt should be roughly the same size as mIdealTimeStep - we should never need to take a tiny step
 
-            if (mMatrixIsConstant && new_dt/mIdealTimeStep < (1.0 - 1e-5))
+            if (mMatrixIsConstant && fabs(new_dt/mIdealTimeStep - 1.0) > 1e-5)
             {
             	// Here we allow for changes of up to 0.001%
                 // Note that the TimeStepper guarantees that changes in dt are no bigger than DBL_EPSILON*current_time

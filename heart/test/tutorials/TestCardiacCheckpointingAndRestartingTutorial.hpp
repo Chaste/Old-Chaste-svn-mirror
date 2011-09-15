@@ -40,11 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCARDIACCHECKPOINTINGANDRESTARTINGTUTORIAL_HPP_
 /*
  * = Checkpointing and restarting cardiac simulations =
- * 
+ *
  * In this tutorial we show how to save and reload cardiac simulations
  *
  * EMPTYLINE
- * 
+ *
  * `CardiacSimulationArchiver` has to be included. Archiving includes often have to be included first.
  */
 #include <cxxtest/TestSuite.h>
@@ -63,7 +63,7 @@ public:
     {
         /* We set up exactly the same simulation as in UserTutorials/AnotherBidomainSimulation */
         HeartConfig::Instance()->Reset();
-        
+
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,2> cell_factory(-2000000);
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainCheckpointingTutorial");
@@ -77,20 +77,20 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
-        /* To save the entire simulation, use the `CardiacSimulationArchiver` class, as shown in the following. 
-         * Note the `BidomainProblem<2>` as the template parameter. The output directory is relative to 
+        /* To save the entire simulation, use the `CardiacSimulationArchiver` class, as shown in the following.
+         * Note the `BidomainProblem<2>` as the template parameter. The output directory is relative to
          * CHASTE_TEST_OUTPUT. */
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, "BidomainCheckpointingTutorial/saved_simulation");
     }
 
 
- 
+
     /* This is how to restart the test. */
     void TestRestarting() throw(Exception)
     {
-        /* To restart from the saved simulation directory we  use the `CardiacSimulationArchiver` class, as shown in the following. 
-         * Note the `BidomainProblem<2>` as the template parameter again.  The dimension (2) must match the one given in the 
-         * saved archive directory.  
+        /* To restart from the saved simulation directory we  use the `CardiacSimulationArchiver` class, as shown in the following.
+         * Note the `BidomainProblem<2>` as the template parameter again.  The dimension (2) must match the one given in the
+         * saved archive directory.
          * The output directory is again relative to CHASTE_TEST_OUTPUT. */
         BidomainProblem<2>* p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load("BidomainCheckpointingTutorial/saved_simulation");
 
@@ -101,8 +101,8 @@ public:
          * {{{t=0 ms}}} to {{{t=10 ms}}}.
          */
         HeartConfig::Instance()->SetSimulationDuration(10); //ms
-        
-        /* The point of checkpointing and restarting is that there may be something which we want to change
+
+        /* One point of checkpointing and restarting is that there may be something which we want to change
          * during the course of experiment.  Here we change the conductivity. */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(3.0, 0.3));
 
@@ -111,7 +111,7 @@ public:
 };
 
 /* == Notes ==
- * 
+ *
  * * Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is
  *   written out to disk at each checkpoint. This is to ensure that each checkpoint directory contains everything
  *   needed to resume the simulation. In particular, the mesh written out will be in permuted form if it was
