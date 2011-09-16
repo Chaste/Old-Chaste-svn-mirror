@@ -133,23 +133,25 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
 		}
 		catch (const Exception& e)
 		{
-			// This catch statement is quite tricky to cover, but it is actually done in TestCardiacSimulation::TestMono1dSodiumBlockBySettingNamedParameter
+			NEVER_REACHED; ///\todo uncomment the below the below and cover..
 
-			// Errors thrown creating cells will often be process-specific
-			PetscTools::ReplicateException(true);
-
-			// Delete cells
-			// Should really do this for other processes too, but this is all we need
-			// to get memory testing to pass, and leaking when we're about to die isn't
-			// that bad!
-			for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mPurkinjeCellsDistributed.begin();
-				 cell_iterator != mPurkinjeCellsDistributed.end();
-				 ++cell_iterator)
-			{
-				delete (*cell_iterator);
-			}
-
-			throw e;
+//			// COMMENT COPIED FROM ABOVE: This catch statement is quite tricky to cover, but it is actually done in TestCardiacSimulation::TestMono1dSodiumBlockBySettingNamedParameter
+//
+//			// Errors thrown creating cells will often be process-specific
+//			PetscTools::ReplicateException(true);
+//
+//			// Delete cells
+//			// Should really do this for other processes too, but this is all we need
+//			// to get memory testing to pass, and leaking when we're about to die isn't
+//			// that bad!
+//			for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mPurkinjeCellsDistributed.begin();
+//				 cell_iterator != mPurkinjeCellsDistributed.end();
+//				 ++cell_iterator)
+//			{
+//				delete (*cell_iterator);
+//			}
+//
+//			throw e;
 		}
 		PetscTools::ReplicateException(false);
 
@@ -191,22 +193,30 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacTissue()
 {
     // Delete cells
-    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
-         cell_iterator != mCellsDistributed.end();
-         ++cell_iterator)
+    for (std::vector<AbstractCardiacCell*>::iterator iter = mCellsDistributed.begin();
+         iter != mCellsDistributed.end();
+         ++iter)
     {
-        delete (*cell_iterator);
+        delete (*iter);
     }
 
     // Delete cells for halo nodes
-    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mHaloCellsDistributed.begin();
-         cell_iterator != mHaloCellsDistributed.end();
-         ++cell_iterator)
+    for (std::vector<AbstractCardiacCell*>::iterator iter = mHaloCellsDistributed.begin();
+         iter != mHaloCellsDistributed.end();
+         ++iter)
     {
-        delete (*cell_iterator);
+        delete (*iter);
     }
 
     delete mpIntracellularConductivityTensors;
+
+    // Delete Purkinje cells
+    for (std::vector<AbstractCardiacCell*>::iterator iter = mPurkinjeCellsDistributed.begin();
+    	 iter != mPurkinjeCellsDistributed.end();
+         ++iter)
+    {
+        delete (*iter);
+    }
 
     // If the mesh was unarchived we need to free it explicitly.
     if (mMeshUnarchived)

@@ -59,7 +59,8 @@ public:
 	AbstractPurkinjeCellFactory();
 
 
-	/** Overridden set mesh which must take a MixedDimensionMesh */
+	/** Overridden set mesh which must take a MixedDimensionMesh
+	 *  @param pMesh Pointer to the mesh. */
 	void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
