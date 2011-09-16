@@ -117,7 +117,7 @@ public:
                 TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(), msg.str());
             }
         }
-        
+
         CardiacSimulation simulation2("heart/test/data/xml/monodomain2d_resume.xml");
         Warnings::QuietDestroy();
     }
@@ -153,26 +153,11 @@ public:
         { CardiacSimulation simulation("heart/test/data/xml/bidomain1d_small.xml"); }
         { CardiacSimulation simulation2("heart/test/data/xml/bidomain1d_resume.xml"); }
         {
-            PetscTools::Barrier("TestBi1dSmall-a");
-            std::string normal_output_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-            setenv("CHASTE_TEST_OUTPUT", (normal_output_dir + "SaveBi1D_checkpoints/0.1ms").c_str(), 1/*Overwrite*/);
-
-            try
-            {
-                // The default resume file specifies a simulation duration of zero.
-                // In reality the user should edit the file to specify something sensible...
-                TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(OutputFileHandler::GetChasteTestOutputDirectory() + "ResumeParameters.xml"),
-                                      "The simulation duration must be positive");
-            }
-            catch (Exception& e)
-            {
-                setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
-                throw e;
-            }
-
-            PetscTools::Barrier("TestBi1dSmall-b");
-            setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
-            HeartEventHandler::Reset();
+            // The default resume file specifies a simulation duration of zero.
+            // In reality the user should edit the file to specify something sensible...
+            FileFinder resume_xml("SaveBi1D_checkpoints/0.1ms/ResumeParameters.xml", RelativeTo::ChasteTestOutput);
+            TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(resume_xml.GetAbsolutePath()),
+                                  "The simulation duration must be positive, not -0.1");
         }
     }
     void TestBi2dSmall() throw(Exception)
@@ -191,26 +176,11 @@ public:
         { CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath1d_small.xml"); }
         { CardiacSimulation simulation2("heart/test/data/xml/bidomain_with_bath1d_resume.xml"); }
         {
-            PetscTools::Barrier("TestBi1dSmall-a");
-            std::string normal_output_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-            setenv("CHASTE_TEST_OUTPUT", (normal_output_dir + "SaveBi1D_checkpoints/0.1ms").c_str(), 1/*Overwrite*/);
-
-            try
-            {
-                // The default resume file specifies a simulation duration of zero.
-                // In reality the user should edit the file to specify something sensible...
-                TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(OutputFileHandler::GetChasteTestOutputDirectory() + "ResumeParameters.xml"),
-                                      "The simulation duration must be positive");
-            }
-            catch (Exception& e)
-            {
-                setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
-                throw e;
-            }
-
-            PetscTools::Barrier("TestBi1dSmall-b");
-            setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
-            HeartEventHandler::Reset();
+            // The default resume file specifies a simulation duration of zero.
+            // In reality the user should edit the file to specify something sensible...
+            FileFinder resume_xml("SaveBiWithBath1D_checkpoints/0.1ms/ResumeParameters.xml", RelativeTo::ChasteTestOutput);
+            TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(resume_xml.GetAbsolutePath()),
+                                  "The simulation duration must be positive, not -0.1");
         }
     }
 
@@ -384,7 +354,7 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
                                                  "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
-    
+
     void runSimulation(const std::string& rParametersFileName)
     {
         CardiacSimulation simulation(rParametersFileName);
@@ -426,7 +396,7 @@ public:
             TS_ASSERT_EQUALS(pCell->GetStimulus(10.0), 0.0);
         }
     }
-    
+
     void doTestResumeChangingSettings(const std::string& rParametersFileName)
     {
         std::string foldername = "SaveMonodomainWithParameter";
@@ -439,7 +409,7 @@ public:
 
         { // Load
             CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", false, true);
-            
+
             boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
             TS_ASSERT(p_problem);
             MonodomainProblem<1,1>* p_mono_problem = dynamic_cast<MonodomainProblem<1,1>*>(p_problem.get());
@@ -457,7 +427,7 @@ public:
                                                      foldername, "SimulationResults", true));
         }
     }
-    
+
     void TestResumeChangingSettings() throw(Exception)
     {
         doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter.xml");
@@ -482,7 +452,7 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                                                 foldername, "SimulationResults", true, 1e-5));
     }
-    
+
     void TestCardiacSimulationKirsten() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");
@@ -501,7 +471,7 @@ public:
 
 
     }
-    
+
     void TestElectrodes() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_electrodes.xml");
@@ -510,7 +480,7 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "electrodes_results", false,
                    foldername, "SimulationResults", true, 5e-5));
     }
-    
+
     void TestExceptions() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"),
@@ -528,7 +498,7 @@ public:
         FileFinder model("file_does_not_exist.so", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_noelectrodes.xml"), 
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_noelectrodes.xml"),
                               "Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
 
 #ifndef CHASTE_CAN_CHECKPOINT_DLLS

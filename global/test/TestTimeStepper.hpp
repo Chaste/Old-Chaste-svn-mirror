@@ -46,7 +46,7 @@ public:
         TimeStepper stepper(0.0, DBL_MAX, DBL_EPSILON);
         stepper.mTotalTimeStepsTaken = (unsigned)(-1);
         TS_ASSERT(!stepper.IsTimeAtEnd());
-        TS_ASSERT_THROWS_THIS(stepper.AdvanceOneTimeStep(),"Time step counter has overflowed.");
+        TS_ASSERT_THROWS_THIS(stepper.AdvanceOneTimeStep(), "Time step counter has overflowed.");
     }
 
     void TestAdvance()
@@ -67,7 +67,8 @@ public:
         }
 
         // Tests
-        TS_ASSERT_THROWS_THIS(TimeStepper(end_time, start_time, timestep),"The simulation duration must be positive");
+        TS_ASSERT_THROWS_THIS(TimeStepper(end_time, start_time, timestep),
+                              "The simulation duration must be positive, not -2");
 
         TimeStepper stepper(start_time, end_time, timestep);
 
@@ -123,11 +124,13 @@ public:
 
         TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true),
                 "TimeStepper estimates non-constant timesteps will need to be used: "
-                "check timestep divides (end_time-start_time) (or divides printing timestep)" );
+                "check timestep divides (end_time-start_time) (or divides printing timestep). "
+                "[End time=1; start=0; dt=0.3; error=0.1]");
 
         TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true),
                 "TimeStepper estimates non-constant timesteps will need to be used: "
-                "check timestep divides (end_time-start_time) (or divides printing timestep)" );
+                "check timestep divides (end_time-start_time) (or divides printing timestep). "
+                "[End time=1; start=0; dt=1; error=1e-08]");
 
         TimeStepper const_dt_stepper(0.0, 1.0, 0.1, true);
         unsigned counter = 0;
@@ -145,7 +148,9 @@ public:
         additional_times_bad_order.push_back(0.75);
         additional_times_bad_order.push_back(0.25);
 
-        TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_order),"The additional times vector should be in ascending numerical order");
+        TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_order),
+                              "The additional times vector should be in ascending numerical order; "
+                              "entry 1 is less than or equal to entry 0.");
 
         std::vector<double> additional_times;
         additional_times.push_back(0.03);
@@ -274,7 +279,7 @@ public:
 
         TS_ASSERT_EQUALS(stepper.IsTimeAtEnd(), true);
     }
-    
+
     void TestWithLargerStartTime() throw(Exception)
     {
         // Abstracted from AbstractDynamicLinearPdeSolver
@@ -308,6 +313,31 @@ public:
             stepper.AdvanceOneTimeStep();
         }
         TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 1u);
+    }
+
+    /**
+     * This case used to break with the IntelProduction build, believe it or not.
+     * Adding further information to the error message clearly changes the optimisations it applies,
+     * and fixes the problem!
+     */
+    void TestIntelProductionFoolishness() throw(Exception)
+    {
+        TimeStepper stepper(5.0, 10.0, 0.01, true);
+        TS_ASSERT_EQUALS(stepper.EstimateTimeSteps(), 500u);
+        while (!stepper.IsTimeAtEnd())
+        {
+            TS_ASSERT_DELTA(stepper.GetNextTimeStep(), 0.01, 10.0*DBL_EPSILON);
+            TimeStepper pde_stepper(stepper.GetTime(), stepper.GetNextTime(), 0.01, true);
+            TS_ASSERT_EQUALS(pde_stepper.EstimateTimeSteps(), 1u);
+            while (!pde_stepper.IsTimeAtEnd())
+            {
+                TS_ASSERT_DELTA(pde_stepper.GetNextTimeStep(), 0.01, 10.0*DBL_EPSILON);
+                pde_stepper.AdvanceOneTimeStep();
+            }
+            TS_ASSERT_EQUALS(pde_stepper.GetTotalTimeStepsTaken(), 1u);
+            stepper.AdvanceOneTimeStep();
+        }
+        TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 500u);
     }
 };
 

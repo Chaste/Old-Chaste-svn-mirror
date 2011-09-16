@@ -43,7 +43,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
 {
     if (startTime > endTime)
     {
-        EXCEPTION("The simulation duration must be positive");
+        EXCEPTION("The simulation duration must be positive, not " << endTime-startTime);
     }
 
     // Remove any additionalTimes entries which fall too close to a time when the stepper would stop anyway
@@ -53,7 +53,8 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
         {
             if (additionalTimes[i-1] >= additionalTimes[i])
             {
-                EXCEPTION("The additional times vector should be in ascending numerical order");
+                EXCEPTION("The additional times vector should be in ascending numerical order; "
+                          "entry " << i << " is less than or equal to entry " << i-1 << ".");
             }
         }
 
@@ -83,7 +84,10 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
 
         if (fabs( mEnd - expected_end_time ) > mEpsilon)
         {
-            EXCEPTION("TimeStepper estimates non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
+            EXCEPTION("TimeStepper estimates non-constant timesteps will need to be used: check timestep "
+                      "divides (end_time-start_time) (or divides printing timestep). "
+                      "[End time=" << mEnd << "; start=" << mStart << "; dt=" << mDt << "; error="
+                      << fabs(mEnd-expected_end_time) << "]");
         }
     }
 
