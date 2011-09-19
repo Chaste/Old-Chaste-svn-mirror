@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLWISEDATA_HPP_
 
 #include "ChasteSerialization.hpp"
+#include "SerializableSingleton.hpp"
 #include <boost/serialization/vector.hpp>
 
 #include "MeshBasedCellPopulation.hpp"
@@ -40,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * for use in nutrient-based cell-cycle models.
  */
 template<unsigned DIM>
-class CellwiseData
+class CellwiseData : public SerializableSingleton<CellwiseData<DIM> >
 {
     friend class TestCellwiseData;
 
@@ -78,12 +79,17 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mpCellPopulation;
-        archive & mAllocatedMemory;
-        archive & mNumberOfVariables;
-        archive & mData;
-        archive & mConstantDataForTesting;
-        archive & mUseConstantDataForTesting;
+        bool is_set_up = IsSetUp();
+        archive & is_set_up;
+        if (is_set_up)
+        {
+            archive & mpCellPopulation;
+            archive & mAllocatedMemory;
+            archive & mNumberOfVariables;
+            archive & mData;
+            archive & mConstantDataForTesting;
+            archive & mUseConstantDataForTesting;
+        }
     }
 
 protected:

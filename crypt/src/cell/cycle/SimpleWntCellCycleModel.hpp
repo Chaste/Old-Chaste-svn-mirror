@@ -99,7 +99,7 @@ protected:
     double GetWntLevel();
 
     /**
-     * Get the type of Wnt concentration (LINEAR, RADIAL, or NONE).
+     * Get the type of Wnt concentration (LINEAR, RADIAL, EXPONENTIAL or NONE).
      * This affects how the cell cycle phase is updated.
      */
     WntConcentrationType GetWntType();

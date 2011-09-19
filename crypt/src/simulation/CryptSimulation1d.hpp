@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <iostream>
 
+#include "WntConcentration.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
@@ -62,9 +63,10 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<OffLatticeSimulation<1> >(*this);
+
+        SerializableSingleton<WntConcentration<1> >* p_wnt_wrapper = WntConcentration<1>::Instance()->GetSerializationWrapper();
+        archive & p_wnt_wrapper;
     }
 
     /** Helper member that is a static cast of the cell population. */

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before any other cell_based or crypt headers
-#include "CryptSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
@@ -627,11 +627,11 @@ public:
         MutableMesh<2,2>& r_mesh = (static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->rGetMesh();
 
         // Save
-        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
 
         // Get the loaded mesh
         MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->rGetMesh();
@@ -687,11 +687,11 @@ public:
         simulator.Solve();
 
         // Save
-        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive2", 0.1);
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive2", 0.1);
 
         // Reset end time and run simulation
         p_simulator->SetEndTime(0.15);
@@ -823,7 +823,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Tidy up
         WntConcentration<2>::Destroy();
@@ -840,7 +840,7 @@ public:
         WntConcentration<2>::Instance();
         WntConcentration<2>::Destroy();
 
-        p_simulator1 = CryptSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
@@ -848,9 +848,9 @@ public:
         MutableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
 
         // Save then reload, compare meshes either side
-        CryptSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
 
-        CryptSimulation2d* p_simulator2 = CryptSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
+        CryptSimulation2d* p_simulator2 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
         MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);
@@ -1571,7 +1571,7 @@ public:
         TS_ASSERT_EQUALS(cell_cycle_phase_count3[4], 2u);
 
         // Save the simulation
-        CryptSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Check the original simulation's counts haven't changed
         p_registry = simulator.rGetCellPopulation().GetCellPropertyRegistry();
@@ -1584,7 +1584,7 @@ public:
         TS_ASSERT_EQUALS(p_registry->Get<ApoptoticCellProperty>()->GetCellCount(), 0u);
 
         // Load the simulation
-        CryptSimulation2d* p_simulator = CryptSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount", 1.0);
+        CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount", 1.0);
 
         // Check the original simulation's counts haven't changed
         p_registry = simulator.rGetCellPopulation().GetCellPropertyRegistry();

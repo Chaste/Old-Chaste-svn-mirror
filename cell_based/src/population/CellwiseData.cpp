@@ -43,10 +43,10 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
- :  mpCellPopulation(NULL),
-    mAllocatedMemory(false),
-    mConstantDataForTesting(0),
-    mUseConstantDataForTesting(false)
+    : mpCellPopulation(NULL),
+      mAllocatedMemory(false),
+      mNumberOfVariables(UNSIGNED_UNSET),
+      mUseConstantDataForTesting(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);

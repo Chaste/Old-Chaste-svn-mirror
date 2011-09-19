@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define WNTCONCENTRATION_HPP_
 
 #include "ChasteSerialization.hpp"
+#include "SerializableSingleton.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include <iostream>
@@ -55,7 +56,7 @@ typedef enum WntConcentrationType_
  *  Singleton Wnt concentration object.
  */
 template<unsigned DIM>
-class WntConcentration
+class WntConcentration : public SerializableSingleton<WntConcentration<DIM> >
 {
 private:
 
@@ -137,16 +138,21 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mCryptLength;
-        archive & mLengthSet;
-        archive & mWntType;
-        archive & mpCellPopulation;
-        archive & mTypeSet;
-        archive & mConstantWntValueForTesting;
-        archive & mUseConstantWntValueForTesting;
-        archive & mWntConcentrationParameter;
-        archive & mCryptProjectionParameterA;
-        archive & mCryptProjectionParameterB;
+        bool is_set_up = IsWntSetUp();
+        archive & is_set_up;
+        if (is_set_up)
+        {
+            archive & mCryptLength;
+            archive & mLengthSet;
+            archive & mWntType;
+            archive & mpCellPopulation;
+            archive & mTypeSet;
+            archive & mConstantWntValueForTesting;
+            archive & mUseConstantWntValueForTesting;
+            archive & mWntConcentrationParameter;
+            archive & mCryptProjectionParameterA;
+            archive & mCryptProjectionParameterB;
+        }
     }
 
 protected:
@@ -214,6 +220,11 @@ public:
      * @param rCellPopulation reference to the cell population
      */
     void SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation);
+
+    /**
+     * @return reference to the CellPopulation.
+     */
+    AbstractCellPopulation<DIM>& rGetCellPopulation();
 
     /**
      * @return mCryptLength

@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef OFFLATTICESIMULATIONARCHIVER_HPP_
-#define OFFLATTICESIMULATIONARCHIVER_HPP_
+#ifndef CELLBASEDSIMULATIONARCHIVER_HPP_
+#define CELLBASEDSIMULATIONARCHIVER_HPP_
 
 // Must be included before any other serialization headers
 #include "CheckpointArchiveTypes.hpp"
@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "SimulationTime.hpp"
-#include "CellwiseData.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "ArchiveOpener.hpp"
 #include "FileFinder.hpp"
@@ -100,21 +99,6 @@ SIM* CellBasedSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDire
     ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_filename);
     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-    // Load any data that isn't the simulation itself, mainly singletons
-    // - simulation time
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
-    assert(p_simulation_time->IsStartTimeSetUp());
-    (*p_arch) & *p_simulation_time;
-
-    // - CellwiseData (if used)
-    bool archive_cellwise_data;
-    (*p_arch) & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        (*p_arch) & *p_cellwise_data;
-    }
-
     // Load the simulation
     SIM* p_sim;
     (*p_arch) >> p_sim;
@@ -139,21 +123,8 @@ void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_filename);
     boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-    // Save the simulation.  We save the time directly first to maintain its
-    // singleton-ness on load.
-    (*p_arch) << *p_sim_time;
-
-    // Archive the CellwiseData if it is used
-    bool archive_cellwise_data = CellwiseData<DIM>::Instance()->IsSetUp();
-    (*p_arch) & archive_cellwise_data;
-    if (archive_cellwise_data)
-    {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
-        (*p_arch) & *p_cellwise_data;
-    }
-
     // Archive the simulation itself
     (*p_arch) & pSim; // const-ness would be a pain here
 }
 
-#endif /*OFFLATTICESIMULATIONARCHIVER_HPP_*/
+#endif /*CELLBASEDSIMULATIONARCHIVER_HPP_*/

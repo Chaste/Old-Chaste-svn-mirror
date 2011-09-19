@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 #include "AbstractCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "CellwiseData.hpp"
 #include "Identifiable.hpp"
 
 /**
@@ -115,13 +116,9 @@ protected:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+
     /**
-     * Archive the member variables.
-     *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Save or restore the simulation.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -129,12 +126,16 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        SerializableSingleton<SimulationTime>* p_time_wrapper = SimulationTime::Instance()->GetSerializationWrapper();
+        archive & p_time_wrapper;
+
+        SerializableSingleton<CellwiseData<DIM> >* p_cellwise_data_wrapper = CellwiseData<DIM>::Instance()->GetSerializationWrapper();
+        archive & p_cellwise_data_wrapper;
+
         mpRandomGenerator = RandomNumberGenerator::Instance();
         archive & *mpRandomGenerator;
         archive & mpRandomGenerator;
 
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
         archive & mDt;
         archive & mEndTime;
         archive & mNoBirth;

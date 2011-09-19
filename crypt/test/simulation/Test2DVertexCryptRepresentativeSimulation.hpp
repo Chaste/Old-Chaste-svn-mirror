@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before any other cell_based or crypt headers
-#include "CryptSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "VertexCryptSimulation2d.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"

@@ -43,7 +43,9 @@ WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 
 template<unsigned DIM>
 WntConcentration<DIM>::WntConcentration()
-    : mLengthSet(false),
+    : mCryptLength(DOUBLE_UNSET),
+      mLengthSet(false),
+      mWntType(NONE),
       mpCellPopulation(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
@@ -51,7 +53,6 @@ WntConcentration<DIM>::WntConcentration()
       mWntConcentrationParameter(1.0),
       mCryptProjectionParameterA(0.5),
       mCryptProjectionParameterB(2.0)
-
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -86,7 +87,7 @@ double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 
     double height;
 
-    if (mWntType==RADIAL)
+    if (mWntType == RADIAL)
     {
         double a = GetCryptProjectionParameterA();
         double b = GetCryptProjectionParameterB();
@@ -123,6 +124,12 @@ void WntConcentration<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>& rCell
 }
 
 template<unsigned DIM>
+AbstractCellPopulation<DIM>& WntConcentration<DIM>::rGetCellPopulation()
+{
+    return *mpCellPopulation;
+}
+
+template<unsigned DIM>
 double WntConcentration<DIM>::GetCryptLength()
 {
     return mCryptLength;
@@ -136,6 +143,7 @@ void WntConcentration<DIM>::SetCryptLength(double cryptLength)
     {
         EXCEPTION("Destroy has not been called");
     }
+
     mCryptLength = cryptLength;
     mLengthSet = true;
 }
@@ -160,7 +168,7 @@ void WntConcentration<DIM>::SetType(WntConcentrationType type)
 template<unsigned DIM>
 double WntConcentration<DIM>::GetWntLevel(double height)
 {
-    if (mWntType==NONE)
+    if (mWntType == NONE)
     {
         return 0.0;
     }

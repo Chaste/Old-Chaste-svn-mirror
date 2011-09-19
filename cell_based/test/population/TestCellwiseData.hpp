@@ -216,7 +216,8 @@ public:
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write to the archive
-            (*p_arch) << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
+            SerializableSingleton<CellwiseData<2> >* const p_wrapper = p_data->GetSerializationWrapper();
+            (*p_arch) << p_wrapper;
 
             CellwiseData<2>::Destroy();
         }
@@ -228,9 +229,11 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            (*p_arch) >> *p_data;
+            SerializableSingleton<CellwiseData<2> >* p_wrapper;
+            (*p_arch) >> p_wrapper;
 
             // Check the data
+            TS_ASSERT_EQUALS(CellwiseData<2>::Instance(), p_data);
             TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
             TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
             TS_ASSERT_EQUALS(p_data->mUseConstantDataForTesting, false);
@@ -310,7 +313,8 @@ public:
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write to the archive
-            (*p_arch) << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
+            SerializableSingleton<CellwiseData<2> >* const p_wrapper = p_data->GetSerializationWrapper();
+            (*p_arch) << p_wrapper;
 
             CellwiseData<2>::Destroy();
             delete p_cell_population;
@@ -323,9 +327,11 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            (*p_arch) >> *p_data;
+            SerializableSingleton<CellwiseData<2> >* p_wrapper;
+            (*p_arch) >> p_wrapper;
 
             // Check the data
+            TS_ASSERT_EQUALS(CellwiseData<2>::Instance(), p_data);
             TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
             TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
 

@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
+#include "ArchiveOpener.hpp"
+#include "CellsGenerator.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -76,7 +78,6 @@ public:
 
         WntConcentration<2>::Destroy();
     }
-
 
     void TestLinearWntConcentration() throw(Exception)
     {
@@ -156,7 +157,6 @@ public:
 
         WntConcentration<2>::Destroy();
     }
-
 
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
@@ -302,25 +302,44 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-
     void TestArchiveWntConcentration()
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_grad.arch";
+        // Set up simulation time
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells, one for each node. Give each a birth time of -node_index, so the age = node_index
+        std::vector<CellPtr> cells;
+        CellsGenerator<WntCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
+
+        // Work out where to put the archive
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "wnt_concentration.arch";
+        ArchiveLocationInfo::SetMeshFilename("wnt_concentration_mesh");
 
         // Create an output archive
         {
-            WntConcentration<2>* p_wnt1 = WntConcentration<2>::Instance();
-            p_wnt1->SetType(LINEAR);
-            double crypt_length = 22.0;
-            p_wnt1->SetCryptLength(crypt_length);
-            p_wnt1->SetCryptProjectionParameterA(3.3);
-            p_wnt1->SetCryptProjectionParameterB(4.4);
+            WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+            p_wnt->SetType(LINEAR);
+            p_wnt->SetCryptLength(22.0);
+            p_wnt->SetCryptProjectionParameterA(3.3);
+            p_wnt->SetCryptProjectionParameterB(4.4);
+            p_wnt->SetCellPopulation(cell_population);
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            output_arch << static_cast<const WntConcentration<2>&> (*WntConcentration<2>::Instance());
+            SerializableSingleton<WntConcentration<2> >* const p_wrapper = p_wnt->GetSerializationWrapper();
+            (*p_arch) << p_wrapper;
 
             WntConcentration<2>::Destroy();
         }
@@ -329,24 +348,26 @@ public:
             WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            // Restore from the archive
-            input_arch >> *p_wnt;
+            // Write to the archive
+            SerializableSingleton<WntConcentration<2> >* p_wrapper;
+            (*p_arch) >> p_wrapper;
 
-            double height = 21.0;
-            double wnt_level = p_wnt->GetWntLevel(height);
-
-            TS_ASSERT_DELTA(wnt_level, 1.0-height/p_wnt->GetCryptLength(), 1e-9);
+            TS_ASSERT_EQUALS(WntConcentration<2>::Instance(), p_wnt);
+            TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
+            TS_ASSERT_DELTA(p_wnt->GetWntLevel(21.0), 1.0 - 21.0/p_wnt->GetCryptLength(), 1e-9);
             TS_ASSERT_DELTA(p_wnt->GetCryptLength(), 22.0, 1e-12);
             TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterA(), 3.3, 1e-12);
             TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterB(), 4.4, 1e-12);
+
+            AbstractCellPopulation<2>& cell_population = p_wnt->rGetCellPopulation();
+            delete (&cell_population);
         }
 
         WntConcentration<2>::Destroy();
     }
-
 
     void TestSingletonnessOfWntConcentration()
     {
@@ -389,10 +410,9 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-
     void TestWntInitialisationSetup() throw(Exception)
     {
-        // create a simple mesh
+        // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -449,7 +469,6 @@ public:
 
         WntConcentration<2>::Destroy();
     }
-
 
     void TestCryptProjectionParameterAAndBGettersAndSetters()
     {

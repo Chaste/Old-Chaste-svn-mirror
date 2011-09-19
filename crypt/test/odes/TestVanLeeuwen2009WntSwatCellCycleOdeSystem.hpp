@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 // Must be included before any other cell_based or crypt headers
-#include "CryptSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include <cstdio>
 

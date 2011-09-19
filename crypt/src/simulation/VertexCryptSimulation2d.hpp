@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
+#include "WntConcentration.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
@@ -51,9 +52,11 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<OffLatticeSimulation<2> >(*this);
+
+        SerializableSingleton<WntConcentration<2> >* p_wnt_wrapper = WntConcentration<2>::Instance()->GetSerializationWrapper();
+        archive & p_wnt_wrapper;
+
         archive & mWriteBetaCatenin;
     }
 

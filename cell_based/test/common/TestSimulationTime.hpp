@@ -153,7 +153,8 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.75, 1e-9);
 
-            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
+            SerializableSingleton<SimulationTime>* const p_wrapper = p_simulation_time->GetSerializationWrapper();
+            output_arch << p_wrapper;
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.75, 1e-9);
 
             p_simulation_time->IncrementTimeOneStep();
@@ -171,7 +172,9 @@ public:
 
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            input_arch >> *p_simulation_time;
+
+            SerializableSingleton<SimulationTime>* p_wrapper;
+            input_arch >> p_wrapper;
 
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.75,1e-9);
             TS_ASSERT_DELTA(p_simulation_time->GetTimeStep(), 0.25, 1e-9);

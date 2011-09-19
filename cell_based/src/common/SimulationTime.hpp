@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define SIMULATIONTIME_HPP_
 
 #include "ChasteSerialization.hpp"
+#include "SerializableSingleton.hpp"
 
 #include "Exception.hpp"
 
@@ -43,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * You should generally use the calls
  * IncrementTimeOneStep() and GetTime() when using this class.
  */
-class SimulationTime
+class SimulationTime : public SerializableSingleton<SimulationTime>
 {
 public:
 
@@ -137,7 +138,6 @@ public:
     void SetStartTime(double startTime);
 
 protected:
-
     /**
      * Default simulation time constructor
      *
@@ -146,18 +146,7 @@ protected:
      */
     SimulationTime();
 
-    /**
-     * Copy constructor.
-     */
-    SimulationTime(const SimulationTime&);
-
-    /**
-     * Overloaded assignment operator.
-     */
-    SimulationTime& operator= (const SimulationTime&);
-
 private:
-
     /**
      * A pointer to the singleton instance of this class.
      */
@@ -207,11 +196,11 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+
     /**
      * Serialization of a SimulationTime object must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Do not serialize this singleton directly.  Instead, serialize
+     * the object returned by GetSerializationWrapper.
      *
      * @param archive the archive
      * @param version the current version of this class
