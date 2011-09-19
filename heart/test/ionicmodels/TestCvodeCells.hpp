@@ -366,7 +366,7 @@ public:
 
         // Clamp V with a modifier
         sh04_cvode_system.ResetToInitialConditions();
-        MAKE_PTR_A(AbstractModifier, FixedModifier, p_modifier, (sh04_cvode_system.GetVoltage()));
+        MAKE_PTR_ABS(AbstractModifier, FixedModifier, p_modifier, (sh04_cvode_system.GetVoltage()));
         sh04_cvode_system.SetModifier("membrane_voltage", p_modifier);
         solution_cvode = sh04_cvode_system.Solve(0.0, start+10.0, max_timestep, sampling_time);
         // The behaviour isn't quite the same - dV/dt isn't clamped in this case - but we should

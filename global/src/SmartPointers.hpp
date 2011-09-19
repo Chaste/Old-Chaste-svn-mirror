@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param NAME  the name of the pointer variable
  * @param ARGS  constructor arguments for the instance, in brackets
  */
-#define MAKE_PTR_A(ABS_TYPE, TYPE, NAME, ARGS) boost::shared_ptr<ABS_TYPE> NAME(new TYPE ARGS)
+#define MAKE_PTR_ABS(ABS_TYPE, TYPE, NAME, ARGS) boost::shared_ptr<ABS_TYPE> NAME(new TYPE ARGS)
 
 /**
  * Create a new instance of a class and assign it to a smart pointer.
@@ -52,7 +52,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param NAME  the name of the pointer variable
  * @param ARGS  constructor arguments for the instance, in brackets
  */
-#define MAKE_PTR(TYPE, NAME, ARGS) MAKE_PTR_A(TYPE, TYPE, NAME, ARGS)
+#define MAKE_PTR_ARGS(TYPE, NAME, ARGS) MAKE_PTR_ABS(TYPE, TYPE, NAME, ARGS)
+
+/**
+ * Create a new instance of a class and assign it to a smart pointer.
+ * @param TYPE  the type of the concrete instance to create
+ * @param NAME  the name of the pointer variable
+ */
+#define MAKE_PTR(TYPE, NAME) MAKE_PTR_ABS(TYPE, TYPE, NAME, )
 
 /**
  * Create a new class instance and reset a smart pointer to point at it.
