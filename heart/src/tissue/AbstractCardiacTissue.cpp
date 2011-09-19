@@ -133,7 +133,8 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
 		}
 		catch (const Exception& e)
 		{
-			NEVER_REACHED; ///\todo uncomment the below the below and cover..
+			NEVER_REACHED;
+            ///\todo #1898 uncomment the below the below and cover..
 
 //			// COMMENT COPIED FROM ABOVE: This catch statement is quite tricky to cover, but it is actually done in TestCardiacSimulation::TestMono1dSodiumBlockBySettingNamedParameter
 //
