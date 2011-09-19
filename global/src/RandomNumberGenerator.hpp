@@ -30,13 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define RANDOMNUMBERGENERATORS_HPP_
 
 #include "ChasteSerialization.hpp"
+#include "SerializableSingleton.hpp"
 #include <boost/serialization/split_member.hpp>
 
 /**
  * A special singleton class allowing one to generate different types of
  * random number in a globally consistent way.
  */
-class RandomNumberGenerator
+class RandomNumberGenerator : public SerializableSingleton<RandomNumberGenerator>
 {
 private:
 

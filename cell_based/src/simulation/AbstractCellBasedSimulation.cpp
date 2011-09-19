@@ -57,8 +57,8 @@ AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopula
       mNumDeaths(0),
       mSamplingTimestepMultiple(1)
 {
-    // This line sets a random seed of 0 if it wasn't specified earlier.
-    mpRandomGenerator = RandomNumberGenerator::Instance();
+    // Set a random seed of 0 if it wasn't specified earlier
+    RandomNumberGenerator::Instance();
 
     // Different time steps are used for cell-centre and vertex-based simulations
     if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation))

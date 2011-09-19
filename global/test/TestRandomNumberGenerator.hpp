@@ -108,7 +108,8 @@ public:
             p_gen->StandardNormalRandomDeviate();
             p_gen->NormalRandomDeviate(0.5, 0.1);
 
-            output_arch << static_cast<const RandomNumberGenerator&>(*p_gen);
+            SerializableSingleton<RandomNumberGenerator>* const p_wrapper = p_gen->GetSerializationWrapper();
+            output_arch << p_wrapper;
 
             // Generator saved here - record the next 10 numbers
             for (unsigned i=0; i<10; i++)
@@ -142,7 +143,9 @@ public:
 
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            input_arch >> *p_gen;
+
+            SerializableSingleton<RandomNumberGenerator>* p_wrapper;
+            input_arch >> p_wrapper;
 
             /*
              * Random Number generator restored.

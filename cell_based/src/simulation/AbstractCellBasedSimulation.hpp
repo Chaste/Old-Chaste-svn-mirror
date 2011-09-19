@@ -96,9 +96,6 @@ protected:
     /** Visualiser setup file. */
     out_stream mpVizSetupFile;
 
-    /** The singleton RandomNumberGenerator. */
-    RandomNumberGenerator* mpRandomGenerator;
-
     /** Counts the number of births during the simulation. */
     unsigned mNumBirths;
 
@@ -132,9 +129,8 @@ protected:
         SerializableSingleton<CellwiseData<DIM> >* p_cellwise_data_wrapper = CellwiseData<DIM>::Instance()->GetSerializationWrapper();
         archive & p_cellwise_data_wrapper;
 
-        mpRandomGenerator = RandomNumberGenerator::Instance();
-        archive & *mpRandomGenerator;
-        archive & mpRandomGenerator;
+        SerializableSingleton<RandomNumberGenerator>* p_rng_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_rng_wrapper;
 
         archive & mDt;
         archive & mEndTime;

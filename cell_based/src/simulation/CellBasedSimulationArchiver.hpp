@@ -123,8 +123,8 @@ void CellBasedSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_filename);
     boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-    // Archive the simulation itself
-    (*p_arch) & pSim; // const-ness would be a pain here
+    // Archive the simulation (const-ness would be a pain here)
+    (*p_arch) & pSim;
 }
 
 #endif /*CELLBASEDSIMULATIONARCHIVER_HPP_*/
