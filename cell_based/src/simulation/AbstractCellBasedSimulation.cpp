@@ -43,11 +43,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                              bool deleteCellPopulationAndCellKillersInDestructor,
+                                              bool deleteCellPopulationInDestructor,
                                               bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
       mrCellPopulation(rCellPopulation),
-      mDeleteCellPopulationAndCellKillersInDestructor(deleteCellPopulationAndCellKillersInDestructor),
+      mDeleteCellPopulationInDestructor(deleteCellPopulationInDestructor),
       mInitialiseCells(initialiseCells),
       mNoBirth(false),
       mUpdateCellPopulation(true),
@@ -79,15 +79,8 @@ AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopula
 template<unsigned DIM>
 AbstractCellBasedSimulation<DIM>::~AbstractCellBasedSimulation()
 {
-    if (mDeleteCellPopulationAndCellKillersInDestructor)
+    if (mDeleteCellPopulationInDestructor)
     {
-        for (typename std::vector<AbstractCellKiller<DIM>*>::iterator it=mCellKillers.begin();
-             it != mCellKillers.end();
-             ++it)
-        {
-            delete *it;
-        }
-
         delete &mrCellPopulation;
     }
 }
@@ -138,7 +131,7 @@ unsigned AbstractCellBasedSimulation<DIM>::DoCellRemoval()
      * This labels cells as dead or apoptosing. It does not actually remove the cells,
      * mrCellPopulation.RemoveDeadCells() needs to be called for this.
      */
-    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator killer_iter = mCellKillers.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > >::iterator killer_iter = mCellKillers.begin();
          killer_iter != mCellKillers.end();
          ++killer_iter)
     {
@@ -301,7 +294,7 @@ void AbstractCellBasedSimulation<DIM>::SetNoBirth(bool noBirth)
 }
 
 template<unsigned DIM>
-void AbstractCellBasedSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
+void AbstractCellBasedSimulation<DIM>::AddCellKiller(boost::shared_ptr<AbstractCellKiller<DIM> > pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
 }
@@ -529,7 +522,7 @@ void AbstractCellBasedSimulation<DIM>::OutputSimulationSetup()
 
     // Loop over cell killers
     *parameter_file << "\n\t<CellKillers>\n";
-    for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > >::iterator iter = mCellKillers.begin();
          iter != mCellKillers.end();
          ++iter)
     {

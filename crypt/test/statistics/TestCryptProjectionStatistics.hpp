@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "WntConcentration.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 class TestCryptProjectionStatistics : public AbstractCellBasedTestSuite
 {
@@ -75,7 +76,7 @@ public:
         p_mesh->Translate(-width_of_mesh/2,-height_of_mesh/2);
 
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel;
@@ -121,14 +122,14 @@ public:
         OffLatticeSimulation<2> crypt_projection_simulator(crypt, false, false);
 
         // Create a force law and pass it to the OffLatticeSimulation
-        CryptProjectionForce crypt_projection_force;
-        crypt_projection_simulator.AddForce(&crypt_projection_force);
+        MAKE_PTR(CryptProjectionForce, p_crypt_projection_force);
+        crypt_projection_simulator.AddForce(p_crypt_projection_force);
 
         // Create a radial cell killer and pass it in to the cell-based simulation
         c_vector<double,2> centre = zero_vector<double>(2);
 
-        RadialSloughingCellKiller killer(&crypt, centre, crypt_radius);
-        crypt_projection_simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(RadialSloughingCellKiller, p_killer, (&crypt, centre, crypt_radius));
+        crypt_projection_simulator.AddCellKiller(p_killer);
 
         // Set up the simulation
         crypt_projection_simulator.SetOutputDirectory("CryptProjectionStatistics");

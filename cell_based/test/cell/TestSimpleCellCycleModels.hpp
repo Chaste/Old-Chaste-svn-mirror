@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "SmartPointers.hpp"
 
 class TestSimpleCellCycleModels : public AbstractCellBasedTestSuite
 {
@@ -59,7 +60,8 @@ public:
 
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
         p_stem_model->SetCellProliferativeType(STEM);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
@@ -173,7 +175,7 @@ public:
         StochasticDurationGenerationBasedCellCycleModel* p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
@@ -227,7 +229,7 @@ public:
         p_model->SetStemCellG1Duration(8.0);
         p_model->SetTransitCellG1Duration(8.0);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         CellPtr p_cell(new Cell(p_state, p_model));
 
         p_cell->InitialiseCellCycleModel();
@@ -414,7 +416,7 @@ public:
         TS_ASSERT_DELTA(p_model->GetQuiescentConcentration(), 0.5, 1e-6);
         TS_ASSERT_DELTA(p_model->GetCriticalHypoxicDuration(), 3.0, 1e-6);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         CellPtr p_cell(new Cell(p_state, p_model));
 
         p_cell->InitialiseCellCycleModel();
@@ -601,7 +603,7 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
-            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
@@ -666,7 +668,7 @@ public:
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
-            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(-1.1);
@@ -805,7 +807,7 @@ public:
             StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_state);
             CellPtr p_cell(new Cell(p_state, p_cell_model));
 
             p_cell->InitialiseCellCycleModel();

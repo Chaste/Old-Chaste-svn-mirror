@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "SmartPointers.hpp"
 
 class TestCellLabel : public AbstractCellBasedTestSuite
 {
@@ -51,7 +52,7 @@ public:
 
     void TestCellLabelMethods() throw (Exception)
     {
-        boost::shared_ptr<CellLabel> p_label(new CellLabel());
+        MAKE_PTR(CellLabel, p_label);
         TS_ASSERT_EQUALS(p_label->GetCellCount(), 0u);
         p_label->IncrementCellCount();
         TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
@@ -64,7 +65,7 @@ public:
         TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
         TS_ASSERT_EQUALS(p_label->IsType<ApcOneHitCellMutationState>(), false);
 
-        boost::shared_ptr<AbstractCellProperty> p_other_label(new CellLabel);
+        MAKE_PTR(CellLabel, p_other_label);
         TS_ASSERT_EQUALS(p_other_label->IsSame(p_label.get()), true);
         TS_ASSERT_EQUALS(p_label->IsSame(p_other_label), true);
 

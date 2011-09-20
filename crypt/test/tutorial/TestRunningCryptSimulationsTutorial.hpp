@@ -63,6 +63,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "CheckpointArchiveTypes.hpp"
 
+/* The next header includes the Boost shared_ptr smart pointer, and defines some useful
+ * macros to save typing when using it. */
+#include "SmartPointers.hpp"
+
 /* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
 /*
@@ -198,8 +202,8 @@ public:
          * that every cell experiences a force from each of its neighbours that can be represented as a linear overdamped
          * spring.
          */
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         /*
          * We also add a cell killer to the simulator. This object
@@ -208,8 +212,8 @@ public:
          * height (passed as an argument to the constructor).
          */
         double crypt_height = 8.0;
-        SloughingCellKiller<2> killer(&cell_population, crypt_height);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&cell_population, crypt_height));
+        simulator.AddCellKiller(p_killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
@@ -286,10 +290,10 @@ public:
 
         /* As before, we create a force law and cell killer and pass these objects to the simulator, then call
          * Solve(). */
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
-        SloughingCellKiller<2> killer(&cell_population, crypt_height);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&cell_population, crypt_height));
+        simulator.AddCellKiller(p_killer);
 
         simulator.Solve();
 

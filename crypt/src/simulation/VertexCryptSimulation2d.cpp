@@ -30,12 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+#include "SmartPointers.hpp"
 
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
-                                                 bool deleteCellPopulationAndForceCollection,
+                                                 bool deleteCellPopulationInDestructor,
                                                  bool initialiseCells)
     : OffLatticeSimulation<2>(rCellPopulation,
-                             deleteCellPopulationAndForceCollection,
+                             deleteCellPopulationInDestructor,
                              initialiseCells),
       mWriteBetaCatenin(false)
 {
@@ -50,25 +51,16 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
         mWriteBetaCatenin = true;
     }
 
-    if (!mDeleteCellPopulationAndCellKillersInDestructor)
+    if (!mDeleteCellPopulationInDestructor)
     {
 		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
-		CryptSimulationBoundaryCondition<2>* p_boundary_condition = new CryptSimulationBoundaryCondition<2>(&rCellPopulation);
-		AddCellPopulationBoundaryCondition(p_boundary_condition);
+        MAKE_PTR_ARGS(CryptSimulationBoundaryCondition<2>, p_bc, (&rCellPopulation));
+		AddCellPopulationBoundaryCondition(p_bc);
     }
 }
 
 VertexCryptSimulation2d::~VertexCryptSimulation2d()
 {
-	// Delete the CryptSimulationBoundaryCondition object from mBoundaryConditions
-	for (std::vector<AbstractCellPopulationBoundaryCondition<2>*>::iterator it=mBoundaryConditions.begin();
-         it != mBoundaryConditions.end();
-         ++it)
-    {
-		delete *it;
-    }
-    // Now clear the container in case another piece of code tries to delete it
-    mBoundaryConditions.clear();
 }
 
 c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
@@ -185,7 +177,7 @@ void VertexCryptSimulation2d::AfterSolve()
 void VertexCryptSimulation2d::UseJiggledBottomCells()
 {
     // The CryptSimulationBoundaryCondition object is the first element of mBoundaryConditions
-    static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
+    boost::static_pointer_cast<CryptSimulationBoundaryCondition<2> >(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
 }
 
 void VertexCryptSimulation2d::SetBottomCellAncestors()
@@ -205,7 +197,7 @@ void VertexCryptSimulation2d::SetBottomCellAncestors()
 void VertexCryptSimulation2d::OutputSimulationParameters(out_stream& rParamsFile)
 {
     double width = mrCellPopulation.GetWidth(0);
-    bool use_jiggled_bottom_cells = static_cast<CryptSimulationBoundaryCondition<2>*>(mBoundaryConditions[0])->GetUseJiggledBottomCells();
+    bool use_jiggled_bottom_cells = boost::static_pointer_cast<CryptSimulationBoundaryCondition<2> >(mBoundaryConditions[0])->GetUseJiggledBottomCells();
 
     *rParamsFile << "\t\t<CryptCircumference>" << width << "</CryptCircumference>\n";
     *rParamsFile << "\t\t<UseJiggledBottomCells>" << use_jiggled_bottom_cells << "</UseJiggledBottomCells>\n";

@@ -77,6 +77,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
+#include "SmartPointers.hpp"
 
 /*
  * EMPTYLINE
@@ -165,7 +166,7 @@ public:
          * follows. This is because it makes sense for all cells that have the same mutation
          * to share a pointer to the same cell mutation state object (although strictly speaking,
          * they are not required to).*/
-        boost::shared_ptr<AbstractCellMutationState> p_state(new P53GainOfFunctionCellMutationState);
+        MAKE_PTR(P53GainOfFunctionCellMutationState, p_state);
 
         /* Each cell mutation state has a member variable, {{{mCellCount}}}, which
          * stores the number of cells with this mutation state. In fact, {{{mCellCount}}}
@@ -248,7 +249,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
         /* We now create a shared pointer to our new cell mutation state, as follows. */
-        boost::shared_ptr<AbstractCellMutationState> p_state(new P53GainOfFunctionCellMutationState);
+        MAKE_PTR(P53GainOfFunctionCellMutationState, p_state);
 
         /* Next, we create some cells, as follows. */
         std::vector<CellPtr> cells;
@@ -266,9 +267,9 @@ public:
         simulator.SetEndTime(10.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3);
+        simulator.AddForce(p_linear_force);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

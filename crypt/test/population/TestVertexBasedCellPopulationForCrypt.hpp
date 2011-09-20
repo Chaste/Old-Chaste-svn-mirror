@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "SmartPointers.hpp"
 
 class TestVertexBasedCellPopulationForCrypt : public AbstractCellBasedTestSuite
 {
@@ -85,7 +86,7 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<vertex_mesh.GetNumElements(); i++)
         {
             WntCellCycleModel* p_cell_cycle_model = new WntCellCycleModel;

@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 #include "CellwiseData.hpp"
+#include "SmartPointers.hpp"
 
 class TestNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -168,7 +169,7 @@ public:
                               "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_cycle_model->SetCellProliferativeType(STEM);
         CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));

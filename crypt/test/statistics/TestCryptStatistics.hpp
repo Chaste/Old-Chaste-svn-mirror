@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "SmartPointers.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
@@ -200,12 +201,12 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create a force laws and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetMeinekeSpringStiffness(30.0); // normally 15.0;
+        simulator.AddForce(p_linear_force);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
-        simulator.AddCellKiller(&cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&simulator.rGetCellPopulation(), crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
         simulator.UseJiggledBottomCells();
@@ -215,7 +216,7 @@ public:
         CryptStatistics crypt_statistics(crypt);
         std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(crypt_length + 2.0, 8.0, 8.0);
 
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        MAKE_PTR(CellLabel, p_label);
         for (unsigned i=0; i<test_section.size(); i++)
         {
             test_section[i]->AddCellProperty(p_label);
@@ -290,7 +291,7 @@ public:
         // see the section
         test_section = crypt_statistics.GetCryptSectionPeriodic(crypt_length + 2.0, 8.0, 8.0);
 
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        MAKE_PTR(ApcOneHitCellMutationState, p_apc1);
 
         for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
@@ -361,7 +362,6 @@ public:
         }
 
         double time_of_each_run;
-        AbstractCellKiller<2>* p_cell_killer;
         std::vector<bool> labelled;
 
         CryptStatistics* p_crypt_statistics;
@@ -414,20 +414,20 @@ public:
             simulator.SetEndTime(time_of_each_run);
 
             // Create a force laws and pass it to the simulation
-            GeneralisedLinearSpringForce<2> linear_force;
-            linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-            simulator.AddForce(&linear_force);
+            MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+            p_linear_force->SetMeinekeSpringStiffness(30.0); // normally 15.0;
+            simulator.AddForce(p_linear_force);
 
             // Set up cell killer
-            p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);
-            simulator.AddCellKiller(p_cell_killer);
+            MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&simulator.rGetCellPopulation(), crypt_length));
+            simulator.AddCellKiller(p_killer);
 
             simulator.UseJiggledBottomCells();
 
-            // set up crypt statistics
+            // Set up crypt statistics
             p_crypt_statistics = new CryptStatistics(*p_crypt);
 
-            // run for a bit
+            // Run for a bit
             simulator.Solve();
             p_crypt_statistics->LabelSPhaseCells();
 
@@ -455,7 +455,6 @@ public:
 
             delete p_crypt_statistics;
             delete p_crypt;
-            delete p_cell_killer;
         }
 
         // Calculate percentage of labelled cells at each position in 'labelled_cells_counter'

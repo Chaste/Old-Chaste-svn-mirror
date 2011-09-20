@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CylindricalHoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "StochasticWntCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 class TestGenerateSteadyStateCrypt : public CxxTest::TestSuite
 {
@@ -101,14 +102,14 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
-        simulator.AddCellKiller(&cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&simulator.rGetCellPopulation(), crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        p_linear_force->SetMeinekeSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
 
         simulator.UseJiggledBottomCells();

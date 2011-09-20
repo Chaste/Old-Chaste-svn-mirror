@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "RandomCellKiller.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 /**
  * This class consists of a single test, in which a 2D model
@@ -64,7 +65,7 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
@@ -89,9 +90,9 @@ public:
         simulator.SetEndTime(50.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
         // Run simulation
         simulator.Solve();

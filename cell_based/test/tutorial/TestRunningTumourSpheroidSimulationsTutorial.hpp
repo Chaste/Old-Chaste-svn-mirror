@@ -73,6 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckpointArchiveTypes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
+#include "SmartPointers.hpp"
 /*
  * The {{{SimpleOxygenBasedCellCycleModel}}} header file defines a cell-cycle model in which
  * a cell's rate of progress through G1 phase changes over time in a simple manner, according
@@ -289,9 +290,9 @@ public:
          * for example to avoid artificially large forces between cells that lie close together
          * on the spheroid boundary.
          */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3);
+        simulator.AddForce(p_linear_force);
 
         /*
          * We call {{{Solve()}}} on the simulator to run the simulation.

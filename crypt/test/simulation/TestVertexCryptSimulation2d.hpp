@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "Warnings.hpp"
 #include "NumericFileComparison.hpp"
+#include "SmartPointers.hpp"
 
 class TestVertexCryptSimulation2d : public AbstractCellBasedTestSuite
 {
@@ -194,8 +195,8 @@ public:
         simulator.UseJiggledBottomCells();
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Move the first node (which should be on y=0) down a bit
         TS_ASSERT_DELTA(crypt.GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
@@ -247,8 +248,8 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // No cell killer
 
@@ -296,12 +297,12 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Make crypt shorter for sloughing
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -341,12 +342,12 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Make crypt shorter for sloughing
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -392,12 +393,12 @@ public:
         simulator.SetOutputDirectory("TestShortWntBasedCryptSimulation");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Make crypt shorter for sloughing
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -443,12 +444,12 @@ public:
         simulator.SetOutputDirectory("TestLongWntBasedVertexCryptSimulation");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Make crypt shorter for sloughing
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -489,14 +490,14 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
-        VertexCryptBoundaryForce<2> boundary_force_law(150);
-        simulator.AddForce(&boundary_force_law);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
+        MAKE_PTR_ARGS(VertexCryptBoundaryForce<2>, p_boundary_force_law, (150));
+        simulator.AddForce(p_boundary_force_law);
 
         // Make crypt shorter for sloughing
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -538,8 +539,8 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         /*
          * Memory leak (unconditional jump) without the following line. The
@@ -601,12 +602,12 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -656,12 +657,12 @@ public:
         VertexCryptSimulation2d simulator(crypt);
         
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
         
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
         
         std::string output_directory = "TestVertexCryptSimulation2dOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -707,12 +708,12 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -821,12 +822,12 @@ public:
         simulator.SetBottomCellAncestors();
 
         // Create a force laws and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();

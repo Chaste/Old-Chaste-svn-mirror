@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 /**
  * This class consists of a single test, in which a 2D vertex model
@@ -70,7 +71,7 @@ public:
 
         // Create cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel;
@@ -101,12 +102,12 @@ public:
         simulator.SetOutputDirectory("Test2DVertexCryptRepresentativeSimulationForProfiling");
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Add a cell killer
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();

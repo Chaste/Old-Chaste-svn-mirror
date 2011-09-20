@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 /*
  * This test is seperate from TestCell.hpp to avoid strange errors with the
@@ -75,7 +76,7 @@ public:
 
             // Create cell property collection
             CellPropertyCollection collection;
-            boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+            MAKE_PTR(CellLabel, p_label);
             collection.AddProperty(p_label);
 
             // Create cell

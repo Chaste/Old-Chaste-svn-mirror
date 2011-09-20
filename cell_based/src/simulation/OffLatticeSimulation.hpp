@@ -64,10 +64,10 @@ class OffLatticeSimulation : public AbstractCellBasedSimulation<DIM>
 
 protected:
     /** The mechanics used to determine the new location of the cells, a list of the forces. */
-    std::vector<AbstractForce<DIM>*> mForceCollection;
+    std::vector<boost::shared_ptr<AbstractForce<DIM> > > mForceCollection;
 
     /** List of boundary conditions. */
-    std::vector<AbstractCellPopulationBoundaryCondition<DIM>*> mBoundaryConditions;
+    std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > > mBoundaryConditions;
 
     /** Whether to write the node velocities to a file. */
     bool mOutputNodeVelocities;
@@ -77,13 +77,9 @@ protected:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+
     /**
-     * Archive the member variables.
-     *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Save or restore the simulation.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -91,8 +87,6 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<AbstractCellBasedSimulation<DIM> >(*this);
         archive & mForceCollection;
         archive & mBoundaryConditions;
@@ -125,8 +119,8 @@ protected:
      */
     virtual void AfterSolve();
 
-
 public:
+
     /**
      * Constructor.
      *
@@ -150,14 +144,14 @@ public:
      *
      * @param pForce pointer to a force law
      */
-    void AddForce(AbstractForce<DIM>* pForce);
+    void AddForce(boost::shared_ptr<AbstractForce<DIM> > pForce);
 
     /**
      * Add a cell population boundary condition to be used in this simulation.
      *
      * @param pBoundaryCondition pointer to a boundary condition
      */
-    void AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition);
+    void AddCellPopulationBoundaryCondition(boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> >  pBoundaryCondition);
 
     /**
      * @return mOutputNodeVelocities

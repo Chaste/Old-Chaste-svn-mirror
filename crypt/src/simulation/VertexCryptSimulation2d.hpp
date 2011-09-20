@@ -130,11 +130,11 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population and force collection on destruction to free up memory
      * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
     VertexCryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
-                      bool deleteCellPopulationAndForceCollection=false,
+                      bool deleteCellPopulationInDestructor=false,
                       bool initialiseCells=true);
 
     /**

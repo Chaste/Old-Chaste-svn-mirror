@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
+#include "SmartPointers.hpp"
 
 class TestOffLatticeSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -97,9 +98,9 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         simulator.Solve();
 
@@ -148,9 +149,9 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
@@ -203,13 +204,13 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Add cell killer
-        RandomCellKiller<2> random_cell_killer(&node_based_cell_population, 0.997877574);
-        simulator.AddCellKiller(&random_cell_killer);
+        MAKE_PTR_ARGS(RandomCellKiller<2>, p_killer, (&node_based_cell_population, 0.997877574));
+        simulator.AddCellKiller(p_killer);
 
         // Solve
         simulator.Solve();
@@ -253,15 +254,15 @@ public:
         simulator.SetEndTime(2.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Create some boundary conditions and pass them to the simulation
         c_vector<double,2> normal = zero_vector<double>(2);
         normal(1) =-1.0;
-        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), normal);//y>0
-        simulator.AddCellPopulationBoundaryCondition(&boundary_condition);
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&node_based_cell_population, zero_vector<double>(2), normal)); // y>0
+        simulator.AddCellPopulationBoundaryCondition(p_bc);
 
         // Solve
         simulator.Solve();
@@ -304,15 +305,15 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Create some boundary conditions and pass them to the simulation
         c_vector<double,2> normal = zero_vector<double>(2);
         normal(1) =-1.0;
-        PlaneBoundaryCondition<2> boundary_condition(&node_based_cell_population, zero_vector<double>(2), normal);//y>0
-        simulator.AddCellPopulationBoundaryCondition(&boundary_condition);
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&node_based_cell_population, zero_vector<double>(2), normal)); // y>0
+        simulator.AddCellPopulationBoundaryCondition(p_bc);
 
         // Solve
         simulator.Solve();

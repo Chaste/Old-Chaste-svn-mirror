@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 class TestOffLatticeSimulation3d : public AbstractCellBasedTestSuite
 {
@@ -136,9 +137,9 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         simulator.Solve();
 
@@ -175,9 +176,9 @@ public:
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Test SetSamplingTimestepMultiple method
         TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 1u);
@@ -216,7 +217,7 @@ public:
         std::vector<CellPtr> cells2;
         std::vector<unsigned> location_indices;
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<num_nodes; i++)
         {
             c_vector<double, 3> node_location = p_mesh->GetNode(i)->rGetLocation();
@@ -272,9 +273,9 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.0);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.0);
+        simulator.AddForce(p_linear_force);
 
         simulator.Solve();
         CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator);
@@ -299,7 +300,7 @@ public:
         simulator2.SetEndTime(0.1);
 
         // Pass force_law to the simulation
-        simulator2.AddForce(&linear_force);
+        simulator2.AddForce(p_linear_force);
 
         simulator2.Solve();
         CellBasedSimulationArchiver<3, OffLatticeSimulation<3> >::Save(&simulator2);
@@ -342,4 +343,3 @@ public:
 };
 
 #endif /*TESTOFFLATTICESIMULATION3D_HPP_*/
-

@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "SmartPointers.hpp"
 
 class TestVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -159,7 +160,7 @@ public:
         TS_ASSERT_THROWS_THIS(VertexBasedCellPopulation<2> cell_population(*p_mesh, cells_copy),
                 "Element 8 does not appear to have a cell associated with it");
 
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
         CellPtr p_cell(new Cell(p_state, p_model));
@@ -232,11 +233,11 @@ public:
         HoneycombVertexMeshGenerator generator(3, 3);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(ApcOneHitCellMutationState, p_apc1);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2);
+        MAKE_PTR(BetaCateninOneHitCellMutationState, p_bcat1);
+        MAKE_PTR(CellLabel, p_label);
 
         // Create cells
         std::vector<CellPtr> cells;
@@ -370,7 +371,7 @@ public:
         c_vector<double,2> cell_division_vector = zero_vector<double>(2);
 
         CellPtr p_cell0 = cell_population.GetCellUsingLocationIndex(0);
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -451,7 +452,7 @@ public:
 
         // Create a cell
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(DIFFERENTIATED);
 
@@ -515,7 +516,7 @@ public:
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             CellProliferativeType cell_type = DIFFERENTIATED;

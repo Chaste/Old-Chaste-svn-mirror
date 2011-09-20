@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "OffLatticeSimulationWithMyStoppingEvent.hpp"
+#include "SmartPointers.hpp"
 
 
 class TestOffLatticeSimulation : public AbstractCellBasedTestSuite
@@ -96,9 +97,9 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
         // Record node velocities
         TS_ASSERT_EQUALS(simulator.GetOutputNodeVelocities(), false);
@@ -160,9 +161,9 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
         // Record node velocities
         simulator.SetOutputNodeVelocities(true);
@@ -222,13 +223,13 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
         // Add cell killer
-        RandomCellKiller<2> random_cell_killer(&cell_population, 0.997877574);
-        simulator.AddCellKiller(&random_cell_killer);
+        MAKE_PTR_ARGS(RandomCellKiller<2>, p_killer, (&cell_population, 0.997877574));
+        simulator.AddCellKiller(p_killer);
 
         // For coverage of an exception.
         simulator.SetUpdateCellPopulationRule(false);
@@ -271,8 +272,8 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create some force laws and pass them to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Need to set this up for the chemotactic force.
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -283,8 +284,9 @@ public:
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             p_data->SetValue(x/50.0, p_mesh->GetNode(i)->GetIndex());
         }
-        ChemotacticForce<2> chemotactic_force;
-        simulator.AddForce(&chemotactic_force);
+
+        MAKE_PTR(ChemotacticForce<2>, p_chemotactic_force);
+        simulator.AddForce(p_chemotactic_force);
 
         simulator.Solve();
 
@@ -321,33 +323,32 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create some force laws and pass them to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create some boundary conditions and pass them to the simulation
         c_vector<double,2> point = zero_vector<double>(2);
         c_vector<double,2> normal = zero_vector<double>(2);
         normal(1) = -1.0;
-        PlaneBoundaryCondition<2> boundary_condition1(&cell_population, point, normal);//y>0
-        simulator.AddCellPopulationBoundaryCondition(&boundary_condition1);
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
+        simulator.AddCellPopulationBoundaryCondition(p_bc1);
         point(1) = 2.0;
         normal(1) = 1.0;
-        PlaneBoundaryCondition<2> boundary_condition2(&cell_population, point, normal);//y<2
-        simulator.AddCellPopulationBoundaryCondition(&boundary_condition2);
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
+        simulator.AddCellPopulationBoundaryCondition(p_bc2);
 
         simulator.Solve();
 
         // Check that the number of nodes is equal to the number of cells
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), simulator.rGetCellPopulation().GetNumRealCells());
 
-
         /**
          * Test a cell-based simulation with contradicting boundary conditions. y<2, y>0 and y>3
          */
         point(1) = 3.0;
         normal(1) = -1.0;
-        PlaneBoundaryCondition<2> boundary_condition3(&cell_population, point, normal); //y>3
-        simulator.AddCellPopulationBoundaryCondition(&boundary_condition3);
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>3
+        simulator.AddCellPopulationBoundaryCondition(p_bc3);
 
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_THIS(simulator.Solve(),"The cell population boundary conditions are incompatible.");
@@ -445,9 +446,9 @@ public:
         simulator.SetEndTime(10.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Run cell-based simulation
         simulator.Solve();
@@ -481,9 +482,9 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         cell_population.GetCellUsingLocationIndex(14)->SetApoptosisTime(2.0);
         cell_population.GetCellUsingLocationIndex(15)->SetApoptosisTime(2.0);
@@ -630,8 +631,8 @@ public:
         simulator.SetEndTime(0.6);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         unsigned initial_num_cells = simulator.rGetCellPopulation().GetNumRealCells();
         unsigned initial_num_nodes = simulator.rGetCellPopulation().GetNumNodes();
@@ -665,9 +666,9 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a linear spring force and add it to the cell-based simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Run the simulation and test that no exceptions are thrown
         TS_ASSERT_THROWS_THIS(simulator.Solve(),

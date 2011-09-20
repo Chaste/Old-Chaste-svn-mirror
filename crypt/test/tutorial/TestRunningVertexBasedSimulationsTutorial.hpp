@@ -69,6 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 #include "SloughingCellKiller.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "SmartPointers.hpp"
 /*
  * The next three header files define three different types of cell-cycle model,
  * one with fixed cell-cycle times, one with stochastic cell-cycle times and one
@@ -146,8 +147,8 @@ public:
         * of each cell in a cell population. For this test, we use one force law, based on the
         * Nagai-Honda mechanics, and pass it to the {{{OffLatticeSimulation}}}
         */
-        NagaiHondaForce<2> force;
-        simulator.AddForce(&force);
+        MAKE_PTR(NagaiHondaForce<2>, p_force);
+        simulator.AddForce(p_force);
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
@@ -221,16 +222,16 @@ public:
         /* Before running the simulation, we add a one or more force laws, which determine the mechanics of
          * the cell population.  For this test, we use a {{{NagaiHondaForce}}}.
          */
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_force);
+        simulator.AddForce(p_force);
 
         /* Before running the simulation, we add a cell killer. This object
          * dictates conditions under which cells die. For this test, we use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
          */
         double crypt_length = 6.0;
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
@@ -308,12 +309,12 @@ public:
         simulator.SetEndTime(0.1);
 
         /* Before running the simulation, we add a one or more force laws, as before. */
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_force);
+        simulator.AddForce(p_force);
 
         /* Before running the simulation, we add a cell killer, as before.*/
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         /* Here we impose a boundary condition at the base: that cells
         * at the bottom of the crypt are repelled if they move past 0.*/

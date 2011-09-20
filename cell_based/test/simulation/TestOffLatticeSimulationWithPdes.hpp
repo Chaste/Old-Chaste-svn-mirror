@@ -52,6 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FunctionalBoundaryCondition.hpp"
 #include "AveragedSourcePde.hpp"
 #include "VolumeDependentAveragedSourcePde.hpp"
+#include "SmartPointers.hpp"
 
 class SimplePdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
@@ -122,7 +123,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -170,18 +171,19 @@ public:
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
-        // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-
-        // Use an extremely small cutoff so that no cells interact
-        // - this is to ensure that in the Solve method, the cells don't move
-        // (we need to call Solve to set up the .vizpdesolution file)
-        linear_force.SetCutOffLength(0.0001);
-        simulator.AddForce(&linear_force);
+        /*
+         * Create a force law and pass it to the simulation. Use an extremely small
+         * cutoff so that no cells interact - this is to ensure that in the Solve()
+         * method, the cells don't move (we need to call Solve() to set up the
+         * .vizpdesolution file).
+         */
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(0.0001);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -227,7 +229,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -274,13 +276,13 @@ public:
         p_simulator->SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        p_simulator->AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        p_simulator->AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        p_simulator->AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        p_simulator->AddCellKiller(p_killer);
 
         // Run cell-based simulation
         TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
@@ -331,8 +333,8 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(ApoptoticCellProperty, p_apoptotic_state);
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -388,13 +390,13 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -420,8 +422,8 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(ApoptoticCellProperty, p_apoptotic_state);
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -485,13 +487,13 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -520,8 +522,8 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(ApoptoticCellProperty, p_apoptotic_state);
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -573,13 +575,13 @@ public:
         simulator.SetWriteAverageRadialPdeSolution(5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Add an oxygen-dependent cell killer to the cell-based simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Run the cell-based simulation for one timestep
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -635,7 +637,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -692,13 +694,13 @@ public:
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Test creation of mpCoarsePdeMesh
         simulator.UseCoarsePdeMesh(10.0, 50.0);
@@ -814,7 +816,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -872,13 +874,13 @@ public:
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Test creation of mpCoarsePdeMesh
         simulator.UseCoarsePdeMesh(10.0, 50.0);
@@ -938,7 +940,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -986,9 +988,9 @@ public:
         simulator.UseCoarsePdeMesh(10.0,50.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -1022,7 +1024,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -1070,13 +1072,13 @@ public:
         simulator.SetEndTime(0.2);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -1130,7 +1132,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -1174,9 +1176,9 @@ public:
         simulator.SetEndTime(end_time);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3.0);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3.0);
+        simulator.AddForce(p_linear_force);
 
         // Run cell-based simulation
         simulator.SetImposeBcsOnPerimeterOfPopulation();
@@ -1265,13 +1267,13 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
-        OxygenBasedCellKiller<3> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(OxygenBasedCellKiller<3>, p_killer, (&cell_population));
+        simulator.AddCellKiller(p_killer);
 
         // Coverage
         TS_ASSERT_THROWS_THIS(simulator.CreateCoarsePdeMesh(10.0, 50.0), "This method is only implemented in 1 and 2D currently.");
@@ -1301,7 +1303,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -1394,9 +1396,9 @@ public:
         TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulationWithPdes-2");
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         std::string output_directory = "TestOffLatticeSimulationOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -1425,7 +1427,7 @@ public:
 
 		// Set up cells
 		std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
 			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -1475,9 +1477,9 @@ public:
 		simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
 		// Create a force law and pass it to the simulation
-		GeneralisedLinearSpringForce<2> linear_force;
-		linear_force.SetCutOffLength(1.5);
-		simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
 		simulator.SetImposeBcsOnPerimeterOfPopulation();
 		TS_ASSERT_THROWS_THIS(simulator.Solve(), "Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
@@ -1503,7 +1505,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -1553,9 +1555,9 @@ public:
         simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         // Tell simulator to use the coarse mesh.
         simulator.UseCoarsePdeMesh(10.0, 50.0);
@@ -1627,7 +1629,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -1723,7 +1725,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -1843,7 +1845,7 @@ public:
 
 		// Set up differentiated cells
 		std::vector<CellPtr> cells;
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 		for (unsigned i=0; i<mesh.GetNumNodes(); i++)
 		{
 			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();

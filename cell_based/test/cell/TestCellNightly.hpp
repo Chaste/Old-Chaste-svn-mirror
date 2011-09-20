@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 class TestCellNightly: public AbstractCellBasedTestSuite
 {
@@ -58,7 +59,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
         TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -90,7 +91,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
         TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
         p_model->SetCellProliferativeType(STEM);

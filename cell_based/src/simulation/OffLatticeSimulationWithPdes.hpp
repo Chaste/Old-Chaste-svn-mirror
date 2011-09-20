@@ -224,12 +224,12 @@ public:
      *
      * @param rCellPopulation A cell population object
      * @param pdeAndBcCollection A vector of pointers to PdeAndBoundaryConditions objects (defaults to an empty vector0
-     * @param deleteCellPopulationAndForceCollection Whether to delete the cell population on destruction to free up memory
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
      OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
                               std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
-                              bool deleteCellPopulationAndForceCollection=false,
+                              bool deleteCellPopulationInDestructor=false,
                               bool initialiseCells=true);
 
     /**

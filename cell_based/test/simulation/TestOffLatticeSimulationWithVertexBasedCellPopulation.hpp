@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "Warnings.hpp"
 #include "LogFile.hpp"
+#include "SmartPointers.hpp"
 
 class TestOffLatticeSimulationWithVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -108,8 +109,8 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -161,8 +162,8 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        WelikyOsterForce<2> weliky_oster_force;
-        simulator.AddForce(&weliky_oster_force);
+        MAKE_PTR(WelikyOsterForce<2>, p_weliky_oster_force);
+        simulator.AddForce(p_weliky_oster_force);
 
         // Run simulation
         simulator.Solve();
@@ -184,7 +185,7 @@ public:
 
         // Set up cell.
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(TRANSIT);
@@ -203,8 +204,8 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -258,8 +259,8 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -313,8 +314,8 @@ public:
         simulator.SetEndTime(20.0);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         ////////////////////////////////////////////
         /// Strange setup to speed up simulation ///
@@ -371,17 +372,17 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
-        // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
-        TargetedCellKiller<2> cell0_killer(&cell_population, 0);    // element on the SW corner
-        TargetedCellKiller<2> cell2_killer(&cell_population, 2);    // element on the S boundary
-        TargetedCellKiller<2> cell9_killer(&cell_population, 9);  // element on the interior
+        // Add cell killers to simulation (note we must account for element index changes following each kill)
+        MAKE_PTR_ARGS(TargetedCellKiller<2>, p_cell0_killer, (&cell_population, 0)); // element on the SW corner
+        MAKE_PTR_ARGS(TargetedCellKiller<2>, p_cell2_killer, (&cell_population, 2)); // element on the S boundary
+        MAKE_PTR_ARGS(TargetedCellKiller<2>, p_cell9_killer, (&cell_population, 9)); // element on the interior
 
-        simulator.AddCellKiller(&cell0_killer);
-        simulator.AddCellKiller(&cell2_killer);
-        simulator.AddCellKiller(&cell9_killer);
+        simulator.AddCellKiller(p_cell0_killer);
+        simulator.AddCellKiller(p_cell2_killer);
+        simulator.AddCellKiller(p_cell9_killer);
 
         // Run simulation
         simulator.Solve();
@@ -424,7 +425,7 @@ public:
             cells[i]->SetBirthTime(-2.0);
         }
 
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        MAKE_PTR(CellLabel, p_label);
         cells[0]->AddCellProperty(p_label);
         cells[2]->AddCellProperty(p_label);
 
@@ -438,8 +439,8 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -491,8 +492,8 @@ public:
         simulator.SetEndTime(2.0);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -526,8 +527,8 @@ public:
      */
     void noTestVertexStressTest() throw (Exception)
     {
-        double start_time=0.0;
-        double end_time=100.0;
+        double start_time = 0.0;
+        double end_time = 100.0;
         std::string output_directory = "StressTestVertex";
 
         // Create a simple 2D MutableVertexMesh
@@ -549,8 +550,8 @@ public:
         simulator.SetEndTime(end_time);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run simulation
         simulator.Solve();
@@ -604,8 +605,8 @@ public:
         TS_ASSERT_DELTA(simulator.GetDt(), 0.002, 1e-12);
 
         // Create a force law and pass it to the simulation
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         // Run and save simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

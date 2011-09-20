@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "SmartPointers.hpp"
 
 class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
@@ -68,8 +69,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -89,8 +89,8 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -134,8 +134,7 @@ public:
 
         // Set up cells
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -155,12 +154,12 @@ public:
         simulator.SetEndTime(1.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<1>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 25u);
 
@@ -198,8 +197,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
@@ -247,8 +245,8 @@ public:
         simulator.SetEndTime(10.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -282,8 +280,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double birth_time;
@@ -314,8 +311,8 @@ public:
         simulator.SetEndTime(1.001);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -352,8 +349,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
@@ -400,12 +396,12 @@ public:
         simulator.SetEndTime(10.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<1>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -439,18 +435,17 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
-            // For Tyson-Novak Cells
+
+            // For Tyson-Novak cells
             p_model->SetStemCellG1Duration(0.12);
             p_model->SetTransitCellG1Duration(0.12);
             p_model->SetSDuration(0.01);
             p_model->SetG2Duration(0.01);
             p_model->SetMDuration(0.01);
-
 
             CellProliferativeType cell_type;
             double birth_time;
@@ -489,11 +484,12 @@ public:
         simulator.SetEndTime(1.35);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        // Sets the MeinekeSpringGrowthDuration to be the default MPhase Duration
-        linear_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
 
+        // Set the MeinekeSpringGrowthDuration to be the default MPhase Duration
+        p_linear_force->SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
+
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -533,8 +529,7 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<num_cells; i++)
         {
             CellProliferativeType cell_type = DIFFERENTIATED;
@@ -579,12 +574,12 @@ public:
         simulator.SetEndTime(40);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<1>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -693,8 +688,8 @@ public:
         simulator.SetEndTime(0.01);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -741,8 +736,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -791,12 +785,12 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<1>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -891,8 +885,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
@@ -940,13 +933,12 @@ public:
         simulator.SetEndTime(10.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<1> linear_force;
-        simulator.AddForce(&linear_force);
-
+        MAKE_PTR(GeneralisedLinearSpringForce<1>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<1>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Test Output methods
 
@@ -967,4 +959,3 @@ public:
 };
 
 #endif /*TESTCRYPTSIMULATION1D_HPP_*/
-

@@ -75,8 +75,8 @@ protected:
     /** Facade encapsulating cells in the cell population being simulated. */
     AbstractCellPopulation<DIM>& mrCellPopulation;
 
-    /** Whether to delete the cell population, and cell killers (plus forces and boundary conditions in the OffLatticeSimulation sub class) in the destructor. */
-    bool mDeleteCellPopulationAndCellKillersInDestructor;
+    /** Whether to delete the cell population in the destructor. */
+    bool mDeleteCellPopulationInDestructor;
 
     /** Whether to initialise the cells. */
     bool mInitialiseCells;
@@ -109,7 +109,7 @@ protected:
     unsigned mSamplingTimestepMultiple;
 
     /** List of cell killers. */
-    std::vector<AbstractCellKiller<DIM>*> mCellKillers;
+    std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > > mCellKillers;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -251,11 +251,11 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationAndCellKillersInDestructor Whether to delete the cell population and cell killer collection on destruction to free up memory
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population and cell killer collection on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                        bool deleteCellPopulationAndCellKillersInDestructor=false,
+                        bool deleteCellPopulationInDestructor=false,
                         bool initialiseCells=true);
 
     /**
@@ -341,7 +341,7 @@ public:
      *
      * @param pCellKiller pointer to a cell killer
      */
-    void AddCellKiller(AbstractCellKiller<DIM>* pCellKiller);
+    void AddCellKiller(boost::shared_ptr<AbstractCellKiller<DIM> > pCellKiller);
 
     /**
      * Main solve method.

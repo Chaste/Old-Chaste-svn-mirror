@@ -69,6 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
+#include "SmartPointers.hpp"
 /*
  * == Defining the cell killer class ==
  *
@@ -302,8 +303,10 @@ public:
 
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We now use the cell population to construct a cell killer object. */
-        MyCellKiller my_cell_killer(&cell_population);
+        /* We now use the cell population to construct a cell killer object. This object
+         * must be added to the cell-based simulation as a boost::shared_ptr, so we make
+         * use of the macro MAKR_PTR_ARGS (defined in the header {{{SmartPointers.hpp}}}).*/
+        MAKE_PTR_ARGS(MyCellKiller, p_killer, (&cell_population));
 
         /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
@@ -312,12 +315,12 @@ public:
         simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3);
+        simulator.AddForce(p_linear_force);
 
         /* We now pass the cell killer into the cell-based simulation. */
-        simulator.AddCellKiller(&my_cell_killer);
+        simulator.AddCellKiller(p_killer);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

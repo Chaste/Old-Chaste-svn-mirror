@@ -74,6 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
+#include "SmartPointers.hpp"
 
 /*
  * EMPTYLINE
@@ -336,7 +337,7 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We use the cell population to construct a cell population boundary condition object. */
-        MyBoundaryCondition my_bc(&cell_population);
+        MAKE_PTR_ARGS(MyBoundaryCondition, p_bc, (&cell_population));
 
         /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
@@ -345,12 +346,12 @@ public:
         simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3);
+        simulator.AddForce(p_linear_force);
 
         /* We now pass the cell population boundary condition into the cell-based simulation. */
-        simulator.AddCellPopulationBoundaryCondition(&my_bc);
+        simulator.AddCellPopulationBoundaryCondition(p_bc);
 
         /* We test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

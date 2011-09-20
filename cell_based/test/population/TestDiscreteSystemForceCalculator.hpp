@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 class TestDiscreteSystemForceCalculator : public AbstractCellBasedTestSuite
 {
@@ -61,9 +62,9 @@ public:
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         // Create the force law and pass in to a std::list
-        GeneralisedLinearSpringForce<2> force;
-        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
-        force_collection.push_back(&force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        std::vector<boost::shared_ptr<AbstractTwoBodyInteractionForce<2> > > force_collection;
+        force_collection.push_back(p_force);
 
         // Create a force calculator
         DiscreteSystemForceCalculator calculator(cell_population, force_collection);
@@ -84,7 +85,7 @@ public:
         TS_ASSERT(neighbouring_node_indices == expected_node_indices);
 
         // Test CalculateFtAndFn
-        double spring_stiffness = force.GetMeinekeSpringStiffness();
+        double spring_stiffness = p_force->GetMeinekeSpringStiffness();
         double expected_ft = spring_stiffness*(cos(M_PI/12.0) + cos(5.0*M_PI/12.0) - cos(3.0*M_PI/12.0));
         double expected_fn = spring_stiffness*(sin(M_PI/12.0) + sin(5.0*M_PI/12.0) + sin(3.0*M_PI/12.0));
         std::vector<double> Ft_and_Fn = calculator.CalculateFtAndFn(node_index,M_PI/4.0);
@@ -150,9 +151,9 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create the force law and pass in to a std::list
-        GeneralisedLinearSpringForce<2> force;
-        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
-        force_collection.push_back(&force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        std::vector<boost::shared_ptr<AbstractTwoBodyInteractionForce<2> > > force_collection;
+        force_collection.push_back(p_force);
 
         // Create a force calculator
         DiscreteSystemForceCalculator calculator(cell_population, force_collection);
@@ -163,7 +164,7 @@ public:
         TS_ASSERT_EQUALS(calculated_results[0].size(), p_mesh->GetNumNodes());
         TS_ASSERT_EQUALS(calculated_results[1].size(), p_mesh->GetNumNodes());
 
-        double spring_stiffness = force.GetMeinekeSpringStiffness();
+        double spring_stiffness = p_force->GetMeinekeSpringStiffness();
         double expected_minimum_interior = spring_stiffness*( 2.0*sin(M_PI/3.0) );
         double expected_maximum_interior = spring_stiffness*( sin(M_PI/6.0) + sin(M_PI/2.0) + sin(5.0*M_PI/6.0) );
 
@@ -219,9 +220,9 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create the force law and pass in to a std::list
-        GeneralisedLinearSpringForce<2> force;
-        std::vector<AbstractTwoBodyInteractionForce<2>*> force_collection;
-        force_collection.push_back(&force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        std::vector<boost::shared_ptr<AbstractTwoBodyInteractionForce<2> > > force_collection;
+        force_collection.push_back(p_force);
 
         // Create a force calculator
         DiscreteSystemForceCalculator calculator(cell_population, force_collection);
@@ -240,14 +241,12 @@ public:
         // (These lines are not actually necessary for generating results.vizstress)
         OffLatticeSimulation<2> simulator(cell_population);
 
-        // Add the force to to OffLatticeSimulation
-        simulator.AddForce(&force);
+        simulator.AddForce(p_force);
 
         simulator.SetEndTime(0.05);
         simulator.SetOutputDirectory(output_directory);
         simulator.Solve();
     }
-
 };
 
 #endif /*TESTDISCRETESYSTEMFORCECALCULATOR_HPP_*/

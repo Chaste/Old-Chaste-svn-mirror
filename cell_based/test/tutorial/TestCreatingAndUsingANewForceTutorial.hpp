@@ -72,6 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "CellsGenerator.hpp"
+#include "SmartPointers.hpp"
 
 /*
  * EMPTYLINE
@@ -296,8 +297,8 @@ public:
         simulator.SetEndTime(1.0);
 
         /* We create our force law and pass it to the {{{OffLatticeSimulation}}}. */
-        MyForce force(0.5);
-        simulator.AddForce(&force);
+        MAKE_PTR_ARGS(MyForce, p_force, (0.5));
+        simulator.AddForce(p_force);
 
         /* We test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

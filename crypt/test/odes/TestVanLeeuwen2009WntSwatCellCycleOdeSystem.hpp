@@ -53,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 class TestVanLeeuwen2009WntSwatCellCycleOdeSystem : public CxxTest::TestSuite
 {
@@ -654,12 +655,12 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Add cell Killer
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), crypt_length);
-        simulator.AddCellKiller(&cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&simulator.rGetCellPopulation(), crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 

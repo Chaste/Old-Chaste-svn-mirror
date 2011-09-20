@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellBasedTestSuite.hpp"
 #include "OutputFileHandler.hpp"
+#include "SmartPointers.hpp"
 
 class TestCellMutationStates : public AbstractCellBasedTestSuite
 {
@@ -54,7 +55,7 @@ public:
 
     void TestCellMutationStateMethods() throw(Exception)
     {
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
         p_state->IncrementCellCount();
         TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
@@ -67,8 +68,9 @@ public:
         TS_ASSERT_EQUALS(p_state->IsType<WildTypeCellMutationState>(), true);
         TS_ASSERT_EQUALS(p_state->IsType<ApcOneHitCellMutationState>(), false);
 
-        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc2_state(new ApcTwoHitCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_wt_state);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2_state);
+
         TS_ASSERT(p_wt_state->IsSame(p_state.get()));
         TS_ASSERT(p_state->IsSame(p_wt_state));
         TS_ASSERT_EQUALS(p_wt_state->IsSame(p_apc2_state.get()), false);

@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "SmartPointers.hpp"
 
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
@@ -153,8 +154,8 @@ public:
         CryptSimulation2d simulator(crypt);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -217,17 +218,16 @@ public:
        simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
        // Create a force law and pass it to the simulation
-       GeneralisedLinearSpringForce<2> linear_force;
-       simulator.AddForce(&linear_force);
+       MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+       simulator.AddForce(p_linear_force);
 
        // Create cell killer and pass in to crypt simulation.
        // They kill the first and second available cell,
        // which are attached to nodes 64 and 65 respectively.
-       TargetedCellKiller<2> cell_killer1(&crypt, 64);
-       TargetedCellKiller<2> cell_killer2(&crypt, 65);
-
-       simulator.AddCellKiller(&cell_killer1);
-       simulator.AddCellKiller(&cell_killer2);
+       MAKE_PTR_ARGS(TargetedCellKiller<2>, p_killer1, (&crypt, 64));
+       MAKE_PTR_ARGS(TargetedCellKiller<2>, p_killer2, (&crypt, 65));
+       simulator.AddCellKiller(p_killer1);
+       simulator.AddCellKiller(p_killer2);
 
        unsigned num_cells = crypt.GetNumRealCells();
 
@@ -288,9 +288,8 @@ public:
         CryptSimulation2d simulator(cell_population);
 
         // No force law passed to simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
-
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
@@ -382,12 +381,11 @@ public:
         simulator.SetOutputDirectory("Crypt2DCylindrical");
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -451,13 +449,12 @@ public:
         simulator.SetEndTime(0.6);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -558,13 +555,12 @@ public:
         simulator.SetEndTime(0.3);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -615,8 +611,8 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Memory leak (unconditional jump) without the following line.
         // The archiver assumes that a Solve has been called and simulation time has been set up properly.
@@ -679,9 +675,9 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        LinearSpringWithVariableSpringConstantsForce<2> variable_force;
-        variable_force.SetEdgeBasedSpringConstant(true);
-        simulator.AddForce(&variable_force);
+        MAKE_PTR(LinearSpringWithVariableSpringConstantsForce<2>, p_variable_force);
+        p_variable_force->SetEdgeBasedSpringConstant(true);
+        simulator.AddForce(p_variable_force);
 
         // Run simulation
         simulator.Solve();
@@ -737,12 +733,12 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -811,13 +807,12 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -954,8 +949,8 @@ public:
         simulator.SetEndTime(0.01);
 
         // Create a force law and pass it to the simulation
-        LinearSpringWithVariableSpringConstantsForce<2> variable_force;
-        simulator.AddForce(&variable_force);
+        MAKE_PTR(LinearSpringWithVariableSpringConstantsForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // If you want to visualize this use the 'notcylindrical' option
         // (it is too small for it to figure out what's happening on its own)
@@ -1049,13 +1044,12 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         simulator.Solve();
 
@@ -1098,20 +1092,19 @@ public:
         simulator.SetDt(0.001);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Test that labelling a few cells doesn't make any difference to the simulation
         // and therefore log them in the visualizer files for the next test to check.
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-        boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
+        MAKE_PTR(CellLabel, p_label);
+        MAKE_PTR(ApcOneHitCellMutationState, p_apc1);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2);
+        MAKE_PTR(BetaCateninOneHitCellMutationState, p_bcat1);
 
         simulator.rGetCellPopulation().GetCellUsingLocationIndex(57)->AddCellProperty(p_label);
         simulator.rGetCellPopulation().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
@@ -1155,13 +1148,12 @@ public:
         CryptSimulation2d simulator(crypt);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
@@ -1197,9 +1189,9 @@ public:
         CryptSimulation2d simulator(conf_crypt);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetMeinekeDivisionRestingSpringLength(0.9); // coverage
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetMeinekeDivisionRestingSpringLength(0.9); // coverage
+        simulator.AddForce(p_linear_force);
 
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
@@ -1352,13 +1344,12 @@ public:
         simulator.SetNoBirth(true);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -1402,12 +1393,12 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        RandomCellKiller<2> random_cell_killer(&crypt, 0.999996771);
-        simulator.AddCellKiller(&random_cell_killer);
+        MAKE_PTR_ARGS(RandomCellKiller<2>, p_killer, (&crypt, 0.999996771));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -1442,8 +1433,8 @@ public:
         simulator.UseJiggledBottomCells();
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Move the first cell (which should be on y=0) down a bit
         AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
@@ -1534,8 +1525,8 @@ public:
         simulator.UseJiggledBottomCells();
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -1697,8 +1688,8 @@ public:
         simulator.SetEndTime(0.01);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -1745,8 +1736,8 @@ public:
         CryptSimulation2d simulator(crypt);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         ///\todo #1453 add an killer and test the output is correct
         std::string output_directory = "TestCryptSimulation2dOutputParameters";
@@ -1806,14 +1797,13 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> killer(&(simulator.rGetCellPopulation()), crypt_length);
-
-        simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&(simulator.rGetCellPopulation()), crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         simulator.UseJiggledBottomCells();
         simulator.SetBottomCellAncestors();
@@ -1872,9 +1862,9 @@ public:
         crypt.CreateVoronoiTessellation(); // this method is normally called in a simulation loop
 
         // Create force and associate with simulation
-        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
-        linear_force.SetBetaCateninSprings(true);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(LinearSpringWithVariableSpringConstantsForce<2>, p_linear_force);
+        p_linear_force->SetBetaCateninSprings(true);
+        simulator.AddForce(p_linear_force);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
@@ -1882,7 +1872,6 @@ public:
         WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
     }
-
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

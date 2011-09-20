@@ -77,6 +77,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "NagaiHondaForce.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "SmartPointers.hpp"
 
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
@@ -144,9 +145,9 @@ public:
         simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
@@ -218,8 +219,8 @@ public:
         simulator.SetEndTime(0.1);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        NagaiHondaForce<2> nagai_honda_force;
-        simulator.AddForce(&nagai_honda_force);
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();

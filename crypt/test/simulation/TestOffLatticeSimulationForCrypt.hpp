@@ -52,6 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "StochasticWntCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 class TestOffLatticeSimulationForCrypt : public AbstractCellBasedTestSuite
 {
@@ -111,9 +112,9 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
 
         TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
 
@@ -174,7 +175,7 @@ public:
 
         // To start off with, set up all cells to be of type TRANSIT
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel();
@@ -204,15 +205,15 @@ public:
         OffLatticeSimulation<2> crypt_projection_simulator(crypt, false, false);
 
         // Create a force law and pass it to the simulation
-        CryptProjectionForce crypt_projection_force;
-        crypt_projection_simulator.AddForce(&crypt_projection_force);
+        MAKE_PTR(CryptProjectionForce, p_force);
+        crypt_projection_simulator.AddForce(p_force);
 
         // Create a radial cell killer and pass it in to the cell-based simulation
         c_vector<double,2> centre = zero_vector<double>(2);
         double crypt_radius = pow(crypt_length/a, 1.0/b);
 
-        RadialSloughingCellKiller killer(&crypt, centre, crypt_radius);
-        crypt_projection_simulator.AddCellKiller(&killer);
+        MAKE_PTR_ARGS(RadialSloughingCellKiller, p_killer, (&crypt, centre, crypt_radius));
+        crypt_projection_simulator.AddCellKiller(p_killer);
 
         // Set up the simulation
         crypt_projection_simulator.SetOutputDirectory("CryptProjectionSimulation");

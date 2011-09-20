@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 class TestPdesForOffLatticeSimulations : public AbstractCellBasedTestSuite
 {
@@ -72,7 +73,7 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Make one cell apoptotic
-        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        MAKE_PTR(ApoptoticCellProperty, p_apoptotic_state);
         cells[0]->AddCellProperty(p_apoptotic_state);
 
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);

@@ -51,49 +51,30 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::~OffLatticeSimulation()
 {
-    if (this->mDeleteCellPopulationAndCellKillersInDestructor)
-    {
-        for (typename std::vector<AbstractForce<DIM>*>::iterator force_iter = mForceCollection.begin();
-             force_iter != mForceCollection.end();
-             ++force_iter)
-        {
-            delete *force_iter;
-        }
-
-        for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator it=mBoundaryConditions.begin();
-             it != mBoundaryConditions.end();
-             ++it)
-        {
-            delete *it;
-        }
-    }
 }
 
 template<unsigned DIM>
-void OffLatticeSimulation<DIM>::AddForce(AbstractForce<DIM>* pForce)
+void OffLatticeSimulation<DIM>::AddForce(boost::shared_ptr<AbstractForce<DIM> > pForce)
 {
     mForceCollection.push_back(pForce);
 }
 
 template<unsigned DIM>
-void OffLatticeSimulation<DIM>::AddCellPopulationBoundaryCondition(AbstractCellPopulationBoundaryCondition<DIM>* pBoundaryCondition)
+void OffLatticeSimulation<DIM>::AddCellPopulationBoundaryCondition(boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > pBoundaryCondition)
 {
     mBoundaryConditions.push_back(pBoundaryCondition);
 }
 
-
 template<unsigned DIM>
 void OffLatticeSimulation<DIM>::UpdateCellLocationsAndTopology()
 {
-    /////////////////////////
-    // Calculate Forces
-    /////////////////////////
+    // Calculate forces
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::FORCE);
 
     // Initialise a vector of forces on node
     std::vector<c_vector<double, DIM> > forces(this->mrCellPopulation.GetNumNodes(), zero_vector<double>(DIM));
 
-/** TODO Is it faster to preallocate and have forces as a member variable? see #1890**/
+/**\todo Is it faster to preallocate and have forces as a member variable? see #1890**/
 //    // First set all the forces to zero
 //    for (unsigned i=0; i<forces.size(); i++)
 //    {
@@ -109,7 +90,7 @@ void OffLatticeSimulation<DIM>::UpdateCellLocationsAndTopology()
 //    }
 
     // Now add force contributions from each AbstractForce
-    for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractForce<DIM> > >::iterator iter = mForceCollection.begin();
          iter != mForceCollection.end();
          ++iter)
     {
@@ -117,9 +98,7 @@ void OffLatticeSimulation<DIM>::UpdateCellLocationsAndTopology()
     }
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::FORCE);
 
-    ////////////////////////////
     // Update node positions
-    ////////////////////////////
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::POSITION);
     UpdateNodePositions(forces);
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::POSITION);
@@ -145,7 +124,7 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
     this->mrCellPopulation.UpdateNodeLocations(rNodeForces, this->mDt);
 
     // Apply any boundary conditions
-    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator bcs_iter = mBoundaryConditions.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > >::iterator bcs_iter = mBoundaryConditions.begin();
          bcs_iter != mBoundaryConditions.end();
          ++bcs_iter)
     {
@@ -153,7 +132,7 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
     }
 
     // Verify that each boundary condition is now satisfied
-    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator bcs_iter = mBoundaryConditions.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > >::iterator bcs_iter = mBoundaryConditions.begin();
          bcs_iter != mBoundaryConditions.end();
          ++bcs_iter)
     {
@@ -238,7 +217,7 @@ void OffLatticeSimulation<DIM>::OutputAdditionalSimulationSetup(out_stream& rPar
 {
     // Loop over forces
     *rParamsFile << "\n\t<Forces>\n";
-    for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractForce<DIM> > >::iterator iter = mForceCollection.begin();
          iter != mForceCollection.end();
          ++iter)
     {
@@ -249,7 +228,7 @@ void OffLatticeSimulation<DIM>::OutputAdditionalSimulationSetup(out_stream& rPar
 
     // Loop over cell population boundary conditions
     *rParamsFile << "\n\t<CellPopulationBoundaryConditions>\n";
-    for (typename std::vector<AbstractCellPopulationBoundaryCondition<DIM>*>::iterator iter = mBoundaryConditions.begin();
+    for (typename std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > >::iterator iter = mBoundaryConditions.begin();
          iter != mBoundaryConditions.end();
          ++iter)
     {
@@ -278,9 +257,7 @@ void OffLatticeSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFi
 
     // Call method on direct parent class
     AbstractCellBasedSimulation<DIM>::OutputSimulationParameters(rParamsFile);
-
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

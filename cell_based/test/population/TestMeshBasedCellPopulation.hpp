@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "SmartPointers.hpp"
 
 class TestMeshBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -143,7 +144,7 @@ public:
         // Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -214,11 +215,11 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Bestow mutations on some cells
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(ApcOneHitCellMutationState, p_apc1);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2);
+        MAKE_PTR(BetaCateninOneHitCellMutationState, p_bcat1);
+        MAKE_PTR(CellLabel, p_label);
 
         cells[0]->SetMutationState(p_state);
         cells[1]->SetMutationState(p_apc1);
@@ -276,7 +277,7 @@ public:
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
-        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2);
         cells[9]->SetMutationState(p_apc2);
 
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -340,7 +341,7 @@ public:
         unsigned old_num_cells = cell_population.rGetCells().size();
 
         // Create a new cell, DON'T set the node index, set birth time=-1
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_cycle_model->SetCellProliferativeType(STEM);

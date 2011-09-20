@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "WntCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
@@ -108,15 +109,12 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt,
-                                                     crypt_length,
-                                                     true,
-                                                     crypt_width);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length, true, crypt_width));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -171,8 +169,8 @@ public:
         simulator.SetEndTime(1);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -237,7 +235,8 @@ public:
                 generation = 4;
                 birth_time = -1; //hours
             }
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+
+            MAKE_PTR(WildTypeCellMutationState, p_state);
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetGeneration(generation);
             p_model->SetCellProliferativeType(cell_type);
@@ -262,13 +261,12 @@ public:
         simulator.SetEndTime(40); // hours
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length, true, crypt_width);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length, true, crypt_width));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -341,12 +339,12 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -394,12 +392,12 @@ public:
         simulator.SetEndTime(24.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -454,8 +452,8 @@ public:
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             double dist_from_3_6 = sqrt((x-3)*(x-3)+(y-6)*(y-6));
 
-            boost::shared_ptr<AbstractCellMutationState> p_healthy(new WildTypeCellMutationState);
-            boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_healthy);
+            MAKE_PTR(ApcTwoHitCellMutationState, p_apc2);
             if (dist_from_3_6 < 1.1)
             {
                 cells[i]->SetMutationState(p_apc2);
@@ -480,12 +478,12 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -540,12 +538,12 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        RandomCellKiller<2> random_cell_killer(&crypt, 0.700619609);
-        simulator.AddCellKiller(&random_cell_killer);
+        MAKE_PTR_ARGS(RandomCellKiller<2>, p_killer, (&crypt,  0.700619609));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();

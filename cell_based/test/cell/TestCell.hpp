@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 class TestCell: public AbstractCellBasedTestSuite
 {
@@ -56,7 +57,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
 
         // Create a cell mutation state
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         // Create a cell-cycle model
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -88,9 +89,9 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
 
-        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-        boost::shared_ptr<AbstractCellProperty> p_label_2(new CellLabel);
-        boost::shared_ptr<AbstractCellProperty> p_apc2_mutation(new ApcTwoHitCellMutationState);
+        MAKE_PTR(CellLabel, p_label);
+        MAKE_PTR(CellLabel, p_label_2);
+        MAKE_PTR(ApcTwoHitCellMutationState, p_apc2_mutation);
 
         // Create a cell property collection (for the time being, populate with mutation states)
         CellPropertyCollection collection;

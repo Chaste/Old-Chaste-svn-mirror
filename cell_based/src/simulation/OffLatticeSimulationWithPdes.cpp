@@ -43,10 +43,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 OffLatticeSimulationWithPdes<DIM>::OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
                                                         std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
-                                                        bool deleteCellPopulationAndForceCollection,
+                                                        bool deleteCellPopulationInDestructor,
                                                         bool initialiseCells)
     : OffLatticeSimulation<DIM>(rCellPopulation,
-                               deleteCellPopulationAndForceCollection,
+                               deleteCellPopulationInDestructor,
                                initialiseCells),
       mPdeAndBcCollection(pdeAndBcCollection),
       mWriteAverageRadialPdeSolution(false),
@@ -94,9 +94,10 @@ void OffLatticeSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
 {
     for (unsigned i=0; i<this->mForceCollection.size(); i++)
     {
-        if (dynamic_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))
+        boost::shared_ptr<AbstractForce<DIM> > p_force = this->mForceCollection[i];
+        if (boost::dynamic_pointer_cast<AbstractTwoBodyInteractionForce<DIM> >(p_force))
         {
-            double cutoff = (static_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))->GetCutOffLength();
+            double cutoff = (boost::static_pointer_cast<AbstractTwoBodyInteractionForce<DIM> >(p_force))->GetCutOffLength();
             *(this->mpVizSetupFile) << "Cutoff\t" << cutoff << "\n";
         }
     }

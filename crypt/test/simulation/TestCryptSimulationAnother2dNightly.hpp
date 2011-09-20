@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "WntCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
+#include "SmartPointers.hpp"
 
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
@@ -98,13 +99,12 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, domain_height, true,domain_width);
-
-        simulator.AddCellKiller(&sloughing_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, domain_height, true, domain_width));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -138,12 +138,12 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> cell_killer(&crypt, crypt_length);
-        simulator.AddCellKiller(&cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Run simulation
         simulator.Solve();
@@ -192,8 +192,8 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> linear_force;
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Run simulation
         simulator.Solve();
@@ -259,18 +259,17 @@ public:
         // Only save results every tenth time step
         simulator.SetSamplingTimestepMultiple(10);
 
-
         // Create a force law and pass it to the simulation
-        GeneralisedLinearSpringForce<2> meineke_force;
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         // Unusual set-up here (corresponds to the Meineke crypt model parameters)
-        meineke_force.SetMeinekeSpringStiffness(30.0);
+        p_linear_force->SetMeinekeSpringStiffness(30.0);
         // Sets the MeinekeSpringGrowthDuration to be the default MPhase duration
-        meineke_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
-        simulator.AddForce(&meineke_force);
+        p_linear_force->SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
+        simulator.AddForce(p_linear_force);
 
         // Set up sloughing cell killer and pass in to simulation
-        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), crypt_length);
-        simulator.AddCellKiller(p_cell_killer);
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&(simulator.rGetCellPopulation()), crypt_length));
+        simulator.AddCellKiller(p_killer);
 
         // Unusual set-up here (corresponds to the Meineke crypt model parameters)
         simulator.UseJiggledBottomCells();
@@ -296,7 +295,6 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.parameters crypt/test/data/TestResultsFileForLongerCryptSimulation/results.parameters").c_str()), 0);
 
         // Tidy up
-        delete p_cell_killer;
         WntConcentration<2>::Destroy();
     }
 };

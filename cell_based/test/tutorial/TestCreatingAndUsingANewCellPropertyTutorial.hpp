@@ -70,6 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "SmartPointers.hpp"
 
 /*
  * == Defining the cell property class ==
@@ -277,9 +278,9 @@ public:
         simulator.SetEndTime(10.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
-        GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.SetCutOffLength(3);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(3);
+        simulator.AddForce(p_linear_force);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

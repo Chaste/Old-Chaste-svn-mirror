@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 
 /**
@@ -175,7 +176,7 @@ public:
         // Now only assign cells to real_node_indices
 
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         for (std::vector<unsigned>::iterator real_node_iter=real_node_indices.begin();
                                             real_node_iter != real_node_indices.end();
@@ -201,9 +202,9 @@ public:
         simulator.SetSamplingTimestepMultiple(12);
 
         // Create a force law and pass it to the OffLatticeSimulation
-        GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.SetCutOffLength(1.5);
-        simulator.AddForce(&linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
         simulator.Solve();
     }

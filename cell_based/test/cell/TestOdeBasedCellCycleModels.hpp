@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 /**
  * This class contains tests for methods on classes
@@ -75,7 +76,7 @@ public:
 
         TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
         CellPtr p_cell(new Cell(p_healthy_state, p_cell_model));
         p_cell->InitialiseCellCycleModel();
 
@@ -146,7 +147,7 @@ public:
         TysonNovakCellCycleModel* p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         p_cell_model2->SetCellProliferativeType(STEM);
 
-        boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
+        MAKE_PTR(ApcOneHitCellMutationState, p_mutation);
 
         CellPtr p_stem_cell_2(new Cell(p_mutation, p_cell_model2));
 
@@ -201,7 +202,7 @@ public:
         TysonNovakCellCycleModel* p_repeating_cell_model = new TysonNovakCellCycleModel;
         p_repeating_cell_model->SetCellProliferativeType(STEM);
 
-        boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
+        MAKE_PTR(ApcOneHitCellMutationState, p_mutation);
 
         CellPtr p_tyson_novak_cell(new Cell(p_mutation, p_repeating_cell_model));
         p_tyson_novak_cell->InitialiseCellCycleModel();
@@ -273,7 +274,7 @@ public:
         p_model_3d->SetCellProliferativeType(STEM);
 
         // Create cells
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         CellPtr p_cell_1d(new Cell(p_state, p_model_1d));
         p_cell_1d->InitialiseCellCycleModel();
@@ -367,7 +368,7 @@ public:
             p_model->SetCellProliferativeType(TRANSIT);
 
             p_simulation_time->IncrementTimeOneStep();
-            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
 
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
@@ -430,7 +431,7 @@ public:
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);
 
-            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            MAKE_PTR(WildTypeCellMutationState, p_state);
             CellPtr p_cell(new Cell(p_state, p_cell_model));
 
             p_cell->InitialiseCellCycleModel();

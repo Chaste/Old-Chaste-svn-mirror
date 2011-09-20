@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 #include "CryptSimulation2d.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 class TestLinearSpringWithVariableSpringConstantsForce : public AbstractCellBasedTestSuite
 {
@@ -73,12 +74,11 @@ public:
         simulator.SetOutputDirectory("TestLinearSpringWithVariableSpringConstantsForceSimulation");
         simulator.SetEndTime(0.1);
 
-        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
-
-        linear_force.SetBetaCateninSprings(true);
+        MAKE_PTR(LinearSpringWithVariableSpringConstantsForce<2>, p_linear_force);
+        p_linear_force->SetBetaCateninSprings(true);
         crypt.CreateVoronoiTessellation();  // this method is normally called in a simulation loop
 
-        simulator.AddForce(&linear_force);
+        simulator.AddForce(p_linear_force);
 
         TS_ASSERT_THROWS_THIS(simulator.Solve(), "Spring iterator tried to calculate interaction between degenerate cells on the boundary of the mesh.  Have you set ghost layers correctly?");
 
@@ -112,12 +112,12 @@ public:
         simulator.SetOutputDirectory("TestLinearSpringWithVariableSpringConstantsForceSimulation");
         simulator.SetEndTime(0.1);
 
-        LinearSpringWithVariableSpringConstantsForce<2> linear_force;
+        MAKE_PTR(LinearSpringWithVariableSpringConstantsForce<2>, p_linear_force);
 
-        linear_force.SetBetaCateninSprings(true);
+        p_linear_force->SetBetaCateninSprings(true);
         crypt.CreateVoronoiTessellation();  // this method is normally called in a simulation loop
 
-        simulator.AddForce(&linear_force);
+        simulator.AddForce(p_linear_force);
 
         simulator.Solve();
 

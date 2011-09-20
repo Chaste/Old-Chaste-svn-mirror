@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "CellwiseData.hpp"
+#include "SmartPointers.hpp"
 
 class TestMeshBasedCellPopulationWithGhostNodes : public AbstractCellBasedTestSuite
 {
@@ -456,7 +457,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(cell_population.rGetCells().size(), 70u);
 
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -905,7 +906,7 @@ public:
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         // Loop over nodes
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
@@ -965,7 +966,7 @@ public:
         // Set up cells by iterating through the nodes
         std::vector<CellPtr> cells;
         std::vector<unsigned> location_indices;
-        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         // Loop over nodes
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
