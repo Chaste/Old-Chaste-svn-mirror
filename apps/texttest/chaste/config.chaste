@@ -57,6 +57,7 @@ results_v_dat:ChasteResults/output/1dResults_V.dat
 results_v_dat:ChasteResults/output/DrugActionResults_V.dat
 results_v_dat:ChasteResults/output/3dResults_V.dat
 results_v_dat:ChasteResults/output/BathResults_V.dat
+results_v_dat:ChasteResults/output/CheckpointingResults_V.dat
 results_phi_e_dat:ChasteResults/output/SimulationResults_Phi_e.dat
 results_phi_e_dat:ChasteResults/output/BathResults_Phi_e.dat
 results_phi_e_dat:ChasteResults/output/3dResults_Phi_e.dat
