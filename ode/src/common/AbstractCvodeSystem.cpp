@@ -246,6 +246,7 @@ void AbstractCvodeSystem::SetupCvode(N_Vector initialConditions,
     if (mMaxSteps > 0)
     {
         CVodeSetMaxNumSteps(mpCvodeMem, mMaxSteps);
+        CVodeSetMaxErrTestFails(mpCvodeMem, 15);
     }
     // Attach a linear solver for Newton iteration
     CVDense(mpCvodeMem, NV_LENGTH_S(initialConditions));
