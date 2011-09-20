@@ -69,10 +69,8 @@ private:
     /**
      * Save the RandomNumberGenerator and its member variables.
      *
-     * Serialization of a RandomNumberGenerator object must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * @note do not serialize this singleton directly.  Instead, serialize
+     * the object returned by GetSerializationWrapper().
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -80,7 +78,6 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        // Note, version is always the latest when saving
         archive & mSeed;
         archive & mTimesCalled;
         archive & mUseLastNum;
@@ -90,10 +87,8 @@ private:
     /**
      * Load the RandomNumberGenerator and its member variables.
      *
-     * Serialization of a RandomNumberGenerator object must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * @note do not serialize this singleton directly.  Instead, serialize
+     * the object returned by GetSerializationWrapper().
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -112,10 +107,6 @@ private:
         /*
          * Call it the correct number of times to put it in the same state
          * as it used to be.
-         * 
-         * Note: This is only guaranteed to work if Normal random deviates
-         * are not used, since the methods to generate numbers from a normal
-         * distribution use static variables.
          */
         for (long unsigned i=0; i<mTimesCalled; i++)
         {

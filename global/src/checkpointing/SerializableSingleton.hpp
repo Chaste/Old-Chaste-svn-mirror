@@ -112,8 +112,10 @@ private:
         archive & p_instance;
 
         // To avoid a memory leak, we now need to delete this (temporary) wrapper, and
-        // tell the archive that it should be using the instance's instead.
-        archive.reset_object_address(p_instance->GetSerializationWrapper(), this);
+        // ideally tell the archive that it should be using the instance's instead.
+        // Unfortunately reset_object_address doesn't work from within load(), so we
+        // just create a new wrapper each time; not too bad.
+        //archive.reset_object_address(p_instance->GetSerializationWrapper(), this);
         delete this;
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()

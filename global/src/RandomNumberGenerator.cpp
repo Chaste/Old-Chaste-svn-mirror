@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -45,6 +46,7 @@ RandomNumberGenerator::RandomNumberGenerator()
       mRandNum2(0),
       mUseLastNum(false)
 {
+    assert(mpInstance == NULL); // Ensure correct serialization
     srandom(mSeed);
 }
 

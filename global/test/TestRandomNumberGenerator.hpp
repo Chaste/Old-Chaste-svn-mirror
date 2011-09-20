@@ -35,7 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "UblasCustomFunctions.hpp" // use a c_matrix for a bit of storage
+// We use a c_matrix for a bit of storage.  It's rather naughty using a linalg header
+// here, but since it doesn't have a corresponding .cpp file we get away with it!
+#include "UblasMatrixInclude.hpp"
 
 class TestRandomNumberGenerator : public CxxTest::TestSuite
 {
@@ -111,6 +113,12 @@ public:
             SerializableSingleton<RandomNumberGenerator>* const p_wrapper = p_gen->GetSerializationWrapper();
             output_arch << p_wrapper;
 
+            // Make sure saving it twice gets the same instance
+            {
+                SerializableSingleton<RandomNumberGenerator>* const p_wrapper = p_gen->GetSerializationWrapper();
+                output_arch << p_wrapper;
+            }
+
             // Generator saved here - record the next 10 numbers
             for (unsigned i=0; i<10; i++)
             {
@@ -144,8 +152,22 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            SerializableSingleton<RandomNumberGenerator>* p_wrapper;
-            input_arch >> p_wrapper;
+            SerializableSingleton<RandomNumberGenerator>* p_orig_wrapper = p_gen->GetSerializationWrapper();
+            {
+                SerializableSingleton<RandomNumberGenerator>* p_wrapper;
+                input_arch >> p_wrapper;
+                TS_ASSERT_DIFFERS(p_wrapper, p_gen->GetSerializationWrapper());
+                TS_ASSERT_EQUALS(p_orig_wrapper, p_gen->GetSerializationWrapper());
+                TS_ASSERT_EQUALS(p_gen, RandomNumberGenerator::Instance());
+            }
+
+            {
+                SerializableSingleton<RandomNumberGenerator>* p_wrapper;
+                input_arch >> p_wrapper;
+                TS_ASSERT_DIFFERS(p_wrapper, p_gen->GetSerializationWrapper());
+                TS_ASSERT_EQUALS(p_orig_wrapper, p_gen->GetSerializationWrapper());
+                TS_ASSERT_EQUALS(p_gen, RandomNumberGenerator::Instance());
+            }
 
             /*
              * Random Number generator restored.
