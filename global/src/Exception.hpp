@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <string>
 #include <sstream>
-#include <iostream> // For std::cout in MPIABORTIFNON0
 #include <cfloat>
 #include <climits> // For UINT_MAX etc., necessary in gcc-4.3
 #include <cstdlib> // For system() etc., necessary in gcc-4.3
@@ -102,6 +101,16 @@ public:
      */
     std::string CheckShortMessageContains(std::string expected) const;
 
+    /**
+     * Level 4 error (Termination).  Execution cannot continue from this point and hence
+     * should be terminated (even when running with NDEBUG or in parallel).
+     *
+     * @param rMessage An error message to appear on the screen
+     * @param rFilename  which source file produced the termination error
+     * @param lineNumber  which line number of the source file produced the termination error
+     */
+    static void Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber);
+
 protected:
     /**
      * Allow subclasses to reset the exception message after construction of the base class,
@@ -142,6 +151,48 @@ private:
 #define EXCEPT_IF_NOT(test) \
     if (!(test)) EXCEPTION("Assertion tripped: " BOOST_PP_STRINGIZE(test))
 
+
+/**
+ * Terminate execution safely, even when running in parallel.  Use for level 4 errors:
+ * execution cannot continue from this point and hence should be terminated (even when running with NDEBUG).
+ *
+ * @param message  explanatory message
+ */
+#define TERMINATE(message) Exception::Terminate(message, __FILE__, __LINE__)
+
+/**
+ * Use for control paths that will never be executed, just to make sure they aren't.
+ *
+ * The exit statement at the end of NEVER_REACHED is not really needed but prevents g++ from complaining about
+ * uninitialised variables when you have code that looks like:
+ *
+ * \code
+ *   RelativeTo::Value relative_to;
+ *   switch (rPath.relative_to())
+ *   {
+ *       case cp::relative_to_type::cwd:
+ *           relative_to = RelativeTo::CWD;
+ *           break;
+ *       case cp::relative_to_type::chaste_test_output:
+ *           relative_to = RelativeTo::ChasteTestOutput;
+ *           break;
+ *       case cp::relative_to_type::chaste_source_root:
+ *           relative_to = RelativeTo::ChasteSourceRoot;
+ *           break;
+ *       case cp::relative_to_type::absolute:
+ *           relative_to = RelativeTo::Absolute;
+ *           break;
+ *       default:
+ *           NEVER_REACHED;
+ *           break;
+ *   }
+ * \endcode
+ *
+ * relative_to is considered potentially uninitialised in the default branch unless the compiler finds a exit,
+ * assert or throw statement.
+ */
+#define NEVER_REACHED  TERMINATE("Should have been impossible to reach this line of code"); exit(EXIT_FAILURE)
+
 /**
  * This is to cope with NDEBUG causing variables to not be used, when they are only
  * used in assert()s.
@@ -181,8 +232,7 @@ private:
  */
 #define MPI_ABORT_IF_NON0_WITH_MSG(retcode, msg)     \
     if (retcode != 0) {                              \
-        std::cerr << msg << std::endl << std::flush; \
-        MPI_Abort(PETSC_COMM_WORLD, -1);             \
+    	TERMINATE(msg);                              \
     }
 
 /**

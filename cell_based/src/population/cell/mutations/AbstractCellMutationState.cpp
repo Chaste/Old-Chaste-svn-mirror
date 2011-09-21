@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellMutationState.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 AbstractCellMutationState::AbstractCellMutationState()
 {

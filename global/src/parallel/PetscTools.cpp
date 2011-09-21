@@ -386,28 +386,8 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 }
 #endif //SPECIAL_SERIAL (ifndef)
 
-#define COVERAGE_IGNORE //Termination NEVER EVER happens under normal testing conditions.
+
 void PetscTools::Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
 {
-    std::stringstream error_message;
-
-    error_message<<"\nChaste termination: " << rFilename << ":" << lineNumber  << ": " << rMessage<<"\n";
-    std::cerr<<error_message.str();
-
-    /*
-     * Double check for PETSc. We could use mPetscIsInitialised, but only if we
-     * are certain that the PetscTools class has been used previously.
-     */
-    PetscTruth is_there;
-    PetscInitialized(&is_there);
-    if (is_there)
-    {
-        MPI_Abort(PETSC_COMM_WORLD, EXIT_FAILURE);
-    }
-    else
-    {
-        exit(EXIT_FAILURE);
-    }
+	Exception::Terminate(rMessage, rFilename, lineNumber);
 }
-
-#undef COVERAGE_IGNORE // Termination NEVER EVER happens under normal testing conditions

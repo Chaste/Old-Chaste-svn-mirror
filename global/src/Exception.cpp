@@ -26,7 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <sstream>
+#include <iostream>
+#include <petsc.h>
 
 #include "Exception.hpp"
 //#include "LogFile.hpp"
@@ -82,3 +83,28 @@ std::string Exception::CheckShortMessageContains(std::string expected) const
     }
     return error;
 }
+
+#define COVERAGE_IGNORE //Termination NEVER EVER happens under normal testing conditions.
+void Exception::Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
+{
+    std::stringstream error_message;
+
+    error_message << "\nChaste termination: " << rFilename << ":" << lineNumber  << ": " << rMessage<<"\n";
+    std::cerr << error_message.str();
+
+    /*
+     * Check if we're running in parallel.
+     */
+    PetscTruth is_there;
+    PetscInitialized(&is_there);
+    if (is_there)
+    {
+        MPI_Abort(PETSC_COMM_WORLD, EXIT_FAILURE);
+    }
+    else
+    {
+        exit(EXIT_FAILURE);
+    }
+}
+
+#undef COVERAGE_IGNORE // Termination NEVER EVER happens under normal testing conditions
