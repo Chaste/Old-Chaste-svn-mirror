@@ -855,6 +855,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
             {
                 T attribute;
                 buffer_stream >> attribute;
+                if (buffer_stream.fail())
+                {
+                    EXCEPTION("Error in reading attributes in one of the files in " << mFilesBaseName);
+                }
                 rAttributes.push_back(attribute);
             }
         }

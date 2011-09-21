@@ -734,6 +734,27 @@ public:
             }
         }
     }
+
+    void TestReadingMissingAttributes() throw(Exception)
+    {
+        // The reader immediately reads and caches face data so missing attributes
+        // immediately cause an Exception to be thrown
+        TS_ASSERT_THROWS_CONTAINS(READER_2D mesh_reader("mesh/test/data/baddata/canonical_triangle_missing_edge_attribute"),"Error in reading attributes");
+
+        // The reader doesn't read node data until GetNextNode() is called
+        READER_2D mesh_reader("mesh/test/data/baddata/canonical_triangle_missing_node_attribute");
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 3u);
+
+        // Read the data for the first node successfully
+        mesh_reader.GetNextNode();
+        TS_ASSERT_EQUALS(mesh_reader.GetNodeAttributes().size(), 2u);
+        TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[0], 8.234, 1e-6);
+        TS_ASSERT_DELTA(mesh_reader.GetNodeAttributes()[1], 25.4,  1e-6);
+
+        // The second node has a missing attribute
+        TS_ASSERT_THROWS_CONTAINS(mesh_reader.GetNextNode(),"Error in reading attributes");
+    }
+
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

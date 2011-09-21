@@ -84,12 +84,6 @@ protected:
     AbstractTimeAdaptivityController* mpTimeAdaptivityController;
 
     /**
-     * Flag to say if we need to output to Meshalyzer.
-     * Defaults to false in the constructor.
-     */
-    bool mOutputToMeshalyzer;
-
-    /**
      * Flag to say if we need to output to VTK.
      * Defaults to false in the constructor.
      */
@@ -188,11 +182,6 @@ public:
     void SetTimeAdaptivityController(AbstractTimeAdaptivityController* pTimeAdaptivityController);
 
     /**
-     * @param output whether to output to Meshalyzer files
-     */
-    void SetOutputToMeshalyzer(bool output);
-
-    /**
      * @param output whether to output to VTK (.vtu) file
      */
     void SetOutputToVtk(bool output);
@@ -241,9 +230,10 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Initia
 	unsigned estimated_num_printing_timesteps = 1u + (unsigned)((mTend - mTstart)/(mIdealTimeStep*mPrintingTimestepMultiple));
 
 	/**
-	 * \todo allow user to specify units of time and names and units of
-	 * dependent variables using DefineVariable() and DefineUnlimitedDimension()
-	 * (#1841)
+	 * Note: For now, writing variable names as 'Variable_0' etc; in the future,
+	 * could allow user to specify units of time and names and units of
+	 * dependent variables to be passed to the writer using DefineVariable() and
+	 * DefineUnlimitedDimension()
 	 */
 	assert(mVariableColumnIds.empty());
 	for (unsigned i=0; i<PROBLEM_DIM; i++)
@@ -268,7 +258,6 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractDyn
       mIdealTimeStep(-1.0),
       mLastWorkingTimeStep(-1),
       mpTimeAdaptivityController(NULL),
-      mOutputToMeshalyzer(false),
       mOutputToVtk(false),
       mOutputToParallelVtk(false),
       mOutputToTxt(false),
@@ -343,7 +332,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 	}
 
 	// If required, initialise HDF5 writer and output initial condition to HDF5 file
-	bool print_output = (mOutputToMeshalyzer || mOutputToVtk || mOutputToParallelVtk || mOutputToTxt);
+	bool print_output = (mOutputToVtk || mOutputToParallelVtk || mOutputToTxt);
 	if (print_output)
 	{
 		InitialiseHdf5Writer();
@@ -447,7 +436,7 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
         solution = next_solution;
 
         // If required, output next solution to HDF5 file
-        if (print_output)
+        if (print_output && (stepper.GetTotalTimeStepsTaken()%mPrintingTimestepMultiple == 0) )
         {
         	WriteOneStep(stepper.GetTime(), solution);
             mpHdf5Writer->AdvanceAlongUnlimitedDimension();
@@ -463,11 +452,6 @@ Vec AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve()
 
     // Convert HDF5 output to other formats as required
 
-///\todo allow output to Meshalyzer (#1841)
-//	if (mOutputToMeshalyzer)
-//    {
-//        Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, mpMesh);
-//    }
     if (mOutputToVtk)
     {
         Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(mOutputDirectory, mFilenamePrefix, this->mpMesh, false, false);
@@ -496,12 +480,6 @@ void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetTim
     assert(pTimeAdaptivityController != NULL);
     assert(mpTimeAdaptivityController == NULL);
     mpTimeAdaptivityController = pTimeAdaptivityController;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetOutputToMeshalyzer(bool output)
-{
-	mOutputToMeshalyzer = output;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

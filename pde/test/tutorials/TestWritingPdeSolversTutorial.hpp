@@ -483,7 +483,7 @@ public:
          * one file for each variable and for each time, so for example, the file
          * results_Variable_0_10 is the results for u, over all nodes, at the 11th printed time.
          * Have a look in the output directory after running the test. (Note: The HDF5 data can also be
-         * converted to meshalyzer, VTK or cmgui formats).
+         * converted to VTK or cmgui formats).
          */
         solver.SetOutputToTxt(true);
         solver.SetPrintingTimestepMultiple(10);

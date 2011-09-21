@@ -294,17 +294,11 @@ public:
         // Write output to HDF5, then to VTK
         solver.SetOutputToVtk(true);
 
-        // Write output to HDF5, then to Meshalyzer
-        solver.SetOutputToMeshalyzer(true);
-
         // Write output to HDF5, then to parallel VTK (.pvtu)
         solver.SetOutputToParallelVtk(true);
 
         // Write output to HDF5, then to a .txt format that is readable by Matlab
         solver.SetOutputToTxt(true);
-
-        // Output results every second timestep
-        solver.SetPrintingTimestepMultiple(2);
 
         // Coverage of exception handling
 		TS_ASSERT_THROWS_THIS(solver.Solve(),"Output directory or filename prefix has not been set");
@@ -334,12 +328,9 @@ public:
 
         // Test that there is a .vtu file
 #ifdef CHASTE_VTK
-        ///\todo Test the file is correct (#1841)
         FileFinder vtk_file = file_handler.FindFile("vtk_output/results.vtu");
         TS_ASSERT(vtk_file.Exists());
 #endif //CHASTE_VTK
-        ///\todo  Test that there is an .pvtu file (#1841)        
-        ///\todo Test that there are Meshalyzer files (#1841)
 
         // Test that there are .txt files
         for (unsigned timestep=0; timestep<101; timestep++)
@@ -728,6 +719,10 @@ public:
         solver.SetTimes(0, t_end);
         solver.SetTimeStep(0.01);
 
+        solver.SetOutputDirectoryAndPrefix("HeatEquation","results");
+        solver.SetOutputToTxt(true);
+        solver.SetPrintingTimestepMultiple(20);
+
         // Set initial condition
         Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
         solver.SetInitialCondition(initial_condition);
@@ -741,6 +736,18 @@ public:
         {
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0001);
         }
+
+        FileFinder finder1("HeatEquation/txt_output/results_Variable_0_0.txt", RelativeTo::ChasteTestOutput);
+        TS_ASSERT_EQUALS(finder1.Exists(), true);
+
+        FileFinder finder2("HeatEquation/txt_output/results_Variable_0_5.txt", RelativeTo::ChasteTestOutput);
+        TS_ASSERT_EQUALS(finder2.Exists(), true);
+
+        FileFinder finder3("HeatEquation/txt_output/results_Variable_0_6.txt", RelativeTo::ChasteTestOutput);
+        TS_ASSERT_EQUALS(finder3.Exists(), false);
+
+        FileFinder finder4("HeatEquation/txt_output/results_Variable_0_100.txt", RelativeTo::ChasteTestOutput);
+        TS_ASSERT_EQUALS(finder4.Exists(), false);
 
         // Tidy up
         VecDestroy(initial_condition);

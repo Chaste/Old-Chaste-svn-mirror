@@ -346,7 +346,7 @@ public:
          * so for example, the file
          * results_Variable_0_10 is the results for u, over all nodes, at the 11th printed time.
          * Have a look in the output directory after running the test. (Note: The HDF5 data can also be
-         * converted to meshalyzer, VTK or cmgui formats). (For comments in visualising the data in
+         * converted to VTK or cmgui formats). (For comments in visualising the data in
          * matlab or octave, see the end of the tutorial UserTutorials/WritingPdeSolvers)
          */
         solver.SetOutputToTxt(true);
