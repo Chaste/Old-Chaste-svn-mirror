@@ -445,7 +445,7 @@ cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/archive.
             {
                 std::string prev_results_path = rDirToCopyFrom.GetAbsolutePath() + "simulation.h5";
                 std::string new_path = handler2.GetOutputDirectoryFullPath() + "simulation.h5";
-                MPIABORTIFNON0(system, "cp " + prev_results_path + " " + new_path);
+                ABORT_IF_NON0(system, "cp " + prev_results_path + " " + new_path);
             }
         }
     }
@@ -1209,7 +1209,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
         if (PetscTools::AmMaster())
         {
             std::string path = handler.GetOutputDirectoryFullPath();
-            MPIABORTIFNON0(system, "cp " + path + "simulation.h5 " + path + "archive/");
+            ABORT_IF_NON0(system, "cp " + path + "simulation.h5 " + path + "archive/");
         }
     }
 

@@ -121,7 +121,7 @@ private:
     {
         if (PetscTools::AmMaster())
         {
-            MPIABORTIFNON0(system, "rm " + rFile.GetAbsolutePath()); // Make sure the conversion is re-run
+            ABORT_IF_NON0(system, "rm " + rFile.GetAbsolutePath()); // Make sure the conversion is re-run
         }
         PetscTools::Barrier("TestCellmlConverter_DeleteFile");
     }
@@ -323,7 +323,7 @@ public:
         if (PetscTools::AmMaster())
         {
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            MPIABORTIFNON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+            ABORT_IF_NON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestArchiving_cp");
 

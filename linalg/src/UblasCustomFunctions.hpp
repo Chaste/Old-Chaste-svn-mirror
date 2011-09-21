@@ -51,7 +51,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "MathsCustomFunctions.hpp"
-#include "PetscTools.hpp"
 
 using namespace boost::numeric::ublas;
 

@@ -183,7 +183,7 @@ public:
                                           + OutputFileHandler::GetChasteTestOutputDirectory() + archive_dir_current + "/" + files[i] + ".dat";
 
                     // If we are in an PetscTools::AmMaster() block we need to use this instead of EXPECT0.
-                    MPIABORTIFNON0(system, command);
+                    ABORT_IF_NON0(system, command);
                 }
             }
             PetscTools::Barrier();

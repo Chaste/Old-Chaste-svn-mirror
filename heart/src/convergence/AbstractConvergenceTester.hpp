@@ -605,7 +605,7 @@ public:
             p_conv_info_file->close();
 
             std::cout << "Results: " << std::endl;
-            MPIABORTIFNON0(system, "cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv");
+            ABORT_IF_NON0(system, "cat " + conv_info_handler.GetOutputDirectoryFullPath() + nameOfTest + "_info.csv");
         }
 
     }

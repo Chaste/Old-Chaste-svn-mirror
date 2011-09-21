@@ -107,7 +107,7 @@ private:
 
                     if (PetscTools::AmMaster())
                     {
-                        MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                        ABORT_IF_NON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
                     }
                     PetscTools::Barrier();
                     break;
@@ -121,7 +121,7 @@ private:
 
                     if (PetscTools::AmMaster())
                     {
-                        MPIABORTIFNON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
+                        ABORT_IF_NON0(system,"cp " + source_file.GetAbsolutePath() + " " + dest_file.GetAbsolutePath());
                     }
                     PetscTools::Barrier();
 

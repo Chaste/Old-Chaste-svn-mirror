@@ -64,7 +64,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         {
             // Remove whatever was there before
             // Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
-            MPIABORTIFNON0(system, "rm -rf " + mDirectory + "/*");
+            ABORT_IF_NON0(system, "rm -rf " + mDirectory + "/*");
         }
         // Wait for master to finish before going on to use the directory.
         PetscTools::Barrier("OutputFileHandler");
@@ -116,7 +116,7 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
         if (return_value!=0)
         {
             // We make as many folders as necessary here
-            MPIABORTIFNON0(system, "mkdir -p " + directory_root);
+            ABORT_IF_NON0(system, "mkdir -p " + directory_root);
         }
 
         // Now make all the sub-folders requested one-by-one and add the .chaste_deletable_folder file to them
@@ -135,10 +135,10 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
             if (return_value!=0)
             {
                 // We make only the next folder here
-                MPIABORTIFNON0(system, "mkdir -p " + directory_root + directory_to_add);
+                ABORT_IF_NON0(system, "mkdir -p " + directory_root + directory_to_add);
 
                 // Put the Chaste signature file into this folder
-                MPIABORTIFNON0(system, "touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
+                ABORT_IF_NON0(system, "touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
             }
         }
     }
@@ -198,7 +198,7 @@ FileFinder OutputFileHandler::CopyFileTo(const FileFinder& rSourceFile) const
     }
     if (PetscTools::AmMaster())
     {
-        MPIABORTIFNON0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + GetOutputDirectoryFullPath());
+        ABORT_IF_NON0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + GetOutputDirectoryFullPath());
     }
     PetscTools::Barrier("OutputFileHandler::CopyFileTo");
     return FindFile(rSourceFile.GetLeafName());

@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MixedDimensionMesh.hpp"
+#include "Exception.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::MixedDimensionMesh(DistributedTetrahedralMeshPartitionType::type partitioningMethod)

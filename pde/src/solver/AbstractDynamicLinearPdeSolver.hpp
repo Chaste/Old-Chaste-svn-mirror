@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTDYNAMICLINEARPDESOLVER_HPP_
 #define ABSTRACTDYNAMICLINEARPDESOLVER_HPP_
 
+#include "Exception.hpp"
 #include "TimeStepper.hpp"
 #include "AbstractLinearPdeSolver.hpp"
 #include "PdeSimulationTime.hpp"

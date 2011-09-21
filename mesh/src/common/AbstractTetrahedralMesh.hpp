@@ -147,7 +147,7 @@ private:
 
                 if (PetscTools::AmMaster())
                 {
-                    MPIABORTIFNON0(system, cp_command.str());
+                    ABORT_IF_NON0(system, cp_command.str());
                 }
             }
             else

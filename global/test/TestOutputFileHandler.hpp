@@ -104,7 +104,7 @@ public:
         OutputFileHandler handler4("whatever");
         if (PetscTools::AmMaster())
         {
-            MPIABORTIFNON0(system, "rm -rf testoutput/whatever");
+            ABORT_IF_NON0(system, "rm -rf testoutput/whatever");
         }
 
         // Check this folder is not present
@@ -121,7 +121,7 @@ public:
         // Erase it
         if (PetscTools::AmMaster())
         {
-            MPIABORTIFNON0(system, "rm -rf somewhere_without_trailing_forward_slash");
+            ABORT_IF_NON0(system, "rm -rf somewhere_without_trailing_forward_slash");
         }
 
         // Reset the location of CHASTE_TEST_OUTPUT

@@ -146,7 +146,7 @@ private:
                 OutputFileHandler partial_output_dir_handler(HeartConfig::Instance()->GetOutputDirectory(), false);
                 if (PetscTools::AmMaster())
                 {
-                    MPIABORTIFNON0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());
+                    ABORT_IF_NON0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());
                 }
 
                 // Create an XML file to help in resuming

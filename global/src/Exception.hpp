@@ -211,7 +211,7 @@ private:
  * @note DO NOT use this macro within an if (PetscTools::AmMaster) block, as then you'll
  * get deadlock if an exception is thrown when running in parallel!
  * (Unless the block is wrapped in a try-catch and exception replication handler.)
- * Instead, use MPIABORTIFNON0.
+ * Instead, use ABORT_IF_NON0.
  *
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
@@ -226,25 +226,29 @@ private:
 
 /**
  * Handy for calling functions like system which return non-zero on error.
- * MPI_Abort if the return code is non-zero, printing a message to stderr.
+ * Terminate if the return code is non-zero, printing a suitable message.
  * @param retcode  command return code
  * @param msg  error message to display
  */
-#define MPI_ABORT_IF_NON0_WITH_MSG(retcode, msg)     \
-    if (retcode != 0) {                              \
-    	TERMINATE(msg);                              \
+#define ABORT_IF_NON0_WITH_MSG(retcode, msg)     \
+    if (retcode != 0) {                          \
+    	TERMINATE(msg);                          \
     }
 
 /**
  * Handy for calling functions like system which return non-zero on error.
- * MPI_Abort if an error occurs.
+ * Terminate if an error occurs.
+ *
+ * This macro should be used instead of EXPECT0 within blocks that are only
+ * executed by one process, but need to kill all processes if an error occurs.
+ *
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */
-#define MPIABORTIFNON0(cmd, arg) { \
-    std::string _arg(arg);         \
-    int ret = cmd(_arg.c_str());   \
-    MPI_ABORT_IF_NON0_WITH_MSG(ret, "Error executing command: " #cmd "(" + _arg + ")") \
+#define ABORT_IF_NON0(cmd, arg) { \
+    std::string _arg(arg);        \
+    int ret = cmd(_arg.c_str());  \
+    ABORT_IF_NON0_WITH_MSG(ret, "Error executing command: " #cmd "(" + _arg + ")") \
     }
 
 /**
@@ -253,10 +257,10 @@ private:
  * @param cmd  command to call
  * @param arg  its argument (will be converted to std::string)
  */
-#define EXPECTNON0(cmd, arg) {   \
-    std::string _arg = (arg);    \
-    int ret = cmd(_arg.c_str()); \
-    if (ret == 0) {              \
+#define EXPECT_NON0(cmd, arg) {   \
+    std::string _arg = (arg);     \
+    int ret = cmd(_arg.c_str());  \
+    if (ret == 0) {               \
         EXCEPTION("Command: " #cmd "(" + _arg + ") succeeded and it shouldn't have"); \
     } }
 

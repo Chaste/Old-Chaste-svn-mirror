@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractMesh.hpp"
+#include "Exception.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation

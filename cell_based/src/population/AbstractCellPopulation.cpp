@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellPopulation.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells,
