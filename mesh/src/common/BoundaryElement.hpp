@@ -41,6 +41,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BoundaryElement : public AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>
 {
+protected:
+    /**
+     *  (Protected) constructor that does take in nodes. Only available
+     *  to subclasses. Calling code should use one of the other constructors.
+     */
+    BoundaryElement();
+
 public:
 
     /**

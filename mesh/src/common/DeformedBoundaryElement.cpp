@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 DeformedBoundaryElement<ELEM_DIM,SPACE_DIM>::DeformedBoundaryElement()
-    : Element<ELEM_DIM,SPACE_DIM>()
+    : BoundaryElement<ELEM_DIM,SPACE_DIM>()
 {
     assert(ELEM_DIM>0 && ELEM_DIM<3);
     assert(ELEM_DIM+1==SPACE_DIM);

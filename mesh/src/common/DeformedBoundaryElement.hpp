@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  across the element.
  */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class DeformedBoundaryElement : public Element<ELEM_DIM,SPACE_DIM>
+class DeformedBoundaryElement : public BoundaryElement<ELEM_DIM,SPACE_DIM>
 {
 private:
     /** Number of nodes (or actually, vertices) per boundary element. */

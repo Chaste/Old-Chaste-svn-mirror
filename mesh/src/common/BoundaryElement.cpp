@@ -35,6 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement()
+    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>()
+{
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
     : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
