@@ -135,6 +135,15 @@ private:
         return our_stats.st_mode;
     }
 
+    std::string mArchivingDirName;
+    FileFinder mArchivingModel;
+    void SaveSoForArchivingTest(FileFinder& rSoFile)
+    {
+        mArchivingDirName = "TestDynamicallyLoadedCellModelsArchiving";
+        OutputFileHandler handler(mArchivingDirName);
+        mArchivingModel = handler.CopyFileTo(rSoFile);
+    }
+
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
@@ -168,70 +177,6 @@ public:
                                   "Failed to load cell creation function from .so file");
     }
 
-    void TestCellmlConverterWithOptions() throw(Exception)
-    {
-        // Copy CellML file into output dir
-        std::string dirname = "TestCellmlConverterWithOptions";
-        std::string model = "LuoRudy1991";
-        OutputFileHandler handler(dirname + "/plain");
-        FileFinder cellml_file("heart/src/odes/cellml/" + model + ".cellml", RelativeTo::ChasteSourceRoot);
-        FileFinder copied_file = handler.CopyFileTo(cellml_file);
-
-        // Do the conversions preserving generated sources
-        CellMLToSharedLibraryConverter converter(true);
-
-        // Create options file & convert
-        std::vector<std::string> args;
-        args.push_back("--opt");
-        converter.CreateOptionsFile(handler, model, args);
-        DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
-        RunLr91Test(*p_loader, 0u, true, 0.01); // Implementation of lookup tables has improved...
-        // Check the sources exist
-        TS_ASSERT(handler.FindFile(model + ".cpp").Exists());
-        TS_ASSERT(handler.FindFile(model + ".hpp").Exists());
-
-        {
-            // Backward Euler
-            args[0] = "--backward-euler";
-            OutputFileHandler handler2(dirname + "/BE");
-            FileFinder copied_file2 = handler2.CopyFileTo(cellml_file);
-            FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
-            handler2.CopyFileTo(maple_output_file);
-            converter.CreateOptionsFile(handler2, model, args);
-            p_loader = converter.Convert(copied_file2);
-            RunLr91Test(*p_loader, 0u, true, 0.3);
-        }
-//        {
-//            // With a for_model section
-//            args[0] = "--opt";
-//            OutputFileHandler handler3(dirname + "/O");
-//            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
-//            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
-//                    + "<var type='config-name'>transmembrane_potential</var>"
-//                    + "<max>69.9999</max>"
-//                    + "</lookup_table></lookup_tables></for_model>\n";
-//            converter.CreateOptionsFile(handler3, model, args, for_model);
-//            p_loader = converter.Convert(copied_file3);
-//            RunLr91Test(*p_loader, 0u, true, 1e-2, 70);
-//        }
-#ifdef CHASTE_CVODE
-        {
-            // With a for_model section and Cvode
-            args[0] = "--opt";
-            args.push_back("--cvode");
-            OutputFileHandler handler3(dirname + "/CO");
-            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
-            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
-                    + "<var type='config-name'>transmembrane_potential</var>"
-                    + "<max>69.9999</max>"
-                    + "</lookup_table></lookup_tables></for_model>\n";
-            converter.CreateOptionsFile(handler3, model, args, for_model);
-            p_loader = converter.Convert(copied_file3);
-            RunLr91Test(*p_loader, 0u, true, 1, 70); // Large tolerance due to different ODE solver
-        }
-#endif
-    }
-
     void TestCellmlConverter() throw(Exception)
     {
         // Copy CellML file into output dir
@@ -247,6 +192,7 @@ public:
         FileFinder so_file(dirname + "/libluo_rudy_1991_dyn.so", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!so_file.Exists());
         DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
+        SaveSoForArchivingTest(so_file);
         TS_ASSERT(so_file.Exists());
         TS_ASSERT(so_file.IsNewerThan(cellml_file));
         // Converting a .so should be a "no-op"
@@ -274,17 +220,12 @@ public:
         TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
                               + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
 
-        // Ensure that conversion works if CWD != ChasteSourceRoot
-        EXPECT0(chdir, "heart");
         DeleteFile(so_file);
         TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file, false),
                               "Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
-        converter.Convert(cellml_file);
-        EXPECT0(chdir, "..");
 
         // This one is tricky!
         mode_t old_mode = ResetMode(cellml_file, 0);
-        DeleteFile(so_file);
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
                                   "Conversion of CellML to Chaste shared object failed.");
         ResetMode(cellml_file, old_mode);
@@ -314,31 +255,73 @@ public:
         }
     }
 
+    void TestCellmlConverterWithOptions() throw(Exception)
+    {
+        // Copy CellML file into output dir
+        std::string dirname = "TestCellmlConverterWithOptions";
+        std::string model = "LuoRudy1991";
+        OutputFileHandler handler(dirname + "/plain");
+        FileFinder cellml_file("heart/src/odes/cellml/" + model + ".cellml", RelativeTo::ChasteSourceRoot);
+        FileFinder copied_file = handler.CopyFileTo(cellml_file);
+
+        // Do the conversions preserving generated sources
+        CellMLToSharedLibraryConverter converter(true);
+
+        // Create options file & convert
+        std::vector<std::string> args;
+        args.push_back("--opt");
+        converter.CreateOptionsFile(handler, model, args);
+        // Ensure that conversion works if CWD != ChasteSourceRoot
+        EXPECT0(chdir, "heart");
+        DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
+        EXPECT0(chdir, "..");
+        RunLr91Test(*p_loader, 0u, true, 0.01); // Implementation of lookup tables has improved...
+        // Check the sources exist
+        TS_ASSERT(handler.FindFile(model + ".cpp").Exists());
+        TS_ASSERT(handler.FindFile(model + ".hpp").Exists());
+
+        {
+            // Backward Euler
+            args[0] = "--backward-euler";
+            OutputFileHandler handler2(dirname + "/BE");
+            FileFinder copied_file2 = handler2.CopyFileTo(cellml_file);
+            FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
+            handler2.CopyFileTo(maple_output_file);
+            converter.CreateOptionsFile(handler2, model, args);
+            p_loader = converter.Convert(copied_file2);
+            RunLr91Test(*p_loader, 0u, true, 0.3);
+        }
+#ifdef CHASTE_CVODE
+        {
+            // With a for_model section and Cvode
+            args[0] = "--opt";
+            args.push_back("--cvode");
+            OutputFileHandler handler3(dirname + "/CO");
+            FileFinder copied_file3 = handler3.CopyFileTo(cellml_file);
+            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
+                    + "<var type='config-name'>transmembrane_potential</var>"
+                    + "<max>69.9999</max>"
+                    + "</lookup_table></lookup_tables></for_model>\n";
+            converter.CreateOptionsFile(handler3, model, args, for_model);
+            p_loader = converter.Convert(copied_file3);
+            RunLr91Test(*p_loader, 0u, true, 1, 70); // Large tolerance due to different ODE solver
+        }
+#endif
+    }
+
     void TestArchiving() throw(Exception)
     {
 #ifdef CHASTE_CAN_CHECKPOINT_DLLS
-        // Copy CellML file into output dir
-        std::string dirname = "TestDynamicallyLoadedCellModelsArchiving";
-        OutputFileHandler handler(dirname);
-        if (PetscTools::AmMaster())
-        {
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            ABORT_IF_NON0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestArchiving_cp");
+        // Check the previous test has left us a .so file
+        TS_ASSERT(mArchivingModel.Exists());
 
-        // Convert to .so
+        // Get a loader for the .so and load a cell model
         CellMLToSharedLibraryConverter converter;
-        FileFinder cellml_file(dirname + "/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteTestOutput);
-        TS_ASSERT(cellml_file.Exists());
-        FileFinder so_file(dirname + "/libluo_rudy_1991_dyn.so", RelativeTo::ChasteTestOutput);
-        TS_ASSERT(!so_file.Exists());
-        DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
-
-        // Load a cell model from the .so
+        DynamicCellModelLoader* p_loader = converter.Convert(mArchivingModel);
         AbstractCardiacCellInterface* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
 
         // Archive it
+        OutputFileHandler handler(mArchivingDirName, false);
         handler.SetArchiveDirectory();
         std::string archive_filename1 = ArchiveLocationInfo::GetProcessUniqueFilePath("first-save.arch");
         {

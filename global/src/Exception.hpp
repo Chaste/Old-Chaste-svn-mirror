@@ -37,8 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <string>
 #include <sstream>
-#include <cfloat>
-#include <climits> // For UINT_MAX etc., necessary in gcc-4.3
+#include <cfloat>  // For DBL_MAX
+#include <climits> // For UINT_MAX & INT_MAX, necessary in gcc-4.3
 #include <cstdlib> // For system() etc., necessary in gcc-4.3
 
 /** Use when initialising an unsigned variable that doesn't have a sensible default value. */
