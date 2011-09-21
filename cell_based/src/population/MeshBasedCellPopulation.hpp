@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "MutableMesh.hpp"
 #include "VertexMesh.hpp"
-#include "Exception.hpp"
 #include "TrianglesMeshReader.hpp"
 
 #include "ChasteSerialization.hpp"

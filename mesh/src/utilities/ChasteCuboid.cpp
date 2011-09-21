@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ChasteCuboid.hpp"
+#include "Exception.hpp"
 
 template <unsigned SPACE_DIM>
     ChasteCuboid<SPACE_DIM>::ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint)

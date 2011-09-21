@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
-#include "PetscTools.hpp"
 #include "FileFinder.hpp"
+#include "PetscTools.hpp"
 
 /**
  * Mini-class to help with 'archiving' various classes that don't write their

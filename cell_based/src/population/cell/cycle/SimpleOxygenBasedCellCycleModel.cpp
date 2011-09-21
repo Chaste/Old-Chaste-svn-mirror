@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "ApoptoticCellProperty.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "Exception.hpp"
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel()
     : mTimeSpentInG1Phase(0.0),

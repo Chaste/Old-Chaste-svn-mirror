@@ -47,14 +47,9 @@ struct MeshWriterIterators;
 #include <sstream>
 #include <iostream>
 
-#include "Exception.hpp"
 #include "AbstractMeshWriter.hpp"
 #include "AbstractMesh.hpp"
 #include "NodeMap.hpp"
-
-
-
-
 
 /**
  * An abstract tetrahedral mesh writer class.
@@ -65,7 +60,7 @@ class AbstractTetrahedralMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPA
 private:
 
     /**
-     * Write a parallel mesh to file. Used by the serialization methods
+     * Write a parallel mesh to file. Used by the serialization methods.
      *
      * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
      *                                     Optimisations can be applied if this is not needed.

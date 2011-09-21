@@ -25,9 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "ChastePoint.hpp"
-#include "OutputFileHandler.hpp"
-#include <cassert>
+#include "Exception.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -94,7 +94,7 @@ double ChastePoint<DIM>::GetWithDefault(unsigned i, double def) const
 template<unsigned DIM>
 void ChastePoint<DIM>::SetCoordinate(unsigned i, double value)
 {
-    assert(i<DIM);
+    assert(i < DIM);
     mLocation(i) = value;
 }
 
@@ -113,10 +113,21 @@ bool ChastePoint<DIM>::IsSamePoint(const ChastePoint<DIM>& rPoint) const
     return returned_value;
 }
 
+template<>
+ChastePoint<0>::ChastePoint(double v1, double v2, double v3)
+{
+}
+template<>
+double ChastePoint<0>::operator[] (unsigned i) const
+{
+	EXCEPTION("Zero-dimensional point has no data");
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////////
 
+template class ChastePoint<0>;
 template class ChastePoint<1>;
 template class ChastePoint<2>;
 template class ChastePoint<3>;

@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+#include "Exception.hpp"
 
 
 /**

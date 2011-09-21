@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ChasteEllipsoid.hpp"
+#include "Exception.hpp"
 
 template <unsigned SPACE_DIM>
 ChasteEllipsoid<SPACE_DIM>::ChasteEllipsoid(ChastePoint<SPACE_DIM>& rCentre, ChastePoint<SPACE_DIM>& rRadii)

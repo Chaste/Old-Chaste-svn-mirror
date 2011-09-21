@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HeartFileFinder.hpp"
+#include "Exception.hpp"
 
 
 HeartFileFinder::HeartFileFinder(const cp::path_type& rPath)

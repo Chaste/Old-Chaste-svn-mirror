@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HoneycombMeshGenerator.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "OutputFileHandler.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "MathsCustomFunctions.hpp"
 

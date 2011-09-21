@@ -39,8 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleOdeSystem.hpp"
 #include "AbstractCellMutationState.hpp"
-#include "Exception.hpp"
-
 
 /**
  * Wnt-dependent cell-cycle model.

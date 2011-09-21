@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 #include "Cylindrical2dMesh.hpp"
 #include "NodesOnlyMesh.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh,

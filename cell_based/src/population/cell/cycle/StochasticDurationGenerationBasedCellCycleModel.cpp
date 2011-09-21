@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 StochasticDurationGenerationBasedCellCycleModel::StochasticDurationGenerationBasedCellCycleModel()
 {
@@ -98,7 +98,6 @@ void StochasticDurationGenerationBasedCellCycleModel::OutputCellCycleModelParame
     // Call method on direct parent class
     AbstractSimpleGenerationBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

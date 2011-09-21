@@ -35,10 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 #include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
-#include "PetscTools.hpp"
-#include "CellBasedEventHandler.hpp"
-#include "OutputFileHandler.hpp"
-#include "Cell.hpp"
 
 /**
  * A cell-based simulation class that includes one or more elliptic PDEs, e.g. describing

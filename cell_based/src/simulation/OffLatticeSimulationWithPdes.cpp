@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulationWithPdes.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NodeBasedCellPopulation.hpp"
-#include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
@@ -38,7 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTwoBodyInteractionForce.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
-#include "LogFile.hpp"
+#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
+#include "PetscTools.hpp"
+#include "CellBasedEventHandler.hpp"
 
 template<unsigned DIM>
 OffLatticeSimulationWithPdes<DIM>::OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,

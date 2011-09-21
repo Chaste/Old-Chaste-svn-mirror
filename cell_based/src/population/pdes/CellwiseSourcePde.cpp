@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellwiseSourcePde.hpp"
 #include "ApoptoticCellProperty.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient)

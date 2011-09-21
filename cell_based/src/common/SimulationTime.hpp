@@ -32,8 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "SerializableSingleton.hpp"
 
-#include "Exception.hpp"
-
 /**
  * Simulation time object stores the simulation time.
  * It uses the singleton pattern to provide a globally consistent time.

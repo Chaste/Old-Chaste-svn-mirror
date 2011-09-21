@@ -32,10 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "UblasVectorInclude.hpp"
-
 #include <vector>
 
-#include "Exception.hpp"
 
 /**
  * A ChastePoint class, templated over spatial dimension.
@@ -176,37 +174,5 @@ inline void load_construct_data(
 }
 }
 } // namespace ...
-
-/**
- * A  zero-dimensional ChastePoint class.
- */
-template<>
-class ChastePoint<0>
-{
-public:
-
-    /**
-     * Create a zero-dimensional Point object.
-     * There are 3 optional arguments, which should not be used.
-     *
-     * @param v1  the point's x-coordinate (defaults to 0)
-     * @param v2  the point's y-coordinate (defaults to 0)
-     * @param v3  the point's z-coordinate (defaults to 0)
-     */
-    ChastePoint(double v1=0, double v2=0, double v3=0)
-    {
-    }
-
-    /**
-     * Access the vector mLocation.
-     *
-     * @param i the index of the vector to return
-     */
-    double operator[] (unsigned i) const
-    {
-        EXCEPTION("Zero-dimensional point has no data");
-    }
-};
-
 
 #endif //_CHASTEPOINT_HPP_

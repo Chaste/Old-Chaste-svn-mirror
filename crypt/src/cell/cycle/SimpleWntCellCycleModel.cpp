@@ -25,8 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "SimpleWntCellCycleModel.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 SimpleWntCellCycleModel::SimpleWntCellCycleModel()
     : mUseCellProliferativeTypeDependentG1Duration(false),

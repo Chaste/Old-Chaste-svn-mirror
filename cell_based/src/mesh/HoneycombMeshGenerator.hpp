@@ -33,10 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "MutableMesh.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "OutputFileHandler.hpp"
-#include "PetscTools.hpp"
-
 
 /**
  * Honeycomb mesh generator that creates a 2D honeycomb mesh (with equal distance

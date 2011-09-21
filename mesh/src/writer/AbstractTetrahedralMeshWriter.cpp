@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedTetrahedralMesh.hpp"
 #include "MixedDimensionMesh.hpp"
 #include "Version.hpp"
+#include "Exception.hpp"
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
 

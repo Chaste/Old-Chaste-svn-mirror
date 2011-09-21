@@ -26,25 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CuboidMeshConstructor.hpp"
-#include "UblasCustomFunctions.hpp"
-
-
-///////////////////////////////////////////////////////////////////////////////////
-// Implementation
-///////////////////////////////////////////////////////////////////////////////////
-
-
+#include "MathsCustomFunctions.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, unsigned meshRefinementNum, double meshWidth)
 {
-    //The class has only been tested for ELEMENT_DIM == SPACE_DIM or ELEMENT_DIM == 1 && SPACE_DIM == 3
+    // The class has only been tested for ELEMENT_DIM == SPACE_DIM or ELEMENT_DIM == 1 && SPACE_DIM == 3
     assert(ELEMENT_DIM == SPACE_DIM || (ELEMENT_DIM == 1 && SPACE_DIM == 3));
 
     mMeshWidth = meshWidth;
-    assert(meshRefinementNum < 30); //Sanity
+    assert(meshRefinementNum < 30); // Sanity
 
     // Create the mesh
     unsigned mesh_size = (unsigned) SmallPow(2, meshRefinementNum+2); // number of elements in each dimension
@@ -71,8 +63,6 @@ unsigned CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 {
     return mNumNodes;
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -31,10 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CUBOIDMESHCONSTRUCTOR_HPP_
 
 #include "TetrahedralMesh.hpp"
-#include "OutputFileHandler.hpp"
-#include "PetscTools.hpp"
-
-//const double mesh_width = 0.2; // cm
 
 /**
  * Helper class for constructing cuboidal meshes.

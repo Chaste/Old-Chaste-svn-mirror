@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SloughingCellKiller.hpp"
 #include "AbstractCentreBasedCellPopulation.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, double sloughHeight, bool sloughSides, double sloughWidth)

@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "AbstractCellProperty.hpp"
-#include "Exception.hpp"
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/shared_ptr.hpp>

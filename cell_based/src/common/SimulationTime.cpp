@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SimulationTime.hpp"
-#include "Exception.hpp"
 #include <cassert>
 
 /** Pointer to the single instance */
@@ -108,6 +107,7 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
 
     assert(!mEndTimeAndNumberOfTimeStepsSet);
     assert(endTime > mCurrentTime);
+
     mEndTime = endTime;
     mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;

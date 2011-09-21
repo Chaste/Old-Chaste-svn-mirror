@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CmguiDeformedSolutionsWriter.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 CmguiDeformedSolutionsWriter<DIM>::CmguiDeformedSolutionsWriter(std::string outputDirectory,

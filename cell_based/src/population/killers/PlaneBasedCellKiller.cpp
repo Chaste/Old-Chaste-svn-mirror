@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlaneBasedCellKiller.hpp"
-#include "PetscTools.hpp"
 
 template<unsigned DIM>
 PlaneBasedCellKiller<DIM>::PlaneBasedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation,

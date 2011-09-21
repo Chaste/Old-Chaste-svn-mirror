@@ -26,18 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
 #include "Element.hpp"
 
+#include <cfloat>
 #include <cassert>
-
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
-
-
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)

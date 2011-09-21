@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
+#include "Exception.hpp"
 
 #include <typeinfo>
 

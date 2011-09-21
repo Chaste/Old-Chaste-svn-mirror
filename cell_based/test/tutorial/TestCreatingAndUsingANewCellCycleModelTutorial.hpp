@@ -62,6 +62,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it. */
 #include "SmartPointers.hpp"
+/* The next header include the NEVER_REACHED macro, used in one of the methods below. */
+#include "Exception.hpp"
 
 /* The next header defines a base class for simple generation-based cell-cycle models.
  * A cell-cycle model is defined as ''simple'' if the duration of each phase of the cell

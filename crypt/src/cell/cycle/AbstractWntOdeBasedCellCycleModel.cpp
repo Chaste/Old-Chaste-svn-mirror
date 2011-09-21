@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
-#include "PetscTools.hpp"
+#include "Exception.hpp"
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractOdeBasedCellCycleModel(SimulationTime::Instance()->GetTime(), pOdeSolver)

@@ -29,12 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STOCHASTICCELLCYCLEMODEL_HPP_
 #define STOCHASTICCELLCYCLEMODEL_HPP_
 
-#include <cassert>
-#include <iostream>
-
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "Exception.hpp"
 
 /**
  * A stochastic cell-cycle model employed by Meineke et al (2001) in their off-lattice
@@ -94,6 +90,5 @@ public:
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(StochasticDurationGenerationBasedCellCycleModel)
-
 
 #endif /*STOCHASTICCELLCYCLEMODEL_HPP_*/
