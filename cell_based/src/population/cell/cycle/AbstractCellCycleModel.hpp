@@ -59,12 +59,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
-     *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Archive the object and its member variables.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -73,9 +68,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         // Make sure the SimulationTime singleton gets saved too
-        SimulationTime* p_time = SimulationTime::Instance();
-        archive & *p_time;
-        archive & p_time;
+        SerializableSingleton<SimulationTime>* p_time_wrapper = SimulationTime::Instance()->GetSerializationWrapper();
+        archive & p_time_wrapper;
 
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell
         // which knows this and it is handled in the load_construct of Cell.

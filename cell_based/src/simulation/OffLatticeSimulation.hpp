@@ -94,9 +94,9 @@ protected:
     }
 
     /**
-     * Overridden this UpdateCellLocationsAndTopology method.
+     * Overridden UpdateCellLocationsAndTopology() method.
      *
-     * In Off lattice simulations this method calculates forces and updates node positions.
+     * Calculate forces and update node positions.
      */
     virtual void UpdateCellLocationsAndTopology();
 
@@ -125,11 +125,12 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationAndCellKillersInDestructor Whether to delete the cell population cell killer, force, and boundary conditions collections on destruction to free up memory
-     * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population cell killer, force,
+     *     and boundary conditions collections on destruction to free up memory (defaults to false)
+     * @param initialiseCells Whether to initialise cells (defaults to true, set to false when loading from an archive)
      */
     OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                         bool deleteCellPopulationAndCellKillersInDestructor=false,
+                         bool deleteCellPopulationInDestructor=false,
                          bool initialiseCells=true);
 
     /**

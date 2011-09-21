@@ -48,13 +48,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell-cycle model and member variables.
-     * Used by boost, never directly by chaste code.
-     *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Archive the object and its member variables.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -64,9 +58,9 @@ private:
     {
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        archive & *p_gen;
-        archive & p_gen;
+        // Make sure the random number generator is also archived
+        SerializableSingleton<RandomNumberGenerator>* p_rng_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_rng_wrapper;
 
         archive & mStochasticG2Duration;
     }

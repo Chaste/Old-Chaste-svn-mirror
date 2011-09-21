@@ -62,12 +62,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the object and its member variables.
-     *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
+     * Archive the object.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -77,10 +72,9 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
 
-        // Make sure the random number generator is archived
-        RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
-        archive & *p_random_generator;
-        archive & p_random_generator;
+        // Make sure the random number generator is also archived
+        SerializableSingleton<RandomNumberGenerator>* p_rng_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_rng_wrapper;
     }
 
 public:

@@ -343,9 +343,7 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
     mSimulationOutputDirectory = results_directory;
 
-    ///////////////////////////////////////////////////////////
-    // Set up Simulation
-    ///////////////////////////////////////////////////////////
+    // Set up simulation
 
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/", true);
@@ -380,49 +378,29 @@ void AbstractCellBasedSimulation<DIM>::Solve()
 
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::SETUP);
 
-    /////////////////////////////////////////////////////////////////////
-    // Main time loop
-    /////////////////////////////////////////////////////////////////////
-
+    // Enter main time loop
     while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccurred()) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
 
-        /**
-         * This function calls:
-         * DoCellRemoval()
-         * DoCellBirth()
-         * CellPopulation::Update()
-         */
+        // This function calls DoCellRemoval(), DoCellBirth() and CellPopulation::Update()
         UpdateCellPopulation();
 
-        /////////////////////////////////////
-        // Update Cell Locations and topology
-        /////////////////////////////////////
-        //CellBasedEventHandler::BeginEvent(CellBasedEventHandler::OUTPUT);
+        // Update cell locations and topology
         UpdateCellLocationsAndTopology();
-        //CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
 
-        //////////////////////////////////////////
-        // PostSolve, which may be implemented by
-        // child classes (e.g. to solve PDEs)
-        //////////////////////////////////////////
+        // Call PostSolve(), which may be implemented by child classes (eg to solve PDEs)
         PostSolve();
 
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
 
-        ////////////////////////////
-        // Output current results
-        ////////////////////////////
+        // Output current results to file
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::OUTPUT);
-
-        // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple == 0)
         {
             mrCellPopulation.WriteResultsToFiles();
         }
-
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
     }
 
@@ -441,7 +419,6 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     mpVizSetupFile->close();
 
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
-
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::EVERYTHING);
 }
 
@@ -454,18 +431,14 @@ bool AbstractCellBasedSimulation<DIM>::StoppingEventHasOccurred()
 template<unsigned DIM>
 void AbstractCellBasedSimulation<DIM>::UpdateCellPopulation()
 {
-    /////////////////////////
     // Remove dead cells
-    /////////////////////////
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::DEATH);
     unsigned deaths_this_step = DoCellRemoval();
     mNumDeaths += deaths_this_step;
     LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::DEATH);
 
-    /////////////////////////
     // Divide cells
-    /////////////////////////
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::BIRTH);
     unsigned births_this_step = DoCellBirth();
     mNumBirths += births_this_step;
@@ -475,9 +448,7 @@ void AbstractCellBasedSimulation<DIM>::UpdateCellPopulation()
     // This allows NodeBasedCellPopulation::Update() to do the minimum amount of work
     bool births_or_death_occurred = ((births_this_step>0) || (deaths_this_step>0));
 
-    ////////////////////////////
     // Update topology of cell population
-    ////////////////////////////
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::UPDATECELLPOPULATION);
     if (mUpdateCellPopulation)
     {

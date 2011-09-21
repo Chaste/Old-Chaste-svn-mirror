@@ -37,9 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                                bool deleteCellPopulationAndCellKillersInDestructor,
+                                                bool deleteCellPopulationInDestructor,
                                                 bool initialiseCells)
-    : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationAndCellKillersInDestructor, initialiseCells),
+    : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationInDestructor, initialiseCells),
       mOutputNodeVelocities(false)
 {
     if ( (!dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation)) && (!dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation)))
