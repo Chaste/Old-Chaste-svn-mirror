@@ -167,59 +167,38 @@ void OffLatticeSimulationWithPdes<DIM>::UseCoarsePdeMesh(double stepSize, double
 template<unsigned DIM>
 void OffLatticeSimulationWithPdes<DIM>::CreateCoarsePdeMesh(double stepSize, double meshWidth)
 {
-	if (DIM == 3)
-	{
-		EXCEPTION("This method is only implemented in 1 and 2D currently.");
-	}
+	// Create coarse mesh
+	mpCoarsePdeMesh = new TetrahedralMesh<DIM,DIM>;
 	switch(DIM)
 	{
 		case 1:
-		{
-		    // Create coarse mesh
-			mpCoarsePdeMesh = new TetrahedralMesh<DIM,DIM>;
 			mpCoarsePdeMesh->ConstructRegularSlabMesh(stepSize, meshWidth);
-
-			// Find centre of coarse PDE mesh
-			c_vector<double,1> centre_of_coarse_mesh = zero_vector<double>(1);
-			c_vector<double,1> centre_of_cell_population=this->GetCellPopulationLocation();
-			for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
-			{
-				centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
-			}
-			centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
-
-			// Translate centre of coarse PDE mesh to the origin
-			mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0]);
-
-			// Write mesh to file
-			WriteCoarseMeshToFile();
 			break;
-		}
 		case 2:
-		{
-            // Create coarse mesh
-			mpCoarsePdeMesh = new TetrahedralMesh<DIM,DIM>;
-			mpCoarsePdeMesh->ConstructRegularSlabMesh(stepSize,	meshWidth, meshWidth);
-
-			// Find centre of coarse PDE mesh
-			c_vector<double,2> centre_of_coarse_mesh = zero_vector<double>(2);
-			c_vector<double,2> centre_of_cell_population=this->GetCellPopulationLocation();
-			for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
-			{
-				centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
-			}
-			centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
-
-			// Translate centre of coarse PDE mesh to the origin
-			mpCoarsePdeMesh->Translate(centre_of_cell_population[0]-centre_of_coarse_mesh[0], centre_of_cell_population[1]-centre_of_coarse_mesh[1]);
-
-			// Write mesh to file
-			WriteCoarseMeshToFile();
+			mpCoarsePdeMesh->ConstructRegularSlabMesh(stepSize, meshWidth, meshWidth);
 			break;
-		}
+		case 3:
+			mpCoarsePdeMesh->ConstructRegularSlabMesh(stepSize, meshWidth, meshWidth, meshWidth);
+			break;
 		default:
 			NEVER_REACHED;
 	}
+
+
+	// Find centre of coarse PDE mesh
+	c_vector<double,DIM> centre_of_coarse_mesh = zero_vector<double>(DIM);
+	c_vector<double,DIM> centre_of_cell_population=this->GetCellPopulationLocation();
+	for (unsigned i=0; i<mpCoarsePdeMesh->GetNumNodes(); i++)
+	{
+		centre_of_coarse_mesh += mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+	}
+	centre_of_coarse_mesh /= mpCoarsePdeMesh->GetNumNodes();
+
+	// Translate centre of coarse PDE mesh to the origin
+	mpCoarsePdeMesh->Translate(centre_of_cell_population-centre_of_coarse_mesh);
+
+	// Write mesh to file
+	WriteCoarseMeshToFile();
 }
 
 template<unsigned DIM>
