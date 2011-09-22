@@ -134,13 +134,6 @@ public:
                          bool initialiseCells=true);
 
     /**
-     * Destructor.
-     *
-     * This frees the Forces and Boundary Conditions, if they were created by de-serialization.
-     */
-    virtual ~OffLatticeSimulation();
-
-    /**
      * Add a force to be used in this simulation (use this to set the mechanics system).
      *
      * @param pForce pointer to a force law

@@ -49,11 +49,6 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
 }
 
 template<unsigned DIM>
-OffLatticeSimulation<DIM>::~OffLatticeSimulation()
-{
-}
-
-template<unsigned DIM>
 void OffLatticeSimulation<DIM>::AddForce(boost::shared_ptr<AbstractForce<DIM> > pForce)
 {
     mForceCollection.push_back(pForce);

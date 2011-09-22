@@ -406,8 +406,9 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     }
 
     LOG(1, "--END TIME = " << SimulationTime::Instance()->GetTime() << "\n");
-    /* Carry out a final update so that cell population is coherent with new cell positions.
-     * NB cell birth/death still need to be checked because they may be spatially-dependent.*/
+
+    // Carry out a final update so that cell population is coherent with new cell positions.
+    // NB cell birth/death still need to be checked because they may be spatially-dependent.
     UpdateCellPopulation();
 
     AfterSolve();

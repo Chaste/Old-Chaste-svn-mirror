@@ -220,7 +220,7 @@ protected:
     /**
      * Calls the deaths, births and (if mUpdateCellPopulation is true) CellPopulation::Update() methods.
      */
-    void UpdateCellPopulation();
+    virtual void UpdateCellPopulation();
 
     /**
      * Updates the locations and topology of cells, must be defined in subclasses.
@@ -244,7 +244,6 @@ protected:
     {
     }
 
-
 public:
 
     /**
@@ -261,7 +260,7 @@ public:
     /**
      * Destructor.
      *
-     * This frees the cell population and cell killers, if they were created by de-serialization.
+     * This frees the cell population if it was created by de-serialization.
      */
     virtual ~AbstractCellBasedSimulation();
 
