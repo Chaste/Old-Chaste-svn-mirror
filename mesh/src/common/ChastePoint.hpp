@@ -175,4 +175,33 @@ inline void load_construct_data(
 }
 } // namespace ...
 
+
+/**
+ * A zero-dimensional ChastePoint class.
+ * We need to specialise the entire class to avoid nonsense methods
+ * that don't make sense for 0d.
+ */
+template<>
+class ChastePoint<0>
+{
+public:
+    /**
+     * Create a zero-dimensional Point object.
+     * There are 3 optional arguments, which should not be used.
+     *
+     * @param v1  the point's x-coordinate (defaults to 0)
+     * @param v2  the point's y-coordinate (defaults to 0)
+     * @param v3  the point's z-coordinate (defaults to 0)
+     */
+    ChastePoint(double v1=0, double v2=0, double v3=0);
+
+    /**
+     * Access the vector mLocation.  Actually raises an exception, since
+     * a 0d point has no location.
+     *
+     * @param i the index of the vector to return
+     */
+    double operator[] (unsigned i) const;
+};
+
 #endif //_CHASTEPOINT_HPP_

@@ -113,11 +113,12 @@ bool ChastePoint<DIM>::IsSamePoint(const ChastePoint<DIM>& rPoint) const
     return returned_value;
 }
 
-template<>
+// Methods of the 0d version
+
 ChastePoint<0>::ChastePoint(double v1, double v2, double v3)
 {
 }
-template<>
+
 double ChastePoint<0>::operator[] (unsigned i) const
 {
 	EXCEPTION("Zero-dimensional point has no data");
@@ -127,7 +128,6 @@ double ChastePoint<0>::operator[] (unsigned i) const
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////////
 
-template class ChastePoint<0>;
 template class ChastePoint<1>;
 template class ChastePoint<2>;
 template class ChastePoint<3>;
