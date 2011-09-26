@@ -62,8 +62,8 @@ void TargetedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 template<unsigned DIM>
 void TargetedCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<TargetIndex>" << mTargetIndex << "</TargetIndex> \n";
-    *rParamsFile << "\t\t\t<BloodLust>" << mBloodLust << "</BloodLust> \n";
+    *rParamsFile << "\t\t\t<TargetIndex>" << mTargetIndex << "</TargetIndex>\n";
+    *rParamsFile << "\t\t\t<BloodLust>" << mBloodLust << "</BloodLust>\n";
 
     // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);

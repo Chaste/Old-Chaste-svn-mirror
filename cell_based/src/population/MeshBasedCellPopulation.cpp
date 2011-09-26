@@ -1181,10 +1181,10 @@ void MeshBasedCellPopulation<DIM>::SetOutputCellPopulationVolumes(bool outputCel
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<UseAreaBasedDampingConstant>" << mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant> \n";
-    *rParamsFile << "\t\t<AreaBasedDampingConstantParameter>" <<  mAreaBasedDampingConstantParameter << "</AreaBasedDampingConstantParameter> \n";
-    *rParamsFile << "\t\t<OutputVoronoiData>" <<  mOutputVoronoiData << "</OutputVoronoiData> \n";
-    *rParamsFile << "\t\t<OutputCellPopulationVolumes>" << mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes> \n";
+    *rParamsFile << "\t\t<UseAreaBasedDampingConstant>" << mUseAreaBasedDampingConstant << "</UseAreaBasedDampingConstant>\n";
+    *rParamsFile << "\t\t<AreaBasedDampingConstantParameter>" <<  mAreaBasedDampingConstantParameter << "</AreaBasedDampingConstantParameter>\n";
+    *rParamsFile << "\t\t<OutputVoronoiData>" <<  mOutputVoronoiData << "</OutputVoronoiData>\n";
+    *rParamsFile << "\t\t<OutputCellPopulationVolumes>" << mOutputCellPopulationVolumes << "</OutputCellPopulationVolumes>\n";
 
     // Call method on direct parent class
     AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);

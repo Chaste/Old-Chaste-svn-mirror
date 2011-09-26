@@ -77,8 +77,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then '&' resolves to '<<'
-        // If Archive is an input archive, then '&' resolves to '>>'
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
         archive & mpCellCycleModel;

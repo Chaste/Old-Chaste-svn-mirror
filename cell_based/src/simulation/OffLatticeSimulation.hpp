@@ -61,8 +61,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class OffLatticeSimulation : public AbstractCellBasedSimulation<DIM>
 {
-
 protected:
+
     /** The mechanics used to determine the new location of the cells, a list of the forces. */
     std::vector<boost::shared_ptr<AbstractForce<DIM> > > mForceCollection;
 
@@ -125,9 +125,10 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationInDestructor Whether to delete the cell population cell killer, force,
-     *     and boundary conditions collections on destruction to free up memory (defaults to false)
-     * @param initialiseCells Whether to initialise cells (defaults to true, set to false when loading from an archive)
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to
+     *     free up memory (defaults to false)
+     * @param initialiseCells Whether to initialise cells (defaults to true, set to false when loading
+     *     from an archive)
      */
     OffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                          bool deleteCellPopulationInDestructor=false,

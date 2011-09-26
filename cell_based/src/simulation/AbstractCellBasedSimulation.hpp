@@ -58,8 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractCellBasedSimulation : public Identifiable
 {
-    // Allow tests to access private members, in order to test computation of
-    // private functions eg. DoCellBirth
+    // Allow tests to access private members, in order to test computation of private functions e.g. DoCellBirth()
     friend class TestCryptSimulation2d;
     friend class TestOffLatticeSimulation3d;
     friend class TestOffLatticeSimulation;
@@ -250,12 +249,13 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationInDestructor Whether to delete the cell population and cell killer collection on destruction to free up memory
-     * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to
+     *     free up memory (defaults to false)
+     * @param initialiseCells Whether to initialise cells (defaults to true; set to false when loading from an archive)
      */
     AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                        bool deleteCellPopulationInDestructor=false,
-                        bool initialiseCells=true);
+                                bool deleteCellPopulationInDestructor=false,
+                                bool initialiseCells=true);
 
     /**
      * Destructor.

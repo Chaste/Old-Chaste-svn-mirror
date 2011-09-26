@@ -154,7 +154,7 @@ public:
      */
     void OutputForceParameters(out_stream& rParamsFile)
     {
-        *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength> \n";
+        *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength>\n";
         AbstractForce<2>::OutputForceParameters(rParamsFile);
     }
 };

@@ -90,8 +90,9 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationInDestructor Whether to delete the cell population and force collection on destruction to free up memory
-     * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to
+     *     free up memory (defaults to false)
+     * @param initialiseCells whether to initialise cells (defaults to true, set to false when loading from an archive)
      */
     CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                       bool deleteCellPopulationInDestructor=false,

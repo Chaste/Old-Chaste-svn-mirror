@@ -47,8 +47,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then '&' resolves to '<<'
-        // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<GeneralisedLinearSpringForce<2> >(*this);
         archive & mA;
         archive & mB;

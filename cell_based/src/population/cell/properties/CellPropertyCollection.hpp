@@ -74,8 +74,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then '&' resolves to '<<'
-        // If Archive is an input archive, then '&' resolves to '>>'
         archive & mProperties;
         // archive & mpCellPropertyRegistry; Not required as archived by the CellPopulation.
     }

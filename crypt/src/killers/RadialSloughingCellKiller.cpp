@@ -63,9 +63,9 @@ void RadialSloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
 
 void RadialSloughingCellKiller::OutputCellKillerParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<xCentre>" << mCentre[0] << "</xCentre> \n";
-    *rParamsFile << "\t\t\t<yCentre>" << mCentre[1] << "</yCentre> \n";
-    *rParamsFile << "\t\t\t<mRadius>" << mRadius << "</mRadius> \n";
+    *rParamsFile << "\t\t\t<xCentre>" << mCentre[0] << "</xCentre>\n";
+    *rParamsFile << "\t\t\t<yCentre>" << mCentre[1] << "</yCentre>\n";
+    *rParamsFile << "\t\t\t<mRadius>" << mRadius << "</mRadius>\n";
 
     // Call method on direct parent class
     AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);

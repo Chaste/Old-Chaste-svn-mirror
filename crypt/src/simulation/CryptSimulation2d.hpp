@@ -44,8 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class CryptSimulation2d : public OffLatticeSimulation<2>
 {
-    // Allow tests to access private members, in order to test computation of
-    // private functions eg. DoCellBirth
+    // Allow tests to access private members, in order to test computation of private functions e.g. DoCellBirth()
     friend class TestCryptSimulation2d;
 
 protected:
@@ -142,8 +141,9 @@ public:
      * Constructor.
      *
      * @param rCellPopulation A cell population object
-     * @param deleteCellPopulationInDestructor Whether to delete the cell population and force collection on destruction to free up memory
-     * @param initialiseCells whether to initialise cells (set to false when loading from an archive)
+     * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to
+     *     free up memory (defaults to false)
+     * @param initialiseCells whether to initialise cells (defaults to true, set to false when loading from an archive)
      */
     CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
                       bool deleteCellPopulationInDestructor=false,

@@ -144,8 +144,8 @@ void WelikyOsterForce<DIM>::SetWelikyOsterPerimeterParameter(double welikyOsterP
 template<unsigned DIM>
 void WelikyOsterForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<WelikyOsterAreaParameter>" << mWelikyOsterAreaParameter << "</WelikyOsterAreaParameter> \n";
-    *rParamsFile << "\t\t\t<WelikyOsterPerimeterParameter>" << mWelikyOsterPerimeterParameter << "</WelikyOsterPerimeterParameter> \n";
+    *rParamsFile << "\t\t\t<WelikyOsterAreaParameter>" << mWelikyOsterAreaParameter << "</WelikyOsterAreaParameter>\n";
+    *rParamsFile << "\t\t\t<WelikyOsterPerimeterParameter>" << mWelikyOsterPerimeterParameter << "</WelikyOsterPerimeterParameter>\n";
 
     // Call method on direct parent class
     AbstractForce<DIM>::OutputForceParameters(rParamsFile);

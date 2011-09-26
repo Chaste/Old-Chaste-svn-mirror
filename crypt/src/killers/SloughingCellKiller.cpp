@@ -111,9 +111,9 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 template<unsigned DIM>
 void SloughingCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<SloughLength>" << mSloughHeight << "</SloughLength> \n";
-    *rParamsFile << "\t\t\t<SloughSides>" << mSloughSides << "</SloughSides> \n";
-    *rParamsFile << "\t\t\t<SloughWidth>" << mSloughWidth << "</SloughWidth> \n";
+    *rParamsFile << "\t\t\t<SloughLength>" << mSloughHeight << "</SloughLength>\n";
+    *rParamsFile << "\t\t\t<SloughSides>" << mSloughSides << "</SloughSides>\n";
+    *rParamsFile << "\t\t\t<SloughWidth>" << mSloughWidth << "</SloughWidth>\n";
 
     // Call method on direct parent class
     AbstractCellKiller<DIM>::OutputCellKillerParameters(rParamsFile);

@@ -101,9 +101,9 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
                 if (mpOdeSystem->rGetStateVariables()[i] < -DBL_EPSILON)
                 {
                     #define COVERAGE_IGNORE
-                    EXCEPTION("A protein concentration "<<i<<" has gone negative (" <<
-                              mpOdeSystem->rGetStateVariables()[i]<<")\n"
-                              <<"Chaste predicts that the CellCycleModel numerical method is probably unstable.");
+                    EXCEPTION("A protein concentration " << i << " has gone negative (" <<
+                              mpOdeSystem->rGetStateVariables()[i] << ")\n"
+                              << "Chaste predicts that the CellCycleModel numerical method is probably unstable.");
                     #undef COVERAGE_IGNORE
                 }
             }

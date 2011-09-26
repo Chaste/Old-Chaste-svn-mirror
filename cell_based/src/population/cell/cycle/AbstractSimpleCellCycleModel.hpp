@@ -79,7 +79,7 @@ public:
     AbstractSimpleCellCycleModel();
 
     /**
-     * Default destructor.
+     * Destructor.
      */
     virtual ~AbstractSimpleCellCycleModel();
 

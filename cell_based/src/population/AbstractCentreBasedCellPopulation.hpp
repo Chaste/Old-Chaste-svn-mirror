@@ -53,8 +53,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // If Archive is an output archive, then '&' resolves to '<<'
-        // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractCellPopulation<DIM> >(*this);
         archive & mMeinekeDivisionSeparation;
     }
@@ -89,7 +87,7 @@ public:
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
     AbstractCentreBasedCellPopulation(std::vector<CellPtr>& rCells,
-                                  const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+                                      const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Overridden GetLocationOfCellCentre() method.

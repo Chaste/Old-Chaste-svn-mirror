@@ -724,14 +724,14 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rPa
 {
     *rParamsFile << "\t\t<DampingConstantNormal>" << mDampingConstantNormal << "</DampingConstantNormal>\n";
     *rParamsFile << "\t\t<DampingConstantMutant>" << mDampingConstantMutant << "</DampingConstantMutant>\n";
-    *rParamsFile << "\t\t<OutputCellIdData>" << mOutputCellIdData << "</OutputCellIdData> \n";
-    *rParamsFile << "\t\t<OutputCellMutationStates>" << mOutputCellMutationStates << "</OutputCellMutationStates> \n";
-    *rParamsFile << "\t\t<OutputCellAncestors>" << mOutputCellAncestors << "</OutputCellAncestors> \n";
-    *rParamsFile << "\t\t<OutputCellProliferativeTypes>" << mOutputCellProliferativeTypes << "</OutputCellProliferativeTypes> \n";
-    *rParamsFile << "\t\t<OutputCellVariables>" << mOutputCellVariables << "</OutputCellVariables> \n";
-    *rParamsFile << "\t\t<OutputCellCyclePhases>" << mOutputCellCyclePhases << "</OutputCellCyclePhases> \n";
-    *rParamsFile << "\t\t<OutputCellAges>" << mOutputCellAges << "</OutputCellAges> \n";
-    *rParamsFile << "\t\t<OutputCellVolumes>" << mOutputCellVolumes << "</OutputCellVolumes> \n";
+    *rParamsFile << "\t\t<OutputCellIdData>" << mOutputCellIdData << "</OutputCellIdData>\n";
+    *rParamsFile << "\t\t<OutputCellMutationStates>" << mOutputCellMutationStates << "</OutputCellMutationStates>\n";
+    *rParamsFile << "\t\t<OutputCellAncestors>" << mOutputCellAncestors << "</OutputCellAncestors>\n";
+    *rParamsFile << "\t\t<OutputCellProliferativeTypes>" << mOutputCellProliferativeTypes << "</OutputCellProliferativeTypes>\n";
+    *rParamsFile << "\t\t<OutputCellVariables>" << mOutputCellVariables << "</OutputCellVariables>\n";
+    *rParamsFile << "\t\t<OutputCellCyclePhases>" << mOutputCellCyclePhases << "</OutputCellCyclePhases>\n";
+    *rParamsFile << "\t\t<OutputCellAges>" << mOutputCellAges << "</OutputCellAges>\n";
+    *rParamsFile << "\t\t<OutputCellVolumes>" << mOutputCellVolumes << "</OutputCellVolumes>\n";
 }
 
 ///////////////////////////////////////////////////////////////////////

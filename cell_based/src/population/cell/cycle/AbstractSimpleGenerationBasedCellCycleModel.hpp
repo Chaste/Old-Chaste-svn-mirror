@@ -80,7 +80,7 @@ public:
     AbstractSimpleGenerationBasedCellCycleModel();
 
     /**
-     * Default destructor.
+     * Destructor.
      */
     virtual ~AbstractSimpleGenerationBasedCellCycleModel();
 

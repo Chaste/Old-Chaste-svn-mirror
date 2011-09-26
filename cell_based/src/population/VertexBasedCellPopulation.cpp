@@ -646,9 +646,9 @@ void VertexBasedCellPopulation<DIM>::GenerateCellResultsAndWriteToFiles()
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<CellRearrangementThreshold>" << mrMesh.GetCellRearrangementThreshold() << "</CellRearrangementThreshold> \n";
-    *rParamsFile << "\t\t<T2Threshold>" <<  mrMesh.GetT2Threshold() << "</T2Threshold> \n";
-    *rParamsFile << "\t\t<CellRearrangementRatio>" << mrMesh.GetCellRearrangementRatio() << "</CellRearrangementRatio> \n";
+    *rParamsFile << "\t\t<CellRearrangementThreshold>" << mrMesh.GetCellRearrangementThreshold() << "</CellRearrangementThreshold>\n";
+    *rParamsFile << "\t\t<T2Threshold>" <<  mrMesh.GetT2Threshold() << "</T2Threshold>\n";
+    *rParamsFile << "\t\t<CellRearrangementRatio>" << mrMesh.GetCellRearrangementRatio() << "</CellRearrangementRatio>\n";
 
     // Call method on direct parent class
     AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
