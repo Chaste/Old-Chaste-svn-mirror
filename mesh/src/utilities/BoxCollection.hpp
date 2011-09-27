@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Node.hpp"
 #include "Element.hpp"
+#include "PetscTools.hpp"
+#include "ReplicatableVector.hpp"
+#include "DistributedVectorFactory.hpp"
+#include "DistributedVector.hpp"
 
 
 /**
@@ -49,10 +53,13 @@ private:
     /** Elements contained in this box. */
     std::set< Element<DIM,DIM>* > mElementsContained;
 
+
+
+
 public:
 
     /**
-     * Constructor just takes in the extremal values of the box.
+     * Constructor takes in the extremal values of the box and index to set.
      *
      * @param rMinAndMaxValues the extremal values. Of the from (for 2D, etc): xmin, xmax, ymin, ymax
      */
@@ -84,6 +91,7 @@ public:
 
     /** Get all the elements in this box. */
     std::set< Element<DIM,DIM>* >& rGetElementsContained();
+
 };
 
 
@@ -94,9 +102,29 @@ public:
 template<unsigned DIM>
 class BoxCollection
 {
+	friend class TestBoxCollection;
+
 private:
-    /** A vector of boxes to store rough node/element positions. */
+    /** A vector of boxes to store rough node/element positions. **/
     std::vector< Box<DIM> > mBoxes;
+
+    /** A vector of halo boxes that are owned by adjacent processes used in calculation of forces across process boundaries **/
+    std::vector< Box<DIM> > mHaloBoxes;
+
+    /** Vector of the global indices of the left hand halo boxes on this process **/
+    std::vector<unsigned> mHalosLeft;
+
+    /** Vector of the global indices of the right hand halo boxes on this process **/
+    std::vector<unsigned> mHalosRight;
+
+    /** A flag as to whether the local boxes have been set up **/
+    bool mAreLocalBoxesSet;
+
+    /** Map of global to local indices of boxes **/
+    std::map<unsigned, unsigned> mBoxesMapping;
+
+    /** Map of global to local indices of halo boxes in mHaloBoxes **/
+    std::map<unsigned, unsigned> mHaloBoxesMapping;
 
     /** The domain being partitioned. */
     c_vector<double, 2*DIM> mDomainSize;
@@ -107,8 +135,23 @@ private:
     /** Number of boxes in each direction. */
     c_vector<unsigned, DIM> mNumBoxesEachDirection;
 
-    /** The boxes local (itself and nearest neighbour) to a given box. */
+    /** The global indices of boxes local (itself and nearest neighbour) to a given box (described by its global index.. */
     std::vector< std::set<unsigned> > mLocalBoxes;
+
+    /** Number of Processes. */
+    unsigned mNumProcs;
+
+    /** Process to the left (if it exists) **/
+    int mProcLeft;
+
+    /** Process to the right (if it exists) **/
+    int mProcRight;
+
+    /** Pointer to distributed vector giving the local portion of the x-stacks of boxes. */
+    DistributedVector* mpDistributedBoxStacks;
+
+    /* Total boxes across all processes */
+    unsigned mNumBoxes;
 
 public:
 
@@ -119,6 +162,30 @@ public:
      * @param domainSize the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
      */
     BoxCollection(double boxWidth, c_vector<double, 2*DIM> domainSize);
+
+    /**
+     * return ownership of box. True if box is owned by current process
+     *
+     * @param globalIndex global index of box
+     */
+    bool GetBoxOwnership(unsigned globalIndex);
+
+    /**
+     * return halo ownership of box. True if halo of box is owned by current process
+     *
+     * @param globalIndex global index of box
+     */
+    bool GetHaloBoxOwnership(unsigned boxIndex);
+
+    /*
+     * Calculate the global index of a box, given its indices (i,j,k).
+     */
+    unsigned CalculateGlobalIndex(c_vector<unsigned, DIM> indices);
+
+    /*
+     * Calculate x,y,z indices of box given 'global' index
+     */
+    c_vector<unsigned, DIM> CalculateCoordinateIndices(unsigned globalIndex);
 
     /**
      * Calculate which box this node is contained in.
@@ -133,7 +200,7 @@ public:
     unsigned CalculateContainingBox(c_vector<double, DIM>& rLocation);
 
     /**
-     * Get a box.
+     * Get a box using global index
      * @param boxIndex the index of the box to return
      */
     Box<DIM>& rGetBox(unsigned boxIndex);
@@ -141,14 +208,36 @@ public:
     /** Get the number of boxes. */
     unsigned GetNumBoxes();
 
-    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes.
+    /**
+     * Find the local index of the box with a given global index.
+     *
+     * @param index The global index of box we want to find.
+     */
+    unsigned SolveBoxMapping(unsigned globalIndex) const;
+
+
+    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. 
      *  Just set up half of the local boxes (for example, in 1D, local boxes for box0 = {1}
      *  local boxes for box1 = {2} not {0,2}, and so on. Similar to 2d, 3d.
      */
     void SetupLocalBoxesHalfOnly();
 
     /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. */
+
     void SetupAllLocalBoxes();
+
+    /*
+     * Set up the list of halo boxes for each process.
+     */
+
+    void SetupHaloBoxes();
+
+    /*
+     * Update the nodes in the halo boxes
+     */
+
+    void UpdateHaloBoxes();
+
 
     /**
      * Get the set of all the local boxes, i.e. itself and its nearest-neighbours.

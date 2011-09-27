@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellPropertyRegistry.hpp"
 #include "CellwiseData.hpp"
 #include "SmartPointers.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -57,6 +58,8 @@ private:
     template<unsigned DIM>
     void TestSimpleNodeBasedCellPopulation(std::string meshFilename)
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<DIM,DIM> mesh_reader(meshFilename);
         TetrahedralMesh<DIM,DIM> generating_mesh;
@@ -107,13 +110,17 @@ public:
     // Test construction, accessors and Iterator
     void TestNodeBasedCellPopulation1d2d3d() throw(Exception)
     {
-        TestSimpleNodeBasedCellPopulation<1>("mesh/test/data/1D_0_to_1_10_elements");
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
+    	TestSimpleNodeBasedCellPopulation<1>("mesh/test/data/1D_0_to_1_10_elements");
         TestSimpleNodeBasedCellPopulation<2>("mesh/test/data/square_4_elements");
         TestSimpleNodeBasedCellPopulation<3>("mesh/test/data/cube_136_elements");
     }
 
     void TestOtherNodeBasedCellPopulationConstructor()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> generating_mesh;
@@ -149,6 +156,8 @@ public:
 
     void TestValidateNodeBasedCellPopulation()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> generating_mesh;
@@ -198,6 +207,8 @@ public:
 
     void TestAddCell()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create two nodes
         ChastePoint<2> point0;
         point0.rGetLocation()[0] = 0.0;
@@ -255,6 +266,8 @@ public:
 
     void TestSetNodeAndAddCell()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> generating_mesh;
@@ -333,6 +346,8 @@ public:
 
     void TestRemoveDeadCellsAndUpdate()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
@@ -387,6 +402,8 @@ public:
 
     void TestAddAndRemoveAndAddWithOutRemovingDeletedNodes()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
@@ -478,6 +495,8 @@ public:
 
     void TestSettingCellAncestors() throw (Exception)
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> generating_mesh;
@@ -526,6 +545,8 @@ public:
 
     void TestGetLocationOfCellCentreAndGetWidth() throw (Exception)
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> generating_mesh;
@@ -566,6 +587,8 @@ public:
 
     void TestNodeBasedCellPopulationOutputWriters2d()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Set up SimulationTime (needed if VTK is used)
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
@@ -689,6 +712,8 @@ public:
     
     void TestNodeBasedCellPopulationOutputWriters3d()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Set up SimulationTime (needed if VTK is used)
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
@@ -741,6 +766,8 @@ public:
 
     void TestWritingCellCyclePhases()
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         // Set up SimulationTime (needed if VTK is used)
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
@@ -798,6 +825,8 @@ public:
 
     void TestArchivingCellPopulation() throw (Exception)
     {
+    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation doesnt work in parallel yet.
+
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "node_based_cell_population.arch";
         ArchiveLocationInfo::SetMeshFilename("node_based_cell_population_mesh");

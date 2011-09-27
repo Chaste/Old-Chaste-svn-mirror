@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "FineCoarseMeshPair.hpp"
 #include "QuadraturePointsGroup.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestFineCoarseMeshPair : public CxxTest::TestSuite
 {
