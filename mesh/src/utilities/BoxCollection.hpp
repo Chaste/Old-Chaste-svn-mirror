@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BOXCOLLECTION_HPP_
 #define BOXCOLLECTION_HPP_
 
+#include <map>
+
 #include "Node.hpp"
 #include "Element.hpp"
 #include "PetscTools.hpp"
