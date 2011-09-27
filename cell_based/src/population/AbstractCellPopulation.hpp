@@ -336,7 +336,8 @@ public:
      * @param rNodeForces  forces on nodes
      * @param dt time step
      */
-    virtual void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)=0;
+    virtual void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
+    {}
 
     /**
      * Get the damping constant for this node - ie d in drdt = F/d.
