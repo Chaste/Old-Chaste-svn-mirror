@@ -51,6 +51,12 @@ private:
     /** Vector of averaged cell densities on elements of the coarse mesh. */
     std::vector<double> mCellDensityOnCoarseElements;
 
+    /** A map between members of mrCellPopulation and the indicies of the coarse mesh. */
+    std::map< CellPtr , unsigned > mCellElementMap;
+
+    /** An indicator for whether the CellElementMap has been set. */
+    bool mIsCellElementMapSet;
+
 public:
 
     /**

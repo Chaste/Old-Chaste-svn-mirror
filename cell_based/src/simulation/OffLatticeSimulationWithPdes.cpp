@@ -495,7 +495,7 @@ void OffLatticeSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         /*
          * Write solution to file if required.
          */
-
+         
         ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
 
         if (SimulationTime::Instance()->GetTimeStepsElapsed() % this->mSamplingTimestepMultiple == 0)
@@ -522,6 +522,7 @@ void OffLatticeSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
          * mesh, we have to interpolate from the nodes of the coarse mesh onto
          * the cell locations.
          */
+
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
              cell_iter != this->mrCellPopulation.End();
              ++cell_iter)
