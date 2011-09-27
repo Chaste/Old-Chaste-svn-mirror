@@ -248,16 +248,6 @@ public:
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
 
 #endif //SPECIAL_SERIAL (ifndef)
-
-    /**
-     * Level 4 error (Termination).  Execution cannot continue from this point and hence
-     * should be terminated (even when running with NDEBUG).
-     *
-     * @param rMessage An error message to appear on the screen
-     * @param rFilename  which source file produced the termination error
-     * @param lineNumber  which line number of the source file produced the termination error
-     */
-    static void Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber);
 };
 
 #endif /*PETSCTOOLS_HPP_*/

@@ -385,9 +385,3 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
     PetscViewerDestroy(view);
 }
 #endif //SPECIAL_SERIAL (ifndef)
-
-
-void PetscTools::Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
-{
-	Exception::Terminate(rMessage, rFilename, lineNumber);
-}
