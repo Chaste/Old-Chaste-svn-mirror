@@ -123,6 +123,57 @@ public:
         axis[1] = 42.0; //Will be normalised
         fibre_generator.SetApexToBase(axis);
     }
+
+	void TestConstructStreeterOnLeftWedge() throw(Exception)
+    {
+		TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
+        std::string epi_face_file = "heart/test/data/human_wedge_mesh/epi.tri";
+        std::string endo_face_file = "heart/test/data/human_wedge_mesh/endo.tri";
+
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        StreeterFibreGenerator<3> fibre_generator(mesh);
+
+        //Assume we are in the left ventricle
+        fibre_generator.SetSurfaceFiles(epi_face_file, "", endo_face_file, true);
+
+        fibre_generator.SetApexToBase(0);
+
+        fibre_generator.GenerateOrthotropicFibreOrientation("human_wedge_mesh/", "HumanWedgeMeshLeft.ortho", true);
+
+        OutputFileHandler handler("human_wedge_mesh", false);
+		std::string fibre_file = handler.GetOutputDirectoryFullPath() + "HumanWedgeMeshLeft.ortho";
+
+		NumericFileComparison comp(fibre_file,"heart/test/data/human_wedge_mesh/HumanWedgeMeshLeft.ortho");
+		TS_ASSERT(comp.CompareFiles(1e-11));
+    }
+
+	void TestConstructStreeterOnRightWedge() throw(Exception)
+    {
+		TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
+        std::string epi_face_file = "heart/test/data/human_wedge_mesh/epi.tri";
+        std::string endo_face_file = "heart/test/data/human_wedge_mesh/endo.tri";
+
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        StreeterFibreGenerator<3> fibre_generator(mesh);
+
+        //Assume we are in the left ventricle
+        fibre_generator.SetSurfaceFiles(epi_face_file, endo_face_file, "", true);
+
+        fibre_generator.SetApexToBase(0);
+
+        fibre_generator.GenerateOrthotropicFibreOrientation("human_wedge_mesh/", "HumanWedgeMeshRight.ortho", true);
+
+        OutputFileHandler handler("human_wedge_mesh", false);
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "HumanWedgeMeshRight.ortho";
+
+        NumericFileComparison comp(fibre_file,"heart/test/data/human_wedge_mesh/HumanWedgeMeshRight.ortho");
+		TS_ASSERT(comp.CompareFiles(1e-11));
+    }
+
 };
 
 #endif /*TESTSTREETERFIBREGENERATOR_HPP_*/

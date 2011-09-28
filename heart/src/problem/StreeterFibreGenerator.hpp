@@ -36,10 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartGeometryInformation.hpp"
 
 /**
- * Generate fibre in a ventricular mesh using the formulae from
+ * Generate fibre in a ventricular mesh using the description in
  * Streeter DD, Jr, Spotnitz HM, Patel DP, Ross J, Jr, Sonnenblick EH.
  * Fiber orientation in the canine left ventricle during diastole and systole.
  * Circ Res. 1969 Mar;24(3):339–347.
+ *
+ * Formulae used to generate the fibre orientations are in
+ * A Comparison of Monodomain and Bidomain Reaction-Diffusion Models for Action Potential Propagation in the Human Heart
+ * Mark Potse, Bruno Dubé, Jacques Richer, Alain Vinet, and Ramesh M. Gulrajani
+ * IEEE Trans. Biomed. Eng. 53(12):2425-2435, 2006.
  */
 template<unsigned SPACE_DIM>
 class StreeterFibreGenerator
@@ -85,14 +90,18 @@ public:
      * Uses the names of files defining the diferent surfaces of the mesh to construct the geometry information class
      * File format: list of triangles
      *
-     * @param epicardiumFile Epicardium surface
-     * @param rightVentricleFile Right Ventricle surface
-     * @param leftVentricleFile Left Ventricle surface
+     * @param rEpicardiumFile Epicardium surface
+     * @param rRightVentricleFile Right Ventricle surface.
+     * @param rLeftVentricleFile Left Ventricle surface
      * @param indexFromZero  Are the nodes in the original mesh file/surfaces indexed from 0?
+     *
+     * If either rRightVentricleFile or rLeftVentricleFile are the empty string, then it is assumed that this is a
+     * wedge preparation for left or right ventricle, respectively.  That is, the ventricle with a non-empty string.
+     * If both are empty strings then throws exception in HeartGeometryInformation.
      */
-    void SetSurfaceFiles(const std::string &epicardiumFile,
-                         const std::string &rightVentricleFile,
-                         const std::string &leftVentricleFile,
+    void SetSurfaceFiles(const std::string &rEpicardiumFile,
+                         const std::string &rRightVentricleFile,
+                         const std::string &rLeftVentricleFile,
                          bool indexFromZero);
 
     /**

@@ -294,6 +294,29 @@ public:
             }
         }
     }
+
+    void TestDistancesWithEmptySource()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
+
+        DistributedTetrahedralMesh<3,3> parallel_mesh;
+        parallel_mesh.ConstructFromMeshReader(mesh_reader);
+
+
+        std::vector<unsigned> empty_sources;
+        TS_ASSERT_EQUALS(empty_sources.size(), 0U);
+
+        DistanceMapCalculator<3,3> parallel_distance_calculator(parallel_mesh);
+        std::vector<double> parallel_distances;
+        parallel_distance_calculator.ComputeDistanceMap(empty_sources, parallel_distances);
+
+        TS_ASSERT_EQUALS(parallel_distances.size(), 9261U);
+        for (unsigned index=0; index<parallel_distances.size(); index++)
+        {
+            TS_ASSERT_EQUALS(parallel_distances[index], DBL_MAX);
+        }
+    }
+
 };
 
 #endif /*TESTDISTANCEMAPCALCULATOR_*/

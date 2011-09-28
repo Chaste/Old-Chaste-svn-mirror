@@ -173,9 +173,13 @@ public:
      *
      * @param rMesh: reference to the mesh
      * @param rEpiFile: file of elements on the epicardial surface
-     * @param rRVFile: file of elements on the endocardial right ventricular surface
-     * @param rLVFile: file of elements on the endocardial left ventricular surface
+     * @param rRVFile: file of elements on the endocardial right ventricular surface (can be empty string)
+     * @param rLVFile: file of elements on the endocardial left ventricular surface (can be empty string)
      * @param indexFromZero  true for native triangles files. false for Memfem files which are indexed from 1.
+     *
+     * If either rRVFile or rLVfile are the empty string, then it is assumed that this is a
+     * wedge preparation for left or right ventricle, respectively.  That is, the ventricle with a non-empty string.
+     * If both are empty strings then throws exception.
      */
     HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               const std::string& rEpiFile,

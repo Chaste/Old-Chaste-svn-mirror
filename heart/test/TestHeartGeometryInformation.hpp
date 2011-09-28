@@ -401,7 +401,7 @@ public:
         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info2(mesh, epi_surface, lv_surface, bad_surface, false),
                               "Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
         
-        //calculate the geometry informations
+        //calculate the geometry information
         HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, false);
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
@@ -505,6 +505,34 @@ public:
                 TS_ASSERT_EQUALS(sequential_layers[ i ], info.rGetLayerForEachNode()[ mesh.rGetNodePermutation()[i] ]);
             }
         }
+    }
+
+
+    void TestHeartGeometryOnlyLeftVentricle() throw (Exception)
+    {
+         //files containing list of nodes on each surface
+         std::string epi_surface = "heart/test/data/box_shaped_heart/epi.tri";
+         std::string lv_surface = "heart/test/data/box_shaped_heart/lv.tri";
+
+         //read in the mesh
+         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
+         DistributedTetrahedralMesh<3,3> mesh;
+         mesh.ConstructFromMeshReader(mesh_reader);
+
+
+         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> no_info(mesh, epi_surface, "", "", false),
+                                  "At least one of left ventricle or right ventricle files is required");
+
+
+         //calculate the geometry information
+         HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, "", false);
+
+         unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
+    	 unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
+         for (unsigned node_index=low_index; node_index<high_index; node_index++)
+         {
+        	 TS_ASSERT_EQUALS(info.GetHeartRegion(node_index), HeartGeometryInformation<3>::LEFT_VENTRICLE_WALL);
+         }
     }
 };
 

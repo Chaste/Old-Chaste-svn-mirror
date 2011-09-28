@@ -71,13 +71,25 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedr
 {
     DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
-    // Get nodes defining each surface
+    // Get nodes defining each surface and compute the distance map of each surface
 
     GetNodesAtSurface(rEpiFile, mEpiSurface, indexFromZero);
-    GetNodesAtSurface(rLVFile, mLVSurface, indexFromZero);
-    GetNodesAtSurface(rRVFile, mRVSurface, indexFromZero);
 
-    // Compute the distance map of each surface
+    if (rLVFile != "")
+    {
+    	GetNodesAtSurface(rLVFile, mLVSurface, indexFromZero);
+    }
+    else
+    {
+    	if (rRVFile == "")
+    	{
+    		EXCEPTION("At least one of left ventricle or right ventricle files is required");
+    	}
+    }
+    if (rRVFile != "")
+    {
+    	GetNodesAtSurface(rRVFile, mRVSurface, indexFromZero);
+    }
     distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
     distance_calculator.ComputeDistanceMap(mRVSurface, mDistMapRightVentricle);

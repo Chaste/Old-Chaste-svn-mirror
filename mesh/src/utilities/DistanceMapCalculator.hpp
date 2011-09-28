@@ -137,7 +137,10 @@ public:
      *  Generates a distance map of all the nodes of the mesh to the given source
      *
      *  @param rSourceNodeIndices set of node indices defining the source set or surface
+     *         If the vector of source nodes is empty then the results will be a vector of node distance
+     *         which are all of size DBL_MAX
      *  @param rNodeDistances distance map computed. The method will resize it if it's not big enough.
+     *
      */
     void ComputeDistanceMap(const std::vector<unsigned>& rSourceNodeIndices,
                             std::vector<double>& rNodeDistances);
