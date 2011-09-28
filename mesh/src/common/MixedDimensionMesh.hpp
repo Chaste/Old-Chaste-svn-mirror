@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedTetrahedralMesh.hpp"
 #include "AbstractMeshReader.hpp"
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 
 /**
  * A tetrahedral mesh that also supports embedded 1D cable elements.
@@ -105,6 +108,20 @@ private:
     /** A map from global cable index to local index used by this process. */
     std::map<unsigned, unsigned> mCableElementsMapping;
 
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
+
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -127,5 +144,59 @@ public:
 
 
 };
+
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MixedDimensionMesh)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Record number of processors when saving...
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    unsigned num_procs = PetscTools::GetNumProcs();
+    const DistributedTetrahedralMeshPartitionType::type partition_type = t->GetPartitionType();
+    ar << num_procs;
+    ar << partition_type;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a MixedDimensionMesh,
+ * checking the number of processors is the same.
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+    unsigned num_procs;
+    DistributedTetrahedralMeshPartitionType::type partition_type;
+
+    ar >> num_procs;
+    ar >> partition_type;
+
+    // Invoke inplace constructor to initialise instance
+    /// \todo #1199  Lots of stuff can't cope if we re-partition
+    //::new(t)MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
+    ::new(t)MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>(DistributedTetrahedralMeshPartitionType::DUMB);
+
+    /*
+     * The exception needs to be thrown after the call to ::new(t), or Boost will try
+     * to free non-allocated memory when the exception is thrown.
+     */
+    if (DistributedVectorFactory::CheckNumberOfProcessesOnLoad() &&
+        num_procs != PetscTools::GetNumProcs())
+    {
+        EXCEPTION("This archive was written for a different number of processors");
+    }
+
+}
+}
+} // namespace ...
 
 #endif /*MIXEDDIMENSIONMESH_HPP_*/

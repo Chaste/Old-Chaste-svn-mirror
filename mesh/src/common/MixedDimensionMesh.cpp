@@ -202,3 +202,7 @@ template class MixedDimensionMesh<1,3>;
 template class MixedDimensionMesh<2,2>;
 template class MixedDimensionMesh<2,3>;
 template class MixedDimensionMesh<3,3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MixedDimensionMesh)

@@ -626,6 +626,61 @@ public:
                              p_purkinje_cell);
         }
 
+        // Test archiving too
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "monodomain_tissue_purkinje.arch";
+
+        { // Save to archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // Make sure at least one Purkinje cell has a non-initial-condition state variable to compare
+            if (mixed_mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0u))
+            {
+                tissue.GetPurkinjeCell(0u)->SetVoltage(1234.5);
+            }
+
+            AbstractCardiacTissue<2>* const p_archive_tissue = &tissue;
+            (*p_arch) << p_archive_tissue;
+        }
+
+        { // Load from archive and compare
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+
+            AbstractCardiacTissue<2>* p_tissue;
+            (*p_arch) >> p_tissue;
+
+            TS_ASSERT(p_tissue->HasPurkinje());
+            TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeCellsDistributed().size(), tissue.rGetPurkinjeCellsDistributed().size());
+            TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeIionicCacheReplicated().GetSize(), tissue.rGetPurkinjeIionicCacheReplicated().GetSize());
+
+            for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = p_tissue->mpMesh->GetNodeIteratorBegin();
+                 current_node != p_tissue->mpMesh->GetNodeIteratorEnd();
+                 ++current_node)
+            {
+                unsigned global_index = current_node->GetIndex();
+                AbstractCardiacCell* p_purkinje_cell = p_tissue->GetPurkinjeCell(global_index);
+                double y = current_node->rGetLocation()[1];
+
+                // cable nodes are on y=0.05 (we don't test by index because indices may be permuted in parallel).
+                if( fabs(y-0.05) < 1e-8 )
+                {
+                    TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_purkinje_cell) != NULL);
+                }
+                else
+                {
+                    TS_ASSERT(dynamic_cast<FakeBathCell*>(p_purkinje_cell) != NULL);
+                }
+                TS_ASSERT_EQUALS(p_purkinje_cell->GetVoltage(),
+                                 tissue.GetPurkinjeCell(global_index)->GetVoltage());
+
+                TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeCellsDistributed()[global_index-p_tissue->mpMesh->GetDistributedVectorFactory()->GetLow()],
+                                 p_purkinje_cell);
+            }
+
+            delete p_tissue;
+        }
 	}
 };
 

@@ -85,6 +85,10 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
+        if (version >= 3)
+        {
+            archive & mHasPurkinje;
+        }
         if (version >= 2)
         {
             archive & mExchangeHalos;
@@ -136,17 +140,16 @@ private:
             }
         }
 
-        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
+        // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
 
         (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
 
         // Paranoia: check we agree with the mesh on who owns what
         assert(mpDistributedVectorFactory->GetLow()==mpMesh->GetDistributedVectorFactory()->GetLow());
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
-        // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
 
     /**
@@ -161,6 +164,14 @@ private:
         // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
 
+        if (version >= 3)
+        {
+            archive & mHasPurkinje;
+            if (mHasPurkinje)
+            {
+                mPurkinjeIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
+            }
+        }
         if (version >= 2)
         {
             archive & mExchangeHalos;
@@ -508,6 +519,10 @@ public:
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
             }
             archive & r_cells_distributed[i];
+            if (mHasPurkinje)
+            {
+                archive & rGetPurkinjeCellsDistributed()[i];
+            }
         }
     }
 
@@ -545,6 +560,17 @@ public:
         else
         {
             assert(mCellsDistributed.size() == p_mesh_factory->GetLocalOwnership());
+        }
+        if (mHasPurkinje)
+        {
+            if (mPurkinjeCellsDistributed.empty())
+            {
+                mPurkinjeCellsDistributed.resize(p_factory->GetLocalOwnership());
+            }
+            else
+            {
+                assert(mPurkinjeCellsDistributed.size() == p_mesh_factory->GetLocalOwnership());
+            }
         }
 
         // We don't store a cell index in the archive, so need to work out what global index this tissue starts at.
@@ -598,8 +624,25 @@ public:
             }
             AbstractCardiacCell* p_cell;
             archive & p_cell;
+            AbstractCardiacCell* p_purkinje_cell = NULL;
+            if (mHasPurkinje)
+            {
+                archive & p_purkinje_cell;
+            }
             // Check if it's a fake cell
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
+            if (p_fake)
+            {
+                if (halo || local)
+                {
+                    fake_bath_cells_local.insert(p_fake);
+                }
+                else
+                {
+                    fake_bath_cells_non_local.insert(p_fake);
+                }
+            }
+            p_fake = dynamic_cast<FakeBathCell*>(p_purkinje_cell);
             if (p_fake)
             {
                 if (halo || local)
@@ -616,16 +659,27 @@ public:
             {
                 assert(mCellsDistributed[new_local_index] == NULL);
                 mCellsDistributed[new_local_index] = p_cell;
+                if (mHasPurkinje)
+                {
+                    assert(mPurkinjeCellsDistributed[new_local_index] == NULL);
+                    mPurkinjeCellsDistributed[new_local_index] = p_purkinje_cell;
+                }
             }
             else if (halo)
             {
                 assert(mHaloCellsDistributed[halo_position->second] == NULL);
                 mHaloCellsDistributed[halo_position->second] = p_cell;
+                if (mHasPurkinje)
+                {
+                    ///\todo #1898
+                    NEVER_REACHED;
+                }
             }
             else if (!p_fake)
             {
                 // Non-local real cell, so free the memory.
                 delete p_cell;
+                delete p_purkinje_cell;
             }
         }
 
@@ -659,7 +713,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM> >
 {
     ///Macro to set the version number of templated archive in known versions of Boost
-    CHASTE_VERSION_CONTENT(2);
+    CHASTE_VERSION_CONTENT(3);
 };
 } // namespace serialization
 } // namespace boost
