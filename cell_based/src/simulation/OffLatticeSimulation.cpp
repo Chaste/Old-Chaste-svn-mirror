@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 
 #include "AbstractCentreBasedCellPopulation.hpp"
-#include "VertexBasedCellPopulation.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
@@ -42,9 +41,19 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
     : AbstractCellBasedSimulation<DIM>(rCellPopulation, deleteCellPopulationInDestructor, initialiseCells),
       mOutputNodeVelocities(false)
 {
-    if ( (!dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation)) && (!dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation)))
+    if (!dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation))
     {
-        EXCEPTION("OffLatticeSimulations require a VertexBasedCellPopulation or a subclass of AbstractCentreBasedCellPopulation.");
+        EXCEPTION("OnLatticeSimulations require a subclass of AbstractOffLatticeCellPopulation.");
+    }
+
+    // Different time steps are used for cell-centre and vertex-based simulations
+    if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation))
+    {
+        this->mDt = 1.0/120.0; // 30 seconds
+    }
+    else
+    {
+        this->mDt = 0.002; // smaller time step required for convergence/stability
     }
 }
 
@@ -100,6 +109,80 @@ void OffLatticeSimulation<DIM>::UpdateCellLocationsAndTopology()
 }
 
 template<unsigned DIM>
+c_vector<double, DIM> OffLatticeSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
+{
+    /**
+     * \todo Could remove this dynamic_cast by moving the code block below into
+     * AbstractCentreBasedCellPopulation::AddCell(), allowing it to be overruled by
+     * this method when overridden in subclasses. See also comment on #1093.
+     */
+    if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)))
+    {
+        // Location of parent and daughter cells
+        c_vector<double, DIM> parent_coords = this->mrCellPopulation.GetLocationOfCellCentre(pParentCell);
+        c_vector<double, DIM> daughter_coords;
+
+        // Get separation parameter
+        double separation = static_cast<AbstractCentreBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->GetMeinekeDivisionSeparation();
+
+        // Make a random direction vector of the required length
+        c_vector<double, DIM> random_vector;
+
+        /*
+         * Pick a random direction and move the parent cell backwards by 0.5*separation
+         * in that direction and return the position of the daughter cell 0.5*separation
+         * forwards in that direction.
+         */
+        switch (DIM)
+        {
+            case 1:
+            {
+                double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
+
+                random_vector(0) = 0.5*separation*random_direction;
+                break;
+            }
+            case 2:
+            {
+                double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
+
+                random_vector(0) = 0.5*separation*cos(random_angle);
+                random_vector(1) = 0.5*separation*sin(random_angle);
+                break;
+            }
+            case 3:
+            {
+                double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
+                double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
+
+                random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
+                random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
+                random_vector(2) = 0.5*separation*cos(random_zenith_angle);
+                break;
+            }
+            default:
+                // This can't happen
+                NEVER_REACHED;
+        }
+
+        parent_coords = parent_coords - random_vector;
+        daughter_coords = parent_coords + random_vector;
+
+        // Set the parent to use this location
+        ChastePoint<DIM> parent_coords_point(parent_coords);
+        unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(pParentCell);
+        this->mrCellPopulation.SetNode(node_index, parent_coords_point);
+
+        return daughter_coords;
+    }
+    else
+    {
+        ///\todo do something for vertex models here
+        return zero_vector<double>(DIM);
+    }
+}
+
+template<unsigned DIM>
 void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
     unsigned num_nodes = this->mrCellPopulation.GetNumNodes();
@@ -116,7 +199,7 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
     }
 
     // Update node locations
-    this->mrCellPopulation.UpdateNodeLocations(rNodeForces, this->mDt);
+    static_cast<AbstractOffLatticeCellPopulation<DIM>*>(&(this->mrCellPopulation))->UpdateNodeLocations(rNodeForces, this->mDt);
 
     // Apply any boundary conditions
     for (typename std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > >::iterator bcs_iter = mBoundaryConditions.begin();
@@ -169,7 +252,8 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
                 if (is_real_node)
                 {
                     const c_vector<double,DIM>& position = this->mrCellPopulation.GetNode(node_index)->rGetLocation();
-                    c_vector<double, DIM> velocity = this->mDt * rNodeForces[node_index] / this->mrCellPopulation.GetDampingConstant(node_index);
+                    double damping_constant = static_cast<AbstractOffLatticeCellPopulation<DIM>*>(&(this->mrCellPopulation))->GetDampingConstant(node_index);
+                    c_vector<double, DIM> velocity = this->mDt * rNodeForces[node_index] / damping_constant;
 
                     *mpNodeVelocitiesFile << node_index  << " ";
                     for (unsigned i=0; i<DIM; i++)

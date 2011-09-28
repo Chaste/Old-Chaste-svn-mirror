@@ -61,19 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class OffLatticeSimulation : public AbstractCellBasedSimulation<DIM>
 {
-protected:
-
-    /** The mechanics used to determine the new location of the cells, a list of the forces. */
-    std::vector<boost::shared_ptr<AbstractForce<DIM> > > mForceCollection;
-
-    /** List of boundary conditions. */
-    std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > > mBoundaryConditions;
-
-    /** Whether to write the node velocities to a file. */
-    bool mOutputNodeVelocities;
-
-    /** Results file node velocities. */
-    out_stream mpNodeVelocitiesFile;
+private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -92,6 +80,20 @@ protected:
         archive & mBoundaryConditions;
         archive & mOutputNodeVelocities;
     }
+
+protected:
+
+    /** The mechanics used to determine the new location of the cells, a list of the forces. */
+    std::vector<boost::shared_ptr<AbstractForce<DIM> > > mForceCollection;
+
+    /** List of boundary conditions. */
+    std::vector<boost::shared_ptr<AbstractCellPopulationBoundaryCondition<DIM> > > mBoundaryConditions;
+
+    /** Whether to write the node velocities to a file. */
+    bool mOutputNodeVelocities;
+
+    /** Results file node velocities. */
+    out_stream mpNodeVelocitiesFile;
 
     /**
      * Overridden UpdateCellLocationsAndTopology() method.
@@ -119,12 +121,30 @@ protected:
      */
     virtual void AfterSolve();
 
+    /**
+     * Overridden CalculateCellDivisionVector() method for determining how cell division occurs.
+     * This method returns a vector which is then passed into the CellPopulation method AddCell().
+     * This method may be overridden by subclasses.
+     *
+     * For a centre-based cell population, this method calculates the new locations of the cell
+     * centres of a dividing cell, moves the parent cell and returns the location of
+     * the daughter cell. The new locations are found by picking a random direction
+     * and placing the parent and daughter in opposing directions along this axis.
+     *
+     * For a vertex-based cell population, the method returns the zero vector.
+     *
+     * @param pParentCell the parent cell
+     *
+     * @return a vector containing information on cell division.
+     */
+    virtual c_vector<double, DIM> CalculateCellDivisionVector(CellPtr pParentCell);
+
 public:
 
     /**
      * Constructor.
      *
-     * @param rCellPopulation A cell population object
+     * @param rCellPopulation Reference to a cell population object
      * @param deleteCellPopulationInDestructor Whether to delete the cell population on destruction to
      *     free up memory (defaults to false)
      * @param initialiseCells Whether to initialise cells (defaults to true, set to false when loading

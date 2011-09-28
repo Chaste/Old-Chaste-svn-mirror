@@ -69,7 +69,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     // Get the unit vector parallel to the line joining the two nodes
     c_vector<double, DIM> unit_difference;
-    if (rCellPopulation.IsMeshBasedCellPopulation())
+    if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
     {
         /*
          * We use the mesh method GetVectorFromAtoB() to compute the direction of the
@@ -122,7 +122,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      */
     if (ageA < mMeinekeSpringGrowthDuration && ageB < mMeinekeSpringGrowthDuration)
     {
-        if (rCellPopulation.IsMeshBasedCellPopulation())
+        if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
         {
             MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
@@ -177,7 +177,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation, is_closer_than_rest_length);
     double spring_stiffness = mMeinekeSpringStiffness;
 
-    if (rCellPopulation.IsMeshBasedCellPopulation())
+    if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
     {
         return multiplication_factor * spring_stiffness * unit_difference * overlap;
     }

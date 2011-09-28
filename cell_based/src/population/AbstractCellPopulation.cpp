@@ -35,10 +35,7 @@ AbstractCellPopulation<DIM>::AbstractCellPopulation(std::vector<CellPtr>& rCells
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mCentroid(zero_vector<double>(DIM)),
-      mCellPopulationContainsMesh(false),
       mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership()),
-      mDampingConstantNormal(1.0),
-      mDampingConstantMutant(1.0),
       mOutputCellIdData(false),
       mOutputCellMutationStates(false),
       mOutputCellAncestors(false),
@@ -116,12 +113,6 @@ template<unsigned DIM>
 std::list<CellPtr>& AbstractCellPopulation<DIM>::rGetCells()
 {
     return mCells;
-}
-
-template<unsigned DIM>
-bool AbstractCellPopulation<DIM>::IsMeshBasedCellPopulation()
-{
-    return mCellPopulationContainsMesh;
 }
 
 template<unsigned DIM>
@@ -722,8 +713,6 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFi
 template<unsigned DIM>
 void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t<DampingConstantNormal>" << mDampingConstantNormal << "</DampingConstantNormal>\n";
-    *rParamsFile << "\t\t<DampingConstantMutant>" << mDampingConstantMutant << "</DampingConstantMutant>\n";
     *rParamsFile << "\t\t<OutputCellIdData>" << mOutputCellIdData << "</OutputCellIdData>\n";
     *rParamsFile << "\t\t<OutputCellMutationStates>" << mOutputCellMutationStates << "</OutputCellMutationStates>\n";
     *rParamsFile << "\t\t<OutputCellAncestors>" << mOutputCellAncestors << "</OutputCellAncestors>\n";
@@ -737,18 +726,6 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rPa
 ///////////////////////////////////////////////////////////////////////
 // Getter methods
 ///////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-double AbstractCellPopulation<DIM>::GetDampingConstantNormal()
-{
-    return mDampingConstantNormal;
-}
-
-template<unsigned DIM>
-double AbstractCellPopulation<DIM>::GetDampingConstantMutant()
-{
-    return mDampingConstantMutant;
-}
 
 template<unsigned DIM>
 bool AbstractCellPopulation<DIM>::GetOutputCellIdData()
@@ -801,20 +778,6 @@ bool AbstractCellPopulation<DIM>::GetOutputCellVolumes()
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-void AbstractCellPopulation<DIM>::SetDampingConstantNormal(double dampingConstantNormal)
-{
-    assert(dampingConstantNormal > 0.0);
-    mDampingConstantNormal = dampingConstantNormal;
-}
-
-template<unsigned DIM>
-void AbstractCellPopulation<DIM>::SetDampingConstantMutant(double dampingConstantMutant)
-{
-    assert(dampingConstantMutant > 0.0);
-    mDampingConstantMutant = dampingConstantMutant;
-}
 
 template<unsigned DIM>
 void AbstractCellPopulation<DIM>::SetOutputCellIdData(bool writeCellIdData)

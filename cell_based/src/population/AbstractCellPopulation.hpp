@@ -82,10 +82,7 @@ private:
         archive & mCellLocationMap;
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
-        archive & mCellPopulationContainsMesh;
         archive & mpCellPropertyRegistry;
-        archive & mDampingConstantNormal;
-        archive & mDampingConstantMutant;
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;
@@ -158,24 +155,8 @@ protected:
     /** Meta results file for VTK. */
     out_stream mpVtkMetaFile;
 
-    /** Whether the cell population contains a mesh. */
-    bool mCellPopulationContainsMesh;
-
     /** Cell property registry. */
     boost::shared_ptr<CellPropertyRegistry> mpCellPropertyRegistry;
-
-    /**
-     * Damping constant for normal cells has units of kg s^-1
-     * Represented by the parameter eta in the model by Meineke et al (2001) in
-     * their off-lattice model of the intestinal crypt
-     * (doi:10.1046/j.0960-7722.2001.00216.x).
-     */
-    double mDampingConstantNormal;
-
-    /**
-     * Damping constant for mutant cells has units of kg s^-1
-     */
-    double mDampingConstantMutant;
 
     /** Whether to write cell ID data to file. */
     bool mOutputCellIdData;
@@ -257,11 +238,6 @@ public:
     std::list<CellPtr>& rGetCells();
 
     /**
-     * @return whether the cell population is a MeshBasedCellPopulation.
-     */
-    bool IsMeshBasedCellPopulation();
-
-    /**
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -292,17 +268,6 @@ public:
     virtual Node<DIM>* GetNode(unsigned index)=0;
 
     /**
-     * Add a new node to the cell population.
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
-     * @param pNewNode pointer to the new node
-     * @return global index of new node in cell population.
-     */
-    virtual unsigned AddNode(Node<DIM>* pNewNode)=0;
-
-    /**
      * Move the node with a given index to a new point in space.
      *
      * As this method is pure virtual, it must be overridden
@@ -324,31 +289,6 @@ public:
      *         node (cell-centre models) or element (vertex models).
      */
     virtual bool IsCellAssociatedWithADeletedLocation(CellPtr pCell)=0;
-
-    /**
-     * Update the location of each node in the cell population given
-     * a vector of forces on nodes and a time step over which to
-     * integrate the equations of motion.
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
-     * @param rNodeForces  forces on nodes
-     * @param dt time step
-     */
-    virtual void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
-    {}
-
-    /**
-     * Get the damping constant for this node - ie d in drdt = F/d.
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
-     * @param nodeIndex the global index of this node
-     * @return the damping constant at the node.
-     */
-    virtual double GetDampingConstant(unsigned nodeIndex)=0;
 
     /**
      * Add a new cell to the cell population.
@@ -580,15 +520,6 @@ public:
     virtual void OutputCellPopulationParameters(out_stream& rParamsFile)=0;
 
     /**
-     * @return mDampingConstantNormal
-     */
-    double GetDampingConstantNormal();
-    /**
-     * @return mDampingConstantMutant
-     */
-    double GetDampingConstantMutant();
-
-    /**
      * @return mOutputCellIdData
      */
     bool GetOutputCellIdData();
@@ -627,20 +558,6 @@ public:
      * @return mOutputCellVolumes
      */
     bool GetOutputCellVolumes();
-
-    /**
-      * Set mDampingConstantNormal.
-      *
-      * @param dampingConstantNormal  the new value of mDampingConstantNormal
-     */
-    void SetDampingConstantNormal(double dampingConstantNormal);
-
-    /**
-     * Set mDampingConstantMutant.
-     *
-     * @param dampingConstantMutant  the new value of mDampingConstantMutant
-     */
-    void SetDampingConstantMutant(double dampingConstantMutant);
 
     /**
      * Set mOutputCellIdData.

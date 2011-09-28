@@ -63,6 +63,40 @@ class AbstractCellBasedSimulation : public Identifiable
     friend class TestOffLatticeSimulation3d;
     friend class TestOffLatticeSimulation;
 
+private:
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+
+    /**
+     * Save or restore the simulation.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        SerializableSingleton<SimulationTime>* p_time_wrapper = SimulationTime::Instance()->GetSerializationWrapper();
+        archive & p_time_wrapper;
+
+        SerializableSingleton<CellwiseData<DIM> >* p_cellwise_data_wrapper = CellwiseData<DIM>::Instance()->GetSerializationWrapper();
+        archive & p_cellwise_data_wrapper;
+
+        SerializableSingleton<RandomNumberGenerator>* p_rng_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_rng_wrapper;
+
+        archive & mDt;
+        archive & mEndTime;
+        archive & mNoBirth;
+        archive & mUpdateCellPopulation;
+        archive & mOutputDirectory;
+        archive & mNumBirths;
+        archive & mNumDeaths;
+        archive & mCellKillers;
+        archive & mSamplingTimestepMultiple;
+    }
+
 protected:
 
     /** Time step. */
@@ -110,38 +144,6 @@ protected:
     /** List of cell killers. */
     std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > > mCellKillers;
 
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-
-    /**
-     * Save or restore the simulation.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        SerializableSingleton<SimulationTime>* p_time_wrapper = SimulationTime::Instance()->GetSerializationWrapper();
-        archive & p_time_wrapper;
-
-        SerializableSingleton<CellwiseData<DIM> >* p_cellwise_data_wrapper = CellwiseData<DIM>::Instance()->GetSerializationWrapper();
-        archive & p_cellwise_data_wrapper;
-
-        SerializableSingleton<RandomNumberGenerator>* p_rng_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
-        archive & p_rng_wrapper;
-
-        archive & mDt;
-        archive & mEndTime;
-        archive & mNoBirth;
-        archive & mUpdateCellPopulation;
-        archive & mOutputDirectory;
-        archive & mNumBirths;
-        archive & mNumDeaths;
-        archive & mCellKillers;
-        archive & mSamplingTimestepMultiple;
-    }
-
     /**
      * Writes out special information about the mesh to the visualizer.
      */
@@ -160,22 +162,16 @@ protected:
 
     /**
      * Method for determining how cell division occurs. This method returns a vector
-     * which is then passed into the CellPopulation method AddCell(). This method may be
-     * overridden by subclasses.
-     *
-     * For a centre-based cell population, this method calculates the new locations of the cell
-     * centres of a dividing cell, moves the parent cell and returns the location of
-     * the daughter cell. The new locations are found by picking a random direction
-     * and placing the parent and daughter in opposing directions along this axis.
-     *
-     * For a vertex-based cell population, the method returns the zero vector.
+     * which is then passed into the CellPopulation method AddCell().
+     * 
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
      *
      * @param pParentCell the parent cell
      *
      * @return a vector containing information on cell division.
-     *
      */
-    virtual c_vector<double, DIM> CalculateCellDivisionVector(CellPtr pParentCell);
+    virtual c_vector<double, DIM> CalculateCellDivisionVector(CellPtr pParentCell)=0;
 
     /**
      * During a simulation time step, process any cell sloughing or death

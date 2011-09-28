@@ -55,8 +55,6 @@ MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMe
     // This must always be true
     assert(this->mCells.size() <= mrMesh.GetNumNodes());
 
-    this->mCellPopulationContainsMesh = true;
-
     if (validate)
     {
         Validate();
@@ -67,7 +65,6 @@ template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh)
     : mrMesh(rMesh)
 {
-    this->mCellPopulationContainsMesh = true;
     mpVoronoiTessellation = NULL;
     mDeleteMesh = true;
 }

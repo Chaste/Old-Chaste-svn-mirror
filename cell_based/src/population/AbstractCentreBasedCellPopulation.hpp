@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCENTREBASEDCELLPOPULATION_HPP_
 #define ABSTRACTCENTREBASEDCELLPOPULATION_HPP_
 
-#include "AbstractCellPopulation.hpp"
+#include "AbstractOffLatticeCellPopulation.hpp"
 
 // Needed here to avoid serialization errors (on Boost<1.37)
 #include "WildTypeCellMutationState.hpp"
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * each cell corresponds to a Node.
  */
 template<unsigned DIM>
-class AbstractCentreBasedCellPopulation : public AbstractCellPopulation<DIM>
+class AbstractCentreBasedCellPopulation : public AbstractOffLatticeCellPopulation<DIM>
 {
 private:
     /** Needed for serialization. */
@@ -53,7 +53,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellPopulation<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractOffLatticeCellPopulation<DIM> >(*this);
         archive & mMeinekeDivisionSeparation;
     }
 
@@ -199,7 +199,7 @@ public:
     void SetMeinekeDivisionSeparation(double divisionSeparation);
 
     /**
-     * Outputs CellPopulation parameters to file
+     * Overridden OutputCellPopulationParameters() method.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */

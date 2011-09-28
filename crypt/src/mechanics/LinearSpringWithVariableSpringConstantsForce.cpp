@@ -97,7 +97,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseEdgeBasedSpringConstant)
     {
-        assert(rCellPopulation.IsMeshBasedCellPopulation());
+        assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation));
         assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
 
         multiplication_factor = (static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
@@ -136,7 +136,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseBCatSprings)
     {
-        assert(rCellPopulation.IsMeshBasedCellPopulation());
+        assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation));
+
         // If using beta-cat dependent springs, both cell-cycle models had better be VanLeeuwen2009WntSwatCellCycleModel
         AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_A = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_A->GetCellCycleModel());
         AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_B = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_B->GetCellCycleModel());

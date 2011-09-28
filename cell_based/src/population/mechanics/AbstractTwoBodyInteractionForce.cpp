@@ -66,7 +66,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
         EXCEPTION("Subclasses of AbstractTwoBodyInteractionForce are to be used with subclasses of AbstractCentreBasedCellPopulation only");
     }
 
-    if (rCellPopulation.IsMeshBasedCellPopulation())
+    if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
     {
         MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 

@@ -31,14 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AbstractCentreBasedCellPopulation<DIM>::AbstractCentreBasedCellPopulation(std::vector<CellPtr>& rCells,
                                                                   const std::vector<unsigned> locationIndices)
-    : AbstractCellPopulation<DIM>(rCells, locationIndices),
+    : AbstractOffLatticeCellPopulation<DIM>(rCells, locationIndices),
       mMeinekeDivisionSeparation(0.3) // educated guess
 {
 }
 
 template<unsigned DIM>
 AbstractCentreBasedCellPopulation<DIM>::AbstractCentreBasedCellPopulation()
-    : AbstractCellPopulation<DIM>(),
+    : AbstractOffLatticeCellPopulation<DIM>(),
       mMeinekeDivisionSeparation(0.3) // educated guess
 {
 }
@@ -136,7 +136,7 @@ void AbstractCentreBasedCellPopulation<DIM>::GenerateCellResults(unsigned locati
     }
     else
     {
-        AbstractCellPopulation<DIM>::GenerateCellResults(locationIndex,
+        AbstractOffLatticeCellPopulation<DIM>::GenerateCellResults(locationIndex,
                                                  rCellProliferativeTypeCounter,
                                                  rCellCyclePhaseCounter);
     }
@@ -235,7 +235,7 @@ void AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_
     *rParamsFile << "\t\t<MeinekeDivisionSeparation>" << mMeinekeDivisionSeparation << "</MeinekeDivisionSeparation>\n";
 
     // Call method on direct parent class
-    AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    AbstractOffLatticeCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////

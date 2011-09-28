@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 
 #include "AbstractCellBasedSimulation.hpp"
-#include "AbstractCentreBasedCellPopulation.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
@@ -46,7 +45,8 @@ template<unsigned DIM>
 AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                                               bool deleteCellPopulationInDestructor,
                                               bool initialiseCells)
-    : mEndTime(0.0),  // hours - this is set later on
+    : mDt(DOUBLE_UNSET),
+      mEndTime(0.0),  // hours - this is set later on
       mrCellPopulation(rCellPopulation),
       mDeleteCellPopulationInDestructor(deleteCellPopulationInDestructor),
       mInitialiseCells(initialiseCells),
@@ -60,16 +60,6 @@ AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopula
 {
     // Set a random seed of 0 if it wasn't specified earlier
     RandomNumberGenerator::Instance();
-
-    // Different time steps are used for cell-centre and vertex-based simulations
-    if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&rCellPopulation))
-    {
-        mDt = 1.0/120.0; // 30 seconds
-    }
-    else
-    {
-        mDt = 0.002; // smaller time step required for convergence/stability
-    }
 
     if (mInitialiseCells)
     {
@@ -142,80 +132,6 @@ unsigned AbstractCellBasedSimulation<DIM>::DoCellRemoval()
     num_deaths_this_step += mrCellPopulation.RemoveDeadCells();
 
     return num_deaths_this_step;
-}
-
-template<unsigned DIM>
-c_vector<double, DIM> AbstractCellBasedSimulation<DIM>::CalculateCellDivisionVector(CellPtr pParentCell)
-{
-    /**
-     * \todo Could remove this dynamic_cast by moving the code block below into
-     * AbstractCentreBasedCellPopulation::AddCell(), allowing it to be overruled by
-     * this method when overridden in subclasses. See also comment on #1093.
-     */
-    if (dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(&mrCellPopulation))
-    {
-        // Location of parent and daughter cells
-        c_vector<double, DIM> parent_coords = mrCellPopulation.GetLocationOfCellCentre(pParentCell);
-        c_vector<double, DIM> daughter_coords;
-
-        // Get separation parameter
-        double separation = static_cast<AbstractCentreBasedCellPopulation<DIM>*>(&mrCellPopulation)->GetMeinekeDivisionSeparation();
-
-        // Make a random direction vector of the required length
-        c_vector<double, DIM> random_vector;
-
-        /*
-         * Pick a random direction and move the parent cell backwards by 0.5*separation
-         * in that direction and return the position of the daughter cell 0.5*separation
-         * forwards in that direction.
-         */
-        switch (DIM)
-        {
-            case 1:
-            {
-                double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
-
-                random_vector(0) = 0.5*separation*random_direction;
-                break;
-            }
-            case 2:
-            {
-                double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
-
-                random_vector(0) = 0.5*separation*cos(random_angle);
-                random_vector(1) = 0.5*separation*sin(random_angle);
-                break;
-            }
-            case 3:
-            {
-                double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
-                double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
-
-                random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
-                random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
-                random_vector(2) = 0.5*separation*cos(random_zenith_angle);
-                break;
-            }
-            default:
-                // This can't happen
-                NEVER_REACHED;
-        }
-
-        parent_coords = parent_coords - random_vector;
-        daughter_coords = parent_coords + random_vector;
-
-        // Set the parent to use this location
-        ChastePoint<DIM> parent_coords_point(parent_coords);
-        unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(pParentCell);
-        mrCellPopulation.SetNode(node_index, parent_coords_point);
-
-        return daughter_coords;
-    }
-    else
-    {
-        // Do something for Vertex / Potts Models here
-        return zero_vector<double>(DIM);
-    }
 }
 
 template<unsigned DIM>

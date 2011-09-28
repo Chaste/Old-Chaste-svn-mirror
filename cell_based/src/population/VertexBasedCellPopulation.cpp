@@ -37,15 +37,15 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
                                           bool deleteMesh,
                                           bool validate,
                                           const std::vector<unsigned> locationIndices)
-    : AbstractCellPopulation<DIM>(rCells, locationIndices),
+    : AbstractOffLatticeCellPopulation<DIM>(rCells, locationIndices),
       mrMesh(rMesh),
       mDeleteMesh(deleteMesh)
 {
     // Check the mesh contains boundary nodes
     bool contains_boundary_nodes = false;
     for (typename MutableVertexMesh<DIM,DIM>::NodeIterator node_iter = mrMesh.GetNodeIteratorBegin();
-             node_iter != mrMesh.GetNodeIteratorEnd();
-             ++node_iter)
+         node_iter != mrMesh.GetNodeIteratorEnd();
+         ++node_iter)
     {
         if (node_iter->IsBoundaryNode())
         {
@@ -68,9 +68,10 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
 
 template<unsigned DIM>
 VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM, DIM>& rMesh)
-    : mrMesh(rMesh)
+    : AbstractOffLatticeCellPopulation<DIM>(),
+      mrMesh(rMesh),
+      mDeleteMesh(true)
 {
-    mDeleteMesh = true;
 }
 
 template<unsigned DIM>
@@ -348,7 +349,7 @@ void VertexBasedCellPopulation<DIM>::Validate()
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
 {
-    AbstractCellPopulation<DIM>::WriteResultsToFiles();
+    AbstractOffLatticeCellPopulation<DIM>::WriteResultsToFiles();
 
     SimulationTime* p_time = SimulationTime::Instance();
 
@@ -597,7 +598,7 @@ void VertexBasedCellPopulation<DIM>::WriteVtkResultsToFile()
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    AbstractCellPopulation<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
+    AbstractOffLatticeCellPopulation<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
@@ -608,7 +609,7 @@ void VertexBasedCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirec
 template<unsigned DIM>
 void VertexBasedCellPopulation<DIM>::CloseOutputFiles()
 {
-    AbstractCellPopulation<DIM>::CloseOutputFiles();
+    AbstractOffLatticeCellPopulation<DIM>::CloseOutputFiles();
     mpVizElementsFile->close();
     mpT1SwapLocationsFile->close();
     mpT3SwapLocationsFile->close();
@@ -651,7 +652,7 @@ void VertexBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& 
     *rParamsFile << "\t\t<CellRearrangementRatio>" << mrMesh.GetCellRearrangementRatio() << "</CellRearrangementRatio>\n";
 
     // Call method on direct parent class
-    AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    AbstractOffLatticeCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 template<unsigned DIM>

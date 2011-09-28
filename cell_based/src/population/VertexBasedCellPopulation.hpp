@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXBASEDCELLPOPULATION_HPP_
 #define VERTEXBASEDCELLPOPULATION_HPP_
 
-#include "AbstractCellPopulation.hpp"
+#include "AbstractOffLatticeCellPopulation.hpp"
 #include "MutableVertexMesh.hpp"
 
 #include "ChasteSerialization.hpp"
@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned DIM>
-class VertexBasedCellPopulation : public AbstractCellPopulation<DIM>
+class VertexBasedCellPopulation : public AbstractOffLatticeCellPopulation<DIM>
 {
 private:
 
@@ -90,7 +90,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellPopulation<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractOffLatticeCellPopulation<DIM> >(*this);
     }
 
     /**
