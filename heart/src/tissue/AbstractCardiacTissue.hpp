@@ -223,7 +223,7 @@ protected:
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
-    /** The vector of the purkinje cells. Distributed. Empty unless a `AbstractPurkinjeCellFactory` is given to the constructor. */
+    /** The vector of the purkinje cells. Distributed. Empty unless a AbstractPurkinjeCellFactory is given to the constructor. */
 	std::vector< AbstractCardiacCell* > mPurkinjeCellsDistributed;
 
     /**
@@ -248,17 +248,6 @@ protected:
     HeartConfig* mpConfig;
 
     /**
-     * Whether we need to replicate the caches.
-     *
-     * When doing matrix-based RHS assembly, we only actually need information from
-     * cells/nodes local to the processor, so replicating the caches is an
-     * unnecessary communication overhead.
-     *
-     * Defaults to true.
-     */
-    bool mDoCacheReplication;
-
-    /**
      * Local pointer to the distributed vector factory associated with the mesh object used.
      *
      * Used to retrieve node ownership range when needed.
@@ -267,11 +256,6 @@ protected:
      * that.  We never assume ownership of the object.
      */
     DistributedVectorFactory* mpDistributedVectorFactory;
-
-    /**
-     * Whether the mesh was unarchived or got from elsewhere.
-     */
-    bool mMeshUnarchived;
 
     /**
      * Path to the location of the fibre file without extension.
@@ -284,6 +268,25 @@ protected:
      * For example, it is required when conductivities become deformation dependent.
      */
     AbstractConductivityModifier<ELEMENT_DIM,SPACE_DIM>* mpConductivityModifier;
+
+    /** Whether this tissue has any Purkinje cells. */
+    bool mHasPurkinje;
+
+    /**
+     * Whether we need to replicate the caches.
+     *
+     * When doing matrix-based RHS assembly, we only actually need information from
+     * cells/nodes local to the processor, so replicating the caches is an
+     * unnecessary communication overhead.
+     *
+     * Defaults to true.
+     */
+    bool mDoCacheReplication;
+
+    /**
+     * Whether the mesh was unarchived or got from elsewhere.
+     */
+    bool mMeshUnarchived;
 
     /**
      * Whether to exchange cell models across the halo boundaries.
@@ -335,7 +338,8 @@ public:
      *
      * Note that pCellFactory contains a pointer to the mesh
      *
-     * @param pCellFactory  factory to use to create cardiac cells. If this is actually an `AbstractPurkinjeCellFactory` it creates purkinje cells.
+     * @param pCellFactory  factory to use to create cardiac cells.
+     *     If this is actually an AbstractPurkinjeCellFactory it creates purkinje cells.
      * @param exchangeHalos used in state-variable interpolation.  Defaults to false.
      */
     AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory, bool exchangeHalos=false);
@@ -349,6 +353,9 @@ public:
 
     /** Virtual destructor */
     virtual ~AbstractCardiacTissue();
+
+    /** Determine whether this tissue contains Purkinje fibres. */
+    bool HasPurkinje();
 
     /**
      * Set whether or not to replicate the caches across all processors.
@@ -390,6 +397,16 @@ public:
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
 
     /**
+     * Get a pointer to a Purkinje cell, indexed by the global node index.
+     *
+     * \note Should only called by the process owning the cell -
+     * triggers an assertion otherwise.
+     *
+     * @param globalIndex  global node index for which to retrieve a cell
+     */
+    AbstractCardiacCell* GetPurkinjeCell( unsigned globalIndex );
+
+    /**
      * Get a pointer to a halo cell, indexed by the global node index.
      *
      * \note Should only called by the process halo owning the cell -
@@ -416,6 +433,9 @@ public:
     /** Get the entire stimulus current cache */
     ReplicatableVector& rGetIntracellularStimulusCacheReplicated();
 
+    /** Get the entire Purkinje ionic current cache */
+    ReplicatableVector& rGetPurkinjeIionicCacheReplicated();
+
 
     /**
      * Update the Iionic and intracellular stimulus caches.
@@ -435,6 +455,11 @@ public:
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
      */
     const std::vector<AbstractCardiacCell*>& rGetCellsDistributed() const;
+
+    /**
+     *  Returns a reference to the vector of distributed Purkinje cells. Needed for archiving.
+     */
+    const std::vector<AbstractCardiacCell*>& rGetPurkinjeCellsDistributed() const;
 
     /**
      *  Returns a pointer to the mesh object

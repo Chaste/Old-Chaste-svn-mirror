@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
 #include "OrthotropicConductivityTensors.hpp"
+#include "Exception.hpp"
 #include "ChastePoint.hpp"
 #include "AbstractChasteRegion.hpp"
 #include "HeartEventHandler.hpp"
@@ -42,10 +43,11 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
             bool exchangeHalos)
     : mpMesh(pCellFactory->GetMesh()),
-      mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
-      mMeshUnarchived(false),
       mpConductivityModifier(NULL),
+      mHasPurkinje(false),
+      mDoCacheReplication(true),
+      mMeshUnarchived(false),
       mExchangeHalos(exchangeHalos)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
@@ -62,8 +64,17 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
 
+    // Figure out if we're dealing with Purkinje
+    AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>* p_purkinje_cell_factory
+       = dynamic_cast<AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>*>(pCellFactory);
+    if (p_purkinje_cell_factory)
+    {
+        mHasPurkinje = true;
+        mPurkinjeCellsDistributed.resize(num_local_nodes);
+    }
+
     /////////////////////////////////////////////////////
-    // Set up normal cardiac cells
+    // Set up cells
     /////////////////////////////////////////////////////
     try
     {
@@ -72,11 +83,23 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
             unsigned global_index = ownership_range_low + local_index;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
             mCellsDistributed[local_index]->SetUsedInTissueSimulation();
+
+            if (mHasPurkinje)
+            {
+                mPurkinjeCellsDistributed[local_index] = p_purkinje_cell_factory->CreatePurkinjeCellForNode(global_index);
+                mPurkinjeCellsDistributed[local_index]->SetUsedInTissueSimulation();
+            }
         }
 
         pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                            mpDistributedVectorFactory->GetLow(),
                                            mpDistributedVectorFactory->GetHigh());
+        if (mHasPurkinje)
+        {
+            p_purkinje_cell_factory->FinalisePurkinjeCellCreation(&mPurkinjeCellsDistributed,
+                                                                  mpDistributedVectorFactory->GetLow(),
+                                                                  mpDistributedVectorFactory->GetHigh());
+        }
     }
     catch (const Exception& e)
     {
@@ -106,61 +129,11 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
-    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
-
-    //////////////////////////////////////////////////////////////////
-    // Set up Purkinje cells (if a purkinje cell factory was given
-    //////////////////////////////////////////////////////////////////
-    AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>* p_purkinje_cell_factory
-       = dynamic_cast<AbstractPurkinjeCellFactory<ELEMENT_DIM,SPACE_DIM>*>(pCellFactory);
-
-    if ( p_purkinje_cell_factory != NULL )
+    if (mHasPurkinje)
     {
-    	mPurkinjeCellsDistributed.resize(num_local_nodes);
-
-		try
-		{
-			for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
-			{
-				unsigned global_index = ownership_range_low + local_index;
-				mPurkinjeCellsDistributed[local_index] = p_purkinje_cell_factory->CreatePurkinjeCellForNode(global_index);
-				mPurkinjeCellsDistributed[local_index]->SetUsedInTissueSimulation();
-			}
-
-			p_purkinje_cell_factory->FinalisePurkinjeCellCreation(&mPurkinjeCellsDistributed,
-															      mpDistributedVectorFactory->GetLow(),
-															      mpDistributedVectorFactory->GetHigh());
-		}
-		catch (const Exception& e)
-		{
-			NEVER_REACHED;
-            ///\todo #1898 uncomment the below the below and cover..
-
-//			// COMMENT COPIED FROM ABOVE: This catch statement is quite tricky to cover, but it is actually done in TestCardiacSimulation::TestMono1dSodiumBlockBySettingNamedParameter
-//
-//			// Errors thrown creating cells will often be process-specific
-//			PetscTools::ReplicateException(true);
-//
-//			// Delete cells
-//			// Should really do this for other processes too, but this is all we need
-//			// to get memory testing to pass, and leaking when we're about to die isn't
-//			// that bad!
-//			for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mPurkinjeCellsDistributed.begin();
-//				 cell_iterator != mPurkinjeCellsDistributed.end();
-//				 ++cell_iterator)
-//			{
-//				delete (*cell_iterator);
-//			}
-//
-//			throw e;
-		}
-		PetscTools::ReplicateException(false);
-
-		HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-		mPurkinjeIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
-		//mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
-		HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
+        mPurkinjeIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     }
+    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 
     if(HeartConfig::Instance()->IsMeshProvided() && HeartConfig::Instance()->GetLoadMesh())
     {
@@ -178,8 +151,9 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacTissue(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     : mpMesh(pMesh),
-      mDoCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
+      mHasPurkinje(false),
+      mDoCacheReplication(true),
       mMeshUnarchived(true),
       mExchangeHalos(false)
 {
@@ -224,6 +198,13 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacTissue()
     {
         delete mpMesh;
     }
+}
+
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+bool AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::HasPurkinje()
+{
+    return mHasPurkinje;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -376,6 +357,15 @@ AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetCardiacCel
     assert(mpDistributedVectorFactory->GetLow() <= globalIndex &&
            globalIndex < mpDistributedVectorFactory->GetHigh());
     return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+AbstractCardiacCell* AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::GetPurkinjeCell( unsigned globalIndex )
+{
+    assert(mpDistributedVectorFactory->GetLow() <= globalIndex &&
+           globalIndex < mpDistributedVectorFactory->GetHigh());
+    EXCEPT_IF_NOT(mHasPurkinje);
+    return mPurkinjeCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -618,10 +608,21 @@ ReplicatableVector& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetIntracellu
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+ReplicatableVector& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetPurkinjeIionicCacheReplicated()
+{
+    EXCEPT_IF_NOT(mHasPurkinje);
+    return mPurkinjeIionicCacheReplicated;
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
 {
     mIionicCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIIonic();
     mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
+    if (mHasPurkinje)
+    {
+        mPurkinjeIionicCacheReplicated[globalIndex] = mPurkinjeCellsDistributed[localIndex]->GetIIonic();
+    }
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -629,12 +630,23 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::ReplicateCaches()
 {
     mIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
     mIntracellularStimulusCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
+    if (mHasPurkinje)
+    {
+        mPurkinjeIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
+    }
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 const std::vector<AbstractCardiacCell*>& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetCellsDistributed() const
 {
     return mCellsDistributed;
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+const std::vector<AbstractCardiacCell*>& AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::rGetPurkinjeCellsDistributed() const
+{
+    EXCEPT_IF_NOT(mHasPurkinje);
+    return mPurkinjeCellsDistributed;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>

@@ -83,7 +83,8 @@ public:
         mixed_mesh.ConstructFromMeshReader(reader);
 
         PurkinjeCellFactory cell_factory;
-        TS_ASSERT_THROWS_THIS(cell_factory.GetMixedDimensionMesh(),"The mixed dimension mesh object has not been set in the cell factory");
+        TS_ASSERT_THROWS_THIS(cell_factory.GetMixedDimensionMesh(),
+                              "The mixed dimension mesh object has not been set in the cell factory");
         cell_factory.SetMesh(&mixed_mesh);
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = mixed_mesh.GetNodeIteratorBegin();
@@ -110,7 +111,8 @@ public:
         TrianglesMeshReader<2,2> reader2("mesh/test/data/2D_0_to_1mm_200_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader2);
-        TS_ASSERT_THROWS_THIS(cell_factory.SetMesh(&mesh), "AbstractPurkinjeCellFactory must take a MixedDimensionMesh");
+        TS_ASSERT_THROWS_THIS(cell_factory.SetMesh(&mesh),
+                              "AbstractPurkinjeCellFactory must take a MixedDimensionMesh");
 
     }
 };

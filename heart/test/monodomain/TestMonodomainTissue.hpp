@@ -201,7 +201,9 @@ public:
         MonodomainTissue<1> monodomain_tissue( &cell_factory );
 
         // check the purkinje cells vector is empty
-		TS_ASSERT_EQUALS(monodomain_tissue.mPurkinjeCellsDistributed.size(), 0u);
+        TS_ASSERT(!monodomain_tissue.HasPurkinje());
+		TS_ASSERT_THROWS_ANYTHING(monodomain_tissue.rGetPurkinjeCellsDistributed().size());
+        TS_ASSERT_THROWS_ANYTHING(monodomain_tissue.rGetPurkinjeIionicCacheReplicated().GetSize());
 
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -598,9 +600,32 @@ public:
 
 		MonodomainTissue<2> tissue( &cell_factory );
 
-		TS_ASSERT_EQUALS(tissue.mCellsDistributed.size(), tissue.mPurkinjeCellsDistributed.size());
+		TS_ASSERT(tissue.HasPurkinje());
+		TS_ASSERT_EQUALS(tissue.rGetCellsDistributed().size(), tissue.rGetPurkinjeCellsDistributed().size());
+        TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(), tissue.rGetCellsDistributed().size());
 
-		///\todo #1898  add more Get methods and add tests
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = mixed_mesh.GetNodeIteratorBegin();
+             current_node != mixed_mesh.GetNodeIteratorEnd();
+             ++current_node)
+        {
+            unsigned global_index = current_node->GetIndex();
+            AbstractCardiacCell* p_purkinje_cell = tissue.GetPurkinjeCell(global_index);
+            double y = current_node->rGetLocation()[1];
+
+            // cable nodes are on y=0.05 (we don't test by index because indices may be permuted in parallel).
+            if( fabs(y-0.05) < 1e-8 )
+            {
+                TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_purkinje_cell) != NULL);
+            }
+            else
+            {
+                TS_ASSERT(dynamic_cast<FakeBathCell*>(p_purkinje_cell) != NULL);
+            }
+
+            TS_ASSERT_EQUALS(tissue.rGetPurkinjeCellsDistributed()[global_index-mixed_mesh.GetDistributedVectorFactory()->GetLow()],
+                             p_purkinje_cell);
+        }
+
 	}
 };
 
