@@ -358,6 +358,8 @@ unsigned BoxCollection<DIM>::CalculateContainingBox(Node<DIM>* pNode)
 template<unsigned DIM>
 unsigned BoxCollection<DIM>::CalculateContainingBox(c_vector<double, DIM>& rLocation)
 {
+	///\todo Deal with the problem case where the width of the cell population co-incides with the MechanicsCutOffLength of the cell population and therefore the width of the boxes.
+
     // The node must lie inside the boundary of the box collection
     for (unsigned i=0; i<DIM; i++)
     {
