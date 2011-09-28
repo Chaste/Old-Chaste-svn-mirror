@@ -27,9 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BoxCollection.hpp"
 #include "PetscTools.hpp"
-#include "Debug.hpp"
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Box methods
@@ -1210,12 +1207,12 @@ void BoxCollection<DIM>::UpdateHaloBoxes()
 
 	MPI_Sendrecv(	&size_send_right,
 					1,
-					MPI::UNSIGNED,
+					MPI_UNSIGNED,
 					mProcRight,
 					123,
 					&size_recv_right,
 					1,
-					MPI::UNSIGNED,
+					MPI_UNSIGNED,
 					mProcRight,
 					123,
 					PETSC_COMM_WORLD,
@@ -1228,12 +1225,12 @@ void BoxCollection<DIM>::UpdateHaloBoxes()
 	}
 	MPI_Sendrecv(	&size_send_left,
 					1,
-					MPI::UNSIGNED,
+					MPI_UNSIGNED,
 					mProcLeft,
 					123,
 					&size_recv_left,
 					1,
-					MPI::UNSIGNED,
+					MPI_UNSIGNED,
 					mProcLeft,
 					123,
 					PETSC_COMM_WORLD,
