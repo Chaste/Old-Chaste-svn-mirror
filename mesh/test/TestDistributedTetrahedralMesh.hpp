@@ -988,13 +988,13 @@ public:
                 typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
                 if (PetscTools::GetMyRank() > 0)
                 {
-                    /// Should not read this archive because none exists here.
+                    // Should not read this archive because none exists here.
                     TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, "distributed_tetrahedral_mesh.arch"),
                                 "Cannot load secondary archive file:");
                 }
                 else
                 {
-                    /// Should not read this archive because there are two or more processes and
+                    // Should not read this archive because there are two or more processes and
                     // this archive was written on one process.
                     InputArchiveOpener arch_opener(archive_dir, "distributed_tetrahedral_mesh.arch");
                     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();

@@ -621,7 +621,9 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::UpdateCaches(unsigned globalI
     mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
     if (mHasPurkinje)
     {
-        mPurkinjeIionicCacheReplicated[globalIndex] = mPurkinjeCellsDistributed[localIndex]->GetIIonic();
+        ///\todo #1898
+        NEVER_REACHED;
+//        mPurkinjeIionicCacheReplicated[globalIndex] = mPurkinjeCellsDistributed[localIndex]->GetIIonic();
     }
 }
 
@@ -632,7 +634,9 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::ReplicateCaches()
     mIntracellularStimulusCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
     if (mHasPurkinje)
     {
-        mPurkinjeIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
+        ///\todo #1898
+        NEVER_REACHED;
+//        mPurkinjeIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
     }
 }
 

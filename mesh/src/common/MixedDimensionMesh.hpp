@@ -192,7 +192,9 @@ inline void load_construct_data(
     if (DistributedVectorFactory::CheckNumberOfProcessesOnLoad() &&
         num_procs != PetscTools::GetNumProcs())
     {
-        EXCEPTION("This archive was written for a different number of processors");
+        ///\todo #1898
+        NEVER_REACHED;
+//        EXCEPTION("This archive was written for a different number of processors");
     }
 
 }

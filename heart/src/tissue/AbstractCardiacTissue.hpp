@@ -569,7 +569,9 @@ public:
             }
             else
             {
-                assert(mPurkinjeCellsDistributed.size() == p_mesh_factory->GetLocalOwnership());
+                ///\todo #1898
+                NEVER_REACHED;
+//                assert(mPurkinjeCellsDistributed.size() == p_mesh_factory->GetLocalOwnership());
             }
         }
 
@@ -651,7 +653,9 @@ public:
                 }
                 else
                 {
-                    fake_cells_non_local.insert(p_fake_purkinje);
+                    ///\todo #1898
+                    NEVER_REACHED;
+//                    fake_cells_non_local.insert(p_fake_purkinje);
                 }
             }
             // Add real cells to the local or halo vectors
