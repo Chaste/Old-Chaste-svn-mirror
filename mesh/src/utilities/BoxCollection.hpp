@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef BOXCOLLECTION_HPP_
 #define BOXCOLLECTION_HPP_
 
@@ -37,15 +38,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "DistributedVector.hpp"
 
-
 /**
  * A small class for a nD 'box' defined by its min/max x/y/z values which
- * can contains a list of nodes and elements located in that box
+ * can contains a list of nodes and elements located in that box.
  */
 template<unsigned DIM>
 class Box
 {
 private:
+
     /** Coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc). */
     c_vector<double, 2*DIM> mMinAndMaxValues;
 
@@ -54,9 +55,6 @@ private:
 
     /** Elements contained in this box. */
     std::set< Element<DIM,DIM>* > mElementsContained;
-
-
-
 
 public:
 
@@ -67,39 +65,47 @@ public:
      */
     Box(c_vector<double, 2*DIM>& rMinAndMaxValues);
 
-    /** Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc). */
+    /**
+     * Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc).
+     */
     c_vector<double, 2*DIM>& rGetMinAndMaxValues();
 
     /**
      * Add a node to this box.
+     * 
      * @param pNode address of the node to be added
      */
     void AddNode(Node<DIM>* pNode);
 
     /**
      * Remove a node from this box.
+     * 
      * @param pNode address of the node to be removed
      */
     void RemoveNode(Node<DIM>* pNode);
 
     /**
      * An element to this box.
+     * 
      * @param pElement address of the element to be added
      */
     void AddElement(Element<DIM,DIM>* pElement);
 
-    /** Get all the nodes in this box. */
+    /**
+     * Get all the nodes in this box.
+     */
     std::set< Node<DIM>* >& rGetNodesContained();
 
-    /** Get all the elements in this box. */
+    /**
+     * Get all the elements in this box.
+     */
     std::set< Element<DIM,DIM>* >& rGetElementsContained();
-
 };
 
-
 /**
- * A collection of 'boxes' partitioning the domain with information on which nodes are located in which box
- * Not archived - in cell_based constructed in NodeBasedCellPopulation constructor.
+ * A collection of 'boxes' partitioning the domain with information on which
+ * nodes are located in which box. Not archived - in cell_based constructed
+ * in NodeBasedCellPopulation constructor.
  */
 template<unsigned DIM>
 class BoxCollection
@@ -107,25 +113,29 @@ class BoxCollection
 	friend class TestBoxCollection;
 
 private:
+
     /** A vector of boxes to store rough node/element positions. **/
     std::vector< Box<DIM> > mBoxes;
 
-    /** A vector of halo boxes that are owned by adjacent processes used in calculation of forces across process boundaries **/
+    /**
+     * A vector of halo boxes that are owned by adjacent processes used in calculation
+     * of forces across process boundaries.
+     */
     std::vector< Box<DIM> > mHaloBoxes;
 
-    /** Vector of the global indices of the left hand halo boxes on this process **/
+    /** Vector of the global indices of the left hand halo boxes on this process. **/
     std::vector<unsigned> mHalosLeft;
 
-    /** Vector of the global indices of the right hand halo boxes on this process **/
+    /** Vector of the global indices of the right hand halo boxes on this process. **/
     std::vector<unsigned> mHalosRight;
 
-    /** A flag as to whether the local boxes have been set up **/
+    /** A flag as to whether the local boxes have been set up. **/
     bool mAreLocalBoxesSet;
 
-    /** Map of global to local indices of boxes **/
+    /** Map of global to local indices of boxes. **/
     std::map<unsigned, unsigned> mBoxesMapping;
 
-    /** Map of global to local indices of halo boxes in mHaloBoxes **/
+    /** Map of global to local indices of halo boxes in mHaloBoxes. **/
     std::map<unsigned, unsigned> mHaloBoxesMapping;
 
     /** The domain being partitioned. */
@@ -137,28 +147,31 @@ private:
     /** Number of boxes in each direction. */
     c_vector<unsigned, DIM> mNumBoxesEachDirection;
 
-    /** The global indices of boxes local (itself and nearest neighbour) to a given box (described by its global index.. */
+    /**
+     * The global indices of boxes local (itself and nearest neighbour) to a given box
+     * (described by its global index.
+     */
     std::vector< std::set<unsigned> > mLocalBoxes;
 
-    /** Number of Processes. */
+    /** Number of processes. */
     unsigned mNumProcs;
 
-    /** Process to the left (if it exists) **/
+    /** Process to the left (if it exists). **/
     int mProcLeft;
 
-    /** Process to the right (if it exists) **/
+    /** Process to the right (if it exists). **/
     int mProcRight;
 
     /** Pointer to distributed vector giving the local portion of the x-stacks of boxes. */
     DistributedVector* mpDistributedBoxStacks;
 
-    /* Total boxes across all processes */
+    /* Total boxes across all processes. */
     unsigned mNumBoxes;
 
 public:
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param boxWidth the width of each box (cut-off length in NodeBasedCellPopulation simulations)
      * @param domainSize the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
@@ -166,43 +179,50 @@ public:
     BoxCollection(double boxWidth, c_vector<double, 2*DIM> domainSize);
 
     /**
-     * return ownership of box. True if box is owned by current process
+     * Return ownership of box. True if box is owned by current process
      *
      * @param globalIndex global index of box
      */
     bool GetBoxOwnership(unsigned globalIndex);
 
     /**
-     * return halo ownership of box. True if halo of box is owned by current process
+     * Return halo ownership of box. True if halo of box is owned by current process
      *
      * @param globalIndex global index of box
      */
-    bool GetHaloBoxOwnership(unsigned boxIndex);
+    bool GetHaloBoxOwnership(unsigned globalIndex);
 
-    /*
+    /**
      * Calculate the global index of a box, given its indices (i,j,k).
+     * 
+     * @param indices the indices (i,j,k) of the box
      */
     unsigned CalculateGlobalIndex(c_vector<unsigned, DIM> indices);
 
-    /*
-     * Calculate x,y,z indices of box given 'global' index
+    /**
+     * Calculate x,y,z indices of box given its 'global' index.
+     * 
+     * @param globalIndex the global index of the box
      */
     c_vector<unsigned, DIM> CalculateCoordinateIndices(unsigned globalIndex);
 
     /**
      * Calculate which box this node is contained in.
+     * 
      * @param pNode address of the node
      */
     unsigned CalculateContainingBox(Node<DIM>* pNode);
 
     /**
-     * Calculate which box a point is contained in
+     * Calculate in which box a point is contained.
+     * 
      * @param rLocation The point
      */
     unsigned CalculateContainingBox(c_vector<double, DIM>& rLocation);
 
     /**
-     * Get a box using global index
+     * Get a box using global index.
+     * 
      * @param boxIndex the index of the box to return
      */
     Box<DIM>& rGetBox(unsigned boxIndex);
@@ -213,51 +233,53 @@ public:
     /**
      * Find the local index of the box with a given global index.
      *
-     * @param index The global index of box we want to find.
+     * @param globalIndex The global index of box we want to find.
      */
     unsigned SolveBoxMapping(unsigned globalIndex) const;
 
-
-    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. 
-     *  Just set up half of the local boxes (for example, in 1D, local boxes for box0 = {1}
-     *  local boxes for box1 = {2} not {0,2}, and so on. Similar to 2d, 3d.
+    /**
+     * Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. 
+     * Just set up half of the local boxes (for example, in 1D, local boxes for box0 = {1}
+     * local boxes for box1 = {2} not {0,2}, and so on. Similar to 2d, 3d.
      */
     void SetupLocalBoxesHalfOnly();
 
-    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. */
-
+    /**
+     * Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes.
+     */
     void SetupAllLocalBoxes();
 
-    /*
+    /**
      * Set up the list of halo boxes for each process.
      */
-
     void SetupHaloBoxes();
 
-    /*
+    /**
      * Update the nodes in the halo boxes
      */
-
     void UpdateHaloBoxes();
-
 
     /**
      * Get the set of all the local boxes, i.e. itself and its nearest-neighbours.
+     *
      * @param boxIndex the index of the box
      */
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
 
     /**
-     *  Compute all the pairs of (potentially) connected nodes for cell_based simulations, ie nodes which are in a
-     *  local box to the box containing the first node. **Note: the user still has to check that the node
-     *  pairs are less than the cut-off distance apart.** The pairs are checked so that index1 < index2,
-     *  so each connected pair of nodes is only in the set once.
+     * Compute all the pairs of (potentially) connected nodes for cell_based simulations,
+     * i.e. nodes which are in a local box to the box containing the first node.
+     * 
+     * NOTE: the user still has to check that the node pairs are less than the cut-off
+     * distance apart.
+     * 
+     * The pairs are checked so that index1 < index2, so each connected pair of nodes is
+     * only in the set once.
      *
-     *  @param rNodes all the nodes to be consider
-     *  @param rNodePairs the return value, a set of pairs of nodes
+     * @param rNodes all the nodes to be consider
+     * @param rNodePairs the return value, a set of pairs of nodes
      */
     void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs);
 };
-
 
 #endif /*BOXCOLLECTION_HPP_*/
