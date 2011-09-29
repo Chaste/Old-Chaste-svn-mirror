@@ -53,7 +53,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "SmartPointers.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 class TestForces : public AbstractCellBasedTestSuite
 {

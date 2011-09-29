@@ -1746,7 +1746,6 @@ public:
         // Create mesh
         std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, true,  0.0));
-        //nodes.push_back(new Node<1>(0, true,  1.0));
 
         NodesOnlyMesh<1> mesh;
 		mesh.ConstructNodesWithoutMesh(nodes);

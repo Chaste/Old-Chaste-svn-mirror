@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "PetscTools.hpp"
 #include "CellBasedEventHandler.hpp"
+#include "Debug.hpp"
 
 template<unsigned DIM>
 OffLatticeSimulationWithPdes<DIM>::OffLatticeSimulationWithPdes(AbstractCellPopulation<DIM>& rCellPopulation,
@@ -457,9 +458,10 @@ void OffLatticeSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         {
             VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
         }
-
+double begin=MPI_Wtime();
         p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
-
+double end=MPI_Wtime();
+PRINT_VARIABLE(end-begin);
         SimpleLinearEllipticSolver<DIM,DIM> solver(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 
         if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())

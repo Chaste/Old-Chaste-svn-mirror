@@ -60,7 +60,7 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
     {
         mCellDensityOnCoarseElements[elem_index] = 0.0;
     }
-
+unsigned counter=0;
     // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
         cell_iter != mrCellPopulation.End();
@@ -76,6 +76,7 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
         	if(elem_index!=mCellElementMap[*cell_iter])
         	{
         		mCellElementMap[*cell_iter] = elem_index;
+        		counter++;
         	}
         }
         else	/*Then the cell is not in the map so we should add it using the slower method */
@@ -92,7 +93,7 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
         }
 
     }
-
+PRINT_VARIABLE(counter);
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
     c_matrix<double, DIM, DIM> jacobian;
     double det;

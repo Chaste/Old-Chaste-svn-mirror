@@ -46,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "SmartPointers.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 class TestOffLatticeSimulationWithNodeBasedCellPopulation : public AbstractCellBasedTestSuite
 {
@@ -74,8 +73,6 @@ public:
      */
     void TestSimpleMonolayer() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -127,8 +124,6 @@ public:
 
     void TestSimulationWithBoxes() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
@@ -184,8 +179,6 @@ public:
      */
     void TestCellDeath() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
@@ -236,8 +229,6 @@ public:
 
     void TestStandardResultForArchivingTestsBelow() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
@@ -289,8 +280,6 @@ public:
     // Testing Save
     void TestSave() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
@@ -336,8 +325,6 @@ public:
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)
     {
-    	EXIT_IF_PARALLEL; //NodeBasedCellPopulation not currently implemented in parallel.
-
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 1.0
         OffLatticeSimulation<2>* p_simulator1;
