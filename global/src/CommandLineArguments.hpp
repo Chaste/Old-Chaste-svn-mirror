@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define COMMANDLINEARGUMENTS_HPP_
 
 #include "Exception.hpp"
+#include <vector>
 
 /**
  * A convenient holder for the command line arguments, with a couple of helper
@@ -58,10 +59,28 @@ private:
     /**
      * Get the index for the given argument. Returns -1 if the argument is not found.
      *
-     * @param argument The argument as a string. This should start with "-", for
-     *   example "-my_arg" "-timestep" etc.
+     * @param argument The argument as a string. This should start with "-" followed by
+     * a non-numeric character, for
+     *   example "-option_on", "--my_arg", "--timestep" etc.
+     * @return the position of the argument in the list (indexed from 1)
      */
     int GetIndexForArgument(std::string argument);
+
+    /**
+     * Get the number of arguments for a given option. Throws an Exception if the
+     * option does not have any following arguments, or the option does not exist.
+     * So you can use OptionExists() to avoid Exceptions in your code when using the other public methods.
+     *
+     * @param option  The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option_on", "--implicit_scheme", "--no_output" etc.
+     * @return the number of arguments following this option.
+     */
+    int GetNumberOfArgumentsForOption(std::string option);
+
+    /**
+     * Throw an exception if the option is not of the required form
+     */
+    void TestOptionFormat(std::string option);
 
 public:
 
@@ -73,6 +92,7 @@ public:
 
     /** Get the single instance of this class. */
     static CommandLineArguments* Instance();
+
 
     /**
      * Check whether a given option exists in the command line arguments.
@@ -89,13 +109,14 @@ public:
      *  ./heart/build/debug/TestMyClassRunner -timestep 0.04
      * Then calling
      *   CommandLineArguments::Instance()->GetValueCorrespondingToOption("-timestep");
-     * will return 0.04 (as a char*).
+    * will return 0.04 (as a char*).
      * Use atoi or atof to convert the char* to an int or a double(float) respectively.
      *
-     * @param option The option as a string. This should start with "-", for
-     *   example "-my_param" "-timestep" etc.
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param" etc.
+     * @param valueNumber The number of the argument following the option definiton (defaults to 1, for 1st argument).
      */
-    char* GetValueCorrespondingToOption(std::string option);
+    char* GetValueCorrespondingToOption(std::string option, int valueNumber=1);
 
     /**
      * Get the double for a given option.
@@ -103,10 +124,11 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to a double.
      *
-     * @param option The option as a string. This should start with "-",
-     *    for example "-my_param", "-timestep" etc.
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     * @param valueNumber The number of the argument following the option definiton (defaults to 1, for 1st argument).
      */
-    double GetDoubleCorrespondingToOption(std::string option);
+    double GetDoubleCorrespondingToOption(std::string option, int valueNumber=1);
 
     /**
      * Get the int for a given option.
@@ -114,10 +136,11 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to an int.
      *
-     * @param option The option as a string. This should start with "-",
-     *    for example "-my_param", "-timestep" etc.
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     * @param valueNumber The number of the argument following the option definiton (defaults to 1, for 1st argument).
      */
-    int GetIntCorrespondingToOption(std::string option);
+    int GetIntCorrespondingToOption(std::string option, int valueNumber=1);
 
     /**
      * Get the unsigned for a given option.
@@ -125,10 +148,62 @@ public:
      * This uses GetValueCorrespondingToOption and converts the char*
      * to an unsigned. Throws an exception if the option converts to a negative integer.
      *
-     * @param option The option as a string. This should start with "-",
-     *    for example "-my_param", "-timestep" etc.
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     * @param valueNumber The number of the argument following the option definiton (defaults to 1, for 1st argument).
      */
-    unsigned GetUnsignedCorrespondingToOption(std::string option);
+    unsigned GetUnsignedCorrespondingToOption(std::string option, int valueNumber=1);
+
+    /**
+     * Get the string for a given option.
+     *
+     * This uses GetValueCorrespondingToOption and converts the char*
+     * to a std::string.
+     *
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     */
+    std::string GetStringCorrespondingToOption(std::string option, int valueNumber=1);
+
+    /**
+     * Get a collection of strings for a given option (useful for inputting a list of files for example)
+     *
+     * This uses GetStringCorrespondingToOption repeatedly
+     *
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     */
+    std::vector<std::string> GetStringsCorrespondingToOption(std::string option);
+
+    /**
+     * Get a collection of doubles for a given option
+     *
+     * This uses GetDoubleCorrespondingToOption repeatedly
+     *
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     */
+    std::vector<double> GetDoublesCorrespondingToOption(std::string option);
+
+    /**
+     * Get a collection of ints for a given option (useful for inputting a list of files for example)
+     *
+     * This uses GetIntCorrespondingToOption repeatedly
+     *
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     */
+    std::vector<int> GetIntsCorrespondingToOption(std::string option);
+
+    /**
+     * Get a collection of unsigneds for a given option (useful for inputting a list of files for example)
+     *
+     * This uses GetUnsignedCorrespondingToOption repeatedly
+     *
+     * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
+     *   example "-option1", "--my_param", "--timestep" etc.
+     */
+    std::vector<unsigned> GetUnsignedsCorrespondingToOption(std::string option);
 };
 
 #endif // COMMANDLINEARGUMENTS_HPP_

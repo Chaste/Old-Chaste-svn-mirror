@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "CommandLineArguments.hpp"
 
+
 class TestCommandLineArguments : public CxxTest::TestSuite
 {
 public:
@@ -51,27 +52,33 @@ public:
         std::string arg_as_string(argv[0]);
         std::string final_part_of_string = arg_as_string.substr(arg_as_string.length()-30,arg_as_string.length());
         TS_ASSERT_EQUALS("TestCommandLineArgumentsRunner",final_part_of_string);
-
-        /*
-         * Now test OptionExists() and GetValueCorrespondingToOption().
-         * 
-         * The following tests would require the following arguments to be passed in:
-         * ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14
-         * 
-         * To test the methods we overwrite the arg_c and arg_v contained in the
-         * singleton with the arguments that were needed.
-         */
-        int new_argc = 8;
+        
+        // Now test OptionExists() and GetValueCorrespondingToOption()
+        //
+        // The following tests would require the following arguments to be passed
+        // in: 
+        // ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14 -3.14 -m2intval -42 -mystrings Baboons Monkeys Gibbons -mystring more_baboons
+        // 
+        // To test the methods we overwrite the arg_c and arg_v contained in the 
+        // singleton with the arguments that were needed.        
+        int new_argc = 15;
         char new_argv0[] = "..";
         char new_argv1[] = "-myoption";
         char new_argv2[] = "-myintval";
         char new_argv3[] = "24";
         char new_argv4[] = "-mydoubleval";
         char new_argv5[] = "3.14";
-        char new_argv6[] = "-myintval2";
-        char new_argv7[] = "-42";
-
-        char** new_argv = new char*[8];
+        char new_argv6[] = "-3.14";
+        char new_argv7[] = "-m2intval";
+        char new_argv8[] = "-42";
+        char new_argv9[] = "-mystrings";
+        char new_argv10[] = "Baboons";
+        char new_argv11[] = "Monkeys";
+        char new_argv12[] = "Gibbons";
+        char new_argv13[] = "-mystring";
+        char new_argv14[] = "more_baboons";
+        
+        char** new_argv = new char*[15];
         new_argv[0] = new_argv0;
         new_argv[1] = new_argv1;
         new_argv[2] = new_argv2;
@@ -80,6 +87,13 @@ public:
         new_argv[5] = new_argv5;
         new_argv[6] = new_argv6;
         new_argv[7] = new_argv7;
+        new_argv[8] = new_argv8;
+        new_argv[9] = new_argv9;
+        new_argv[10] = new_argv10;
+        new_argv[11] = new_argv11;
+        new_argv[12] = new_argv12;
+        new_argv[13] = new_argv13;
+        new_argv[14] = new_argv14;
 
         // Save the real args to be restored at the end
         int* p_real_argc = CommandLineArguments::Instance()->p_argc;
@@ -91,21 +105,33 @@ public:
 
         // Test OptionExists()
         TS_ASSERT(CommandLineArguments::Instance()->OptionExists("-myoption"));
+
         TS_ASSERT( ! CommandLineArguments::Instance()->OptionExists("-asddsgijdfgokgfgurgher"));
+
+        TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->OptionExists("-42"),
+        		"A command line option must begin with '-' followed by a non-numeric character.");
+
+        TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetStringsCorrespondingToOption("-myoption"),
+        		"No value(s) given after command line option '-myoption'");
+
+        TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetStringsCorrespondingToOption("-mynonsense"),
+        		"Command line option '-mynonsense' does not exist");
+
 
         // Test GetValueCorrespondingToOption()
         char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-myintval");
         unsigned i = atol(val);
         TS_ASSERT_EQUALS(i, 24u);
 
-        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-myintval2");
+
+        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-m2intval");
         int j = atol(val);
         TS_ASSERT_EQUALS(j, -42);
 
-        j = CommandLineArguments::Instance()->GetIntCorrespondingToOption("-myintval2");
+        j = CommandLineArguments::Instance()->GetIntCorrespondingToOption("-m2intval");
         TS_ASSERT_EQUALS(j, -42);
 
-        TS_ASSERT_THROWS_THIS(i = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("-myintval2"),
+        TS_ASSERT_THROWS_THIS(i = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("-m2intval"),
                               "Option is a negative number and cannot be converted to unsigned.");
 
         i = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("-myintval");
@@ -121,8 +147,37 @@ public:
         // Test exceptions in GetValueCorrespondingToOption()
         TS_ASSERT_THROWS_CONTAINS(CommandLineArguments::Instance()->GetValueCorrespondingToOption("-rwesdb"), "does not exist");
 
+
+        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-mystring");
+        std::string argument(val);
+        TS_ASSERT_EQUALS(argument, "more_baboons");
+
+        std::string string_argument = CommandLineArguments::Instance()->GetStringCorrespondingToOption("-mystring");
+        TS_ASSERT_EQUALS(string_argument, "more_baboons");
+
+        std::vector<std::string> string_arguments = CommandLineArguments::Instance()->GetStringsCorrespondingToOption("-mystrings");
+        TS_ASSERT_EQUALS(string_arguments.size(), 3u);
+        TS_ASSERT_EQUALS(string_arguments[0], "Baboons");
+        TS_ASSERT_EQUALS(string_arguments[1], "Monkeys");
+        TS_ASSERT_EQUALS(string_arguments[2], "Gibbons");
+
+        std::vector<double> double_arguments = CommandLineArguments::Instance()->GetDoublesCorrespondingToOption("-mydoubleval");
+        TS_ASSERT_EQUALS(double_arguments.size(), 2u);
+        TS_ASSERT_DELTA(double_arguments[0], 3.14, 1e-6);
+        TS_ASSERT_DELTA(double_arguments[1], -3.14, 1e-6);
+
+        std::vector<unsigned> unsigned_args = CommandLineArguments::Instance()->GetUnsignedsCorrespondingToOption("-myintval");
+        TS_ASSERT_EQUALS(unsigned_args.size(), 1u);
+        TS_ASSERT_EQUALS(unsigned_args[0],24u);
+
+        std::vector<int> int_args = CommandLineArguments::Instance()->GetIntsCorrespondingToOption("-m2intval");
+		TS_ASSERT_EQUALS(int_args.size(), 1u);
+		TS_ASSERT_EQUALS(int_args[0],-42);
+
+        // Fool the arguments into thinking that the options end at 5 entries to check an exception:
         new_argc = 5;
-        TS_ASSERT_THROWS_CONTAINS(CommandLineArguments::Instance()->GetValueCorrespondingToOption("-mydoubleval"), "No value given after");
+        TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetValueCorrespondingToOption("-mydoubleval"),
+        		"No value(s) given after command line option '-mydoubleval'");
 
         delete new_argv;
 
