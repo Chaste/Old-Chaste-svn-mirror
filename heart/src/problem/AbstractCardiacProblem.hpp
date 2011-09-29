@@ -677,7 +677,7 @@ public:
      *
      *  -# (via #mpMesh) DistributedVectorFactory*
      *  -# (via #mpCardiacTissue LoadCardiacCells) DistributedVectorFactory*
-     *  -# (via #mpCardiacTissue LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*
+     *  -# (via #mpCardiacTissue LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*, possibly with Purkinje interleaved
      *  -# (via #mpCardiacTissue) DistributedVectorFactory*
      *  -# #mpBoundaryConditionsContainer
      *  -# #mpDefaultBoundaryConditionsContainer
@@ -690,7 +690,7 @@ public:
      * Return whether there's bath defined in this problem
      */
     virtual bool GetHasBath();
-    
+
     /**
      *  Set an electrode object (which provides boundary conditions). Only
      *  valid if there is a bath.
@@ -714,7 +714,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
 
     // The cardiac cells - load only the cells we actually own
     mpCardiacTissue->LoadCardiacCells(archive, version);
-    
+
     {
         DistributedVectorFactory* p_pde_factory;
         archive >> p_pde_factory;

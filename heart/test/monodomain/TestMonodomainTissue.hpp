@@ -398,7 +398,7 @@ public:
             }
         }
 
-        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=mesh.GetHaloNodeIteratorBegin(); 
+        for (DistributedTetrahedralMesh<1,1>::HaloNodeIterator it=mesh.GetHaloNodeIteratorBegin();
                 it != mesh.GetHaloNodeIteratorEnd();
                 ++it)
         {
@@ -601,8 +601,9 @@ public:
 		MonodomainTissue<2> tissue( &cell_factory );
 
 		TS_ASSERT(tissue.HasPurkinje());
-		TS_ASSERT_EQUALS(tissue.rGetCellsDistributed().size(), tissue.rGetPurkinjeCellsDistributed().size());
-        TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(), tissue.rGetCellsDistributed().size());
+		TS_ASSERT_EQUALS(tissue.rGetPurkinjeCellsDistributed().size(), tissue.rGetCellsDistributed().size());
+        TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(),
+                         tissue.rGetIionicCacheReplicated().GetSize());
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = mixed_mesh.GetNodeIteratorBegin();
              current_node != mixed_mesh.GetNodeIteratorEnd();

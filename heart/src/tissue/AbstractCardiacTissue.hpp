@@ -492,7 +492,7 @@ public:
      * Writes:
      *  -# #mpDistributedVectorFactory
      *  -# number of cells on this process
-     *  -# each cell pointer in turn
+     *  -# each cell pointer in turn, interleaved with Purkinje cells if present
      *
      * @param archive  the process-specific archive to write cells to.
      * @param version
@@ -577,8 +577,8 @@ public:
         // If we have an original factory we use the original low index; otherwise we use the current low index.
         unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_mesh_factory->GetLow();
 
-        // Track fake bath cells to make sure we only delete non-local ones
-        std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
+        // Track fake cells (which might have multiple pointers to the same object) to make sure we only delete non-local ones
+        std::set<FakeBathCell*> fake_cells_non_local, fake_cells_local;
 
         const std::vector<unsigned>& r_permutation = this->mpMesh->rGetNodePermutation();
         for (unsigned local_index=0; local_index<num_cells; local_index++)
@@ -635,23 +635,23 @@ public:
             {
                 if (halo || local)
                 {
-                    fake_bath_cells_local.insert(p_fake);
+                    fake_cells_local.insert(p_fake);
                 }
                 else
                 {
-                    fake_bath_cells_non_local.insert(p_fake);
+                    fake_cells_non_local.insert(p_fake);
                 }
             }
-            p_fake = dynamic_cast<FakeBathCell*>(p_purkinje_cell);
-            if (p_fake)
+            FakeBathCell* p_fake_purkinje = dynamic_cast<FakeBathCell*>(p_purkinje_cell);
+            if (p_fake_purkinje)
             {
                 if (halo || local)
                 {
-                    fake_bath_cells_local.insert(p_fake);
+                    fake_cells_local.insert(p_fake_purkinje);
                 }
                 else
                 {
-                    fake_bath_cells_non_local.insert(p_fake);
+                    fake_cells_non_local.insert(p_fake_purkinje);
                 }
             }
             // Add real cells to the local or halo vectors
@@ -675,25 +675,29 @@ public:
                     NEVER_REACHED;
                 }
             }
-            else if (!p_fake)
+            else
             {
-                // Non-local real cell, so free the memory.
-                delete p_cell;
-                delete p_purkinje_cell;
+                if (!p_fake)
+                {
+                    // Non-local real cell, so free the memory.
+                    delete p_cell;
+                }
+                if (!p_fake_purkinje)
+                {
+                    // This will be NULL if there's no Purkinje, so a delete is OK.
+                    delete p_purkinje_cell;
+                }
             }
         }
 
         // Delete any unused fake cells
-        if (!fake_bath_cells_non_local.empty())
+        for (std::set<FakeBathCell*>::iterator it = fake_cells_non_local.begin();
+             it != fake_cells_non_local.end();
+             ++it)
         {
-            for (std::set<FakeBathCell*>::iterator it = fake_bath_cells_non_local.begin();
-                 it != fake_bath_cells_non_local.end();
-                 ++it)
+            if (fake_cells_local.find(*it) == fake_cells_local.end())
             {
-                if (fake_bath_cells_local.find(*it) == fake_bath_cells_local.end())
-                {
-                    delete (*it);
-                }
+                delete (*it);
             }
         }
     }
