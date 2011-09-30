@@ -399,7 +399,7 @@ def buildType(req, buildType, revision=None):
     if buildType.startswith('acceptance'):
         build = BuildTypes.GetBuildType('default' + buildType[10:])
     elif buildType.startswith('longacceptance'):
-        build = buildTypes.GetBuildType('default' + buildType[14:])
+        build = BuildTypes.GetBuildType('default' + buildType[14:])
     else:
         build = BuildTypes.GetBuildType(buildType)
     test_packs = ', '.join(build.TestPacks())
@@ -481,19 +481,19 @@ class FakeBuildType(object):
 
 
 def profileHistory(req, n=20):
-    """Show runtimes for the last 20 profile builds."""
+    """Show runtimes for the last n profile builds."""
     page_body = """
     <h1>Profile History</h1>
 """ +  _profileHistory(req, int(n))
     return _header('Profile History') + page_body + _footer()
 
 def _profileHistory(req, n=20):
-    """Show runtimes for the last 20 profile builds."""
+    """Show runtimes for the last n profile builds."""
     tests_dir = os.path.join(_tests_dir, 'nightly')
     if not os.path.isdir(tests_dir):
         return _error('No nightly tests found')
 
-    # Find the last 20 revisions
+    # Find the last n revisions
     revisions = map(int, os.listdir(tests_dir))
     revisions.sort()
     revisions = revisions[-n:]
@@ -582,41 +582,27 @@ def _profileHistory(req, n=20):
     for machine in machines:
         for build_type in build_types:
             for test_suite in test_suites:
+                # Graph plots run time against revision, and needs a list of (rev,time) pairs
+                graph_data = []
+                for r in revisions:
+                    try:
+                        graph_data.append((r, run_times[test_suite][(r, build_type, machine)][0]))
+                    except KeyError:
+                        pass
+                graph_data_str = ';'.join(map(lambda p: ','.join(map(str, p)), graph_data))
                 output.append('<h4>%s.%s on %s</h4>\n'
                               % (build_type, test_suite, machine))
-                output.append('<img src="%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;n=%d" />\n'
-                              % (gurl, machine, build_type, test_suite, n))
+                output.append('<img src="%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;data=%s" />\n'
+                              % (gurl, machine, build_type, test_suite, graph_data_str))
     
     return ''.join(output)
            
-def profileHistoryGraph(req, buildType, machine, testSuite, n=20):
-    """Show runtime graph for the last 20 profile builds."""
-    tests_dir = os.path.join(_tests_dir, 'nightly')
-    if not os.path.isdir(tests_dir):
-        return _error('No nightly tests found')
-
-    # Find the last 20 revisions
-    n = int(n)
-    revisions = map(int, os.listdir(tests_dir))
-    revisions.sort()
-    revisions = revisions[-n:]
-
-    # Get run times
-    import glob
+def profileHistoryGraph(req, buildType, machine, testSuite, data):
+    """Show runtime graph for a specific testSuite in a profile build."""
+    # Parse run-time data
     run_times = []
-    debug = ''
-    build = FakeBuildType()
-    for revision in revisions:
-        d = _testResultsDir('nightly', revision, machine, buildType)
-        #debug += 'Revision %d: dir %s\n' % (revision, d)
-        fnames = glob.glob(os.path.join(d, testSuite) + '.*')
-        #debug += 'files: ' + str(fnames) + '\n'
-        if fnames:
-            testinfo = build.GetInfoFromResultsFileName(fnames[0])
-            run_times.append((revision, testinfo['runtime']))
-    
-    if debug:
-        return debug
+    for item in data.split(';'):
+        run_times.append(map(float, item.split(',')))
     
     # Draw graph and send to browser
     req.content_type = 'image/png'
@@ -627,7 +613,7 @@ def profileHistoryGraph(req, buildType, machine, testSuite, n=20):
     theme.reinitialize()
     xaxis = axis.X(format="/a-90/vM%d", label='Revision')
     yaxis = axis.Y(label='Run time (s)')
-    ar = area.T(x_axis=xaxis, y_axis=yaxis, legend=None, size=(n*8,120),
+    ar = area.T(x_axis=xaxis, y_axis=yaxis, legend=None, size=(len(run_times)*8,120),
                 x_coord=category_coord.T(run_times, 0))
     style = line_style.T(color=color.red)
     plot = line_plot.T(data=run_times, line_style=style)
