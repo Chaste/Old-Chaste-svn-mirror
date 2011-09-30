@@ -166,7 +166,7 @@ public:
      *
      * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
      *   example "-option1", "--my_param", "--timestep" etc.
-     * @param valueNumber  
+     * @param valueNumber  The number of the argument following the option definiton (defaults to 1, for 1st argument). 
      */
     std::string GetStringCorrespondingToOption(std::string option, int valueNumber=1);
 
