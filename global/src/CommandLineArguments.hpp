@@ -79,6 +79,10 @@ private:
 
     /**
      * Throw an exception if the option is not of the required form
+     * form is '-' followed by a non-numeric character.
+     * Throws an exception if this is not met.
+     *
+     * @param option  The option name to check the format of.
      */
     void TestOptionFormat(std::string option);
 
@@ -162,6 +166,7 @@ public:
      *
      * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
      *   example "-option1", "--my_param", "--timestep" etc.
+     * @param valueNumber  
      */
     std::string GetStringCorrespondingToOption(std::string option, int valueNumber=1);
 
@@ -172,6 +177,7 @@ public:
      *
      * @param option The option as a string. This should start with "-" followed by a non-numeric character, for
      *   example "-option1", "--my_param", "--timestep" etc.
+     * @param valueNumber The number of the argument following the option definiton (defaults to 1, for 1st argument).
      */
     std::vector<std::string> GetStringsCorrespondingToOption(std::string option);
 

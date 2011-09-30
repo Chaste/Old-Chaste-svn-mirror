@@ -60,13 +60,13 @@ bool CommandLineArguments::OptionExists(std::string option)
 
 char* CommandLineArguments::GetValueCorrespondingToOption(std::string option, int valueNumber)
 {
-    assert(valueNumber>0);
+    EXCEPT_IF_NOT(valueNumber>0);
     TestOptionFormat(option);
 
     int num_args = GetNumberOfArgumentsForOption(option);
     int index = GetIndexForArgument(option);
-    assert(index>0);
-    assert(num_args>=valueNumber);
+    EXCEPT_IF_NOT(index>0);
+    EXCEPT_IF_NOT(num_args>=valueNumber);
     return (*p_argv)[index+valueNumber];
 }
 
