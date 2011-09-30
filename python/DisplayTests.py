@@ -589,7 +589,7 @@ def _profileHistory(req, n=20):
                         graph_data.append((r, run_times[test_suite][(r, build_type, machine)][0]))
                     except KeyError:
                         pass
-                graph_data_str = ';'.join(map(lambda p: ','.join(map(str, p)), graph_data))
+                graph_data_str = '|'.join(map(lambda p: ','.join(map(str, p)), graph_data))
                 output.append('<h4>%s.%s on %s</h4>\n'
                               % (build_type, test_suite, machine))
                 output.append('<img src="%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;data=%s" />\n'
@@ -601,7 +601,7 @@ def profileHistoryGraph(req, buildType, machine, testSuite, data):
     """Show runtime graph for a specific testSuite in a profile build."""
     # Parse run-time data
     run_times = []
-    for item in data.split(';'):
+    for item in data.split('|'):
         run_times.append(map(float, item.split(',')))
     
     # Draw graph and send to browser
