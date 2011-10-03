@@ -44,6 +44,7 @@ except NameError:
     set = sets.Set
 
 _standalone = False
+_db_module = None
 
 #####################################################################
 ##                          Webpages                               ##
@@ -473,40 +474,72 @@ def _profileHistory(req, n=20):
     if not os.path.isdir(tests_dir):
         return _error('No nightly tests found')
 
-    # Find the last n revisions
-    revisions = map(int, os.listdir(tests_dir))
-    revisions.sort()
-    revisions = revisions[-n:]
-    # Find the appropriate builds for these revisions
-    builds = {}
+    # These are the build types representing profile builds
     build_types = ['Profile_ndebug', 'GoogleProfile_ndebug']
-    for revision in revisions:
-        rev_dir = os.path.join(tests_dir, str(revision))
-        for machine_and_build_type in os.listdir(rev_dir):
-            machine, build_type = _extractDotSeparatedPair(machine_and_build_type)
-            if build_type in build_types:
-                k = (revision, build_type)
-                if not builds.has_key(k):
-                    builds[k] = []
-                builds[k].append(machine)
 
-    # Extract the run time data.  We generate a mapping from
-    # test-suite-name to a map
-    # (revision, build_type, machine) -> (run_time, status).
+    # Find the last n revisions
+    if _db_module:
+        db = _db_module.TestResultsDatabase('nightly', verbose=False)
+        db.FastUpdate()
+        cur = db.conn.execute('select distinct revision from summary '
+                              'where build_type in (?,?) order by revision desc limit ?',
+                              tuple(build_types + [n]))
+        revisions = [row[0] for row in cur]
+        revisions.reverse()
+    else:
+        revisions = map(int, os.listdir(tests_dir))
+        revisions.sort()
+        revisions = revisions[-n:]
+    
+    # Extract the build and run information.  We create two maps: builds and run_times.
+    # builds former maps (revision, build_type) -> [machine]
+    # run_times maps suite_name -> {(revision, build_type, machine) -> (run_time, status)}
+    # Find the appropriate builds for these revisions: map from (revision, build_type) -> [machine]
+    builds = {}
     run_times = {}
-    build = FakeBuildType()
-    for revision in revisions:
-        for build_type in build_types:
-            for machine in builds.get((revision, build_type), []):
-                k = (revision, build_type, machine)
-                d = _testResultsDir('nightly', revision, machine, build_type)
-                statuses, s, col, runtimes, graphs = _getTestStatus(d, build)
-                for test_suite in statuses.keys():
-                    if test_suite[:4] == 'Test':
-                        if not run_times.has_key(test_suite):
-                            run_times[test_suite] = {}
-                        run_times[test_suite][k] = (runtimes[test_suite],
-                                                    statuses[test_suite])
+    if _db_module:
+        cur = db.conn.execute('select revision, machine, build_type, suite_name, suite_status, run_time from details'
+                              ' where build_type in (?,?) and revision between ? and ?',
+                              tuple(build_types + [revisions[0], revisions[-1]]))
+        for row in cur:
+            # The builds dictionary
+            k = (row['revision'], row['build_type'])
+            if not k in builds:
+                builds[k] = set()
+            builds[k].add(row['machine'])
+            # The run_times dictionary
+            if row['suite_name'][:4] == 'Test':
+                if not row['suite_name'] in run_times:
+                    run_times[row['suite_name']] = {}
+                k = (row['revision'], row['build_type'], row['machine'])
+                run_times[row['suite_name']][k] = (row['run_time'], row['suite_status'])
+        for k in builds:
+            builds[k] = list(builds[k])
+            builds[k].sort()
+    else:
+        for revision in revisions:
+            rev_dir = os.path.join(tests_dir, str(revision))
+            for machine_and_build_type in os.listdir(rev_dir):
+                machine, build_type = _extractDotSeparatedPair(machine_and_build_type)
+                if build_type in build_types:
+                    k = (revision, build_type)
+                    if not builds.has_key(k):
+                        builds[k] = []
+                    builds[k].append(machine)
+    
+        build = FakeBuildType()
+        for revision in revisions:
+            for build_type in build_types:
+                for machine in builds.get((revision, build_type), []):
+                    k = (revision, build_type, machine)
+                    d = _testResultsDir('nightly', revision, machine, build_type)
+                    statuses, _, _, runtimes, _ = _getTestStatus(d, build)
+                    for test_suite in statuses.keys():
+                        if test_suite[:4] == 'Test':
+                            if not run_times.has_key(test_suite):
+                                run_times[test_suite] = {}
+                            run_times[test_suite][k] = (runtimes[test_suite],
+                                                        statuses[test_suite])
 
     # Display table headings
     output = ['<table border="1">\n  <tr><th>Revision</th>\n']
