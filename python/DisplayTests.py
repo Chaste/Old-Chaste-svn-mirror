@@ -116,12 +116,7 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
     req.write(_header(), 0)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
     buildTypesModule = _importBuildTypesModule(revision)
-    if buildType.startswith('acceptance'):
-        build = buildTypesModule.GetBuildType('default' + buildType[10:])
-    elif buildType.startswith('longacceptance'):
-        build = buildTypesModule.GetBuildType('default' + buildType[14:])
-    else:
-        build = buildTypesModule.GetBuildType(buildType)
+    build = _getBuildObject(buildTypesModule, buildType)
     testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
     if os.path.isfile(testsuite_file):
         req.write('\n<pre>\n', 0)
@@ -221,12 +216,7 @@ def _recent(req, type='', start=0, buildType=''):
             build_types_module = _importBuildTypesModule(revision)
             old_revision = revision
             bgcol_index = 1 - bgcol_index
-        if build_type.startswith('acceptance'):
-            build = build_types_module.GetBuildType('default' + build_type[10:])
-        elif build_type.startswith('longacceptance'):
-            build = build_types_module.GetBuildType('default' + build_type[14:])
-        else:
-            build = build_types_module.GetBuildType(build_type)
+        build = _getBuildObject(build_types_module, build_type)
         test_set_dir = _testResultsDir(type, revision, machine, build_type)
         overall_status, colour = _getTestSummary(test_set_dir, build)
         subs = {'bgcol': bgcols[bgcol_index], 'status_col': colour,
@@ -294,12 +284,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
         build = _build
     else:
         buildTypesModule = _importBuildTypesModule(revision)
-        if buildType.startswith('acceptance'):
-            build = buildTypesModule.GetBuildType('default' + buildType[10:])
-        elif buildType.startswith('longacceptance'):
-            build = buildTypesModule.GetBuildType('default' + buildType[14:])
-        else:
-            build = buildTypesModule.GetBuildType(buildType)
+        build = _getBuildObject(buildTypesModule, buildType)
     testsuite_status, overall_status, colour, runtime, graphs = _getTestStatus(test_set_dir, build)
     # Store overall status for the standalone script case
     if _standalone:
@@ -396,12 +381,7 @@ def buildType(req, buildType, revision=None):
     else:
         rev_text = ' at revision %s' % revision
     BuildTypes = _importBuildTypesModule(revision)
-    if buildType.startswith('acceptance'):
-        build = BuildTypes.GetBuildType('default' + buildType[10:])
-    elif buildType.startswith('longacceptance'):
-        build = BuildTypes.GetBuildType('default' + buildType[14:])
-    else:
-        build = BuildTypes.GetBuildType(buildType)
+    build = _getBuildObject(BuildTypes, buildType)
     test_packs = ', '.join(build.TestPacks())
     # How test suites are run
     testsuite_exe = "testsuite.exe"
@@ -687,6 +667,18 @@ def _importCode(code, name, add_to_sys_modules=0):
         sys.modules[name] = module
         
     return module
+
+def _getBuildObject(buildTypesModule, buildType):
+    """Get the build object for the given build type string."""
+    if buildType.startswith('acceptance'):
+        build = buildTypesModule.GetBuildType('default' + buildType[10:])
+    elif buildType.startswith('longacceptance'):
+        build = buildTypesModule.GetBuildType('default' + buildType[14:])
+    elif buildType == 'failing':
+        build = buildTypesModule.GetBuildType('default')
+    else:
+        build = buildTypesModule.GetBuildType(buildType)
+    return build
 
 def _extractDotSeparatedPair(string):
     """
