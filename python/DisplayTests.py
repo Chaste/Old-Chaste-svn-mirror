@@ -168,31 +168,60 @@ def _recent(req, type='', start=0, buildType=''):
     dir = os.path.join(_tests_dir, type)
     if not os.path.isdir(dir):
         return _error(type+' is not a valid type of test.')
-
-    # Parse the directory structure within dir into a list of builds
-    builds = []
-    for revision in os.listdir(dir):
-        for machineAndBuildType in os.listdir(os.path.join(dir, revision)):
-            st = os.stat(os.path.join(dir, revision, machineAndBuildType))
-            mod_time = st.st_mtime
-            machine, build_type = _extractDotSeparatedPair(machineAndBuildType)
-            if not buildType or build_type == buildType:
-                builds.append([mod_time, revision, build_type, machine])
-    # Sort the list to be most recent first
-    builds.sort()
-    builds.reverse()
-
-    # Just show a subset
-    total_num_of_builds = len(builds)
-    builds = builds[start:start+20] # About a screenful
+    
+    n_per_page = 20 # Number of builds to display per page
+    if _db_module and not req.form.getfirst('nocache', False):
+        # Get information from the database
+        db = _db_module.TestResultsDatabase(type, verbose=False)
+        db.FastUpdate()
+        total_num_of_builds = db.CountResults()
+        if not buildType:
+            where = ''
+            params = (n_per_page, start)
+        else:
+            where = ' where build_type=?'
+            params = (buildType, n_per_page, start)
+        cur = db.conn.execute('select * from summary%s'
+                              ' order by finished desc, revision desc, build_type, machine'
+                              ' limit ? offset ?' % where, params)
+        def gen_row(cur=cur):
+            for row in cur:
+                yield (row['revision'], row['machine'], row['build_type'],
+                       time.mktime(row['finished'].timetuple()), row['status'], row['colour'])
+    else:
+        # Parse the directory structure within dir into a list of builds
+        builds = []
+        for revision in os.listdir(dir):
+            for machine_and_build_type in os.listdir(os.path.join(dir, revision)):
+                st = os.stat(os.path.join(dir, revision, machine_and_build_type))
+                mod_time = st.st_mtime
+                machine, build_type = _extractDotSeparatedPair(machine_and_build_type)
+                if not buildType or build_type == buildType:
+                    builds.append([mod_time, revision, build_type, machine])
+        # Sort the list to be most recent first
+        builds.sort()
+        builds.reverse()
+        # Just show a subset
+        total_num_of_builds = len(builds)
+        builds = builds[start:start+n_per_page] # About a screenful
+        def gen_row(builds=builds):
+            old_revision = -1
+            for finished, revision, build_type, machine in builds:
+                if revision != old_revision:
+                    build_types_module = _importBuildTypesModule(revision)
+                    old_revision = revision
+                build = _getBuildObject(build_types_module, build_type)
+                test_set_dir = _testResultsDir(type, revision, machine, build_type)
+                overall_status, colour = _getTestSummary(test_set_dir, build)
+                yield (revision, machine, build_type, finished, overall_status, colour)
 
     output = []
     if start > 0:
-        output.append(_linkRecent('Previous page', type, start=start-20, buildType=buildType) + " ")
+        output.append(_linkRecent('Previous page', type, start=start-n_per_page, buildType=buildType) + " ")
     if buildType:
         output.append(_linkRecent('All build types', type, start=start) + " ")
-    if total_num_of_builds > start+20:
-        output.append(_linkRecent('Next page', type, start=start+20, buildType=buildType))
+    if total_num_of_builds > start+n_per_page:
+        output.append(_linkRecent('Next page', type, start=start+n_per_page, buildType=buildType))
     output.append("""\
     <table border="1">
         <tr>
@@ -203,23 +232,18 @@ def _recent(req, type='', start=0, buildType=''):
           <th>Status</th>
         </tr>
 """)
-    old_revision = -1
 
     bgcols = ["white", "#eedd82"]
     bgcol_index = 0
-    for build in builds:
+    old_revision = -1
+    for revision, machine, build_type, finished, overall_status, colour in gen_row():
         if type == 'nightly':
-            date = time.strftime('%d/%m/%Y', time.localtime(build[0]))
+            date = time.strftime('%d/%m/%Y', time.localtime(finished))
         else:
-            date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(build[0]))
-        revision, machine, build_type = int(build[1]), build[3], build[2]
+            date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(finished))
         if revision != old_revision:
-            build_types_module = _importBuildTypesModule(revision)
-            old_revision = revision
             bgcol_index = 1 - bgcol_index
-        build = _getBuildObject(build_types_module, build_type)
-        test_set_dir = _testResultsDir(type, revision, machine, build_type)
-        overall_status, colour = _getTestSummary(test_set_dir, build)
+            old_revision = revision
         subs = {'bgcol': bgcols[bgcol_index], 'status_col': colour,
                 'date': date, 'machine': machine,
                 'rev': _linkRevision(revision),
@@ -238,14 +262,12 @@ def _recent(req, type='', start=0, buildType=''):
 """ % subs)
     output.append("  </table>\n")
 
-    del builds
-
     if start > 0:
-        output.append(_linkRecent('Previous page', type, start=start-20, buildType=buildType) + " ")
+        output.append(_linkRecent('Previous page', type, start=start-n_per_page, buildType=buildType) + " ")
     if buildType:
         output.append(_linkRecent('All build types', type, start=start) + " ")
-    if total_num_of_builds > start+20:
-        output.append(_linkRecent('Next page', type, start=start+20, buildType=buildType))
+    if total_num_of_builds > start+n_per_page:
+        output.append(_linkRecent('Next page', type, start=start+n_per_page, buildType=buildType))
 
     if type == 'nightly':
         output.append('<p><a href="/out/latest-nightly">Latest nightly build log.</a></p>')
@@ -478,7 +500,7 @@ def _profileHistory(req, n=20):
     build_types = ['Profile_ndebug', 'GoogleProfile_ndebug']
 
     # Find the last n revisions
-    if _db_module:
+    if _db_module and not req.form.getfirst('nocache', False):
         db = _db_module.TestResultsDatabase('nightly', verbose=False)
         db.FastUpdate()
         cur = db.conn.execute('select distinct revision from summary '
