@@ -82,9 +82,9 @@ public:
         FileFinder dest_file = handler2.CopyFileTo(source_file);
         TS_ASSERT(dest_file.Exists());
         FileFinder missing_file("global/no_file", RelativeTo::ChasteSourceRoot);
-        TS_ASSERT_THROWS_THIS(handler2.CopyFileTo(missing_file), "Can only copy single files.");
+        TS_ASSERT_THROWS_CONTAINS(handler2.CopyFileTo(missing_file), "Can only copy single files");
         FileFinder global_dir("global", RelativeTo::ChasteSourceRoot);
-        TS_ASSERT_THROWS_THIS(handler2.CopyFileTo(global_dir), "Can only copy single files.");
+        TS_ASSERT_THROWS_CONTAINS(handler2.CopyFileTo(global_dir), "Can only copy single files");
 
         // We don't want other people using CHASTE_TEST_OUTPUT whilst we are messing with it!
         PetscTools::Barrier();

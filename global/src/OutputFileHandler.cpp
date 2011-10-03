@@ -194,7 +194,7 @@ FileFinder OutputFileHandler::CopyFileTo(const FileFinder& rSourceFile) const
 {
     if (!rSourceFile.IsFile())
     {
-        EXCEPTION("Can only copy single files.");
+        EXCEPTION("Can only copy single files:\n" << rSourceFile.GetAbsolutePath() << " is not a file.");
     }
     if (PetscTools::AmMaster())
     {
