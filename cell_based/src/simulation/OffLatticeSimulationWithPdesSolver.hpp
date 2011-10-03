@@ -26,39 +26,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef OFFLATTICESIMULATIONWITHPDESASSEMBLER_HPP_
-#define OFFLATTICESIMULATIONWITHPDESASSEMBLER_HPP_
+#ifndef OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
+#define OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
 
-#include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
+#include "TetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-//todo: at some point this class should renamed to OffLatticeSimulationWithPdesSolver
-
-
 /**
- * OffLatticeSimulationWithPdesAssembler
- *
- * This is a purpose made elliptic assembler that interpolates the source terms
+ * A purpose-made elliptic solver that interpolates the source terms
  * from node onto Gauss points, as for a cell-based simulation with PDEs the source
  * will only be known at the cells (nodes), not the Gauss points.
  */
 template<unsigned DIM>
-class OffLatticeSimulationWithPdesAssembler
+class OffLatticeSimulationWithPdesSolver
     : public SimpleLinearEllipticSolver<DIM, DIM>
 {
 private:
 
-    /**
-     * The constant in u part of the source term, interpolated onto
-     *  the current point
-     */
+    /** The constant in u part of the source term, interpolated onto the current point. */
     double mConstantInUSourceTerm;
 
-    /**
-     * The linear in u part of the source term, interpolated onto
-     *  the current point
-     */
+    /** The linear in u part of the source term, interpolated onto the current point. */
     double mLinearInUCoeffInSourceTerm;
 
 protected:
@@ -129,22 +118,22 @@ protected:
 public:
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    OffLatticeSimulationWithPdesAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
-                                      AbstractLinearEllipticPde<DIM,DIM>* pPde,
-                                      BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
-                                      unsigned numQuadPoints=2);
+    OffLatticeSimulationWithPdesSolver(TetrahedralMesh<DIM,DIM>* pMesh,
+                                       AbstractLinearEllipticPde<DIM,DIM>* pPde,
+                                       BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
+                                       unsigned numQuadPoints=2);
 
     /**
      * Destructor.
      */
-    ~OffLatticeSimulationWithPdesAssembler();
+    ~OffLatticeSimulationWithPdesSolver();
 };
 
-#endif /*OFFLATTICESIMULATIONWITHPDESASSEMBLER_HPP_*/
+#endif /*OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_*/

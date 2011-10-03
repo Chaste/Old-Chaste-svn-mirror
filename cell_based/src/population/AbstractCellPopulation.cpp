@@ -827,6 +827,33 @@ void AbstractCellPopulation<DIM>::SetOutputCellVolumes(bool outputCellVolumes)
     mOutputCellVolumes = outputCellVolumes;
 }
 
+template<unsigned DIM>
+c_vector<double,DIM> AbstractCellPopulation<DIM>::GetSizeOfCellPopulation()
+{
+    // Compute the centre of mass of the cell population
+    c_vector<double,DIM> centre = GetCentroidOfCellPopulation();
+
+    // Loop over cells and find the maximum distance from the centre of mass in each dimension 
+    c_vector<double,DIM> max_distance_from_centre = zero_vector<double>(DIM);
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
+    {
+        c_vector<double,DIM> cell_location = GetLocationOfCellCentre(*cell_iter);
+        c_vector<double,DIM> displacement = centre - cell_location;
+
+        for (unsigned i=0; i<DIM; i++)
+        {
+            if (displacement[i] > max_distance_from_centre[i])
+            {
+                max_distance_from_centre[i] = displacement[i];
+            }
+        }
+    }
+
+    return max_distance_from_centre;
+}
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AveragedSourcePde.hpp"
 #include "ApoptoticCellProperty.hpp"
 #include "PetscTools.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient)
@@ -42,17 +41,18 @@ AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopu
 template<unsigned DIM>
 void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
 {
-	if(!mIsCellElementMapSet)
+	if (!mIsCellElementMapSet)
 	{
 		// Create the cell-element map
 	    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
-	        cell_iter != mrCellPopulation.End();
-	        ++cell_iter)
+	         cell_iter != mrCellPopulation.End();
+	         ++cell_iter)
 	    {
 	    	mCellElementMap[*cell_iter] = rCoarseMesh.GetContainingElementIndex(mrCellPopulation.GetLocationOfCellCentre(*cell_iter));
 	    }
-	    mIsCellElementMapSet=true;
+	    mIsCellElementMapSet = true;
 	}
+
 	// Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
 
@@ -60,30 +60,32 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
     {
         mCellDensityOnCoarseElements[elem_index] = 0.0;
     }
-unsigned counter=0;
+
     // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
+    unsigned counter = 0;
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
-        cell_iter != mrCellPopulation.End();
-        ++cell_iter)
+         cell_iter != mrCellPopulation.End();
+         ++cell_iter)
     {
         const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-        unsigned elem_index=0u;
-        if(mCellElementMap.find(*cell_iter)!=mCellElementMap.end())
+        unsigned elem_index = 0;
+        if (mCellElementMap.find(*cell_iter) != mCellElementMap.end())
         {
         	elem_index = rCoarseMesh.GetContainingElementIndexWithInitialGuess(r_position_of_cell, mCellElementMap[*cell_iter]);
 
         	// If it has changed update the map.
-        	if(elem_index!=mCellElementMap[*cell_iter])
+        	if (elem_index != mCellElementMap[*cell_iter])
         	{
         		mCellElementMap[*cell_iter] = elem_index;
         		counter++;
         	}
         }
-        else	/*Then the cell is not in the map so we should add it using the slower method */
+        else // then the cell is not in the map so we should add it using the slower method
         {
         	elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
         	mCellElementMap[*cell_iter] = elem_index;
         }
+
         // Update element map if cell has moved
         bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
 
@@ -93,7 +95,7 @@ unsigned counter=0;
         }
 
     }
-PRINT_VARIABLE(counter);
+
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
     c_matrix<double, DIM, DIM> jacobian;
     double det;

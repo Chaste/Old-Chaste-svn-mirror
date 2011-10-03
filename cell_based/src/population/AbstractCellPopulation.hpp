@@ -616,6 +616,12 @@ public:
     void SetOutputCellVolumes(bool outputCellVolumes);
 
     /**
+     * @return The width (maximum distance to centroid) of the cell population
+     *     in each dimension
+     */
+    c_vector<double,DIM> GetSizeOfCellPopulation();
+
+    /**
      * Iterator class allows one to iterate over cells in the cell population.
      * Dereferencing the iterator will give you the current cell.
      * There are also methods to get the node representing this cell,

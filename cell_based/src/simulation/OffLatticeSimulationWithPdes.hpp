@@ -71,11 +71,6 @@ private:
     out_stream mpVizPdeSolutionResultsFile;
 
     /**
-     * File that the values of the PDE solution on the coarse mesh are written out to.
-     */
-    out_stream mpVizCoarsePdeSolutionResultsFile;
-
-    /**
      * File that the average radial PDE solution is written out to.
      */
     out_stream mpAverageRadialPdeSolutionResultsFile;
@@ -118,21 +113,19 @@ private:
     void SetupSolve();
 
     /**
-     * Set up the PDE solution writer.
-     */
-    void SetupWritePdeSolution();
-
-    /**
-     * Set up the coarse PDE solution writer.
-     */
-    void SetupWriteCoarsePdeSolution();
-
-    /**
      * Write the PDE solution to file at a specified time.
      *
      * @param time The time at which to record the PDE solution
      */
     void WritePdeSolution(double time);
+
+    /**
+     * Initialise mCellPdeElementMap.
+     * 
+     * This method is only called within SetupSolve(), but is written as a separate method
+     * for testing purposes.
+     */ 
+    void InitialiseCellPdeElementMap();
 
     /**
      * Write the average radial PDE solution to file at a specified time.
@@ -143,19 +136,9 @@ private:
     void WriteAverageRadialPdeSolution(double time, unsigned numIntervals);
 
     /**
-     * Write the coarse mesh node and element information to file.
+     * Solve the PDE and write the solution to file.
      */
-    void WriteCoarseMeshToFile();
-
-    /**
-     * Solve the PDE.
-     */
-    void SolvePde();
-
-    /**
-     * Solve the PDE on a coarse mesh.
-     */
-    void SolvePdeUsingCoarseMesh();
+    void SolvePdeAndWriteResultsToFile();
 
     /**
      * Find the index of the coarse mesh element containing a given cell.
@@ -175,42 +158,6 @@ private:
      * Overridden AfterSolve() method.
      */
     void AfterSolve();
-
-    /**
-     * Create a coarse mesh on which to solve the PDE.
-     *
-     * \todo currently only works in 2D (see #737)
-     *
-     * @param stepSize horizontal and vertical distance between mesh points
-     * @param meshWidth width and height of the mesh
-     */
-    void CreateCoarsePdeMesh(double stepSize, double meshWidth);
-
-    /**
-     * Initialise the std::map mCellPdeElementMap.
-     */
-    void InitialiseCoarsePdeMesh();
-
-    /**
-     * Overridden WriteVisualizerSetupFile() method.
-     *
-     * Writes out special information about the mesh to the visualizer.
-     */
-    void WriteVisualizerSetupFile();
-
-    /**
-     * Method for getting centre of mass of cell population.
-     *
-     * @return The centre of the cell population
-     */
-    c_vector<double,DIM> GetCellPopulationLocation();
-
-    /**
-     * Method for getting max size of cell population in each direction.
-     *
-     * @return The dimensions of the cell population in each co-ordinate direction
-     */
-    c_vector<double,DIM> GetCellPopulationSize();
 
 public:
 
@@ -284,16 +231,12 @@ public:
     void UseCoarsePdeMesh(double stepSize, double meshWidth);
 
     /**
-     * Outputs simulation parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
+     * Overridden OutputSimulationParameters() method.
+     * 
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputSimulationParameters(out_stream& rParamsFile);
 };
-
 
 #include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(OffLatticeSimulationWithPdes)
@@ -330,6 +273,5 @@ inline void load_construct_data(
 }
 }
 } // namespace ...
-
 
 #endif /*OFFLATTICESIMULATIONWITHPDES_HPP_*/

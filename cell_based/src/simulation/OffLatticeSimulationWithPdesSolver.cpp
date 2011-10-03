@@ -26,13 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "OffLatticeSimulationWithPdesAssembler.hpp"
+#include "OffLatticeSimulationWithPdesSolver.hpp"
 #include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 template<unsigned DIM>
-OffLatticeSimulationWithPdesAssembler<DIM>::OffLatticeSimulationWithPdesAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
+OffLatticeSimulationWithPdesSolver<DIM>::OffLatticeSimulationWithPdesSolver(TetrahedralMesh<DIM,DIM>* pMesh,
                               AbstractLinearEllipticPde<DIM,DIM>* pPde,
                               BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                               unsigned numQuadPoints) :
@@ -41,12 +41,12 @@ OffLatticeSimulationWithPdesAssembler<DIM>::OffLatticeSimulationWithPdesAssemble
 }
 
 template<unsigned DIM>
-OffLatticeSimulationWithPdesAssembler<DIM>::~OffLatticeSimulationWithPdesAssembler()
+OffLatticeSimulationWithPdesSolver<DIM>::~OffLatticeSimulationWithPdesSolver()
 {
 }
 
 template<unsigned DIM>
-c_vector<double, 1*(DIM+1)> OffLatticeSimulationWithPdesAssembler<DIM>::ComputeVectorTerm(
+c_vector<double, 1*(DIM+1)> OffLatticeSimulationWithPdesSolver<DIM>::ComputeVectorTerm(
         c_vector<double, DIM+1>& rPhi,
         c_matrix<double, DIM, DIM+1>& rGradPhi,
         ChastePoint<DIM>& rX,
@@ -58,7 +58,7 @@ c_vector<double, 1*(DIM+1)> OffLatticeSimulationWithPdesAssembler<DIM>::ComputeV
 }
 
 template<unsigned DIM>
-c_matrix<double, 1*(DIM+1), 1*(DIM+1)> OffLatticeSimulationWithPdesAssembler<DIM>::ComputeMatrixTerm(
+c_matrix<double, 1*(DIM+1), 1*(DIM+1)> OffLatticeSimulationWithPdesSolver<DIM>::ComputeMatrixTerm(
         c_vector<double, DIM+1>& rPhi,
         c_matrix<double, DIM, DIM+1>& rGradPhi,
         ChastePoint<DIM>& rX,
@@ -81,33 +81,32 @@ c_matrix<double, 1*(DIM+1), 1*(DIM+1)> OffLatticeSimulationWithPdesAssembler<DIM
 }
 
 template<unsigned DIM>
-void OffLatticeSimulationWithPdesAssembler<DIM>::ResetInterpolatedQuantities()
+void OffLatticeSimulationWithPdesSolver<DIM>::ResetInterpolatedQuantities()
 {
     mConstantInUSourceTerm = 0;
     mLinearInUCoeffInSourceTerm = 0;
 }
 
 template<unsigned DIM>
-void OffLatticeSimulationWithPdesAssembler<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode)
+void OffLatticeSimulationWithPdesSolver<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode)
 {
     mConstantInUSourceTerm += phiI * this->mpEllipticPde->ComputeConstantInUSourceTermAtNode(*pNode);
     mLinearInUCoeffInSourceTerm += phiI * this->mpEllipticPde->ComputeLinearInUCoeffInSourceTermAtNode(*pNode);
 }
 
 template<unsigned DIM>
-void OffLatticeSimulationWithPdesAssembler<DIM>::InitialiseForSolve(Vec initialSolution)
+void OffLatticeSimulationWithPdesSolver<DIM>::InitialiseForSolve(Vec initialSolution)
 {
-    // linear system created here
+    // Linear system created here
     SimpleLinearEllipticSolver<DIM,DIM>::InitialiseForSolve(initialSolution);
 
     this->mpLinearSystem->SetMatrixIsSymmetric(true);
 }
 
-
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-template class OffLatticeSimulationWithPdesAssembler<1>;
-template class OffLatticeSimulationWithPdesAssembler<2>;
-template class OffLatticeSimulationWithPdesAssembler<3>;
+template class OffLatticeSimulationWithPdesSolver<1>;
+template class OffLatticeSimulationWithPdesSolver<2>;
+template class OffLatticeSimulationWithPdesSolver<3>;

@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OffLatticeSimulation.hpp"
-
 #include "AbstractCentreBasedCellPopulation.hpp"
+#include "AbstractTwoBodyInteractionForce.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
@@ -183,6 +183,20 @@ c_vector<double, DIM> OffLatticeSimulation<DIM>::CalculateCellDivisionVector(Cel
 }
 
 template<unsigned DIM>
+void OffLatticeSimulation<DIM>::WriteVisualizerSetupFile()
+{
+    for (unsigned i=0; i<this->mForceCollection.size(); i++)
+    {
+        boost::shared_ptr<AbstractForce<DIM> > p_force = this->mForceCollection[i];
+        if (boost::dynamic_pointer_cast<AbstractTwoBodyInteractionForce<DIM> >(p_force))
+        {
+            double cutoff = (boost::static_pointer_cast<AbstractTwoBodyInteractionForce<DIM> >(p_force))->GetCutOffLength();
+            *(this->mpVizSetupFile) << "Cutoff\t" << cutoff << "\n";
+        }
+    }
+}
+
+template<unsigned DIM>
 void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
     unsigned num_nodes = this->mrCellPopulation.GetNumNodes();
@@ -270,7 +284,6 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
         }
     }
 }
-
 
 template<unsigned DIM>
 void OffLatticeSimulation<DIM>::SetupSolve()
