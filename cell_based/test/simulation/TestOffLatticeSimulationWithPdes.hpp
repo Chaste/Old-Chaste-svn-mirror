@@ -158,17 +158,21 @@ public:
             p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestPostSolveMethod");
+        simulator.SetEndTime(2.0/120.0);
+
+        // Set up PDE and pass to simulation via handler
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
         SimplePdeForTesting pde;
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestPostSolveMethod");
-        simulator.SetEndTime(2.0/120.0);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         /*
          * Create a force law and pass it to the simulation. Use an extremely small
@@ -185,7 +189,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Check the correct solution was obtained
@@ -259,31 +262,33 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulationWithPdes-2");
+
+        // Set up PDE and pass to simulation via handler
         SimpleUniformSourcePde<2> pde(-0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        boost::shared_ptr<OffLatticeSimulation<2> > p_simulator(new OffLatticeSimulationWithPdes<2>(cell_population, pde_and_bc_collection));
-        TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "OffLatticeSimulationWithPdes-2");
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
-        p_simulator->SetOutputDirectory("OffLatticeSimulationWithOxygen");
-        p_simulator->SetEndTime(0.5);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithOxygen");
+        simulator.SetEndTime(0.5);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
-        p_simulator->AddForce(p_linear_force);
+        simulator.AddForce(p_linear_force);
 
         // Set up cell killer and pass into simulation
         MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
-        p_simulator->AddCellKiller(p_killer);
+        simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -374,17 +379,21 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPdes");
+        simulator.SetEndTime(0.5);
+
+        // Set up PDE and pass to simulation via handler
         CellwiseSourcePde<2> pde(cell_population, -0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("OffLatticeSimulationWithPdes");
-        simulator.SetEndTime(0.5);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -396,7 +405,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // A few hardcoded tests to check nothing has changed
@@ -463,23 +471,28 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(), 1);
         }
 
-        // Set up first PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPointwiseSource");
+        simulator.SetEndTime(0.5);
+   
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+
+        // Set up first PDE and pass to handler
         CellwiseSourcePde<2> pde(cell_population, -0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
 
-        // Set up second PDE
+        // Set up second PDE and pass to handler
         CellwiseSourcePde<2> pde2(cell_population, -0.8);
         ConstBoundaryCondition<2> bc2(0.0);
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, true);
-        pde_and_bc_collection.push_back(&pde_and_bc2);
+        pde_handler.AddPdeAndBc(&pde_and_bc2);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("OffLatticeSimulationWithPointwiseSource");
-        simulator.SetEndTime(0.5);
+        // Pass PDE handler to simulation
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -491,7 +504,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // A few hardcoded tests to check nothing has changed
@@ -555,18 +567,22 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestSpheroidStatistics");
+        simulator.SetEndTime(1.0/120.0);
+
+        // Set up PDE and pass to simulation via handler
         SimpleUniformSourcePde<2> pde(-0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+      
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetWriteAverageRadialPdeSolution(5);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestSpheroidStatistics");
-        simulator.SetEndTime(1.0/120.0);
-        simulator.SetWriteAverageRadialPdeSolution(5);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -578,7 +594,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run the cell-based simulation for one timestep
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Just check that we do indeed have three apoptotic cells
@@ -615,7 +630,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cell_based/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
 
         // Coverage
-        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime(),5));
+        TS_ASSERT_THROWS_NOTHING(pde_handler.WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime(),5));
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -665,26 +680,28 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),1);
         }
 
-        // Set up PDE
-        AveragedSourcePde<2> pde(cell_population, -0.1);
-        ConstBoundaryCondition<2> bc(1.0);
-        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-
-        // Set up second PDE
-        AveragedSourcePde<2> pde2(cell_population, -0.5);
-        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc, false);
-
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
-        pde_and_bc_collection.push_back(&pde_and_bc2);
-
         // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+
+        // Set up PDE and pass to handler
+        AveragedSourcePde<2> pde(cell_population, -0.1);
+        ConstBoundaryCondition<2> bc(1.0);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+
+        // Set up second PDE and pass to handler
+        AveragedSourcePde<2> pde2(cell_population, -0.5);
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc, false);
+        pde_handler.AddPdeAndBc(&pde_and_bc2);
+
+        // Pass PDE handler to simulation
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -695,44 +712,42 @@ public:
         MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
         simulator.AddCellKiller(p_killer);
 
-        // Test creation of mpCoarsePdeMesh
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
-
         // Find centre of cell population
         c_vector<double,2> centre_of_cell_population = cell_population.GetCentroidOfCellPopulation();
 
         // Find centre of coarse PDE mesh
         c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
 
-        for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
+        TetrahedralMesh<2,2>* p_coarse_mesh = simulator.GetCellBasedPdeHandler()->GetCoarsePdeMesh();
+
+        for (unsigned i=0; i<p_coarse_mesh->GetNumNodes(); i++)
         {
-            centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+            centre_of_coarse_pde_mesh += p_coarse_mesh->GetNode(i)->rGetLocation();
         }
-        centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
+        centre_of_coarse_pde_mesh /= p_coarse_mesh->GetNumNodes();
 
         // Test that the two centres match
         c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
 		TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
 
         // Test FindCoarseElementContainingCell() and initialisation of mCellPdeElementMap
-        simulator.InitialiseCellPdeElementMap();
+        simulator.GetCellBasedPdeHandler()->InitialiseCellPdeElementMap();
 		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
              cell_iter != cell_population.End();
              ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
-            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
-            TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
+            unsigned containing_element_index = simulator.GetCellBasedPdeHandler()->mCellPdeElementMap[*cell_iter];
+            TS_ASSERT_LESS_THAN(containing_element_index, p_coarse_mesh->GetNumElements());
+            TS_ASSERT_EQUALS(containing_element_index, simulator.GetCellBasedPdeHandler()->FindCoarseElementContainingCell(*cell_iter));
         }
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
-
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        TS_ASSERT(simulator.mpCoarsePdeMesh != NULL);
 
-        ReplicatableVector pde_solution0(simulator.GetCurrentPdeSolution(0));
-        ReplicatableVector pde_solution1(simulator.GetCurrentPdeSolution(1));
+        TS_ASSERT(p_coarse_mesh != NULL);
+
+        ReplicatableVector pde_solution0(simulator.GetCellBasedPdeHandler()->GetCurrentPdeSolution(0));
+        ReplicatableVector pde_solution1(simulator.GetCellBasedPdeHandler()->GetCurrentPdeSolution(1));
 
         TS_ASSERT_EQUALS(pde_solution0.GetSize(),pde_solution1.GetSize());
 
@@ -742,7 +757,7 @@ public:
             c_vector<double,2> centre;
             centre(0) = 2.5; // assuming 5 by 5 honeycomb mesh
             centre(1) = 2.5;
-            c_vector<double,2> posn = simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+            c_vector<double,2> posn = p_coarse_mesh->GetNode(i)->rGetLocation();
             double dist = norm_2(centre - posn);
             double u0 = pde_solution0[i];
             double u1 = pde_solution1[i];
@@ -763,8 +778,8 @@ public:
             cell_iter != cell_population.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarsePdeMesh->GetContainingElementIndex(cell_population.GetLocationOfCellCentre(*cell_iter));
-            Element<2,2>* p_element = simulator.mpCoarsePdeMesh->GetElement(elem_index);
+            unsigned elem_index = simulator.GetCellBasedPdeHandler()->GetCoarsePdeMesh()->GetContainingElementIndex(cell_population.GetLocationOfCellCentre(*cell_iter));
+            Element<2,2>* p_element = p_coarse_mesh->GetElement(elem_index);
 
             double max0 = std::max(pde_solution0[p_element->GetNodeGlobalIndex(0)], pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             max0 = std::max(max0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
@@ -836,27 +851,29 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),1);
         }
 
-        // Set up PDE
-        AveragedSourcePde<2> pde(cell_population, -0.1);
-        ConstBoundaryCondition<2> bc(0.0);
-        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, true);
-
-        // Set up second PDE
-        AveragedSourcePde<2> pde2(cell_population, -0.5);
-        ConstBoundaryCondition<2> bc2(0.0);
-        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, true);
-
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
-        pde_and_bc_collection.push_back(&pde_and_bc2);
-
         // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+
+        // Set up PDE and pass to simulation
+        AveragedSourcePde<2> pde(cell_population, -0.1);
+        ConstBoundaryCondition<2> bc(0.0);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, true);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+
+        // Set up second PDE and pass to simulation
+        AveragedSourcePde<2> pde2(cell_population, -0.5);
+        ConstBoundaryCondition<2> bc2(0.0);
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, true);
+        pde_handler.AddPdeAndBc(&pde_and_bc2);
+
+        // Pass PDE handler to simulation
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -867,37 +884,34 @@ public:
         MAKE_PTR_ARGS(OxygenBasedCellKiller<2>, p_killer, (&cell_population));
         simulator.AddCellKiller(p_killer);
 
-        // Test creation of mpCoarsePdeMesh
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
-
         // Find centre of cell population
         c_vector<double,2> centre_of_cell_population = cell_population.GetCentroidOfCellPopulation();
 
         // Find centre of coarse PDE mesh
         c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
-        for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
+        TetrahedralMesh<2,2>* p_coarse_mesh = simulator.GetCellBasedPdeHandler()->GetCoarsePdeMesh();
+        for (unsigned i=0; i<p_coarse_mesh->GetNumNodes(); i++)
         {
-            centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+            centre_of_coarse_pde_mesh += p_coarse_mesh->GetNode(i)->rGetLocation();
         }
-        centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
+        centre_of_coarse_pde_mesh /= p_coarse_mesh->GetNumNodes();
 
         // Test that the two centres match
         c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
         TS_ASSERT_DELTA(norm_2(centre_diff), 0.0, 1e-4);
 
         // Test FindCoarseElementContainingCell() and initialisation of mCellPdeElementMap
-        simulator.InitialiseCellPdeElementMap();
+        simulator.GetCellBasedPdeHandler()->InitialiseCellPdeElementMap();
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
              cell_iter != cell_population.End();
              ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
-            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
-            TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
+            unsigned containing_element_index = simulator.GetCellBasedPdeHandler()->mCellPdeElementMap[*cell_iter];
+            TS_ASSERT_LESS_THAN(containing_element_index, p_coarse_mesh->GetNumElements());
+            TS_ASSERT_EQUALS(containing_element_index, simulator.GetCellBasedPdeHandler()->FindCoarseElementContainingCell(*cell_iter));
         }
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_THIS(simulator.Solve(), "Neumann BCs not yet implemented when using a coarse PDE mesh");
 
         // Tidy up
@@ -949,18 +963,22 @@ public:
             p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation to use a coarse PDE mesh
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
+        simulator.SetEndTime(0.01);
+
+        // Set up PDE and pass to simulation via handler
         AveragedSourcePde<2> pde(cell_population, -0.01);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation to use a coarse PDE mesh
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
-        simulator.SetEndTime(0.01);
-        simulator.UseCoarsePdeMesh(10.0,50.0);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.UseCoarsePdeMesh(10.0,50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -968,7 +986,6 @@ public:
         simulator.AddForce(p_linear_force);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test that boundary cells experience the right boundary condition
@@ -1032,17 +1049,21 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("OffLatticeSimulationWithPdesSaveAndLoad");
+        simulator.SetEndTime(0.2);
+
+        // Set up PDE and pass to simulation via handler
         SimpleUniformSourcePde<2> pde(-0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("OffLatticeSimulationWithPdesSaveAndLoad");
-        simulator.SetEndTime(0.2);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -1054,7 +1075,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Save cell-based simulation
@@ -1063,7 +1083,16 @@ public:
         OffLatticeSimulationWithPdes<2>* p_simulator
             = CellBasedSimulationArchiver<2, OffLatticeSimulationWithPdes<2> >::Load("OffLatticeSimulationWithPdesSaveAndLoad", 0.2);
 
-        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
+        MeshBasedCellPopulation<2>* p_cell_population = static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation()));
+
+        SimpleUniformSourcePde<2> pde2(-0.1);
+        ConstBoundaryCondition<2> bc2(1.0);
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, false);
+
+        CellBasedPdeHandler<2> pde_handler2(p_cell_population);
+        pde_handler2.AddPdeAndBc(&pde_and_bc2);
+        p_simulator->SetCellBasedPdeHandler(&pde_handler2);
+
         p_simulator->SetEndTime(0.5);
         p_simulator->Solve();
 
@@ -1135,17 +1164,21 @@ public:
             p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory(output_directory);
+        simulator.SetEndTime(end_time);
+
+        // Set up PDE and pass to simulation via handler
         CellwiseSourcePde<2> pde(cell_population, -0.03);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory(output_directory);
-        simulator.SetEndTime(end_time);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -1153,7 +1186,6 @@ public:
         simulator.AddForce(p_linear_force);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Save cell-based simulation
@@ -1174,10 +1206,11 @@ public:
         CellwiseSourcePde<2> pde2(*p_cell_population, -0.03);
         ConstBoundaryCondition<2> bc2(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection2;
-        pde_and_bc_collection2.push_back(&pde_and_bc2);
 
-        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection2);
+        CellBasedPdeHandler<2> pde_handler2(p_cell_population);
+        pde_handler2.AddPdeAndBc(&pde_and_bc2);
+        p_simulator->SetCellBasedPdeHandler(&pde_handler2);
+
         p_simulator->SetEndTime(2.0*end_time);
 
         // Run cell-based simulation
@@ -1223,18 +1256,22 @@ public:
             p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
-        // Set up PDE
-        SimpleUniformSourcePde<3> pde(-0.03);
-        ConstBoundaryCondition<3> bc(1.0);
-        PdeAndBoundaryConditions<3> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<3>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
-
         // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<3> simulator(cell_population);
         simulator.SetOutputDirectory("OffLatticeSimulationWithOxygen3d");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(0.1);
+
+        // Set up PDE and pass to simulation via handler
+        SimpleUniformSourcePde<3> pde(-0.03);
+        ConstBoundaryCondition<3> bc(1.0);
+        PdeAndBoundaryConditions<3> pde_and_bc(&pde, &bc, false);
+
+        CellBasedPdeHandler<3> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
@@ -1246,7 +1283,6 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // Tidy up
@@ -1296,16 +1332,20 @@ public:
             p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
-        // Create a PdeAndBoundaryConditions object with time-dependent boundary condition
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestPostSolveMethod");
+
+        // Create PDE and pass to simulation via handler
         SimplePdeForTesting pde;
         FunctionalBoundaryCondition<2> functional_bc(&bc_func);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &functional_bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestPostSolveMethod");
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         double end_time = 0.5;
         simulator.SetEndTime(end_time);
@@ -1313,7 +1353,6 @@ public:
         // Do not pass in a force law so that no cells interact mechanically
 
         // Run cell-based simulation
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.SetSamplingTimestepMultiple(12);
         simulator.Solve();
 
@@ -1349,16 +1388,18 @@ public:
         // Create a cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        // Set up PDE
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulationWithPdes-2");
+
+        // Set up PDE and pass to simulation via handler
         CellwiseSourcePde<2> pde(cell_population, -0.03);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "OffLatticeSimulationWithPdes-2");
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
@@ -1424,31 +1465,27 @@ public:
 			p_data->SetValue(5.0, mesh.GetNode(i)->GetIndex(), 0);
 		}
 
-		// Set up PDE
-		AveragedSourcePde<2> pde(cell_population, -1.0);
-		ConstBoundaryCondition<2> bc(1.0);
-		PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-
-		std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-		pde_and_bc_collection.push_back(&pde_and_bc);
-
 		// Set up cell-based simulation
-		OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+		OffLatticeSimulationWithPdes<2> simulator(cell_population);
 		simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithpoutCoarseMeshThrowsException");
 		simulator.SetEndTime(0.01);
 
-		// Coverage
-		simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+        // Set up PDE and pass to simulation via handler
+        AveragedSourcePde<2> pde(cell_population, -1.0);
+        ConstBoundaryCondition<2> bc(1.0);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
+
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
 		// Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
 
-		simulator.SetImposeBcsOnPerimeterOfPopulation();
 		TS_ASSERT_THROWS_THIS(simulator.Solve(), "Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
-		// Tell simulator to use the coarse mesh.
-		simulator.UseCoarsePdeMesh(10.0, 50.0);
 
 		// Tidy up
 		CellwiseData<2>::Destroy();
@@ -1501,32 +1538,29 @@ public:
             p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(), 0);
         }
 
-        // Set up PDE - zero uptake to check analytic solution.
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithCoarseMeshPDE");
+        simulator.SetEndTime(0.01);
+
+        // Set up PDE and pass to simulation via handler (zero uptake to check analytic solution)
         AveragedSourcePde<2> pde(cell_population, 0.0);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
 
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestNodeBasedCellPopulationWithCoarseMeshPDE");
-        simulator.SetEndTime(0.01);
-
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
 
-        // Tell simulator to use the coarse mesh.
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
-
         // Solve the system
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test solution is constant
@@ -1551,12 +1585,12 @@ public:
 
         // Find centre of coarse PDE mesh
         c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
-
-        for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
+        TetrahedralMesh<2,2>* p_coarse_mesh = simulator.GetCellBasedPdeHandler()->GetCoarsePdeMesh();
+        for (unsigned i=0; i<p_coarse_mesh->GetNumNodes(); i++)
         {
-            centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+            centre_of_coarse_pde_mesh += p_coarse_mesh->GetNode(i)->rGetLocation();
         }
-        centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
+        centre_of_coarse_pde_mesh /= p_coarse_mesh->GetNumNodes();
 
         // Test that the two centres match
         c_vector<double,2> centre_diff = centre_of_cell_population - centre_of_coarse_pde_mesh;
@@ -1567,9 +1601,9 @@ public:
             cell_iter != cell_population.End();
             ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
-            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
-            TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
+            unsigned containing_element_index = simulator.GetCellBasedPdeHandler()->mCellPdeElementMap[*cell_iter];
+            TS_ASSERT_LESS_THAN(containing_element_index, p_coarse_mesh->GetNumElements());
+            TS_ASSERT_EQUALS(containing_element_index, simulator.GetCellBasedPdeHandler()->FindCoarseElementContainingCell(*cell_iter));
         }
 
         // Tidy up
@@ -1640,31 +1674,30 @@ public:
             p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE - uniform uptake at each cell
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased");
+        simulator.SetEndTime(0.01);
+
+        // Set up PDE and pass to simulation via handler (uniform uptake at each cell)
         VolumeDependentAveragedSourcePde<2> pde(cell_population, -0.01);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
 
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased");
-        simulator.SetEndTime(0.01);
-
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
-
-        // Tell simulator to use the coarse mesh.
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Solve the system
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
+        TetrahedralMesh<2,2>* p_coarse_mesh = simulator.GetCellBasedPdeHandler()->GetCoarsePdeMesh();
+
         // Check the correct cell density is in each element
-        unsigned num_elements_in_coarse_mesh = simulator.mpCoarsePdeMesh->GetNumElements();
+        unsigned num_elements_in_coarse_mesh = p_coarse_mesh->GetNumElements();
         std::vector<unsigned> cells_in_each_coarse_element(num_elements_in_coarse_mesh);
         for (unsigned i=0; i<num_elements_in_coarse_mesh; i++)
         {
@@ -1677,7 +1710,7 @@ public:
             ++cell_iter)
         {
         	// Get containing element
-        	unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
+        	unsigned containing_element_index = simulator.GetCellBasedPdeHandler()->mCellPdeElementMap[*cell_iter];
         	cells_in_each_coarse_element[containing_element_index] += 1;
         }
 
@@ -1685,8 +1718,8 @@ public:
         {
 			c_matrix<double, 2, 2> jacobian;
 			double det;
-			simulator.mpCoarsePdeMesh->GetElement(i)->CalculateJacobian(jacobian, det);
-			double element_volume = simulator.mpCoarsePdeMesh->GetElement(i)->GetVolume(det);
+			p_coarse_mesh->GetElement(i)->CalculateJacobian(jacobian, det);
+			double element_volume = p_coarse_mesh->GetElement(i)->GetVolume(det);
 			double uptake_rate = pde.GetUptakeRateForElement(i);
 			double expected_uptake = 0.9*0.9*(cells_in_each_coarse_element[i]/element_volume);
 
@@ -1739,31 +1772,25 @@ public:
 			p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex(),0);
 		}
 
-		// Set up PDE
-		AveragedSourcePde<1> pde(cell_population, -1.0);
-
-		// Constant boundary condition on the boundary of the Coarse Mesh
-		ConstBoundaryCondition<1> bc(0.0);
-		PdeAndBoundaryConditions<1> pde_and_bc(&pde, &bc, false);
-
-		std::vector<PdeAndBoundaryConditions<1>*> pde_and_bc_collection;
-		pde_and_bc_collection.push_back(&pde_and_bc);
-
 		// Set up cell-based simulation
-		OffLatticeSimulationWithPdes<1> simulator(cell_population, pde_and_bc_collection);
+		OffLatticeSimulationWithPdes<1> simulator(cell_population);
 		simulator.SetEndTime(0.01);
 
-		// Set output directory
+        // Set up PDE and pass to simulation via handler
+        AveragedSourcePde<1> pde(cell_population, -1.0);
+        ConstBoundaryCondition<1> bc(0.0);
+        PdeAndBoundaryConditions<1> pde_and_bc(&pde, &bc, false);
+
+        CellBasedPdeHandler<1> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+
+        unsigned num_nodes = pow(2,3);
+        double mesh_size = 2.0/(double)(num_nodes-1);
+        pde_handler.UseCoarsePdeMesh(mesh_size, 2.0);
+
+        simulator.SetCellBasedPdeHandler(&pde_handler);
+
 		simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased1d");
-
-		// Coverage
-		simulator.SetPdeAndBcCollection(pde_and_bc_collection);
-
-		// Tell simulator to use the coarse mesh
-		unsigned num_nodes = pow(2,3);
-		double mesh_size = 2.0/(double)(num_nodes-1);
-
-		simulator.UseCoarsePdeMesh(mesh_size, 2.0);
 
 		// Solve the system
 		simulator.Solve();
@@ -1836,27 +1863,24 @@ public:
             p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE - uniform uptake at each cell
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased2d");
+        simulator.SetEndTime(0.01);
+
+        // Set up PDE and pass to simulation via handler (uniform uptake at each cell)
         AveragedSourcePde<2> pde(cell_population, -0.01);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
 
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
 
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased2d");
-        simulator.SetEndTime(0.01);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
-
-        // Tell simulator to use the coarse mesh
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
-
-        //Solve the system
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
+        // Solve the system
         simulator.Solve();
 
         // Test solution is unchanged at first two cells
@@ -1926,27 +1950,23 @@ public:
             p_data->SetValue(initial_condition, mesh.GetNode(i)->GetIndex(),0);
         }
 
-        // Set up PDE - uniform uptake at each cell
+        // Set up cell-based simulation
+        OffLatticeSimulationWithPdes<3> simulator(cell_population);
+        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased3d");
+        simulator.SetEndTime(0.01);
+
+        // Set up PDE and pass to simulation via handler (uniform uptake at each cell)
         AveragedSourcePde<3> pde(cell_population, -0.01);
         ConstBoundaryCondition<3> bc(1.0);
         PdeAndBoundaryConditions<3> pde_and_bc(&pde, &bc, false);
 
-        std::vector<PdeAndBoundaryConditions<3>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
-
-        // Set up cell-based simulation
-        OffLatticeSimulationWithPdes<3> simulator(cell_population, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestCoarsePdeSolutionOnNodeBased3d");
-        simulator.SetEndTime(0.01);
-
-        // Coverage
-        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
-
-        // Tell simulator to use the coarse mesh
-        simulator.UseCoarsePdeMesh(10.0, 50.0);
+        CellBasedPdeHandler<3> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
+        pde_handler.UseCoarsePdeMesh(10.0, 50.0);
+        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Solve the system
-        simulator.SetImposeBcsOnPerimeterOfPopulation();
         simulator.Solve();
 
         // Test solution is unchanged at first two cells
