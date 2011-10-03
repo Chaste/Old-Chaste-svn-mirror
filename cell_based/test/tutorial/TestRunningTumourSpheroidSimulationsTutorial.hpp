@@ -86,12 +86,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
 /*
- * The next two header files define: a PDE that describes how oxygen is transported via through the
- * domain via diffusion and is consumed by live cells; and a constant-valued boundary condition to
- * associate with the PDE.
+ * The next three header files define: a PDE that describes how oxygen is transported via through the
+ * domain via diffusion and is consumed by live cells; a constant-valued boundary condition to
+ * associate with the PDE; and a PDE handler class, which is passed to the simulation object and
+ * handles the numerical solution of any PDEs.
  */
 #include "CellwiseSourcePde.hpp"
 #include "ConstBoundaryCondition.hpp"
+#include "CellBasedPdeHandler.hpp"
 /*
  * We also include a header file defining a cell killer, which implements the process of
  * hypoxia (low oxygen)-induced cell death.
@@ -259,17 +261,18 @@ public:
 
         /*
          * After having created a {{{PdeAndBoundaryConditions}}} object, we then pass it
-         * into a vector of pointers. This allows us to define any number of PDEs within
+         * to a cell-based PDE handler object. This allows us to define any number of PDEs within
          * the cell-based simulation.
          */
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        CellBasedPdeHandler<2> pde_handler(&cell_population);
+        pde_handler.AddPdeAndBc(&pde_and_bc);
 
         /*
          * We are now in a position to construct a {{{OffLatticeSimulationWithPdes}}} object,
-         * using the cell population and the PDE collection.
+         * using the cell population. We then pass the PDE handler object to the simulation.
          */
-        OffLatticeSimulationWithPdes<2> simulator(cell_population, pde_and_bc_collection);
+        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        simulator.SetCellBasedPdeHandler(&pde_handler);
 
         /*
          * We next set the output directory and end time.
