@@ -77,7 +77,6 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
         	if (elem_index != mCellElementMap[*cell_iter])
         	{
         		mCellElementMap[*cell_iter] = elem_index;
-        		counter++;
         	}
         }
         else // then the cell is not in the map so we should add it using the slower method
