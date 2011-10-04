@@ -508,7 +508,7 @@ public:
     {
         HeartConfig::Instance()->Reset();
         // Archive settings
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("monodomain_tissue_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_tissue.arch";
 
         bool cache_replication_saved = false;
@@ -628,7 +628,7 @@ public:
         }
 
         // Test archiving too
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("monodomain_tissue_purkinje_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_tissue_purkinje.arch";
 
         { // Save to archive
