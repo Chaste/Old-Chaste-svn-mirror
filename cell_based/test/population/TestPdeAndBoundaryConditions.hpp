@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "SmartPointers.hpp"
 
 class Simple2dPdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
@@ -355,6 +356,31 @@ public:
         double det;
         coarse_mesh.GetElement(1)->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(value_at_elem_1, -(cell_population.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume(det)), 1e-6);
+
+        // For coverage move the cells and add a cell
+
+        // Create a new cell, DON'T set the node index, set birth time=-1
+		MAKE_PTR(WildTypeCellMutationState, p_state);
+
+		FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+		CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+		p_cell->SetBirthTime(-1);
+		c_vector<double,2> new_cell_location;
+		new_cell_location[0] = 2;
+		new_cell_location[1] = 2;
+
+		cell_population.AddCell(p_cell, new_cell_location, cells[0] /*random choice of parent*/);
+
+		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
+
+		// Now move a cell into another element
+		c_vector<double,2>& r_location = cell_population.rGetMesh().GetNode(0)->rGetModifiableLocation();
+		c_vector<double,2> shift;
+		shift[0]=90.0;
+		shift[1]=90.0;
+		r_location+=shift;
+
+		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
     }
 };
 
