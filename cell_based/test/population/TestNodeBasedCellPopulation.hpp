@@ -562,6 +562,11 @@ public:
 
         double width_y = node_based_cell_population.GetWidth(1);
         TS_ASSERT_DELTA(width_y, 1.0, 1e-6);
+
+        c_vector<double, 2> size_of_pop = node_based_cell_population.GetSizeOfCellPopulation();
+        TS_ASSERT_DELTA(size_of_pop[0], 0.5, 1e-4);
+        TS_ASSERT_DELTA(size_of_pop[0], 0.5, 1e-4);
+
     }
 
     void TestNodeBasedCellPopulationOutputWriters2d()
