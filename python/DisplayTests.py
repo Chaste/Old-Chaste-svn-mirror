@@ -625,19 +625,32 @@ def _profileHistory(req, n=20):
                     except KeyError:
                         pass
                 graph_data_str = '|'.join(map(lambda p: ','.join(map(str, p)), graph_data))
-                output.append('<h4>%s.%s on %s</h4>\n'
-                              % (build_type, test_suite, machine))
-                output.append('<img src="%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;data=%s" />\n'
-                              % (gurl, machine, build_type, test_suite, graph_data_str))
+                img_url = '%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;data=%s' % (gurl, machine, build_type, test_suite, graph_data_str)
+                if len(img_url) > 2048:
+                    # Internet Explorer will complain
+                    img_url = '%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;n=%d' % (gurl, machine, build_type, test_suite, n)
+                output.append('<h4>%s.%s on %s</h4>\n' % (build_type, test_suite, machine))
+                output.append('<img src="%s" />\n' % img_url)
     
     return ''.join(output)
-           
-def profileHistoryGraph(req, buildType, machine, testSuite, data):
+
+def profileHistoryGraph(req, buildType, machine, testSuite, data='', n=''):
     """Show runtime graph for a specific testSuite in a profile build."""
-    # Parse run-time data
+    # Extract run-time data
     run_times = []
-    for item in data.split('|'):
-        run_times.append(map(float, item.split(',')))
+    if not data:
+        if not n or not _db_module:
+            return _error('Not enough data to plot, or no database available.')
+        db = _db_module.TestResultsDatabase('nightly', verbose=False)
+        db.FastUpdate()
+        cur = db.conn.execute('select revision, run_time from details where build_type=? and machine=? and suite_name=?'
+                              ' order by revision desc limit ?',
+                              (buildType, machine, testSuite, n))
+        run_times = [(row['revision'], row['run_time']) for row in cur]
+        run_times.reverse()
+    else:
+        for item in data.split('|'):
+            run_times.append(map(float, item.split(',')))
     
     # Draw graph and send to browser
     req.content_type = 'image/png'
