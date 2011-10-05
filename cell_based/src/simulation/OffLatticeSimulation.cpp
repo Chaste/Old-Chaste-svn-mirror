@@ -288,6 +288,9 @@ void OffLatticeSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<
 template<unsigned DIM>
 void OffLatticeSimulation<DIM>::SetupSolve()
 {
+    // First call method on base class
+    AbstractCellBasedSimulation<DIM>::SetupSolve();
+
     if (mOutputNodeVelocities)
     {
         OutputFileHandler output_file_handler2(this->mSimulationOutputDirectory+"/", false);
@@ -298,6 +301,9 @@ void OffLatticeSimulation<DIM>::SetupSolve()
 template<unsigned DIM>
 void OffLatticeSimulation<DIM>::AfterSolve()
 {
+    // First call method on base class
+    AbstractCellBasedSimulation<DIM>::AfterSolve();
+
     if (mOutputNodeVelocities)
     {
         mpNodeVelocitiesFile->close();

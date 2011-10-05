@@ -73,6 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckpointArchiveTypes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
+#include "RandomNumberGenerator.hpp"
 #include "SmartPointers.hpp"
 /*
  * The {{{SimpleOxygenBasedCellCycleModel}}} header file defines a cell-cycle model in which
@@ -100,10 +101,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "OxygenBasedCellKiller.hpp"
 /*
- * The extra functionality required for the solution of one or more PDEs at each timestep
- * is implemented in a subclass of {{{OffLatticeSimulation}}} called {{{OffLatticeSimulationWithPdes}}}.
+ * We use an {{{OffLatticeSimulation}}}.
  */
-#include "OffLatticeSimulationWithPdes.hpp"
+#include "OffLatticeSimulation.hpp"
 /*
  * The header file {{{PetscSetupAndFinalize.hpp}}} must be included in all tests which use Petsc. This is
  * a suite of data structures and routines that are used in the finite element
@@ -271,7 +271,7 @@ public:
          * We are now in a position to construct a {{{OffLatticeSimulationWithPdes}}} object,
          * using the cell population. We then pass the PDE handler object to the simulation.
          */
-        OffLatticeSimulationWithPdes<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         /*

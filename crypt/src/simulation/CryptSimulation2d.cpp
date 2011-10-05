@@ -172,6 +172,9 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
 
 void CryptSimulation2d::SetupSolve()
 {
+    // First call method on base class
+    OffLatticeSimulation<2>::SetupSolve();
+
     /*
      * If there are any cells in the simulation, and mWriteBetaCatenin has been set
      * to true in the constructor, then set up the beta-catenin results file and
@@ -188,6 +191,9 @@ void CryptSimulation2d::SetupSolve()
 
 void CryptSimulation2d::PostSolve()
 {
+    // First call method on base class
+    OffLatticeSimulation<2>::PostSolve();
+
     SimulationTime* p_time = SimulationTime::Instance();
 
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple == 0)
@@ -208,6 +214,9 @@ void CryptSimulation2d::PostSolve()
 
 void CryptSimulation2d::AfterSolve()
 {
+    // First call method on base class
+    OffLatticeSimulation<2>::AfterSolve();
+
     /*
      * If there are any cells in the simulation, and mWriteBetaCatenin has been set
      * to true in the constructor, then close the beta-catenin results file.

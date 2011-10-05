@@ -26,20 +26,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
-#define OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
+#ifndef CELLBASEDPDESOLVER_HPP_
+#define CELLBASEDPDESOLVER_HPP_
 
 #include "SimpleLinearEllipticSolver.hpp"
 #include "TetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 /**
- * A purpose-made elliptic solver that interpolates the source terms
- * from node onto Gauss points, as for a cell-based simulation with PDEs the source
- * will only be known at the cells (nodes), not the Gauss points.
+ * A purpose-made elliptic solver that interpolates the source terms from node onto
+ * Gauss points, as for a cell-based simulation with PDEs the source will only be
+ * known at the cells (nodes), not the Gauss points.
  */
 template<unsigned DIM>
-class OffLatticeSimulationWithPdesSolver
+class CellBasedPdeSolver
     : public SimpleLinearEllipticSolver<DIM, DIM>
 {
 private:
@@ -125,7 +125,7 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    OffLatticeSimulationWithPdesSolver(TetrahedralMesh<DIM,DIM>* pMesh,
+    CellBasedPdeSolver(TetrahedralMesh<DIM,DIM>* pMesh,
                                        AbstractLinearEllipticPde<DIM,DIM>* pPde,
                                        BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                                        unsigned numQuadPoints=2);
@@ -133,7 +133,7 @@ public:
     /**
      * Destructor.
      */
-    ~OffLatticeSimulationWithPdesSolver();
+    ~CellBasedPdeSolver();
 };
 
-#endif /*OFFLATTICESIMULATIONWITHPDESSOLVER_HPP_*/
+#endif /*CELLBASEDPDESOLVER_HPP_*/

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeBasedCellPopulation.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
-#include "OffLatticeSimulationWithPdesSolver.hpp"
+#include "CellBasedPdeSolver.hpp"
 #include "CellwiseData.hpp"
 
 template<unsigned DIM>
@@ -347,7 +347,7 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
         }
         else
         {
-            OffLatticeSimulationWithPdesSolver<DIM> solver(p_mesh, p_pde_and_bc->GetPde(), &bcc);
+            CellBasedPdeSolver<DIM> solver(p_mesh, p_pde_and_bc->GetPde(), &bcc);
 
             // If we have an initial guess, use this...
             if (is_previous_solution_size_correct)

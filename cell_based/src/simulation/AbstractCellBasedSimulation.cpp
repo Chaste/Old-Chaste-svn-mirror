@@ -56,7 +56,8 @@ AbstractCellBasedSimulation<DIM>::AbstractCellBasedSimulation(AbstractCellPopula
       mSimulationOutputDirectory(mOutputDirectory),
       mNumBirths(0),
       mNumDeaths(0),
-      mSamplingTimestepMultiple(1)
+      mSamplingTimestepMultiple(1),
+      mpCellBasedPdeHandler(NULL)
 {
     // Set a random seed of 0 if it wasn't specified earlier
     RandomNumberGenerator::Instance();
@@ -74,6 +75,18 @@ AbstractCellBasedSimulation<DIM>::~AbstractCellBasedSimulation()
     {
         delete &mrCellPopulation;
     }
+}
+
+template<unsigned DIM>
+void AbstractCellBasedSimulation<DIM>::SetCellBasedPdeHandler(CellBasedPdeHandler<DIM>* pCellBasedPdeHandler)
+{
+    mpCellBasedPdeHandler = pCellBasedPdeHandler;
+}
+
+template<unsigned DIM>
+CellBasedPdeHandler<DIM>* AbstractCellBasedSimulation<DIM>::GetCellBasedPdeHandler()
+{
+    return mpCellBasedPdeHandler;
 }
 
 template<unsigned DIM>
@@ -225,6 +238,36 @@ std::vector<double> AbstractCellBasedSimulation<DIM>::GetNodeLocation(const unsi
         location.push_back(mrCellPopulation.GetNode(rNodeIndex)->rGetLocation()[i]);
     }
     return location;
+}
+
+template<unsigned DIM>
+void AbstractCellBasedSimulation<DIM>::SetupSolve()
+{
+    if (mpCellBasedPdeHandler != NULL)
+    {
+        mpCellBasedPdeHandler->OpenResultsFiles(this->mSimulationOutputDirectory);
+        *this->mpVizSetupFile << "PDE \n";
+    }
+}
+
+template<unsigned DIM>
+void AbstractCellBasedSimulation<DIM>::PostSolve()
+{
+    if (mpCellBasedPdeHandler != NULL)
+    {
+        CellBasedEventHandler::BeginEvent(CellBasedEventHandler::PDE);
+        mpCellBasedPdeHandler->SolvePdeAndWriteResultsToFile(this->mSamplingTimestepMultiple);
+        CellBasedEventHandler::EndEvent(CellBasedEventHandler::PDE);
+    }
+}
+
+template<unsigned DIM>
+void AbstractCellBasedSimulation<DIM>::AfterSolve()
+{
+    if (mpCellBasedPdeHandler != NULL)
+    {
+        mpCellBasedPdeHandler->CloseResultsFiles();
+    }
 }
 
 template<unsigned DIM>
@@ -420,7 +463,7 @@ void AbstractCellBasedSimulation<DIM>::OutputSimulationSetup()
     }
     *parameter_file << "\t</CellKillers>\n";
 
-    // This is used to output information about subclasses.
+    // This is used to output information about subclasses
     OutputAdditionalSimulationSetup(parameter_file);
 
     *parameter_file << "\n</Chaste>\n";
@@ -430,6 +473,11 @@ void AbstractCellBasedSimulation<DIM>::OutputSimulationSetup()
 template<unsigned DIM>
 void AbstractCellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
+    if (mpCellBasedPdeHandler != NULL)
+    {
+        mpCellBasedPdeHandler->OutputParameters(rParamsFile);
+    }
+
     *rParamsFile << "\t\t<Dt>" << mDt << "</Dt>\n";
     *rParamsFile << "\t\t<EndTime>" << mEndTime << "</EndTime>\n";
     *rParamsFile << "\t\t<SamplingTimestepMultiple>" << mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";

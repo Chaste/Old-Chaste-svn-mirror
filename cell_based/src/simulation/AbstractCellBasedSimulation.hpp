@@ -35,11 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+#include "CellBasedPdeHandler.hpp"
 #include "AbstractCellKiller.hpp"
-#include "AbstractCellPopulation.hpp"
-#include "RandomNumberGenerator.hpp"
 #include "CellwiseData.hpp"
-#include "Identifiable.hpp"
+#include "RandomNumberGenerator.hpp"
 
 /**
  * An abstract cell based simulation class. This class contains common functionality
@@ -135,14 +134,19 @@ protected:
     /** Counts the number of deaths during the simulation. */
     unsigned mNumDeaths;
 
+    /** List of cell killers. */
+    std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > > mCellKillers;
+
     /**
      * The ratio of the number of actual timesteps to the number
      * of timesteps at which results are written to file.
      */
     unsigned mSamplingTimestepMultiple;
 
-    /** List of cell killers. */
-    std::vector<boost::shared_ptr<AbstractCellKiller<DIM> > > mCellKillers;
+    /**
+     * Pointer to a CellBasedPdeHandler object.
+     */
+    CellBasedPdeHandler<DIM>* mpCellBasedPdeHandler;
 
     /**
      * Writes out special information about the mesh to the visualizer.
@@ -186,24 +190,18 @@ protected:
     /**
      * A method for subclasses to do something at the end of each timestep
      */
-    virtual void PostSolve()
-    {
-    }
+    virtual void PostSolve();
 
     /**
      * A method for subclasses to do something at before the start of the time loop.
      */
-    virtual void SetupSolve()
-    {
-    }
+    virtual void SetupSolve();
 
     /**
      * This method may be overridden in subclasses to do something
      * at the end of each time loop.
      */
-    virtual void AfterSolve()
-    {
-    }
+    virtual void AfterSolve();
 
     /**
      * A child class can overload this if they want the simulation to stop
@@ -259,6 +257,18 @@ public:
      * This frees the cell population if it was created by de-serialization.
      */
     virtual ~AbstractCellBasedSimulation();
+
+    /**
+     * Set mpCellBasedPdeHandler
+     * 
+     * @param pCellBasedPdeHandler pointer to a CellBasedPdeHandler object
+     */
+    void SetCellBasedPdeHandler(CellBasedPdeHandler<DIM>* pCellBasedPdeHandler);
+
+    /**
+     * @return mpCellBasedPdeHandler
+     */
+    CellBasedPdeHandler<DIM>* GetCellBasedPdeHandler();
 
     /**
      * Get a node's location (ONLY FOR TESTING).

@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef _TESTOFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
-#define _TESTOFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
+#ifndef _TESTCELLBASEDPDESOLVER_HPP_
+#define _TESTCELLBASEDPDESOLVER_HPP_
 
 #include "UblasCustomFunctions.hpp"
 
@@ -38,12 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <pde/test/pdes/SimplePoissonEquation.hpp>
 
 #include "SimpleLinearEllipticSolver.hpp"
-#include "OffLatticeSimulationWithPdesSolver.hpp"
+#include "CellBasedPdeSolver.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ConstBoundaryCondition.hpp"
 
-class TestOffLatticeSimulationWithPdesSolver : public CxxTest::TestSuite
+class TestCellBasedPdeSolver : public CxxTest::TestSuite
 {
 public:
 
@@ -65,9 +65,9 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
 
-        // assembler
+        // Creat PDE solvers
         SimpleLinearEllipticSolver<2,2> simple_solver(&mesh, &pde, &bcc);
-        OffLatticeSimulationWithPdesSolver<2> pde_solver(&mesh, &pde, &bcc);
+        CellBasedPdeSolver<2> pde_solver(&mesh, &pde, &bcc);
 
         Vec simple_result = simple_solver.Solve();
         Vec pde_result = pde_solver.Solve();
@@ -86,4 +86,4 @@ public:
     }
 };
 
-#endif //_TESTOFFLATTICESIMULATIONWITHPDESSOLVER_HPP_
+#endif //_TESTCELLBASEDPDESOLVER_HPP_
