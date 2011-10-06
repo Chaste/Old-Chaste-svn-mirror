@@ -163,6 +163,14 @@ public:
     void InitialiseCellPdeElementMap();
 
     /**
+     * Update the mCellPdeElementMap
+     *
+     * This method should be called before sending the element map to a PDE class
+     * to ensure map is up to date.
+     */
+    void UpdateCellPdeElementMap();
+
+    /**
      * Write the average radial PDE solution to file at a specified time.
      *
      * @param time The time at which to record the average radial PDE solution

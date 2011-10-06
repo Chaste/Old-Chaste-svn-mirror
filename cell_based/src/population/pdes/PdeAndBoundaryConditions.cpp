@@ -94,10 +94,10 @@ void PdeAndBoundaryConditions<DIM>::DestroySolution()
 }
 
 template<unsigned DIM>
-void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh)
+void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap)
 {
     assert(HasAveragedSourcePde());
-    static_cast<AveragedSourcePde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
+    static_cast<AveragedSourcePde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh, pCellPdeElementMap);
 }
 
 /////////////////////////////////////////////////////////////////////////////

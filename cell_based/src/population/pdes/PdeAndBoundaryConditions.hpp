@@ -131,8 +131,9 @@ public:
      * using the information in the given mesh.
      *
      * @param pMesh Pointer to a tetrahedral mesh
+     * @param pCellPdeElementMap map between cells and elements, from CellBasedPdeHandler
      */
-    void SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh);
+    void SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap=NULL);
 };
 
 #endif /* PDEANDBOUNDARYCONDITIONS_HPP_ */

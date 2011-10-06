@@ -96,6 +96,20 @@ void CellBasedPdeHandler<DIM>::InitialiseCellPdeElementMap()
 }
 
 template<unsigned DIM>
+void CellBasedPdeHandler<DIM>::UpdateCellPdeElementMap()
+{
+    // Find the element of mpCoarsePdeMesh that contains each cell and populate mCellPdeElementMap
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mpCellPopulation->Begin();
+         cell_iter != mpCellPopulation->End();
+         ++cell_iter)
+    {
+        const ChastePoint<DIM>& r_position_of_cell = mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
+        unsigned elem_index = mpCoarsePdeMesh->GetContainingElementIndexWithInitialGuess(r_position_of_cell, mCellPdeElementMap[*cell_iter]);
+        mCellPdeElementMap[*cell_iter] = elem_index;
+    }
+}
+
+template<unsigned DIM>
 void CellBasedPdeHandler<DIM>::OpenResultsFiles(std::string outputDirectory)
 {
     // If using a NodeBasedCellPopulation, mpCoarsePdeMesh must be set up
@@ -329,8 +343,10 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
         // Create a PDE solver and solve the PDE on the (population-level or coarse) mesh
         if (using_coarse_pde_mesh)
         {
-            // When using a coarse PDE mesh, we must set up the source terms before solving the PDE
-            p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(p_mesh);
+            // When using a coarse PDE mesh, we must set up the source terms before solving the PDE.
+        	// pass in mCellPdeElementMap to speed up finding cells.
+        	this->UpdateCellPdeElementMap();
+            p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(p_mesh, &mCellPdeElementMap);
 
             SimpleLinearEllipticSolver<DIM,DIM> solver(p_mesh, p_pde_and_bc->GetPde(), &bcc);
 

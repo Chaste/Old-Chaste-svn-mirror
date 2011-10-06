@@ -40,7 +40,7 @@ VolumeDependentAveragedSourcePde<DIM>::VolumeDependentAveragedSourcePde(Abstract
 }
 
 template<unsigned DIM>
-void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
+void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh,  std::map< CellPtr, unsigned >* pCellPdeElementMap) // must be called before solve
 {
     // Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
@@ -54,8 +54,18 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
         cell_iter != mrCellPopulation.End();
         ++cell_iter)
     {
-        const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-        unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+    	unsigned elem_index=0;
+
+		const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+
+		if(pCellPdeElementMap!=NULL)
+		{
+			elem_index=(*pCellPdeElementMap)[*cell_iter];
+		}
+		else
+		{
+			elem_index=rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+		}
 
 		unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 

@@ -33,26 +33,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient)
     : mrCellPopulation(rCellPopulation),
-      mCoefficient(coefficient),
-      mIsCellElementMapSet(false)
+      mCoefficient(coefficient)
 {
 }
 
 template<unsigned DIM>
-void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
+void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap) // must be called before solve
 {
-	if (!mIsCellElementMapSet)
-	{
-		// Create the cell-element map
-	    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
-	         cell_iter != mrCellPopulation.End();
-	         ++cell_iter)
-	    {
-	    	mCellElementMap[*cell_iter] = rCoarseMesh.GetContainingElementIndex(mrCellPopulation.GetLocationOfCellCentre(*cell_iter));
-	    }
-	    mIsCellElementMapSet = true;
-	}
-
 	// Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
 
@@ -67,22 +54,17 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
          cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-        const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-        unsigned elem_index = 0;
-        if (mCellElementMap.find(*cell_iter) != mCellElementMap.end())
-        {
-        	elem_index = rCoarseMesh.GetContainingElementIndexWithInitialGuess(r_position_of_cell, mCellElementMap[*cell_iter]);
+    	unsigned elem_index=0;
 
-        	// If it has changed update the map.
-        	if (elem_index != mCellElementMap[*cell_iter])
-        	{
-        		mCellElementMap[*cell_iter] = elem_index;
-        	}
-        }
-        else // then the cell is not in the map so we should add it using the slower method
+        const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+
+        if(pCellPdeElementMap!=NULL)
         {
-        	elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
-        	mCellElementMap[*cell_iter] = elem_index;
+        	elem_index=(*pCellPdeElementMap)[*cell_iter];
+        }
+        else
+        {
+        	elem_index=rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
         }
 
         // Update element map if cell has moved
