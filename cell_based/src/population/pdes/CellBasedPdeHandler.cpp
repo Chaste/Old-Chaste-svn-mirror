@@ -392,8 +392,8 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
             {
                 // When using a coarse PDE mesh, the cells are not nodes of the mesh, so we must interpolate
 
-                // Find the element in the coarse mesh that contains this cell
-                unsigned elem_index = FindCoarseElementContainingCell(*cell_iter);
+                // Find the element in the coarse mesh that contains this cell. CellElementMap has been updated so use this.
+                unsigned elem_index = mCellPdeElementMap[*cell_iter];
                 Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
     
                 const ChastePoint<DIM>& node_location = mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
