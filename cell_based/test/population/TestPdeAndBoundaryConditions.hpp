@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "FunctionalBoundaryCondition.hpp"
 #include "MeshBasedCellPopulation.hpp"
+#include "NodesOnlyMesh.hpp"
+#include "NodeBasedCellPopulation.hpp"
 #include "AveragedSourcePde.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
@@ -46,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "SmartPointers.hpp"
+#include "VolumeDependentAveragedSourcePde.hpp"
 
 class Simple2dPdeForTesting : public AbstractLinearEllipticPde<2,2>
 {
@@ -382,6 +385,88 @@ public:
 
 		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
     }
+
+    void TestWithVolumeDependentAveragedSourcePdeSetupSourceTermsWithoutMap() throw(Exception)
+	{
+		// Set up cell population
+		EXIT_IF_PARALLEL; //HoneycombMeshGenerator doesn't work in parallel
+
+		HoneycombMeshGenerator generator(5, 5, 0);
+		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+		std::vector<CellPtr> cells;
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+
+		NodesOnlyMesh<2> mesh;
+		mesh.ConstructNodesWithoutMesh(*p_mesh);
+
+		NodeBasedCellPopulation<2> cell_population(mesh, cells);
+
+		// Create a coarse mesh - element 1 contains all the cells,
+		// element 0 contains none
+		TetrahedralMesh<2,2> coarse_mesh;
+
+		coarse_mesh.ConstructRegularSlabMesh(100, 100, 100);
+
+		// Set up PDE
+		VolumeDependentAveragedSourcePde<2> pde(cell_population, -1.0);
+		pde.SetupSourceTerms(coarse_mesh);
+
+		ConstBoundaryCondition<2> bc(0.0);
+
+		// Create a PdeAndBoundaryConditions object
+		PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc);
+
+		ChastePoint<2> point;
+		point.rGetLocation()[0] = 0.0;
+		point.rGetLocation()[1] = 0.0;
+
+		TS_ASSERT_DELTA(pde_and_bc.GetBoundaryCondition()->GetValue(point), 0.0, 1e-6);
+		TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
+
+		// Set up source terms for PDE using coarse mesh
+		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
+
+		TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), true);
+
+		VolumeDependentAveragedSourcePde<2>* p_pde = static_cast<VolumeDependentAveragedSourcePde<2>*>(pde_and_bc.GetPde());
+
+		// Test Compute source term
+		ChastePoint<2> unused_point;
+		double value_at_elem_0 = p_pde->ComputeLinearInUCoeffInSourceTerm(unused_point,coarse_mesh.GetElement(0));
+		double value_at_elem_1 = p_pde->ComputeLinearInUCoeffInSourceTerm(unused_point,coarse_mesh.GetElement(1));
+
+		TS_ASSERT_DELTA(value_at_elem_0, 0.0, 1e-6);
+		c_matrix <double, 2, 2> jacobian;
+		double det;
+		coarse_mesh.GetElement(1)->CalculateJacobian(jacobian, det);
+		TS_ASSERT_DELTA(value_at_elem_1, -(cell_population.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume(det)), 1e-6);
+
+		// For coverage move the cells and add a cell
+
+		// Create a new cell, DON'T set the node index, set birth time=-1
+		MAKE_PTR(WildTypeCellMutationState, p_state);
+
+		FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+		CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+		p_cell->SetBirthTime(-1);
+		c_vector<double,2> new_cell_location;
+		new_cell_location[0] = 2;
+		new_cell_location[1] = 2;
+
+		cell_population.AddCell(p_cell, new_cell_location, cells[0] /*random choice of parent*/);
+
+		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
+
+		// Now move a cell into another element
+		c_vector<double,2>& r_location = cell_population.rGetMesh().GetNode(0)->rGetModifiableLocation();
+		c_vector<double,2> shift;
+		shift[0]=90.0;
+		shift[1]=90.0;
+		r_location+=shift;
+
+		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
+	}
 };
 
 #endif /* TESTPDEANDBOUNDARYCONDITIONS_HPP_ */
