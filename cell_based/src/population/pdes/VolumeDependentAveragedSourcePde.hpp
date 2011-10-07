@@ -70,7 +70,7 @@ public:
      * Set up the source terms.
      *
      * @param rCoarseMesh reference to the coarse mesh
-     * @param rCellPdeElementMap the map from cells to coarse elements
+     * @param pCellPdeElementMap pointer to the map from cells to coarse elements
      */
     void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap=NULL);
 
