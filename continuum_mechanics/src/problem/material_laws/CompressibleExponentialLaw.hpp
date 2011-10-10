@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Uysk, Effect of Laminar Orthotropic Myofiber Architecture on Regional Stress and Strain in the Canine Left Ventricle,
  *  Journal of Elasticity, 2000.
  *
- *  W = a[exp(Q)-1]/2 + C (J ln(J) - J + 1)
+ *  W = a[exp(Q)-1]/2 + c (J ln(J) - J + 1)
  *  where Q = sum b_{MN} E_{MN}^2
  *
  *  The exponential term is the same form as in the SchmidCosta law, although the parameters

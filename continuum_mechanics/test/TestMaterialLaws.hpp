@@ -1111,7 +1111,8 @@ public:
         invC = Inverse(C);
 
         double I3 = Determinant(C);
-        double w3  = c*0.5*(1.0/I3 - pow(I3,-0.5));
+        double J = sqrt(I3);
+        double w3  = c*log(J)/(2*J);
 
         c_matrix<double,2,2> T_base;
         FourthOrderTensor<2,2,2,2> dTdE;
@@ -1167,7 +1168,8 @@ public:
         invC = Inverse(C);
 
         double I3 = Determinant(C);
-        double w3  = c*0.5*(1.0/I3 - pow(I3,-0.5));
+        double J = sqrt(I3);
+        double w3  = c*log(J)/(2*J);
 
         c_matrix<double,3,3> T_base;
         FourthOrderTensor<3,3,3,3> dTdE;

@@ -33,7 +33,7 @@ CompressibleExponentialLaw<DIM>::CompressibleExponentialLaw()
 {
     mA = 0.88;  // kPa
 
-    double bff = 15.5; // dimensionless
+    double bff = 18.5; // dimensionless
     double bss = 3.58; // dimensionless
     double bnn = 3.58; // dimensionless
     double bfn = 2.8;  // etc
@@ -91,28 +91,25 @@ void CompressibleExponentialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<
 
     c_matrix<double,DIM,DIM> E = 0.5*(C_transformed - mIdentity);
 
-    double Q = 0;
+    double QQ = 0;
     for (unsigned M=0; M<DIM; M++)
     {
         for (unsigned N=0; N<DIM; N++)
         {
-            Q += mB[M][N]*E(M,N)*E(M,N);
+            QQ += mB[M][N]*E(M,N)*E(M,N);
         }
     }
 
-    double multiplier = mA*exp(Q)/2;
+    double multiplier = mA*exp(QQ)/2;
     rDTdE.Zero();
 
-    double I3 = Determinant(rC);
-    double w3 =  mCompressibilityParam * 0.5 * (1.0/I3  - 1.0/sqrt(I3));
-    double w33 = mCompressibilityParam * 0.5 * (-1.0/(I3*I3) + 0.5*pow(I3,-1.5) );
-
+    double J = sqrt(Determinant(rC));
 
     for (unsigned M=0; M<DIM; M++)
     {
         for (unsigned N=0; N<DIM; N++)
         {
-            rT(M,N) = multiplier*mB[M][N]*E(M,N) + 2*w3*I3*invC_transformed(M,N);
+            rT(M,N) = multiplier*mB[M][N]*E(M,N) + mCompressibilityParam * J*log(J)*invC_transformed(M,N);
 
             if (computeDTdE)
             {
@@ -122,8 +119,8 @@ void CompressibleExponentialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<
                     {
                         rDTdE(M,N,P,Q) =    multiplier * mB[M][N] * (M==P)*(N==Q)
                                          +  2*multiplier*mB[M][N]*mB[P][Q]*E(M,N)*E(P,Q)
-                                         +  4 * (w33 * I3 + w3) * I3 * invC_transformed(M,N) * invC_transformed(P,Q)
-                                         -  4 * w3  * I3    * invC_transformed(M,P) * invC_transformed(Q,N);
+                                         +  mCompressibilityParam * (J*log(J) + J) * invC_transformed(M,N) * invC_transformed(P,Q)
+                                         -  mCompressibilityParam * 2*J*log(J) * invC_transformed(M,P) * invC_transformed(Q,N);
                     }
                 }
             }
