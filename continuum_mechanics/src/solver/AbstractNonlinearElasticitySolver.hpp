@@ -896,6 +896,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     {
         KSPSetType(solver,KSPCG);
         PCSetType(pc, PCICC); // todo: this only works in sequential
+        PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
 		//// for debugging
 		//assert( PetscMatTools::CheckSymmetry(mJacobianMatrix) );
 
