@@ -217,6 +217,37 @@ public:
     }
 
 
+    // longer running, finer-mesh version of TestWithCompressibleApproach() in TestCardiacElectroMechanicsProblem.hpp
+    void TestWithCompressibleApproachLong() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        HeartEventHandler::Disable();
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+
+        CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
+                                                     KERCHOFFS2003,
+                                                     0.05, /* width (cm) */
+                                                     20,    /* mech mesh size*/
+                                                     5,    /* elec elem each dir */
+                                                     &cell_factory,
+                                                     50,    /* end time */
+                                                     0.01,  /* electrics timestep (ms) */
+                                                     1.0,   /* mechanics solve timestep */
+                                                     0.01,  /* Kerchoffs ode timestep */
+                                                     "TestCompressibleWithKerchoffsLong");
+
+        problem.Solve();
+
+        // Mainly just testing no errors when Solve was called.
+        // The results of this test can be visually compared with the results of the
+        // equivalent incompressible simulation in TestWithKerchoffs.
+
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[20](0), 0.0429, 0.0002);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[20](1),-0.0038, 0.0002);
+    }
+
 
 //    void Test3dWithNoble98SacAndImpact() throw(Exception)
 //    {

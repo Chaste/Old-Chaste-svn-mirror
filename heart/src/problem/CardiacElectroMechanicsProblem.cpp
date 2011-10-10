@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VoltageInterpolaterOntoMechanicsMesh.hpp"
 // default material laws
 #include "NashHunterPoleZeroLaw.hpp"
+#include "CompressibleExponentialLaw.hpp"
 
 
 
@@ -409,9 +410,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         }
         else
         {
-            // in the process of being coded..
-        	NEVER_REACHED;
-            //mpMaterialLaw = new CompressibleMooneyRivlinMaterialLaw<DIM>(1.0,0.1);
+            mpMaterialLaw = new CompressibleExponentialLaw<DIM>();
         }
 
         mAllocatedMaterialLawMemory = true;
@@ -436,10 +435,8 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
             }
             else
             {
-                // in the process of being coded..
-                NEVER_REACHED;
-                //mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                //        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
             }
             break;
         case NHS:

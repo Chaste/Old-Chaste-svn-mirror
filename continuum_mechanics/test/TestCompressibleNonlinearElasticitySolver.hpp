@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "NonlinearElasticityTools.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
+#include "CompressibleExponentialLaw.hpp"
 
 /*
  * All these are for the MyBodyForce and MySurfaceTraction functions below.
@@ -154,6 +155,8 @@ public:
      */
     void TestAssembleSystem3D() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
 
@@ -179,9 +182,154 @@ public:
         TS_ASSERT(PetscMatTools::CheckSymmetry(solver.mJacobianMatrix));
     }
 
+	// compare computed Jacobian against a numerically computed
+	// Jacobian
+    void TestAssembleSystem() throw (Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        QuadraticMesh<2> mesh(1.0/2, 1.0, 1.0);
+        CompressibleExponentialLaw<2> law;
+
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+        CompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                        problem_defn,
+                                                        &law,
+                                                        "");
+        solver.AssembleSystem(true, true);
+
+        ///////////////////////////////////////////////////////////////////
+        // test whether residual vector is currently zero (as
+        // current solution should have been initialised to u=0
+        ///////////////////////////////////////////////////////////////////
+        ReplicatableVector rhs_vec(solver.mResidualVector);
+        TS_ASSERT_EQUALS( rhs_vec.GetSize(), 2U*25U );
+        for (unsigned i=0; i<rhs_vec.GetSize(); i++)
+        {
+            TS_ASSERT_DELTA(rhs_vec[i], 0.0, 1e-12);
+        }
+
+        ///////////////////////////////////////////////////////////////////
+        // compute numerical Jacobian and compare with analytic jacobian
+        // (about u=0)
+        ///////////////////////////////////////////////////////////////////
+        unsigned num_dofs = rhs_vec.GetSize();
+        double h = 1e-6;
+
+        int lo, hi;
+        MatGetOwnershipRange(solver.mJacobianMatrix, &lo, &hi);
+
+        for (unsigned j=0; j<num_dofs; j++)
+        {
+            solver.rGetCurrentSolution().clear();
+            solver.rGetCurrentSolution().resize(num_dofs, 0.0);
+            solver.rGetCurrentSolution()[j] += h;
+
+            solver.AssembleSystem(true, false);
+
+            ReplicatableVector perturbed_rhs( solver.mResidualVector );
+
+            for (unsigned i=0; i<num_dofs; i++)
+            {
+                if ((lo<=(int)i) && ((int)i<hi))
+                {
+                    double analytic_matrix_val = PetscMatTools::GetElement(solver.mJacobianMatrix,i,j);
+                    double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
+                    if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    {
+                        // relative error
+                        TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-3);
+                    }
+                    else
+                    {
+                        // absolute error
+                        TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-4);
+                    }
+
+//                    double diff =  analytic_matrix_val - numerical_matrix_val;
+//                    if(fabs(diff)<1e-6)
+//                    {
+//                        diff = 0.0;
+//                    }
+//                    std::cout << diff << " ";
+                }
+            }
+//            std::cout << "\n";
+        }
+        PetscTools::Barrier();
+
+
+        //////////////////////////////////////////////////////////
+        // compare numerical and analytic jacobians again, this
+        // time using a non-zero displacement, u=lambda x, v = mu y
+        // (lambda not equal to 1/nu)
+        //////////////////////////////////////////////////////////
+        double lambda = 1.2;
+        double mu = 1.0/1.3;
+
+        solver.rGetCurrentSolution().clear();
+        solver.rGetCurrentSolution().resize(num_dofs, 0.0);
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            solver.rGetCurrentSolution()[2*i]   = (lambda-1)*mesh.GetNode(i)->rGetLocation()[0];
+            solver.rGetCurrentSolution()[2*i+1] = (mu-1)*mesh.GetNode(i)->rGetLocation()[1];
+        }
+
+        solver.AssembleSystem(true, true);
+        ReplicatableVector rhs_vec2(solver.mResidualVector);
+
+        h=1e-8; // needs to be smaller for this one [COMMENT COPIED FROM INCOMPRESSIBLE VERSION OF THIS TEST]
+
+        for (unsigned j=0; j<num_dofs; j++)
+        {
+            solver.rGetCurrentSolution()[j] += h;
+            solver.AssembleSystem(true, false);
+
+            ReplicatableVector perturbed_rhs( solver.mResidualVector );
+
+            for (unsigned i=0; i<num_dofs; i++)
+            {
+                if ((lo<=(int)i) && ((int)i<hi))
+                {
+                    double analytic_matrix_val = PetscMatTools::GetElement(solver.mJacobianMatrix,i,j);
+                    double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
+                    if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    {
+                        // relative error
+                        TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-3);
+                    }
+                    else
+                    {
+                        // absolute error
+                        TS_ASSERT_DELTA(analytic_matrix_val, numerical_matrix_val, 1e-4);
+                    }
+
+//                    double diff =  analytic_matrix_val - numerical_matrix_val;
+//
+//                    if(fabs(diff)<1e-5)
+//                    {
+//                        diff = 0.0;
+//                    }
+//                    std::cout << diff << " ";
+                }
+            }
+//            std::cout << "\n";
+
+            solver.rGetCurrentSolution()[j] -= h;
+        }
+
+
+    }
+
+
     // It just tests that nothing happens if zero force and tractions are given
     void TestWithZeroDisplacement() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -250,6 +398,9 @@ public:
      */
     void TestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+
         double c = 2.2;
         double d = 1.1;
         double alpha = 0.9;
@@ -355,6 +506,8 @@ public:
      */
     void TestAgainstExactNonlinearSolution() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
         unsigned num_elem = 10;
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
@@ -443,6 +596,97 @@ public:
             TS_ASSERT_DELTA( b_elem_incompressible(i), b_elem(i), 1e-12 );
         }
     }
+
+
+    void TestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+
+        unsigned num_elem = 10;
+
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+        CompressibleExponentialLaw<2> law;
+
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
+        CompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                        problem_defn,
+                                                        &law,
+                                                        "");
+
+        solver.AssembleSystem(false,true);
+        unsigned N = solver.mNumDofs;
+
+        Vec test_vec = PetscTools::CreateAndSetVec(N, 0.0);
+        Vec product_vec = PetscTools::CreateAndSetVec(N, 0.0);
+
+        for(unsigned i=0; i<N; i++)
+        {
+            PetscVecTools::SetElement(test_vec, i, 1.0);
+
+            MatMult(solver.mJacobianMatrix,test_vec,product_vec);
+            double vT_J_v;
+            VecDot(product_vec, test_vec, &vT_J_v);
+            std::cout << vT_J_v << " ";
+            TS_ASSERT_LESS_THAN(0.0, vT_J_v);
+
+            PetscVecTools::SetElement(test_vec, i, 0.0);
+
+        }
+
+        VecDestroy(test_vec);
+
+    }
+
+    // Solve using an exponential material law. Doesn't test against an exact solution, just that check that the
+    // solver converges.
+    void TestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        unsigned num_elem = 5;
+
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+        CompressibleExponentialLaw<2> law;
+
+        std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
+        // works ok with g1 = -1,1,2,3. Doesn't newton converge for g1=-2, and gets worse as num_elem increases..
+        c_vector<double,2> gravity;
+        gravity(0) = 2.0;
+        gravity(1) = 0.0;
+        problem_defn.SetBodyForce(gravity);
+
+        CompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                        problem_defn,
+                                                        &law,
+                                                        "CompressibleExponentialLawSolve");
+
+
+        solver.Solve();
+
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 5u);
+
+        // check node 5 is (1,0)
+        assert( fabs(mesh.GetNode(5)->rGetLocation()[0] - 1.0) < 1e-8 );
+        assert( fabs(mesh.GetNode(5)->rGetLocation()[1] - 0.0) < 1e-8 );
+
+
+        std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
+
+        TS_ASSERT_DELTA(r_solution[5](0), 1.06156, 1e-4);
+        TS_ASSERT_DELTA(r_solution[5](1), 0.00510, 1e-4);
+
+    }
+
+
 };
 
 #endif /* TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_ */

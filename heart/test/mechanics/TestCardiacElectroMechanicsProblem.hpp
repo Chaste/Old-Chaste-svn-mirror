@@ -174,6 +174,7 @@ public:
         // hardcoded result
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0479, 0.0002);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](1),-0.0003, 0.0002);
     }
 
     //
@@ -410,27 +411,34 @@ public:
         }
     }
 
-///// #1699
-//    void TestWithCompressibleApproach() throw(Exception)
-//    {
-//        HeartEventHandler::Disable();
-//
-//        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
-//
-//        CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
-//                                                     KERCHOFFS2003,
-//                                                     0.05, /* width (cm) */
-//                                                     1,    /* mech mesh size*/
-//                                                     5,    /* elec elem each dir */
-//                                                     &cell_factory,
-//                                                     20,    /* end time */
-//                                                     0.01,  /* electrics timestep (ms) */
-//                                                     1.0,   /* mechanics solve timestep */
-//                                                     0.01,  /* Kerchoffs ode timestep */
-//                                                     "TestCompressibleWithKerchoffs");
-//        problem.Solve();
-//
-//        // todo - add tests
-//    }
+    void TestWithCompressibleApproach() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        HeartEventHandler::Disable();
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+
+        CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
+                                                     KERCHOFFS2003,
+                                                     0.05, /* width (cm) */
+                                                     1,    /* mech mesh size*/
+                                                     5,    /* elec elem each dir */
+                                                     &cell_factory,
+                                                     20,    /* end time */
+                                                     0.01,  /* electrics timestep (ms) */
+                                                     1.0,   /* mechanics solve timestep */
+                                                     0.01,  /* Kerchoffs ode timestep */
+                                                     "TestCompressibleWithKerchoffs");
+
+        problem.Solve();
+
+        // Mainly just testing no errors when Solve was called.
+        // The results of this test can be visually compared with the results of the
+        // equivalent incompressible simulation in TestWithKerchoffs.
+
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0465, 0.0002);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](1),-0.0012, 0.0002);
+    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/
