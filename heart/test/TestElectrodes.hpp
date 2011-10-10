@@ -58,7 +58,7 @@ public:
 
         HeartConfig::Instance()->SetElectrodeParameters(true, 0, magnitude, start_time, duration);
         Electrodes<2> electrodes(mesh);
-        
+
         TS_ASSERT_EQUALS(electrodes.HasGroundedElectrode(), true);
         TS_ASSERT_DELTA(electrodes.GetSwitchOnTime(), start_time, 1e-12);
         TS_ASSERT_DELTA(electrodes.GetSwitchOffTime(), start_time+duration, 1e-12);
@@ -95,7 +95,7 @@ public:
 
         unsigned num_grounded_nodes_reduced;
         int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        TS_ASSERT_EQUALS(mpi_ret, MPI_SUCCESS);
+        TS_ASSERT_EQUALS(mpi_ret, (int)MPI_SUCCESS);
 
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
 
@@ -129,7 +129,7 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        
+
         HeartConfig::Instance()->SetElectrodeParameters(false,0,magnitude,0.0,duration);
         Electrodes<2> electrodes(mesh);
 

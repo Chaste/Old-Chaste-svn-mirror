@@ -295,7 +295,7 @@ public:
             }
 
             int ierr = MPI_Allreduce(&local_phi_e, &total_phi_e, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-            TS_ASSERT_EQUALS (ierr, MPI_SUCCESS);
+            TS_ASSERT_EQUALS(ierr, (int)MPI_SUCCESS);
 
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
 
