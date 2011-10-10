@@ -18,6 +18,7 @@ mesh/TestHoneycombVertexMeshGenerator.hpp
 mesh/TestNodesOnlyMesh.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
+population/TestCellBasedPdeHandler.hpp
 population/TestCellPopulationBoundaryConditions.hpp
 population/TestCellKillers.hpp
 population/TestCellwiseData.hpp

@@ -30,7 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLBASEDPDEHANDLER_HPP_
 
 #include <map>
+
 #include "ChasteSerialization.hpp"
+#include <boost/serialization/vector.hpp>
+
 #include "AbstractCellPopulation.hpp"
 #include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
@@ -48,71 +51,81 @@ template<unsigned DIM>
 class CellBasedPdeHandler : public Identifiable
 {
     // Allow tests to access private members, in order to test computation of private functions
+    friend class TestCellBasedPdeHandler;
     friend class TestOffLatticeSimulationWithPdes;
 
 private:
 
-    ///\todo implement and test archiving for this class (#1891)
-//    friend class boost::serialization::access;
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & mWriteAverageRadialPdeSolution;
-//        archive & mWriteDailyAverageRadialPdeSolution;
-//        archive & mNumRadialIntervals;
-//        archive & mCellPdeElementMap;
-//    }
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     * 
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        ///\todo archive mPdeAndBcCollection (#1891)
+//        archive & mPdeAndBcCollection;
+        archive & mWriteAverageRadialPdeSolution;
+        archive & mWriteDailyAverageRadialPdeSolution;
+        archive & mSetBcsOnCoarseBoundary;
+        archive & mNumRadialIntervals;
+    }
 
-    /** A cell population. */
+    /** Pointer to a cell population. */
     AbstractCellPopulation<DIM>* mpCellPopulation;
 
-    /**
-     * Vector of pointers to linear elliptic PDE objects with additional
-     * boundary condition information.
-     */
+    /** Vector of pointers to linear elliptic PDE objects with additional boundary condition information. */
     std::vector<PdeAndBoundaryConditions<DIM>*> mPdeAndBcCollection;
 
-    /**
-     * File that the values of the PDE solution are written out to.
-     */
+    /** File that the values of the PDE solution are written out to. */
     out_stream mpVizPdeSolutionResultsFile;
 
-    /**
-     * File that the average radial PDE solution is written out to.
-     */
+    /** File that the average radial PDE solution is written out to. */
     out_stream mpAverageRadialPdeSolutionResultsFile;
 
-    /**
-     * Whether to write to file the average radial PDE solution.
-     */
+    /** Whether to write to file the average radial PDE solution. */
     bool mWriteAverageRadialPdeSolution;
 
-    /**
-     * Whether to write the average radial PDE solution DAILY.
-     */
+    /** Whether to write the average radial PDE solution daily. */
     bool mWriteDailyAverageRadialPdeSolution;
 
-    /**
-     * Whether to set the boundary condition on the edge of a coarse mesh, or on
-     * the boundary of the cell population
-     */
+    /** Whether to set the boundary condition on the edge of the coarse mesh rather than the cell population. */
     bool mSetBcsOnCoarseBoundary;
 
-    /**
-     * Number of radial 'bins' used to calculate the average
-     * radial PDE solution.
-     */
+    /** Number of radial 'bins' used to calculate the average radial PDE solution. */
     unsigned mNumRadialIntervals;
 
-    /**
-     * Coarse mesh on which to solve the PDE.
-     */
+    /** Coarse mesh on which to solve the PDE. */
     TetrahedralMesh<DIM,DIM>* mpCoarsePdeMesh;
 
-    /**
-     * Map between cells and the elements of the coarse PDE mesh containing them.
-     */
+    /** Map between cells and the elements of the coarse PDE mesh containing them. */
     std::map<CellPtr, unsigned> mCellPdeElementMap;
+
+    /**
+     * Initialise mCellPdeElementMap.
+     * 
+     * This method is only called within SetupSolve(), but is written as a separate method
+     * for testing purposes.
+     */ 
+    void InitialiseCellPdeElementMap();
+
+    /**
+     * Write the PDE solution to file at a specified time.
+     *
+     * @param time The time at which to record the PDE solution
+     */
+    void WritePdeSolution(double time);
+
+    /**
+     * Write the average radial PDE solution to file at a specified time.
+     *
+     * @param time The time at which to record the average radial PDE solution
+     */
+    void WriteAverageRadialPdeSolution(double time);
 
 public:
 
@@ -127,6 +140,13 @@ public:
      * Destructor.
      */
     ~CellBasedPdeHandler();
+
+    /**
+     * Get a pointer to the cell population.
+     *
+     * @return a const pointer to mpCellPopulation
+     */
+    const AbstractCellPopulation<DIM>* GetCellPopulation() const;
 
     /**
      * @return mpCoarsePdeMesh
@@ -148,19 +168,14 @@ public:
     void CloseResultsFiles();
 
     /**
-     * Write the PDE solution to file at a specified time.
-     *
-     * @param time The time at which to record the PDE solution
+     * @return mWriteAverageRadialPdeSolution
      */
-    void WritePdeSolution(double time);
+    bool GetWriteAverageRadialPdeSolution();
 
     /**
-     * Initialise mCellPdeElementMap.
-     * 
-     * This method is only called within SetupSolve(), but is written as a separate method
-     * for testing purposes.
-     */ 
-    void InitialiseCellPdeElementMap();
+     * @return mWriteDailyAverageRadialPdeSolution
+     */
+    bool GetWriteDailyAverageRadialPdeSolution();
 
     /**
      * Update the mCellPdeElementMap
@@ -171,12 +186,14 @@ public:
     void UpdateCellPdeElementMap();
 
     /**
-     * Write the average radial PDE solution to file at a specified time.
-     *
-     * @param time The time at which to record the average radial PDE solution
-     * @param numIntervals  The number of radial intervals in which the average PDE solution is calculated
+     * @return mSetBcsOnCoarseBoundary
      */
-    void WriteAverageRadialPdeSolution(double time, unsigned numIntervals);
+    bool GetImposeBcsOnCoarseBoundary();
+
+    /**
+     * @return mNumRadialIntervals
+     */
+    unsigned GetNumRadialIntervals();
 
     /**
      * Solve the PDE and write the solution to file.
@@ -196,24 +213,11 @@ public:
     unsigned FindCoarseElementContainingCell(CellPtr pCell);
 
     /**
-     * A small hack until we fully archive this class -
-     * needed to set the PDE after loading a simulation
-     * from an archive.
-     *
-     * \todo Check if archiving has been implemented yet for PDE classes (#1460)
-     *
-     * @param pdeAndBcCollection A vector of pointers to PdeAndBoundaryConditions objects
-     */
-    void SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection);
-
-    /**
-     * Get the current solution to the PDE problem.
+     * Get the solution to the PDE at this time step.
      *
      * @param pdeIndex The index of the PDE in the vector mPdeAndBcCollection
-     *
-     * @return The current solution the to PDE pdeIndex
      */
-    Vec GetCurrentPdeSolution(unsigned pdeIndex);
+    Vec GetPdeSolution(unsigned pdeIndex);
 
     /**
      * Write the final (and optionally also the daily) average
@@ -231,8 +235,10 @@ public:
      * Impose the PDE boundary conditions on the edge of the cell population when using
      * the coarse mesh. The default option is to impose the condition on the boundary of the
      * coarse mesh.
+     * 
+     * @param setBcsOnCoarseBoundary whether to impose the BCs on the edge of the cell population
      */
-    void SetImposeBcsOnPerimeterOfPopulation();
+    void SetImposeBcsOnCoarseBoundary(bool setBcsOnCoarseBoundary);
 
     /**
      * Solve the PDE problem on a coarse mesh.
@@ -256,5 +262,42 @@ public:
      */
     void OutputParameters(out_stream& rParamsFile);
 };
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedPdeHandler)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a CellBasedPdeHandler.
+ *
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const CellBasedPdeHandler<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const AbstractCellPopulation<DIM>* p_cell_population = t->GetCellPopulation();
+    ar & p_cell_population;
+}
+ 
+/**
+ * De-serialize constructor parameters and initialise a CellBasedPdeHandler.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, CellBasedPdeHandler<DIM> * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)CellBasedPdeHandler<DIM>(p_cell_population);
+}
+}
+}
 
 #endif /*CELLBASEDPDEHANDLER_HPP_*/

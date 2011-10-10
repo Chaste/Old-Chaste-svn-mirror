@@ -165,7 +165,7 @@ public:
 
         // Set up PDE and pass to simulation via handler
         CellBasedPdeHandler<2> pde_handler(&cell_population);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         SimplePdeForTesting pde;
         ConstBoundaryCondition<2> bc(1.0);
@@ -391,7 +391,7 @@ public:
 
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -491,7 +491,7 @@ public:
         pde_handler.AddPdeAndBc(&pde_and_bc2);
 
         // Pass PDE handler to simulation
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
@@ -580,7 +580,7 @@ public:
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
         pde_handler.SetWriteAverageRadialPdeSolution(5);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -630,7 +630,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cell_based/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
 
         // Coverage
-        TS_ASSERT_THROWS_NOTHING(pde_handler.WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime(),5));
+        TS_ASSERT_THROWS_NOTHING(pde_handler.WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime()));
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -700,7 +700,7 @@ public:
 
         // Pass PDE handler to simulation
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
@@ -746,8 +746,8 @@ public:
 
         TS_ASSERT(p_coarse_mesh != NULL);
 
-        ReplicatableVector pde_solution0(simulator.GetCellBasedPdeHandler()->GetCurrentPdeSolution(0));
-        ReplicatableVector pde_solution1(simulator.GetCellBasedPdeHandler()->GetCurrentPdeSolution(1));
+        ReplicatableVector pde_solution0(simulator.GetCellBasedPdeHandler()->GetPdeSolution(0));
+        ReplicatableVector pde_solution1(simulator.GetCellBasedPdeHandler()->GetPdeSolution(1));
 
         TS_ASSERT_EQUALS(pde_solution0.GetSize(),pde_solution1.GetSize());
 
@@ -872,7 +872,7 @@ public:
 
         // Pass PDE handler to simulation
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
@@ -976,7 +976,7 @@ public:
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
         pde_handler.UseCoarsePdeMesh(10.0,50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1062,7 +1062,7 @@ public:
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
 
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Create a force law and pass it to the simulation
@@ -1176,7 +1176,7 @@ public:
 
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1269,7 +1269,7 @@ public:
 
         CellBasedPdeHandler<3> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1343,7 +1343,7 @@ public:
 
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1477,7 +1477,7 @@ public:
 
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
 		// Create a force law and pass it to the simulation
@@ -1485,7 +1485,7 @@ public:
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
 
-		TS_ASSERT_THROWS_THIS(simulator.Solve(), "Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
+		TS_ASSERT_THROWS_THIS(simulator.Solve(), "Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarsePdeMesh().");
 
 		// Tidy up
 		CellwiseData<2>::Destroy();
@@ -1551,7 +1551,7 @@ public:
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1688,7 +1688,7 @@ public:
         pde_handler.AddPdeAndBc(&pde_and_bc);
 
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Solve the system
@@ -1876,7 +1876,7 @@ public:
         CellBasedPdeHandler<2> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
 
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
@@ -1963,7 +1963,7 @@ public:
         CellBasedPdeHandler<3> pde_handler(&cell_population);
         pde_handler.AddPdeAndBc(&pde_and_bc);
         pde_handler.UseCoarsePdeMesh(10.0, 50.0);
-        pde_handler.SetImposeBcsOnPerimeterOfPopulation();
+        pde_handler.SetImposeBcsOnCoarseBoundary(false);
         simulator.SetCellBasedPdeHandler(&pde_handler);
 
         // Solve the system

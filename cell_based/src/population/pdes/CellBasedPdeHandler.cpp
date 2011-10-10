@@ -27,13 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CellBasedPdeHandler.hpp"
-
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
 #include "CellBasedPdeSolver.hpp"
 #include "CellwiseData.hpp"
+#include "Exception.hpp"
 
 template<unsigned DIM>
 CellBasedPdeHandler<DIM>::CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCellPopulation)
@@ -45,6 +45,7 @@ CellBasedPdeHandler<DIM>::CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCell
       mpCoarsePdeMesh(NULL)
 {
     // We must be using a NodeBasedCellPopulation or MeshBasedCellPopulation, with at least one cell
+    ///\todo change to exceptions (#1891)
     assert((dynamic_cast<NodeBasedCellPopulation<DIM>*>(mpCellPopulation) != NULL) || (dynamic_cast<MeshBasedCellPopulation<DIM>*>(mpCellPopulation) != NULL));
     assert(dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(mpCellPopulation) == NULL);
     assert(mpCellPopulation->GetNumRealCells() != 0);
@@ -61,6 +62,12 @@ CellBasedPdeHandler<DIM>::~CellBasedPdeHandler()
 }
 
 template<unsigned DIM>
+const AbstractCellPopulation<DIM>* CellBasedPdeHandler<DIM>::GetCellPopulation() const
+{
+    return mpCellPopulation;
+}
+
+template<unsigned DIM>
 TetrahedralMesh<DIM,DIM>* CellBasedPdeHandler<DIM>::GetCoarsePdeMesh()
 {
     return mpCoarsePdeMesh;
@@ -73,7 +80,7 @@ void CellBasedPdeHandler<DIM>::AddPdeAndBc(PdeAndBoundaryConditions<DIM>* pPdeAn
 }
 
 template<unsigned DIM>
-Vec CellBasedPdeHandler<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
+Vec CellBasedPdeHandler<DIM>::GetPdeSolution(unsigned pdeIndex)
 {
     assert(pdeIndex<mPdeAndBcCollection.size());
     return mPdeAndBcCollection[pdeIndex]->GetSolution();
@@ -82,6 +89,11 @@ Vec CellBasedPdeHandler<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 template<unsigned DIM>
 void CellBasedPdeHandler<DIM>::InitialiseCellPdeElementMap()
 {
+    if (mpCoarsePdeMesh == NULL)
+    {
+        EXCEPTION("InitialiseCellPdeElementMap() should only be called if mpCoarsePdeMesh is set up.");
+    }
+
     mCellPdeElementMap.clear();
 
     // Find the element of mpCoarsePdeMesh that contains each cell and populate mCellPdeElementMap
@@ -115,7 +127,7 @@ void CellBasedPdeHandler<DIM>::OpenResultsFiles(std::string outputDirectory)
     // If using a NodeBasedCellPopulation, mpCoarsePdeMesh must be set up
     if ((dynamic_cast<NodeBasedCellPopulation<DIM>*>(mpCellPopulation) != NULL) && mpCoarsePdeMesh==NULL)
     {
-        EXCEPTION("Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarseMesh()");
+        EXCEPTION("Trying to solve a PDE on a NodeBasedCellPopulation without setting up a coarse mesh. Try calling UseCoarsePdeMesh().");
     }
 
     if (mpCoarsePdeMesh != NULL)
@@ -159,7 +171,7 @@ void CellBasedPdeHandler<DIM>::CloseResultsFiles()
         mpVizPdeSolutionResultsFile->close();
         if (mWriteAverageRadialPdeSolution)
         {
-            WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime(), mNumRadialIntervals);
+            WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime());
             mpAverageRadialPdeSolutionResultsFile->close();
         }
     }
@@ -169,10 +181,16 @@ template<unsigned DIM>
 void CellBasedPdeHandler<DIM>::UseCoarsePdeMesh(double stepSize, double meshWidth)
 {
     // If solving PDEs on a coarse mesh, each PDE must have an averaged source term
-    assert(!mPdeAndBcCollection.empty());
+    if (mPdeAndBcCollection.empty())
+    {
+        EXCEPTION("mPdeAndBcCollection should be populated prior to calling UseCoarsePdeMesh().");
+    }
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-        assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde());
+        if (mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == false)
+        {
+            EXCEPTION("UseCoarsePdeMesh() should only be called if averaged-source PDEs are specified.");
+        }
     }
 
     // Create a regular coarse tetrahedral mesh
@@ -434,7 +452,7 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
             unsigned num_timesteps_per_day = (unsigned) (DBL_EPSILON + 24/SimulationTime::Instance()->GetTimeStep());
             if ((p_time->GetTimeStepsElapsed()+1) % num_timesteps_per_day == 0)
             {
-                WriteAverageRadialPdeSolution(time_next_step, mNumRadialIntervals);
+                WriteAverageRadialPdeSolution(time_next_step);
             }
         }
     }
@@ -555,13 +573,13 @@ void CellBasedPdeHandler<DIM>::SetWriteAverageRadialPdeSolution(unsigned numRadi
 }
 
 template<unsigned DIM>
-void CellBasedPdeHandler<DIM>::SetImposeBcsOnPerimeterOfPopulation()
+void CellBasedPdeHandler<DIM>::SetImposeBcsOnCoarseBoundary(bool setBcsOnCoarseBoundary)
 {
-    mSetBcsOnCoarseBoundary = false;
+    mSetBcsOnCoarseBoundary = setBcsOnCoarseBoundary;
 }
 
 template<unsigned DIM>
-void CellBasedPdeHandler<DIM>::WriteAverageRadialPdeSolution(double time, unsigned numRadialIntervals)
+void CellBasedPdeHandler<DIM>::WriteAverageRadialPdeSolution(double time)
 {
     (*mpAverageRadialPdeSolutionResultsFile) << time << " ";
 
@@ -586,15 +604,15 @@ void CellBasedPdeHandler<DIM>::WriteAverageRadialPdeSolution(double time, unsign
 
     // Create vector of radius intervals
     std::vector<double> radius_intervals;
-    for (unsigned i=0; i<numRadialIntervals; i++)
+    for (unsigned i=0; i<mNumRadialIntervals; i++)
     {
-        double upper_radius = max_distance_from_centre*((double) i+1)/((double) numRadialIntervals);
+        double upper_radius = max_distance_from_centre*((double) i+1)/((double) mNumRadialIntervals);
         radius_intervals.push_back(upper_radius);
     }
 
     // Calculate PDE solution in each radial interval
     double lower_radius = 0.0;
-    for (unsigned i=0; i<numRadialIntervals; i++)
+    for (unsigned i=0; i<mNumRadialIntervals; i++)
     {
         unsigned counter = 0;
         double average_solution = 0.0;
@@ -620,11 +638,45 @@ void CellBasedPdeHandler<DIM>::WriteAverageRadialPdeSolution(double time, unsign
 }
 
 template<unsigned DIM>
+bool CellBasedPdeHandler<DIM>::GetWriteAverageRadialPdeSolution()
+{
+    return mWriteAverageRadialPdeSolution;
+}
+
+template<unsigned DIM>
+bool CellBasedPdeHandler<DIM>::GetWriteDailyAverageRadialPdeSolution()
+{
+    return mWriteDailyAverageRadialPdeSolution;
+}
+
+template<unsigned DIM>
+bool CellBasedPdeHandler<DIM>::GetImposeBcsOnCoarseBoundary()
+{
+    return mSetBcsOnCoarseBoundary;
+}
+
+template<unsigned DIM>
+unsigned CellBasedPdeHandler<DIM>::GetNumRadialIntervals()
+{
+    return mNumRadialIntervals;
+}
+
+template<unsigned DIM>
 void CellBasedPdeHandler<DIM>::OutputParameters(out_stream& rParamsFile)
 {
+    std::string type = GetIdentifier();
+
+    *rParamsFile << "\t\t<" << type << ">\n";
     *rParamsFile << "\t\t<WriteAverageRadialPdeSolution>" << mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
     *rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>" << mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
+    *rParamsFile << "\t\t<SetBcsOnCoarseBoundary>" << mSetBcsOnCoarseBoundary << "</SetBcsOnCoarseBoundary>\n";
+    *rParamsFile << "\t\t<NumRadialIntervals>" << mNumRadialIntervals << "</NumRadialIntervals>\n";
+    *rParamsFile << "\t\t</" << type << ">\n";
 }
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedPdeHandler)
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

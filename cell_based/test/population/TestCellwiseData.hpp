@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexBasedCellPopulation.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "ArchiveOpener.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
