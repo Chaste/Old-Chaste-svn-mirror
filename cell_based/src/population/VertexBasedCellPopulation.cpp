@@ -399,7 +399,7 @@ void VertexBasedCellPopulation<DIM>::WriteResultsToFiles()
             elem_corresponds_to_dead_cell = this->mLocationCellMap[elem_index]->IsDead();
         }
 
-        // Write node data to file
+        // Write element data to file
         if (!(GetElement(elem_index)->IsDeleted()) && !elem_corresponds_to_dead_cell)
         {
             VertexElement<DIM, DIM>* p_element = mrMesh.GetElement(elem_index);
