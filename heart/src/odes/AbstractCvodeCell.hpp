@@ -137,7 +137,12 @@ public:
      */
     void ComputeExceptVoltage(double tStart, double tEnd);
 
-
+    /**
+     * Set whether to clamp the voltage by setting its derivative to zero.
+     * We need to ensure CVODE is re-initialised if this setting changes.
+     * @param clamp  whether to clamp
+     */
+    void SetVoltageDerivativeToZero(bool clamp=true);
 
 };
 

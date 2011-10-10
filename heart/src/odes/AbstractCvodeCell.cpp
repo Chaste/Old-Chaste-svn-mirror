@@ -101,5 +101,14 @@ void AbstractCvodeCell::ComputeExceptVoltage(double tStart, double tEnd)
 }
 
 
+void AbstractCvodeCell::SetVoltageDerivativeToZero(bool clamp)
+{
+    if (clamp != mSetVoltageDerivativeToZero)
+    {
+        ResetSolver();
+        mSetVoltageDerivativeToZero = clamp;
+    }
+}
+
 
 #endif // CHASTE_CVODE

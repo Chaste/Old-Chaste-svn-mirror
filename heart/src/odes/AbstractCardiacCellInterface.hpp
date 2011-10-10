@@ -255,7 +255,7 @@ public:
      * Set whether to clamp the voltage by setting its derivative to zero.
      * @param clamp whether to clamp
      */
-    void SetVoltageDerivativeToZero(bool clamp=true);
+    virtual void SetVoltageDerivativeToZero(bool clamp=true);
 
 protected:
     /**

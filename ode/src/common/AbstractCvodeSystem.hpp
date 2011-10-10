@@ -83,7 +83,7 @@ class AbstractCvodeSystem : public AbstractParameterisedSystem<N_Vector>
 {
 private:
     /**
-     * Set up the CVODE data structures needed to solve the given system.
+     * Set up the CVODE data structures needed to solve the given system from a given point.
      *
      * @param initialConditions  initial conditions
      * @param tStart  start time of simulation
@@ -93,7 +93,13 @@ private:
                     realtype tStart,
                     realtype maxDt);
 
-    /** Free CVODE memory after a solve. */
+    /**
+     * Record where the last solve got to so we know whether to re-initialise.
+     * @param stopTime  the finishing time
+     */
+    void RecordStoppingPoint(double stopTime);
+
+    /** Free CVODE memory when finished with. */
     void FreeCvodeMemory();
 
     /**
@@ -104,6 +110,11 @@ private:
      */
     void CvodeError(int flag, const char * msg);
 
+    /** Remember where the last solve got to so we know whether to re-initialise. */
+    N_Vector mLastSolutionState;
+
+    /** Remember where the last solve got to so we know whether to re-initialise. */
+    double mLastSolutionTime;
 
 protected:
 
@@ -160,6 +171,18 @@ public:
                                       N_Vector ydot)=0;
 
     /**
+     * Successive calls to Solve will attempt to intelligently determine whether
+     * to re-initialise the internal CVODE solver, or whether we are simply
+     * extending the previous solution forward in time.  This mechanism compares
+     * the state vector to its previous value, and the start time to the end of
+     * the last solve, which captures most cases where re-initialisation is
+     * required.  However, changes to the RHS function can also require this, and
+     * cannot be automatically detected.  In such cases users must call this
+     * function to force re-initialisation.
+     */
+    void ResetSolver();
+
+    /**
      * Simulate the cell, returning a sampling of the state variables.
      *
      * Uses the current values of the state variables at initial conditions.
@@ -168,6 +191,8 @@ public:
      * GetInitialConditions) will be used.
      *
      * The final values of the state variables will also be stored in this object.
+     *
+     * @note See also the ResetSolver method.
      *
      * @param tStart  start time of simulation
      * @param tEnd  end time of simulation
@@ -187,6 +212,8 @@ public:
      * If the state variables have not been set (either by a prior solve, or
      * a call to SetStateVariables) the initial conditions (given by
      * GetInitialConditions) will be used.
+     *
+     * @note See also the ResetSolver method.
      *
      * @param tStart  start time of simulation
      * @param tEnd  end time of simulation

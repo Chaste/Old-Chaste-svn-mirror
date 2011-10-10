@@ -71,6 +71,8 @@ int AbstractCvodeSystemRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *p
 
 AbstractCvodeSystem::AbstractCvodeSystem(unsigned numberOfStateVariables)
     : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
+      mLastSolutionState(NULL),
+      mLastSolutionTime(0.0),
       mUseAnalyticJacobian(false),
       mpCvodeMem(NULL),
       mMaxSteps(0)
@@ -157,7 +159,7 @@ OdeSolution AbstractCvodeSystem::Solve(realtype tStart,
     int ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
     assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
 
-    FreeCvodeMemory();
+    RecordStoppingPoint(tEnd);
 
     return solutions;
 }
@@ -182,7 +184,8 @@ void AbstractCvodeSystem::Solve(realtype tStart,
 
     ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
     assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
-    FreeCvodeMemory();
+
+    RecordStoppingPoint(tEnd);
 
     VerifyStateVariables();
 }
@@ -202,6 +205,7 @@ void AbstractCvodeSystem::SetTolerances(double relTol, double absTol)
 {
     mRelTol = relTol;
     mAbsTol = absTol;
+    ResetSolver();
 }
 
 double AbstractCvodeSystem::GetRelativeTolerance()
@@ -220,6 +224,18 @@ double AbstractCvodeSystem::GetLastStepSize()
 }
 
 
+bool Differs(double v1, double v2)
+{
+    return fabs(v1 - v2) > DBL_EPSILON;
+}
+
+
+void AbstractCvodeSystem::ResetSolver()
+{
+    DeleteVector(mLastSolutionState);
+}
+
+
 void AbstractCvodeSystem::SetupCvode(N_Vector initialConditions,
                                      realtype tStart,
                                      realtype maxDt)
@@ -227,35 +243,80 @@ void AbstractCvodeSystem::SetupCvode(N_Vector initialConditions,
     assert((unsigned)NV_LENGTH_S(initialConditions) == GetNumberOfStateVariables());
     assert(maxDt >= 0.0);
 
-    mpCvodeMem = CVodeCreate(CV_BDF, CV_NEWTON);
-    if (mpCvodeMem == NULL) EXCEPTION("Failed to SetupCvode CVODE");
-    // Set error handler
-    CVodeSetErrHandlerFn(mpCvodeMem, CvodeErrorHandler, NULL);
-    // Set the user data & setup CVODE
+    // Find out if we need to (re-)initialise
+    bool reinit = !mpCvodeMem || !mLastSolutionState || Differs(tStart, mLastSolutionTime);
+    if (!reinit)
+    {
+        const unsigned size = GetNumberOfStateVariables();
+        for (unsigned i=0; i<size; i++)
+        {
+            if (Differs(GetVectorComponent(mLastSolutionState, i), GetVectorComponent(mStateVariables, i)))
+            {
+                reinit = true;
+                break;
+            }
+        }
+    }
+
+    if (!mpCvodeMem)
+    {
+        mpCvodeMem = CVodeCreate(CV_BDF, CV_NEWTON);
+        if (mpCvodeMem == NULL) EXCEPTION("Failed to SetupCvode CVODE");
+        // Set error handler
+        CVodeSetErrHandlerFn(mpCvodeMem, CvodeErrorHandler, NULL);
+        // Set the user data
 #if CHASTE_SUNDIALS_VERSION >= 20400
-    CVodeSetUserData(mpCvodeMem, (void*)(this));
-    CVodeInit(mpCvodeMem, AbstractCvodeSystemRhsAdaptor, tStart, initialConditions);
-    CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
+        CVodeSetUserData(mpCvodeMem, (void*)(this));
 #else
-    CVodeSetFdata(mpCvodeMem, (void*)(this));
-    CVodeMalloc(mpCvodeMem, AbstractCvodeSystemRhsAdaptor, tStart, initialConditions,
-                CV_SS, mRelTol, &mAbsTol);
+        CVodeSetFdata(mpCvodeMem, (void*)(this));
 #endif
+        // Setup CVODE
+#if CHASTE_SUNDIALS_VERSION >= 20400
+        CVodeInit(mpCvodeMem, AbstractCvodeSystemRhsAdaptor, tStart, initialConditions);
+        CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
+#else
+        CVodeMalloc(mpCvodeMem, AbstractCvodeSystemRhsAdaptor, tStart, initialConditions,
+                    CV_SS, mRelTol, &mAbsTol);
+#endif
+        // Attach a linear solver for Newton iteration
+        CVDense(mpCvodeMem, NV_LENGTH_S(initialConditions));
+    }
+    else if (reinit)
+    {
+#if CHASTE_SUNDIALS_VERSION >= 20400
+        CVodeReInit(mpCvodeMem, tStart, initialConditions);
+        CVodeSStolerances(mpCvodeMem, mRelTol, mAbsTol);
+#else
+        CVodeReInit(mpCvodeMem, AbstractCvodeSystemRhsAdaptor, tStart, initialConditions,
+                    CV_SS, mRelTol, &mAbsTol);
+#endif
+    }
+    // Set max dt and change max steps if wanted
     CVodeSetMaxStep(mpCvodeMem, maxDt);
-    // Change max steps if wanted
     if (mMaxSteps > 0)
     {
         CVodeSetMaxNumSteps(mpCvodeMem, mMaxSteps);
         CVodeSetMaxErrTestFails(mpCvodeMem, 15);
     }
-    // Attach a linear solver for Newton iteration
-    CVDense(mpCvodeMem, NV_LENGTH_S(initialConditions));
+}
+
+
+void AbstractCvodeSystem::RecordStoppingPoint(double stopTime)
+{
+    const unsigned size = GetNumberOfStateVariables();
+    CreateVectorIfEmpty(mLastSolutionState, size);
+    for (unsigned i=0; i<size; i++)
+    {
+        SetVectorComponent(mLastSolutionState, i, GetVectorComponent(mStateVariables, i));
+    }
+    mLastSolutionTime = stopTime;
 }
 
 
 void AbstractCvodeSystem::FreeCvodeMemory()
 {
     CVodeFree(&mpCvodeMem);
+    mpCvodeMem = NULL;
 }
 
 
