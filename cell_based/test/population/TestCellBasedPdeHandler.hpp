@@ -421,6 +421,13 @@ public:
         TetrahedralMesh<3,3>* p_coarse_mesh_3d = pde_handler_3d.GetCoarsePdeMesh();
         TS_ASSERT_EQUALS(p_coarse_mesh_3d->GetNumNodes(), 64u);
         TS_ASSERT_EQUALS(p_coarse_mesh_3d->GetNumElements(), 162u);
+
+        // Tidy up
+        for (unsigned i=0; i<nodes_1d.size(); i++)
+        {
+            delete nodes_1d[i];
+            delete nodes_3d[i];
+        }
     }
         
     void TestInitialiseCellPdeElementMapAndFindCoarseElementContainingCell() throw(Exception)
