@@ -257,7 +257,7 @@ class RdfWrapper(object):
             cellml_model.xml_append(rdf_doc.RDF)
             # Remove the RDF model
             self.remove_model(cellml_model)
-    update_serialized_rdf = globals()['update_serialized_rdf'].__doc__
+    update_serialized_rdf.__doc__ = globals()['update_serialized_rdf'].__doc__
 
     def create_rdf_node(self, node_content=None, fragment_id=None):
         raise NotImplementedError

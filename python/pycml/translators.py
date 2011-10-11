@@ -316,7 +316,7 @@ class CellMLTranslator(object):
             swap = False
         except KeyError:
             swap = True
-            for key, val in self.FILE_EXTENSIONS:
+            for key, val in self.FILE_EXTENSIONS.iteritems():
                 if val == ext:
                     new_ext = key
                     break
@@ -5181,6 +5181,12 @@ def run():
     if options.protocol:
         import protocol
         protocol.apply_protocol_file(doc, options.protocol)
+        if options.debug:
+            post_proto_cellml = options.outfilename or model_file
+            post_proto_cellml = os.path.splitext(post_proto_cellml)[0] + '-proto.cellml.ppp'
+            stream = open_output_stream(post_proto_cellml)
+            doc.xml(indent=u'yes', stream=stream)
+            close_output_stream(stream)
         DEBUG('translate', "+++ Applied protocol")
 
     config.finalize_config()
