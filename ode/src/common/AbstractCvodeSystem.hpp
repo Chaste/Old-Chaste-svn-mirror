@@ -116,6 +116,9 @@ private:
     /** Remember where the last solve got to so we know whether to re-initialise. */
     double mLastSolutionTime;
 
+    /** Whether to automatically reset CVODE on each Solve call. */
+    bool mAutoReset;
+
 protected:
 
     /** Whether to use an analytic Jacobian. */
@@ -169,6 +172,13 @@ public:
     virtual void EvaluateYDerivatives(realtype time,
                                       N_Vector y,
                                       N_Vector ydot)=0;
+
+    /**
+     * Set whether to automatically re-initialise CVODE on every call to Solve, or
+     * whether to attempt to guess when re-initialisation is needed.  See also
+     * ResetSolver.
+     */
+    void SetAutoReset(bool autoReset);
 
     /**
      * Successive calls to Solve will attempt to intelligently determine whether

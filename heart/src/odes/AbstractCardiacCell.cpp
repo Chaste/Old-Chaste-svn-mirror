@@ -78,9 +78,9 @@ void AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
     double saved_voltage = GetVoltage();
 
-    mSetVoltageDerivativeToZero = true;
+    SetVoltageDerivativeToZero(true);
     mpOdeSolver->SolveAndUpdateStateVariable(this, tStart, tEnd, mDt);
-    mSetVoltageDerivativeToZero = false;
+    SetVoltageDerivativeToZero(false);
 
     SetVoltage(saved_voltage); // In case of naughty models
 

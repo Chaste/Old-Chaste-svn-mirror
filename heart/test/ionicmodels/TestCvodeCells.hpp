@@ -124,6 +124,7 @@ public:
 
         // Make a model that uses Cvode directly:
         CellLuoRudy1991FromCellMLCvode lr91_cvode_system(p_solver, p_zero_stimulus);
+        lr91_cvode_system.SetAutoReset(false);
 
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
@@ -278,6 +279,7 @@ public:
 
         // Make a model that uses Cvode directly:
         CellShannon2004FromCellMLCvode sh04_cvode_system(p_solver, p_stimulus);
+        sh04_cvode_system.SetAutoReset(false);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetVoltageIndex(), 0u);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0); // 0 means 'UNSET' and Cvode uses the default.
 

@@ -73,6 +73,7 @@ AbstractCvodeSystem::AbstractCvodeSystem(unsigned numberOfStateVariables)
     : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mLastSolutionState(NULL),
       mLastSolutionTime(0.0),
+      mAutoReset(true),
       mUseAnalyticJacobian(false),
       mpCvodeMem(NULL),
       mMaxSteps(0)
@@ -94,8 +95,10 @@ void AbstractCvodeSystem::Init()
 
 AbstractCvodeSystem::~AbstractCvodeSystem()
 {
+    FreeCvodeMemory();
     DeleteVector(mStateVariables);
     DeleteVector(mParameters);
+    DeleteVector(mLastSolutionState);
 }
 
 //
@@ -230,6 +233,13 @@ bool Differs(double v1, double v2)
 }
 
 
+void AbstractCvodeSystem::SetAutoReset(bool autoReset)
+{
+    mAutoReset = autoReset;
+    ResetSolver();
+}
+
+
 void AbstractCvodeSystem::ResetSolver()
 {
     DeleteVector(mLastSolutionState);
@@ -244,7 +254,7 @@ void AbstractCvodeSystem::SetupCvode(N_Vector initialConditions,
     assert(maxDt >= 0.0);
 
     // Find out if we need to (re-)initialise
-    bool reinit = !mpCvodeMem || !mLastSolutionState || Differs(tStart, mLastSolutionTime);
+    bool reinit = !mpCvodeMem || mAutoReset || !mLastSolutionState || Differs(tStart, mLastSolutionTime);
     if (!reinit)
     {
         const unsigned size = GetNumberOfStateVariables();
@@ -303,19 +313,25 @@ void AbstractCvodeSystem::SetupCvode(N_Vector initialConditions,
 
 void AbstractCvodeSystem::RecordStoppingPoint(double stopTime)
 {
-    const unsigned size = GetNumberOfStateVariables();
-    CreateVectorIfEmpty(mLastSolutionState, size);
-    for (unsigned i=0; i<size; i++)
+    if (!mAutoReset)
     {
-        SetVectorComponent(mLastSolutionState, i, GetVectorComponent(mStateVariables, i));
+        const unsigned size = GetNumberOfStateVariables();
+        CreateVectorIfEmpty(mLastSolutionState, size);
+        for (unsigned i=0; i<size; i++)
+        {
+            SetVectorComponent(mLastSolutionState, i, GetVectorComponent(mStateVariables, i));
+        }
+        mLastSolutionTime = stopTime;
     }
-    mLastSolutionTime = stopTime;
 }
 
 
 void AbstractCvodeSystem::FreeCvodeMemory()
 {
-    CVodeFree(&mpCvodeMem);
+    if (mpCvodeMem)
+    {
+        CVodeFree(&mpCvodeMem);
+    }
     mpCvodeMem = NULL;
 }
 
