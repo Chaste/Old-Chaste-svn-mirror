@@ -177,6 +177,8 @@ public:
      * Set whether to automatically re-initialise CVODE on every call to Solve, or
      * whether to attempt to guess when re-initialisation is needed.  See also
      * ResetSolver.
+     *
+     * @param autoReset  whether to reset on every Solve
      */
     void SetAutoReset(bool autoReset);
 
