@@ -154,7 +154,8 @@ private:
             else
             {
                 // Mesh in text format, use the mesh writer to "binarise" it
-                mesh_writer.WriteFilesUsingMeshReader(*p_original_mesh_reader);
+                mesh_writer.WriteFilesUsingMeshReaderAndMesh(*p_original_mesh_reader,
+                                                             *(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
             }
         }
 

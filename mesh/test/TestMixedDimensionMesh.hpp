@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTMIXEDDIMENSIONMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include "MixedDimensionMesh.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -37,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ArchiveOpener.hpp"
 
 
 class TestMixedDimensionMesh : public CxxTest::TestSuite
@@ -371,6 +374,117 @@ public:
             MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
             TS_ASSERT_EQUALS(total_owned, partitioned_mesh.GetNumCableElements());
         }
+    }
+
+    void TestArchiving() throw(Exception)
+    {
+        FileFinder archive_dir("mixed_mesh_archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "mixed_dimension_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("mixed_dimension_mesh");
+
+        MixedDimensionMesh<2,2>* p_mesh = new MixedDimensionMesh<2,2>(DistributedTetrahedralMeshPartitionType::DUMB);
+        unsigned num_nodes;
+        unsigned local_num_nodes;
+        unsigned num_elements;
+        unsigned num_cable_elements;
+        unsigned num_local_cable_elements;
+        // archive
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+            num_nodes = p_mesh->GetNumNodes();
+            local_num_nodes = p_mesh->GetNumLocalNodes();
+            num_elements = p_mesh->GetNumElements();
+            num_cable_elements = p_mesh->GetNumCableElements();
+            num_local_cable_elements = p_mesh->GetNumLocalCableElements();
+
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
+            AbstractTetrahedralMesh<2,2>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<2,2>* >(p_mesh);
+            (*p_arch) << p_mesh_abstract;
+        }
+
+        FileFinder ncl_file("mixed_dimension_mesh.ncl", archive_dir);
+        TS_ASSERT(ncl_file.Exists());
+
+        // restore
+        {
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<2,2>* p_mesh_abstract2;
+
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // restore from the archive
+            (*p_arch) >> p_mesh_abstract2;
+            // Check we have the right number of nodes & elements
+            MixedDimensionMesh<2,2>* p_mesh2 = static_cast<MixedDimensionMesh<2,2>*>(p_mesh_abstract2);
+
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumCableElements(), num_cable_elements);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumLocalCableElements(), num_local_cable_elements);
+
+
+            // Check first element has the right nodes
+            for (unsigned i=0; i<num_cable_elements; i++)
+            {
+                try
+                {
+                    Element<1,2>* p_element = p_mesh->GetCableElement(i);
+                    Element<1,2>* p_element2 = p_mesh2->GetCableElement(i);
+                    TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
+                }
+                catch(Exception& e)
+                {
+                    TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+                }
+            }
+            delete p_mesh2;
+        }
+
+
+        // restore from a single processor archive
+        {
+            FileFinder archive_dir("mesh/test/data/mixed_mesh_archive", RelativeTo::ChasteSourceRoot);
+            if ( PetscTools::IsSequential() )
+            {
+                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
+                        archive_dir, "mixed_dimension_mesh.arch");
+                boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+                AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
+                (*p_arch) >> p_mesh3;
+                delete p_mesh3;
+            }
+            else
+            {
+                typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
+                if (PetscTools::GetMyRank() > 0)
+                {
+                    // Should not read this archive because none exists here.
+                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, "mixed_dimension_mesh.arch"),
+                                "Cannot load secondary archive file:");
+                }
+                else
+                {
+                    // Should not read this archive because there are two or more processes and
+                    // this archive was written on one process.
+                    InputArchiveOpener arch_opener(archive_dir, "mixed_dimension_mesh.arch");
+                    boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+                    AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
+                    TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3,
+                                          "This archive was written for a different number of processors");
+
+                }
+            }
+        }
+
+        delete p_mesh;
     }
 };
 

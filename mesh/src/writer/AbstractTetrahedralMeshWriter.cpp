@@ -356,6 +356,73 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableE
     }
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+{
+    unsigned max_elements_all;
+    if (PetscTools::IsSequential())
+    {
+        max_elements_all = rMesh.CalculateMaximumContainingElementsPerProcess();
+    }
+    else
+    {
+        unsigned max_elements_per_process = rMesh.CalculateMaximumContainingElementsPerProcess();
+        MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
+    }
+
+    PetscTools::BeginRoundRobin();
+    {
+        std::string node_connect_list_file_name = this->mBaseName + ".ncl";
+        out_stream p_ncl_file=out_stream(NULL);
+
+        if (PetscTools::AmMaster())
+        {
+            //Open the file for the first time
+            p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
+
+            // Write the ncl header
+            *p_ncl_file << rMesh.GetNumNodes() << "\t";
+            *p_ncl_file << max_elements_all << "\t";
+            *p_ncl_file << "\tBIN\n";
+        }
+        else
+        {
+            // Append to the existing file
+            p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name, std::ios::app);
+        }
+
+        // Write each node's data
+        unsigned default_marker = UINT_MAX;
+
+        typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
+        for (NodeIterType iter = rMesh.GetNodeIteratorBegin();
+             iter != rMesh.GetNodeIteratorEnd();
+             ++iter)
+        {
+            // Get the containing element indices from the node's set and sort them
+            std::set<unsigned>& r_elem_set = iter->rGetContainingElementIndices();
+            std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end());
+            std::sort(elem_vector.begin(), elem_vector.end());
+            // Pad the vector with unsigned markers
+            for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
+            {
+                elem_vector.push_back(default_marker);
+            }
+            assert (elem_vector.size() == max_elements_all);
+            // Write raw data out of std::vector into the file
+            p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
+        }
+
+        if (PetscTools::AmTopMost())
+        {
+            *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
+        }
+
+        p_ncl_file->close();
+    }
+    PetscTools::EndRoundRobin();
+}
+
 ///\todo #1322 Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
@@ -394,73 +461,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     //Connectivity file is written when we write to a binary file (only available for TrianglesMeshWriter) and if we are preserving the element order
     if (this->mFilesAreBinary && keepOriginalElementIndexing)
     {
-        unsigned max_elements_all;
-        if (PetscTools::IsSequential())
-        {
-            max_elements_all = mpMesh->CalculateMaximumContainingElementsPerProcess();
-        }
-        else
-        {
-            unsigned max_elements_per_process = mpMesh->CalculateMaximumContainingElementsPerProcess();
-            MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
-        }
-
-
-        for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
-        {
-            if (PetscTools::GetMyRank() == writing_process)
-            {
-                std::string node_connect_list_file_name = this->mBaseName + ".ncl";
-                out_stream p_ncl_file=out_stream(NULL);
-
-                if (PetscTools::AmMaster())
-                {
-                    assert(writing_process==0);
-                    //Open the file for the first time
-                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name);
-
-                    // Write the ncl header
-                    *p_ncl_file << this->mNumNodes << "\t";
-                    *p_ncl_file << max_elements_all << "\t";
-                    *p_ncl_file << "\tBIN\n";
-                }
-                else
-                {
-                    // Append to the existing file
-                    p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(node_connect_list_file_name, std::ios::app);
-                }
-
-                // Write each node's data
-                unsigned default_marker = UINT_MAX;
-
-                for (NodeIterType iter = mpMesh->GetNodeIteratorBegin();
-                     iter != mpMesh->GetNodeIteratorEnd();
-                     ++iter)
-                {
-                    // Get the containing element indices from the node's set and sort them
-                    std::set<unsigned>& r_elem_set = iter->rGetContainingElementIndices();
-                    std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end());
-                    std::sort(elem_vector.begin(), elem_vector.end());
-                    // Pad the vector with unsigned markers
-                    for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
-                    {
-                        elem_vector.push_back(default_marker);
-                    }
-                    assert (elem_vector.size() == max_elements_all);
-                    // Write raw data out of std::vector into the file
-                    p_ncl_file->write((char*)&elem_vector[0], elem_vector.size()*sizeof(unsigned));
-                }
-
-                if (PetscTools::AmTopMost())
-                {
-                    *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
-                }
-
-                p_ncl_file->close();
-            }
-
-            PetscTools::Barrier("AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh");
-        }
+        WriteNclFile(*mpMesh);
     }
 
     // Have we got a parallel mesh?
@@ -505,6 +506,15 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     mpIters->pBoundaryElemIter = NULL;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReaderAndMesh(
+        AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+        AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+{
+    WriteNclFile(rMesh);
+
+    WriteFilesUsingMeshReader(rMeshReader);
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParallelMesh(bool keepOriginalElementIndexing)
@@ -600,29 +610,25 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
     }
     else
     {
-        for (unsigned writing_process=0; writing_process<PetscTools::GetNumProcs(); writing_process++)
+        PetscTools::BeginRoundRobin();
+
+        if (PetscTools::AmMaster())
         {
-            if (PetscTools::GetMyRank() == writing_process)
-            {
-                if (PetscTools::AmMaster())
-                {
-                    // Make sure headers are written first
-                    assert(PetscTools::GetMyRank() == 0);
-                    CreateFilesWithHeaders();
-                }
+            // Make sure headers are written first
+            assert(PetscTools::GetMyRank() == 0);
+            CreateFilesWithHeaders();
+        }
 
-                AppendLocalDataToFiles();
+        AppendLocalDataToFiles();
 
-                if (PetscTools::AmTopMost())
-                {
-                    // Make sure footers are written last
-                    assert(PetscTools::GetMyRank() == PetscTools::GetNumProcs()-1);
-                    WriteFilesFooter();
-                }
-            }
-            // Process i+1 waits for process i to close the file
-            PetscTools::Barrier();
-        } // Loop in writing_process
+        if (PetscTools::AmTopMost())
+        {
+            // Make sure footers are written last
+            assert(PetscTools::GetMyRank() == PetscTools::GetNumProcs()-1);
+            WriteFilesFooter();
+        }
+
+        PetscTools::EndRoundRobin();
     }
 }
 

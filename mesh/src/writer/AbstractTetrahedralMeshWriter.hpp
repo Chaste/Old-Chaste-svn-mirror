@@ -68,6 +68,14 @@ private:
     virtual void WriteFilesUsingParallelMesh(bool keepOriginalElementIndexing=true);
 
     /**
+     * Write out a node connectivity information file (collectively called,
+     * involves some communication).
+     *
+     * @param rMesh the mesh object in memory
+     */
+    void WriteNclFile(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+    /**
      * Create output files and add headers.
      */
     virtual void CreateFilesWithHeaders();
@@ -133,6 +141,17 @@ public:
     virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
                                      bool keepOriginalElementIndexing=true);
 
+    /**
+     * Write a const mesh to file. Used by the serialization methods and avoids iterators.
+     * The master process will use the mesh reader to copy over most of the mesh files,
+     * converting them to binary format. However, the mesh is used to write a .ncl file
+     * which contains node connectivity information.
+     *
+     * @param rMeshReader a reader of the original mesh files on disk
+     * @param rMesh the mesh object in memory
+     */
+    void WriteFilesUsingMeshReaderAndMesh(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+                                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
    /**
      * @return the coordinates of the next node to be written to file
