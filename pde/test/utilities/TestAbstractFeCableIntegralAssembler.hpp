@@ -125,11 +125,9 @@ class TestAbstractFeCableIntegralAssembler : public CxxTest::TestSuite
 public:
     void TestBasicCableAssemblers() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
-        MixedDimensionMesh<2,2> mesh;
+        MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader); 
         
         double h = 0.01; //All cable elements in the mesh are of this length

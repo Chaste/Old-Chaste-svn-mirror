@@ -34,10 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainPurkinjeVolumeAssembler.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
+#include "MixedDimensionMesh.hpp"
 #include "PetscTools.hpp"
 #include "LuoRudy1991.hpp"
 #include "PetscSetupAndFinalize.hpp"
-
+#include "MonodomainPurkinjeCableAssembler.hpp"
 #include "PetscMatTools.hpp"
 
 class TestMonodomainPurkinjeAssemblers : public CxxTest::TestSuite
@@ -45,7 +46,9 @@ class TestMonodomainPurkinjeAssemblers : public CxxTest::TestSuite
 public:
     void TestVolumeIntegralPartOfMatrix() throw (Exception)
     {
-        TetrahedralMesh<2,2> mesh;
+    	PdeSimulationTime::SetPdeTimeStep(0.01);
+
+    	TetrahedralMesh<2,2> mesh;
         mesh.ConstructRegularSlabMesh(0.05, 0.1, 0.1);
 
     	PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
@@ -100,6 +103,78 @@ public:
     	MatDestroy(normal_mat);
 
     }
+
+    void TestMonodomainPurkinjeCableAssembler() throw(Exception)
+    {
+    	EXIT_IF_PARALLEL;
+
+    	PdeSimulationTime::SetPdeTimeStep(0.01);
+
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+        MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
+        mesh.ConstructFromMeshReader(reader);
+        Mat purkinje_mat;
+		PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9);
+
+		MonodomainPurkinjeCableAssembler<2,2> purkinje_cable_assembler(&mesh);
+
+		purkinje_cable_assembler.SetMatrixToAssemble(purkinje_mat, true);
+		purkinje_cable_assembler.Assemble();
+		PetscMatTools::Finalise(purkinje_mat);
+
+		PetscInt lo, hi;
+		PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
+
+		for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+		{
+			if(lo<=(int)(2*i) && (int)(2*i)<hi)
+			{
+				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+				{
+					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j), 0 , 1e-8);
+					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
+				}
+			}
+
+			if(lo<=(int)(2*i+1) && (int)(2*i+1)<hi)
+			{
+				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+				{
+					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
+					if ( (i>55) && (i<65) && (j>=i-1) && (j<=i+1))
+					{
+// row 121 is wrong in parallel, as if the contribution from the cable element (59,60) is
+// not being used in the assembly
+//
+// In sequential:  row 121: (118, 0)  (119, 58.3333)  (120, 0)  (121, 1283.33)  (122, 0)  (123, 58.3333)
+// In parallel:    row 121:                           (120, 0)  (121, 641.667)  (122, 0)  (123, 58.3333)
+
+					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+					}
+					else if ((i==55) && (j>=55) && (j<=56) )
+					{
+					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+					}
+					else if ((i==65) && (j>=64) && (j<=65) )
+					{
+					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+					}
+					else
+					{
+						TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
+					}
+
+				}
+			}
+		}
+
+PetscMatTools::Display(purkinje_mat);
+
+		MatDestroy(purkinje_mat);
+
+
+	}
 };
 
 #endif // TESTMONODOMAINPURKINJEASSEMBLERS_HPP_
