@@ -69,6 +69,8 @@ protected:
      *  ComputeMatrixTerm() method. */
     MonodomainStiffnessMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mStiffnessMatrixAssembler;
 
+public:
+
     /**
      * ComputeMatrixTerm()
      *
@@ -90,7 +92,6 @@ protected:
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-public:
 
     /**
      * Constructor
