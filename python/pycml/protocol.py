@@ -287,7 +287,7 @@ class Protocol(processors.ModelModifier):
             if copy_initial_value:
                 if not hasattr(var, u'initial_value'):
                     raise ProtocolError("No initial value available for input " + str(var))
-                input_var.initial_value = self._convert_initial_value(var, units)
+                input_var.initial_value = unicode(self._convert_initial_value(var, units))
             self.del_attr(var, u'initial_value', None)
             # Set all variables connected to the original variable (including itself) to be mapped to the new one
             self._update_connections(var, input_var)
