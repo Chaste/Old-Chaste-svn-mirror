@@ -1561,11 +1561,11 @@ public:
 
     void TestReadingMeshesWithRegionsAndGenericReader() throw (Exception)
     {
-        GenericMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+        std::auto_ptr<AbstractMeshReader<1,1> > p_mesh_reader = GenericMeshReader<1,1>("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         TetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructFromMeshReader(*p_mesh_reader);
 
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumElementAttributes(), 1u);
 
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {

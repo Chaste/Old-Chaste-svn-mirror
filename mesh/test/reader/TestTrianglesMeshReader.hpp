@@ -47,7 +47,6 @@ typedef TrianglesMeshReader<1,1> READER_1D;
 typedef TrianglesMeshReader<2,2> READER_2D;
 typedef TrianglesMeshReader<3,3> READER_3D;
 typedef TrianglesMeshReader<0,1> READER_0D_IN_1D;
-typedef GenericMeshReader<2,2> GENERIC_READER_2D;
 
 
 class TestTrianglesMeshReader : public CxxTest::TestSuite
@@ -643,14 +642,14 @@ public:
 
     void TestReadingWithGenericReader() throw(Exception)
     {
-        GenericMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 312u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 522u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
+        std::auto_ptr<AbstractMeshReader<2,2> > p_mesh_reader = GenericMeshReader<2,2>("mesh/test/data/disk_522_elements");
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumNodes(), 312u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumElements(), 522u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumFaceAttributes(), 1u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumElementAttributes(), 0u);
 
-        TS_ASSERT_THROWS_CONTAINS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
-                              "Could not open appropriate mesh files for mesh/test/data/no_such_file");
+        TS_ASSERT_THROWS_CONTAINS((GenericMeshReader<2,2>("mesh/test/data/no_such_file")),
+                                  "Could not open appropriate mesh files for mesh/test/data/no_such_file");
     }
 
     void TestReadingNclInformation() throw(Exception)

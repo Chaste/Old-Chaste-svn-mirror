@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GenericMeshReader.hpp"
 
 typedef MemfemMeshReader<3,3> READER_3D;
-typedef GenericMeshReader<3,3> GENERIC_READER_3D;
 typedef MemfemMeshReader<2,2> READER_2D; // For exception coverage
 
 class TestMemfemMeshReaders : public CxxTest::TestSuite
@@ -76,18 +75,19 @@ public:
 
     void TestGenericReader() throw (Exception)
     {
-        GenericMeshReader<3,3> mesh_reader("mesh/test/data/Memfem_slab");
+        std::auto_ptr<AbstractMeshReader<3, 3> > p_mesh_reader = GenericMeshReader<3,3>("mesh/test/data/Memfem_slab");
 
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 381u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1030u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 758u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 0u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumNodes(), 381u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumElements(), 1030u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumFaces(), 758u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumElementAttributes(), 0u);
+        TS_ASSERT_EQUALS(p_mesh_reader->GetNumFaceAttributes(), 0u);
 
         // The file does not exist
-        TS_ASSERT_THROWS_CONTAINS( GENERIC_READER_3D mesh_reader2("no_file"),
-        "Could not open appropriate mesh files for no_file");
+        TS_ASSERT_THROWS_CONTAINS((GenericMeshReader<3,3>("no_file")),
+                                  "Could not open appropriate mesh files for no_file");
     }
+
     void TestExceptions()
     {
         // The file does not exist

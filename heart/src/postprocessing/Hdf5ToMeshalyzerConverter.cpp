@@ -114,8 +114,9 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
         ///\todo What if the mesh has been scaled, translated or rotated?
         // Note that the next line will throw if the mesh has not been read from file
         std::string original_file = this->mpMesh->GetMeshFileBaseName();
-        GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
-        mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+        std::auto_ptr<AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> > p_original_mesh_reader
+            = GenericMeshReader<ELEMENT_DIM, SPACE_DIM>(original_file);
+        mesh_writer.WriteFilesUsingMeshReader(*p_original_mesh_reader);
     }
     PetscTools::Barrier("Hdf5ToMeshalyzerConverter");
 }

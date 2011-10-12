@@ -335,7 +335,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template<class T>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber,
-                                                    const std::vector<T> &dataPacket, unsigned attribute)
+                                                            const std::vector<T> &dataPacket, unsigned attribute)
 {
     if (this->mFilesAreBinary)
     {

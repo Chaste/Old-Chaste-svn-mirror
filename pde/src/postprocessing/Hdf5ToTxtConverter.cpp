@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
-#include "GenericMeshReader.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "Warnings.hpp"
 

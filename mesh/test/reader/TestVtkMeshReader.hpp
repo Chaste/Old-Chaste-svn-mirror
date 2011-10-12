@@ -234,26 +234,25 @@ public:
     void TestGenericReader()
     {
 #ifdef CHASTE_VTK
-        GenericMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+        std::auto_ptr<AbstractMeshReader<3,3> > p_mesh_reader = GenericMeshReader<3,3>("mesh/test/data/cube_2mm_12_elements.vtu");
 
-        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 12U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 12U);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 20U);
+        TS_ASSERT_EQUALS( p_mesh_reader->GetNumNodes(), 12U);
+        TS_ASSERT_EQUALS( p_mesh_reader->GetNumElements(), 12U);
+        TS_ASSERT_EQUALS( p_mesh_reader->GetNumFaces(), 20U);
 
-        std::vector<double> first_node = mesh_reader.GetNextNode();
+        std::vector<double> first_node = p_mesh_reader->GetNextNode();
         TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
         TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
 
-        std::vector<double> next_node = mesh_reader.GetNextNode();
+        std::vector<double> next_node = p_mesh_reader->GetNextNode();
         TS_ASSERT_DELTA( next_node[0] , 0.2 , 1e-6 );
         TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
 
         // Exception coverage
-        typedef GenericMeshReader<3,3> GENERIC_READER3;
-        TS_ASSERT_THROWS_THIS(GENERIC_READER3 quadratic_mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu", 2, 2),
-                         "Quadratic meshes are only supported in Triangles format.");
+        TS_ASSERT_THROWS_THIS((GenericMeshReader<3,3>("mesh/test/data/cube_2mm_12_elements.vtu", 2, 2)),
+                              "Quadratic meshes are only supported in Triangles format.");
 #endif // CHASTE_VTK
     }
 

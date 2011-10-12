@@ -163,8 +163,9 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         ///\todo What if the mesh has been scaled, translated or rotated?
         // Note that the next line will throw if the mesh has not been read from file
         std::string original_file=this->mpMesh->GetMeshFileBaseName();
-        GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
-        cmgui_mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+        std::auto_ptr<AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> > p_original_mesh_reader
+            = GenericMeshReader<ELEMENT_DIM, SPACE_DIM>(original_file);
+        cmgui_mesh_writer.WriteFilesUsingMeshReader(*p_original_mesh_reader);
     }
     
     WriteCmguiScript();

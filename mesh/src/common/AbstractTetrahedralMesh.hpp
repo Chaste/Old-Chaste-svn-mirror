@@ -134,9 +134,10 @@ private:
 
             // Mesh in disc, copy it to the archiving folder
             std::string original_file=this->GetMeshFileBaseName();
-            GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file, order_of_element, order_of_boundary_element);
+            std::auto_ptr<AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> > p_original_mesh_reader
+                = GenericMeshReader<ELEMENT_DIM, SPACE_DIM>(original_file, order_of_element, order_of_boundary_element);
 
-            if (original_mesh_reader.IsFileFormatBinary())
+            if (p_original_mesh_reader->IsFileFormatBinary())
             {
                 // Mesh is in binary format, we can just copy the files across ignoring the mesh reader
                 std::stringstream cp_command;
@@ -153,7 +154,7 @@ private:
             else
             {
                 // Mesh in text format, use the mesh writer to "binarise" it
-                mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+                mesh_writer.WriteFilesUsingMeshReader(*p_original_mesh_reader);
             }
         }
 
