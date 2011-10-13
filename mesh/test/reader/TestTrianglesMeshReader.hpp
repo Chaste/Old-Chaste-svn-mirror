@@ -620,7 +620,7 @@ public:
 
         TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetFaceData(12u), "Face does not exist - not enough faces.");
-        TS_ASSERT_THROWS_THIS(mesh_reader.GetElementData(12u), "Element does not exist - not enough elements.");
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetElementData(12u), "Element 12 does not exist - not enough elements (only 12).");
 
         TS_ASSERT_THROWS_THIS(mesh_reader.GetContainingElementIndices(0u), "No NCL file available for this mesh.");
     }

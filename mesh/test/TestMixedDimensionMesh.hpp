@@ -30,17 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTMIXEDDIMENSIONMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "CheckpointArchiveTypes.hpp" // Must come before other Chaste headers
 
 #include "MixedDimensionMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
-
+#include "PetscSetupAndFinalize.hpp"
 
 class TestMixedDimensionMesh : public CxxTest::TestSuite
 {
@@ -430,8 +428,7 @@ public:
             TS_ASSERT_EQUALS(p_mesh2->GetNumCableElements(), num_cable_elements);
             TS_ASSERT_EQUALS(p_mesh2->GetNumLocalCableElements(), num_local_cable_elements);
 
-
-            // Check first element has the right nodes
+            // Check elements have the right nodes
             for (unsigned i=0; i<num_cable_elements; i++)
             {
                 try
@@ -448,14 +445,12 @@ public:
             delete p_mesh2;
         }
 
-
         // restore from a single processor archive
         {
             FileFinder archive_dir("mesh/test/data/mixed_mesh_archive", RelativeTo::ChasteSourceRoot);
             if ( PetscTools::IsSequential() )
             {
-                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                        archive_dir, "mixed_dimension_mesh.arch");
+                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
                 boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                 AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                 (*p_arch) >> p_mesh3;
@@ -467,14 +462,14 @@ public:
                 if (PetscTools::GetMyRank() > 0)
                 {
                     // Should not read this archive because none exists here.
-                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, "mixed_dimension_mesh.arch"),
-                                "Cannot load secondary archive file:");
+                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, archive_file),
+                                              "Cannot load secondary archive file:");
                 }
                 else
                 {
                     // Should not read this archive because there are two or more processes and
                     // this archive was written on one process.
-                    InputArchiveOpener arch_opener(archive_dir, "mixed_dimension_mesh.arch");
+                    InputArchiveOpener arch_opener(archive_dir, archive_file);
                     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                     AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                     TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3,

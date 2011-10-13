@@ -235,10 +235,10 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
         for (std::set<unsigned>::const_iterator it=nodes_owned.begin(); it!=nodes_owned.end(); it++)
         {
             //Loop over wholly-owned nodes
-            unsigned global_node_index=*it;
+            unsigned global_node_index = *it;
             coords = rMeshReader.GetNode(global_node_index);
             RegisterNode(global_node_index);
-            Node<SPACE_DIM>* p_node =  new Node<SPACE_DIM>(global_node_index, coords, false);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(global_node_index, coords, false);
 
 //Node attributes in binary format are not yet supported, see #1730
 //            for (unsigned i = 0; i < rMeshReader.GetNodeAttributes().size(); i++)
@@ -426,10 +426,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
         PetscTools::ReplicateException(true); //Bad face exception
         throw e;
     }
-    //EXCEPTION("before deadlocking");
-//    std::cout << "before!" << std::flush <<std::endl;
     PetscTools::ReplicateException(false);
-//    std::cout << "went past this!" << std::flush <<std::endl;
 
     if (mMetisPartitioning != DistributedTetrahedralMeshPartitionType::DUMB && PetscTools::IsParallel())
     {

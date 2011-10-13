@@ -360,7 +360,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned
     }
     if (index >=mNumElements)
     {
-        EXCEPTION("Element does not exist - not enough elements.");
+        EXCEPTION("Element " << index << " does not exist - not enough elements (only " << mNumElements << ").");
     }
 
     // Put the file stream pointer to the right location
@@ -419,7 +419,7 @@ std::vector<unsigned> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetContaining
     std::vector<unsigned> containing_element_indices;
     containing_element_indices.resize(mMaxContainingElements);
 
-    std::vector<unsigned>  dummy;//unused here
+    std::vector<unsigned> dummy; // unused here
     GetNextItemFromStream(mNclFile, index, containing_element_indices, 0, dummy);
 
     EnsureIndexingFromZero(containing_element_indices);

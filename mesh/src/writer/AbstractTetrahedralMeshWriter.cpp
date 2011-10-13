@@ -120,7 +120,7 @@ std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNe
         //Iterate over the locally-owned nodes
         if ( (*(mpIters->pNodeIter)) != mpMesh->GetNodeIteratorEnd())
         {
-            //Either this a sequential mesh (and we own it all)
+            // Either this is a sequential mesh (and we own it all)
             // or it's parallel (and the master owns the first chunk)
             for (unsigned j=0; j<SPACE_DIM; j++)
             {
@@ -133,7 +133,7 @@ std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNe
             return coords;
         }
 
-        //If we didn't return then the iterator has reached the end of the local nodes.
+        // If we didn't return then the iterator has reached the end of the local nodes.
         // It must be a parallel mesh and we are expecting messages...
 
         assert( mpDistributedMesh != NULL );
@@ -146,7 +146,6 @@ std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNe
         {
             coords[j] = raw_coords[j];
         }
-
 
         mNodeCounterForParallelMesh++;
         return coords;
@@ -357,7 +356,9 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableE
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(
+        AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+        bool invertMeshPermutation)
 {
     unsigned max_elements_all;
     if (PetscTools::IsSequential())
@@ -370,9 +371,14 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(Abstrac
         MPI_Allreduce(&max_elements_per_process, &max_elements_all, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
     }
 
+    std::string node_connect_list_file_name = this->mBaseName + ".ncl";
+    if (invertMeshPermutation && !rMesh.rGetNodePermutation().empty())
+    {
+        node_connect_list_file_name += "-tmp";
+    }
+
     PetscTools::BeginRoundRobin();
     {
-        std::string node_connect_list_file_name = this->mBaseName + ".ncl";
         out_stream p_ncl_file=out_stream(NULL);
 
         if (PetscTools::AmMaster())
@@ -401,7 +407,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(Abstrac
         {
             // Get the containing element indices from the node's set and sort them
             std::set<unsigned>& r_elem_set = iter->rGetContainingElementIndices();
-            std::vector<unsigned> elem_vector(r_elem_set.begin(),r_elem_set.end());
+            std::vector<unsigned> elem_vector(r_elem_set.begin(), r_elem_set.end());
             std::sort(elem_vector.begin(), elem_vector.end());
             // Pad the vector with unsigned markers
             for (unsigned elem_index=elem_vector.size();  elem_index<max_elements_all; elem_index++)
@@ -421,6 +427,34 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(Abstrac
         p_ncl_file->close();
     }
     PetscTools::EndRoundRobin();
+
+    if (invertMeshPermutation && PetscTools::AmMaster() && !rMesh.rGetNodePermutation().empty())
+    {
+        // Open files
+        const std::string real_node_connect_list_file_name = this->mBaseName + ".ncl";
+        out_stream p_ncl_file = this->mpOutputFileHandler->OpenOutputFile(real_node_connect_list_file_name);
+        FileFinder temp_ncl_path = this->mpOutputFileHandler->FindFile(node_connect_list_file_name);
+        std::ifstream temp_ncl_file(temp_ncl_path.GetAbsolutePath().c_str());
+        // Copy the header
+        std::string header_line;
+        getline(temp_ncl_file, header_line);
+        (*p_ncl_file) << header_line << "\n";
+        const std::streampos data_start = temp_ncl_file.tellg();
+        const std::streamoff item_width = max_elements_all * sizeof(unsigned);
+        // Copy the binary data, permuted
+        std::vector<unsigned> elem_vector(max_elements_all);
+        for (unsigned node_index=0; node_index<rMesh.GetNumAllNodes(); node_index++)
+        {
+            unsigned permuted_index = rMesh.rGetNodePermutation()[node_index];
+            temp_ncl_file.seekg(data_start + item_width * permuted_index, std::ios_base::beg);
+            temp_ncl_file.read((char*)&elem_vector[0], max_elements_all*sizeof(unsigned));
+            p_ncl_file->write((char*)&elem_vector[0], max_elements_all*sizeof(unsigned));
+        }
+        // Footer
+        *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
+        // Remove temp file
+        remove(temp_ncl_path.GetAbsolutePath().c_str());
+    }
 }
 
 ///\todo #1322 Mesh should be const
@@ -446,13 +480,13 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator BoundaryElemIterType;
     mpIters->pBoundaryElemIter = new BoundaryElemIterType(mpMesh->GetBoundaryElementIteratorBegin());
 
-    //Use this processes first element to gauge the size of all the elements
+    //Use this process's first element to gauge the size of all the elements
     if ( (*(mpIters->pElemIter)) != mpMesh->GetElementIteratorEnd())
     {
         mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
     }
 
-    //Use this processes first boundary element to gauge the size of all the boundary elements
+    //Use this process's first boundary element to gauge the size of all the boundary elements
     if ( (*(mpIters->pBoundaryElemIter)) != mpMesh->GetBoundaryElementIteratorEnd())
     {
         mNodesPerBoundaryElement = (*(*(mpIters->pBoundaryElemIter)))->GetNumNodes();
@@ -511,8 +545,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshR
         AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
         AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
 {
-    WriteNclFile(rMesh);
-
+    WriteNclFile(rMesh, true);
     WriteFilesUsingMeshReader(rMeshReader);
 }
 
@@ -556,7 +589,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                     // Attribute value
                     raw_indices[mNodesPerElement] = it->GetRegion();
 
-
                     MPI_Send(raw_indices, mNodesPerElement+1, MPI_UNSIGNED, 0,
                              this->mNumNodes + index, //Elements sent with tags offset
                              PETSC_COMM_WORLD);
@@ -578,8 +610,8 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                             raw_face_indices[j] = (*it)->GetNodeGlobalIndex(j);
                         }
                         MPI_Send(raw_face_indices, ELEMENT_DIM, MPI_UNSIGNED, 0,
-                                this->mNumNodes + this->mNumElements +index, //Faces sent with tags offset even more
-                                PETSC_COMM_WORLD);
+                                 this->mNumNodes + this->mNumElements + index, //Faces sent with tags offset even more
+                                 PETSC_COMM_WORLD);
                     }
                 }
             }
@@ -600,8 +632,8 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                         }
                         raw_cable_element_indices[2] = (*it)->GetRegion();
                         MPI_Send(raw_cable_element_indices, 3, MPI_UNSIGNED, 0,
-                                this->mNumNodes + this->mNumElements + this->mNumBoundaryElements +index, //Cable elements sent with tags offset even more
-                                PETSC_COMM_WORLD);
+                                 this->mNumNodes + this->mNumElements + this->mNumBoundaryElements + index, //Cable elements sent with tags offset even more
+                                 PETSC_COMM_WORLD);
                     }
                 }
             }

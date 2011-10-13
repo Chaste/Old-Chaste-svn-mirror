@@ -871,7 +871,7 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("distributed_tetrahedral_mesh_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "distributed_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
 
@@ -1011,9 +1011,9 @@ public:
 
     void TestArchivingBinaryMesh() throw(Exception)
     {
-        FileFinder archive_dir("archive_binary_mesh", RelativeTo::ChasteTestOutput);
-        std::string archive_file = "distributed_tetrahedral_mesh.arch";
-        ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
+        FileFinder archive_dir("distributed_tetrahedral_mesh_archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "binary_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("binary_mesh");
 
         DistributedTetrahedralMesh<3,3>* p_mesh = new DistributedTetrahedralMesh<3,3>(DistributedTetrahedralMeshPartitionType::METIS_LIBRARY);
         //std::vector<unsigned> halo_node_indices;
@@ -1788,7 +1788,7 @@ public:
 
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
-        FileFinder archive_dir("archive_constructed_mesh", RelativeTo::ChasteTestOutput);
+        FileFinder archive_dir("distributed_tetrahedral_mesh_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "distributed_rectangle.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_rectangle");
 
@@ -1927,7 +1927,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v2");
 
-        // This test will only pass if the node and element orderings are preserver (i.e. dumb partition)
+        // This test will only pass if the node and element orderings are preserved (i.e. dumb partition)
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 

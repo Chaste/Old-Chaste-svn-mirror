@@ -62,7 +62,7 @@ private:
     /**
      * Write a parallel mesh to file. Used by the serialization methods.
      *
-     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
+     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering as in memory.
      *                                     Optimisations can be applied if this is not needed.
      */
     virtual void WriteFilesUsingParallelMesh(bool keepOriginalElementIndexing=true);
@@ -72,8 +72,10 @@ private:
      * involves some communication).
      *
      * @param rMesh the mesh object in memory
+     * @param invertMeshPermutation  whether to permute the file using the inverse of the mesh's permutation
      */
-    void WriteNclFile(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteNclFile(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+                      bool invertMeshPermutation=false);
 
     /**
      * Create output files and add headers.
@@ -90,7 +92,7 @@ private:
      */
     virtual void WriteFilesFooter();
 
-    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from the a mesh)*/
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from a mesh)*/
 
     NodeMap* mpNodeMap; /**<Node map to be used when writing a mesh that has deleted nodes*/
 
@@ -133,7 +135,7 @@ public:
      * Write a const mesh to file. Used by the serialization methods and avoids iterators...
      *
      * @param rMesh the mesh
-     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
+     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering as in memory.
      *                                     Optimisations can be applied if this is not needed.
      *
      * \todo #1322 Mesh should really be const!
