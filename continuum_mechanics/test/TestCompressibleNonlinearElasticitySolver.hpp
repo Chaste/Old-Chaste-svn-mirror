@@ -631,7 +631,7 @@ public:
             MatMult(solver.mJacobianMatrix,test_vec,product_vec);
             double vT_J_v;
             VecDot(product_vec, test_vec, &vT_J_v);
-            std::cout << vT_J_v << " ";
+            //std::cout << vT_J_v << " ";
             TS_ASSERT_LESS_THAN(0.0, vT_J_v);
 
             PetscVecTools::SetElement(test_vec, i, 0.0);
@@ -639,7 +639,7 @@ public:
         }
 
         VecDestroy(test_vec);
-
+        VecDestroy(product_vec);
     }
 
     // Solve using an exponential material law. Doesn't test against an exact solution, just that check that the
@@ -683,10 +683,7 @@ public:
 
         TS_ASSERT_DELTA(r_solution[5](0), 1.06156, 1e-4);
         TS_ASSERT_DELTA(r_solution[5](1), 0.00510, 1e-4);
-
     }
-
-
 };
 
 #endif /* TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_ */

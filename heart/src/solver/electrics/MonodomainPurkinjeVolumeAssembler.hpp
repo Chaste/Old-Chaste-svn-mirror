@@ -54,10 +54,10 @@ class MonodomainPurkinjeVolumeAssembler
 	: public AbstractCardiacFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,CARDIAC>
 {
 private:
-	/* A normal monodomain assembler, on which ComputeMatrixTerm will be called */
+    /** A normal monodomain assembler, on which ComputeMatrixTerm will be called */
     MonodomainAssembler<ELEMENT_DIM, SPACE_DIM> mMonodomainAssembler;
 
-	/**
+        /**
 	 * ComputeMatrixTerm()
 	 *
 	 * This method is called by AssembleOnElement() and tells the assembler
