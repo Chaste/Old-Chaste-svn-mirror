@@ -295,7 +295,7 @@ public:
             ///\todo we currently do not archive mpCoarsePdeMesh - consider doing this (#1891)
             TS_ASSERT(p_pde_handler->GetCoarsePdeMesh() == NULL);
 
-            ///\todo we currently do not archive mPdeAndBcCollection - consider doing this (#1891)
+            ///\todo we currently do not archive mPdeAndBcCollection - consider doing this (#1920)
             TS_ASSERT_EQUALS(p_pde_handler->mPdeAndBcCollection.size(), 0u);
 
             // Tidy up
