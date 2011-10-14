@@ -85,7 +85,7 @@ public:
         }
     }
 
-    void TestSimpleUniformSourcePdeArchiving() throw(Exception)
+    void XTestSimpleUniformSourcePdeArchiving() throw(Exception)
     {
         EXIT_IF_PARALLEL; // HoneycombMeshGenerator doesn't work in parallel
 
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    void TestCellwiseSourcePdeArchiving() throw(Exception)
+    void XTestCellwiseSourcePdeArchiving() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
@@ -288,7 +288,7 @@ public:
         }
     }
 
-    void TestAveragedSourcePdeArchiving() throw(Exception)
+    void XTestAveragedSourcePdeArchiving() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
@@ -391,7 +391,7 @@ public:
         TS_ASSERT_DELTA(pde.mCellDensityOnCoarseElements[1], 0.0, 1e-6);
     }
 
-    void TestVolumeDependentAveragedSourcePdeArchiving() throw(Exception)
+    void XTestVolumeDependentAveragedSourcePdeArchiving() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
