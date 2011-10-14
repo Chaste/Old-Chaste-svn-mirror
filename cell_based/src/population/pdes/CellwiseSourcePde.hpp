@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLWISESOURCEPDE_HPP_
 #define CELLWISESOURCEPDE_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include "MeshBasedCellPopulation.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
@@ -38,7 +41,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class CellwiseSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
+    friend class TestCellBasedPdes;
+
 private:
+
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the PDE and its member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<AbstractLinearEllipticPde<DIM, DIM> >(*this);
+       archive & mCoefficient;
+    }
 
     /** The cell population member. */
     MeshBasedCellPopulation<DIM>& mrCellPopulation;
@@ -52,9 +72,19 @@ public:
      * Constructor.
      *
      * @param rCellPopulation reference to the cell population
-     * @param coefficient the coefficient of consumption of nutrient by cells
+     * @param coefficient the coefficient of consumption of nutrient by cells (defaults to 0.0)
      */
-    CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient);
+    CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient=0.0);
+
+    /**
+     * @return const reference to the cell population (used in archiving).
+     */
+    const MeshBasedCellPopulation<DIM>& rGetCellPopulation() const;
+
+    /**
+     * @return mCoefficient (used in archiving).
+     */
+    const double GetCoefficient() const;
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
@@ -93,7 +123,42 @@ public:
      * @return a matrix.
      */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& rX);
-
 };
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellwiseSourcePde)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a CellwiseSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const CellwiseSourcePde<DIM>* t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const MeshBasedCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
+    ar & p_cell_population;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a CellwiseSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, CellwiseSourcePde<DIM>* t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    MeshBasedCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)CellwiseSourcePde<DIM>(*p_cell_population);
+}
+}
+} // namespace ...
 
 #endif /*CELLWISESOURCEPDE_HPP_*/

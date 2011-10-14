@@ -29,6 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef AVERAGEDSOURCEPDE_HPP_
 #define AVERAGEDSOURCEPDE_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "AbstractCellPopulation.hpp"
 #include "TetrahedralMesh.hpp"
 #include "AbstractLinearEllipticPde.hpp"
@@ -40,7 +44,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AveragedSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
+    friend class TestCellBasedPdes;
+
 private:
+
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the PDE and its member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<AbstractLinearEllipticPde<DIM, DIM> >(*this);
+       archive & mCoefficient;
+       archive & mCellDensityOnCoarseElements;
+    }
+
+protected:
 
     /** The cell population member. */
     AbstractCellPopulation<DIM>& mrCellPopulation;
@@ -57,17 +81,27 @@ public:
      * Constructor.
      *
      * @param rCellPopulation reference to the cell population
-     * @param coefficient the coefficient of consumption of nutrient by cells
+     * @param coefficient the coefficient of consumption of nutrient by cells (defaults to 0.0)
      */
-    AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient);
+    AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient=0.0);
+
+    /**
+     * @return const reference to the cell population (used in archiving).
+     */
+    const AbstractCellPopulation<DIM>& rGetCellPopulation() const;
+
+    /**
+     * @return mCoefficient (used in archiving).
+     */
+    const double GetCoefficient() const;
 
     /**
      * Set up the source terms.
      *
      * @param rCoarseMesh reference to the coarse mesh
-     * @param pCellPdeElementMap pointer to the map from cells to coarse elements
+     * @param pCellPdeElementMap optional pointer to the map from cells to coarse elements
      */
-    void virtual SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap=NULL);
+    void virtual SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map<CellPtr, unsigned>* pCellPdeElementMap=NULL);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
@@ -99,6 +133,49 @@ public:
      * @return a matrix.
      */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& rX);
+
+    /**
+     * Returns the uptake rate.
+     *
+     * @param elementIndex the element we wish to return the uptake rate for
+     */
+    double GetUptakeRateForElement(unsigned elementIndex);
 };
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(AveragedSourcePde)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct an AveragedSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const AveragedSourcePde<DIM>* t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
+    ar & p_cell_population;
+}
+
+/**
+ * De-serialize constructor parameters and initialise an AveragedSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, AveragedSourcePde<DIM>* t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)AveragedSourcePde<DIM>(*p_cell_population);
+}
+}
+} // namespace ...
 
 #endif /*AVERAGEDSOURCEPDE_HPP_*/

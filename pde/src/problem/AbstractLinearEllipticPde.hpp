@@ -25,15 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef _ABSTRACTLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTLINEARELLIPTICPDE_HPP_
+
+#include "ChasteSerialization.hpp"
+#include "ClassIsAbstract.hpp"
 
 #include "UblasCustomFunctions.hpp"
 #include "ChastePoint.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
 #include <petscvec.h>
-
 
 /**
  * AbstractLinearEllipticPde class.
@@ -45,11 +48,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Parabolic PDEs are be derived from this (AbstractLinearParabolicPde)
  */
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractLinearEllipticPde
 {
+private:
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize the PDE object.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+    }
+
 public:
+
+    /**
+     * Constructor.
+     */
+    AbstractLinearEllipticPde()
+    {}
+
+    /**
+     * Destructor.
+     */
+    virtual ~AbstractLinearEllipticPde()
+    {}
 
     /**
      * Compute the constant in u part of the source term, i.e g(x) in
@@ -93,19 +122,13 @@ public:
      * @param rNode the node
      */
     virtual double ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& rNode);
-
-    /**
-     * Destructor.
-     */
-    virtual ~AbstractLinearEllipticPde()
-    {}
 };
 
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractLinearEllipticPde)
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
-
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double AbstractLinearEllipticPde<ELEMENT_DIM, SPACE_DIM>::ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode)

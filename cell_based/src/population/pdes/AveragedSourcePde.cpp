@@ -38,33 +38,42 @@ AveragedSourcePde<DIM>::AveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopu
 }
 
 template<unsigned DIM>
+const AbstractCellPopulation<DIM>& AveragedSourcePde<DIM>::rGetCellPopulation() const
+{
+    return mrCellPopulation;
+}
+
+template<unsigned DIM>
+const double AveragedSourcePde<DIM>::GetCoefficient() const
+{
+    return mCoefficient;
+}
+
+template<unsigned DIM>
 void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap) // must be called before solve
 {
 	// Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
-
     for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
     {
         mCellDensityOnCoarseElements[elem_index] = 0.0;
     }
 
-    // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
-
+    // Loop over cells, find which coarse element it is in, and add 1 to mSourceTermOnCoarseElements[elem_index]
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
          cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-    	unsigned elem_index=0;
-
+    	unsigned elem_index = 0;
         const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
-        if(pCellPdeElementMap!=NULL)
+        if (pCellPdeElementMap != NULL)
         {
-        	elem_index=(*pCellPdeElementMap)[*cell_iter];
+        	elem_index = (*pCellPdeElementMap)[*cell_iter];
         }
         else
         {
-        	elem_index=rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+        	elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
         }
 
         // Update element map if cell has moved
@@ -74,7 +83,6 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
         {
             mCellDensityOnCoarseElements[elem_index] += 1.0;
         }
-
     }
 
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
@@ -97,13 +105,19 @@ template<unsigned DIM>
 double AveragedSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement) // now takes in element
 {
     assert(!mCellDensityOnCoarseElements.empty());
-    return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
+    return mCoefficient * mCellDensityOnCoarseElements[pElement->GetIndex()];
 }
 
 template<unsigned DIM>
 c_matrix<double,DIM,DIM> AveragedSourcePde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
 {
     return identity_matrix<double>(DIM);
+}
+
+template<unsigned DIM>
+double AveragedSourcePde<DIM>::GetUptakeRateForElement(unsigned elementIndex)
+{
+    return this->mCellDensityOnCoarseElements[elementIndex];
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -38,6 +38,18 @@ CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPop
 }
 
 template<unsigned DIM>
+const MeshBasedCellPopulation<DIM>& CellwiseSourcePde<DIM>::rGetCellPopulation() const
+{
+    return mrCellPopulation;
+}
+
+template<unsigned DIM>
+const double CellwiseSourcePde<DIM>::GetCoefficient() const
+{
+    return mCoefficient;
+}
+
+template<unsigned DIM>
 double CellwiseSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
     return 0.0;
@@ -77,6 +89,6 @@ c_matrix<double,DIM,DIM> CellwiseSourcePde<DIM>::ComputeDiffusionTerm(const Chas
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-//template class CellwiseSourcePde<1>;
+template class CellwiseSourcePde<1>;
 template class CellwiseSourcePde<2>;
 template class CellwiseSourcePde<3>;

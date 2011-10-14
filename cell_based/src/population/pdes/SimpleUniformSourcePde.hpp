@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIMPLEUNIFORMSOURCEPDE_HPP_
 #define SIMPLEUNIFORMSOURCEPDE_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractLinearEllipticPde.hpp"
 
 /**
@@ -37,7 +40,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class SimpleUniformSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
+    friend class TestCellBasedPdes;
+
 private:
+
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the PDE and its member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<AbstractLinearEllipticPde<DIM, DIM> >(*this);
+       archive & mCoefficient;
+    }
 
     /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
@@ -47,9 +67,14 @@ public:
     /**
      * Constructor.
      *
-     * @param coefficient the coefficient of consumption of nutrient by cells
+     * @param coefficient the coefficient of consumption of nutrient by cells (defaults to 0.0)
      */
-    SimpleUniformSourcePde(double coefficient);
+    SimpleUniformSourcePde(double coefficient=0.0);
+
+    /**
+     * @return mCoefficient
+     */
+    const double GetCoefficient() const;
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
@@ -81,7 +106,9 @@ public:
      * @return a matrix.
      */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& rX);
-
 };
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SimpleUniformSourcePde)
 
 #endif /*SIMPLEUNIFORMSOURCEPDE_HPP_*/

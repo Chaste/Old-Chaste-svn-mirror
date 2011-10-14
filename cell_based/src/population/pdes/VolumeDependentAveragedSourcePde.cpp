@@ -31,43 +31,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 VolumeDependentAveragedSourcePde<DIM>::VolumeDependentAveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient)
-    : AveragedSourcePde<DIM>(rCellPopulation, coefficient),
-      mrCellPopulation(rCellPopulation),
-      mCoefficient(coefficient)
+    : AveragedSourcePde<DIM>(rCellPopulation, coefficient)
 {
 	assert(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
-	mpStaticCastCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*>(&mrCellPopulation);
+	mpStaticCastCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
 }
 
 template<unsigned DIM>
 void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh,  std::map< CellPtr, unsigned >* pCellPdeElementMap) // must be called before solve
 {
     // Allocate memory
-    mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
-    for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+    this->mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
+    for (unsigned elem_index=0; elem_index<this->mCellDensityOnCoarseElements.size(); elem_index++)
     {
-        mCellDensityOnCoarseElements[elem_index] = 0.0;
+        this->mCellDensityOnCoarseElements[elem_index] = 0.0;
     }
 
     // Loop over cells, find which coarse element it is in, and add volume to the mSourceTermOnCoarseElements[elem_index];
-    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
-        cell_iter != mrCellPopulation.End();
-        ++cell_iter)
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+         cell_iter != this->mrCellPopulation.End();
+         ++cell_iter)
     {
-    	unsigned elem_index=0;
+    	unsigned elem_index = 0;
+		const ChastePoint<DIM>& r_position_of_cell = this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
-		const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
-
-		if(pCellPdeElementMap!=NULL)
+		if (pCellPdeElementMap != NULL)
 		{
-			elem_index=(*pCellPdeElementMap)[*cell_iter];
+			elem_index = (*pCellPdeElementMap)[*cell_iter];
 		}
 		else
 		{
-			elem_index=rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+			elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 		}
 
-		unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+		unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
 		// Uptake normalised to 1 for unit cell
 		double radius = mpStaticCastCellPopulation->rGetMesh().GetCellRadius(node_index);
@@ -76,43 +73,18 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
 		bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
         if (!cell_is_apoptotic)
         {
-            mCellDensityOnCoarseElements[elem_index] += cell_weight;
+            this->mCellDensityOnCoarseElements[elem_index] += cell_weight;
         }
     }
 
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
     c_matrix<double, DIM, DIM> jacobian;
     double det;
-    for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
+    for (unsigned elem_index=0; elem_index<this->mCellDensityOnCoarseElements.size(); elem_index++)
     {
         rCoarseMesh.GetElement(elem_index)->CalculateJacobian(jacobian, det);
-        mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume(det);
+        this->mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume(det);
     }
-}
-
-template<unsigned DIM>
-double VolumeDependentAveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
-{
-    return 0.0;
-}
-
-template<unsigned DIM>
-double VolumeDependentAveragedSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement) // now takes in element
-{
-    assert(!mCellDensityOnCoarseElements.empty());
-    return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
-}
-
-template<unsigned DIM>
-c_matrix<double,DIM,DIM> VolumeDependentAveragedSourcePde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
-{
-    return identity_matrix<double>(DIM);
-}
-
-template<unsigned DIM>
-double VolumeDependentAveragedSourcePde<DIM>::GetUptakeRateForElement(unsigned elementIndex)
-{
-	return mCellDensityOnCoarseElements[elementIndex];
 }
 
 /////////////////////////////////////////////////////////////////////////////

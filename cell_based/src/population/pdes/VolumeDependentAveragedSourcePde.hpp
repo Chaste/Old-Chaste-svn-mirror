@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VOLUMEDEPENDENTAVERAGEDSOURCEPDE_HPP_
 #define VOLUMEDEPENDENTAVERAGEDSOURCEPDE_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include "NodeBasedCellPopulation.hpp"
 #include "AveragedSourcePde.hpp"
 #include "TetrahedralMesh.hpp"
@@ -38,23 +41,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A PDE which calculates the source term by adding the number of cells
  *  in the element containing that point and scaling by the element area.
  */
-
 template<unsigned DIM>
 class VolumeDependentAveragedSourcePde : public AveragedSourcePde<DIM>
 {
+    friend class TestCellBasedPdes;
+
 private:
 
-    /** The cell population member. */
-    AbstractCellPopulation<DIM>& mrCellPopulation;
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the PDE and its member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<AveragedSourcePde<DIM> >(*this);
+    }
 
-    /** Static cast of the NodeBasedCellPopulation **/
+    /** Static cast of the NodeBasedCellPopulation. **/
     NodeBasedCellPopulation<DIM>* mpStaticCastCellPopulation;
-
-    /** Coefficient of consumption of nutrient by cells per unit volume. */
-    double mCoefficient;
-
-    /** Vector of averaged cell densities on elements of the coarse mesh. */
-    std::vector<double> mCellDensityOnCoarseElements;
 
 public:
 
@@ -62,55 +71,53 @@ public:
      * Constructor.
      *
      * @param rCellPopulation reference to the cell population
-     * @param coefficient the coefficient of consumption of nutrient by cells
+     * @param coefficient the coefficient of consumption of nutrient by cells (defaults to 0.0)
      */
-    VolumeDependentAveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient);
+    VolumeDependentAveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient=0.0);
 
     /**
      * Set up the source terms.
      *
      * @param rCoarseMesh reference to the coarse mesh
-     * @param pCellPdeElementMap pointer to the map from cells to coarse elements
+     * @param pCellPdeElementMap optional pointer to the map from cells to coarse elements
      */
-    void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap=NULL);
-
-    /**
-     * Overridden ComputeConstantInUSourceTerm() method.
-     *
-     * @param rX The point in space
-     * @param pElement The element
-     *
-     * @return the constant in u part of the source term, i.e g(x) in
-     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
-     */
-    double ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement);
-
-    /**
-     * Overridden ComputeLinearInUCoeffInSourceTerm() method.
-     *
-     * @param rX The point in space
-     * @param pElement the element
-     *
-     * @return the coefficient of u in the linear part of the source term, i.e f(x) in
-     *  Div(D Grad u)  +  f(x)u + g(x) = 0.
-     */
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement);
-
-    /**
-     * Overridden ComputeDiffusionTerm() method.
-     *
-     * @param rX The point in space at which the diffusion term is computed
-     *
-     * @return a matrix.
-     */
-    c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& rX);
-
-    /**
-     * Returns the uptake rate.
-     *
-     * @param elementIndex the element we wish to return the uptake rate for
-     */
-    double GetUptakeRateForElement(unsigned elementIndex);
+    void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh, std::map<CellPtr, unsigned>* pCellPdeElementMap=NULL);
 };
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeDependentAveragedSourcePde)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a VolumeDependentAveragedSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const VolumeDependentAveragedSourcePde<DIM>* t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const AbstractCellPopulation<DIM>* p_cell_population = &(t->rGetCellPopulation());
+    ar & p_cell_population;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a VolumeDependentAveragedSourcePde.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, VolumeDependentAveragedSourcePde<DIM>* t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)VolumeDependentAveragedSourcePde<DIM>(*p_cell_population);
+}
+}
+} // namespace ...
 
 #endif /*VOLUMEDEPENDENTAVERAGEDSOURCEPDE_HPP_*/
