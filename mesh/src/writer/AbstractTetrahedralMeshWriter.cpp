@@ -452,9 +452,11 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteNclFile(
         }
         // Footer
         *p_ncl_file << "#\n# " + ChasteBuildInfo::GetProvenanceString();
+        p_ncl_file->close();
         // Remove temp file
         remove(temp_ncl_path.GetAbsolutePath().c_str());
     }
+    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteNclFile");
 }
 
 ///\todo #1322 Mesh should be const

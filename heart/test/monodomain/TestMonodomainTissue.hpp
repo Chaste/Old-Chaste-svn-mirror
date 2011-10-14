@@ -32,8 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "CheckpointArchiveTypes.hpp"
+#include "CardiacSimulationArchiver.hpp"
 
 #include <vector>
 
@@ -49,10 +49,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedTetrahedralMesh.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
 #include "DiFrancescoNoble1985.hpp"
+#include "MonodomainProblem.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -681,6 +682,28 @@ public:
             }
 
             delete p_tissue;
+        }
+
+        const std::string migration_archive_dir("TestMonodomainTissue/purkinje_migration_archive");
+        { // Save via MonodomainProblem so we can migrate
+            // Run the test with b=_hostconfig,boost=1-33-1_5 to save
+            MonodomainProblem<2> monodomain_problem( &cell_factory );
+            monodomain_problem.SetMesh(&mixed_mesh);
+            monodomain_problem.Initialise();
+            TS_ASSERT(monodomain_problem.GetMonodomainTissue()->HasPurkinje());
+            CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, migration_archive_dir);
+        }
+
+        { // Load from 5-process archive and compare
+            FileFinder saved_archive_dir("heart/test/data/checkpoints/purkinje_migration_archive",
+                                         RelativeTo::ChasteSourceRoot);
+            MonodomainProblem<2>* p_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(saved_archive_dir);
+            MonodomainTissue<2>* p_tissue = p_problem->GetMonodomainTissue();
+
+            TS_ASSERT(p_tissue->HasPurkinje());
+            TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeIionicCacheReplicated().GetSize(), tissue.rGetPurkinjeIionicCacheReplicated().GetSize());
+
+            delete p_problem;
         }
 	}
 };

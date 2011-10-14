@@ -275,7 +275,7 @@ public:
         //Compare the binary written from the reader to the binary written from the mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/CableMeshBinary.cable " + results_dir + "/CableMeshBinaryFromMesh.cable").c_str()), 0);
     }
-    
+
 
     void TestGeometryWithMetisPermuation() throw(Exception)
     {
@@ -283,20 +283,20 @@ public:
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> dumb_partition_mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         dumb_partition_mesh.ConstructFromMeshReader(reader);
-        
-        
+
+
         for (MixedDimensionMesh<1,2>::CableElementIterator iter = dumb_partition_mesh.GetCableElementIteratorBegin();
              iter != dumb_partition_mesh.GetCableElementIteratorEnd();
              ++iter)
         {
             Element<1,2>& r_element = *(*iter);
-            
+
             c_matrix<double, 2, 1> jacobian;
             c_matrix<double, 1, 2> inverse_jacobian;
             double jacobian_determinant;
 
             r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-            
+
             TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
             TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
             TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
@@ -309,7 +309,7 @@ public:
             // x value at the ends of the cable element can also be anticipated
             TS_ASSERT_DELTA(r_element.GetNodeLocation(0,0), r_element.GetIndex()*0.01, 1e-6);
             TS_ASSERT_DELTA(r_element.GetNodeLocation(1,0), (r_element.GetIndex()+1)*0.01, 1e-6);
-            
+
         }
 
         //Test that every cable element has a designated owner
@@ -326,24 +326,24 @@ public:
             MPI_Allreduce(&local_owned, &total_owned, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
             TS_ASSERT_EQUALS(total_owned, dumb_partition_mesh.GetNumCableElements());
         }
-        
+
         TrianglesMeshReader<2,2> reader2(mesh_base);
         MixedDimensionMesh<2,2> partitioned_mesh;
         partitioned_mesh.ConstructFromMeshReader(reader2);
-        
-        
+
+
         for (MixedDimensionMesh<1,2>::CableElementIterator iter = partitioned_mesh.GetCableElementIteratorBegin();
              iter != partitioned_mesh.GetCableElementIteratorEnd();
              ++iter)
         {
             Element<1,2>& r_element = *(*iter);
-            
+
             c_matrix<double, 2, 1> jacobian;
             c_matrix<double, 1, 2> inverse_jacobian;
             double jacobian_determinant;
 
             r_element.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-            
+
             TS_ASSERT_DELTA(jacobian(0,0), 0.01, 1e-6);
             TS_ASSERT_DELTA(jacobian(1,0), 0.0,  1e-6);
             TS_ASSERT_DELTA(inverse_jacobian(0,0), 100, 1e-6);
@@ -356,7 +356,7 @@ public:
             // x value at the ends of the cable element can also be anticipated
             TS_ASSERT_DELTA(r_element.GetNodeLocation(0,0), r_element.GetIndex()*0.01, 1e-6);
             TS_ASSERT_DELTA(r_element.GetNodeLocation(1,0), (r_element.GetIndex()+1)*0.01, 1e-6);
-            
+
         }
         //Test that every cable element has a designated owner
         {
@@ -376,6 +376,7 @@ public:
 
     void TestArchiving() throw(Exception)
     {
+        OutputFileHandler archive_dir_("mixed_mesh_archive"); // Clear folder
         FileFinder archive_dir("mixed_mesh_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "mixed_dimension_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("mixed_dimension_mesh");
