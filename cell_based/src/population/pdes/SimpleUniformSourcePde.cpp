@@ -35,7 +35,7 @@ SimpleUniformSourcePde<DIM>::SimpleUniformSourcePde(double coefficient)
 }
 
 template<unsigned DIM>
-const double SimpleUniformSourcePde<DIM>::GetCoefficient() const
+double SimpleUniformSourcePde<DIM>::GetCoefficient() const
 {
     return mCoefficient;
 }

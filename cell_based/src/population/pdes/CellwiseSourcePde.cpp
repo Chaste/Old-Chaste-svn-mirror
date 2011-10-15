@@ -44,7 +44,7 @@ const MeshBasedCellPopulation<DIM>& CellwiseSourcePde<DIM>::rGetCellPopulation()
 }
 
 template<unsigned DIM>
-const double CellwiseSourcePde<DIM>::GetCoefficient() const
+double CellwiseSourcePde<DIM>::GetCoefficient() const
 {
     return mCoefficient;
 }

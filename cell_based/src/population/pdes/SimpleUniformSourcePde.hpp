@@ -74,7 +74,7 @@ public:
     /**
      * @return mCoefficient
      */
-    const double GetCoefficient() const;
+    double GetCoefficient() const;
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.

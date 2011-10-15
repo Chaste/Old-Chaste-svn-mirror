@@ -84,7 +84,7 @@ public:
     /**
      * @return mCoefficient (used in archiving).
      */
-    const double GetCoefficient() const;
+    double GetCoefficient() const;
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.

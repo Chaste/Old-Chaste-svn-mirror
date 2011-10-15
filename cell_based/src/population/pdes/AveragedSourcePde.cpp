@@ -44,7 +44,7 @@ const AbstractCellPopulation<DIM>& AveragedSourcePde<DIM>::rGetCellPopulation() 
 }
 
 template<unsigned DIM>
-const double AveragedSourcePde<DIM>::GetCoefficient() const
+double AveragedSourcePde<DIM>::GetCoefficient() const
 {
     return mCoefficient;
 }

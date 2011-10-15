@@ -93,7 +93,7 @@ public:
     /**
      * @return mCoefficient (used in archiving).
      */
-    const double GetCoefficient() const;
+    double GetCoefficient() const;
 
     /**
      * Set up the source terms.
