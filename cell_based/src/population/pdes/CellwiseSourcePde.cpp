@@ -92,3 +92,7 @@ c_matrix<double,DIM,DIM> CellwiseSourcePde<DIM>::ComputeDiffusionTerm(const Chas
 template class CellwiseSourcePde<1>;
 template class CellwiseSourcePde<2>;
 template class CellwiseSourcePde<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellwiseSourcePde)

@@ -65,3 +65,7 @@ c_matrix<double,DIM,DIM> SimpleUniformSourcePde<DIM>::ComputeDiffusionTerm(const
 template class SimpleUniformSourcePde<1>;
 template class SimpleUniformSourcePde<2>;
 template class SimpleUniformSourcePde<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SimpleUniformSourcePde)

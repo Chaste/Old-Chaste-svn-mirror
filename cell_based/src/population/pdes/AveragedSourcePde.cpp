@@ -127,3 +127,7 @@ double AveragedSourcePde<DIM>::GetUptakeRateForElement(unsigned elementIndex)
 template class AveragedSourcePde<1>;
 template class AveragedSourcePde<2>;
 template class AveragedSourcePde<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(AveragedSourcePde)

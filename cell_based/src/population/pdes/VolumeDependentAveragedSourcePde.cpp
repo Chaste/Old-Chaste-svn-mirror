@@ -94,3 +94,7 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
 template class VolumeDependentAveragedSourcePde<1>;
 template class VolumeDependentAveragedSourcePde<2>;
 template class VolumeDependentAveragedSourcePde<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeDependentAveragedSourcePde)
