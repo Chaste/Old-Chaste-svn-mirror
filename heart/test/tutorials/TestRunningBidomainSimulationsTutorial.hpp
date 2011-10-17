@@ -233,6 +233,22 @@ public:
         {
         //    std::cout << res_repl[i] << "\n";
         }
+        
+        /* Behind the scenes there are some logging routines which find out how much time 
+         * has been spent in the major parts of the code (solving ODEs, assembling matrices etc.)
+         * The loggin routines are in {{{HeartEventHandler}}} which is enabled by default.  
+         * If you think this is getting in the way, you can turn it off at the top of your test with 
+         * EMPTYLINE
+         * {{{HeartEventHandler::Disable()}}}
+         * EMPTYLINE
+         * In this test, we want to get information out of the {{{HeartEventHandler}}}
+         */
+        /* {{{Headings()}}} prints a single (very long) line reminding us what catagories of events are being instrumented.*/
+        HeartEventHandler::Headings();
+        /* {{{Report()}}} prints a single line with times spent in each catagory.  When run in parallel it prints one line of times per process and also lines for average 
+         * and maximum times.  (This can be useful if you need to identify a load imbalance.*/
+        HeartEventHandler::Report();
+        
     }
 };
 
