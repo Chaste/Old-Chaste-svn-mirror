@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MathsCustomFunctions.hpp"
 
+#include <cfloat>
+#include <cmath>
+#include <iostream>
+
 double SmallPow(double x, unsigned exponent)
 {
     switch (exponent)
@@ -53,7 +57,7 @@ double SmallPow(double x, unsigned exponent)
             if (exponent % 2 == 0)
             {
                 // Even power
-                double partial_answer=SmallPow(x, exponent/2);
+                double partial_answer = SmallPow(x, exponent/2);
                 return partial_answer*partial_answer;
             }
             else
@@ -86,4 +90,81 @@ bool Divides(double smallerNumber, double largerNumber)
     }
 
     return false;
+}
+
+bool CompareDoubles::IsNearZero(double number, double tolerance)
+{
+    return fabs(number) <= fabs(tolerance);
+}
+
+/**
+ * Divide two non-negative floating point numbers, avoiding overflow and underflow.
+ * @param number  the number to be divided
+ * @param divisor  the number to divide by
+ */
+double SafeDivide(double number, double divisor)
+{
+    // Avoid overflow
+    if (divisor < 1.0 && number > divisor*DBL_MAX)
+    {
+        return DBL_MAX;
+    }
+
+    // Avoid underflow
+    if (number == 0.0 || (divisor > 1.0 && number < divisor*DBL_MIN))
+    {
+        return 0.0;
+    }
+
+    return number/divisor;
+
+}
+
+bool CompareDoubles::WithinRelativeTolerance(double number1, double number2, double tolerance)
+{
+    double diff = fabs(number1 - number2);
+    double d1 = SafeDivide(diff, fabs(number1));
+    double d2 = SafeDivide(diff, fabs(number2));
+
+    return d1 <= tolerance && d2 <= tolerance;
+}
+
+bool CompareDoubles::WithinAbsoluteTolerance(double number1, double number2, double tolerance)
+{
+    return fabs(number1 - number2) <= tolerance;
+}
+
+bool CompareDoubles::WithinTolerance(double number1, double number2, double tolerance, bool toleranceIsAbsolute)
+{
+    bool ok;
+    if (toleranceIsAbsolute)
+    {
+        ok = WithinAbsoluteTolerance(number1, number2, tolerance);
+    }
+    else
+    {
+        ok = WithinRelativeTolerance(number1, number2, tolerance);
+    }
+    if (!ok)
+    {
+        std::cout << "CompareDoubles::WithinTolerance: " << number1 << " and " << number2
+                  << " differ by more than " << (toleranceIsAbsolute ? "absolute" : "relative")
+                  << " tolerance of " << tolerance << std::endl;
+    }
+    return ok;
+}
+
+double CompareDoubles::Difference(double number1, double number2, bool toleranceIsAbsolute)
+{
+    if (toleranceIsAbsolute)
+    {
+        return fabs(number1 - number2);
+    }
+    else
+    {
+        double diff = fabs(number1 - number2);
+        double d1 = SafeDivide(diff, fabs(number1));
+        double d2 = SafeDivide(diff, fabs(number2));
+        return d1 > d2 ? d1 : d2;
+    }
 }

@@ -62,6 +62,32 @@ public:
         // Note that Divides() returns false if you attempt to divide zero by a non-zero number
         TS_ASSERT_EQUALS(Divides(0.01, 0.00),  false);
     }
+
+    void TestCompareDoubles() throw (Exception)
+    {
+        TS_ASSERT(CompareDoubles::IsNearZero(DBL_EPSILON, 2*DBL_EPSILON));
+        TS_ASSERT(CompareDoubles::IsNearZero(-0.2, 0.200001));
+        TS_ASSERT(CompareDoubles::IsNearZero(0.1, 0.1));
+        TS_ASSERT(CompareDoubles::IsNearZero(-0.1, 0.1));
+        TS_ASSERT(!CompareDoubles::IsNearZero(1/3.0, 0.33333));
+        TS_ASSERT(!CompareDoubles::IsNearZero(-1/3.0, 0.33333));
+
+        TS_ASSERT(CompareDoubles::WithinRelativeTolerance(10, 10.1, 0.01)); // 1%
+        TS_ASSERT(CompareDoubles::WithinRelativeTolerance(10.1, 10, 0.01)); // 1%
+        TS_ASSERT(!CompareDoubles::WithinRelativeTolerance(10.1000000001, 10, 0.01)); // 1%
+        TS_ASSERT(!CompareDoubles::WithinRelativeTolerance(10, 0.9999999999, 0.01)); // 1%
+        TS_ASSERT(CompareDoubles::WithinAbsoluteTolerance(99.99999, 100, 0.000011));
+        TS_ASSERT(!CompareDoubles::WithinAbsoluteTolerance(100, 99.9999, 0.0001)); // Equality is interesting...
+        TS_ASSERT(CompareDoubles::WithinAbsoluteTolerance(2.0, 3.0, 1.0));
+        TS_ASSERT(!CompareDoubles::WithinAbsoluteTolerance(99.99999, 100, 0.000009));
+
+        TS_ASSERT(CompareDoubles::WithinTolerance(0.001, 0.002, 0.0015, true)); // Absolute tol
+        TS_ASSERT(!CompareDoubles::WithinTolerance(0.001, 0.002, 0.0015, false)); // Relative tol
+        TS_ASSERT(!CompareDoubles::WithinTolerance(0.001, 0.002, 0.0005, true)); // Absolute tol
+
+        TS_ASSERT_DELTA(CompareDoubles::Difference(0.001, 0.002, true), 0.001, 1e-12); // Absolute diff
+        TS_ASSERT_DELTA(CompareDoubles::Difference(0.001, 0.002, false), 1.0, 1e-12); // Max. relative diff
+    }
 };
 
 #endif /*TESTMATHSCUSTOMFUNCTIONS_HPP_*/

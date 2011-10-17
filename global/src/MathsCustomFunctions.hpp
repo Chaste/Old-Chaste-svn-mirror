@@ -29,8 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MATHSCUSTOMFUNCTIONS_HPP_
 #define MATHSCUSTOMFUNCTIONS_HPP_
 
-#include <cfloat>
-#include <cmath>
+/**
+ * @file
+ * This file contains some utility functions and a small class for dealing with floating
+ * point numbers.
+ */
 
 /**
  * Replacement "pow" function.
@@ -44,11 +47,67 @@ double SmallPow(double x, unsigned exponent);
 /**
  * Uses fmod to determine if smallerNumber divides the largerNumber.
  * We expect smallerNumber/largerNumber <= 1 and therefore
- * fmod(largerNumber,smallerNumber) should be close zero or close to smallerNumber.
+ * fmod(largerNumber,smallerNumber) should be close to zero or close to smallerNumber.
  *
  * @param smallerNumber the smaller
  * @param largerNumber the larger
  */
 bool Divides(double smallerNumber, double largerNumber);
+
+/**
+ * Utility static methods for comparing floating point numbers, based on
+ * boost/test/floating_point_comparison.hpp.
+ */
+class CompareDoubles
+{
+public:
+    /**
+     * Test whether a number is close to zero, as defined by the given tolerance.
+     * A number equal in magnitude to the tolerance is OK.
+     *
+     * @param number  the number to compare
+     * @param tolerance  how close it must be
+     */
+    static bool IsNearZero(double number, double tolerance);
+
+    /**
+     * Test whether two numbers are close within the given relative tolerance.
+     *
+     * @param number1  the first number to compare
+     * @param number2  the second number to compare
+     * @param tolerance  the relative tolerance to use
+     */
+    static bool WithinRelativeTolerance(double number1, double number2, double tolerance);
+
+    /**
+     * Test whether two numbers are close within the given absolute tolerance.
+     * A difference of exactly the tolerance is OK.
+     *
+     * @param number1  the first number to compare
+     * @param number2  the second number to compare
+     * @param tolerance  the absolute tolerance to use
+     */
+    static bool WithinAbsoluteTolerance(double number1, double number2, double tolerance);
+
+    /**
+     * Test whether two numbers are close within the given tolerance, and print an
+     * error message to stdout if not.
+     *
+     * @param number1  the first number to compare
+     * @param number2  the second number to compare
+     * @param tolerance  the tolerance to use
+     * @param toleranceIsAbsolute  whether the tolerance is absolute (true) or relative (false)
+     */
+    static bool WithinTolerance(double number1, double number2, double tolerance, bool toleranceIsAbsolute);
+
+    /**
+     * Compute the relative or absolute difference between two numbers.
+     *
+     * @param number1  the first number to compare
+     * @param number2  the second number to compare
+     * @param toleranceIsAbsolute  whether the tolerance is absolute (true) or relative (false)
+     */
+    static double Difference(double number1, double number2, bool toleranceIsAbsolute);
+};
 
 #endif /*MATHSCUSTOMFUNCTIONS_HPP_*/

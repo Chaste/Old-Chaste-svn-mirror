@@ -28,7 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NUMERICFILECOMPARISON_HPP_
 #define NUMERICFILECOMPARISON_HPP_
 
+#include <cfloat>
+#include <string>
+
 #include "OutputFileHandler.hpp"
+#include "MathsCustomFunctions.hpp"
+
 #define A_WORD DBL_MAX
 #define NOTHING_TO_READ DBL_MIN
 
@@ -102,10 +107,12 @@ public:
     /**
      * Compare the files.
      *
-     * @param absTolerance  absolute tolerance on difference between numbers.
-     * @param ignoreFirstFewLines  How many lines to ignore from the comparison
+     * @param tolerance  tolerance on difference between numbers
+     * @param ignoreFirstFewLines  how many lines to ignore from the comparison
+     * @param toleranceIsAbsolute  whether the tolerance is absolute or relative
      */
-    bool CompareFiles(double absTolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0)
+    bool CompareFiles(double tolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0,
+                      bool toleranceIsAbsolute=true)
     {
         double data1;
         double data2;
@@ -161,16 +168,16 @@ public:
                 else
                 {
                     mpFile2->clear(); // reset the "failbit"
-                    data2=NOTHING_TO_READ;
+                    data2 = NOTHING_TO_READ;
                 }
             }
 
-            double error = fabs(data1 - data2);
-            if (error > absTolerance)
+            double error = CompareDoubles::Difference(data1, data2, toleranceIsAbsolute);
+            if (error > tolerance)
             {
                 failures++;
-                // Force CxxTest error
-                TS_ASSERT_DELTA(data1, data2, absTolerance);
+                // Display error
+                CompareDoubles::WithinTolerance(data1, data2, tolerance, toleranceIsAbsolute);
                 if (error > max_error)
                 {
                     max_error = error;
@@ -184,13 +191,13 @@ public:
         while (data1 != NOTHING_TO_READ && data2 != NOTHING_TO_READ); // If either is a NOTHING_TO_READ, then it means that there's nothing to read from the file
 
         // Force CxxTest error if there were any major differences
-        TS_ASSERT_LESS_THAN(max_error, absTolerance);
+        TS_ASSERT_LESS_THAN(max_error, tolerance);
 
         // If that assertion tripped...
-        if (max_error >= absTolerance)
+        if (max_error >= tolerance)
         {
 #define COVERAGE_IGNORE
-            //Report the paths to the files
+            // Report the paths to the files
             TS_TRACE("Files " + mFilename1 + " and " + mFilename2 + " numerically differ.");
 #undef COVERAGE_IGNORE
         }

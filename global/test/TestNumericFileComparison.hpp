@@ -37,7 +37,7 @@ class TestNumericFileComparison : public CxxTest::TestSuite
 {
 public:
 
-    void TestBasicFunctionality()
+    void TestBasicFunctionality() throw(Exception)
     {
         std::string base_file = "./global/test/data/random_data.txt";
         std::string noised_file = "./global/test/data/same_random_data_with_1e-4_noise.txt";
@@ -49,7 +49,7 @@ public:
         TS_ASSERT(different_data.CompareFiles(1e-4));
     }
 
-    void TestIgnoreHeader()
+    void TestIgnoreHeader() throw(Exception)
     {
         std::string boost_33_file = "./global/test/data/fake_archive_boost_1_33.txt";
         std::string boost_34_file = "./global/test/data/fake_archive_boost_1_34.txt";
@@ -58,14 +58,24 @@ public:
         TS_ASSERT(same_data.CompareFiles(5.1e-6, 1));
     }
 
-    void TestIgnoreProvenanceComment()
+    void TestIgnoreProvenanceComment() throw(Exception)
     {
         std::string v1_file = "./global/test/data/fake_v_day_one.txt";
         std::string v2_file = "./global/test/data/fake_v_day_two.txt";
 
         NumericFileComparison same_data(v1_file, v2_file);
-        //TS_ASSERT(same_data.CompareFiles(5e-4));//Fails do to difference after comment
-        TS_ASSERT(same_data.CompareFiles(5e-3));//Fails do to difference after comment
+        //TS_ASSERT(same_data.CompareFiles(5e-4)); // Fails due to difference after comment
+        TS_ASSERT(same_data.CompareFiles(5e-3)); // Difference after comment is below this tolerance
+    }
+
+    void TestRelativeDifference() throw(Exception)
+    {
+        std::string base_file = "./global/test/data/random_data.txt";
+        std::string noised_file = "./global/test/data/same_random_data_with_1e-4_noise.txt";
+
+        // Lower bound on data is 1e-2 so 1e-4 absolute noise is within 1e-2 relative tolerance
+        NumericFileComparison different_data(base_file, noised_file);
+        TS_ASSERT(different_data.CompareFiles(1e-2, 0, false));
     }
 };
 
