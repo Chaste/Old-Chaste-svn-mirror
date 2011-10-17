@@ -1005,6 +1005,9 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-4);
             TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-4);
             TS_ASSERT_DELTA(p_model->GetG2Duration(), randomly_allocated_number, 1e-4);
+
+            // Tidy up
+            CellwiseData<3>::Destroy();
         }
     }
 
@@ -1013,65 +1016,47 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "contact_inhibition_cell_cycle.arch";
 
-        std::vector<double> cell_volume;
-        cell_volume.push_back(1.0);
-        CellwiseData<1>::Instance()->SetConstantDataForTesting(cell_volume);
-
-        // Create an output archive
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new ContactInhibitionCellCycleModel();
 
-            ContactInhibitionCellCycleModel contact_inhibition_cell_cycle_model;
-            contact_inhibition_cell_cycle_model.SetDimension(2);
-            contact_inhibition_cell_cycle_model.SetCellProliferativeType(STEM);
-            contact_inhibition_cell_cycle_model.SetQuiescentVolumeFraction(0.5);
-            contact_inhibition_cell_cycle_model.SetEquilibriumVolume(1.0);
-            contact_inhibition_cell_cycle_model.SetBirthTime(-1.0);
+            p_model->SetDimension(1);
+            p_model->SetCellProliferativeType(STEM);
+            p_model->SetBirthTime(-1.5);
 
-            p_simulation_time->IncrementTimeOneStep();
+            static_cast<ContactInhibitionCellCycleModel*>(p_model)->SetQuiescentVolumeFraction(0.5);
+            static_cast<ContactInhibitionCellCycleModel*>(p_model)->SetEquilibriumVolume(1.0);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            const AbstractCellCycleModel* p_model = &contact_inhibition_cell_cycle_model;
             output_arch << p_model;
 
-            // Tidy up
+            delete p_model;
             SimulationTime::Destroy();
         }
 
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            AbstractCellCycleModel* p_model;
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_model;
+            input_arch >> p_model2;
 
-            // Check that archiving worked correctly
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetDimension(), 2u);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), STEM);
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-12);
+            TS_ASSERT_EQUALS(p_model2->GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_EQUALS(p_model2->GetDimension(), 1u);
+            TS_ASSERT_EQUALS(p_model2->GetCellProliferativeType(), STEM);
+            TS_ASSERT_DELTA(p_model2->GetBirthTime(), -1.5, 1e-12);
+            TS_ASSERT_DELTA(p_model2->GetAge(), 1.5, 1e-12);
 
-            TS_ASSERT(dynamic_cast<ContactInhibitionCellCycleModel*>(p_model) != NULL);
+            TS_ASSERT_DELTA(static_cast<ContactInhibitionCellCycleModel*>(p_model2)->GetQuiescentVolumeFraction(), 0.5, 1e-6);
+            TS_ASSERT_DELTA(static_cast<ContactInhibitionCellCycleModel*>(p_model2)->GetEquilibriumVolume(), 1.0, 1e-6);
 
-            ContactInhibitionCellCycleModel* p_static_cast_model =
-                    static_cast<ContactInhibitionCellCycleModel*>(p_model);
-
-            TS_ASSERT_DELTA(p_static_cast_model->GetQuiescentVolumeFraction(), 0.5, 1e-6);
-            TS_ASSERT_DELTA(p_static_cast_model->GetEquilibriumVolume(), 1.0, 1e-6);
-
-            // Tidy up
-            delete p_model;
+            delete p_model2;
             CellwiseData<1>::Destroy();
         }
     }
