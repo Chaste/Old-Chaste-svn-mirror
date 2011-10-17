@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "StochasticOxygenBasedCellCycleModel.hpp"
+#include "ContactInhibitionCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -382,6 +383,156 @@ public:
         p_cell_model3d->SetCellProliferativeType(STEM);
         CellPtr p_cell3d(new Cell(p_state, p_cell_model3d));
 
+        p_cell3d->InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model3d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<3>::Destroy();
+    }
+
+    void TestContactInhibitionCellCycleModel() throw(Exception)
+    {
+        // Check that mQuiescentVolumeFraction and mEquilibriumVolume are updated correctly
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
+
+        ContactInhibitionCellCycleModel* p_model = new ContactInhibitionCellCycleModel;
+        p_model->SetDimension(2);
+        p_model->SetCellProliferativeType(STEM);
+
+        p_model->SetStemCellG1Duration(8.0);
+        p_model->SetTransitCellG1Duration(8.0);
+
+        p_model->SetQuiescentVolumeFraction(0.5);
+        p_model->SetEquilibriumVolume(1.0);
+
+        // Set the birth time such that at t=0, the cell has just entered G1 phase
+        p_model->SetBirthTime(-1.0);
+
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        CellPtr p_cell(new Cell(p_state, p_model));
+
+        p_cell->InitialiseCellCycleModel();
+
+        // Set up constant volume for inhibition test
+        std::vector<double> low_volume;
+        std::vector<double> high_volume;
+        low_volume.push_back(0.0);
+        high_volume.push_back(1.0);
+
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_volume);
+
+        p_model->ReadyToDivide();
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentDuration(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentOnsetTime(), 0.0, 1e-12);
+
+        p_simulation_time->IncrementTimeOneStep(); // t=1.0
+        p_model->ReadyToDivide();
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentDuration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentOnsetTime(), 0.0, 1e-12);
+
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(high_volume);
+
+        p_simulation_time->IncrementTimeOneStep(); // t=2.0
+        p_model->ReadyToDivide();
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentDuration(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentOnsetTime(), 2.0, 1e-12);
+
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(low_volume);
+        p_simulation_time->IncrementTimeOneStep(); // t=3.0
+        p_model->ReadyToDivide();
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentDuration(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetCurrentQuiescentOnsetTime(), 2.0, 1e-12);
+
+        // Set up SimulationTime
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+
+        unsigned num_steps = 100;
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0*24.0, num_steps);
+
+        // Set up constant cell volume
+        std::vector<double> cell_volume;
+        cell_volume.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(cell_volume);
+
+        // Create cell-cycle models and cells
+        ContactInhibitionCellCycleModel* p_hepa_one_model = new ContactInhibitionCellCycleModel;
+        p_hepa_one_model->SetDimension(2);
+        p_hepa_one_model->SetCellProliferativeType(STEM);
+        p_hepa_one_model->SetBirthTime(0.0);
+        p_hepa_one_model->SetQuiescentVolumeFraction(0.5);
+        p_hepa_one_model->SetEquilibriumVolume(1.0);
+
+        CellPtr p_hepa_one_cell(new Cell(p_state, p_hepa_one_model));
+        p_hepa_one_cell->InitialiseCellCycleModel();
+
+        ContactInhibitionCellCycleModel* p_diff_model = new ContactInhibitionCellCycleModel;
+        p_diff_model->SetDimension(2);
+        p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
+        p_diff_model->SetQuiescentVolumeFraction(0.5);
+        p_diff_model->SetEquilibriumVolume(1.0);
+
+        CellPtr p_diff_cell(new Cell(p_state, p_diff_model));
+        p_diff_cell->InitialiseCellCycleModel();
+
+        // Check that the cell cycle phase and ready to divide are updated correctly
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
+
+        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
+
+        for (unsigned i=0; i<num_steps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+
+            // Note that we need to pass in the updated G1 duration
+            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_hepa_one_model->GetG1Duration());
+        }
+
+        TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
+
+        // Check that cell division correctly resets the cell cycle phase
+        TS_ASSERT_EQUALS(p_hepa_one_cell->ReadyToDivide(), true);
+        CellPtr p_hepa_one_cell2 = p_hepa_one_cell->Divide();
+        ContactInhibitionCellCycleModel* p_hepa_one_model2 = static_cast <ContactInhibitionCellCycleModel*>(p_hepa_one_cell2->GetCellCycleModel());
+
+        TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
+
+        // Tidy up
+        CellwiseData<2>::Destroy();
+
+        // For coverage, create a 1D model
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(cell_volume);
+
+        ContactInhibitionCellCycleModel* p_cell_model1d = new ContactInhibitionCellCycleModel;
+        p_cell_model1d->SetDimension(1);
+        p_cell_model1d->SetCellProliferativeType(STEM);
+        p_cell_model1d->SetQuiescentVolumeFraction(0.5);
+        p_cell_model1d->SetEquilibriumVolume(1.0);
+
+        CellPtr p_cell1d(new Cell(p_state, p_cell_model1d));
+        p_cell1d->InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model1d->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<1>::Destroy();
+
+        // For coverage, create a 3D model
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(cell_volume);
+
+        ContactInhibitionCellCycleModel* p_cell_model3d = new ContactInhibitionCellCycleModel;
+        p_cell_model3d->SetDimension(3);
+        p_cell_model3d->SetCellProliferativeType(STEM);
+        p_cell_model3d->SetQuiescentVolumeFraction(0.5);
+        p_cell_model3d->SetEquilibriumVolume(1.0);
+
+        CellPtr p_cell3d(new Cell(p_state, p_cell_model3d));
         p_cell3d->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(p_cell_model3d->ReadyToDivide(), false);
@@ -857,6 +1008,74 @@ public:
         }
     }
 
+    void TestArchiveContactInhibitionCellCycleModel() throw (Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "contact_inhibition_cell_cycle.arch";
+
+        std::vector<double> cell_volume;
+        cell_volume.push_back(1.0);
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(cell_volume);
+
+        // Create an output archive
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+
+            ContactInhibitionCellCycleModel contact_inhibition_cell_cycle_model;
+            contact_inhibition_cell_cycle_model.SetDimension(2);
+            contact_inhibition_cell_cycle_model.SetCellProliferativeType(STEM);
+            contact_inhibition_cell_cycle_model.SetQuiescentVolumeFraction(0.5);
+            contact_inhibition_cell_cycle_model.SetEquilibriumVolume(1.0);
+            contact_inhibition_cell_cycle_model.SetBirthTime(-1.0);
+
+            p_simulation_time->IncrementTimeOneStep();
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            const AbstractCellCycleModel* p_model = &contact_inhibition_cell_cycle_model;
+            output_arch << p_model;
+
+            // Tidy up
+            SimulationTime::Destroy();
+        }
+
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+            AbstractCellCycleModel* p_model;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_model;
+
+            // Check that archiving worked correctly
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetDimension(), 2u);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), STEM);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-12);
+
+            TS_ASSERT(dynamic_cast<ContactInhibitionCellCycleModel*>(p_model) != NULL);
+
+            ContactInhibitionCellCycleModel* p_static_cast_model =
+                    static_cast<ContactInhibitionCellCycleModel*>(p_model);
+
+            TS_ASSERT_DELTA(p_static_cast_model->GetQuiescentVolumeFraction(), 0.5, 1e-6);
+            TS_ASSERT_DELTA(p_static_cast_model->GetEquilibriumVolume(), 1.0, 1e-6);
+
+            // Tidy up
+            delete p_model;
+            CellwiseData<1>::Destroy();
+        }
+    }
+
     void TestCellCycleModelOutputParameters()
     {
         std::string output_directory = "TestCellCycleModelOutputParameters";
@@ -905,6 +1124,19 @@ public:
 
         std::string stochastic_oxygen_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + stochastic_oxygen_based_results_dir + "stochastic_oxygen_based_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_oxygen_based_results.parameters").c_str()), 0);
+
+        // Test with ContactInhibitionCellCycleModel
+        ContactInhibitionCellCycleModel contact_inhibition_cell_cycle_model;
+        contact_inhibition_cell_cycle_model.SetQuiescentVolumeFraction(0.5);
+        contact_inhibition_cell_cycle_model.SetEquilibriumVolume(1.0);
+        TS_ASSERT_EQUALS(contact_inhibition_cell_cycle_model.GetIdentifier(), "ContactInhibitionCellCycleModel");
+
+        out_stream contact_inhibition_parameter_file = output_file_handler.OpenOutputFile("contact_inhibition_results.parameters");
+        contact_inhibition_cell_cycle_model.OutputCellCycleModelParameters(contact_inhibition_parameter_file);
+        contact_inhibition_parameter_file->close();
+
+        std::string contact_inhibition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + contact_inhibition_results_dir + "contact_inhibition_results.parameters cell_based/test/data/TestCellCycleModels/contact_inhibition_results.parameters").c_str()), 0);
     }
 };
 
