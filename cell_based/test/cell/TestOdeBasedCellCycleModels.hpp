@@ -356,137 +356,126 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tyson_novak_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "TysonNovakCellCycleModel.arch";
 
         {
-            // Set up simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            // Create cell-cycle model and associated cell
-            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
-            p_model->SetCellProliferativeType(TRANSIT);
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new TysonNovakCellCycleModel;
 
-            p_simulation_time->IncrementTimeOneStep();
-            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
+            p_model->SetDimension(3);
+            p_model->SetCellProliferativeType(STEM);
+            p_model->SetBirthTime(-1.5);
+            static_cast<TysonNovakCellCycleModel*>(p_model)->SetDt(0.085);
 
+			// We must create a cell to be able to initialise the cell cycle model's ODE system
+			MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
 
-            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
-
-            p_model->SetBirthTime(-1.0);
-
-            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Archive cell
-            CellPtr const p_const_cell = p_cell;
-            output_arch << p_const_cell;
+            output_arch << p_model;
 
+            // Note that here, deletion of the cell-cycle model is handled by the cell destructor
             SimulationTime::Destroy();
         }
 
         {
-            // Set up simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            CellPtr p_cell;
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_cell;
+            input_arch >> p_model2;
 
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_model2->GetDimension(), 3u);
+            TS_ASSERT_EQUALS(p_model2->GetCellProliferativeType(), STEM);
+            TS_ASSERT_DELTA(p_model2->GetBirthTime(), -1.5, 1e-12);
+            TS_ASSERT_DELTA(static_cast<TysonNovakCellCycleModel*>(p_model2)->GetDt(), 0.085, 1e-3);
 
-            // Test archiving
-            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 101.0, 1e-12);
+            TysonNovakCellCycleModel* p_static_cast_model =
+                static_cast<TysonNovakCellCycleModel*>(p_model2);
+
+            TysonNovak2001OdeSystem* p_ode_system =
+                static_cast<TysonNovak2001OdeSystem*>(p_static_cast_model->GetOdeSystem());
+
+            TS_ASSERT(p_ode_system != NULL);
+
+            // Avoid memory leaks
+            delete p_model2;
         }
     }
 
     void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "Alarcon2004OxygenBasedCellCycleModel.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
-        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
         {
-            // Set up simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            // Create cell-cycle model and associated cell
-            Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
-            p_cell_model->SetDimension(3);
-            p_cell_model->SetCellProliferativeType(STEM);
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new Alarcon2004OxygenBasedCellCycleModel;
 
-            MAKE_PTR(WildTypeCellMutationState, p_state);
-            CellPtr p_cell(new Cell(p_state, p_cell_model));
+            p_model->SetDimension(1);
+            p_model->SetCellProliferativeType(STEM);
+            p_model->SetBirthTime(-1.5);
+            static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_model)->SetDt(0.085);
 
+			// We must create a cell to be able to initialise the cell cycle model's ODE system
+			MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
-            p_cell->GetCellCycleModel()->SetBirthTime(-10.0);
 
-            p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->ReadyToDivide(), false);
-
-            p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->ReadyToDivide(), true);
-
-            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_cell_model->GetOdeSystem());
-            TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
-
-            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Archive cell
-            CellPtr const p_const_cell = p_cell;
-            output_arch << p_const_cell;
+            output_arch << p_model;
 
-            // Tidy up
+            // Note that here, deletion of the cell-cycle model is handled by the cell destructor
             SimulationTime::Destroy();
         }
 
         {
-            // Set up simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            CellPtr p_cell;
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_cell;
+            input_arch >> p_model2;
 
-            // Check that archiving worked correctly
-            Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_cell->GetCellCycleModel());
+            TS_ASSERT_EQUALS(p_model2->GetDimension(), 1u);
+            TS_ASSERT_EQUALS(p_model2->GetCellProliferativeType(), STEM);
+            TS_ASSERT_DELTA(p_model2->GetBirthTime(), -1.5, 1e-12);
+            TS_ASSERT_DELTA(static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_model2)->GetDt(), 0.085, 1e-3);
 
-            TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
-            TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
-            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
+            Alarcon2004OxygenBasedCellCycleModel* p_static_cast_model =
+                static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_model2);
 
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -10.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 20.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
+            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system =
+                static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_static_cast_model->GetOdeSystem());
 
-            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_model->GetOdeSystem());
             TS_ASSERT(p_ode_system != NULL);
             TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
+
+            // Avoid memory leaks
+            delete p_model2;
+            CellwiseData<1>::Destroy();
         }
     }
 
