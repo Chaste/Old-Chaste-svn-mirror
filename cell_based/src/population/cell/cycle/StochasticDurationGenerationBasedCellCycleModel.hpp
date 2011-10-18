@@ -38,6 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class StochasticDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
+    friend class TestSimpleCellCycleModels;
+
 private:
 
     /** Needed for serialization. */
@@ -53,9 +55,9 @@ private:
     {
         archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-        archive & *p_gen;
-        archive & p_gen;
+        // Make sure the RandomNumberGenerator singleton gets saved too
+        SerializableSingleton<RandomNumberGenerator>* p_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_wrapper;
     }
 
     /**

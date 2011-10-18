@@ -213,7 +213,6 @@ void AbstractCellCycleModel::SetCellProliferativeType(CellProliferativeType cell
     mCellProliferativeType = cellType;
 }
 
-
 CellProliferativeType AbstractCellCycleModel::GetCellProliferativeType() const
 {
     return mCellProliferativeType;

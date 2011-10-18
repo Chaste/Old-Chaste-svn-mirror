@@ -745,268 +745,220 @@ public:
     void TestArchiveFixedDurationGenerationBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "fixed_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "FixedDurationGenerationBasedCellCycleModel.arch";
 
-        // Create an output archive
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel;
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+            
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new FixedDurationGenerationBasedCellCycleModel;
+
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
-            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
-
-            CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->InitialiseCellCycleModel();
-
-            p_simulation_time->IncrementTimeOneStep();
-            p_simulation_time->IncrementTimeOneStep();
-
             p_model->SetBirthTime(-1.0);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Update cell phase
-            p_model->ReadyToDivide();
+            output_arch << p_model;
 
-            // Archive pointer to cell
-            CellPtr const p_const_cell = p_cell;
-            output_arch << p_const_cell;
-
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
-
+            delete p_model;
             SimulationTime::Destroy();
         }
 
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            CellPtr p_cell;
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_cell;
-
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+            input_arch >> p_model2;
 
             // Check private data has been restored correctly.
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
+            TS_ASSERT_DELTA(p_model2->GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(p_model2->GetAge(), 1.0, 1e-12);
+            TS_ASSERT_EQUALS(p_model2->GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_EQUALS(p_model2->GetCellProliferativeType(), TRANSIT);
+            TS_ASSERT_EQUALS(p_model2->GetDimension(), 2u);
+
+            // Avoid memory leaks
+            delete p_model2;
         }
     }
 
     void TestArchiveStochasticDurationGenerationBasedCellCycleModel()
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "StochasticDurationGenerationBasedCellCycleModel.arch";
 
-        double random_number_test = 0;
+        // We will also test that the random number generator is archived correctly 
+        double random_number_test = 0.0;
 
-        // Create an output archive
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel;
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new StochasticDurationGenerationBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
-            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
-            CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->InitialiseCellCycleModel();
-            p_cell->SetBirthTime(-1.1);
-            p_simulation_time->IncrementTimeOneStep();
-            p_simulation_time->IncrementTimeOneStep();
 
-            p_cell->ReadyToDivide(); // updates phases
+            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(p_model)->SetG1Duration();
+            TS_ASSERT_DELTA(p_model->GetG1Duration(), 2.6803, 1e-4);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TS_ASSERT_DELTA(p_model->GetSDuration(), 5.0, 1e-12);
+            output_arch << p_model;
 
-            CellPtr const p_const_cell = p_cell;
-            output_arch << p_const_cell;
-
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
-
-            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            random_number_test = p_gen->ranf();
+            delete p_model;
             SimulationTime::Destroy();
+
+            random_number_test = RandomNumberGenerator::Instance()->ranf();
+            RandomNumberGenerator::Destroy();
         }
 
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(128);
+            AbstractCellCycleModel* p_model2;
 
-            CellPtr p_cell;
-
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_cell;
+            input_arch >> p_model2;
 
-            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-7);
+            TS_ASSERT_DELTA(p_model2->GetG1Duration(), 2.6803, 1e-4);
+            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-6);
 
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
-
-            // Check
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
-            TS_ASSERT_DELTA(p_model->GetSDuration(), 5.0, 1e-12);
+            // Avoid memory leaks
+            delete p_model2;
         }
     }
 
     void TestArchiveSimpleOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "SimpleOxygenBasedCellCycleModel.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
-        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // Create an output archive
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
-            p_model->SetDimension(1);
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new SimpleOxygenBasedCellCycleModel;
+            p_model->SetDimension(3);
             p_model->SetCellProliferativeType(STEM);
 
-            p_simulation_time->IncrementTimeOneStep();
-
-            p_model->SetBirthTime(-1.0);
+            static_cast<SimpleOxygenBasedCellCycleModel*>(p_model)->SetHypoxicConcentration(0.8);
+            static_cast<SimpleOxygenBasedCellCycleModel*>(p_model)->SetQuiescentConcentration(0.7);
+            static_cast<SimpleOxygenBasedCellCycleModel*>(p_model)->SetCriticalHypoxicDuration(2.5);
+            static_cast<SimpleOxygenBasedCellCycleModel*>(p_model)->SetCurrentHypoxiaOnsetTime(3.1);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            output_arch << static_cast<const SimpleOxygenBasedCellCycleModel&>(*p_model);
+            output_arch << p_model;
 
-            // Tidy up
             delete p_model;
             SimulationTime::Destroy();
         }
 
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
-            p_model->SetDimension(2);
-            p_model->SetBirthTime(-2.0);
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> *p_model;
+            input_arch >> p_model2;
 
-            // Check that archiving worked correctly
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
-            TS_ASSERT_EQUALS(p_model->GetDimension(), 1u);
-            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), STEM);
+            TS_ASSERT_DELTA(static_cast<SimpleOxygenBasedCellCycleModel*>(p_model2)->GetHypoxicConcentration(), 0.8, 1e-6);
+            TS_ASSERT_DELTA(static_cast<SimpleOxygenBasedCellCycleModel*>(p_model2)->GetQuiescentConcentration(), 0.7, 1e-6);
+            TS_ASSERT_DELTA(static_cast<SimpleOxygenBasedCellCycleModel*>(p_model2)->GetCriticalHypoxicDuration(), 2.5, 1e-6);
+            TS_ASSERT_DELTA(static_cast<SimpleOxygenBasedCellCycleModel*>(p_model2)->GetCurrentHypoxiaOnsetTime(), 3.1, 1e-6);
 
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-12);
-
-            // Tidy up
-            delete p_model;
-            CellwiseData<1>::Destroy();
+            // Avoid memory leaks
+            delete p_model2;
+            CellwiseData<3>::Destroy();
         }
     }
 
     void TestArchiveStochasticOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_oxygen_based_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "StochasticOxygenBasedCellCycleModel.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
         CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        double randomly_allocated_number;
+        // We will also test that the random number generator is archived correctly 
+        double random_number_test = 0.0;
 
-        // Create an output archive
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            // Create cell-cycle model and associated cell
-            StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
-            p_cell_model->SetDimension(3);
-            p_cell_model->SetCellProliferativeType(STEM);
-            MAKE_PTR(WildTypeCellMutationState, p_state);
-            CellPtr p_cell(new Cell(p_state, p_cell_model));
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new StochasticOxygenBasedCellCycleModel;
+            p_model->SetDimension(3);
+            p_model->SetCellProliferativeType(STEM);
 
-            p_cell->InitialiseCellCycleModel();
-            p_cell->GetCellCycleModel()->SetBirthTime(-1.0);
+            static_cast<StochasticOxygenBasedCellCycleModel*>(p_model)->SetHypoxicConcentration(0.8);
+            static_cast<StochasticOxygenBasedCellCycleModel*>(p_model)->SetQuiescentConcentration(0.7);
+            static_cast<StochasticOxygenBasedCellCycleModel*>(p_model)->SetCriticalHypoxicDuration(2.5);
+            static_cast<StochasticOxygenBasedCellCycleModel*>(p_model)->SetCurrentHypoxiaOnsetTime(3.1);
+            static_cast<StochasticOxygenBasedCellCycleModel*>(p_model)->GenerateStochasticG2Duration();
 
-            randomly_allocated_number = p_cell->GetCellCycleModel()->GetG2Duration();
+            TS_ASSERT_DELTA(p_model->GetG2Duration(), 5.1122, 1e-4);
 
-            p_simulation_time->IncrementTimeOneStep();
-
-            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Archive cell
-            CellPtr const p_const_cell = p_cell;
-            output_arch << p_const_cell;
+            output_arch << p_model;
 
-            // Tidy up
+            delete p_model;
             SimulationTime::Destroy();
+
+            random_number_test = RandomNumberGenerator::Instance()->ranf();
+            RandomNumberGenerator::Destroy();
         }
 
         {
-            // Set up simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
 
-            CellPtr p_cell;
+            AbstractCellCycleModel* p_model2;
 
-            // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            input_arch >> p_cell;
+            input_arch >> p_model2;
 
-            // Check that archiving worked correctly
-            StochasticOxygenBasedCellCycleModel* p_model = static_cast<StochasticOxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
+            TS_ASSERT_DELTA(p_model2->GetG2Duration(), 5.1122, 1e-4);
 
-            TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
-            TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
+            TS_ASSERT_DELTA(static_cast<StochasticOxygenBasedCellCycleModel*>(p_model2)->GetHypoxicConcentration(), 0.8, 1e-6);
+            TS_ASSERT_DELTA(static_cast<StochasticOxygenBasedCellCycleModel*>(p_model2)->GetQuiescentConcentration(), 0.7, 1e-6);
+            TS_ASSERT_DELTA(static_cast<StochasticOxygenBasedCellCycleModel*>(p_model2)->GetCriticalHypoxicDuration(), 2.5, 1e-6);
+            TS_ASSERT_DELTA(static_cast<StochasticOxygenBasedCellCycleModel*>(p_model2)->GetCurrentHypoxiaOnsetTime(), 3.1, 1e-6);
 
-            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-4);
-            TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-4);
-            TS_ASSERT_DELTA(p_model->GetG2Duration(), randomly_allocated_number, 1e-4);
+            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-6);
 
-            // Tidy up
+            // Avoid memory leaks
+            delete p_model2;
             CellwiseData<3>::Destroy();
         }
     }
@@ -1014,9 +966,12 @@ public:
     void TestArchiveContactInhibitionCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "contact_inhibition_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ContactInhibitionCellCycleModel.arch";
 
         {
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
             // As usual, we archive via a pointer to the most abstract class possible
             AbstractCellCycleModel* const p_model = new ContactInhibitionCellCycleModel();
 
@@ -1056,6 +1011,7 @@ public:
             TS_ASSERT_DELTA(static_cast<ContactInhibitionCellCycleModel*>(p_model2)->GetQuiescentVolumeFraction(), 0.5, 1e-6);
             TS_ASSERT_DELTA(static_cast<ContactInhibitionCellCycleModel*>(p_model2)->GetEquilibriumVolume(), 1.0, 1e-6);
 
+            // Avoid memory leaks
             delete p_model2;
             CellwiseData<1>::Destroy();
         }

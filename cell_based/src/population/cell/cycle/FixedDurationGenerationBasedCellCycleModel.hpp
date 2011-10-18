@@ -83,5 +83,4 @@ public:
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(FixedDurationGenerationBasedCellCycleModel)
 
-
 #endif /*FIXEDDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_*/
