@@ -91,7 +91,7 @@ public:
     /**
      * @return mRadiusOfSphere.
      */
-    const double GetRadiusOfSphere() const;
+    double GetRadiusOfSphere() const;
 
     /**
      * Overridden ImposeBoundaryCondition() method.

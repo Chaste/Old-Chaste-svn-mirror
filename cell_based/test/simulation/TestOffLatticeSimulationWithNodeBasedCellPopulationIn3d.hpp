@@ -67,8 +67,6 @@ public:
 
     void Test3dNodeBasedRestrictedToSphere() throw (Exception)
     {
-        double crypt_length = 3;
-
         // Create mesh
         std::vector<Node<3>*> nodes;
 

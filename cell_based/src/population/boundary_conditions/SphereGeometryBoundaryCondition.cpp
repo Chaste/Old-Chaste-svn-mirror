@@ -47,7 +47,7 @@ const c_vector<double, DIM>& SphereGeometryBoundaryCondition<DIM>::rGetCentreOfS
 }
 
 template<unsigned DIM>
-const double SphereGeometryBoundaryCondition<DIM>::GetRadiusOfSphere() const
+double SphereGeometryBoundaryCondition<DIM>::GetRadiusOfSphere() const
 {
     return mRadiusOfSphere;
 }
