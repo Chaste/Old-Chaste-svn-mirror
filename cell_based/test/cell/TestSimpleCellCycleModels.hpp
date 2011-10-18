@@ -404,6 +404,9 @@ public:
         p_model->SetStemCellG1Duration(8.0);
         p_model->SetTransitCellG1Duration(8.0);
 
+        TS_ASSERT_THROWS_THIS(p_model->UpdateCellCyclePhase(),
+            "The member variables mQuiescentVolumeFraction and mEquilibriumVolume have not yet been set.");
+
         p_model->SetQuiescentVolumeFraction(0.5);
         p_model->SetEquilibriumVolume(1.0);
 

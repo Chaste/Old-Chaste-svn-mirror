@@ -41,9 +41,10 @@ ContactInhibitionCellCycleModel::ContactInhibitionCellCycleModel()
 
 void ContactInhibitionCellCycleModel::UpdateCellCyclePhase()
 {
-    ///\todo Turn into exceptions and test (#1727)
-    assert(mQuiescentVolumeFraction != DOUBLE_UNSET);
-    assert(mEquilibriumVolume != DOUBLE_UNSET);
+    if ((mQuiescentVolumeFraction == DOUBLE_UNSET) || (mEquilibriumVolume == DOUBLE_UNSET))
+    {
+        EXCEPTION("The member variables mQuiescentVolumeFraction and mEquilibriumVolume have not yet been set.");
+    }
 
     // Get cell volume
     double cell_volume;

@@ -41,6 +41,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * This model allows for quiescence imposed by transient periods
  * of high stress, followed by relaxation.
+ * 
+ * Note that in this cell cycle model, quiescence is implemented
+ * by extending the G1 phase. If a cell is compressed during G2
+ * or S phases then it will still divide, and thus cells whose 
+ * volumes are smaller than the given threshold may still divide.
  */
 class ContactInhibitionCellCycleModel : public AbstractSimpleCellCycleModel
 {
