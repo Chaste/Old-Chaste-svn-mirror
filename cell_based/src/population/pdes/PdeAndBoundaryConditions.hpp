@@ -29,60 +29,82 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PDEANDBOUNDARYCONDITIONS_HPP_
 #define PDEANDBOUNDARYCONDITIONS_HPP_
 
+#include "ChasteSerialization.hpp"
+#include "ArchiveLocationInfo.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "AveragedSourcePde.hpp"
 #include "AbstractBoundaryCondition.hpp"
 #include "PetscTools.hpp"
+#include "FileFinder.hpp"
 
 /**
- * A helper class for use in OffLatticeSimulationWithPdes. The class
+ * A helper class for use in cell-based simulations with PDEs. The class
  * contains a pointer to a linear elliptic PDE, which is to be solved
  * on the domain defined by the cell population. The class also contains
  * information describing the boundary condition that is to be imposed
  * when solving the PDE. Currently we allow Neumann (imposed flux) or
  * Dirichlet (imposed value) boundary conditions. The boundary condition
  * may be constant on the boundary or vary spatially and/or temporally.
+ * In cell-based simulations with PDEs, one or more of these objects are
+ * accessed via the CellBasedHandler class.
  */
 template<unsigned DIM>
 class PdeAndBoundaryConditions
 {
+    friend class TestPdeAndBoundaryConditions;
+
 private:
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
     /**
-     * Pointer to a linear elliptic PDE object.
+     * Serialize the PDE object.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
      */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // Note that archiving of mSolution is handled by the methods save/load_construct_data
+        archive & mpPde;
+        archive & mpBoundaryCondition;
+        archive & mIsNeumannBoundaryCondition;
+    }
+
+    /** Pointer to a linear elliptic PDE object. */
     AbstractLinearEllipticPde<DIM,DIM>* mpPde;
 
-    /**
-     * AbstractBoundaryCondition<SPACE_DIM>
-     */
+    /** Pointer to a boundary condition object. */
     AbstractBoundaryCondition<DIM>* mpBoundaryCondition;
 
-    /**
-     * Whether the boundary condition is Neumann (false
-     * corresponds to a Dirichlet boundary condition).
-     */
+    /** Whether the boundary condition is Neumann (false corresponds to a Dirichlet boundary condition). */
     bool mIsNeumannBoundaryCondition;
 
-    /**
-     * Current solution to the PDE problem, for use as an initial guess
-     * when solving at the next time step.
-     */
-    Vec mCurrentSolution;
+    /** The solution to the PDE problem, for use as an initial guess when solving at the next time step. */
+    Vec mSolution;
+
+    /** Whether to delete member pointers in the destructor (used in archiving). */
+    bool mDeleteMemberPointersInDestructor;
 
 public:
 
     /**
      * Constructor.
      *
-     * @param pPde A pointer to a linear elliptic PDE object
+     * @param pPde A pointer to a linear elliptic PDE object (defaults to NULL)
      * @param pBoundaryCondition A pointer to an abstract boundary condition
-     *                           (defaults to NULL, corresponding to a constant boundary condition with value zero)
+     *     (defaults to NULL, corresponding to a constant boundary condition with value zero)
      * @param isNeumannBoundaryCondition Whether the boundary condition is Neumann (defaults to true)
+     * @param solution A solution vector (defaults to NULL)
+     * @param deleteMemberPointersInDestructor whether to delete member pointers in the destructor
+     *     (defaults to false)
      */
-    PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
+    PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde=NULL,
                              AbstractBoundaryCondition<DIM>* pBoundaryCondition=NULL,
-                             bool isNeumannBoundaryCondition=true);
+                             bool isNeumannBoundaryCondition=true,
+                             Vec solution=NULL,
+                             bool deleteMemberPointersInDestructor=false);
 
     /**
      * Destructor.
@@ -100,12 +122,17 @@ public:
     AbstractBoundaryCondition<DIM>* GetBoundaryCondition() const;
 
     /**
-     * @return mCurrentSolution
+     * @return mSolution
      */
     Vec GetSolution();
 
     /**
-     * Set mCurrentSolution.
+     * @return mSolution (used in archiving)
+     */
+    Vec GetSolution() const;
+
+    /**
+     * Set mSolution.
      *
      * @param solution the current solution
      */
@@ -122,7 +149,7 @@ public:
     bool HasAveragedSourcePde();
 
     /**
-     * Call VecDestroy on mCurrentSolution.
+     * Call VecDestroy on mSolution.
      */
     void DestroySolution();
 
@@ -135,5 +162,43 @@ public:
      */
     void SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh, std::map< CellPtr, unsigned >* pCellPdeElementMap=NULL);
 };
+
+#include "SerializationExportWrapper.hpp"
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(PdeAndBoundaryConditions)
+
+namespace boost
+{
+namespace serialization
+{
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const PdeAndBoundaryConditions<DIM> * t, const unsigned int file_version)
+{
+    if (t->GetSolution())
+    {
+        std::string archive_filename = ArchiveLocationInfo::GetArchiveDirectory() + "solution.vec";
+        PetscTools::DumpPetscObject(t->GetSolution(), archive_filename);
+    }
+}
+
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, PdeAndBoundaryConditions<DIM> * t, const unsigned int file_version)
+{
+    Vec solution = NULL;
+
+    std::string archive_filename = ArchiveLocationInfo::GetArchiveDirectory() + "solution.vec";
+    FileFinder file_finder(archive_filename, RelativeTo::Absolute);
+
+    if (file_finder.Exists())
+    {
+        PetscTools::ReadPetscObject(solution, archive_filename);
+    }
+
+    ::new(t)PdeAndBoundaryConditions<DIM>(NULL, NULL, false, solution, true);
+}
+}
+} // namespace ...
 
 #endif /* PDEANDBOUNDARYCONDITIONS_HPP_ */

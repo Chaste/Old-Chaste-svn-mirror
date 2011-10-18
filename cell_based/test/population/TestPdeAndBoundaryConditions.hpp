@@ -30,10 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTPDEANDBOUNDARYCONDITIONS_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <ctime>
 #include "PdeAndBoundaryConditions.hpp"
 #include "ConstBoundaryCondition.hpp"
+#include "SimpleUniformSourcePde.hpp"
 #include "FunctionalBoundaryCondition.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "NodesOnlyMesh.hpp"
@@ -461,12 +464,125 @@ public:
 		// Now move a cell into another element
 		c_vector<double,2>& r_location = cell_population.rGetMesh().GetNode(0)->rGetModifiableLocation();
 		c_vector<double,2> shift;
-		shift[0]=90.0;
-		shift[1]=90.0;
-		r_location+=shift;
+		shift[0] = 90.0;
+		shift[1] = 90.0;
+		r_location += shift;
 
 		pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
 	}
+
+    void TestArchivingWithoutSolution() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false); 
+        handler.SetArchiveDirectory();
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "PdeAndBoundaryConditions.arch";
+
+        {
+            // Create a PdeAndBoundaryConditions object
+            SimpleUniformSourcePde<2> pde(0.75);
+            ConstBoundaryCondition<2> bc(2.45);
+            bool is_neumann_bc = false;
+
+            PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
+            PdeAndBoundaryConditions<2>* const p_const_pde_and_bc = &pde_and_bc;
+
+            // Archive the object
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch << p_const_pde_and_bc;
+        }
+
+        {
+            PdeAndBoundaryConditions<2>* p_pde_and_bc;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore object from the archive
+            input_arch >> p_pde_and_bc;
+
+            // Test that the object was archived correctly
+            TS_ASSERT_EQUALS(p_pde_and_bc->IsNeumannBoundaryCondition(), false);
+
+            ChastePoint<2> point;
+            TS_ASSERT_DELTA(p_pde_and_bc->GetBoundaryCondition()->GetValue(point), 2.45, 1e-6);
+
+            AbstractLinearEllipticPde<2,2>* p_pde = p_pde_and_bc->GetPde();
+            TS_ASSERT(dynamic_cast<SimpleUniformSourcePde<2>*>(p_pde) != NULL);
+            TS_ASSERT_DELTA(static_cast<SimpleUniformSourcePde<2>*>(p_pde)->GetCoefficient(), 0.75, 1e-6);
+
+            // Avoid memory leaks
+            delete p_pde_and_bc;
+        }
+    }
+
+    void TestArchivingWithSolution() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false); 
+        handler.SetArchiveDirectory();
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "PdeAndBoundaryConditions.arch";
+
+        {
+            // Create a PdeAndBoundaryConditions object
+            SimpleUniformSourcePde<2> pde(0.75);
+            ConstBoundaryCondition<2> bc(2.45);
+            bool is_neumann_bc = false;
+
+            PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, is_neumann_bc);
+
+            std::vector<double> data(10);
+            for (unsigned i=0; i<10; i++)
+            {
+                data[i] = i + 0.45;
+            }
+
+            Vec vector = PetscTools::CreateVec(data);
+            pde_and_bc.SetSolution(vector);
+
+            PdeAndBoundaryConditions<2>* const p_const_pde_and_bc = &pde_and_bc;
+
+            // Archive the object
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch << p_const_pde_and_bc;
+        }
+
+        {
+            PdeAndBoundaryConditions<2>* p_pde_and_bc;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore object from the archive
+            input_arch >> p_pde_and_bc;
+
+            // Test that the object was archived correctly
+            TS_ASSERT_EQUALS(p_pde_and_bc->IsNeumannBoundaryCondition(), false);
+
+            ChastePoint<2> point;
+            TS_ASSERT_DELTA(p_pde_and_bc->GetBoundaryCondition()->GetValue(point), 2.45, 1e-6);
+
+            AbstractLinearEllipticPde<2,2>* p_pde = p_pde_and_bc->GetPde();
+            TS_ASSERT(dynamic_cast<SimpleUniformSourcePde<2>*>(p_pde) != NULL);
+            TS_ASSERT_DELTA(static_cast<SimpleUniformSourcePde<2>*>(p_pde)->GetCoefficient(), 0.75, 1e-6);
+
+            Vec solution = p_pde_and_bc->GetSolution();
+            ReplicatableVector solution_repl(solution);
+
+            TS_ASSERT_EQUALS(solution_repl.GetSize(), 10u);
+            for (unsigned i=0; i<10; i++)
+            {
+                TS_ASSERT_DELTA(solution_repl[i], i + 0.45, 1e-6);
+            }
+
+            // Avoid memory leaks
+            delete p_pde_and_bc;
+        }
+    }
 };
 
 #endif /* TESTPDEANDBOUNDARYCONDITIONS_HPP_ */

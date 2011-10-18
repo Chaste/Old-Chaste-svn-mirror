@@ -67,8 +67,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        ///\todo archive mPdeAndBcCollection (#1920)
-//        archive & mPdeAndBcCollection;
+        archive & mPdeAndBcCollection;
         archive & mWriteAverageRadialPdeSolution;
         archive & mWriteDailyAverageRadialPdeSolution;
         archive & mSetBcsOnCoarseBoundary;
@@ -106,6 +105,12 @@ private:
     std::map<CellPtr, unsigned> mCellPdeElementMap;
 
     /**
+     * Whether to delete member pointers in the destructor.
+     * Used in archiving.
+     */
+    bool mDeleteMemberPointersInDestructor;
+
+    /**
      * Initialise mCellPdeElementMap.
      * 
      * This method is only called within SetupSolve(), but is written as a separate method
@@ -133,8 +138,9 @@ public:
      * Constructor.
      * 
      * @param pCellPopulation pointer to a cell population
+     * @param deleteMemberPointersInDestructor whether to delete member pointers in the destructor (defaults to false)
      */
-    CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCellPopulation);
+    CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCellPopulation, bool deleteMemberPointersInDestructor=false);
 
     /**
      * Destructor.
@@ -295,7 +301,7 @@ inline void load_construct_data(
     ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedPdeHandler<DIM>(p_cell_population);
+    ::new(t)CellBasedPdeHandler<DIM>(p_cell_population, true);
 }
 }
 }

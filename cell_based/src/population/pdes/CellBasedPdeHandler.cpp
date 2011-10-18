@@ -36,13 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 template<unsigned DIM>
-CellBasedPdeHandler<DIM>::CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCellPopulation)
+CellBasedPdeHandler<DIM>::CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCellPopulation,
+                                              bool deleteMemberPointersInDestructor)
     : mpCellPopulation(pCellPopulation),
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
       mSetBcsOnCoarseBoundary(true),
       mNumRadialIntervals(UNSIGNED_UNSET),
-      mpCoarsePdeMesh(NULL)
+      mpCoarsePdeMesh(NULL),
+      mDeleteMemberPointersInDestructor(deleteMemberPointersInDestructor)
 {
     // We must be using a NodeBasedCellPopulation or MeshBasedCellPopulation, with at least one cell
     ///\todo change to exceptions (#1891)
@@ -55,6 +57,14 @@ template<unsigned DIM>
 CellBasedPdeHandler<DIM>::~CellBasedPdeHandler()
 {
     // Avoid memory leaks
+    if (mDeleteMemberPointersInDestructor)
+    {
+        delete mpCellPopulation;
+        for (unsigned i=0; i<mPdeAndBcCollection.size(); i++)
+        {
+            delete mPdeAndBcCollection[i];
+        }
+    }
     if (mpCoarsePdeMesh)
     {
         delete mpCoarsePdeMesh;

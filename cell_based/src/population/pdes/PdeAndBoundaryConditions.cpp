@@ -31,21 +31,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 PdeAndBoundaryConditions<DIM>::PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
                                                         AbstractBoundaryCondition<DIM>* pBoundaryCondition,
-                                                        bool isNeumannBoundaryCondition)
+                                                        bool isNeumannBoundaryCondition,
+                                                        Vec solution,
+                                                        bool deleteMemberPointersInDestructor)
     : mpPde(pPde),
       mpBoundaryCondition(pBoundaryCondition),
       mIsNeumannBoundaryCondition(isNeumannBoundaryCondition),
-      mCurrentSolution(NULL)
+      mSolution(NULL),
+      mDeleteMemberPointersInDestructor(deleteMemberPointersInDestructor)
 {
+    if (solution)
+    {
+        mSolution = solution;
+    }
 }
 
 template<unsigned DIM>
 PdeAndBoundaryConditions<DIM>::~PdeAndBoundaryConditions()
 {
-    if (mCurrentSolution)
+    // Avoid memory leaks if the object was loaded from an archive
+    if (mDeleteMemberPointersInDestructor)
     {
-        VecDestroy(mCurrentSolution);
+        delete mpPde;
+        delete mpBoundaryCondition;
     }
+
+    DestroySolution();
 }
 
 template<unsigned DIM>
@@ -63,13 +74,19 @@ AbstractBoundaryCondition<DIM>* PdeAndBoundaryConditions<DIM>::GetBoundaryCondit
 template<unsigned DIM>
 Vec PdeAndBoundaryConditions<DIM>::GetSolution()
 {
-    return mCurrentSolution;
+    return mSolution;
+}
+
+template<unsigned DIM>
+Vec PdeAndBoundaryConditions<DIM>::GetSolution() const
+{
+    return mSolution;
 }
 
 template<unsigned DIM>
 void PdeAndBoundaryConditions<DIM>::SetSolution(Vec solution)
 {
-    mCurrentSolution = solution;
+    mSolution = solution;
 }
 
 template<unsigned DIM>
@@ -87,9 +104,9 @@ bool PdeAndBoundaryConditions<DIM>::HasAveragedSourcePde()
 template<unsigned DIM>
 void PdeAndBoundaryConditions<DIM>::DestroySolution()
 {
-    if (mCurrentSolution)
+    if (mSolution)
     {
-        VecDestroy(mCurrentSolution);
+        VecDestroy(mSolution);
     }
 }
 
@@ -107,3 +124,7 @@ void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSourcePde(Tetrahe
 template class PdeAndBoundaryConditions<1>;
 template class PdeAndBoundaryConditions<2>;
 template class PdeAndBoundaryConditions<3>;
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(PdeAndBoundaryConditions)
