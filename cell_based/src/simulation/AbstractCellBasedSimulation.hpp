@@ -94,6 +94,7 @@ private:
         archive & mNumDeaths;
         archive & mCellKillers;
         archive & mSamplingTimestepMultiple;
+        archive & mpCellBasedPdeHandler;
     }
 
 protected:

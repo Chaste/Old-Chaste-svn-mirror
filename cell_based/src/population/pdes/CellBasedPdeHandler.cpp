@@ -56,10 +56,14 @@ CellBasedPdeHandler<DIM>::CellBasedPdeHandler(AbstractCellPopulation<DIM>* pCell
 template<unsigned DIM>
 CellBasedPdeHandler<DIM>::~CellBasedPdeHandler()
 {
-    // Avoid memory leaks
+    /*
+     * Avoid memory leaks. Note that we do not take responsibility for
+     * deleting mpCellPopulation, as this object is usually owned by a
+     * subclass of AbstractCellBasedSimulation, which deletes the cell
+     * population upon destruction if restored from an archive.
+     */
     if (mDeleteMemberPointersInDestructor)
     {
-        delete mpCellPopulation;
         for (unsigned i=0; i<mPdeAndBcCollection.size(); i++)
         {
             delete mPdeAndBcCollection[i];

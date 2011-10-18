@@ -884,16 +884,6 @@ public:
         OffLatticeSimulation<2>* p_simulator
             = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load("OffLatticeSimulationWithPdesSaveAndLoad", 0.2);
 
-        MeshBasedCellPopulation<2>* p_cell_population = static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation()));
-
-        SimpleUniformSourcePde<2> pde2(-0.1);
-        ConstBoundaryCondition<2> bc2(1.0);
-        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, false);
-
-        CellBasedPdeHandler<2> pde_handler2(p_cell_population);
-        pde_handler2.AddPdeAndBc(&pde_and_bc2);
-        p_simulator->SetCellBasedPdeHandler(&pde_handler2);
-
         p_simulator->SetEndTime(0.5);
         p_simulator->Solve();
 
@@ -995,22 +985,6 @@ public:
         // Load simulation
         OffLatticeSimulation<2>* p_simulator
             = CellBasedSimulationArchiver<2, OffLatticeSimulation<2> >::Load(output_directory, end_time);
-
-        /**
-         * In this case, the PDE had a reference to the cell population. To avoid a
-         * segmentation fault, we need to first get the archived cell_population, pass
-         * it in to a new instance of our PDE, taking care to use the same
-         * consumption rate as before. We then pass this PDE into the cell-based
-         * simulation.
-         */
-        MeshBasedCellPopulation<2>* p_cell_population = static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation()));
-        CellwiseSourcePde<2> pde2(*p_cell_population, -0.03);
-        ConstBoundaryCondition<2> bc2(1.0);
-        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, &bc2, false);
-
-        CellBasedPdeHandler<2> pde_handler2(p_cell_population);
-        pde_handler2.AddPdeAndBc(&pde_and_bc2);
-        p_simulator->SetCellBasedPdeHandler(&pde_handler2);
 
         p_simulator->SetEndTime(2.0*end_time);
 

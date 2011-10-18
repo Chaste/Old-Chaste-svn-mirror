@@ -74,6 +74,7 @@ AbstractCellBasedSimulation<DIM>::~AbstractCellBasedSimulation()
     if (mDeleteCellPopulationInDestructor)
     {
         delete &mrCellPopulation;
+        delete mpCellBasedPdeHandler;
     }
 }
 

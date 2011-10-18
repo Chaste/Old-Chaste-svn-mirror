@@ -299,6 +299,7 @@ public:
             TS_ASSERT_EQUALS(p_pde_handler->mPdeAndBcCollection[0]->IsNeumannBoundaryCondition(), false);
 
             // Tidy up
+            delete p_pde_handler->mpCellPopulation;
             delete p_pde_handler;
         }
     }
