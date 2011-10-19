@@ -441,7 +441,8 @@ class cellml_model(element_base):
         Get the unique variable in this model with the given Oxford metadata
         name annotation.
         
-        If throw is True, will raise ValueError if there is no such variable.
+        If throw is True, will raise ValueError if there is no such variable,
+        or more than 1 match.  If throw is False, returns None in these cases.
         """
         vars = cellml_metadata.find_variables(self,
                                              ('bqbiol:is', NSS['bqbiol']),
@@ -454,6 +455,19 @@ class cellml_model(element_base):
         else:
             var = None
         return var
+    
+    def get_variables_by_ontology_term(self, term):
+        """Return a list of variables annotated with the given ontology term.
+        
+        The annotations have the same form as for oxmeta name annotations (see
+        get_variable_by_oxmeta_name).  However, here we are not restricted to
+        namespace, and no check is done on the number of results returned.
+        
+        The given term must be a (prefixed_name, nsuri) tuple.
+        """
+        assert isinstance(term, tuple)
+        assert len(term) == 2
+        return cellml_metadata.find_variables(self, ('bqbiol:is', NSS['bqbiol']), term)
     
     def get_variable_by_cmeta_id(self, cmeta_id):
         """

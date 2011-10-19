@@ -1787,6 +1787,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
             outputs = cellml_metadata.find_variables(self.model,
                                                      ('pycml:output-variable', NSS['pycml']),
                                                      'yes')
+            def write_output_info(output):
+                if output.get_type() == VarTypes.Free:
+                    self.writeln('UNSIGNED_UNSET, FREE', indent=False, nl=False)
+                elif output.get_type() == VarTypes.State:
+                    self.writeln(self.state_vars.index(output), ', STATE', indent=False, nl=False)
+                elif output.is_derived_quantity:
+                    self.writeln(self.derived_quantities.index(output), ', DERIVED', indent=False, nl=False)
+                elif output.is_modifiable_parameter:
+                    self.writeln(self.cell_parameters.index(output), ', PARAMETER', indent=False, nl=False)
+                else:
+                    raise ValueError('Unexpected protocol output: ' + str(output))
             if outputs:
                 outputs.sort(key=lambda v: self.var_display_name(v))
                 self.output_comment('Protocol outputs')
@@ -1794,16 +1805,25 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 for i, output in enumerate(outputs):
                     self.writeln('this->mOutputsInfo[', i, ']', self.EQ_ASSIGN,
                                  'std::make_pair(', nl=False)
-                    if output.get_type() == VarTypes.Free:
-                        self.writeln('UNSIGNED_UNSET, FREE', indent=False, nl=False)
-                    elif output.get_type() == VarTypes.State:
-                        self.writeln(self.state_vars.index(output), ', STATE', indent=False, nl=False)
-                    elif output.is_derived_quantity:
-                        self.writeln(self.derived_quantities.index(output), ', DERIVED', indent=False, nl=False)
-                    elif output.is_modifiable_parameter:
-                        self.writeln(self.cell_parameters.index(output), ', PARAMETER', indent=False, nl=False)
-                    else:
-                        raise ValueError('Unexpected protocol output: ' + str(output))
+                    write_output_info(output)
+                    self.writeln(')', self.STMT_END, indent=False)
+                self.writeln()
+            #1925 - outputs that are vectors
+            prop = ('pycml:output-vector', NSS['pycml'])
+            vector_names = set(cellml_metadata.get_targets(self.model, None,
+                                                           cellml_metadata.create_rdf_node(prop)))
+            self.writeln('this->mVectorOutputsInfo.resize(', len(vector_names), ');')
+            self.writeln('this->mVectorOutputNames.resize(', len(vector_names), ');')
+            for i, name in enumerate(sorted(vector_names)):
+                self.writeln('this->mVectorOutputNames[', i, ']', self.EQ_ASSIGN, '"', name, '"', self.STMT_END)
+                vector_outputs = cellml_metadata.find_variables(self.model, prop, name)
+                assert len(vector_outputs) > 0
+                vector_outputs.sort(key=lambda v: self.var_display_name(v))
+                self.writeln('this->mVectorOutputsInfo[', i, '].resize(', len(vector_outputs), ');')
+                for j, output in enumerate(vector_outputs):
+                    self.writeln('this->mVectorOutputsInfo[', i, '][', j, ']', self.EQ_ASSIGN,
+                                 'std::make_pair(', nl=False)
+                    write_output_info(output)
                     self.writeln(')', self.STMT_END, indent=False)
                 self.writeln()
         # Lookup table generation, if not in a singleton
@@ -4891,7 +4911,7 @@ class ConfigurationStore(object):
         # Check for duplicates
         d = {}
         for name in names_used:
-            if name in d:
+            if name in d and name != 'state_variable':
                 raise ConfigurationError(name + ' metadata attribute is duplicated in the cellml file.')
             else:
                 d[name] = name

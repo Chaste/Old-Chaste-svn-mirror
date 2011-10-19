@@ -50,13 +50,11 @@ class Protocol(processors.ModelModifier):
      - add_or_replace_equation
      - define_units_conversion_rule
     """
-    def __init__(self, model, multi_stage=False, namespaces={}):
+    def __init__(self, model, multi_stage=True, namespaces={}):
         """Create a new protocol.
         
-        Eventually this will have arguments to parse a protocol definition file
-        and create the protocol.  For now, however, the only option is to specify
-        multi_stage as True and set up the internal data structures yourself.
-        Then call self.modify_model.
+        The public methods listed above should be called to set up the internal data structures,
+        and then self.modify_model called to apply the protocol to the model.
         """
         self._protocol_component = None
         self._units_converter = None
@@ -66,10 +64,13 @@ class Protocol(processors.ModelModifier):
         self.model = model
         self.inputs = set()
         self.outputs = set()
+        self._vector_outputs = set()
+        self._vector_outputs_detail = []
         warn_only = not model.get_option('fully_automatic') and model.get_option('warn_on_units_errors')
         self.set_units_converter(processors.UnitsConverter(self.model, warn_only))
-        if not multi_stage:
-            raise NotImplementedError
+        # Annotate (initial) state variables with oxmeta:state_variable
+        for var in self.model.find_state_vars():
+            var.add_rdf_annotation(('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']))
     
     def specify_output_variable(self, prefixed_name, units=None):
         """Set the given variable as a protocol output, optionally in the given units.
@@ -84,15 +85,50 @@ class Protocol(processors.ModelModifier):
         The actual output variable is returned, although code shouldn't need to use it.
         """
         try:
-            var = self._lookup_ontology_term(prefixed_name)
-        except ValueError:
-            raise ProtocolError("There is no model variable annotated with the term " + prefixed_name)
+            vars = self._lookup_ontology_term(prefixed_name, False)
+        except ValueError, e:
+            raise ProtocolError(str(e))
+        if len(vars) > 1:
+            self._vector_outputs_detail.append((prefixed_name, units))
+            return None
+        else:
+            var = vars[0]
         if units is None:
             units = var.get_units()
         new_var = self.specify_as_output(var, units)
         if var.get_type() is VarTypes.Free:
             self.set_independent_variable_units(units, new_var)
         return new_var
+    
+    def process_output_variable_vectors(self):
+        """Finish adding outputs that are vectors of variables.
+        
+        When an ontology term given to specify_output_variable matches multiple variables,
+        then these should be treated as a single vector output.  This method sets up these
+        structures.  It's called after all output variables have been specified, in case an
+        output occurs both individually and within a vector.
+        """
+        # Annotate just final state variables with oxmeta:state_variable
+        prop, targ = ('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta'])
+        cellml_metadata.remove_statements(self.model, None, prop, targ)
+        for var in self.model.find_state_vars():
+            var.add_rdf_annotation(prop, targ)
+        # Now re-lookup all the ontology terms that matched multiple variables
+        for prefixed_name, units in self._vector_outputs_detail:
+            vars = self._lookup_ontology_term(prefixed_name, False)
+            vector_name = prefixed_name.split(':')[1]
+            for var in vars:
+                # Units convert if needed
+                desired_units = self._get_units_object(units or var.get_units())
+                if not desired_units.equals(var.get_units()):
+                    if var.component is self._get_protocol_component():
+                        raise ProtocolError("You can't ask for an output in two different units!")
+                    new_var = self._replace_variable(var, desired_units)
+                    self.connect_variables(var, new_var)
+                    var = new_var
+                # Ensure it gets computed and annotated
+                self._vector_outputs.add(var)
+                var.add_rdf_annotation(('pycml:output-vector', NSS['pycml']), vector_name)
     
     def specify_input_variable(self, prefixed_name, units=None, initial_value=None):
         """Set the given variable as a protocol input, optionally in the given units.
@@ -489,7 +525,7 @@ class Protocol(processors.ModelModifier):
             full_name = var.component.name + u',' + var.name
             ci_elt._rename(full_name)
     
-    def _lookup_ontology_term(self, prefixed_name):
+    def _lookup_ontology_term(self, prefixed_name, enforce_uniqueness=True):
         """Find the variable annotated with the given term, if it exists.
         
         The term should be given in prefixed form, with the prefix appearing in the protocol's namespace
@@ -498,9 +534,10 @@ class Protocol(processors.ModelModifier):
         Currently we just support the oxmeta annotations.
         
         Will throw ValueError if the variable doesn't exist in the model, or the given term is invalid.
+        If enforce_uniqueness is True, also ensures there's only one variable with the annotation.
         """
         try:
-            prefix, localname = prefixed_name.split(':')
+            prefix, _ = prefixed_name.split(':')
         except ValueError:
             raise ValueError("Ontology term '%s' is not a qname - it doesn't have a namespace prefix"
                              % prefixed_name)
@@ -510,7 +547,15 @@ class Protocol(processors.ModelModifier):
             raise ValueError("The namespace prefix '%s' has not been declared" % prefix)
         if nsuri != NSS['oxmeta']:
             raise ValueError("We only support 'oxmeta' annotations at present")
-        return self.model.get_variable_by_oxmeta_name(localname)
+        vars = self.model.get_variables_by_ontology_term((prefixed_name, nsuri))
+        if len(vars) == 0:
+            raise ValueError("The ontology term '%s' does not match any variables" % prefixed_name)
+        if enforce_uniqueness:
+            if len(vars) > 1:
+                raise ValueError("The ontology term '%s' matches multiple variables" % prefixed_name)
+            else:
+                vars = vars[0]
+        return vars
     
     def _apply_conversion_rule(self, assignment, conv_template, placeholder_name):
         """Apply a units conversion rule defined by self.add_units_conversion_rule.
@@ -645,9 +690,11 @@ class Protocol(processors.ModelModifier):
         ensure they are available for querying.  Other variables should have these
         annotations (and pe:keep) removed.
         """
-        if self.outputs:
+        all_outputs = self.outputs | self._vector_outputs
+        print "All outputs:", all_outputs
+        if all_outputs:
             # Remove parts of the model that aren't needed
-            needed_nodes = self.model.calculate_extended_dependencies(self.outputs,
+            needed_nodes = self.model.calculate_extended_dependencies(all_outputs,
                                                                       state_vars_depend_on_odes=True)
             needed_nodes.update([input for input in self.inputs
                                  if isinstance(input, (mathml_apply, cellml_variable))])
@@ -664,8 +711,8 @@ class Protocol(processors.ModelModifier):
                 any_kept = False
                 for mapv in list(conn.map_variables):
                     try:
-                        var1 = comp1.get_variable_by_name(mapv.variable_1)
-                        var2 = comp2.get_variable_by_name(mapv.variable_2)
+                        comp1.get_variable_by_name(mapv.variable_1)
+                        comp2.get_variable_by_name(mapv.variable_2)
                         any_kept = True
                     except KeyError:
                         # Remove connection
@@ -686,16 +733,16 @@ class Protocol(processors.ModelModifier):
             var.set_pe_keep(True)
             if var.get_type() == VarTypes.Constant:
                 var.set_is_modifiable_parameter(True)
-        for var in self.outputs:
+        for var in all_outputs:
             assert isinstance(var, cellml_variable)
-            var.set_is_output_variable(True)
             if var.get_type() == VarTypes.Constant:
                 var.set_is_modifiable_parameter(True)
             elif var.get_type() in [VarTypes.Computed, VarTypes.Mapped]:
                 var.set_is_derived_quantity(True)
             else:
                 assert var.get_type() in [VarTypes.State, VarTypes.Free]
-
+        for var in self.outputs:
+            var.set_is_output_variable(True)
 
 def apply_protocol_file(doc, proto_file_path):
     """Apply the protocol defined in the given file to a model.
@@ -719,7 +766,7 @@ def apply_protocol_file(doc, proto_file_path):
     elif proto_file_path[-4:] == '.xml':
         proto_xml = amara_parse_cellml(proto_file_path)
         assert hasattr(proto_xml, u'protocol')
-        proto = Protocol(doc.model, multi_stage=True, namespaces=proto_xml.xmlns_prefixes)
+        proto = Protocol(doc.model, namespaces=proto_xml.xmlns_prefixes)
         proto_units = doc.model.get_standard_units().copy()
         if hasattr(proto_xml.protocol, u'units'):
             # Parse units definitions
@@ -752,6 +799,7 @@ def apply_protocol_file(doc, proto_file_path):
                 proto.specify_output_variable(output.name, get_units(output))
             for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
                 proto.add_or_replace_equation(expr.xml_element_children().next())
+            proto.process_output_variable_vectors()
         proto.modify_model()
     else:
         raise ProtocolError("Unexpected protocol file extension for file: " + proto_file_path)

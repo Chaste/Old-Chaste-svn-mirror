@@ -61,6 +61,7 @@ METADATA_NAMES = frozenset(
      'calcium_dynamics_release_current_maximum', 'calcium_dynamics_leak_current_maximum', 'calcium_leak_current_conductance',
      'calcium_dynamics_uptake_current_maximum',
      'cytosolic_calcium_concentration',
+     'state_variable',
      # What follows are some more metadata names agreed by Gary Mirams and Penny Noble
      'cytosolic_potassium_concentration', 'cytosolic_sodium_concentration',
      'cytoplasmic_potassium_concentration', 'cytoplasmic_sodium_concentration',
@@ -123,8 +124,7 @@ def create_unique_id(cellml_model, base_id):
 def replace_statement(cellml_model, source, property, target):
     """Add a statement to the model, avoiding duplicates.
     
-    Any existing statements with the same source and property will first be
-    removed.
+    Any existing statements with the same source and property will first be removed.
     """
     _debug("replace_statement(", source, ",", property, ",", target, ")")
     return _wrapper.replace_statement(cellml_model, source, property, target)
@@ -140,11 +140,9 @@ def remove_statements(cellml_model, source, property, target):
 def get_target(cellml_model, source, property):
     """Get the target of property from source.
     
-    Returns None if no such target exists.  Throws if there is more than one
-    match.
+    Returns None if no such target exists.  Throws if there is more than one match.
     
-    If the target is a literal node, returns its string value.  Otherwise returns
-    an RDF node.
+    If the target is a literal node, returns its string value.  Otherwise returns an RDF node.
     """
     return _wrapper.get_target(cellml_model, source, property)
 
@@ -153,6 +151,7 @@ def get_targets(cellml_model, source, property):
     
     If no such targets exist, returns an empty list.
     If property is None, targets of any property will be returned.
+    Alternatively if source is None, targets of the given property from any source will be found.
     
     For each target, if it is a literal node then its string value is given.
     Otherwise the list will contain an RDF node.
@@ -510,6 +509,8 @@ class RdflibWrapper(RdfWrapper):
             target = rdf_model.value(subject=source, predicate=property, any=False)
         except rdflib.exceptions.UniquenessError:
             raise ValueError("Too many targets for source " + str(source) + " and property " + str(property))
+        if isinstance(target, rdflib.Literal):
+            target = str(target)
         _debug("get_target(", source, ",", property, ") -> ", "'" + str(target) + "'")
         return target
     get_target.__doc__ = globals()['get_target'].__doc__
@@ -517,6 +518,9 @@ class RdflibWrapper(RdfWrapper):
     def get_targets(self, cellml_model, source, property):
         rdf_model = self.get_rdf_from_model(cellml_model)
         targets = list(rdf_model.objects(subject=source, predicate=property))
+        for i, target in enumerate(targets):
+            if isinstance(target, rdflib.Literal):
+                targets[i] = str(target)
         return targets
     get_targets.__doc__ = globals()['get_targets'].__doc__
 
