@@ -51,6 +51,8 @@ import glob
 import socket
 import time
 
+print sys.argv
+
 import SCons
 
 sys.path[0:0] = ['python', 'python/hostconfig']
