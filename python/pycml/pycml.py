@@ -1960,7 +1960,7 @@ class cellml_variable(Colourable, element_base):
             model._pe_repeat = u'yes'
         return
 
-    def add_rdf_annotation(self, property, target):
+    def add_rdf_annotation(self, property, target, allow_dup=False):
         """Add an RDF annotation about this variable.
         
         property must be a tuple (qname, namespace_uri).
@@ -1972,7 +1972,7 @@ class cellml_variable(Colourable, element_base):
 
         The actual RDF will be added to the main RDF block in the model, which
         will be created if it does not exist.  Any existing annotations of this
-        variable with the same property will be removed.
+        variable with the same property will be removed, unless allow_dup=True.
         """
         meta_id = self.cmeta_id
         if not meta_id:
@@ -1982,7 +1982,10 @@ class cellml_variable(Colourable, element_base):
         property = cellml_metadata.create_rdf_node(property)
         target = cellml_metadata.create_rdf_node(target)
         source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
-        cellml_metadata.replace_statement(self.model, source, property, target)
+        if allow_dup:
+            cellml_metadata.add_statement(self.model, source, property, target)
+        else:
+            cellml_metadata.replace_statement(self.model, source, property, target)
 
     def get_rdf_annotation(self, property):
         """Get an RDF annotation about this variable.

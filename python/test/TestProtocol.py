@@ -410,7 +410,7 @@ class TestProtocol(unittest.TestCase):
         gK = Var(c_tdpc, 'g_K') # Computed
         gKmax = Var(c_tdpc, 'g_Kmax') # Constant
         V_tdpc = Var(c_tdpc, 'V') # Mapped
-        p.outputs = [Cai, Cm, gK, V_tdpc]
+        p.outputs = set([Cai, Cm, gK, V_tdpc])
         # Apply protocol
         p.modify_model()
         # Check model assignments are as expected

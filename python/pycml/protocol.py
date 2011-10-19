@@ -70,7 +70,7 @@ class Protocol(processors.ModelModifier):
         self.set_units_converter(processors.UnitsConverter(self.model, warn_only))
         # Annotate (initial) state variables with oxmeta:state_variable
         for var in self.model.find_state_vars():
-            var.add_rdf_annotation(('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']))
+            var.add_rdf_annotation(('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']), allow_dup=True)
     
     def specify_output_variable(self, prefixed_name, units=None):
         """Set the given variable as a protocol output, optionally in the given units.
@@ -112,7 +112,7 @@ class Protocol(processors.ModelModifier):
         prop, targ = ('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta'])
         cellml_metadata.remove_statements(self.model, None, prop, targ)
         for var in self.model.find_state_vars():
-            var.add_rdf_annotation(prop, targ)
+            var.add_rdf_annotation(prop, targ, allow_dup=True)
         # Now re-lookup all the ontology terms that matched multiple variables
         for prefixed_name, units in self._vector_outputs_detail:
             vars = self._lookup_ontology_term(prefixed_name, False)
@@ -691,7 +691,6 @@ class Protocol(processors.ModelModifier):
         annotations (and pe:keep) removed.
         """
         all_outputs = self.outputs | self._vector_outputs
-        print "All outputs:", all_outputs
         if all_outputs:
             # Remove parts of the model that aren't needed
             needed_nodes = self.model.calculate_extended_dependencies(all_outputs,

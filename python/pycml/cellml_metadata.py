@@ -129,6 +129,11 @@ def replace_statement(cellml_model, source, property, target):
     _debug("replace_statement(", source, ",", property, ",", target, ")")
     return _wrapper.replace_statement(cellml_model, source, property, target)
 
+def add_statement(cellml_model, source, property, target):
+    """Add a statement to the model."""
+    _debug("add_statement(", source, ",", property, ",", target, ")")
+    return _wrapper.add_statement(cellml_model, source, property, target)
+
 def remove_statements(cellml_model, source, property, target):
     """Remove all statements matching (source,property,target).
     
@@ -357,6 +362,13 @@ class RedlandWrapper(RdfWrapper):
         return node
     create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__
 
+    def add_statement(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        # Add the new statement
+        statement = RDF.Statement(subject=source, predicate=property, object=target)
+        rdf_model.append(statement)
+    add_statement.__doc__ = globals()['add_statement'].__doc__
+
     def replace_statement(self, cellml_model, source, property, target):
         rdf_model = self.get_rdf_from_model(cellml_model)
         # Check for existing statements
@@ -417,7 +429,7 @@ class RedlandWrapper(RdfWrapper):
             assert uri[0] == '#', "Annotation found on non-local URI"
             var_id = uri[1:] # Strip '#'
             var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
-            assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
+            assert len(var_objs) == 1, "Didn't find a unique variable with ID " + var_id
             vars.append(var_objs[0])
         return vars
     find_variables.__doc__ = globals()['find_variables'].__doc__
@@ -493,6 +505,11 @@ class RdflibWrapper(RdfWrapper):
         return node
     create_rdf_node.__doc__ = globals()['create_rdf_node'].__doc__
 
+    def add_statement(self, cellml_model, source, property, target):
+        rdf_model = self.get_rdf_from_model(cellml_model)
+        rdf_model.add((source, property, target))
+    add_statement.__doc__ = globals()['add_statement'].__doc__
+
     def replace_statement(self, cellml_model, source, property, target):
         rdf_model = self.get_rdf_from_model(cellml_model)
         rdf_model.set((source, property, target))
@@ -536,7 +553,7 @@ class RdflibWrapper(RdfWrapper):
             assert uri[0] == '#', "Annotation found on non-local URI"
             var_id = uri[1:] # Strip '#'
             var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
-            assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
+            assert len(var_objs) == 1, "Didn't find a unique variable with ID " + var_id
             vars.append(var_objs[0])
         return vars
     find_variables.__doc__ = globals()['find_variables'].__doc__
