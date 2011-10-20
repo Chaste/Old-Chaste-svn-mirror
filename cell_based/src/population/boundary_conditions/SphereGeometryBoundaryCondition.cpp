@@ -32,12 +32,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 SphereGeometryBoundaryCondition<DIM>::SphereGeometryBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
                                                                       c_vector<double, DIM> centre,
-                                                                      double radius)
-        : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
-          mCentreOfSphere(centre)
+                                                                      double radius,
+                                                                      double distance)
+    : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
+      mCentreOfSphere(centre),
+      mRadiusOfSphere(radius),
+      mMaximumDistance(distance)
 {
-    assert(radius > 0.0);
-    mRadiusOfSphere = radius;
+    assert(mRadiusOfSphere > 0.0);
+    assert(mMaximumDistance > 0.0);
+
+    if (dynamic_cast<NodeBasedCellPopulation<DIM>*>(this->mpCellPopulation) == NULL)
+    {
+        EXCEPTION("A NodeBasedCellPopulation must be used with this boundary condition object.");
+    }
+    if (DIM == 1)
+    {
+        EXCEPTION("This boundary condition is not implemented in 1D.");
+    }
 }
 
 template<unsigned DIM>
@@ -53,36 +65,29 @@ double SphereGeometryBoundaryCondition<DIM>::GetRadiusOfSphere() const
 }
 
 template<unsigned DIM>
-void SphereGeometryBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
+void SphereGeometryBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector<c_vector<double, DIM> >& rOldLocations)
 {
-    assert(dynamic_cast<NodeBasedCellPopulation<DIM>*>(this->mpCellPopulation));
-
-    if (DIM==2 || DIM==3)
+    // Iterate over the cell population
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+         cell_iter != this->mpCellPopulation->End();
+         ++cell_iter)
     {
-        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
-                 cell_iter != this->mpCellPopulation->End();
-                 ++cell_iter)
+        // Find the radial distance between this cell and the surface of the sphere
+        c_vector<double,DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
+        double radius = norm_2(cell_location - mCentreOfSphere);
+
+        // If the cell is too far from the surface of the sphere...
+        if (fabs(radius - mRadiusOfSphere) > mMaximumDistance)
         {
-           c_vector<double,DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
+            // ...move the cell back onto the surface of the sphere
+            c_vector<double, DIM> location_on_sphere =
+                mCentreOfSphere + mRadiusOfSphere*(cell_location - mCentreOfSphere)/radius;
 
-           unsigned node_global_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+            unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+            Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
 
-           Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_global_index);
-
-           double radius = norm_2(cell_location - mCentreOfSphere);
-
-           c_vector<double, DIM> location_on_sphere = cell_location;
-
-           if (radius> 1e-5)
-           {
-               location_on_sphere = mCentreOfSphere + mRadiusOfSphere*(cell_location - mCentreOfSphere)/radius;
-           }
             p_node->rGetModifiableLocation() = location_on_sphere;
         }
-    }
-    else
-    {
-        EXCEPTION("SphereGeometryBoundaryCondition does not make sense in 1D");
     }
 }
 
@@ -91,28 +96,23 @@ bool SphereGeometryBoundaryCondition<DIM>::VerifyBoundaryCondition()
 {
     bool condition_satisfied = true;
 
-    if (DIM==2 || DIM==3)
+    // Iterate over the cell population
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+         cell_iter != this->mpCellPopulation->End();
+         ++cell_iter)
     {
-        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
-                 cell_iter != this->mpCellPopulation->End();
-                 ++cell_iter)
+        // Find the radial distance between this cell and the surface of the sphere
+        c_vector<double,DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
+        double radius = norm_2(cell_location - mCentreOfSphere);
+
+        // If the cell is too far from the surface of the sphere...
+        if (fabs(radius - mRadiusOfSphere) > mMaximumDistance)
         {
-           c_vector<double,DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
-
-           double radius = norm_2(cell_location - mCentreOfSphere);
-
-           if (fabs(radius-mRadiusOfSphere)>1e-6)
-           {
-               condition_satisfied = false;
-               break;
-           }
+            // ...then the boundary condition is not satisfied
+            condition_satisfied = false;
+            break;
         }
     }
-    else
-    {
-        EXCEPTION("SphereGeometryBoundaryCondition does not make sense in 1D");
-    }
-
     return condition_satisfied;
 }
 
@@ -127,6 +127,7 @@ void SphereGeometryBoundaryCondition<DIM>::OutputCellPopulationBoundaryCondition
     *rParamsFile << mCentreOfSphere[DIM-1] << "</CentreOfSphere>\n";
 
     *rParamsFile << "\t\t\t<RadiusOfSphere>" << mRadiusOfSphere << "</RadiusOfSphere>\n";
+    *rParamsFile << "\t\t\t<MaximumDistance>" << mMaximumDistance << "</MaximumDistance>\n";
 
     // Call method on direct parent class
     AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);

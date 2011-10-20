@@ -37,29 +37,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A spherical cell population boundary condition class, which restricts nodes to lie
- * on the surface of a sphere in the domain. Although the name of this class suggests it is
- * specific to 3D, it is actually also implemented 2D, for which it is
- * really a circle geometry boundary condition.
+ * on the surface of a sphere in the domain. Although the name of this class suggests 
+ * it is specific to 3D, it is actually also implemented in 2D, for which it is really
+ * a circle geometry boundary condition.
  */
 template<unsigned DIM>
 class SphereGeometryBoundaryCondition : public AbstractCellPopulationBoundaryCondition<DIM>
 {
 private:
 
-    /**
-     * The centre of the sphere
-     */
+    /** The centre of the sphere. */
     c_vector<double, DIM> mCentreOfSphere;
 
-    /**
-     * The radius of the sphere
-     */
+    /** The radius of the sphere. */
     double mRadiusOfSphere;
+
+    /** The maximum distance from the surface of the sphere that cells may be. */
+    double mMaximumDistance;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Serialize the object and its member variables.
+     * Serialize the object.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -68,6 +67,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<DIM> >(*this);
+        archive & mMaximumDistance;
     }
 
 public:
@@ -76,12 +76,14 @@ public:
      * Constructor.
      *
      * @param pCellPopulation pointer to the cell population
-     * @param center the centre of the sphere
+     * @param centre the centre of the sphere
      * @param radius the radius of the sphere
+     * @param distance the maximum distance from the surface of the sphere that cells may be (defaults to 1e-5)
      */
     SphereGeometryBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
-                                    c_vector<double, DIM> center,
-                                    double radius);
+                                    c_vector<double, DIM> centre,
+                                    double radius,
+                                    double distance=1e-5);
 
     /**
      * @return mCentreOfSphere.

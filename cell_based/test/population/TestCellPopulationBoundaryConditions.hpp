@@ -38,15 +38,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "PlaneBoundaryCondition.hpp"
+#include "SphereGeometryBoundaryCondition.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "NodeBasedCellPopulation.hpp"
+#include "ArchiveOpener.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 /**
- * This class contains tests for methods on classes
- * inheriting from AbstractCellPopulationBoundaryConditions.
+ * This class contains tests for methods on classes inheriting from AbstractCellPopulationBoundaryCondition.
  */
 class TestCellPopulationBoundaryConditions : public AbstractCellBasedTestSuite
 {
@@ -121,6 +123,85 @@ public:
                               "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
     }
 
+    void TestSphereGeometryBoundaryCondition() throw (Exception)
+    {
+        // We first test that the correct exception is thrown in 1D
+        TrianglesMeshReader<1,1> mesh_reader_1d("mesh/test/data/1D_0_to_1_10_elements");
+        TetrahedralMesh<1,1> generating_mesh_1d;
+        generating_mesh_1d.ConstructFromMeshReader(mesh_reader_1d);
+
+        NodesOnlyMesh<1> mesh_1d;
+        mesh_1d.ConstructNodesWithoutMesh(generating_mesh_1d);
+
+        std::vector<CellPtr> cells_1d;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 1> cells_generator_1d;
+        cells_generator_1d.GenerateBasic(cells_1d, mesh_1d.GetNumNodes());
+
+        NodeBasedCellPopulation<1> population_1d(mesh_1d, cells_1d);
+
+        c_vector<double,1> centre_1d = zero_vector<double>(1);
+
+        TS_ASSERT_THROWS_THIS(SphereGeometryBoundaryCondition<1> bc_1d(&population_1d, centre_1d, 1.0),
+            "This boundary condition is not implemented in 1D.");
+
+        // Next we test that the correct exception is thrown if not using a NodeBasedCellPopulation
+        TrianglesMeshReader<2,2> mesh_reader_2d("mesh/test/data/square_4_elements");
+        MutableMesh<2,2> mesh_2d;
+        mesh_2d.ConstructFromMeshReader(mesh_reader_2d);
+
+        std::vector<CellPtr> cells_2d;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator_2d;
+        cells_generator_2d.GenerateBasic(cells_2d, mesh_2d.GetNumNodes());
+
+        MeshBasedCellPopulation<2> population_2d(mesh_2d, cells_2d);
+
+        c_vector<double,2> centre_2d = zero_vector<double>(2);
+
+        TS_ASSERT_THROWS_THIS(SphereGeometryBoundaryCondition<2> bc_2d(&population_2d, centre_2d, 1.0),
+            "A NodeBasedCellPopulation must be used with this boundary condition object.");
+
+        // We now test the methods of this class
+        TrianglesMeshReader<3,3> mesh_reader_3d("mesh/test/data/cube_136_elements");
+        TetrahedralMesh<3,3> generating_mesh_3d;
+        generating_mesh_3d.ConstructFromMeshReader(mesh_reader_3d);
+
+        NodesOnlyMesh<3> mesh_3d;
+        mesh_3d.ConstructNodesWithoutMesh(generating_mesh_3d);
+
+        std::vector<CellPtr> cells_3d;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator_3d;
+        cells_generator_3d.GenerateBasic(cells_3d, mesh_3d.GetNumNodes());
+
+        NodeBasedCellPopulation<3> population_3d(mesh_3d, cells_3d);
+
+        c_vector<double,3> centre_3d = zero_vector<double>(3);
+
+        SphereGeometryBoundaryCondition<3> bc_3d(&population_3d, centre_3d, 0.4, 1e-4);
+
+        // Test that member variables were initialised correctly 
+        TS_ASSERT_DELTA(bc_3d.rGetCentreOfSphere()[0], centre_3d(0), 1e-4);
+        TS_ASSERT_DELTA(bc_3d.rGetCentreOfSphere()[1], centre_3d(1), 1e-4);
+        TS_ASSERT_DELTA(bc_3d.GetRadiusOfSphere(), 0.4, 1e-4);
+
+        TS_ASSERT_EQUALS(bc_3d.VerifyBoundaryCondition(), false);
+
+        // Store the location of each node prior to imposing the boundary condition
+        std::vector<c_vector<double,3> > old_locations;
+        old_locations.reserve(population_3d.GetNumNodes());
+        for (std::list<CellPtr>::iterator cell_iter = population_3d.rGetCells().begin();
+             cell_iter != population_3d.rGetCells().end();
+             ++cell_iter)
+        {
+            c_vector<double,3> location = population_3d.GetLocationOfCellCentre(*cell_iter);
+            old_locations.push_back(location);
+        }
+
+        bc_3d.ImposeBoundaryCondition(old_locations);
+
+        // Test that the boundary condition was imposed correctly
+        TS_ASSERT_EQUALS(bc_3d.VerifyBoundaryCondition(), true);
+    }
+
     void TestArchivingOfPlaneBoundaryCondition() throw (Exception)
     {
         // Set up singleton classes
@@ -165,6 +246,66 @@ public:
        }
     }
 
+    void TestArchivingOfSphereGeometryBoundaryCondition() throw (Exception)
+    {
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 
+1);
+
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+        ArchiveLocationInfo::SetMeshFilename("mesh");
+
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
+
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        NodeBasedCellPopulation<2> population(mesh, cells);
+
+        c_vector<double,2> centre = zero_vector<double>(2);
+        centre(0) = 0.5;
+        centre(1) = 0.7;
+
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "SphereGeometryBoundaryCondition.arch";
+        ArchiveLocationInfo::SetMeshFilename("SphereGeometryBoundaryCondition");
+
+        {
+            SphereGeometryBoundaryCondition<2> bc(&population, centre, 0.56, 1e-3);
+
+            // Create an output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // Serialize via pointer
+            AbstractCellPopulationBoundaryCondition<2>* const p_bc = &bc;
+            (*p_arch) << p_bc;
+        }
+
+        {
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+
+            AbstractCellPopulationBoundaryCondition<2>* p_bc;
+
+            // Restore from the archive
+            (*p_arch) >> p_bc;
+
+            // Test we have restored the object correctly
+            TS_ASSERT_DELTA(static_cast<SphereGeometryBoundaryCondition<2>*>(p_bc)->rGetCentreOfSphere()[0], 0.5, 1e-6);
+            TS_ASSERT_DELTA(static_cast<SphereGeometryBoundaryCondition<2>*>(p_bc)->rGetCentreOfSphere()[1], 0.7, 1e-6);
+            TS_ASSERT_DELTA(static_cast<SphereGeometryBoundaryCondition<2>*>(p_bc)->GetRadiusOfSphere(), 0.56, 1e-6);
+
+            // Tidy up
+            delete p_bc->mpCellPopulation;
+            delete p_bc;
+       }
+    }
+
     void TestCellBoundaryConditionsOutputParameters()
     {
         std::string output_directory = "TestCellBoundaryConditionsOutputParameters";
@@ -180,6 +321,30 @@ public:
 
         std::string plane_boundary_condition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + plane_boundary_condition_results_dir + "plane_results.parameters cell_based/test/data/TestCellBoundaryConditionsOutputParameters/plane_results.parameters").c_str()), 0);
+
+        // Test with SphereGeometryBoundaryCondition
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        TetrahedralMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
+
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        NodeBasedCellPopulation<2> population(mesh, cells);
+        c_vector<double,2> centre = zero_vector<double>(2);
+
+        SphereGeometryBoundaryCondition<2> sphere_boundary_condition(&population, centre, 0.56, 1e-3);
+        TS_ASSERT_EQUALS(sphere_boundary_condition.GetIdentifier(), "SphereGeometryBoundaryCondition-2");
+
+        out_stream sphere_boundary_condition_parameter_file = output_file_handler.OpenOutputFile("sphere_results.parameters");
+        sphere_boundary_condition.OutputCellPopulationBoundaryConditionParameters(sphere_boundary_condition_parameter_file);
+        sphere_boundary_condition_parameter_file->close();
+
+        std::string sphere_boundary_condition_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + sphere_boundary_condition_results_dir + "sphere_results.parameters cell_based/test/data/TestCellBoundaryConditionsOutputParameters/sphere_results.parameters").c_str()), 0);
 
         // Test OutputCellPopulationBoundaryConditionInfo() method
         out_stream plane_boundary_condition_info_file = output_file_handler.OpenOutputFile("plane_results.info");

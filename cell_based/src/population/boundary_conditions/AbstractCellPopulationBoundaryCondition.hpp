@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractCellPopulationBoundaryCondition : public Identifiable
 {
+    friend class TestCellPopulationBoundaryConditions;
+
 private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
