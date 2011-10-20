@@ -467,7 +467,9 @@ class cellml_model(element_base):
         """
         assert isinstance(term, tuple)
         assert len(term) == 2
-        return cellml_metadata.find_variables(self, ('bqbiol:is', NSS['bqbiol']), term)
+        named_vars = cellml_metadata.find_variables(self, ('bqbiol:is', NSS['bqbiol']), term)
+        category_vars = cellml_metadata.find_variables(self, ('bqbiol:isVersionOf', NSS['bqbiol']), term)
+        return named_vars + category_vars
     
     def get_variable_by_cmeta_id(self, cmeta_id):
         """

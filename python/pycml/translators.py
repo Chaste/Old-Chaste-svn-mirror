@@ -4911,7 +4911,7 @@ class ConfigurationStore(object):
         # Check for duplicates
         d = {}
         for name in names_used:
-            if name in d and name != 'state_variable':
+            if name in d:
                 raise ConfigurationError(name + ' metadata attribute is duplicated in the cellml file.')
             else:
                 d[name] = name

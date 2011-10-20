@@ -70,7 +70,7 @@ class Protocol(processors.ModelModifier):
         self.set_units_converter(processors.UnitsConverter(self.model, warn_only))
         # Annotate (initial) state variables with oxmeta:state_variable
         for var in self.model.find_state_vars():
-            var.add_rdf_annotation(('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']), allow_dup=True)
+            var.add_rdf_annotation(('bqbiol:isVersionOf', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']), allow_dup=True)
     
     def specify_output_variable(self, prefixed_name, units=None):
         """Set the given variable as a protocol output, optionally in the given units.
@@ -109,7 +109,7 @@ class Protocol(processors.ModelModifier):
         output occurs both individually and within a vector.
         """
         # Annotate just final state variables with oxmeta:state_variable
-        prop, targ = ('bqbiol:is', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta'])
+        prop, targ = ('bqbiol:isVersionOf', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta'])
         cellml_metadata.remove_statements(self.model, None, prop, targ)
         for var in self.model.find_state_vars():
             var.add_rdf_annotation(prop, targ, allow_dup=True)
