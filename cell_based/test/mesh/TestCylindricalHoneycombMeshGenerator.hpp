@@ -65,8 +65,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
-        TS_ASSERT_THROWS_THIS(p_mesh2 = generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
+        TS_ASSERT_THROWS_THIS(generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), (num_cells_width)*(num_cells_depth+2*ghosts));
@@ -142,8 +141,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
-        TS_ASSERT_THROWS_THIS(p_mesh2 = generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
+        TS_ASSERT_THROWS_THIS(generator.GetMesh(),"A cylindrical mesh was created but a normal mesh is being requested.");
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));

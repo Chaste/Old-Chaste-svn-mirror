@@ -1493,6 +1493,7 @@ public:
 
         Vec solution_vector;
         solution_vector = ls.Solve(); // SHOULD fail with an error, but doesn't
+        VecDestroy(solution_vector);
     }
 
     // This test should be the last in the suite

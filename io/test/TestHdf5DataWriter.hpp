@@ -881,9 +881,9 @@ public:
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(5000),"Fixed dimension already set");
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Vector size doesn\'t match nodes to output");
 
-        int ina_var_id = 0;
-        int ik_var_id = 0;
-        int ik2_var_id = 0;
+        int ina_var_id = INT_UNSET;
+        int ik_var_id = INT_UNSET;
+        int ik2_var_id = INT_UNSET;
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
@@ -892,6 +892,7 @@ public:
         // Defined twice
         TS_ASSERT_THROWS_THIS(ik2_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"),
                 "Variable name already exists");
+        TS_ASSERT_EQUALS(ik2_var_id, INT_UNSET);
 
         // Bad variable names/units
         TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"),
@@ -928,6 +929,8 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_EQUALS(ina_var_id, 0);
+        TS_ASSERT_EQUALS(ik_var_id, 1);
 
         // In Hdf5 a fixed dimension should be defined always
         TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(),
@@ -977,6 +980,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_EQUALS(ina_var_id, 0);
+        TS_ASSERT_EQUALS(ik_var_id, 1);
 
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
                 "Cannot define variables when not in Define mode");
@@ -994,6 +999,7 @@ public:
         int ina_var_id;
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
+        TS_ASSERT_EQUALS(ina_var_id, 0);
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 

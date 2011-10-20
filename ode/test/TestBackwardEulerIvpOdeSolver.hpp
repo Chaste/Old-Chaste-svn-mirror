@@ -203,9 +203,6 @@ public:
         solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, 5*h_value);
         unsigned last = solutions.GetNumberOfTimeSteps();
 
-        double numerical_solution;
-        numerical_solution = solutions.rGetSolutions()[last][0];
-
 //        OutputFileHandler handler("");
 //        out_stream rabbit_file=handler.OpenOutputFile("foxrabbit.dat");
 //
@@ -260,9 +257,6 @@ public:
 
             solutions = p_backward_euler->Solve(&ode_system, state_variables, 0.0, end_time, h_value, 5*h_value);
             unsigned last = solutions.GetNumberOfTimeSteps();
-
-            double numerical_solution;
-            numerical_solution = solutions.rGetSolutions()[last][0];
 
             // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
             TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0], 0, 2);

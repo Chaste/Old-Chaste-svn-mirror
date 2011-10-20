@@ -173,12 +173,11 @@ public:
 
         {
             // Coverage
-            BidomainProblem<1> *p_bidomain_problem;
-            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("absent_directory"),
+            TS_ASSERT_THROWS_CONTAINS(CardiacSimulationArchiver<BidomainProblem<1> >::Load("absent_directory"),
                                       "Checkpoint directory does not exist: ");
             std::string empty_dir(archive_dir + "_empty");
             OutputFileHandler handler(empty_dir); // Ensure folder is empty
-            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(empty_dir),
+            TS_ASSERT_THROWS_CONTAINS(CardiacSimulationArchiver<BidomainProblem<1> >::Load(empty_dir),
                                       "Unable to open archive information file: ");
         }
         // Load into the wrong dimension
@@ -513,10 +512,9 @@ public:
     void TestMigrationExceptions() throw (Exception)
     {
         FileFinder archive_dir("heart/test/data/checkpoint_migration_exception/", RelativeTo::ChasteSourceRoot);
-        BidomainProblem<3>* p_problem;
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(archive_dir),
+        TS_ASSERT_THROWS_CONTAINS(CardiacSimulationArchiver<BidomainProblem<3> >::Load(archive_dir),
                                   "Cannot load main archive file: ");
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load("absent_directory"),
+        TS_ASSERT_THROWS_CONTAINS(CardiacSimulationArchiver<BidomainProblem<3> >::Load("absent_directory"),
                                   "Checkpoint directory does not exist: ");
     }
 

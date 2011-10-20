@@ -116,8 +116,6 @@ public:
         wnt_level = 0.2;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        double division_time = SimulationTime::Instance()->GetTime();
-
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
         double new_g1_duration = mSecondRandomNumber;
@@ -143,8 +141,6 @@ public:
         // Test that both cells have still inherited the same ceta-catenin concentration
         TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_0_2, p_cycle_model->GetBetaCateninConcentration(), 1e-3);
         TS_ASSERT_DELTA(steady_beta_cat_at_wnt_equals_0_2, p_cycle_model2->GetBetaCateninConcentration(), 1e-3);
-
-        division_time = SimulationTime::Instance()->GetTime();
 
         // Now reduce the Wnt concentration so only mutant cells divide
         wnt_level = 0.1;

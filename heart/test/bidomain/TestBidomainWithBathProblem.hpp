@@ -739,7 +739,6 @@ public:
             }
 
             // Check that there's an exact correspondence between bath nodes and fake cells
-            FakeBathCell* p_fake_cell = NULL;
             for (unsigned i=r_mesh.GetDistributedVectorFactory()->GetLow(); i<r_mesh.GetDistributedVectorFactory()->GetHigh(); i++)
             {
                 TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), p_mesh->GetNode(i)->GetRegion());
@@ -747,7 +746,6 @@ public:
                 if (HeartRegionCode::IsRegionBath(r_mesh.GetNode(i)->GetRegion()))
                 {
                     TS_ASSERT(p_fake != NULL);
-                    p_fake_cell = p_fake;
                 }
                 else
                 {

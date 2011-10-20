@@ -214,6 +214,9 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
 
+        TS_ASSERT_EQUALS(ina_var_id, 0);
+        TS_ASSERT_EQUALS(ik_var_id, 1);
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineVariable("I_Ca", "milli amperes"), "Cannot define variables when not in Define mode");
@@ -240,6 +243,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_EQUALS(ina_var_id, 0);
+        TS_ASSERT_EQUALS(ik_var_id,1);
 
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time","msecs"), "Cannot define variables when not in Define mode");
         delete mpTestWriter;
@@ -584,6 +589,8 @@ public:
 
         // Make sure there's a data value to read the field width from
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 1.1e-130, 2));
+
+        TS_ASSERT_EQUALS(node_var_id,-1);
 
         // Remember to delete - this closes the writer cleanly and means any data left
         // unwritten will be written to the datafile

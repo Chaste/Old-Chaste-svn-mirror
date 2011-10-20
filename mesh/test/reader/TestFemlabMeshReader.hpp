@@ -56,12 +56,10 @@ public:
 
         // Coverage test
 
-        AbstractMeshReader<1,1>* pWrongFemlabMeshReader;
-
-        TS_ASSERT_THROWS_THIS(pWrongFemlabMeshReader = new READER_1D("mesh/test/data/",
-                                                                         "femlab_lshape_nodes.dat",
-                                                                         "femlab_lshape_elements.dat",
-                                                                         "femlab_lshape_edges.dat"),
+        TS_ASSERT_THROWS_THIS(new READER_1D("mesh/test/data/",
+                                            "femlab_lshape_nodes.dat",
+                                            "femlab_lshape_elements.dat",
+                                            "femlab_lshape_edges.dat"),
                               "SPACE_DIM  != dimension read from file");
     }
 

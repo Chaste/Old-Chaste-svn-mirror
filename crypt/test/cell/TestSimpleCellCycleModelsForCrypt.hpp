@@ -124,8 +124,6 @@ public:
         wnt_level = 0.7;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        double division_time = SimulationTime::Instance()->GetTime();
-
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
         double new_g1_duration = mSecondRandomNumber;
@@ -142,8 +140,6 @@ public:
 
         p_cycle_model->ResetForDivision();
         p_cycle_model2->ResetForDivision();
-
-        division_time = SimulationTime::Instance()->GetTime();
 
         // Now reduce the Wnt concentration so only beta-cat or APC2 hit cells divide.
         wnt_level = 0.15;

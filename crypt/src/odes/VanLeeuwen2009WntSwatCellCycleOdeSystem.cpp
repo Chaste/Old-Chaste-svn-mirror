@@ -79,7 +79,7 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
     double p_c_hat = mPc + mXiC*wntLevel;
 
     double sigma_D = 0.0; // for healthy cells
-    double sigma_B = 0.0; // for healthy cells
+    //double sigma_B = 0.0; // for healthy cells - never used!
 
     if (!mpMutationState)
     {
@@ -95,7 +95,7 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
     }
     else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
-        sigma_B = 0.5;
+        //sigma_B = 0.5; // never used!
     }
     // Other mutations have no effect.
 

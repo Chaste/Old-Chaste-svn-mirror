@@ -107,6 +107,7 @@ private:
          * Write the data to the dataset using default transfer properties.
          */
         status = H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        assert(status==0);
 
         /*
          * Close/release resources.
@@ -133,12 +134,9 @@ public:
         hid_t       file, dataset;         /* handles */
         hid_t       datatype, dataspace;
         hid_t       memspace;
-        H5T_class_t datatype_class;                 /* datatype class */
+        H5T_class_t datatype_class;        /* datatype class */
         H5T_order_t order;                 /* data order */
-        size_t      size;                  /*
-                            * size of the data element
-                            * stored in file
-                            */
+        size_t      size;                  /* size of the data element stored in file */
         hsize_t     dimsm[3];              /* memory space dimensions */
         hsize_t     dims_out[2];           /* dataset dimensions */
         herr_t      status;
@@ -173,16 +171,21 @@ public:
          */
         datatype  = H5Dget_type(dataset);     /* datatype handle */
         datatype_class     = H5Tget_class(datatype);
+        TS_ASSERT(datatype_class == H5T_INTEGER);
         //if (datatype_class == H5T_INTEGER) printf("Data set has INTEGER type \n");
         order     = H5Tget_order(datatype);
+        TS_ASSERT(order == H5T_ORDER_LE);
         //if (order == H5T_ORDER_LE) printf("Little endian order \n");
 
         size  = H5Tget_size(datatype);
+        TS_ASSERT_EQUALS(size,4u);
         //printf(" Data size is %d \n", size);
 
         dataspace = H5Dget_space(dataset);    /* dataspace handle */
         rank      = H5Sget_simple_extent_ndims(dataspace);
         status_n  = H5Sget_simple_extent_dims(dataspace, dims_out, NULL);
+        TS_ASSERT_EQUALS(rank,2);
+        TS_ASSERT_EQUALS(status_n,2);
         //printf("rank %d, dimensions %lu x %lu \n", rank,
         //   (unsigned long)(dims_out[0]), (unsigned long)(dims_out[1]));
 
@@ -193,6 +196,7 @@ public:
         count[1]  = NY_SUB;
         status = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL,
                      count, NULL);
+        TS_ASSERT_EQUALS(status, 0);
 
         // Define the memory dataspace
         dimsm[0] = NX;

@@ -10593,7 +10593,10 @@ void tetgenmesh::flip22(triface* flipface, queue* flipqueue)
   face adseg, dbseg, bcseg, caseg;  // Coplanar segs.
   face aeseg, deseg, beseg, ceseg;  // Above segs.
   face afseg, dfseg, bfseg, cfseg;  // Below segs.
-  point pa, pb, pc, pd, pe, pf;
+  point pa, pb, pc, pd;
+#ifdef SELF_CHECK
+  point pe, pf;
+#endif
   int mirrorflag, i;
 
   adjustedgering(*flipface, CCW); // 'flipface' is bae.
@@ -10609,8 +10612,8 @@ void tetgenmesh::flip22(triface* flipface, queue* flipqueue)
   pb = dest(abce);
   pc = apex(abce);
   pd = apex(bade);
-  pe = oppo(bade);
 #ifdef SELF_CHECK
+  pe = oppo(bade);
   assert(oppo(abce) == pe);
 #endif
   sym(abce, bacf);
@@ -10630,8 +10633,9 @@ void tetgenmesh::flip22(triface* flipface, queue* flipqueue)
     for (i = 0; (i < 3) && (org(abdf) != pa); i++) {
       enextself(abdf);
     }
-    pf = oppo(bacf);
+
 #ifdef SELF_CHECK
+    pf = oppo(bacf);
     assert(oppo(abdf) == pf);
 #endif
   }
@@ -11213,7 +11217,7 @@ long tetgenmesh::flip(queue* flipqueue, badface **plastflip)
   point pa, pb, pc, pd, pe;
   enum fliptype fc;
   REAL sign, bakepsilon;
-  long flipcount, maxfaces;
+  long flipcount; //, maxfaces; - commented out to get gcc4.6 working
   int epscount, fcount;
   int ia, ib, ic, id, ie;
 
@@ -11223,7 +11227,7 @@ long tetgenmesh::flip(queue* flipqueue, badface **plastflip)
 
   flipcount = flip23s + flip32s + flip22s + flip44s;
   if (checksubfaces) {
-    maxfaces = (4l * tetrahedrons->items + hullsize) / 2l;
+    //maxfaces = (4l * tetrahedrons->items + hullsize) / 2l; // commented out to get gcc 4.6 working
     fcount = 0;
   }
 
@@ -22898,9 +22902,9 @@ void tetgenmesh::formcavity(list* missingshlist, list* crossedgelist,
           enext2(spintet, worktet); // edge (apex, org).
           workpt[1] = org(spintet);
         } else {
-#ifdef SELF_CHECK
+//#ifdef SELF_CHECK // commented out to get gcc 4.6 working
           assert(checksign * destori < 0.0);
-#endif
+//#endif
           enext(spintet, worktet);  // edge (dest, apex).
           workpt[1] = dest(spintet);
         }
@@ -30675,7 +30679,8 @@ void tetgenmesh::optimizemesh(bool optflag)
 {
   list *splittetlist, *tetlist, *ceillist;
   badface *remtet, *lastentry;
-  REAL maxdihed, objdihed, curdihed;
+  //REAL maxdihed, objdihed, curdihed; // maxdihead commented out to get gcc 4.6 working
+  REAL objdihed, curdihed;
   long oldnum;
   int iter, i;
 
@@ -30701,7 +30706,7 @@ void tetgenmesh::optimizemesh(bool optflag)
     cosmaxdihed = cos(b->maxdihedral * PI / 180.0);
     cosmindihed = cos(b->mindihedral * PI / 180.0);
     // The radian of the maximum dihedral angle.
-    maxdihed = b->maxdihedral / 180.0 * PI;
+    //maxdihed = b->maxdihedral / 180.0 * PI; // maxdihead commented out to get gcc 4.6 working
     // A sliver has an angle large than 'objdihed' will be split.
     objdihed = b->maxdihedral + 5.0;
     if (objdihed < 170.0) objdihed = 170.0;

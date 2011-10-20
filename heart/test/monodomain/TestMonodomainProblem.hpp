@@ -475,7 +475,7 @@ public:
 
         // To time the solve
         time_t start,end;
-        double dif;
+
         time (&start);
 
         PointStimulus2dCellFactory cell_factory;
@@ -491,7 +491,8 @@ public:
 
         // To time the solve
         time (&end);
-        dif = difftime (end,start);
+        //double dif;
+        //dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
 
         // test whether voltages and gating variables are in correct ranges
