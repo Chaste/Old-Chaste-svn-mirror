@@ -118,6 +118,12 @@ public:
 
             TS_ASSERT_DELTA(norm_2(node_location-centre),radius,1e-9);
         }
+        
+        // clean up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 };
 
