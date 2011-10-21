@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # that have the same name.
 
 exts = ['.cpp', '.hpp']
-dir_ignores = ['build', 'dynamic']
+dir_ignores = ['build', 'dynamic', 'data']
 startchar_ignores = ['_', '.']
 chaste_dir = '.'
 
@@ -59,23 +59,25 @@ def DoWalk(root_dir):
                     source_files[file] = [os.path.join(root, file)]
 
 components = os.path.join(chaste_dir, '*', '')
-for root_dir in glob.glob(components + 'src') + glob.glob(components + 'test'):
+projects = os.path.join(chaste_dir, 'projects', '*', '')
+for root_dir in (glob.glob(components + 'src') + glob.glob(components + 'test')
+                 + glob.glob(projects + 'src') + glob.glob(projects + 'test')):
     DoWalk(root_dir)
 
 # Now check dictionary for duplicates
 num_found_dups = 0
 for file in source_files:
     if len(source_files[file]) > 1:
-        print "Duplicate occurrences of",file,":"
+        print "Duplicate occurrences of", file, ":"
         for loc in source_files[file]:
-            print "  ",loc
+            print "   ", loc
         num_found_dups += 1
 
 # Let the test summary script know
 if num_found_dups > 0:
     print
     print "The next line is for the benefit of the test summary scripts."
-    print "Failed",num_found_dups,"of",len(source_files),"tests"
+    print "Failed", num_found_dups, "of", len(source_files), "tests"
 
     # Return a non-zero exit code if orphans were found
     import sys

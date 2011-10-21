@@ -34,34 +34,21 @@ distribution.
 """
 
 import glob
-import os
-import re
+import sys
 
-# Compatibility with Python 2.3
-try:
-    set = set
-except NameError:
-    import sets
-    set = sets.Set
+sys.path[0:0] = ['python']
+import BuildTools
 
-
-failing_tests = set()
-test_pack_files = glob.glob('*/test/FailingTestPack.txt')
-for test_pack_file in test_pack_files:
-    # Add all tests in this file
-    fp = file(test_pack_file)
-    for line in fp:
-        line = line.strip()
-        if line:
-            failing_tests.add(line)
-    fp.close()
+failing_tests = BuildTools.set()
+for test_dir in glob.glob('*/test') + glob.glob('projects/*/test'):
+    failing_tests.update(BuildTools.GetTestsInTestPacks(test_dir, ['Failing']))
 
 # Display results
 if failing_tests:
     print "Failing tests found:"
     for test in sorted(failing_tests):
-        print " ", test
+        print "   ", test
     print "The next line is for the benefit of the test summary scripts."
-    print "Failed",len(failing_tests),"of",len(failing_tests),"tests"
+    print "Failed", len(failing_tests), "of", len(failing_tests), "tests"
 else:
     print "Infrastructure test passed ok."

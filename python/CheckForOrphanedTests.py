@@ -34,33 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import glob
 import os
 import re
+import sys
 
-# Compatibility with Python 2.3
-try:
-    set = set
-except NameError:
-    import sets
-    set = sets.Set
-
-# Pre-2.6 compatibility (on posix)
-try:
-    relpath = os.path.relpath
-except AttributeError:
-    def relpath(path, start=os.path.curdir):
-        """Return a relative version of a path"""
-    
-        if not path:
-            raise ValueError("no path specified")
-        
-        start_list = os.path.abspath(start).split(os.path.sep)
-        path_list = os.path.abspath(path).split(os.path.sep)
-        
-        # Work out how much of the filepath is shared by start and path.
-        i = len(os.path.commonprefix([start_list, path_list]))
-    
-        rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
-        return os.path.join(*rel_list)
-
+sys.path[0:0] = ['python']
+import BuildTools
+set = BuildTools.set
 
 chaste_dir = '.'
 
@@ -80,44 +58,26 @@ def IsTestFile(test_dir, test_file_path):
                 is_test = True
                 break
         fp.close()
-    print test_dir, test_file, test_ext, is_test
+    #print test_dir, test_file, test_ext, is_test
     return is_test
 
 test_packs  = set()  # Names of test packs found
 orphans     = set()  # Names of any orphaned test files
 found_tests = set()  # Names of tests found in test packs
+test_dirs = glob.glob('*/test') + glob.glob('projects/*/test')
 
 # First get a list of all tests in all test packs
-test_pack_files = glob.glob('*/test/*TestPack.txt')
-for test_pack_file in test_pack_files:
-    # Add to list of test packs?
-    test_pack = os.path.basename(test_pack_file)[:-12]
-    test_packs.add(test_pack)
-    # Add all tests in this file
-    fp = file(test_pack_file)
-    for line in fp:
-        line = line.strip()
-        if line:
-            found_tests.add(line)
-    fp.close()
-
+for test_dir in test_dirs:
+    tf, pn = BuildTools.GetTestsInTestPacks(test_dir, returnFoundPacks=True)
+    found_tests.update(tf)
+    test_packs.update(pn)
 
 # Now check for orphaned tests in each top-level dir
-test_dirs = glob.glob('*/test/')
-
 local_found_tests = {} # Names of tests found in test packs in each folder
 
 for test_dir in test_dirs:
-    local_found_tests[test_dir] = set()
-    test_pack_files = glob.glob(test_dir + '*TestPack.txt')
-    for test_pack_file in test_pack_files:
-        # Update list of tests that should be in this folder
-        fp = file(test_pack_file)
-        for line in fp:
-            line = line.strip()
-            if line:
-                local_found_tests[test_dir].add(line)
-        fp.close()
+    local_found_tests[test_dir] = BuildTools.GetTestsInTestPacks(test_dir)
+    #print test_dir, local_found_tests[test_dir]
     # Check for orphans in this folder
     for dirpath, dirnames, filenames in os.walk(test_dir):
         for dirname in dirnames[:]:
@@ -125,7 +85,7 @@ for test_dir in test_dirs:
                 dirnames.remove(dirname)
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
-            filepath = relpath(filepath, test_dir)
+            filepath = BuildTools.relpath(filepath, test_dir)
             if IsTestFile(test_dir, filepath):
                 if not filepath in local_found_tests[test_dir]:
                     orphans.add(os.path.join(test_dir, filepath))
@@ -136,7 +96,7 @@ for test_dir in test_dirs:
 if test_packs:
     print "Test packs found:"
     for test_pack in test_packs:
-        print " ", test_pack
+        print "   ", test_pack
     print
 
 # Compute a list of tests listed in test packs without .hpp files
@@ -149,20 +109,19 @@ for test_dir in local_found_tests.keys():
 if orphans or not_found:
     if orphans:
         print "Orphaned tests found:"
-        for orphan in orphans:
-            print " ", orphan
+        for orphan in sorted(orphans):
+            print "   ", orphan
         print
     if not_found:
         print "Tests that don't exist:"
-        for test in not_found:
-            print " ", test
+        for test in sorted(not_found):
+            print "   ", test
         print
     print "The next line is for the benefit of the test summary scripts."
     n_orphans, n_found = len(orphans), len(found_tests)
-    print "Failed",n_orphans,"of",n_orphans+n_found,"tests"
+    print "Failed", n_orphans, "of", n_orphans+n_found, "tests"
 
     # Return a non-zero exit code if problems were found
-    import sys
     sys.exit(n_orphans + len(not_found))
 else:
     print "Infrastructure test passed ok."

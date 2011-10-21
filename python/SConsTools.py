@@ -40,12 +40,12 @@ import SCons.Tool
 import SCons.Script
 import SCons.Scanner
 
-# Compatability with Python 2.3
-try:
-    set = set
-except NameError:
-    import sets
-    set = sets.Set
+# Other helper functions
+our_path = os.path.dirname(os.path.realpath(__file__))
+sys.path[0:0] = [our_path]
+import BuildTools
+relpath = BuildTools.relpath
+set = BuildTools.set
 
 # Possible extensions for source files in Chaste
 chaste_source_exts = ['.cpp', '.xsd', '.cellml']
@@ -183,8 +183,8 @@ def RegisterObjects(env, key, objs):
             env['CHASTE_OBJECTS'][src.path] = [obj]
 
 def pns(nodes):
-  """Pretty-print nodes for debugging"""
-  return map(str, nodes)
+    """Pretty-print nodes for debugging"""
+    return map(str, nodes)
 
 
 def FindTestsToRun(build, BUILD_TARGETS,
@@ -248,31 +248,12 @@ def FindTestsToRun(build, BUILD_TARGETS,
                 test_this_comp = True
                 break
         if test_this_comp:
-            # Find appropriate test pack files
-            packfiles = []
             if allTests:
-                for packfile in glob.glob('../../test/*TestPack.txt'):
-                    try:
-                        packfiles.append(file(packfile, 'r'))
-                    except IOError:
-                        pass
+                pack_names = set()
             else:
-                for testpack in build.TestPacks():
-                    try:
-                        packfile = '../../test/'+testpack+'TestPack.txt'
-                        packfiles.append(file(packfile, 'r'))
-                    except IOError:
-                        pass
-            # Find tests in those test pack files
-            for packfile in packfiles:
-                try:
-                    for testfile in map(lambda s: s.strip(), packfile.readlines()):
-                        # Ignore blank lines and repeated tests.
-                        if testfile and not testfile in testfiles:
-                            testfiles.add(testfile)
-                    packfile.close()
-                except IOError:
-                    pass
+                pack_names = set(build.TestPacks())
+            testfiles.update(BuildTools.GetTestsInTestPacks('../../test', pack_names))
+    #print component, project, testfiles
     return testfiles
 
 
