@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before any other cell_based or crypt headers
 #include "CellBasedSimulationArchiver.hpp"
 
-#include "VertexCryptSimulation2d.hpp"
+#include "CryptSimulation2d.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
 #include "NagaiHondaForce.hpp"
 #include "VertexCryptBoundaryForce.hpp"
@@ -96,7 +96,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population and force law
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(30.0);
         simulator.SetOutputDirectory("Test2DVertexCryptRepresentativeSimulationForProfiling");

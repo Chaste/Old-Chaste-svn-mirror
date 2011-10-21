@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before any other cell_based or crypt headers
 #include "CellBasedSimulationArchiver.hpp"
 
-#include "VertexCryptSimulation2d.hpp"
+#include "CryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "NagaiHondaForce.hpp"
 #include "VertexCryptBoundaryForce.hpp"
@@ -131,7 +131,7 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(cell_population);
+        CryptSimulation2d simulator(cell_population);
 
         std::vector<c_vector<double, 2> > old_node_locations(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
@@ -187,7 +187,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
 
         simulator.SetOutputDirectory("VertexCrypt2DJiggledBottomCells");
         simulator.SetEndTime(0.01);
@@ -241,7 +241,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetEndTime(0.1);
         simulator.SetSamplingTimestepMultiple(50);
 
@@ -291,7 +291,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
@@ -336,7 +336,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptLong");
@@ -387,7 +387,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(0.1);
         simulator.SetOutputDirectory("TestShortWntBasedCryptSimulation");
@@ -438,7 +438,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(50.0);
         simulator.SetOutputDirectory("TestLongWntBasedVertexCryptSimulation");
@@ -483,7 +483,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetSamplingTimestepMultiple(50);
         double end_time = 0.1;
         simulator.SetEndTime(end_time);
@@ -503,9 +503,9 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // Coverage
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
-        VertexCryptSimulation2d* p_simulator;
-        p_simulator = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", end_time);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CryptSimulation2d* p_simulator;
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", end_time);
         delete p_simulator;
 
         // Test Warnings
@@ -534,7 +534,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DArchive");
         simulator.SetEndTime(0.1);
 
@@ -551,11 +551,11 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
         // Save
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
-        VertexCryptSimulation2d* p_simulator;
-        p_simulator = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DArchive", 0.0);
+        CryptSimulation2d* p_simulator;
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("VertexCrypt2DArchive", 0.0);
 
         // Create an identical mesh for comparison purposes
         Cylindrical2dVertexMesh* p_mesh2 = generator.GetCylindricalMesh();
@@ -597,7 +597,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DPeriodicStandardResult");
         simulator.SetEndTime(0.25);
 
@@ -654,7 +654,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
         
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         
         // Create a force laws and pass it to the simulation
         MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
@@ -664,7 +664,7 @@ public:
         MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
         simulator.AddCellKiller(p_killer);
         
-        std::string output_directory = "TestVertexCryptSimulation2dOutputParameters";
+        std::string output_directory = "TestCryptSimulation2dOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
         out_stream parameter_file = output_file_handler.OpenOutputFile("vertex_crypt_sim_2d_results.parameters");
         simulator.OutputSimulationParameters(parameter_file);
@@ -701,7 +701,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt2DPeriodicSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.
@@ -719,7 +719,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
@@ -735,12 +735,12 @@ public:
     {
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
-        VertexCryptSimulation2d* p_simulator1;
+        CryptSimulation2d* p_simulator1;
 
         WntConcentration<2>::Instance();   // Make sure there is no existing Wnt Gradient before load
         WntConcentration<2>::Destroy();
 
-        p_simulator1 = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.1);
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
@@ -748,9 +748,9 @@ public:
         MutableVertexMesh<2,2>& r_mesh1 = (static_cast<VertexBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
 
         // Save then reload, compare meshes either side
-        CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Save(p_simulator1);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
 
-        VertexCryptSimulation2d* p_simulator2 = CellBasedSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.2);
+        CryptSimulation2d* p_simulator2 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("VertexCrypt2DPeriodicSaveAndLoad", 0.2);
         MutableVertexMesh<2,2>& r_mesh2 = (static_cast<VertexBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);
@@ -816,7 +816,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         // Create crypt simulation from cell population
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCryptBetaCatenin");
         simulator.SetEndTime(0.1);
         simulator.SetBottomCellAncestors();

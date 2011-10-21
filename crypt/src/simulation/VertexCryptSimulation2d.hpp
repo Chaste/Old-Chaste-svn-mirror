@@ -38,16 +38,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulationBoundaryCondition.hpp"
 
 /**
- * A 2D vertex-based crypt simulation object.
+ * A 2D crypt simulation object. For more details on the crypt geometry, see the
+ * paper by van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  */
 class VertexCryptSimulation2d : public OffLatticeSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of private functions e.g. DoCellBirth()
     friend class TestVertexCryptSimulation2d;
 
-private:
+protected:
 
+    /** Needed for serialization. */
     friend class boost::serialization::access;
+    /**
+     * Archive the simulation and member variable.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -71,10 +79,24 @@ private:
     out_stream mVizBetaCateninResultsFile;
 
     /**
-     * By default this method returns the zero vector. If the parent cell
-     * is a stem cell, then this method returns the vector (0,1). This is
-     * then used by the VertexBasedCellPopulation method AddCell() as the axis along
-     * which the cell divides.
+     * Helper member that stores whether we are using a MeshBasedCellPopulationWithGhostNodes
+     * (if not, then we are assumed to be using a VertexBasedCellPopulation).
+     */
+    bool mUsingMeshBasedCellPopulation;
+
+    /**
+     * In the case of a MeshBasedCellPopulation, this method calculates
+     * the new locations of a dividing cell's cell centres. The node
+     * correspond to the dividing cell is moved a bit and the co-ordinates
+     * of the new node are returned. This is done by drawing a random
+     * direction (0->2PI) and placing the parent and daughter nodes in
+     * opposing directions along this axis.
+     * 
+     * In the case of a VertexBasedCellPopulation, by default this method
+     * returns the zero vector. If the parent cell is a stem cell, then
+     * this method returns the vector (0,1). This is then used by the
+     * VertexBasedCellPopulation method AddCell() as the axis along which
+     * the cell divides.
      *
      * @param pParentCell the parent cell
      *
@@ -90,7 +112,7 @@ private:
     void WriteVisualizerSetupFile();
 
     /**
-     * Use an output file handler to reate a beta catenin results file.
+     * Use an output file handler to create a beta catenin results file.
      */
     void SetupWriteBetaCatenin();
 
@@ -99,7 +121,7 @@ private:
      *
      * @param time the current time
      */
-    void WriteBetaCatenin(double time);
+    virtual void WriteBetaCatenin(double time);
 
     /**
      * Overridden SetupSolve() method.

@@ -40,6 +40,11 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractCellPopulation<2>& rCel
                              initialiseCells),
       mWriteBetaCatenin(false)
 {
+    if (dynamic_cast<MeshBasedCellPopulation<2>*>(&mrCellPopulation))
+    {
+        mUsingMeshBasedCellPopulation = true;
+    }
+
     /*
      * To check if beta-catenin results will be written to file, we test if the first
      * cell has a cell-cycle model that is a subclass of AbstractVanLeeuwen2009WntSwatCellCycleModel.
@@ -65,20 +70,82 @@ VertexCryptSimulation2d::~VertexCryptSimulation2d()
 
 c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(CellPtr pParentCell)
 {
-    c_vector<double, 2> axis_of_division = zero_vector<double>(2);
-
-    // We don't need to prescribe how 'stem' cells divide if Wnt is present
-    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
-    if (!is_wnt_included)
+    if (mUsingMeshBasedCellPopulation)
     {
-        WntConcentration<2>::Destroy();
-        if (pParentCell->GetCellCycleModel()->GetCellProliferativeType() == STEM)
+        // Location of parent and daughter cells
+        c_vector<double, 2> parent_coords = mrCellPopulation.GetLocationOfCellCentre(pParentCell);
+        c_vector<double, 2> daughter_coords;
+    
+        // Get separation parameter
+        double separation =
+            static_cast<MeshBasedCellPopulation<2>*>(&mrCellPopulation)->GetMeinekeDivisionSeparation();
+    
+        // Make a random direction vector of the required length
+        c_vector<double, 2> random_vector;
+    
+        /*
+         * Pick a random direction and move the parent cell backwards by 0.5*separation
+         * in that direction and return the position of the daughter cell 0.5*separation
+         * forwards in that direction.
+         */
+        double random_angle = RandomNumberGenerator::Instance()->ranf();
+        random_angle *= 2.0*M_PI;
+    
+        random_vector(0) = 0.5*separation*cos(random_angle);
+        random_vector(1) = 0.5*separation*sin(random_angle);
+    
+        c_vector<double, 2> proposed_new_parent_coords = parent_coords - random_vector;
+        c_vector<double, 2> proposed_new_daughter_coords = parent_coords + random_vector;
+    
+        if ((proposed_new_parent_coords(1) >= 0.0) && (proposed_new_daughter_coords(1) >= 0.0))
         {
-            axis_of_division(0) = 1.0;
-            axis_of_division(1) = 0.0;
+            // We are not too close to the bottom of the cell population, so move parent
+            parent_coords = proposed_new_parent_coords;
+            daughter_coords = proposed_new_daughter_coords;
         }
+        else
+        {
+            proposed_new_daughter_coords = parent_coords + 2.0*random_vector;
+            while (proposed_new_daughter_coords(1) < 0.0)
+            {
+                random_angle = RandomNumberGenerator::Instance()->ranf();
+                random_angle *= 2.0*M_PI;
+    
+                random_vector(0) = separation*cos(random_angle);
+                random_vector(1) = separation*sin(random_angle);
+                proposed_new_daughter_coords = parent_coords + random_vector;
+            }
+            daughter_coords = proposed_new_daughter_coords;
+        }
+    
+        assert(daughter_coords(1) >= 0.0); // to make sure dividing cells stay in the cell population
+        assert(parent_coords(1) >= 0.0);   // to make sure dividing cells stay in the cell population
+    
+        // Set the parent to use this location
+        ChastePoint<2> parent_coords_point(parent_coords);
+    
+        unsigned node_index = mrCellPopulation.GetLocationIndexUsingCell(pParentCell);
+        mrCellPopulation.SetNode(node_index, parent_coords_point);
+    
+        return daughter_coords;
     }
-    return axis_of_division;
+    else // using a VertexBasedCellPopulation
+    {
+        c_vector<double, 2> axis_of_division = zero_vector<double>(2);
+
+        // We don't need to prescribe how 'stem' cells divide if Wnt is present
+        bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
+        if (!is_wnt_included)
+        {
+            WntConcentration<2>::Destroy();
+            if (pParentCell->GetCellCycleModel()->GetCellProliferativeType() == STEM)
+            {
+                axis_of_division(0) = 1.0;
+                axis_of_division(1) = 0.0;
+            }
+        }
+        return axis_of_division;
+    }
 }
 
 void VertexCryptSimulation2d::WriteVisualizerSetupFile()
@@ -132,8 +199,9 @@ void VertexCryptSimulation2d::SetupSolve()
     OffLatticeSimulation<2>::SetupSolve();
 
     /*
-     * If there are any cells in the simulation, and mWriteBetaCatenin has been set to true in the constructor,
-     * then set up the beta-catenin results file and write the initial conditions to file.
+     * If there are any cells in the simulation, and mWriteBetaCatenin has been set
+     * to true in the constructor, then set up the beta-catenin results file and
+     * write the initial conditions to file.
      */
     bool any_cells_present = (mrCellPopulation.Begin() != mrCellPopulation.End());
     if (any_cells_present && mWriteBetaCatenin)
@@ -150,6 +218,7 @@ void VertexCryptSimulation2d::PostSolve()
     OffLatticeSimulation<2>::PostSolve();
 
     SimulationTime* p_time = SimulationTime::Instance();
+
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple == 0)
     {
         /*
@@ -184,18 +253,29 @@ void VertexCryptSimulation2d::AfterSolve()
 
 void VertexCryptSimulation2d::UseJiggledBottomCells()
 {
-    // The CryptSimulationBoundaryCondition object is the first element of mBoundaryConditions
-    boost::static_pointer_cast<CryptSimulationBoundaryCondition<2> >(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
+	// The CryptSimulationBoundaryCondition object is the first element of mBoundaryConditions
+	boost::static_pointer_cast<CryptSimulationBoundaryCondition<2> >(mBoundaryConditions[0])->SetUseJiggledBottomCells(true);
 }
 
 void VertexCryptSimulation2d::SetBottomCellAncestors()
 {
+	/*
+	 * We use a different height threshold depending on which type of cell
+	 * population we are using, MeshBasedCellPopulationWithGhostNodes or
+	 * VertexBasedCellPopulation.
+	 */
+	double threshold_height = 1.0;
+	if (mUsingMeshBasedCellPopulation)
+	{
+		threshold_height = 0.5;
+	}
+
     unsigned index = 0;
     for (AbstractCellPopulation<2>::Iterator cell_iter = mrCellPopulation.Begin();
          cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
-        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < 1.0)
+        if (mrCellPopulation.GetLocationOfCellCentre(*cell_iter)[1] < threshold_height)
         {
             cell_iter->SetAncestor(index++);
         }

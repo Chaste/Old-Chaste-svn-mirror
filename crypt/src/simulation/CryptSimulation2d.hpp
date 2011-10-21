@@ -34,18 +34,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "WntConcentration.hpp"
 #include "OffLatticeSimulation.hpp"
-#include "SimpleDataWriter.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "VertexBasedCellPopulation.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
 
 /**
- * A 2D crypt simulation object. For more details, see the paper by
- * van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
+ * A 2D crypt simulation object. For more details on the crypt geometry, see the
+ * paper by van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  */
 class CryptSimulation2d : public OffLatticeSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of private functions e.g. DoCellBirth()
     friend class TestCryptSimulation2d;
+    friend class TestVertexCryptSimulation2d;
 
 protected:
 
@@ -79,14 +80,25 @@ protected:
     /** The file that the values of beta catenin is written out to. */
     out_stream mVizBetaCateninResultsFile;
 
-    /** Helper member that is a static cast of the cell population. */
-    MeshBasedCellPopulationWithGhostNodes<2>* mpStaticCastCellPopulation;
+    /**
+     * Helper member that stores whether we are using a MeshBasedCellPopulationWithGhostNodes
+     * (if not, then we are assumed to be using a VertexBasedCellPopulation).
+     */
+    bool mUsingMeshBasedCellPopulation;
 
     /**
-     * Calculates the new locations of a dividing cell's cell centres.
-     * Moves the dividing node a bit and returns co-ordinates for the new node.
-     * It does this by picking a random direction (0->2PI) and placing the parent
-     * and daughter in opposing directions on this axis.
+     * In the case of a MeshBasedCellPopulationWithGhostNodes, this method
+     * calculates the new locations of a dividing cell's cell centres. The
+     * node correspond to the dividing cell is moved a bit and the co-ordinates
+     * of the new node are returned. This is done by drawing a random
+     * direction (0->2PI) and placing the parent and daughter nodes in
+     * opposing directions along this axis.
+     * 
+     * In the case of a VertexBasedCellPopulation, by default this method
+     * returns the zero vector. If the parent cell is a stem cell, then
+     * this method returns the vector (0,1). This is then used by the
+     * VertexBasedCellPopulation method AddCell() as the axis along which
+     * the cell divides.
      *
      * @param pParentCell the parent cell
      *
@@ -156,7 +168,9 @@ public:
      */
     virtual ~CryptSimulation2d();
 
-    /** Set method for mUseJiggledBottomCells. */
+    /**
+     * Set method for mUseJiggledBottomCells.
+     */
     void UseJiggledBottomCells();
 
     /**
@@ -176,9 +190,8 @@ public:
     void OutputSimulationParameters(out_stream& rParamsFile);
 };
 
-
-#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(CryptSimulation2d)
 
 namespace boost
@@ -208,12 +221,10 @@ inline void load_construct_data(
     AbstractCellPopulation<2>* p_cell_population;
     ar & p_cell_population;
 
-    // Invoke inplace constructor to initialise instance, last two variables set extra
-    // member variables to be deleted as they are loaded from archive and to not initialise sells.
+    // Invoke inplace constructor to initialise instance
     ::new(t)CryptSimulation2d(*p_cell_population, true, false);
 }
 }
 } // namespace
 
 #endif /*CRYPTSIMULATION2D_HPP_*/
-

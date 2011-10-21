@@ -84,7 +84,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
 /* The next header file defines the class that simulates the evolution of a crypt {{{CellPopulation}}}
  * for a vertex mesh. */
-#include "VertexCryptSimulation2d.hpp"
+#include "CryptSimulation2d.hpp"
 /* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
 #include "VertexBasedCellPopulation.hpp"
 /* The next header file defines a force law for describing the mechanical interactions
@@ -215,7 +215,7 @@ public:
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         /* Create a simulator as before (except setting a different output directory). */
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCrypt");
         simulator.SetEndTime(0.1);
 
@@ -304,7 +304,7 @@ public:
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
         /* Create a simulator as before (except setting a different output directory). */
-        VertexCryptSimulation2d simulator(crypt);
+        CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
         simulator.SetEndTime(0.1);
 
