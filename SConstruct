@@ -197,7 +197,7 @@ else:
 # in the order given here.
 comp_deps = {'cell_based': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'crypt': ['cell_based', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
-             'notforrelease': ['continuum_mechanics', 'heart', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
+             'notforrelease': ['heart', 'continuum_mechanics', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'notforrelease_cell_based': ['crypt', 'cell_based', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'heart': ['continuum_mechanics', 'pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'continuum_mechanics': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
