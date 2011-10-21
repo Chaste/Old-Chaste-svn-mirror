@@ -116,7 +116,7 @@ public:
         {
             c_vector<double,3> node_location = simulator.rGetCellPopulation().GetLocationOfCellCentre(*cell_iter);
 
-            TS_ASSERT_DELTA(norm_2(node_location-centre),radius,1e-9);
+            TS_ASSERT_DELTA(norm_2(node_location-centre), radius, 1e-3);
         }
         
         // clean up
