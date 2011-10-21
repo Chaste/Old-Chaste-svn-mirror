@@ -114,6 +114,8 @@ def Configure(prefs, build):
         # Note: 10.10 uses VTK 5.4, 10.04 uses 5.2, and early use 5.0
         other_includepaths.extend(vtk_include_path)
         other_libraries.extend(['vtkIO', 'vtkCommon', 'vtkGraphics', 'z'])
+	if ubuntu_ver >= [11,10]: # 11.10 uses VTK 5.6
+		other_libraries.extend(['vtkFiltering'])
 
     # Is CVODE installed?
     use_cvode = int(prefs.get('use-cvode', True))
