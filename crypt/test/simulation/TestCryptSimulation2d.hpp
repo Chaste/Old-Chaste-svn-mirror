@@ -55,6 +55,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 #include "SmartPointers.hpp"
+#include "PottsMeshGenerator.hpp"
+#include "SimpleWntCellCycleModel.hpp"
+#include "OnLatticeSimulation.hpp"
+#include "PottsBasedCellPopulation.hpp"
+#include "VolumeConstraintPottsUpdateRule.hpp"
+#include "AdhesionPottsUpdateRule.hpp"
 
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
@@ -1871,6 +1877,57 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
+    }
+
+    void TestPottsCrypt() throw (Exception)
+    {
+        double crypt_length = 40;
+
+        // Create a simple 2D PottsMesh
+        PottsMeshGenerator<2> generator(20, 5, 4, 45, 10, 4, 1, 1, 1, true);
+        PottsMesh<2>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<SimpleWntCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), TRANSIT);
+
+        // Create cell population
+        PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        cell_population.SetOutputCellVolumes(true);
+
+        // Create an instance of a Wnt concentration
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
+
+        // Set up cell-based simulation
+        OnLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestPottsCrypt");
+        simulator.SetDt(0.1);
+        simulator.SetSamplingTimestepMultiple(1);
+        simulator.SetEndTime(10.0);
+        simulator.SetOutputCellVelocities(true);
+
+        // Create cell killer and pass in to simulation
+        MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&cell_population, crypt_length));
+        simulator.AddCellKiller(p_killer);
+
+        // Create update rules and pass to the simulation
+        MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
+        simulator.AddPottsUpdateRule(p_volume_constraint_update_rule);
+        MAKE_PTR(AdhesionPottsUpdateRule<2>, p_adhesion_update_rule);
+        simulator.AddPottsUpdateRule(p_adhesion_update_rule);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check the number of cells
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 55u);
+
+        // Test number of births or deaths
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 11u);
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 6u);
     }
 };
 
