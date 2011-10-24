@@ -34,12 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedSimulationArchiver.hpp"
 
 #include "CellsGenerator.hpp"
-#include "CryptCellsGenerator.hpp"
 #include "OnLatticeSimulation.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "PottsBasedCellPopulation.hpp"
-#include "SloughingCellKiller.hpp"
 #include "VolumeConstraintPottsUpdateRule.hpp"
 #include "AdhesionPottsUpdateRule.hpp"
 #include "DifferentialAdhesionPottsUpdateRule.hpp"
@@ -57,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This test is used for profiling, to establish the run time
  * variation as the code is developed.
  */
-class TestRepresentativePottsBasedOnLatticeSimulationForProfiling : public AbstractCellBasedTestSuite
+class TestRepresentativePottsBasedOnLatticeSimulation : public AbstractCellBasedTestSuite
 {
 public:
 
