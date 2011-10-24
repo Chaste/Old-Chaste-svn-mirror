@@ -774,6 +774,7 @@ def apply_protocol_file(doc, proto_file_path):
                     raise ProtocolError("Duplicate definition of units named '%s'" % defn.name)
                 proto_units[defn.name] = defn
                 defn.xml_parent = doc.model
+                proto.add_units(defn)
         def get_units(elt, attr='units'):
             if hasattr(elt, attr):
                 uname = getattr(elt, attr)
