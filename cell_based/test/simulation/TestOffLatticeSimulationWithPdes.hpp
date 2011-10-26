@@ -797,10 +797,10 @@ public:
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
 
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0);
-            TS_ASSERT_LESS_THAN_EQUALS(min1, value1_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1);
+            TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0 + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(min1, value1_at_cell + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1 + DBL_EPSILON);
         }
 
         // Tidy up

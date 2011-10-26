@@ -338,7 +338,7 @@ public:
             TS_ASSERT_DELTA(voltages_cvode[i],voltages_chaste[i],10*tolerance);
             TS_ASSERT_DELTA(param_cvode[i], param_chaste[i],1e-9); // These should be very very similar!
             TS_ASSERT_DELTA(param_cvode[i], 16.0,1e-9);
-            TS_ASSERT_DELTA(derived_quantity_chaste[i], derived_quantity_cvode[i], 60*tolerance);
+            TS_ASSERT_DELTA(derived_quantity_chaste[i], derived_quantity_cvode[i], 70*tolerance);
         }
 
         bool clean_dir = false;

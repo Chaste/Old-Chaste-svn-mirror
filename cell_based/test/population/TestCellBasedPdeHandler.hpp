@@ -971,16 +971,16 @@ public:
 
             unsigned elem_index = p_coarse_mesh->GetContainingElementIndex(cell_location);
             Element<2,2>* p_element = p_coarse_mesh->GetElement(elem_index);
-
+            
             unsigned node_0_index = p_element->GetNodeGlobalIndex(0);
             unsigned node_1_index = p_element->GetNodeGlobalIndex(1);
             unsigned node_2_index = p_element->GetNodeGlobalIndex(2);
-
+            
             double max0 = std::max(pde_solution0[node_0_index], pde_solution0[node_1_index]);
             max0 = std::max(max0, pde_solution0[node_2_index]);
 
             double max1 = std::max(pde_solution1[node_0_index], pde_solution1[node_1_index]);
-            max1 = std::max(max1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
+            max1 = std::max(max1, pde_solution1[node_2_index]);
 
             double min0 = std::min(pde_solution0[node_0_index], pde_solution0[node_1_index]);
             min0 = std::min(min0, pde_solution0[node_2_index]);
@@ -992,10 +992,10 @@ public:
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
 
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0);
-            TS_ASSERT_LESS_THAN_EQUALS(min1, value1_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1);
+            TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0 + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(min1, value1_at_cell + DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1 + DBL_EPSILON);
         }
 
         // Tidy up
