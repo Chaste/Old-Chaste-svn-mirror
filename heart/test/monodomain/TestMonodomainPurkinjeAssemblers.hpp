@@ -56,10 +56,12 @@ public:
     	MonodomainTissue<2> tissue(&cell_factory);
 
 
+    	// Make sure that a 2Nx2N matrix is partitioned in the same place as an NxN matrix.
+    	unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
     	Mat purkinje_mat;
-    	PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9);
+    	PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9, 2*num_local_nodes, 2*num_local_nodes);
     	Mat normal_mat;
-    	PetscTools::SetupMat(normal_mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 9);
+    	PetscTools::SetupMat(normal_mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 9, num_local_nodes, num_local_nodes);
 
     	MonodomainPurkinjeVolumeAssembler<2,2> purkinje_vol_assembler(&mesh, &tissue);
     	purkinje_vol_assembler.SetMatrixToAssemble(purkinje_mat, true);
@@ -74,6 +76,10 @@ public:
 
     	PetscInt lo, hi;
     	PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
+
+    	//Check that the partitioning is exactly as expected
+    	TS_ASSERT_EQUALS((unsigned)lo, 2*mesh.GetDistributedVectorFactory()->GetLow());
+    	TS_ASSERT_EQUALS((unsigned)hi, 2*mesh.GetDistributedVectorFactory()->GetHigh());
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
         		node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
@@ -101,16 +107,18 @@ public:
 
     void TestMonodomainPurkinjeCableAssembler() throw(Exception)
     {
-    	EXIT_IF_PARALLEL;
-
     	PdeSimulationTime::SetPdeTimeStep(0.01);
 
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
+
+        ///\todo There are named indices in the test, so we need predictable numbering...
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
+
         Mat purkinje_mat;
-		PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9);
+    	unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9, 2*num_local_nodes, 2*num_local_nodes);
 
 		MonodomainPurkinjeCableAssembler<2,2> purkinje_cable_assembler(&mesh);
 
@@ -120,55 +128,47 @@ public:
 
 		PetscInt lo, hi;
 		PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
-
-		for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+		for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
+				node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
 		{
-			if(lo<=(int)(2*i) && (int)(2*i)<hi)
+			unsigned i = node_iter->GetIndex();
+			assert(lo<=(int)(2*i) && (int)(2*i)<hi);
+			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
 			{
-				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-				{
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j), 0 , 1e-8);
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
-				}
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j), 0 , 1e-8);
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
 			}
 
-			if(lo<=(int)(2*i+1) && (int)(2*i+1)<hi)
+			assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
+			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
 			{
-				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+				//Non-Purkinje are all zero
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
+
+				//Make sure that columns associated with cable node have non-zero Purkinje entries
+				if ( (i>55) && (i<65) && (j>=i-1) && (j<=i+1))
 				{
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
-					if ( (i>55) && (i<65) && (j>=i-1) && (j<=i+1))
-					{
-// row 121 is wrong in parallel, as if the contribution from the cable element (59,60) is
-// not being used in the assembly
-//
-// In sequential:  row 121: (118, 0)  (119, 58.3333)  (120, 0)  (121, 1283.33)  (122, 0)  (123, 58.3333)
-// In parallel:    row 121:                           (120, 0)  (121, 641.667)  (122, 0)  (123, 58.3333)
-
-					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-					}
-					else if ((i==55) && (j>=55) && (j<=56) )
-					{
-					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-					}
-					else if ((i==65) && (j>=64) && (j<=65) )
-					{
-					    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-					}
-					else
-					{
-						TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
-					}
-
+					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
 				}
+				else if ((i==55) && (j>=55) && (j<=56) )
+				{
+					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+				}
+				else if ((i==65) && (j>=64) && (j<=65) )
+				{
+					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+				}
+				else
+				{
+					//Other entries are zero
+					TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
+				}
+
 			}
 		}
 
-PetscMatTools::Display(purkinje_mat);
 
 		MatDestroy(purkinje_mat);
-
-
 	}
 };
 
