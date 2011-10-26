@@ -30,10 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define PDEANDBOUNDARYCONDITIONS_HPP_
 
 #include "ChasteSerialization.hpp"
+#include "AbstractBoundaryCondition.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "AveragedSourcePde.hpp"
-#include "AbstractBoundaryCondition.hpp"
 #include "PetscTools.hpp"
 #include "FileFinder.hpp"
 
