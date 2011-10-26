@@ -1325,7 +1325,7 @@ public:
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),
-                         "Unable to locate schema file ChasteParameters_2_4.xsd. You will need to ensure it is available when resuming from the checkpoint.");
+                         "Unable to locate schema file ChasteParameters_3_0.xsd. You will need to ensure it is available when resuming from the checkpoint.");
     }
 
     void TestArchiving() throw (Exception)
@@ -1473,7 +1473,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"), 2001u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"), 2002u);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"), 2003u);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"), 2004u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/3_0"), 3000u);
         // and exceptions
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/1__1"),
                               "https://chaste.comlab.ox.ac.uk/nss/parameters/1__1 is not a recognised Chaste parameters namespace.");

@@ -262,8 +262,8 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     map["cp23"].schema = "ChasteParameters_2_3.xsd";
     // We use 'cp' as prefix for the latest version to avoid having to change saved
     // versions for comparison at every release.
-    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4";
-    map["cp"].schema = "ChasteParameters_2_4.xsd";
+    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/3_0";
+    map["cp"].schema = "ChasteParameters_3_0.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -279,7 +279,7 @@ void HeartConfig::CopySchema(const std::string& rToDirectory)
 {
     if (PetscTools::AmMaster())
     {
-        std::string schema_name("ChasteParameters_2_4.xsd");
+        std::string schema_name("ChasteParameters_3_0.xsd");
         FileFinder schema_location("heart/src/io/" + schema_name, RelativeTo::ChasteSourceRoot);
         if (!schema_location.Exists())
         {
@@ -313,7 +313,7 @@ void HeartConfig::SetDefaultSchemaLocations()
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"] = root_dir + "ChasteParameters_2_1.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_2"] = root_dir + "ChasteParameters_2_2.xsd";
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_3"] = root_dir + "ChasteParameters_2_3.xsd";
-    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"] = root_dir + "ChasteParameters_2_4.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/3_0"] = root_dir + "ChasteParameters_3_0.xsd";
 }
 
 unsigned HeartConfig::GetVersionFromNamespace(const std::string& rNamespaceUri)
@@ -403,9 +403,9 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
             XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
             XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
         }
-        if (version < 2004) // Not the latest release
+        if (version < 3000) // Not the latest release
         {
-            XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_4");
+            XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/3_0");
         }
         // Parse DOM to object model
         std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));

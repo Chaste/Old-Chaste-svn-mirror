@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/2_4"
-  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_4" elementFormDefault="qualified">
+  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/3_0"
+  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/3_0" elementFormDefault="qualified">
   <xs:annotation>
     <xs:documentation>This is the schema for Chaste cardiac (monodomain or bidomain)
       simulations</xs:documentation>

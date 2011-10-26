@@ -56,9 +56,9 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     {
         out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
         (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-        (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_4' "
+        (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/3_0' "
                   << "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
-                  << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/2_4 ChasteParameters_2_4.xsd'>" << std::endl;
+                  << "xsi:schemaLocation='https://chaste.comlab.ox.ac.uk/nss/parameters/3_0 ChasteParameters_3_0.xsd'>" << std::endl;
         (*p_file) << std::endl;
         (*p_file) << "    <ResumeSimulation>" << std::endl;
         (*p_file) << "        <ArchiveDirectory relative_to='this_file'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;

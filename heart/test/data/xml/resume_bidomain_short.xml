@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_4">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/3_0">
 
 	<ResumeSimulation>
 		<ArchiveDirectory relative_to="this_file">SaveBidomainShort_0.2ms</ArchiveDirectory>
