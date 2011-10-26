@@ -48,7 +48,7 @@ public:
     {
     	PdeSimulationTime::SetPdeTimeStep(0.01);
 
-    	TetrahedralMesh<2,2> mesh;
+    	DistributedTetrahedralMesh<2,2> mesh;
         mesh.ConstructRegularSlabMesh(0.05, 0.1, 0.1);
 
     	PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
@@ -75,29 +75,24 @@ public:
     	PetscInt lo, hi;
     	PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
 
-    	for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
+        		node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
     	{
-    		if(lo<=(int)(2*i) && (int)(2*i)<hi)
-    		{
-				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-				{
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j),   PetscMatTools::GetElement(normal_mat,i,j), 1e-8);
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
-				}
-    		}
+    		unsigned i = node_iter->GetIndex();
+        	assert(lo<=(int)(2*i) && (int)(2*i)<hi);
+			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+			{
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j),   PetscMatTools::GetElement(normal_mat,i,j), 1e-8);
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
+			}
 
-    		if(lo<=(int)(2*i+1) && (int)(2*i+1)<hi)
-    		{
-				for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-				{
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
-					TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0, 1e-8);
-				}
-    		}
+    		assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
+			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+			{
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
+				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0, 1e-8);
+			}
     	}
-
-    	//PetscMatTools::Display(purkinje_mat);
-    	//PetscMatTools::Display(normal_mat);
 
     	MatDestroy(purkinje_mat);
     	MatDestroy(normal_mat);
