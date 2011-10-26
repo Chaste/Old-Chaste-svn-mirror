@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MutableMesh.hpp"
 #include "PottsMesh.hpp"
+#include "PottsMeshGenerator.hpp"
 #include "PottsElement.hpp"
 #include "PottsMeshReader.hpp"
 #include "PottsMeshWriter.hpp"
@@ -47,37 +48,15 @@ public:
 
     void TestPottsMeshWriter2d() throw (Exception)
     {
-        // Make 6 nodes to assign to two elements
-        std::vector<Node<2>*> basic_nodes;
-        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        basic_nodes.push_back(new Node<2>(2, false, 2.0, 0.0));
-        basic_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
-        basic_nodes.push_back(new Node<2>(4, false, 1.0, 1.0));
-        basic_nodes.push_back(new Node<2>(5, false, 2.0, 1.0));
-
-        // Make two triangular elements out of these nodes
-        std::vector<std::vector<Node<2>*> > nodes_elements(2);
-        nodes_elements[0].push_back(basic_nodes[0]);
-        nodes_elements[0].push_back(basic_nodes[1]);
-        nodes_elements[0].push_back(basic_nodes[3]);
-
-        nodes_elements[1].push_back(basic_nodes[2]);
-        nodes_elements[1].push_back(basic_nodes[4]);
-        nodes_elements[1].push_back(basic_nodes[5]);
-
-        std::vector<PottsElement<2>*> basic_potts_elements;
-        basic_potts_elements.push_back(new PottsElement<2>(0, nodes_elements[0]));
-        basic_potts_elements.push_back(new PottsElement<2>(1, nodes_elements[1]));
-
-        // Make a PottsMesh
-        PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+        // Create 2D mesh with 2 square elements
+        PottsMeshGenerator<2> generator(4, 2, 2, 2, 1, 2);
+        PottsMesh<2>* p_mesh = generator.GetMesh();
 
         // Create a potts mesh writer
         PottsMeshWriter<2> potts_mesh_writer("TestPottsMeshWriter2d", "potts_mesh_2d");
 
         // Write and check it's correct
-        potts_mesh_writer.WriteFilesUsingMesh(basic_potts_mesh);
+        potts_mesh_writer.WriteFilesUsingMesh(*p_mesh);
 
         OutputFileHandler handler("TestPottsMeshWriter2d", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "potts_mesh_2d.node";
@@ -90,39 +69,15 @@ public:
 
     void TestPottsMeshWriter3d() throw(Exception)
     {
-        // Make 8 nodes to assign to two elements
-        std::vector<Node<3>*> basic_nodes;
-        basic_nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        basic_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        basic_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-        basic_nodes.push_back(new Node<3>(3, false, 1.0, 1.0, 0.0));
-        basic_nodes.push_back(new Node<3>(4, false, 0.0, 0.0, 1.0));
-        basic_nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 1.0));
-        basic_nodes.push_back(new Node<3>(6, false, 0.0, 1.0, 1.0));
-        basic_nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
-
-        // Make two elements out of these nodes leaving some sites free
-        std::vector<std::vector<Node<3>*> > nodes_elements(2);
-        nodes_elements[0].push_back(basic_nodes[1]);
-        nodes_elements[0].push_back(basic_nodes[2]);
-        nodes_elements[0].push_back(basic_nodes[3]);
-
-        nodes_elements[1].push_back(basic_nodes[0]);
-        nodes_elements[1].push_back(basic_nodes[4]);
-        nodes_elements[1].push_back(basic_nodes[5]);
-
-        std::vector<PottsElement<3>*> basic_potts_elements;
-        basic_potts_elements.push_back(new PottsElement<3>(0, nodes_elements[0]));
-        basic_potts_elements.push_back(new PottsElement<3>(1, nodes_elements[1]));
-
-        // Make a PottsMesh
-        PottsMesh<3> basic_potts_mesh(basic_nodes, basic_potts_elements);
+        // Create 3D mesh with 2 square elements
+        PottsMeshGenerator<3> generator(2, 2, 1, 2, 1, 2, 2, 1, 2);
+        PottsMesh<3>* p_mesh = generator.GetMesh();
 
         // Create a potts mesh writer
         PottsMeshWriter<3> potts_mesh_writer("TestPottsMeshWriter3d", "potts_mesh_3d");
 
         // Write and check it's correct
-        potts_mesh_writer.WriteFilesUsingMesh(basic_potts_mesh);
+        potts_mesh_writer.WriteFilesUsingMesh(*p_mesh);
 
         OutputFileHandler handler("TestPottsMeshWriter3d", false);
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "potts_mesh_3d.node";

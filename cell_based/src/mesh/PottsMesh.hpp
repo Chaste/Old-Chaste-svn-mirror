@@ -39,6 +39,7 @@ class PottsMeshWriter;
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/set.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_member.hpp>
 
@@ -111,6 +112,8 @@ protected:
     {
         // NOTE - Subclasses must archive their member variables BEFORE calling this method.
         archive & mDeletedElementIndices;
+        archive & mVonNeumannNeighbouringNodeIndices;
+        archive & mMooreNeighbouringNodeIndices;
         archive & boost::serialization::base_object<AbstractMesh<DIM, DIM> >(*this);
 
         // Create a mesh writer pointing to the correct file and directory
@@ -131,6 +134,8 @@ protected:
     {
         // NOTE - Subclasses must archive their member variables BEFORE calling this method.
         archive & mDeletedElementIndices;
+        archive & mVonNeumannNeighbouringNodeIndices;
+        archive & mMooreNeighbouringNodeIndices;
         archive & boost::serialization::base_object<AbstractMesh<DIM, DIM> >(*this);
 
         PottsMeshReader<DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
@@ -168,11 +173,14 @@ public:
      *
      * @param nodes vector of pointers to nodes
      * @param pottsElements vector of pointers to PottsElements
-     * @param isPeriodicInX  If true then the mesh is periodic in the x dimnension (defaults to false)
+     * @param vonNeumannNeighbouringNodeIndices vector of set of Moore Neighbours for each node
+     * @param mooreNeighbouringNodeIndices vector of set of VonNeuman Neighbours for each node
      */
     PottsMesh(std::vector<Node<DIM>*> nodes,
               std::vector<PottsElement<DIM>*> pottsElements,
-              bool isPeriodicInX = false);
+              std::vector< std::set<unsigned> > vonNeumannNeighbouringNodeIndices,
+              std::vector< std::set<unsigned> > mooreNeighbouringNodeIndices);
+
 
     /**
      * Default constructor for use by serializer.
@@ -280,13 +288,6 @@ public:
      * @return neighbouring node indices in Von Neumann neighbourhood
      */
     std::set<unsigned> GetVonNeumannNeighbouringNodeIndices(unsigned nodeIndex);
-
-    /**
-     * Helper method to calculate the Noore and Von Neumann Neighbourhoods of all nodes
-     *
-     * @param isPeriodicInX  If true then the mesh is periodic in the x dimnension
-     */
-    void CaclulateNeighbouringNodeIndices(bool isPeriodicInX);
 
     /**
      * Mark an element as deleted. Note that in a Potts mesh this does not

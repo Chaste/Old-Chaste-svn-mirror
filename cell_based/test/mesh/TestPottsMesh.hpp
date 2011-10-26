@@ -54,6 +54,71 @@ public:
         basic_nodes.push_back(new Node<2>(4, false, 1.0, 1.0));
         basic_nodes.push_back(new Node<2>(5, false, 2.0, 1.0));
 
+        // Specify neighbours of nodes
+        std::set<unsigned> von_neuman_neighbours_0, moore_neighbours_0;
+        moore_neighbours_0.insert(1);
+        moore_neighbours_0.insert(3);
+        moore_neighbours_0.insert(4);
+        von_neuman_neighbours_0.insert(1);
+        von_neuman_neighbours_0.insert(3);
+
+        std::set<unsigned> von_neuman_neighbours_1, moore_neighbours_1;
+        moore_neighbours_1.insert(0);
+        moore_neighbours_1.insert(2);
+        moore_neighbours_1.insert(3);
+        moore_neighbours_1.insert(4);
+        moore_neighbours_1.insert(5);
+        von_neuman_neighbours_1.insert(0);
+        von_neuman_neighbours_1.insert(2);
+        von_neuman_neighbours_1.insert(4);
+
+        std::set<unsigned> von_neuman_neighbours_2, moore_neighbours_2;
+        moore_neighbours_2.insert(1);
+        moore_neighbours_2.insert(4);
+        moore_neighbours_2.insert(5);
+        von_neuman_neighbours_2.insert(1);
+        von_neuman_neighbours_2.insert(5);
+
+        std::set<unsigned> von_neuman_neighbours_3, moore_neighbours_3;
+        moore_neighbours_3.insert(0);
+        moore_neighbours_3.insert(1);
+        moore_neighbours_3.insert(4);
+        von_neuman_neighbours_3.insert(0);
+        von_neuman_neighbours_3.insert(4);
+
+        std::set<unsigned> von_neuman_neighbours_4, moore_neighbours_4;
+        moore_neighbours_4.insert(0);
+        moore_neighbours_4.insert(1);
+        moore_neighbours_4.insert(2);
+        moore_neighbours_4.insert(3);
+        moore_neighbours_4.insert(5);
+        von_neuman_neighbours_4.insert(1);
+        von_neuman_neighbours_4.insert(3);
+        von_neuman_neighbours_4.insert(5);
+
+        std::set<unsigned> von_neuman_neighbours_5, moore_neighbours_5;
+        moore_neighbours_5.insert(1);
+        moore_neighbours_5.insert(2);
+        moore_neighbours_5.insert(4);
+        von_neuman_neighbours_5.insert(2);
+        von_neuman_neighbours_5.insert(4);
+
+        std::vector< std::set<unsigned> > basic_moore_neighbours;
+        basic_moore_neighbours.push_back(moore_neighbours_0);
+        basic_moore_neighbours.push_back(moore_neighbours_1);
+        basic_moore_neighbours.push_back(moore_neighbours_2);
+        basic_moore_neighbours.push_back(moore_neighbours_3);
+        basic_moore_neighbours.push_back(moore_neighbours_4);
+        basic_moore_neighbours.push_back(moore_neighbours_5);
+
+        std::vector< std::set<unsigned> > basic_von_neuman_neighbours;
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_0);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_1);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_2);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_3);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_4);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_5);
+
         // Make two triangular elements out of these nodes
         std::vector<std::vector<Node<2>*> > nodes_elements(2);
         nodes_elements[0].push_back(basic_nodes[0]);
@@ -69,7 +134,7 @@ public:
         basic_potts_elements.push_back(new PottsElement<2>(1, nodes_elements[1]));
 
         // Make a PottsMesh
-        PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+        PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, basic_von_neuman_neighbours, basic_moore_neighbours);
 
         TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 6u);
@@ -132,6 +197,128 @@ public:
 		basic_nodes.push_back(new Node<3>(6, false, 0.0, 1.0, 1.0));
 	    basic_nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
 
+	    // Specify neighbours of nodes
+        std::set<unsigned> von_neuman_neighbours_0, moore_neighbours_0;
+        moore_neighbours_0.insert(1);
+        moore_neighbours_0.insert(2);
+        moore_neighbours_0.insert(3);
+        moore_neighbours_0.insert(4);
+        moore_neighbours_0.insert(5);
+        moore_neighbours_0.insert(6);
+        moore_neighbours_0.insert(7);
+        von_neuman_neighbours_0.insert(1);
+        von_neuman_neighbours_0.insert(2);
+        von_neuman_neighbours_0.insert(4);
+
+        std::set<unsigned> von_neuman_neighbours_1, moore_neighbours_1;
+        moore_neighbours_1.insert(0);
+        moore_neighbours_1.insert(2);
+        moore_neighbours_1.insert(3);
+        moore_neighbours_1.insert(4);
+        moore_neighbours_1.insert(5);
+        moore_neighbours_1.insert(6);
+        moore_neighbours_1.insert(7);
+        von_neuman_neighbours_1.insert(0);
+        von_neuman_neighbours_1.insert(3);
+        von_neuman_neighbours_1.insert(5);
+
+        std::set<unsigned> von_neuman_neighbours_2, moore_neighbours_2;
+        moore_neighbours_2.insert(0);
+        moore_neighbours_2.insert(1);
+        moore_neighbours_2.insert(3);
+        moore_neighbours_2.insert(4);
+        moore_neighbours_2.insert(5);
+        moore_neighbours_2.insert(6);
+        moore_neighbours_2.insert(7);
+        von_neuman_neighbours_2.insert(0);
+        von_neuman_neighbours_2.insert(3);
+        von_neuman_neighbours_2.insert(6);
+
+        std::set<unsigned> von_neuman_neighbours_3, moore_neighbours_3;
+        moore_neighbours_3.insert(0);
+        moore_neighbours_3.insert(1);
+        moore_neighbours_3.insert(2);
+        moore_neighbours_3.insert(3);
+        moore_neighbours_3.insert(4);
+        moore_neighbours_3.insert(5);
+        moore_neighbours_3.insert(6);
+        moore_neighbours_3.insert(7);
+        von_neuman_neighbours_3.insert(1);
+        von_neuman_neighbours_3.insert(2);
+        von_neuman_neighbours_3.insert(7);
+
+        std::set<unsigned> von_neuman_neighbours_4, moore_neighbours_4;
+        moore_neighbours_4.insert(0);
+        moore_neighbours_4.insert(1);
+        moore_neighbours_4.insert(2);
+        moore_neighbours_4.insert(3);
+        moore_neighbours_4.insert(4);
+        moore_neighbours_4.insert(5);
+        moore_neighbours_4.insert(6);
+        moore_neighbours_4.insert(7);
+        von_neuman_neighbours_4.insert(0);
+        von_neuman_neighbours_4.insert(5);
+        von_neuman_neighbours_4.insert(6);
+
+        std::set<unsigned> von_neuman_neighbours_5, moore_neighbours_5;
+        moore_neighbours_5.insert(0);
+        moore_neighbours_5.insert(1);
+        moore_neighbours_5.insert(2);
+        moore_neighbours_5.insert(3);
+        moore_neighbours_5.insert(4);
+        moore_neighbours_5.insert(5);
+        moore_neighbours_5.insert(6);
+        moore_neighbours_5.insert(7);
+        von_neuman_neighbours_5.insert(1);
+        von_neuman_neighbours_5.insert(4);
+        von_neuman_neighbours_5.insert(7);
+
+        std::set<unsigned> von_neuman_neighbours_6, moore_neighbours_6;
+        moore_neighbours_6.insert(0);
+        moore_neighbours_6.insert(1);
+        moore_neighbours_6.insert(2);
+        moore_neighbours_6.insert(3);
+        moore_neighbours_6.insert(4);
+        moore_neighbours_6.insert(5);
+        moore_neighbours_6.insert(6);
+        moore_neighbours_6.insert(7);
+        von_neuman_neighbours_6.insert(2);
+        von_neuman_neighbours_6.insert(4);
+        von_neuman_neighbours_6.insert(7);
+
+        std::set<unsigned> von_neuman_neighbours_7, moore_neighbours_7;
+        moore_neighbours_7.insert(0);
+        moore_neighbours_7.insert(1);
+        moore_neighbours_7.insert(2);
+        moore_neighbours_7.insert(3);
+        moore_neighbours_7.insert(4);
+        moore_neighbours_7.insert(5);
+        moore_neighbours_7.insert(6);
+        von_neuman_neighbours_7.insert(3);
+        von_neuman_neighbours_7.insert(5);
+        von_neuman_neighbours_7.insert(6);
+
+        std::vector< std::set<unsigned> > basic_moore_neighbours;
+        basic_moore_neighbours.push_back(moore_neighbours_0);
+        basic_moore_neighbours.push_back(moore_neighbours_1);
+        basic_moore_neighbours.push_back(moore_neighbours_2);
+        basic_moore_neighbours.push_back(moore_neighbours_3);
+        basic_moore_neighbours.push_back(moore_neighbours_4);
+        basic_moore_neighbours.push_back(moore_neighbours_5);
+        basic_moore_neighbours.push_back(moore_neighbours_6);
+        basic_moore_neighbours.push_back(moore_neighbours_7);
+
+        std::vector< std::set<unsigned> > basic_von_neuman_neighbours;
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_0);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_1);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_2);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_3);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_4);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_5);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_6);
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_7);
+
+
 		// Make two elements out of these nodes leaving some sites free
 		std::vector<std::vector<Node<3>*> > nodes_elements(2);
 		nodes_elements[0].push_back(basic_nodes[1]);
@@ -147,7 +334,7 @@ public:
 		basic_potts_elements.push_back(new PottsElement<3>(1, nodes_elements[1]));
 
 		// Make a PottsMesh
-		PottsMesh<3> basic_potts_mesh(basic_nodes, basic_potts_elements);
+		PottsMesh<3> basic_potts_mesh(basic_nodes, basic_potts_elements, basic_von_neuman_neighbours, basic_moore_neighbours);
 
 		TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 2u);
 		TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 8u);
@@ -199,6 +386,43 @@ public:
 		TS_ASSERT_EQUALS(basic_potts_mesh.SolveBoundaryElementMapping(0), 0u);
 		TS_ASSERT_EQUALS(basic_potts_mesh.IsMeshChanging(), true);
 	}
+
+    void TestConstructorExcepions() throw(Exception)
+    {
+        // Make 2 nodes to assign to one elements
+        std::vector<Node<2>*> basic_nodes;
+        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+
+        // Specify neighbours of nodes
+        std::set<unsigned> von_neuman_neighbours_0, moore_neighbours_0;
+        moore_neighbours_0.insert(1);
+        moore_neighbours_0.insert(3);
+        moore_neighbours_0.insert(4);
+        von_neuman_neighbours_0.insert(1);
+        von_neuman_neighbours_0.insert(3);
+
+
+        std::vector< std::set<unsigned> > basic_moore_neighbours;
+        basic_moore_neighbours.push_back(moore_neighbours_0);
+
+        std::vector< std::set<unsigned> > basic_von_neuman_neighbours;
+        basic_von_neuman_neighbours.push_back(von_neuman_neighbours_0);
+
+        // Make one element out of these nodes
+        std::vector<Node<2>*> nodes_element;
+        nodes_element.push_back(basic_nodes[0]);
+        nodes_element.push_back(basic_nodes[1]);
+
+        std::vector<PottsElement<2>*> basic_potts_elements;
+        basic_potts_elements.push_back(new PottsElement<2>(0, nodes_element));
+
+        // Make a PottsMesh
+
+        TS_ASSERT_THROWS_THIS(PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, basic_von_neuman_neighbours, basic_moore_neighbours),
+                                                  "Nodes and neighbour information for a potts mesh need to be the same length.");
+    }
+
 
     void TestNodeIterator() throw (Exception)
     {
@@ -1032,8 +1256,11 @@ public:
         std::vector<PottsElement<2>*> elements;
         elements.push_back(new PottsElement<2>(0, nodes_elem_0));
 
-        // Make a vertex mesh
-        PottsMesh<2> mesh(nodes, elements);
+        std::vector< std::set<unsigned> > empty_vector;
+        empty_vector.resize(nodes.size());
+
+        // Make a Potts mesh
+        PottsMesh<2> mesh(nodes, elements, empty_vector, empty_vector); // Note there is no neighbour information in this mesh
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
@@ -1068,8 +1295,11 @@ public:
             basic_potts_elements.push_back(new PottsElement<2>(0, nodes_elem_0));
             basic_potts_elements.push_back(new PottsElement<2>(1, nodes_elem_1));
 
+            std::vector< std::set<unsigned> > empty_vector;
+            empty_vector.resize(basic_nodes.size());
+
             // Make a Potts mesh
-            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, empty_vector, empty_vector); // Note there is no neighbour information in this mesh
 
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 2u);
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 4u);
@@ -1116,8 +1346,11 @@ public:
             basic_potts_elements.push_back(new PottsElement<2>(0, nodes_elem_0));
             basic_potts_elements.push_back(new PottsElement<2>(1, nodes_elem_1));
 
+            std::vector< std::set<unsigned> > empty_vector;
+            empty_vector.resize(basic_nodes.size());
+
             // Make a Potts mesh
-            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, empty_vector, empty_vector);
 
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 2u);
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 4u);
@@ -1160,15 +1393,18 @@ public:
             std::vector<PottsElement<2>*> basic_potts_elements;
             basic_potts_elements.push_back(new PottsElement<2>(0, nodes_elem));
 
+            std::vector< std::set<unsigned> > empty_vector;
+            empty_vector.resize(basic_nodes.size());
+
             // Make a Potts mesh
-            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+            PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, empty_vector, empty_vector); // Note there is no neighbour information in this mesh
 
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 1u);
             TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 4u);
 
             // Divide element
             TS_ASSERT_THROWS_THIS(basic_potts_mesh.DivideElement(basic_potts_mesh.GetElement(0), false),
-                                          "Tried to divide a Potts element with only one node.");
+                                          "Tried to divide a Potts element with only one node. Cell dividing too often given dynamic parameters.");
         }
     }
 
@@ -1192,8 +1428,11 @@ public:
         basic_potts_elements.push_back(new PottsElement<2>(0, nodes_elem_0));
         basic_potts_elements.push_back(new PottsElement<2>(1, nodes_elem_1));
 
+        std::vector< std::set<unsigned> > empty_vector;
+        empty_vector.resize(basic_nodes.size());
+
         // Make a Potts mesh
-        PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements);
+        PottsMesh<2> basic_potts_mesh(basic_nodes, basic_potts_elements, empty_vector, empty_vector); // Note there is no neighbour information in this mesh
 
         TS_ASSERT_EQUALS(basic_potts_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_potts_mesh.GetNumNodes(), 4u);
@@ -1223,12 +1462,9 @@ public:
         std::string archive_file = "potts_mesh_2d.arch";
         ArchiveLocationInfo::SetMeshFilename("potts_mesh");
 
-        // Create mesh
-        PottsMeshReader<2> mesh_reader("cell_based/test/data/TestPottsMeshWriter/potts_mesh_2d");
-        PottsMesh<2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        AbstractMesh<2,2>* const p_mesh = &mesh;
+        // Create 2D mesh
+        PottsMeshGenerator<2> generator(4, 2, 2, 4, 2, 2);
+        AbstractMesh<2,2>* const p_mesh = generator.GetMesh();
 
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
@@ -1243,8 +1479,8 @@ public:
 
         // Create an output archive
         {
-            TS_ASSERT_EQUALS((static_cast<PottsMesh<2>*>(p_mesh))->GetNumNodes(), 6u);
-            TS_ASSERT_EQUALS((static_cast<PottsMesh<2>*>(p_mesh))->GetNumElements(), 2u);
+            TS_ASSERT_EQUALS((static_cast<PottsMesh<2>*>(p_mesh))->GetNumNodes(), 16u);
+            TS_ASSERT_EQUALS((static_cast<PottsMesh<2>*>(p_mesh))->GetNumElements(), 4u);
 
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
@@ -1286,6 +1522,9 @@ public:
                 {
                     TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-4);
                 }
+                // Check Neighbour information
+                TS_ASSERT_EQUALS(p_mesh_original->GetVonNeumannNeighbouringNodeIndices(node_index), p_mesh_loaded->GetVonNeumannNeighbouringNodeIndices(node_index));
+                TS_ASSERT_EQUALS(p_mesh_original->GetMooreNeighbouringNodeIndices(node_index), p_mesh_loaded->GetMooreNeighbouringNodeIndices(node_index));
             }
 
             TS_ASSERT_EQUALS(p_mesh_original->GetNumElements(), p_mesh_loaded->GetNumElements());
@@ -1315,7 +1554,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes and elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
 
         // Check some node co-ordinates
@@ -1325,10 +1564,19 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 0.0, 1e-6);
 
         // Check second element has the right nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(0), 2u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 4u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(4));
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(3), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(3));
+
+        // Check Neighbours are not defined see #1932
+        std::set<unsigned> empty_set;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetVonNeumannNeighbouringNodeIndices(i), empty_set);
+        }
 
         // Create mesh in which elements have attributes
         PottsMeshReader<2> mesh_reader2("cell_based/test/data/TestPottsMeshReader2d/potts_mesh_with_element_attributes");
