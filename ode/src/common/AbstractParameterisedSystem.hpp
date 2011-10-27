@@ -36,26 +36,267 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystemInformation.hpp"
 
 /**
- * This class has no functionality - its sole purpose is to be an untemplated base
- * class for AbstractParameterisedSystem, to make it easier to move between templated
- * and generic parts of the codebase.
+ * This class is an untemplated base class for AbstractParameterisedSystem, containing
+ * those methods which don't require knowledge of the vector type, in order to make it
+ * easier to move between templated and generic parts of the codebase.  In particular
+ * it holds the AbstractOdeSystemInformation pointer, and methods to access this object
+ * to provide information about the ODE system, such as state variable/parameter names
+ * and units.
  */
 class AbstractUntemplatedParameterisedSystem
 {
 public:
+    /**
+     * Constructor.
+     *
+     * @param numberOfStateVariables  the number of state variables in the ODE system
+     */
+    AbstractUntemplatedParameterisedSystem(unsigned numberOfStateVariables);
+
     /** Make this class polymorphic. */
-    virtual ~AbstractUntemplatedParameterisedSystem()
-    {}
+    virtual ~AbstractUntemplatedParameterisedSystem();
+
+    /**
+     * Get the object which provides information about this ODE system.
+     */
+    boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
+
+    /**
+     * Get the name of this system.
+     */
+    std::string GetSystemName() const;
+
+    //
+    // Attribute methods
+    //
+
+    /**
+     * Return the number of named attributes that this system has.
+     */
+    unsigned GetNumberOfAttributes() const;
+
+    /**
+     * Test whether this system has a particular named attribute.
+     * @param rName  the attribute name.
+     */
+    bool HasAttribute(const std::string& rName) const;
+
+    /**
+     * Get the value of a named attribute.
+     * @param rName  the attribute name.
+     */
+    double GetAttribute(const std::string& rName) const;
+
+    //
+    // State variable methods
+    //
+
+    /**
+     * Get the number of state variables in the ODE system.
+     *
+     * @return mNumberOfStateVariables
+     */
+    unsigned GetNumberOfStateVariables() const;
+
+    /**
+     * Get the names of the state variables in the ODE system.
+     */
+    const std::vector<std::string>& rGetStateVariableNames() const;
+
+    /**
+     * Get the units of the state variables in the ODE system.
+     */
+    const std::vector<std::string>& rGetStateVariableUnits() const;
+
+    /**
+     * This method is used to establish a state variable's position within
+     * the vector of state variables of an ODE system.  This number can
+     * then be used with the methods GetStateVariable and GetStateVariableUnits.
+     *
+     * @param rName  the name of a state variable.
+     *
+     * @return the state variable's position within the vector of state variables
+     *         associated with the ODE system.
+     */
+    unsigned GetStateVariableIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a state variable is in
+     * an ODE system. You can then safely call GetStateVariableIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a state variable
+     * @return whether the state variable is in this ODE system
+     */
+    bool HasStateVariable(const std::string& rName) const;
+
+    /**
+     * Get the units of a state variable given its index in the ODE system.
+     *
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
+     * @return the units of the state variable.
+     */
+    std::string GetStateVariableUnits(unsigned index) const;
+
+    //
+    // Parameter methods
+    //
+
+    /**
+     * Get the number of parameters.
+     */
+    unsigned GetNumberOfParameters() const;
+
+    /**
+     * Get the names of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterNames() const;
+
+    /**
+     * Get the units of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterUnits() const;
+
+    /**
+     * This method is used to establish a parameter's position within
+     * the vector of parameters of an ODE system. This number can
+     * then be used with the methods GetParameterUnits and GetParameter.
+     *
+     * @param rName  the name of a parameter
+     * @return the parameter's position within the vector of parameters
+     *         associated with the ODE system.
+     */
+    unsigned GetParameterIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a parameter is in
+     * an ODE system. You can then safely call GetParameterIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a parameter
+     * @return whether the parameter is in this ODE system
+     */
+    bool HasParameter(const std::string& rName) const;
+
+    /**
+     * Get the units of a parameter given its index in the ODE system.
+     *
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
+     * @return the units of the state variable.
+     */
+    std::string GetParameterUnits(unsigned index) const;
+
+    //
+    // Derived quantity methods
+    //
+
+    /**
+     * Get the number of derived quantities.
+     */
+    unsigned GetNumberOfDerivedQuantities() const;
+
+    /**
+     * Get the vector of derived quantity names.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityNames() const;
+
+    /**
+     * Get the vector of derived quantity units.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityUnits() const;
+
+    /**
+     * Get the index of a derived quantity, given its name.
+     *
+     * @param rName  the name of a derived quantity.
+     */
+    unsigned GetDerivedQuantityIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a derived quantity is in
+     * an ODE system. You can then safely call GetDerivedQuantityIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a derived quantity
+     * @return whether the derived quantity is in this ODE system
+     */
+    bool HasDerivedQuantity(const std::string& rName) const;
+
+    /**
+     * Get the units of a derived quantity.
+     *
+     * @param index  an index from GetDerivedQuantityIndex.
+     * @return the units of the variable.
+     */
+    std::string GetDerivedQuantityUnits(unsigned index) const;
+
+    //
+    // "Any variable" methods
+    //
+
+    /**
+     * Get the index of a variable, whether a state variable, parameter,
+     * or derived quantity, with the given name.
+     * The returned index is suitable for use with GetAnyVariableUnits,
+     * GetAnyVariable, etc.
+     *
+     * @param rName  the name of a variable
+     */
+    unsigned GetAnyVariableIndex(const std::string& rName) const;
+
+    /**
+     * This method is used to establish whether a variable is in
+     * an ODE system's state vars, parameters or derived quantitites.
+     * You can then safely call GetAnyVariableIndex
+     * without a try...catch statement.
+     *
+     * @param rName  the name of a variable
+     * @return whether the variable is in this ODE system
+     */
+    bool HasAnyVariable(const std::string& rName) const;
+
+    /**
+     * Get the units of a variable, whether a state variable, parameter, or
+     * derived quantity, given its index as returned by GetAnyVariableIndex.
+     *
+     * @param index  an index from GetAnyVariableIndex.
+     * @return the units of the variable.
+     */
+    std::string GetAnyVariableUnits(unsigned index) const;
+
+    /**
+     * Get the units of a variable, whether a state variable, parameter, or
+     * derived quantity, given its index as returned by GetAnyVariableIndex.
+     *
+     * @param rName  the name of any variable in the model.
+     * @return the units of the variable.
+     */
+    std::string GetAnyVariableUnits(const std::string& rName) const;
+
+
+protected:
+    /** The number of state variables in the system. */
+    unsigned mNumberOfStateVariables;
+
+    /**
+     * Information about the concrete ODE system class.
+     *
+     * Subclasses @b need to set this in their constructor to point to an instance
+     * of a suitable class.  See for example the OdeSystemInformation class.
+     */
+    boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
+
 };
+
 
 /**
  * This class contains the state variable and parameter vectors for an ODE system,
- * along with methods to access these.  It also holds the AbstractOdeSystemInformation
- * pointer, and methods to access this object to provide information about the ODE
- * system, such as state variable/parameter names and units.
+ * along with methods to access these.
  *
  * Its main purpose is to be a common base class for both AbstractOdeSystem and
- * AbstractCvodeCell, which require similar functionality but use different vector
+ * AbstractCvodeSystem, which require similar functionality but use different vector
  * types.
  */
 template<typename VECTOR>
@@ -74,22 +315,11 @@ private:
     std::string GetStateMessage(const std::string& message, VECTOR Y);
 
 protected:
-    /** The number of state variables in the system. */
-    unsigned mNumberOfStateVariables;
-
     /** Vector containing the current values of the state variables. */
     VECTOR mStateVariables;
 
     /** Vector containing parameter values. */
     VECTOR mParameters;
-
-    /**
-     * Information about the concrete ODE system class.
-     *
-     * Subclasses @b need to set this in their constructor to point to an instance
-     * of a suitable class.  See for example the OdeSystemInformation class.
-     */
-    boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
 
     /**
      * Used to include extra debugging information in exception messages.
@@ -119,31 +349,9 @@ public:
      */
     AbstractParameterisedSystem(unsigned numberOfStateVariables);
 
-    /**
-     * Virtual destructor.
-     */
-    virtual ~AbstractParameterisedSystem();
-
-    /**
-     * Get the object which provides information about this ODE system.
-     */
-    boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
-
-    /**
-     * Get the name of this system.
-     */
-    std::string GetSystemName() const;
-
     //
     // State variable methods
     //
-
-    /**
-     * Get the number of state variables in the ODE system.
-     *
-     * @return mNumberOfStateVariables
-     */
-    unsigned GetNumberOfStateVariables() const;
 
     /**
      * Get the values of the state variables in the ODE system.
@@ -195,45 +403,19 @@ public:
     void SetStateVariable(const std::string& rName, double newValue);
 
     /**
-     * Get the names of the state variables in the ODE system.
-     */
-    const std::vector<std::string>& rGetStateVariableNames() const;
-
-    /**
-     * Get the units of the state variables in the ODE system.
-     */
-    const std::vector<std::string>& rGetStateVariableUnits() const;
-
-    /**
-     * This method is used to establish a state variable's position within
-     * the vector of state variables of an ODE system.  This number can
-     * then be used with the methods GetStateVariable and GetStateVariableUnits.
+     * Empty method which can be over-ridden and used in solvers to
+     * go through the current state vector and do range checking on the values
+     * (e.g. check that concentrations are positive and probabilities are between
+     * zero and one).
      *
-     * @param rName  the name of a state variable.
+     * This method is overridden with a currently commented out
+     * method in AbstractCardiacCell which would be called by the
+     * ComputeExceptVoltage method (in heart).
      *
-     * @return the state variable's position within the vector of state variables
-     *         associated with the ODE system.
+     * This method is called by the AbstractCvodeSystem::Solve() method (in ode).
      */
-    unsigned GetStateVariableIndex(const std::string& rName) const;
-
-    /**
-     * This method is used to establish whether a state variable is in
-     * an ODE system. You can then safely call GetStateVariableIndex
-     * without a try...catch statement.
-     *
-     * @param rName  the name of a state variable
-     * @return whether the state variable is in this ODE system
-     */
-    bool HasStateVariable(const std::string& rName) const;
-
-    /**
-     * Get the units of a state variable given its index in the ODE system.
-     *
-     * @param index  a state variable's position within the vector of
-     *               state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetStateVariableUnits(unsigned index) const;
+    virtual void VerifyStateVariables()
+    {}
 
     //
     // Initial condition methods
@@ -279,11 +461,6 @@ public:
     //
 
     /**
-     * Get the number of parameters.
-     */
-    unsigned GetNumberOfParameters() const;
-
-    /**
      * Get the value of a given parameter.
      *
      * @param index the index of the parameter
@@ -312,46 +489,6 @@ public:
      * @param value the value
      */
     void SetParameter(unsigned index, double value);
-
-    /**
-     * Get the names of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterNames() const;
-
-    /**
-     * Get the units of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterUnits() const;
-
-    /**
-     * This method is used to establish a parameter's position within
-     * the vector of parameters of an ODE system. This number can
-     * then be used with the methods GetParameterUnits and GetParameter.
-     *
-     * @param rName  the name of a parameter
-     * @return the parameter's position within the vector of parameters
-     *         associated with the ODE system.
-     */
-    unsigned GetParameterIndex(const std::string& rName) const;
-
-    /**
-     * This method is used to establish whether a parameter is in
-     * an ODE system. You can then safely call GetParameterIndex
-     * without a try...catch statement.
-     *
-     * @param rName  the name of a parameter
-     * @return whether the parameter is in this ODE system
-     */
-    bool HasParameter(const std::string& rName) const;
-
-    /**
-     * Get the units of a parameter given its index in the ODE system.
-     *
-     * @param index  a state variable's position within the vector of
-     *               state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetParameterUnits(unsigned index) const;
 
     //
     // "Any variable" methods
@@ -390,27 +527,6 @@ public:
                           VECTOR* pDerivedQuantities=NULL);
 
     /**
-     * Get the index of a variable, whether a state variable, parameter,
-     * or derived quantity, with the given name.
-     * The returned index is suitable for use with GetAnyVariableUnits,
-     * GetAnyVariable, etc.
-     *
-     * @param rName  the name of a variable
-     */
-    unsigned GetAnyVariableIndex(const std::string& rName) const;
-
-    /**
-     * This method is used to establish whether a variable is in
-     * an ODE system's state vars, parameters or derived quantitites.
-     * You can then safely call GetAnyVariableIndex
-     * without a try...catch statement.
-     *
-     * @param rName  the name of a variable
-     * @return whether the variable is in this ODE system
-     */
-    bool HasAnyVariable(const std::string& rName) const;
-
-    /**
      * Set the value of a variable, whether a state variable or parameter.
      * Attempting to set the value of a derived quantity will raise an exception.
      *
@@ -428,33 +544,9 @@ public:
      */
     void SetAnyVariable(const std::string& rName, double value);
 
-    /**
-     * Get the units of a variable, whether a state variable, parameter, or
-     * derived quantity, given its index as returned by GetAnyVariableIndex.
-     *
-     * @param index  an index from GetAnyVariableIndex.
-     * @return the units of the variable.
-     */
-    std::string GetAnyVariableUnits(unsigned index) const;
-
-    /**
-     * Get the units of a variable, whether a state variable, parameter, or
-     * derived quantity, given its index as returned by GetAnyVariableIndex.
-     *
-     * @param rName  the name of any variable in the model.
-     * @return the units of the variable.
-     */
-    std::string GetAnyVariableUnits(const std::string& rName) const;
-
-
     //
     // Derived quantity methods
     //
-
-    /**
-     * Get the number of derived quantities.
-     */
-    unsigned GetNumberOfDerivedQuantities() const;
 
     /**
      * Compute the derived quantities from the given system state.
@@ -472,76 +564,6 @@ public:
      * @param time  the time at which to compute the derived quantities
      */
     VECTOR ComputeDerivedQuantitiesFromCurrentState(double time);
-
-    /**
-     * Get the vector of derived quantity names.
-     */
-    const std::vector<std::string>& rGetDerivedQuantityNames() const;
-
-    /**
-     * Get the vector of derived quantity units.
-     */
-    const std::vector<std::string>& rGetDerivedQuantityUnits() const;
-
-    /**
-     * Get the index of a derived quantity, given its name.
-     *
-     * @param rName  the name of a derived quantity.
-     */
-    unsigned GetDerivedQuantityIndex(const std::string& rName) const;
-
-    /**
-     * This method is used to establish whether a derived quantity is in
-     * an ODE system. You can then safely call GetDerivedQuantityIndex
-     * without a try...catch statement.
-     *
-     * @param rName  the name of a derived quantity
-     * @return whether the derived quantity is in this ODE system
-     */
-    bool HasDerivedQuantity(const std::string& rName) const;
-
-    /**
-     * Get the units of a derived quantity.
-     *
-     * @param index  an index from GetDerivedQuantityIndex.
-     * @return the units of the variable.
-     */
-    std::string GetDerivedQuantityUnits(unsigned index) const;
-
-    //
-    // Attribute methods
-    //
-
-    /**
-     * Return the number of named attributes that this system has.
-     */
-    unsigned GetNumberOfAttributes() const;
-
-    /**
-     * Test whether this system has a particular named attribute.
-     * @param rName  the attribute name.
-     */
-    bool HasAttribute(const std::string& rName) const;
-
-    /**
-     * Get the value of a named attribute.
-     * @param rName  the attribute name.
-     */
-    double GetAttribute(const std::string& rName) const;
-
-    /**
-     *  Empty method which can be over-ridden and used in solvers to
-     *  go through the current state vector and go range checking on the values
-     *  (eg check that concentrations are positive and probabilities are between
-     *  zero and one).
-     *
-     *  This method is overridden with a currently commented out
-     *  method in AbstractCardiacCell which would be called by the
-     *  ComputeExceptVoltage method (in heart).
-     *
-     *  This method is called by the AbstractCvodeSystem::Solve() method (in ode).
-     */
-    virtual void VerifyStateVariables(){};
 };
 
 

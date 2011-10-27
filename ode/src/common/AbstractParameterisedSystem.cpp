@@ -34,32 +34,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "VectorHelperFunctions.hpp"
 
+
+AbstractUntemplatedParameterisedSystem::AbstractUntemplatedParameterisedSystem(unsigned numberOfStateVariables)
+    : mNumberOfStateVariables(numberOfStateVariables)
+{
+}
+
+
 template<typename VECTOR>
 AbstractParameterisedSystem<VECTOR>::AbstractParameterisedSystem(unsigned numberOfStateVariables)
-    : mNumberOfStateVariables(numberOfStateVariables)
+    : AbstractUntemplatedParameterisedSystem(numberOfStateVariables)
 {
     InitialiseEmptyVector(mParameters);
     InitialiseEmptyVector(mStateVariables);
 }
 
-template<typename VECTOR>
-AbstractParameterisedSystem<VECTOR>::~AbstractParameterisedSystem()
+
+AbstractUntemplatedParameterisedSystem::~AbstractUntemplatedParameterisedSystem()
 {
 }
 
-template<typename VECTOR>
-boost::shared_ptr<const AbstractOdeSystemInformation> AbstractParameterisedSystem<VECTOR>::GetSystemInformation() const
+
+boost::shared_ptr<const AbstractOdeSystemInformation> AbstractUntemplatedParameterisedSystem::GetSystemInformation() const
 {
     assert(mpSystemInfo);
     return mpSystemInfo;
 }
 
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetSystemName() const
+std::string AbstractUntemplatedParameterisedSystem::GetSystemName() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetSystemName();
+    return GetSystemInformation()->GetSystemName();
 }
 
 template<typename VECTOR>
@@ -92,8 +97,7 @@ std::string AbstractParameterisedSystem<VECTOR>::GetStateMessage(const std::stri
 // State variable methods
 //
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfStateVariables() const
+unsigned AbstractUntemplatedParameterisedSystem::GetNumberOfStateVariables() const
 {
     return mNumberOfStateVariables;
 }
@@ -156,39 +160,30 @@ void AbstractParameterisedSystem<VECTOR>::SetStateVariable(const std::string& rN
     SetStateVariable(GetStateVariableIndex(rName), newValue);
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetStateVariableNames() const
+
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetStateVariableNames() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableNames();
+    return GetSystemInformation()->rGetStateVariableNames();
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetStateVariableUnits() const
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetStateVariableUnits() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableUnits();
+    return GetSystemInformation()->rGetStateVariableUnits();
 }
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetStateVariableIndex(const std::string& rName) const
+unsigned AbstractUntemplatedParameterisedSystem::GetStateVariableIndex(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableIndex(rName);
+    return GetSystemInformation()->GetStateVariableIndex(rName);
 }
 
-template<typename VECTOR>
-bool AbstractParameterisedSystem<VECTOR>::HasStateVariable(const std::string& rName) const
+bool AbstractUntemplatedParameterisedSystem::HasStateVariable(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->HasStateVariable(rName);
+    return GetSystemInformation()->HasStateVariable(rName);
 }
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetStateVariableUnits(unsigned index) const
+std::string AbstractUntemplatedParameterisedSystem::GetStateVariableUnits(unsigned index) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableUnits(index);
+    return GetSystemInformation()->GetStateVariableUnits(index);
 }
 
 //
@@ -242,10 +237,9 @@ void AbstractParameterisedSystem<VECTOR>::ResetToInitialConditions()
 // Parameter methods
 //
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfParameters() const
+unsigned AbstractUntemplatedParameterisedSystem::GetNumberOfParameters() const
 {
-    return GetVectorSize(mParameters);
+    return GetSystemInformation()->rGetParameterNames().size();
 }
 
 template<typename VECTOR>
@@ -280,39 +274,30 @@ double AbstractParameterisedSystem<VECTOR>::GetParameter(const std::string& rNam
     return GetParameter(GetParameterIndex(rName));
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetParameterNames() const
+
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetParameterNames() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterNames();
+    return GetSystemInformation()->rGetParameterNames();
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetParameterUnits() const
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetParameterUnits() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterUnits();
+    return GetSystemInformation()->rGetParameterUnits();
 }
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetParameterIndex(const std::string& rName) const
+unsigned AbstractUntemplatedParameterisedSystem::GetParameterIndex(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterIndex(rName);
+    return GetSystemInformation()->GetParameterIndex(rName);
 }
 
-template<typename VECTOR>
-bool AbstractParameterisedSystem<VECTOR>::HasParameter(const std::string& rName) const
+bool AbstractUntemplatedParameterisedSystem::HasParameter(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->HasParameter(rName);
+    return GetSystemInformation()->HasParameter(rName);
 }
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetParameterUnits(unsigned index) const
+std::string AbstractUntemplatedParameterisedSystem::GetParameterUnits(unsigned index) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterUnits(index);
+    return GetSystemInformation()->GetParameterUnits(index);
 }
 
 //
@@ -364,18 +349,15 @@ double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(const std::string& rN
     return GetAnyVariable(GetAnyVariableIndex(rName), time, pDerivedQuantities);
 }
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetAnyVariableIndex(const std::string& rName) const
+
+unsigned AbstractUntemplatedParameterisedSystem::GetAnyVariableIndex(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetAnyVariableIndex(rName);
+    return GetSystemInformation()->GetAnyVariableIndex(rName);
 }
 
-template<typename VECTOR>
-bool AbstractParameterisedSystem<VECTOR>::HasAnyVariable(const std::string& rName) const
+bool AbstractUntemplatedParameterisedSystem::HasAnyVariable(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->HasAnyVariable(rName);
+    return GetSystemInformation()->HasAnyVariable(rName);
 }
 
 template<typename VECTOR>
@@ -401,15 +383,13 @@ void AbstractParameterisedSystem<VECTOR>::SetAnyVariable(const std::string& rNam
     SetAnyVariable(GetAnyVariableIndex(rName), value);
 }
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(unsigned index) const
+
+std::string AbstractUntemplatedParameterisedSystem::GetAnyVariableUnits(unsigned index) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetAnyVariableUnits(index);
+    return GetSystemInformation()->GetAnyVariableUnits(index);
 }
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(const std::string& rName) const
+std::string AbstractUntemplatedParameterisedSystem::GetAnyVariableUnits(const std::string& rName) const
 {
     return GetAnyVariableUnits(GetAnyVariableIndex(rName));
 }
@@ -418,11 +398,9 @@ std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(const std::
 // "Derived quantities" methods
 //
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfDerivedQuantities() const
+unsigned AbstractUntemplatedParameterisedSystem::GetNumberOfDerivedQuantities() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetDerivedQuantityNames().size();
+    return GetSystemInformation()->rGetDerivedQuantityNames().size();
 }
 
 template<typename VECTOR>
@@ -438,61 +416,46 @@ VECTOR AbstractParameterisedSystem<VECTOR>::ComputeDerivedQuantitiesFromCurrentS
     return this->ComputeDerivedQuantities(time, mStateVariables);
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetDerivedQuantityNames() const
+
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetDerivedQuantityNames() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetDerivedQuantityNames();
+    return GetSystemInformation()->rGetDerivedQuantityNames();
 }
 
-template<typename VECTOR>
-const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetDerivedQuantityUnits() const
+const std::vector<std::string>& AbstractUntemplatedParameterisedSystem::rGetDerivedQuantityUnits() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetDerivedQuantityUnits();
+    return GetSystemInformation()->rGetDerivedQuantityUnits();
 }
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityIndex(const std::string& rName) const
+unsigned AbstractUntemplatedParameterisedSystem::GetDerivedQuantityIndex(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetDerivedQuantityIndex(rName);
+    return GetSystemInformation()->GetDerivedQuantityIndex(rName);
 }
 
-template<typename VECTOR>
-bool AbstractParameterisedSystem<VECTOR>::HasDerivedQuantity(const std::string& rName) const
+bool AbstractUntemplatedParameterisedSystem::HasDerivedQuantity(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->HasDerivedQuantity(rName);
+    return GetSystemInformation()->HasDerivedQuantity(rName);
 }
 
-template<typename VECTOR>
-std::string AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityUnits(unsigned index) const
+std::string AbstractUntemplatedParameterisedSystem::GetDerivedQuantityUnits(unsigned index) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetDerivedQuantityUnits(index);
+    return GetSystemInformation()->GetDerivedQuantityUnits(index);
 }
 
 
-template<typename VECTOR>
-unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfAttributes() const
+unsigned AbstractUntemplatedParameterisedSystem::GetNumberOfAttributes() const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetNumberOfAttributes();
+    return GetSystemInformation()->GetNumberOfAttributes();
 }
 
-template<typename VECTOR>
-bool AbstractParameterisedSystem<VECTOR>::HasAttribute(const std::string& rName) const
+bool AbstractUntemplatedParameterisedSystem::HasAttribute(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->HasAttribute(rName);
+    return GetSystemInformation()->HasAttribute(rName);
 }
 
-template<typename VECTOR>
-double AbstractParameterisedSystem<VECTOR>::GetAttribute(const std::string& rName) const
+double AbstractUntemplatedParameterisedSystem::GetAttribute(const std::string& rName) const
 {
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetAttribute(rName);
+    return GetSystemInformation()->GetAttribute(rName);
 }
 
 
