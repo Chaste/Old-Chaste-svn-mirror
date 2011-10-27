@@ -57,7 +57,7 @@ public:
    {
        PottsMeshReader<2> mesh_reader("cell_based/test/data/TestPottsMeshWriter/potts_mesh_2d");
 
-       TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 6u);
+       TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 8u);
 
        PottsMeshReader<2> mesh_reader2("cell_based/test/data/baddata/potts_mesh_bad_nodes");
 
@@ -82,18 +82,20 @@ public:
        // Read element 0 from file
        ElementData data = mesh_reader.GetNextElementData();
 
-       TS_ASSERT_EQUALS(data.NodeIndices.size(), 3u);
+       TS_ASSERT_EQUALS(data.NodeIndices.size(), 4u);
        TS_ASSERT_EQUALS(data.NodeIndices[0], 0u);
        TS_ASSERT_EQUALS(data.NodeIndices[1], 1u);
-       TS_ASSERT_EQUALS(data.NodeIndices[2], 3u);
+       TS_ASSERT_EQUALS(data.NodeIndices[2], 4u);
+       TS_ASSERT_EQUALS(data.NodeIndices[3], 5u);
 
        // Read element 1 from file
        ElementData data2 = mesh_reader.GetNextElementData();
 
-       TS_ASSERT_EQUALS(data2.NodeIndices.size(), 3u);
+       TS_ASSERT_EQUALS(data2.NodeIndices.size(), 4u);
        TS_ASSERT_EQUALS(data2.NodeIndices[0], 2u);
-       TS_ASSERT_EQUALS(data2.NodeIndices[1], 4u);
-       TS_ASSERT_EQUALS(data2.NodeIndices[2], 5u);
+       TS_ASSERT_EQUALS(data2.NodeIndices[1], 3u);
+       TS_ASSERT_EQUALS(data2.NodeIndices[2], 6u);
+       TS_ASSERT_EQUALS(data2.NodeIndices[3], 7u);
 
        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
 
@@ -135,7 +137,7 @@ public:
         TS_ASSERT_DELTA(next_node[0], 1.0, 1e-6);
         TS_ASSERT_DELTA(next_node[1], 0.0, 1e-6);
 
-        for (unsigned i=0; i<4; i++)
+        for (unsigned i=0; i<6; i++)
         {
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
