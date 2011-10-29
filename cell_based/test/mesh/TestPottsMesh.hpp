@@ -1519,7 +1519,7 @@ public:
             for (unsigned node_index=0; node_index<p_mesh_original->GetNumNodes(); node_index++)
             {
                 Node<2>* p_node = p_mesh_original->GetNode(node_index);
-                Node<2>* p_node2 = p_mesh_loaded->GetNode(node_index);
+                Node<2>* p_node2 = p_mesh2->GetNode(node_index);
 
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
@@ -1550,8 +1550,7 @@ public:
             }
 
             // Tidy up
-            delete p_mesh;
-            delete p_mesh_loaded;
+            delete p_mesh2;
         }
     }
 
