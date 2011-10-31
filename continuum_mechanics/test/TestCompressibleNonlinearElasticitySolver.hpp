@@ -155,8 +155,6 @@ public:
      */
     void TestAssembleSystem3D() throw (Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
 
@@ -186,8 +184,6 @@ public:
 	// Jacobian
     void TestAssembleSystem() throw (Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
         QuadraticMesh<2> mesh(1.0/2, 1.0, 1.0);
         CompressibleExponentialLaw<2> law;
 
@@ -328,8 +324,6 @@ public:
     // It just tests that nothing happens if zero force and tractions are given
     void TestWithZeroDisplacement() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -398,9 +392,6 @@ public:
      */
     void TestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
-
         double c = 2.2;
         double d = 1.1;
         double alpha = 0.9;
@@ -506,8 +497,6 @@ public:
      */
     void TestAgainstExactNonlinearSolution() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
         unsigned num_elem = 10;
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
@@ -600,9 +589,6 @@ public:
 
     void TestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
-
         unsigned num_elem = 10;
 
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
@@ -643,11 +629,9 @@ public:
     }
 
     // Solve using an exponential material law. Doesn't test against an exact solution, just that check that the
-    // solver converges.
+    // solver converges. Doesn't seem very robust.
     void TestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
-
         unsigned num_elem = 5;
 
         QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);

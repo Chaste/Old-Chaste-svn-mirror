@@ -900,11 +900,13 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     if (mCompressibilityType==COMPRESSIBLE)
     {
         KSPSetType(solver,KSPCG);
-        PCSetType(pc, PCICC); // todo: this only works in sequential
-        PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
-		//// for debugging
-		//assert( PetscMatTools::CheckSymmetry(mJacobianMatrix) );
+        PCSetType(pc, PCSOR);
 
+		//needed for ICC preconditioner
+		//PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
+
+		//// for debugging only
+		//assert( PetscMatTools::CheckSymmetry(mJacobianMatrix) );
     }
     else
     {
@@ -1003,7 +1005,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     KSPGetConvergedReason(solver,&reason);
     KSPWARNIFFAILED(reason);
 
-// todo: bring this back in some form, need to avoid real errors!!
+// todo: bring this back in some form, need to avoid real errors like indefinite preconditioner!!
 //KSPEXCEPT(reason);
 
 
@@ -1154,56 +1156,6 @@ double AbstractNonlinearElasticitySolver<DIM>::UpdateSolutionUsingLineSearch(Vec
     VectorSum(old_solution, update, -damping_values[best_index], mCurrentSolution);
 
     return current_resid_norm;
-
-//// old (standard) version - check all s=0.05,0.1,0.2,..,0.9,1,1.1; and pick the best
-//        double best_norm_resid = DBL_MAX;
-//        double best_damping_value = 0.0;
-//
-//        std::vector<double> damping_values;
-//        damping_values.reserve(12);
-//        damping_values.push_back(0.0);
-//        damping_values.push_back(0.05);
-//        for (unsigned i=1; i<=10; i++)
-//        {
-//            damping_values.push_back((double)i/10.0);
-//        }
-//
-//        for (unsigned i=0; i<damping_values.size(); i++)
-//        {
-//            for (unsigned j=0; j<mNumDofs; j++)
-//            {
-//                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
-//            }
-//
-//            // compute residual
-//            double norm_resid = ComputeResidualAndGetNorm();
-//
-//            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
-//            if (norm_resid < best_norm_resid)
-//            {
-//                best_norm_resid = norm_resid;
-//                best_damping_value = damping_values[i];
-//            }
-//        }
-//
-//        if (best_damping_value == 0.0)
-//        {
-//            #define COVERAGE_IGNORE
-//            assert(0);
-//            EXCEPTION("Residual does not decrease in newton direction, quitting");
-//            #undef COVERAGE_IGNORE
-//        }
-//        else
-//        {
-//            std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
-//        }
-//        //Timer::PrintAndReset("Find best damping");
-//
-//        // implement best update and recalculate residual
-//        for (unsigned j=0; j<mNumDofs; j++)
-//        {
-//            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
-//        }
 }
 
 template<unsigned DIM>
