@@ -28,6 +28,8 @@ Defines the Protocol class, which encapsulates the input & output of a
 simulation protocol.
 """
 
+import os
+
 import pycml
 from pycml import *
 import processors
@@ -60,7 +62,8 @@ class Protocol(processors.ModelModifier):
         self._units_converter = None
         self._pending_oxmeta_assignments = []
         self._free_var_has_changed = None
-        self.set_protocol_namespaces(namespaces)
+        self._protocol_namespaces = {}
+        self.add_protocol_namespaces(namespaces)
         self.model = model
         self.inputs = set()
         self.outputs = set()
@@ -71,6 +74,77 @@ class Protocol(processors.ModelModifier):
         # Annotate (initial) state variables with oxmeta:state_variable
         for var in self.model.find_state_vars():
             var.add_rdf_annotation(('bqbiol:isVersionOf', NSS['bqbiol']), ('oxmeta:state_variable', NSS['oxmeta']), allow_dup=True)
+    
+    @staticmethod
+    def apply_protocol_file(doc, proto_file_path):
+        """Parse a protocol XML file and apply it to the given model document."""
+        proto = Protocol(doc.model)
+        proto_units = doc.model.get_standard_units().copy()
+        proto.parse_protocol(proto_file_path, proto_units)
+        proto.modify_model()
+
+    def parse_protocol(self, proto_file_path, proto_units, prefix='', units_only=False):
+        """Parse a protocol XML file and set up our data structures accordingly."""
+        proto_xml = amara_parse_cellml(proto_file_path)
+        assert hasattr(proto_xml, u'protocol')
+        self.add_protocol_namespaces(proto_xml.xmlns_prefixes)
+        # Any imports?
+        for proto_import in getattr(proto_xml.protocol, u'import_', []):
+            # Relative URIs must be resolved relative to this protocol file
+            source = proto_import.source
+            if not os.path.isabs(source):
+                source = os.path.join(os.path.dirname(proto_file_path), source)
+            if getattr(proto_import, u'mergeDefinitions', u'0') in [u'true', '1']:
+                # Process this import immediately
+                self.parse_protocol(source, proto_units)
+            else:
+                # Only apply model modifications from the import if requested, but
+                # make all units definitions available with the prefix.
+                units_only = True
+                if hasattr(proto_xml.protocol, u'modelInterface'):
+                    for use in getattr(proto_xml.protocol.modelInterface, u'useImports', []):
+                        if use.prefix == proto_import.prefix:
+                            units_only = False
+                            break
+                self.parse_protocol(source, proto_units, prefix=proto_import.prefix, units_only=units_only)
+        if hasattr(proto_xml.protocol, u'units'):
+            # Parse units definitions
+            for defn in getattr(proto_xml.protocol.units, u'units', []):
+                uname = defn.name
+                if prefix:
+                    uname = prefix + ':' + uname
+                if uname in proto_units:
+                    raise ProtocolError("Duplicate definition of units named '%s'" % uname)
+                proto_units[uname] = defn
+                defn.xml_parent = self.model
+                self.add_units(defn)
+        def get_units(elt, attr='units'):
+            if hasattr(elt, attr):
+                uname = getattr(elt, attr)
+                try:
+                    if not ':' in uname and prefix:
+                        uname = prefix + ':' + uname
+                    return proto_units[uname]
+                except KeyError:
+                    raise ProtocolError("Units '%s' have not been defined in the protocol" % uname)
+            else:
+                return None
+        if not units_only and hasattr(proto_xml.protocol, u'modelInterface'):
+            for vardecl in getattr(proto_xml.protocol.modelInterface, u'declareNewVariable', []):
+                self.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
+            for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
+                self.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
+                                               get_units(rule, 'desiredDimensions'),
+                                               rule.xml_element_children().next())
+            if hasattr(proto_xml.protocol.modelInterface, u'setIndependentVariableUnits'):
+                self.set_independent_variable_units(get_units(proto_xml.protocol.modelInterface.setIndependentVariableUnits))
+            for input in getattr(proto_xml.protocol.modelInterface, u'specifyInputVariable', []):
+                self.specify_input_variable(input.name, get_units(input), getattr(input, u'initial_value', None))
+            for output in getattr(proto_xml.protocol.modelInterface, u'specifyOutputVariable', []):
+                self.specify_output_variable(output.name, get_units(output))
+            for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
+                self.add_or_replace_equation(expr.xml_element_children().next())
+            self.process_output_variable_vectors()
     
     def specify_output_variable(self, prefixed_name, units=None):
         """Set the given variable as a protocol output, optionally in the given units.
@@ -233,9 +307,9 @@ class Protocol(processors.ModelModifier):
         func = lambda assignment: self._apply_conversion_rule(assignment, body_expr, bvar_name)
         converter.add_special_conversion(from_units, to_units, func)
     
-    def set_protocol_namespaces(self, mapping):
-        """Set the prefix->URI mapping used by the protocol file."""
-        self._protocol_namespaces = mapping
+    def add_protocol_namespaces(self, mapping):
+        """Add to the prefix->URI mapping used by the protocol file."""
+        self._protocol_namespaces.update(mapping)
 
     def modify_model(self):
         """Actually apply protocol modifications to the model.
@@ -746,13 +820,12 @@ class Protocol(processors.ModelModifier):
 def apply_protocol_file(doc, proto_file_path):
     """Apply the protocol defined in the given file to a model.
     
-    New protocols should be written in the pure XML syntax, which we parse and build up
-    the protocol object ourselves.  However, legacy protocols may be Python code with a
-    method apply_protocol(doc) to do the donkey work.
+    New protocols should be written in the pure XML syntax, for which we use
+    Protocol.apply_protocol_file.  However, legacy protocols may be Python code
+    with a method apply_protocol(doc) to do the donkey work.
     """
     if proto_file_path[-3:] == '.py':
         import imp
-        import os
         proto_dir = os.path.dirname(proto_file_path)
         proto_file_name = os.path.basename(proto_file_path)
         proto_module_name = os.path.splitext(proto_file_name)[0]
@@ -763,43 +836,6 @@ def apply_protocol_file(doc, proto_file_path):
             file.close()
         proto.apply_protocol(doc)
     elif proto_file_path[-4:] == '.xml':
-        proto_xml = amara_parse_cellml(proto_file_path)
-        assert hasattr(proto_xml, u'protocol')
-        proto = Protocol(doc.model, namespaces=proto_xml.xmlns_prefixes)
-        proto_units = doc.model.get_standard_units().copy()
-        if hasattr(proto_xml.protocol, u'units'):
-            # Parse units definitions
-            for defn in getattr(proto_xml.protocol.units, u'units', []):
-                if defn.name in proto_units:
-                    raise ProtocolError("Duplicate definition of units named '%s'" % defn.name)
-                proto_units[defn.name] = defn
-                defn.xml_parent = doc.model
-                proto.add_units(defn)
-        def get_units(elt, attr='units'):
-            if hasattr(elt, attr):
-                uname = getattr(elt, attr)
-                try:
-                    return proto_units[uname]
-                except KeyError:
-                    raise ProtocolError("Units '%s' have not been defined in the protocol" % uname)
-            else:
-                return None
-        if hasattr(proto_xml.protocol, u'modelInterface'):
-            for vardecl in getattr(proto_xml.protocol.modelInterface, u'declareNewVariable', []):
-                proto.declare_new_variable(vardecl.name, get_units(vardecl), getattr(vardecl, u'initial_value', None))
-            for rule in getattr(proto_xml.protocol.modelInterface, u'unitsConversionRule', []):
-                proto.add_units_conversion_rule(get_units(rule, 'actualDimensions'),
-                                                get_units(rule, 'desiredDimensions'),
-                                                rule.xml_element_children().next())
-            if hasattr(proto_xml.protocol.modelInterface, u'setIndependentVariableUnits'):
-                proto.set_independent_variable_units(get_units(proto_xml.protocol.modelInterface.setIndependentVariableUnits))
-            for input in getattr(proto_xml.protocol.modelInterface, u'specifyInputVariable', []):
-                proto.specify_input_variable(input.name, get_units(input), getattr(input, u'initial_value', None))
-            for output in getattr(proto_xml.protocol.modelInterface, u'specifyOutputVariable', []):
-                proto.specify_output_variable(output.name, get_units(output))
-            for expr in getattr(proto_xml.protocol.modelInterface, u'addOrReplaceEquation', []):
-                proto.add_or_replace_equation(expr.xml_element_children().next())
-            proto.process_output_variable_vectors()
-        proto.modify_model()
+        Protocol.apply_protocol_file(doc, proto_file_path)
     else:
         raise ProtocolError("Unexpected protocol file extension for file: " + proto_file_path)
