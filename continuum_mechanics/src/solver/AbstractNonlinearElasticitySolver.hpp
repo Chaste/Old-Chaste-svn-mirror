@@ -900,8 +900,10 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     if (mCompressibilityType==COMPRESSIBLE)
     {
         KSPSetType(solver,KSPCG);
-        PCSetType(pc, PCSOR);
-
+        //PCSetType(pc, PCSOR);
+        PCSetType(pc, PCICC); /// \todo: #1913 this only works in sequential
+        PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
+        
 		//needed for ICC preconditioner
 		//PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
 
@@ -1005,7 +1007,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     KSPGetConvergedReason(solver,&reason);
     KSPWARNIFFAILED(reason);
 
-// todo: bring this back in some form, need to avoid real errors like indefinite preconditioner!!
+/// \todo: bring this back in some form, need to avoid real errors like indefinite preconditioner!!
 //KSPEXCEPT(reason);
 
 
