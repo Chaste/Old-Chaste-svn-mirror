@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 
 /**
- * AbstractLinearParabolicPdeSystem class.
+ * AbstractLinearParabolicPdeSystemForCoupledOdeSystem class.
  *
  * A system of parabolic PDEs, which may be coupled via their source terms:
  *
