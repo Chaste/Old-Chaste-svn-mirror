@@ -401,7 +401,7 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
         test_log_files.append(test_logs)
     
     # Any user projects?
-    for project in glob.glob('projects/[_a-zA-Z]*'):
+    for project in glob.glob('projects/*'):
         if not os.path.isdir(project):
             if debug:
                 print "Found non-dir", project, "in projects folder"
