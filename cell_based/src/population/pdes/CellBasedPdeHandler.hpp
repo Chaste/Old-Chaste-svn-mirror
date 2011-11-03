@@ -42,10 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A helper class, containing code for handling the numerical solution of one or more PDEs
  * (using the finite element method) associated with a cell-based simulation object.
- * 
+ *
  * By letting AbstractCellBasedSimulation have a pointer to an object of this type as a
  * member variable, we separate out all PDE-related functionality into this class, and thus
- * obviate the need for specialized cell-based simulation subclasses. 
+ * obviate the need for specialized cell-based simulation subclasses.
  */
 template<unsigned DIM>
 class CellBasedPdeHandler : public Identifiable
@@ -60,7 +60,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the member variables.
-     * 
+     *
      * @param archive the archive
      * @param version the current version of this class
      */
@@ -112,10 +112,10 @@ private:
 
     /**
      * Initialise mCellPdeElementMap.
-     * 
+     *
      * This method is only called within SetupSolve(), but is written as a separate method
      * for testing purposes.
-     */ 
+     */
     void InitialiseCellPdeElementMap();
 
     /**
@@ -123,7 +123,7 @@ private:
      *
      * @param time The time at which to record the PDE solution
      */
-    void WritePdeSolution(double time);
+    virtual void WritePdeSolution(double time);
 
     /**
      * Write the average radial PDE solution to file at a specified time.
@@ -136,7 +136,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param pCellPopulation pointer to a cell population
      * @param deleteMemberPointersInDestructor whether to delete member pointers in the destructor (defaults to false)
      */
@@ -145,7 +145,7 @@ public:
     /**
      * Destructor.
      */
-    ~CellBasedPdeHandler();
+    virtual ~CellBasedPdeHandler();
 
     /**
      * Get a pointer to the cell population.
@@ -162,7 +162,7 @@ public:
     /**
      * Open results files and write initial conditions to file.
      * Called by AbstractCellBasedSimulation::SetupSolve().
-     * 
+     *
      * @param outputDirectory the output directory, relative to where Chaste output is stored
      */
     void OpenResultsFiles(std::string outputDirectory);
@@ -203,11 +203,11 @@ public:
 
     /**
      * Solve the PDE and write the solution to file.
-     * 
+     *
      * @param samplingTimestepMultiple the ratio of the number of actual timesteps to the number of timesteps
      *     at which results are written to file.
      */
-    void SolvePdeAndWriteResultsToFile(unsigned samplingTimestepMultiple);
+    virtual void SolvePdeAndWriteResultsToFile(unsigned samplingTimestepMultiple);
 
     /**
      * Find the index of the coarse mesh element containing a given cell.
@@ -223,7 +223,7 @@ public:
      *
      * @param pdeIndex The index of the PDE in the vector mPdeAndBcCollection
      */
-    Vec GetPdeSolution(unsigned pdeIndex);
+    virtual Vec GetPdeSolution(unsigned pdeIndex);
 
     /**
      * Write the final (and optionally also the daily) average
@@ -241,7 +241,7 @@ public:
      * Impose the PDE boundary conditions on the edge of the cell population when using
      * the coarse mesh. The default option is to impose the condition on the boundary of the
      * coarse mesh.
-     * 
+     *
      * @param setBcsOnCoarseBoundary whether to impose the BCs on the edge of the cell population
      */
     void SetImposeBcsOnCoarseBoundary(bool setBcsOnCoarseBoundary);
@@ -256,17 +256,17 @@ public:
 
     /**
      * Pass a PDE and associated boundary conditions to the simulation.
-     * 
+     *
      * @param pPdeAndBc a pointer to a PdeAndBoundaryConditions object
      */
     void AddPdeAndBc(PdeAndBoundaryConditions<DIM>* pPdeAndBc);
 
     /**
      * Output parameters to file.
-     * 
+     *
      * @param rParamsFile the file stream to which the parameters are output
      */
-    void OutputParameters(out_stream& rParamsFile);
+    virtual void OutputParameters(out_stream& rParamsFile);
 };
 
 #include "SerializationExportWrapper.hpp"
@@ -288,7 +288,7 @@ inline void save_construct_data(
     const AbstractCellPopulation<DIM>* p_cell_population = t->GetCellPopulation();
     ar & p_cell_population;
 }
- 
+
 /**
  * De-serialize constructor parameters and initialise a CellBasedPdeHandler.
  */
