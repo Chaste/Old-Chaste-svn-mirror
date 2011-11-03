@@ -252,7 +252,7 @@ public:
      * @param stepSize horizontal and vertical distance between mesh points
      * @param meshWidth width and height of the mesh
      */
-    void UseCoarsePdeMesh(double stepSize, double meshWidth);
+    virtual void UseCoarsePdeMesh(double stepSize, double meshWidth);
 
     /**
      * Pass a PDE and associated boundary conditions to the simulation.
