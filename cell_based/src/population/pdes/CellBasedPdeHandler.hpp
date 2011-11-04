@@ -74,6 +74,8 @@ private:
         archive & mNumRadialIntervals;
     }
 
+protected:
+
     /** Pointer to a cell population. */
     AbstractCellPopulation<DIM>* mpCellPopulation;
 
