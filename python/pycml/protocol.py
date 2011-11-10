@@ -94,19 +94,19 @@ class Protocol(processors.ModelModifier):
             source = proto_import.source
             if not os.path.isabs(source):
                 source = os.path.join(os.path.dirname(proto_file_path), source)
-            if getattr(proto_import, u'mergeDefinitions', u'0') in [u'true', '1']:
+            if getattr(proto_import, u'mergeDefinitions', u'0') in [u'true', u'1']:
                 # Process this import immediately
                 self.parse_protocol(source, proto_units)
             else:
                 # Only apply model modifications from the import if requested, but
                 # make all units definitions available with the prefix.
-                units_only = True
+                import_units_only = True
                 if hasattr(proto_xml.protocol, u'modelInterface'):
                     for use in getattr(proto_xml.protocol.modelInterface, u'useImports', []):
-                        if use.prefix == proto_import.prefix:
-                            units_only = False
+                        if use.prefix_ == proto_import.prefix_:
+                            import_units_only = False
                             break
-                self.parse_protocol(source, proto_units, prefix=proto_import.prefix, units_only=units_only)
+                self.parse_protocol(source, proto_units, prefix=proto_import.prefix_, units_only=import_units_only)
         if hasattr(proto_xml.protocol, u'units'):
             # Parse units definitions
             for defn in getattr(proto_xml.protocol.units, u'units', []):
