@@ -67,6 +67,44 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
+
+    void TestOtherRandomStuffDestroysRandomSequence()
+    {
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        
+        //First reseed and get the first random number (as above)
+        p_gen->Reseed(0);
+        double ran2 = p_gen->ranf();
+        TS_ASSERT_DELTA(ran1, ran2, 1e-7);
+        
+        //Now reseed, do something else random and then get "the first" random number
+        p_gen->Reseed(0);
+        std::vector<unsigned> some_vector(10);
+        std::random_shuffle(some_vector.begin(), some_vector.end());
+        double ran3 = p_gen->ranf();
+        TS_ASSERT_DIFFERS(ran1, ran3);
+
+        //Again - with rand()
+        p_gen->Reseed(0);
+        rand();
+        double ran4 = p_gen->ranf();
+        TS_ASSERT_DIFFERS(ran1, ran4);
+
+        //Again - with random()
+        p_gen->Reseed(0);
+        random();
+        double ran5 = p_gen->ranf();
+        TS_ASSERT_DIFFERS(ran1, ran5);
+
+        //Again - with nothing
+        p_gen->Reseed(0);
+        double ran6 = p_gen->ranf();
+        TS_ASSERT_DELTA(ran1, ran6, 1e-7);
+
+        RandomNumberGenerator::Destroy();
+        
+    }
+
     void TestDifferentRandomSeed()
     {
         srandom(36);
