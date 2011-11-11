@@ -45,7 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * `CardiacSimulationArchiver` has to be included. Archiving includes often have to be included first.
+ * `CardiacSimulationArchiver` is the main class that takes care of checkpointing
+ * cardiac simulations.
  */
 #include <cxxtest/TestSuite.h>
 #include "CardiacSimulationArchiver.hpp"
@@ -114,7 +115,7 @@ public:
  *
  * * Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is
  *   written out to disk at each checkpoint. This is to ensure that each checkpoint directory contains everything
- *   needed to resume the simulation. In particular, the mesh written out will be in permuted form if it was
+ *   needed to resume the simulation. Note that the mesh written out will be in permuted form if it was
  *   partitioned for a parallel simulation.
  * * Meshes written in checkpoints use a binary form of the Triangle/Tetgen mesh format. This makes checkpoints
  *   significantly smaller but will cause portability problems if checkpoints are moved between little-endian systems
@@ -129,6 +130,17 @@ public:
  *   go until the ''next'' checkpoint, not until the end of the simulation.  This makes it slightly less
  *   useful; however, the presence of the checkpoint directories (`1ms`, `2ms`, etc.) provides overall
  *   progress information instead.
+ * * On older versions of Boost (before 1.37) there are some restrictions on what may be successfully checkpointed.
+ *   Firstly, checkpointing a simulation that uses a dynamically loaded cell model is impossible.
+ *   Secondly, if you are using a "non-standard" cell model, i.e. one that is hard-coded but not one of those available
+ *   via the XML configuration file, then you may get an error "terminate called after throwing an instance of
+ *   'boost::archive::archive_exception' what():  unregistered class".  To resolve this you unfortunately have to
+ *   include the header for the relevant cell model in `CardiacSimulationArchiver.cpp`; after the inclusion of
+ *   `HeartConfigRelatedCellFactory.hpp` is a sensible location.
+ * * Related to the above point, on all Boost versions if you are saving and loading a simulation in different
+ *   source or test files, ensure that you have the same list of includes in both cases, or the serialization code
+ *   may not know about all classes when loading, and give the "unregistered class" error.
+ *
  */
 
 #endif /*TESTCARDIACCHECKPOINTINGANDRESTARTINGTUTORIAL_HPP_*/
