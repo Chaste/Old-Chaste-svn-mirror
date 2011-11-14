@@ -74,18 +74,18 @@ public:
         return 1.0;
     }
 
-    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,2> u, std::vector<double> v, unsigned pdeIndex)
+    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,2>& rU, std::vector<double>& rOdeSolution, unsigned pdeIndex)
     {
         assert(pdeIndex == 0 || pdeIndex == 1);
 
         double source_term;
         if (pdeIndex == 0)
         {
-            source_term = mKappa1 - mKappa_1*u(0) + mKappa3*u(1)*u(0)*u(0);
+            source_term = mKappa1 - mKappa_1*rU(0) + mKappa3*rU(1)*rU(0)*rU(0);
         }
         else // pdeIndex == 1
         {
-            source_term = mKappa2 - mKappa3*u(1)*u(0)*u(0);
+            source_term = mKappa2 - mKappa3*rU(1)*rU(0)*rU(0);
         }
         return source_term;
     }

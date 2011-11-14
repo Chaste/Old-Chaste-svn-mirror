@@ -65,21 +65,21 @@ public:
      * Compute the source term f_i(x, u_1, u_2, ..., u_p) at a point in space.
      *
      * @param rX the point x at which the nonlinear source term is computed
-     * @param u the vector of dependent variables (u_1, u_2, ..., u_p) at the point x
-     * @param odeSolution the ODE system state vector (v_1, ..., v_q) at the point x (if an ODE system is present)
+     * @param rU the vector of dependent variables (u_1, u_2, ..., u_p) at the point x
+     * @param rOdeSolution the ODE system state vector (v_1, ..., v_q) at the point x (if an ODE system is present)
      * @param pdeIndex the index of the PDE, denoted by i above
      */
-    virtual double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,PROBLEM_DIM> u, std::vector<double> odeSolution, unsigned pdeIndex)=0;
+    virtual double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,PROBLEM_DIM>& rU, std::vector<double>& rOdeSolution, unsigned pdeIndex)=0;
 
     /**
      * Compute source term f_i(x, u_1, u_2, ..., u_p) at a node.
      *
      * @param rNode the node at which the nonlinear source term f_i is computed
-     * @param u the vector of dependent variables (u_1, u_2, ..., u_p) at the node
-     * @param odeSolution the ODE system state vector (v_1, ..., v_q) at the node (if an ODE system is present)
+     * @param rU the vector of dependent variables (u_1, u_2, ..., u_p) at the node
+     * @param rOdeSolution the ODE system state vector (v_1, ..., v_q) at the node (if an ODE system is present)
      * @param pdeIndex the index of the PDE, denoted by i above
      */
-    virtual double ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, c_vector<double,PROBLEM_DIM> u, std::vector<double> odeSolution, unsigned pdeIndex);
+    virtual double ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, c_vector<double,PROBLEM_DIM>& rU, std::vector<double>& rOdeSolution, unsigned pdeIndex);
 
     /**
      * Compute diffusion term D_i(x) at a point in space. The diffusion tensor should be symmetric and positive definite.
@@ -102,9 +102,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-double AbstractLinearParabolicPdeSystemForCoupledOdeSystem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, c_vector<double,PROBLEM_DIM> u, std::vector<double> odeSolution, unsigned pdeIndex)
+double AbstractLinearParabolicPdeSystemForCoupledOdeSystem<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeSourceTermAtNode(const Node<SPACE_DIM>& rNode, c_vector<double,PROBLEM_DIM>& rU, std::vector<double>& rOdeSolution, unsigned pdeIndex)
 {
-    return ComputeSourceTerm(rNode.GetPoint(), u, odeSolution, pdeIndex);
+    return ComputeSourceTerm(rNode.GetPoint(), rU, rOdeSolution, pdeIndex);
 }
 
 #endif /*ABSTRACTLINEARPARABOLICPDESYSTEMFORCOUPLEDODESYSTEM_HPP_*/

@@ -59,9 +59,9 @@ public:
         return 1.0;
     }
 
-    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1> u, std::vector<double> v, unsigned index)
+    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1>& rU, std::vector<double>& rOdeSolution, unsigned index)
     {
-        return v[0];
+        return rOdeSolution[0];
     }
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, unsigned index, Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)

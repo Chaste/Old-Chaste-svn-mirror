@@ -59,7 +59,7 @@ public:
         return 1.0;
     }
 
-    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1> u, std::vector<double> odeSolution, unsigned pdeIndex)
+    double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rX, c_vector<double,1>& rU, std::vector<double>& rOdeSolution, unsigned pdeIndex)
     {
         return 0.0;
     }
