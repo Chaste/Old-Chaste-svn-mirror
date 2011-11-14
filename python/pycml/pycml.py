@@ -113,6 +113,7 @@ NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'solver': u'https://chaste.comlab.ox.ac.uk/cellml/ns/solver-info',
        u'oxmeta': u'https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#',
        u'pycml': u'https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#',
+       u'proto': u'https://chaste.cs.ox.ac.uk/nss/protocol/0.1#',
        # Metadata-related
        u'cmeta'  : u"http://www.cellml.org/metadata/1.0#",
        u'rdf'    : u"http://www.w3.org/1999/02/22-rdf-syntax-ns#",

@@ -107,6 +107,12 @@ class Protocol(processors.ModelModifier):
                             import_units_only = False
                             break
                 self.parse_protocol(source, proto_units, prefix=proto_import.prefix_, units_only=import_units_only)
+        # For now, we also need to apply model modifications from nested protocols
+        for nested_proto in proto_xml.protocol.xml_xpath(u'.//proto:nestedProtocol'):
+            source = nested_proto.source
+            if not os.path.isabs(source):
+                source = os.path.join(os.path.dirname(proto_file_path), source)
+            self.parse_protocol(source, self.model.get_standard_units().copy())
         if hasattr(proto_xml.protocol, u'units'):
             # Parse units definitions
             for defn in getattr(proto_xml.protocol.units, u'units', []):
