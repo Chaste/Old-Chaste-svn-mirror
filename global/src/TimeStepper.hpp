@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TimeStepper
 {
     friend class TestTimeStepper;
+    friend class SimulationTime;    // Singleton used in cell-based.
 public:
 
     /**

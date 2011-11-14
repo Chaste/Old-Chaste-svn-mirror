@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <deque>
+#include <sstream>
 
 /**
  * The Warnings singleton class collects warnings via the AddWarning() method

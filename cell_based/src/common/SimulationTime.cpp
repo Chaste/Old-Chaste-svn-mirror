@@ -26,23 +26,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "SimulationTime.hpp"
 #include <cassert>
+#include <cmath>  ///\todo #1885 Shadow variable
+#include "SimulationTime.hpp"
+#include "Warnings.hpp"  ///\todo #1885 Shadow variable
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
+TimeStepper* SimulationTime::mpTimeStepper = NULL;
 
 SimulationTime* SimulationTime::Instance()
 {
     if (mpInstance == NULL)
     {
         mpInstance = new SimulationTime;
+        std::atexit(Destroy);
     }
     return mpInstance;
 }
 
 SimulationTime::SimulationTime()
-    : mTimeStepsElapsed(0),
+    :
+      mTimeStepsElapsed(0),
       mEndTimeAndNumberOfTimeStepsSet(false),
       mCurrentTime(0.0),
       mStartTime(0.0),
@@ -59,14 +64,11 @@ void SimulationTime::Destroy()
         delete mpInstance;
         mpInstance = NULL;
     }
-}
-
-void SimulationTime::SetStartTime(double startTime)
-{
-    assert(!mStartTimeSet);
-    mStartTime = startTime;
-    mCurrentTime = startTime;
-    mStartTimeSet = true;
+    if (mpTimeStepper)
+    {
+        delete mpTimeStepper;
+        mpTimeStepper = NULL;
+    }
 }
 
 double SimulationTime::GetTimeStep() const
@@ -84,6 +86,12 @@ void SimulationTime::IncrementTimeOneStep()
     mCurrentTime = mStartTime
                    + ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
                    * mDurationOfSimulation;
+    ///\todo #1885 Shadow variable - When not covered then make assertion
+    if(fabs(mCurrentTime - mpTimeStepper->GetNextTime())>1e-9)
+    {
+        WARNING("Incremented TimeStep incorrectly "<<mCurrentTime<< " versus "<<mpTimeStepper->GetNextTime());
+    }
+    mpTimeStepper->AdvanceOneTimeStep();
 }
 
 unsigned SimulationTime::GetTimeStepsElapsed() const
@@ -100,6 +108,17 @@ double SimulationTime::GetTime() const
     return mCurrentTime;
 }
 
+
+
+
+void SimulationTime::SetStartTime(double startTime)
+{
+    assert(!mStartTimeSet);
+    mStartTime = startTime;
+    mCurrentTime = startTime;
+    mStartTimeSet = true;
+}
+
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
 {
     // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
@@ -112,6 +131,8 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
     mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
+
+    mpTimeStepper = new TimeStepper(mStartTime, mEndTime, mDurationOfSimulation/mTotalTimeStepsInSimulation, true);
 }
 
 void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun)
@@ -132,6 +153,9 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
     mDurationOfSimulation = mEndTime - mCurrentTime;
     mTotalTimeStepsInSimulation = rNumberOfTimeStepsInThisRun;
     mEndTimeAndNumberOfTimeStepsSet = true;
+
+    delete mpTimeStepper;
+    mpTimeStepper = new TimeStepper(mStartTime, mEndTime, mDurationOfSimulation/mTotalTimeStepsInSimulation, true);
 }
 
 bool SimulationTime::IsStartTimeSetUp() const

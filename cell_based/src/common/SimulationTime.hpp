@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include "SerializableSingleton.hpp"
+#include "TimeStepper.hpp"
 
 /**
  * Simulation time object stores the simulation time.
@@ -150,6 +151,12 @@ private:
      */
     static SimulationTime* mpInstance;
 
+
+    /**
+     * Ghost these variables in a TimeStepper
+     */
+    static TimeStepper* mpTimeStepper;
+
     /**
      * The duration of the simulation (time is measured in units of hours).
      */
@@ -214,6 +221,14 @@ private:
         archive & mEndTime;
         archive & mStartTimeSet;
         archive & mStartTime;
+
+        ///\todo #1885 Write an archiver for TimeStepper.
+        delete mpTimeStepper;
+        mpTimeStepper = new TimeStepper(mStartTime, mEndTime, (mDurationOfSimulation/mTotalTimeStepsInSimulation), true);
+        mpTimeStepper->mTime = mCurrentTime;
+        mpTimeStepper->mTotalTimeStepsTaken = mTimeStepsElapsed;
+        mpTimeStepper->mNextTime = mpTimeStepper->CalculateNextTime();
+
     }
 };
 
