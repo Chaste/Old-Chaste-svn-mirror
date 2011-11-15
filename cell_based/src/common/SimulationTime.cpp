@@ -26,13 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+///\todo #1885 Watch for assertions/Warnings and includes when delegated class goes into production
 #include <cassert>
-#include <cmath>  ///\todo #1885 Shadow variable
+#include <cmath>  
 #include "SimulationTime.hpp"
-#include "Warnings.hpp"  ///\todo #1885 Shadow variable
+#include "Warnings.hpp"  
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
+
+/** Pointer to the delegated (shadow) class \todo #1885*/
+
 TimeStepper* SimulationTime::mpTimeStepper = NULL;
 
 SimulationTime* SimulationTime::Instance()
