@@ -4,6 +4,12 @@ bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathProblem.hpp
 bidomain/TestBidomainWithSvi.hpp
+extendedbidomain/TestArchivingExtendedBidomain.hpp
+extendedbidomain/TestExtendedVsBidomainProblem.hpp
+extendedbidomain/TestExtendedBidomainTissue.hpp
+extendedbidomain/TestExtendedBidomainProblem.hpp
+extendedbidomain/TestStimulusFactory.hpp
+extendedbidomain/TestGIModifiedModels.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestCvodeCells.hpp
 ionicmodels/TestDynamicallyLoadedCellModels.hpp
