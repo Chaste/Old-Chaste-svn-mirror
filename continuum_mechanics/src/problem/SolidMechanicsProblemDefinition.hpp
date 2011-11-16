@@ -65,6 +65,11 @@ typedef enum TractionBoundaryConditionType_
 template<unsigned DIM>
 class SolidMechanicsProblemDefinition
 {
+public:
+    /** Special displacement that indicates a node is free to move (in a particular direction).
+     *  Used in SetFixedNodes(). */
+	static const double FREE = DBL_MAX;
+
 private:
     /** The mesh being solved on */
     QuadraticMesh<DIM>& mrMesh;

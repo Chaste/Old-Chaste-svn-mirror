@@ -154,8 +154,23 @@ void SolidMechanicsProblemDefinition<DIM>::SetFixedNodes(std::vector<unsigned>& 
     for (unsigned i=0; i<mFixedNodes.size(); i++)
     {
         unsigned index = mFixedNodes[i];
-        c_vector<double,DIM> displacement = rFixedNodeLocations[i] - mrMesh.GetNode(index)->rGetLocation();
-        mFixedNodeDisplacements.push_back(displacement);
+        c_vector<double,DIM> displacement;
+        for(unsigned j=0; j<DIM; j++)
+        {
+        	double location = rFixedNodeLocations[i](j);
+
+			// compute the displacement, assuming the node
+			// is not free in this direction
+        	if(location != FREE)
+        	{
+        		displacement(j) = location - mrMesh.GetNode(index)->rGetLocation()[j];
+            }
+            else
+            {
+            	displacement(j) = FREE;
+            }
+        }
+    	mFixedNodeDisplacements.push_back(displacement);
     }
 }
 

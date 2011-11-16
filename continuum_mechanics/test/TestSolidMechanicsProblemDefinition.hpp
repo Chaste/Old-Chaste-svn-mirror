@@ -51,6 +51,21 @@ c_vector<double,2> AnotherFunction(c_vector<double,2>& rX, double t)
 }
 
 
+// Helper function for creating std vectors. Ugly, but makes things below much neater (avoids many, many push_backs).
+template<class T>
+std::vector<T> MakeStdVec(unsigned size, T value0=0, T value1=0, T value2=0, T value3=0, T value4=0)
+{
+    std::vector<T> ret(size);
+    ret[0]=value0;
+    if(size>1) ret[1]=value1;
+    if(size>2) ret[2]=value2;
+    if(size>3) ret[3]=value3;
+    if(size>4) ret[4]=value4;
+    assert(size<=5);
+    return ret;
+}
+
+
 class TestSolidMechanicsProblemDefinition : public CxxTest::TestSuite
 {
 public:
@@ -173,6 +188,9 @@ public:
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[1](1), 0.0, 1e-12);
 
         fixed_nodes.push_back(8);
+        fixed_nodes.push_back(9);
+        fixed_nodes.push_back(10);
+
 
         std::vector<c_vector<double,2> > locations;
         c_vector<double,2> location = zero_vector<double>(2);
@@ -182,13 +200,23 @@ public:
         location(0)=0.1;
         locations.push_back(location);
 
+        location(0)=0.5;
+        location(1)=SolidMechanicsProblemDefinition<2>::FREE;
+        locations.push_back(location);
+
+        location(0)=SolidMechanicsProblemDefinition<2>::FREE;
+        location(1)=1.5;
+        locations.push_back(location);
+
         problem_defn.SetFixedNodes(fixed_nodes, locations);
 
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes().size(), 3u);
+        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes().size(), 5u);
+        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodeDisplacements().size(), 5u);
+
+        // the fully fixed nodes
         TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[0], 0u);
         TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[1], 4u);
         TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[2], 8u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodeDisplacements().size(), 3u);
 
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](0), 0.0 - mesh.GetNode(0)->rGetLocation()[0], 1e-12);
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](1), 0.0 - mesh.GetNode(0)->rGetLocation()[1], 1e-12);
@@ -197,6 +225,13 @@ public:
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[2](0), 0.1 - mesh.GetNode(8)->rGetLocation()[0], 1e-12);
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[2](1), 0.1 - mesh.GetNode(8)->rGetLocation()[1], 1e-12);
 
+        // the partial fixed nodes
+        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[3], 9u);
+        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[4], 10u);
+        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[3](0), 0.5 - mesh.GetNode(9)->rGetLocation()[0], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[3](1), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](0), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](1), 1.5 - mesh.GetNode(10)->rGetLocation()[1], 1e-12);
     }
 };
 
