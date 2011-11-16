@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ExtendedBidomainProblem_HPP_
-#define ExtendedBidomainProblem_HPP_
+#ifndef EXTENDEDBIDOMAINPROBLEM_HPP_
+#define EXTENDEDBIDOMAINPROBLEM_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -530,4 +530,4 @@ public:
 #include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(ExtendedBidomainProblem)
 
-#endif /*ExtendedBidomainProblem_HPP_*/
+#endif /*EXTENDEDBIDOMAINPROBLEM_HPP_*/

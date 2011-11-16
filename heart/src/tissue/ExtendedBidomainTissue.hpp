@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ExtendedBidomainTissue_HPP_
-#define ExtendedBidomainTissue_HPP_
+#ifndef EXTENDEDBIDOMAINTISSUE_HPP_
+#define EXTENDEDBIDOMAINTISSUE_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -691,4 +691,4 @@ public:
 
 
 
-#endif /*ExtendedBidomainTissue_HPP_*/
+#endif /*EXTENDEDBIDOMAINTISSUE_HPP_*/

@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _EXTENDEDBIDOMAINSOLVER_HPP_
-#define _EXTENDEDBIDOMAINSOLVER_HPP_
+#ifndef EXTENDEDBIDOMAINSOLVER_HPP_
+#define EXTENDEDBIDOMAINSOLVER_HPP_
 
 
 #include "UblasIncludes.hpp"
@@ -113,5 +113,5 @@ public:
 };
 
 
-#endif /*_EXTENDEDBIDOMAINSOLVER_HPP_*/
+#endif /*EXTENDEDBIDOMAINSOLVER_HPP_*/
 

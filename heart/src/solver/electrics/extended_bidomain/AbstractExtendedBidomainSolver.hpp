@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _AbstractExtendedBidomainSolver_HPP_
-#define _AbstractExtendedBidomainSolver_HPP_
+#ifndef ABSTRACTEXTENDEDBIDOMAINSOLVER_HPP_
+#define ABSTRACTEXTENDEDBIDOMAINSOLVER_HPP_
 
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "ExtendedBidomainTissue.hpp"
@@ -191,4 +191,4 @@ public:
 
 };
 
-#endif /*_ExtendedBidomainDg0Assembler_HPP_*/
+#endif /*ABSTRACTEXTENDEDBIDOMAINSOLVER_HPP_*/

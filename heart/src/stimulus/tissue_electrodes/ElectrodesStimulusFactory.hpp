@@ -178,4 +178,4 @@ public:
 
 };
 
-#endif /*ELECTRODES_HPP_*/
+#endif /*ELECTRODESSTIMULSUFACTORY_HPP_*/

@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _ExtendedBidomainAssembler_HPP_
-#define _ExtendedBidomainAssembler_HPP_
+#ifndef EXTENDEDBIDOMAINASSEMBLER_HPP_
+#define EXTENDEDBIDOMAINASSEMBLER_HPP_
 
 #include "UblasIncludes.hpp"
 
@@ -117,4 +117,4 @@ public:
 };
 
 
-#endif /*_ExtendedBidomainAssembler_HPP_*/
+#endif /*EXTENDEDBIDOMAINASSEMBLER_HPP_*/

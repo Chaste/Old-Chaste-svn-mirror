@@ -86,4 +86,4 @@ public:
 
 };
 
-#endif /*ELECTRODES_HPP_*/
+#endif /*ZERONETCHARGEELECTRODES_HPP_*/

@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef StimulusFactory_HPP_
-#define StimulusFactory_HPP_
+#ifndef ABSTRACTSTIMULUSFACTORY_HPP_
+#define ABSTRACTSTIMULUSFACTORY_HPP_
 
 #include <boost/shared_ptr.hpp>
 
@@ -121,5 +121,5 @@ public:
     std::vector<AbstractChasteRegion<SPACE_DIM>* > GetRegionsToBeGrounded();
 };
 
-#endif /*StimulusFactory_HPP_*/
+#endif /*ABSTRACTSTIMULUSFACTORY_HPP_*/
 

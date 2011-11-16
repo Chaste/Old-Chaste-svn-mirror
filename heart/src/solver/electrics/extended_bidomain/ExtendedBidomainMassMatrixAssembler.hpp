@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#ifndef ExtendedBidomainMassMatrixAssembler_HPP_
-#define ExtendedBidomainMassMatrixAssembler_HPP_
+#ifndef EXTENDEDBIDOMAINMASSMATRIXASSEMBLER_HPP_
+#define EXTENDEDBIDOMAINMASSMATRIXASSEMBLER_HPP_
 
 
 
@@ -100,4 +100,4 @@ public:
 };
 
 
-#endif /*ExtendedBidomainMassMatrixAssembler_HPP_*/
+#endif /*EXTENDEDBIDOMAINMASSMATRIXASSEMBLER_HPP_*/
