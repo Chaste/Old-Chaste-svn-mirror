@@ -46,23 +46,12 @@ void QuadraticMesh<DIM>::CountAndCheckVertices()
     // AbstractNonlinearElasticitySolver<DIM>::AllocateMatrixMemory() )
     //
     mNumVertices = 0;
-    bool vertices_mode = true;
     for (unsigned i=0; i<this->GetNumNodes(); i++)
     {
         bool is_internal = this->GetNode(i)->IsInternal();
         if (is_internal==false)
         {
             mNumVertices++;
-        }
-        if ((vertices_mode == false)  && (is_internal==false ) )
-        {
-            //Covered in the 1D case by special mesh file data
-            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
-        }
-        if ( (vertices_mode == true)  && (is_internal==true) )
-        {
-            //This is the switch from vertices to internal nodes
-            vertices_mode = false;
         }
     }
 }

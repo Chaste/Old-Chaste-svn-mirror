@@ -331,25 +331,92 @@ public:
          * quad mesh are nodes 0-63, i.e. they come before all the internal
          * nodes.
          */
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), quad_mesh.GetNumVertices());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
+            double lin_x = mesh.GetNode(i)->rGetLocation()[0];
+            double lin_y = mesh.GetNode(i)->rGetLocation()[1];
+            double quad_x = quad_mesh.GetNode(i)->rGetLocation()[0];
+            double quad_y = quad_mesh.GetNode(i)->rGetLocation()[1];
+            TS_ASSERT_DELTA(lin_x, quad_x, 1e-8);
+            TS_ASSERT_DELTA(lin_y, quad_y, 1e-8);
+
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];
-
             // max value of the solution is about 0.08, choose a tolerance of
             // 5% of that (wouldn't expect them to be exactly the same).
             TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-2);
-
-            //double x = mesh.GetNode(i)->rGetLocation()[0];
-            //double y = mesh.GetNode(i)->rGetLocation()[1];
-            //
-            //std::cout << x << " " << y << " " << u_1 << " "
-            //          <<  u_2 << " " << fabs(u_1-u_2) << "\n";
         }
 
         VecDestroy(solution_lin);
         VecDestroy(solution_quads);
     }
+
+    void TestSolveLaplacianWithQuadratics2dReordered() throw (Exception)
+    {
+        // Solve using quadratics..
+        QuadraticMesh<2> quad_mesh;
+        TrianglesMeshReader<2,2> mesh_reader1("mesh/test/data/square_128_elements_quadratic_reordered",2,1,false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1);
+
+        BoundaryConditionsContainer<2,2,1> bcc_quads;
+        bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
+
+        QuadraticLaplacianAssemblerSolver<2> solver_quads(&quad_mesh, &bcc_quads);
+        solver_quads.SetPdeConstants(1.0, 1.0);
+
+        Vec solution_quads = solver_quads.Solve();
+        ReplicatableVector sol_quads_repl(solution_quads);
+
+        // Solve using linears
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        EllipticPdeWithLinearSource<2> pde(1.0, 1.0);
+
+        BoundaryConditionsContainer<2,2,1> bcc_lin;
+        bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);
+
+        SimpleLinearEllipticSolver<2,2> solver_lin(&mesh,&pde,&bcc_lin);
+
+        Vec solution_lin = solver_lin.Solve();
+        ReplicatableVector sol_lin_repl(solution_lin);
+
+        /*
+         * Compare results - the following assumes the vertex nodes in the
+         * quad mesh are nodes 0-63, i.e. they come before all the internal
+         * nodes.
+         */
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), quad_mesh.GetNumVertices());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            unsigned quad_index=i;
+            //Quad mesh has a minor permutation: vertex node 4 now appears at index 81
+            if (i==4)
+            {
+                quad_index=81;
+            }
+
+            double lin_x = mesh.GetNode(i)->rGetLocation()[0];
+            double lin_y = mesh.GetNode(i)->rGetLocation()[1];
+            double quad_x = quad_mesh.GetNode(quad_index)->rGetLocation()[0];
+            double quad_y = quad_mesh.GetNode(quad_index)->rGetLocation()[1];
+            TS_ASSERT_DELTA(lin_x, quad_x, 1e-8);
+            TS_ASSERT_DELTA(lin_y, quad_y, 1e-8);
+
+            double u_1 = sol_lin_repl[i];
+            double u_2 = sol_quads_repl[quad_index];
+            // max value of the solution is about 0.08, choose a tolerance of
+            // 5% of that (wouldn't expect them to be exactly the same).
+            TS_ASSERT_DELTA(u_1, u_2, 0.08*5e-2);
+        }
+
+        VecDestroy(solution_lin);
+        VecDestroy(solution_quads);
+    }
+
 
     void TestSolveLaplacianWithQuadratics3d() throw (Exception)
     {

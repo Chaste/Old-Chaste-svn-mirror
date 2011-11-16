@@ -517,12 +517,6 @@ public:
     {
         QuadraticMesh<1> mesh;
 
-        // Bad data
-        TrianglesMeshReader<1,1> mesh_reader1("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic",2,1, false);
-        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader1),
-                "The quadratic mesh doesn\'t appear to have all vertices before the rest of the nodes");
-
-
         // Linear mesh
         TrianglesMeshReader<1,1> mesh_reader2("mesh/test/data/1D_0_to_1_10_elements");
         TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader2),
@@ -779,6 +773,40 @@ public:
         TS_ASSERT_DELTA(quad_mesh.GetVolume(), 3.0, 1e-15);
         TS_ASSERT_DELTA(quad_mesh.GetSurfaceArea(), 14.0, 1e-15);
     }
+
+    void TestQuadraticMesh2dReordered() throw (Exception)
+    {
+        // Quadratics mesh - with different ordering
+        QuadraticMesh<2> quad_mesh;
+        TrianglesMeshReader<2,2> mesh_reader1("mesh/test/data/square_128_elements_quadratic_reordered",2,1,false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1);
+
+
+        // Linear mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), quad_mesh.GetNumVertices());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            unsigned quad_index=i;
+            //Quad mesh has a minor permutation: vertex node 4 now appears at index 81
+            if (i==4)
+            {
+                quad_index=81;
+            }
+
+            double lin_x = mesh.GetNode(i)->rGetLocation()[0];
+            double lin_y = mesh.GetNode(i)->rGetLocation()[1];
+            double quad_x = quad_mesh.GetNode(quad_index)->rGetLocation()[0];
+            double quad_y = quad_mesh.GetNode(quad_index)->rGetLocation()[1];
+            TS_ASSERT_DELTA(lin_x, quad_x, 1e-8);
+            TS_ASSERT_DELTA(lin_y, quad_y, 1e-8);
+        }
+    }
+
+
 };
 
 #endif // _TESTQUADRATICMESH_HPP_
