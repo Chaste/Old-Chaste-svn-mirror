@@ -69,10 +69,11 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        unsigned num_steps = 100;
+        unsigned num_steps = 100; //Per cycle
+        unsigned num_cycles = 2;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()),
-            num_steps);
+            num_cycles*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()),
+            num_cycles*num_steps);
 
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
@@ -103,6 +104,7 @@ public:
         TS_ASSERT_EQUALS(p_diff_cell->GetCellCycleModel()->GetCellProliferativeType(),DIFFERENTIATED);
         TS_ASSERT_EQUALS(p_diff_model->GetGeneration(), 0u);
 
+        //First cycle
         for (unsigned i=0; i<num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -128,6 +130,7 @@ public:
         CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
 
+        //Second cycle
         for (unsigned i=0; i<num_steps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -191,7 +194,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-                        2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), num_steps);
+                        4.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), 2*num_steps);
 
         for (unsigned i=0; i<num_steps; i++)
         {

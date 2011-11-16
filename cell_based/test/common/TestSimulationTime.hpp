@@ -99,6 +99,29 @@ public:
 
         SimulationTime::Destroy();
     }
+    
+    void TestSimulationTestDoesNotRunOver()
+    {
+    
+        SimulationTime* p_simulation_time = SimulationTime :: Instance();
+        p_simulation_time->SetStartTime(0.0);
+
+        TS_ASSERT_EQUALS(p_simulation_time->IsStartTimeSetUp(), true);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 10);
+        double time_step = p_simulation_time->GetTimeStep();
+        TS_ASSERT_DELTA(time_step, 1.0, 1e-6);
+
+        for (unsigned i=0; i<15; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+///\todo #1885 Fix this.            TS_ASSERT_LESS_THAN(p_simulation_time->GetTime(), 10.5);
+            TS_ASSERT_LESS_THAN_EQUALS(p_simulation_time->GetTime(), 15);
+        }
+        
+        SimulationTime::Destroy();
+            
+    }
+    
 
     void TestResetTime()
     {
