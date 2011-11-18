@@ -249,7 +249,7 @@ public:
     {
         // Set up SimulationTime
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(30.0, 3);
 
         // Set up oxygen_concentration
         std::vector<double> oxygen_concentration;

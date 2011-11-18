@@ -61,7 +61,7 @@ public:
 
         double end_time = 60.0;
         unsigned num_timesteps = 1000*(unsigned)end_time;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2*end_time, 2*num_timesteps);
 
         // Set up the Wnt concentration
         double wnt_level = 1.0;
