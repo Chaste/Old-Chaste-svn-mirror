@@ -229,7 +229,6 @@ public:
                 num_divisions++;
             }
         }
-        std::cout << num_divisions << "\n" << std::flush;
         TS_ASSERT_LESS_THAN(num_divisions, 102u);
         TS_ASSERT_LESS_THAN(99u, num_divisions);
 //            out.close();

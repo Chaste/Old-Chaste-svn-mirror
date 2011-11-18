@@ -26,17 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-///\todo #1885 Watch for assertions/Warnings and includes when delegated class goes into production
 #include <cassert>
 #include <cmath>  
 #include "SimulationTime.hpp"
-#include "Warnings.hpp"  
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
 
 /** Pointer to the delegated (shadow) class \todo #1885*/
-
 TimeStepper* SimulationTime::mpTimeStepper = NULL;
 
 SimulationTime* SimulationTime::Instance()
@@ -84,18 +81,13 @@ double SimulationTime::GetTimeStep() const
 
 void SimulationTime::IncrementTimeOneStep()
 {
+    mpTimeStepper->AdvanceOneTimeStep(); //This can now throw if the end time has been reached
     assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
-    mCurrentTime = mStartTime
-                   + ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
-                   * mDurationOfSimulation;
-    ///\todo #1885 Shadow variable - When not covered then make assertion
-    if(fabs(mCurrentTime - mpTimeStepper->GetNextTime())>1e-9)
-    {
-        WARNING("Incremented TimeStep incorrectly "<<mCurrentTime<< " versus "<<mpTimeStepper->GetNextTime());
-    }
-    mpTimeStepper->AdvanceOneTimeStep();
+    double dt = ((double)mTimeStepsElapsed *mDurationOfSimulation);
+    mCurrentTime = mStartTime + dt/(double)mTotalTimeStepsInSimulation;
+    assert( fabs(mCurrentTime - mpTimeStepper->GetTime())<1e-9);
 }
 
 unsigned SimulationTime::GetTimeStepsElapsed() const

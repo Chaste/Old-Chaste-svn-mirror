@@ -131,6 +131,10 @@ void TimeStepper::AdvanceOneTimeStep()
     {
         EXCEPTION("Time step counter has overflowed.");
     }
+    if (mTime == mNextTime)
+    {
+        EXCEPTION("TimeStepper incremented beyond end time.");
+    }
     mTime = mNextTime;
 
     mNextTime = CalculateNextTime();

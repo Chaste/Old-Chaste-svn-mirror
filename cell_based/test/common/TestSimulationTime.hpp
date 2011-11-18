@@ -111,12 +111,13 @@ public:
         double time_step = p_simulation_time->GetTimeStep();
         TS_ASSERT_DELTA(time_step, 1.0, 1e-6);
 
-        for (unsigned i=0; i<11; i++)
+        for (unsigned i=0; i<10; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-///\todo #1885 Fix this.            TS_ASSERT_LESS_THAN(p_simulation_time->GetTime(), 10.5);
-            TS_ASSERT_LESS_THAN_EQUALS(p_simulation_time->GetTime(), 11);
+            TS_ASSERT_LESS_THAN_EQUALS(p_simulation_time->GetTime(), 10);
         }
+        TS_ASSERT_THROWS_THIS(p_simulation_time->IncrementTimeOneStep(), "TimeStepper incremented beyond end time.");
+        TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 10);
         
         SimulationTime::Destroy();
             

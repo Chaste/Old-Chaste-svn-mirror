@@ -116,6 +116,9 @@ public:
 
         TS_ASSERT(stepper.IsTimeAtEnd());
         TS_ASSERT(stepper.GetTotalTimeStepsTaken()==time_step_number);
+        
+        //Stepper no longer allows increments beyond the end to be silently ignored 
+        TS_ASSERT_THROWS_THIS(stepper.AdvanceOneTimeStep(), "TimeStepper incremented beyond end time.");
     }
 
     void TestEnforceConstantTimeStep() throw(Exception)
