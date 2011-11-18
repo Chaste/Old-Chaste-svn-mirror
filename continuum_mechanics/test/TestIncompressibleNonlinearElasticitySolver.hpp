@@ -774,6 +774,127 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }
+
+
+
+
+    /**
+     *  Same as TestSolveWithNonZeroBoundaryConditions()
+     *  but using sliding boundary conditions, in order to test
+     *  that sliding boundary conditions are implemented correcty
+     *
+     *  Choosing the deformation x=X/lambda, y=lambda*Y, with a
+     *  Mooney-Rivlin material, then
+     *   F = [1/lam 0; 0 lam], T = [2*c1-p*lam^2, 0; 0, 2*c1-p/lam^2],
+     *   sigma = [2*c1/lam^2-p, 0; 0, 2*c1*lam^2-p].
+     *  Choosing p=2*c1*lam^2, then sigma = [2*c1/lam^2-p 0; 0 0].
+     *  The surface tractions are then
+     *   TOP and BOTTOM SURFACE: 0
+     *   RHS: s = SN = J*invF*sigma*N = [lam 0; 0 1/lam]*sigma*[1,0]
+     *          = [2*c1(1/lam-lam^3), 0]
+     *
+     *  So, we have to specify partial displacement boundary conditions
+     *  (x=0, y=FREE) on the LHS (X=0), and traction bcs (s=the above) on
+     *  the RHS (X=1), and can
+     *  compare the computed displacement and pressure against the true solution.
+     *
+     */
+    void TestSlidingBoundaryConditions() throw(Exception)
+    {
+        double lambda = 0.85;
+        double c1 = 1.0;
+        unsigned num_elem = 5;
+
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+        MooneyRivlinMaterialLaw<2> law(c1);
+
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > locations;
+
+        // fix node 0 (located at the origin) fully
+        fixed_nodes.push_back(0);
+        locations.push_back(zero_vector<double>(2));
+
+        // for the rest of the nodes, if X=0, set x=0, leave y free.
+        for (unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+                c_vector<double,2> new_position;
+                new_position(0) = 0;
+                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
+                locations.push_back(new_position);
+            }
+        }
+
+
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<c_vector<double,2> > tractions;
+        c_vector<double,2> traction;
+        traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
+        traction(1) = 0;
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+                tractions.push_back(traction);
+            }
+        }
+        assert(boundary_elems.size()==num_elem);
+
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
+
+        IncompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "TestSlidingBoundaryConditions");
+
+
+        // coverage
+        solver.SetKspAbsoluteTolerance(1e-10);
+
+        solver.Solve();
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against Jacobian getting messed up
+
+        std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
+
+        for (unsigned i=0; i<fixed_nodes.size(); i++)
+        {
+            unsigned index = fixed_nodes[i];
+            TS_ASSERT_DELTA(r_solution[index](0), 0.0, 1e-8);
+
+            double exact_y = lambda*mesh.GetNode(index)->rGetLocation()[1];
+            TS_ASSERT_DELTA(r_solution[index](1), exact_y, 1e-5);
+        }
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double exact_x = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
+            double exact_y = lambda*mesh.GetNode(i)->rGetLocation()[1];
+
+            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-5 );
+            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
+        }
+
+        for (unsigned i=0; i<mesh.GetNumVertices(); i++)
+        {
+            TS_ASSERT_DELTA( solver.rGetPressures()[i], 2*c1*lambda*lambda, 1e-5 );
+        }
+
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+    }
 };
 
 #endif /*TESTINCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_*/

@@ -68,7 +68,7 @@ class SolidMechanicsProblemDefinition
 public:
     /** Special displacement that indicates a node is free to move (in a particular direction).
      *  Used in SetFixedNodes(). */
-	static const double FREE = DBL_MAX;
+	static const double FREE; // set to DBL_MAX
 
 private:
     /** The mesh being solved on */

@@ -684,6 +684,171 @@ public:
         TS_ASSERT_DELTA(r_solution[5](0), 1.06156, 1e-4);
         TS_ASSERT_DELTA(r_solution[5](1), 0.00510, 1e-4);
     }
+
+    /**
+     * Same as TestSolveForSimpleDeformationWithCompMooneyRivlin (see comments for this),
+     * except the y position of the fixed nodes is left free, i.e. sliding boundary conditions
+     * are given
+     */
+    void TestSolveUsingSlidingBoundaryConditions2d() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        double c = 2.2;
+        double d = 1.1;
+        double alpha = 0.9;
+        double beta = 0.955749406631746;
+
+        double w1 = c/(alpha*beta); // dW_dI1
+        double w3 = -0.5*c*(alpha*alpha+beta*beta)*pow(alpha*beta,-3) + d*(1.0 - 1.0/(alpha*beta)); // dW_dI3
+
+        double traction_value = 2*w1*alpha + 2*w3*alpha*beta*beta;
+
+        unsigned num_elem = 5;
+
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
+        CompressibleMooneyRivlinMaterialLaw<2> law(c, d);
+
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > locations;
+
+        // fix node 0 (located at the origin) fully
+        fixed_nodes.push_back(0);
+        locations.push_back(zero_vector<double>(2));
+
+        // for the rest of the nodes, if X=0, set x=0, leave y free.
+        for (unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+                c_vector<double,2> new_position;
+                new_position(0) = 0;
+                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
+                locations.push_back(new_position);
+            }
+        }
+
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<c_vector<double,2> > tractions;
+        c_vector<double,2> traction;
+        traction(0) = traction_value;
+        traction(1) = 0;
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
+              = mesh.GetBoundaryElementIteratorBegin();
+            iter != mesh.GetBoundaryElementIteratorEnd();
+            ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+                tractions.push_back(traction);
+            }
+        }
+        assert(boundary_elems.size()==num_elem);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
+
+        CompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                        problem_defn,
+                                                        &law,
+                                                        "CompressibleMechanicsSlidingBcs2d");
+
+        // Coverage
+        solver.SetKspAbsoluteTolerance(1e-10);
+
+        solver.Solve();
+
+        std::vector<c_vector<double,2> >& r_solution = solver.rGetDeformedPosition();
+
+        for (unsigned i=0; i<fixed_nodes.size(); i++)
+        {
+            unsigned index = fixed_nodes[i];
+            TS_ASSERT_DELTA(r_solution[index](0), 0.0, 1e-8);
+
+            double exact_y = beta*mesh.GetNode(index)->rGetLocation()[1];
+            TS_ASSERT_DELTA(r_solution[index](1), exact_y, 1e-5);
+        }
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double exact_x = alpha*mesh.GetNode(i)->rGetLocation()[0];
+            double exact_y = beta*mesh.GetNode(i)->rGetLocation()[1];
+
+            TS_ASSERT_DELTA( r_solution[i](0), exact_x, 1e-5 );
+            TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
+        }
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+    }
+
+    // 3d sliding boundary conditions test
+    void TestSolveUsingSlidingBoundaryConditions3d() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        unsigned num_elem = 2;
+
+        QuadraticMesh<3> mesh(1.0/num_elem, 1.0, 1.0, 1.0);
+        CompressibleMooneyRivlinMaterialLaw<3> law(1.0,1.0);
+
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,3> > locations;
+
+        // fix node 0 (located at the origin) fully
+        fixed_nodes.push_back(0);
+        locations.push_back(zero_vector<double>(3));
+
+        // for the rest of the nodes, if Y=0, set y=0, leave x,z free.
+        for (unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[1])<1e-6)
+            {
+                fixed_nodes.push_back(i);
+                c_vector<double,3> new_position;
+                new_position(0) = SolidMechanicsProblemDefinition<3>::FREE;
+                new_position(1) = 0;
+                new_position(2) = SolidMechanicsProblemDefinition<3>::FREE;
+               locations.push_back(new_position);
+            }
+        }
+
+        SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes,locations);
+
+        // gravity pushing down against the fixed plane
+        c_vector<double,3> gravity;
+        gravity(0) = 0.0;
+        gravity(1) = -1.0;
+        gravity(2) = 0.0;
+        problem_defn.SetBodyForce(gravity);
+
+        CompressibleNonlinearElasticitySolver<3> solver(mesh,
+                                                        problem_defn,
+                                                        &law,
+                                                        "CompressibleMechanicsSlidingBcs3d");
+
+
+        solver.Solve();
+
+        std::vector<c_vector<double,3> >& r_solution = solver.rGetDeformedPosition();
+
+        // just check the Y=0 nodes still have y=0 but have moved in X and Z (except for node at origin)
+        for (unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[1])<1e-6)
+            {
+                TS_ASSERT_DELTA(r_solution[i](1), 0.0, 1e-8);
+                TS_ASSERT_DIFFERS(r_solution[i](0), mesh.GetNode(i)->rGetLocation()[0]);
+                TS_ASSERT_DIFFERS(r_solution[i](2), mesh.GetNode(i)->rGetLocation()[2]);
+            }
+        }
+    }
 };
 
 #endif /* TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_ */

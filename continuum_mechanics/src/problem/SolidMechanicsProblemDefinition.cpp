@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
+const double SolidMechanicsProblemDefinition<DIM>::FREE = DBL_MAX;
+
+template<unsigned DIM>
 SolidMechanicsProblemDefinition<DIM>::SolidMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh)
     : mrMesh(rMesh),
       mDensity(1.0),

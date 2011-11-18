@@ -713,11 +713,17 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bo
     for (unsigned i=0; i<mrProblemDefinition.rGetFixedNodes().size(); i++)
     {
         unsigned node_index = mrProblemDefinition.rGetFixedNodes()[i];
+
         for (unsigned j=0; j<DIM; j++)
         {
-            unsigned dof_index = DIM*node_index+j;
-            rows[DIM*i+j] = dof_index;
-            values[DIM*i+j] = mCurrentSolution[dof_index] - mrProblemDefinition.rGetFixedNodeDisplacements()[i](j);
+            double disp = mrProblemDefinition.rGetFixedNodeDisplacements()[i](j);
+
+            if(disp != SolidMechanicsProblemDefinition<DIM>::FREE)
+            {
+                unsigned dof_index = DIM*node_index+j;
+                rows[DIM*i+j] = dof_index;
+                values[DIM*i+j] = mCurrentSolution[dof_index] - disp;
+            }
         }
     }
 
