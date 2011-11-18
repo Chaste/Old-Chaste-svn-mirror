@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TIMESTEPPER_HPP_
 
 #include <vector>
+#include "ChasteSerialization.hpp"
+#include "Exception.hpp"
 
 /**
  * A helper class that provides a robust way to deal with time loops.
@@ -40,7 +42,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TimeStepper
 {
     friend class TestTimeStepper;
-    friend class SimulationTime;    // Singleton used in cell-based.
+private:
+    /*
+     * Private default constructor for archiving
+     */
+     TimeStepper(){};
+
 public:
 
     /**
@@ -140,6 +147,37 @@ private:
 
     /** Vector to store the additional times the stepper must stop at. */
     std::vector<double> mAdditionalTimes;
+    
+        /** Needed for serialization. */
+    friend class boost::serialization::access;
+
+    /**
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        if (!mAdditionalTimes.empty())
+        {
+            EXCEPTION("Cannot archive TimeStepper with additional times yet.");
+        }
+        archive & mStart;
+        archive & mEnd;
+        archive & mDt;
+        archive & mTotalTimeStepsTaken;
+        archive & mTime;
+        archive & mNextTime;
+        archive & mEpsilon;
+        archive & mAdditionalTimesReached;
+        //archive & mAdditionalTimes; //Because older versions of Boost can't do std:vector out of the box
+    }
+    
 };
+
+#include "SerializationExportWrapper.hpp"
+// Declare identifier for the serializer
+CHASTE_CLASS_EXPORT(TimeStepper)
 
 #endif /*TIMESTEPPER_HPP_*/

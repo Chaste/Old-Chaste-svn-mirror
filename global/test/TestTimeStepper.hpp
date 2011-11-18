@@ -31,11 +31,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "TimeStepper.hpp"
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <cassert>
 #include <cmath>
 #include <cfloat>
 
+#include "TimeStepper.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestTimeStepper : public CxxTest::TestSuite
 {
@@ -342,6 +346,62 @@ public:
         }
         TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 500u);
     }
+    
+    
+    
+    void TestArchiveTimeStepper()
+    {
+        OutputFileHandler handler("TestTimeStepper_Archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "time.arch";
+
+        // Create and archive time-stepper
+        {
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            TimeStepper stepper(0.0, 1.0, 0.1, false);
+            
+            //Run for 5 steps
+            for (int i=0; i<5; i++)
+            {
+                stepper.AdvanceOneTimeStep();
+            }
+            
+            TS_ASSERT_DELTA(stepper.GetTime(), 0.5, 1e-10);
+            TS_ASSERT_DELTA(stepper.GetNextTime(), 0.6, 1e-10);
+            
+            TimeStepper* const p_stepper_for_archiving = &stepper;
+            output_arch << p_stepper_for_archiving;
+
+
+            std::vector<double> additional_times;
+            additional_times.push_back(0.55);
+            TimeStepper stepper2(0.0, 1.0, 0.1, false, additional_times);
+
+            TimeStepper* const p_stepper_for_archiving2 = &stepper2;
+            TS_ASSERT_THROWS_THIS(output_arch << p_stepper_for_archiving2, "Cannot archive TimeStepper with additional times yet.");
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            TimeStepper* p_stepper;
+            input_arch >> p_stepper;
+
+            TS_ASSERT_DELTA(p_stepper->GetTime(), 0.5, 1e-10);
+            TS_ASSERT_DELTA(p_stepper->GetNextTime(), 0.6, 1e-10);
+
+            p_stepper->AdvanceOneTimeStep();
+            TS_ASSERT_DELTA(p_stepper->GetTime(), 0.6, 1e-10);
+            TS_ASSERT_DELTA(p_stepper->GetNextTime(), 0.7, 1e-10);
+            
+            delete p_stepper;
+        }
+    }
+    
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/
