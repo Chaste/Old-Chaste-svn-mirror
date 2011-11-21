@@ -79,9 +79,11 @@ public:
      *
      * @param rCells  An empty vector of cells to fill up.
      * @param locationIndices  The indices of the cell population to assign real cells to.
+     * @param cellProliferativeType  the cell proliferative type to give each cell (defaults to STEM)
      */
     void GenerateGivenLocationIndices(std::vector<CellPtr>& rCells,
-                                      const std::vector<unsigned> locationIndices);
+                                      const std::vector<unsigned> locationIndices,
+                                      CellProliferativeType cellProliferativeType=STEM);
 };
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
@@ -160,7 +162,8 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasicRandom(std::vector<CellP
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vector<CellPtr>& rCells,
-                                                                        const std::vector<unsigned> locationIndices)
+                                                                        const std::vector<unsigned> locationIndices,
+                                                                        CellProliferativeType cellProliferativeType)
 {
     assert(!locationIndices.empty());
 
@@ -174,7 +177,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
     {
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
-        p_cell_cycle_model->SetCellProliferativeType(STEM);
+        p_cell_cycle_model->SetCellProliferativeType(cellProliferativeType);
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 

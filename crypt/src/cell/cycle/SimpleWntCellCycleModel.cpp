@@ -184,22 +184,19 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     double wnt_division_threshold = DBL_MAX;
 
     // Set up under what level of Wnt stimulus a cell will divide
-    double healthy_threshold = mWntTransitThreshold;
-    double labelled_threshold = mWntLabelledThreshold;
-
     if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
-        wnt_division_threshold = healthy_threshold;
+        wnt_division_threshold = mWntTransitThreshold;
     }
     else if (mpCell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
     {
         // should be less than healthy values
-        wnt_division_threshold = 0.77*healthy_threshold;
+        wnt_division_threshold = 0.77*mWntTransitThreshold;
     }
     else if (mpCell->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
     {
         // less than above value
-        wnt_division_threshold = 0.155*healthy_threshold;
+        wnt_division_threshold = 0.155*mWntTransitThreshold;
     }
     else if (mpCell->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
     {
@@ -213,7 +210,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 
     if (mpCell->HasCellProperty<CellLabel>())
     {
-        wnt_division_threshold = labelled_threshold;
+        wnt_division_threshold = mWntLabelledThreshold;
     }
 
     double wnt_level = GetWntLevel();
