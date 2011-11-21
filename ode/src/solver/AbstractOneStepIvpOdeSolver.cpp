@@ -26,8 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "CheckpointArchiveTypes.hpp"
-
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
