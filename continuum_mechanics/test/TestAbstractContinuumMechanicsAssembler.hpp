@@ -254,8 +254,20 @@ public:
             }
         }
 
+        Vec bad_size_vec = PetscTools::CreateVec(67);
+        Mat bad_size_mat;
+        PetscTools::SetupMat(bad_size_mat, 67, 67, 10);
+
+        assembler.SetVectorToAssemble(bad_size_vec, true);
+        TS_ASSERT_THROWS_CONTAINS(assembler.AssembleVector(), "Vector provided to be assembled has size 67, not expected size of 5");
+
+        assembler.SetMatrixToAssemble(bad_size_mat, true);
+        TS_ASSERT_THROWS_CONTAINS(assembler.AssembleMatrix(), "Matrix provided to be assembled has size 67, not expected size of 5");
+
         MatDestroy(mat);
         VecDestroy(vec);
+        MatDestroy(bad_size_mat);
+        VecDestroy(bad_size_vec);
     }
 
     // same to main part of TestAssemblers1d except 2d

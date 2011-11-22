@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCONTINUUMMECHANICSASSEMBLER_HPP_
 #define ABSTRACTCONTINUUMMECHANICSASSEMBLER_HPP_
 
+#include "AbstractFeAssemblerInterface.hpp"
 #include "QuadraticMesh.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
@@ -39,12 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscMatTools.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-// do mixed problem first, then allow for non-mixed. Needs template param? ought to check mat size is consistent with
-// mixed or not
-
 
 template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
-class AbstractContinuumMechanicsAssembler : boost::noncopyable
+class AbstractContinuumMechanicsAssembler : public AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>
 {
     static const bool BLOCK_SYMMETRIC_MATRIX = true; //generalise to non-block symmetric matrices later (when needed maybe)
 
@@ -63,29 +61,6 @@ class AbstractContinuumMechanicsAssembler : boost::noncopyable
 protected:
     /** The quadratic mesh */
     QuadraticMesh<DIM>* mpMesh;
-
-    /** The vector to be assembled (only used if CAN_ASSEMBLE_VECTOR == true). */
-    Vec mVectorToAssemble;
-
-    /** The matrix to be assembled (only used if CAN_ASSEMBLE_MATRIX == true). */
-    Mat mMatrixToAssemble;
-
-    /**
-     * Whether to assemble the matrix (an assembler may be able to assemble matrices
-     * (CAN_ASSEMBLE_MATRIX==true), but may not want to do so each timestep, hence
-     * this second boolean.
-     */
-    bool mAssembleMatrix;
-
-    /** Whether to assemble the vector. */
-    bool mAssembleVector;
-
-    /** Whether to zero the given matrix before assembly, or just add to it. */
-    bool mZeroMatrixBeforeAssembly;
-
-    /** Whether to zero the given vector before assembly, or just add to it. */
-    bool mZeroVectorBeforeAssembly;
-
 
     GaussianQuadratureRule<DIM>* mpQuadRule;
 
@@ -266,73 +241,22 @@ protected:
 
 public:
     AbstractContinuumMechanicsAssembler(QuadraticMesh<DIM>* pMesh, unsigned numQuadPoints = 3)
-        : mpMesh(pMesh),
-          mVectorToAssemble(NULL),
-          mMatrixToAssemble(NULL),
-          mZeroMatrixBeforeAssembly(true),
-          mZeroVectorBeforeAssembly(true)
+        : AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>(),
+          mpMesh(pMesh)
     {
         assert(pMesh);
         mpQuadRule = new GaussianQuadratureRule<DIM>(numQuadPoints);
     }
 
-    /**
-     * Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
-     *
-     * @param rMatToAssemble Reference to the matrix
-     * @param zeroMatrixBeforeAssembly Whether to zero the matrix before assembling
-     *  (otherwise it is just added to)
-     */
-    void SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly=true);
 
-    /**
-     * Set the vector that needs to be assembled. Requires CAN_ASSEMBLE_VECTOR==true.
-     *
-     * @param rVecToAssemble Reference to the vector
-     * @param zeroVectorBeforeAssembly Whether to zero the vector before assembling
-     *  (otherwise it is just added to)
-     */
-    void SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly);
+//    /**
+//     * Set a current solution vector that will be used in AssembleOnElement and can passed
+//     * up to ComputeMatrixTerm() or ComputeVectorTerm().
+//     *
+//     * @param currentSolution Current solution vector.
+//     */
+//    void SetCurrentSolution(Vec currentSolution);
 
-    /**
-     * Set a current solution vector that will be used in AssembleOnElement and can passed
-     * up to ComputeMatrixTerm() or ComputeVectorTerm().
-     *
-     * @param currentSolution Current solution vector.
-     */
-    void SetCurrentSolution(Vec currentSolution);
-
-    /**
-     * Assemble everything that the class can assemble.
-     */
-    void Assemble()
-    {
-        mAssembleMatrix = CAN_ASSEMBLE_MATRIX;
-        mAssembleVector = CAN_ASSEMBLE_VECTOR;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the matrix. Requires CAN_ASSEMBLE_MATRIX==true and ComputeMatrixTerm() to be implemented.
-     */
-    void AssembleMatrix()
-    {
-        assert(CAN_ASSEMBLE_MATRIX);
-        mAssembleMatrix = true;
-        mAssembleVector = false;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the vector. Requires CAN_ASSEMBLE_VECTOR==true and ComputeVectorTerm() to be implemented.
-     */
-    void AssembleVector()
-    {
-        assert(CAN_ASSEMBLE_VECTOR);
-        mAssembleMatrix = false;
-        mAssembleVector = true;
-        DoAssemble();
-    }
 
     /**
      * Destructor.
@@ -343,29 +267,6 @@ public:
     }
 };
 
-template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
-void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>::SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly)
-{
-//    assert(rMatToAssemble);
-//    MatGetOwnershipRange(rMatToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
-    assert( PetscMatTools::GetSize(rMatToAssemble) == DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() );
-
-    mMatrixToAssemble = rMatToAssemble;
-    mZeroMatrixBeforeAssembly = zeroMatrixBeforeAssembly;
-}
-
-template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
-void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>::SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly)
-{
-//    assert(rVecToAssemble);
-//    VecGetOwnershipRange(rVecToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
-    assert( PetscVecTools::GetSize(rVecToAssemble) == DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() );
-
-    mVectorToAssemble = rVecToAssemble;
-    mZeroVectorBeforeAssembly = zeroVectorBeforeAssembly;
-}
 
 //// add this method when needed..
 //template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
@@ -387,24 +288,39 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
 template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
 void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>::DoAssemble()
 {
-    assert(mAssembleMatrix || mAssembleVector);
-    if (mAssembleMatrix && mMatrixToAssemble==NULL)
+    assert(this->mAssembleMatrix || this->mAssembleVector);
+    if (this->mAssembleMatrix)
     {
-        EXCEPTION("Matrix to be assembled has not been set");
+        if(this->mMatrixToAssemble==NULL)
+        {
+            EXCEPTION("Matrix to be assembled has not been set");
+        }
+        if( PetscMatTools::GetSize(this->mMatrixToAssemble) != DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() )
+        {
+            EXCEPTION("Matrix provided to be assembled has size " << PetscMatTools::GetSize(this->mMatrixToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << "(dim*num_nodes+num_vertices)");
+        }
     }
-    if (mAssembleVector && mVectorToAssemble==NULL)
+
+    if (this->mAssembleVector)
     {
-        EXCEPTION("Vector to be assembled has not been set");
+        if(this->mVectorToAssemble==NULL)
+        {
+            EXCEPTION("Vector to be assembled has not been set");
+        }
+        if( PetscVecTools::GetSize(this->mVectorToAssemble) != DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() )
+        {
+            EXCEPTION("Vector provided to be assembled has size " << PetscVecTools::GetSize(this->mVectorToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << "(dim*num_nodes+num_vertices)");
+        }
     }
 
     // Zero the matrix/vector if it is to be assembled
-    if (mAssembleVector && mZeroVectorBeforeAssembly)
+    if (this->mAssembleVector && this->mZeroVectorBeforeAssembly)
     {
-        PetscVecTools::Zero(mVectorToAssemble);
+        PetscVecTools::Zero(this->mVectorToAssemble);
     }
-    if (mAssembleMatrix && mZeroMatrixBeforeAssembly)
+    if (this->mAssembleMatrix && this->mZeroMatrixBeforeAssembly)
     {
-        PetscMatTools::Zero(mMatrixToAssemble);
+        PetscMatTools::Zero(this->mMatrixToAssemble);
     }
 
 //todo!
@@ -440,16 +356,16 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
                 p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mpMesh->GetNumNodes() + r_element.GetNodeGlobalIndex(i);
             }
 
-            if (mMatrixToAssemble)
+            if (this->mMatrixToAssemble)
             {
-                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(mMatrixToAssemble, p_indices, a_elem);
+                PetscMatTools::AddMultipleValues<STENCIL_SIZE>(this->mMatrixToAssemble, p_indices, a_elem);
             }
 
 //mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond);
 
-            if (mAssembleVector)
+            if (this->mAssembleVector)
             {
-                PetscVecTools::AddMultipleValues<STENCIL_SIZE>(mVectorToAssemble, p_indices, b_elem);
+                PetscVecTools::AddMultipleValues<STENCIL_SIZE>(this->mVectorToAssemble, p_indices, b_elem);
             }
         }
     }
@@ -466,12 +382,12 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
 
     mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
-    if (mAssembleMatrix)
+    if (this->mAssembleMatrix)
     {
         rAElem.clear();
     }
 
-    if (mAssembleVector)
+    if (this->mAssembleVector)
     {
         rBElem.clear();
     }
@@ -504,7 +420,7 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
             X.rGetLocation() += linear_phi(vertex_index)*rElement.GetNode(vertex_index)->rGetLocation();
         }
 
-        if(mAssembleVector)
+        if(this->mAssembleVector)
         {
             c_vector<double,SPATIAL_BLOCK_SIZE_ELEMENTAL> b_spatial
                 = ComputeSpatialVectorTerm(quad_phi, grad_quad_phi, X, &rElement);
@@ -523,7 +439,7 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
         }
 
 
-        if(mAssembleMatrix)
+        if(this->mAssembleMatrix)
         {
             c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL> a_spatial_spatial
                 = ComputeSpatialSpatialMatrixTerm(quad_phi, grad_quad_phi, X, &rElement);

@@ -29,12 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTFEASSEMBLERCOMMON_HPP_
 #define ABSTRACTFEASSEMBLERCOMMON_HPP_
 
-#include "LinearBasisFunction.hpp"
+#include "AbstractFeAssemblerInterface.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "HeartEventHandler.hpp"
-#include "AbstractTetrahedralMesh.hpp"
+#include "LinearBasisFunction.hpp"
 #include "PetscTools.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 /**
  * Enumeration for defining how much interpolation (onto quadrature points) is
@@ -55,58 +56,23 @@ typedef enum InterpolationLevel_
 
 
 /**
- *   A common bass class for AbstractFeVolumeIntegralAssembler (the main abstract assembler class), AbstractSurfaceFeObjectAssembler, and
+ *   A base class for AbstractFeVolumeIntegralAssembler (the main abstract assembler class), AbstractSurfaceFeObjectAssembler, and
  *   AbstractCableFeObjectAssembler.
+ *
+ *   The base class of this, AbstractFeAssemblerInterface, defines the interface for these assembler classes. This class
+ *   just defines a few pde-folder-specific (ie not continuum-mechanics-related) extra methods.
  *
  *   See AbstractFeVolumeIntegralAssembler documentation for info on these assembler classes.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-class AbstractFeAssemblerCommon : boost::noncopyable
+class AbstractFeAssemblerCommon : public AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>
 {
 protected:
-    /** The vector to be assembled (only used if CAN_ASSEMBLE_VECTOR == true). */
-    Vec mVectorToAssemble;
-
-    /** The matrix to be assembled (only used if CAN_ASSEMBLE_MATRIX == true). */
-    Mat mMatrixToAssemble;
-
-    /**
-     * Whether to assemble the matrix (an assembler may be able to assemble matrices
-     * (CAN_ASSEMBLE_MATRIX==true), but may not want to do so each timestep, hence
-     * this second boolean.
-     */
-    bool mAssembleMatrix;
-
-    /** Whether to assemble the vector. */
-    bool mAssembleVector;
-
-    /** Whether to zero the given matrix before assembly, or just add to it. */
-    bool mZeroMatrixBeforeAssembly;
-
-    /** Whether to zero the given vector before assembly, or just add to it. */
-    bool mZeroVectorBeforeAssembly;
-
-    /** Ownership range of the vector/matrix - lowest component owned. */
-    PetscInt mOwnershipRangeLo;
-
-    /** Ownership range of the vector/matrix - highest component owned +1. */
-    PetscInt mOwnershipRangeHi;
-
     /**
      * If the matrix or vector will be dependent on a current solution, say,
      * this is where that information is put.
      */
     ReplicatableVector mCurrentSolutionOrGuessReplicated;
-
-    /**
-     * The main assembly method. Protected, should only be called through Assemble(),
-     * AssembleMatrix() or AssembleVector() which set mAssembleMatrix, mAssembleVector
-     * accordingly. Pure and therefore is implemented in child classes. Will involve looping
-     * over elements (which may be volume, surface or cable elements), and computing
-     * integrals and adding them to the vector or matrix
-     */
-    virtual void DoAssemble()=0;
-
 
     /**
      * Useful inline function for getting an entry from the current solution vector.
@@ -137,8 +103,6 @@ protected:
      */
     virtual void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
     {}
-
-
 public:
 
     /**
@@ -147,62 +111,12 @@ public:
     AbstractFeAssemblerCommon();
 
     /**
-     * Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
-     *
-     * @param rMatToAssemble Reference to the matrix
-     * @param zeroMatrixBeforeAssembly Whether to zero the matrix before assembling
-     *  (otherwise it is just added to)
-     */
-    void SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly=true);
-
-    /**
-     * Set the vector that needs to be assembled. Requires CAN_ASSEMBLE_VECTOR==true.
-     *
-     * @param rVecToAssemble Reference to the vector
-     * @param zeroVectorBeforeAssembly Whether to zero the vector before assembling
-     *  (otherwise it is just added to)
-     */
-    void SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly);
-
-    /**
      * Set a current solution vector that will be used in AssembleOnElement and can passed
      * up to ComputeMatrixTerm() or ComputeVectorTerm().
      *
      * @param currentSolution Current solution vector.
      */
     void SetCurrentSolution(Vec currentSolution);
-
-    /**
-     * Assemble everything that the class can assemble.
-     */
-    void Assemble()
-    {
-        mAssembleMatrix = CAN_ASSEMBLE_MATRIX;
-        mAssembleVector = CAN_ASSEMBLE_VECTOR;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the matrix. Requires CAN_ASSEMBLE_MATRIX==true and ComputeMatrixTerm() to be implemented.
-     */
-    void AssembleMatrix()
-    {
-        assert(CAN_ASSEMBLE_MATRIX);
-        mAssembleMatrix = true;
-        mAssembleVector = false;
-        DoAssemble();
-    }
-
-    /**
-     * Assemble the vector. Requires CAN_ASSEMBLE_VECTOR==true and ComputeVectorTerm() to be implemented.
-     */
-    void AssembleVector()
-    {
-        assert(CAN_ASSEMBLE_VECTOR);
-        mAssembleMatrix = false;
-        mAssembleVector = true;
-        DoAssemble();
-    }
 
     /**
      * Destructor.
@@ -214,32 +128,8 @@ public:
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeAssemblerCommon()
-    : mVectorToAssemble(NULL),
-      mMatrixToAssemble(NULL),
-      mZeroMatrixBeforeAssembly(true),
-      mZeroVectorBeforeAssembly(true)
+    : AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>()
 {
-    assert(CAN_ASSEMBLE_VECTOR || CAN_ASSEMBLE_MATRIX);
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly)
-{
-    assert(rMatToAssemble);
-    MatGetOwnershipRange(rMatToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
-    mMatrixToAssemble = rMatToAssemble;
-    mZeroMatrixBeforeAssembly = zeroMatrixBeforeAssembly;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly)
-{
-    assert(rVecToAssemble);
-    VecGetOwnershipRange(rVecToAssemble, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
-    mVectorToAssemble = rVecToAssemble;
-    mZeroVectorBeforeAssembly = zeroVectorBeforeAssembly;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
