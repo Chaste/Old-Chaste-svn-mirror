@@ -171,6 +171,10 @@ double TimeStepper::GetNextTimeStep()
 
     return dt;
 }
+double TimeStepper::GetIdealTimeStep()
+{
+    return(mDt);
+}
 
 bool TimeStepper::IsTimeAtEnd() const
 {

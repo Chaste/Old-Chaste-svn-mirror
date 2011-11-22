@@ -68,6 +68,9 @@ public:
 
     /**
      * Step forward one step in time and update member variables.
+     * 
+     * Note that this should be used in conjuction with (not) IsTimeAtEnd because
+     * increment past the end of a simulation will throw an exception
      */
     void AdvanceOneTimeStep();
 
@@ -88,6 +91,13 @@ public:
     double GetNextTimeStep();
 
     /**
+     * Get the size of the ideal time step (as set in the constructor.
+     * Note when a fixed time step is used GetNextTimeStep() ==  GetIdealTimeStep()
+     * until the end of the simulation when GetNextTimeStep() == 0.0
+     */
+    double GetIdealTimeStep();
+
+    /**
      * True when GetTime == endTime.
      */
     bool IsTimeAtEnd() const;
@@ -99,7 +109,7 @@ public:
     unsigned EstimateTimeSteps() const;
 
     /**
-     * The number of time AdvanceOneTimeStep() has been called SINCE
+     * The number of times AdvanceOneTimeStep() has been called SINCE
      * the last time ResetTimeStep() was called.
      */
     unsigned GetTotalTimeStepsTaken() const;

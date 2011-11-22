@@ -105,9 +105,8 @@ public:
                 to_time = end_time;
             }
 
-            //std::cout << stepper.GetNextTimeStep()-real_time_step << std::endl;
-
             TS_ASSERT_EQUALS(stepper.GetNextTimeStep(), real_time_step);
+            TS_ASSERT_EQUALS(stepper.GetIdealTimeStep(), timestep);
             TS_ASSERT_EQUALS(stepper.GetTime(), current_time);
             TS_ASSERT_EQUALS(stepper.GetNextTime(), to_time);
 
@@ -144,7 +143,17 @@ public:
         while (!const_dt_stepper.IsTimeAtEnd())
         {
             counter++;
+            TS_ASSERT_DELTA(const_dt_stepper.GetNextTimeStep(), 0.1, 1e-15);
+            TS_ASSERT_EQUALS(const_dt_stepper.GetIdealTimeStep(), 0.1);
             const_dt_stepper.AdvanceOneTimeStep();
+            if (const_dt_stepper.IsTimeAtEnd())
+            {
+                TS_ASSERT_EQUALS(const_dt_stepper.GetNextTimeStep(), 0.0);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(const_dt_stepper.GetNextTimeStep(), 0.1, 1e-15);
+            }
         }
         TS_ASSERT_EQUALS(counter,10u);
     }

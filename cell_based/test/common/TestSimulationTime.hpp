@@ -53,6 +53,9 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         TS_ASSERT_EQUALS(p_simulation_time->IsStartTimeSetUp(), true);
+ 
+        //Should be able to get time before setting up the rest of the machinery
+        TS_ASSERT_DELTA(p_simulation_time->GetTime(), 0.0, 1e-6);
 
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 3);
 
