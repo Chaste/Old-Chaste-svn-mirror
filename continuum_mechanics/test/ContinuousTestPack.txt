@@ -1,3 +1,4 @@
+TestAbstractContinuumMechanicsAssembler.hpp
 TestCompressibleNonlinearElasticitySolver.hpp
 TestIncompressibleNonlinearElasticitySolver.hpp
 TestMaterialLaws.hpp

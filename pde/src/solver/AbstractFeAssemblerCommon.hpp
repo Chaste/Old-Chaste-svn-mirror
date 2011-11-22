@@ -150,7 +150,7 @@ public:
      * Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
      *
      * @param rMatToAssemble Reference to the matrix
-     * @param zeroMatrixBeforeAssembly Whether to zero the vector before assembling
+     * @param zeroMatrixBeforeAssembly Whether to zero the matrix before assembling
      *  (otherwise it is just added to)
      */
     void SetMatrixToAssemble(Mat& rMatToAssemble, bool zeroMatrixBeforeAssembly=true);
