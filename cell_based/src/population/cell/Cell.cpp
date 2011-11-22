@@ -262,7 +262,8 @@ bool Cell::IsDead()
 {
     if (mUndergoingApoptosis && !mIsDead)
     {
-        if (SimulationTime::Instance()->GetTime() >= mDeathTime)
+        double sloppy_death_time = mDeathTime - DBL_EPSILON * mApoptosisTime;
+        if (SimulationTime::Instance()->GetTime() >= sloppy_death_time )
         {
             this->Kill();
         }
