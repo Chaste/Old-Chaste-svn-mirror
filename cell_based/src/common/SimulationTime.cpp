@@ -80,8 +80,7 @@ double SimulationTime::GetTimeStep() const
     assert(mpTimeStepper);
 
     assert(fabs(mDurationOfSimulation/mTotalTimeStepsInSimulation - mpTimeStepper->GetIdealTimeStep()) <=DBL_EPSILON);
-    return mDurationOfSimulation/mTotalTimeStepsInSimulation;
-    ///\todo #1885 return mpTimeStepper->GetIdealTimeStep();
+    return mpTimeStepper->GetIdealTimeStep();
 }
 
 void SimulationTime::IncrementTimeOneStep()
@@ -120,8 +119,8 @@ double SimulationTime::GetTime() const
                 assert( fabs(mCurrentTime -mpTimeStepper->GetTime()) < 2*DBL_EPSILON);
             }
         }
-        ///\todo #1885 Possibly breaks high-level test: return mpTimeStepper->GetTime();
-        return mCurrentTime;
+        return mpTimeStepper->GetTime();
+        //return mCurrentTime;
     }
     //If time stepping hasn't started then we are still at start time
     assert(mCurrentTime == mStartTime);
@@ -168,8 +167,8 @@ void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, co
 
     // Reset the machinery that works out the time
     assert(fabs(mCurrentTime-mpTimeStepper->GetTime())<=DBL_EPSILON);
-    //mStartTime = mpTimeStepper->GetTime();
-    mStartTime = mCurrentTime;
+    mStartTime = mpTimeStepper->GetTime();
+    //mStartTime = mCurrentTime;
     mTimeStepsElapsed = 0;
 
     // Set up the new end time and other member variables
@@ -192,10 +191,11 @@ bool SimulationTime::IsFinished() const
     if(mpTimeStepper->IsTimeAtEnd() != (mCurrentTime>=mEndTime))
     {
         assert (mpTimeStepper->IsTimeAtEnd());
+        ///\todo #1885 Delete on coverage failure
         WARNING("TimeStepper runs past end time in this test");
     }
-    //return(mpTimeStepper->IsTimeAtEnd());
-    return (mCurrentTime>=mEndTime);
+    return(mpTimeStepper->IsTimeAtEnd());
+    //return (mCurrentTime>=mEndTime);
 }
 
 unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
