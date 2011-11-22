@@ -81,6 +81,13 @@ public:
         TS_ASSERT(CompareDoubles::WithinAbsoluteTolerance(2.0, 3.0, 1.0));
         TS_ASSERT(!CompareDoubles::WithinAbsoluteTolerance(99.99999, 100, 0.000009));
 
+        TS_ASSERT(CompareDoubles::WithinAnyTolerance(10, 10.1, 0.01, 0.001));
+        TS_ASSERT(CompareDoubles::WithinAnyTolerance(10, 10.1, 0.01)); // Relative only
+        TS_ASSERT(!CompareDoubles::WithinAnyTolerance(10, 10.1, 0.001, 0.01));
+        TS_ASSERT(CompareDoubles::WithinAnyTolerance(10, 10.1, 0.001, 0.2));
+        TS_ASSERT(CompareDoubles::WithinAnyTolerance(10, 10)); // Exact equality...
+        TS_ASSERT(!CompareDoubles::WithinAnyTolerance(10, 10.1, 0.001, 0.01, true)); // Print error
+
         TS_ASSERT(CompareDoubles::WithinTolerance(0.001, 0.002, 0.0015, true)); // Absolute tol
         TS_ASSERT(!CompareDoubles::WithinTolerance(0.001, 0.002, 0.0015, false)); // Relative tol
         TS_ASSERT(!CompareDoubles::WithinTolerance(0.001, 0.002, 0.0005, true)); // Absolute tol

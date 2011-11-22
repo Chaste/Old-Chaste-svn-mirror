@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MathsCustomFunctions.hpp"
 
-#include <cfloat>
 #include <cmath>
 #include <iostream>
 
@@ -132,6 +131,18 @@ bool CompareDoubles::WithinRelativeTolerance(double number1, double number2, dou
 bool CompareDoubles::WithinAbsoluteTolerance(double number1, double number2, double tolerance)
 {
     return fabs(number1 - number2) <= tolerance;
+}
+
+bool CompareDoubles::WithinAnyTolerance(double number1, double number2, double relTol, double absTol, bool printError)
+{
+    bool ok = WithinAbsoluteTolerance(number1, number2, absTol) || WithinRelativeTolerance(number1, number2, relTol);
+    if (printError && !ok)
+    {
+        std::cout << "CompareDoubles::WithinAnyTolerance: " << number1 << " and " << number2
+                  << " differ by more than relative tolerance of " << relTol
+                  << " and absolute tolerance of " << absTol << std::endl;
+    }
+    return ok;
 }
 
 bool CompareDoubles::WithinTolerance(double number1, double number2, double tolerance, bool toleranceIsAbsolute)

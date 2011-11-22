@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MATHSCUSTOMFUNCTIONS_HPP_
 #define MATHSCUSTOMFUNCTIONS_HPP_
 
+#include <cfloat>
+
 /**
  * @file
  * This file contains some utility functions and a small class for dealing with floating
@@ -99,6 +101,20 @@ public:
      * @param toleranceIsAbsolute  whether the tolerance is absolute (true) or relative (false)
      */
     static bool WithinTolerance(double number1, double number2, double tolerance, bool toleranceIsAbsolute);
+
+    /**
+     * Test whether two numbers are close within the given tolerances.  If either the relative or
+     * absolute tolerance is satisfied, then the result is true.
+     *
+     * @param number1  the first number to compare
+     * @param number2  the second number to compare
+     * @param relTol  the relative tolerance to compare under
+     * @param absTol  the absolute tolerance to compare under
+     * @param printError  whether to print an error message to stdout
+     */
+    static bool WithinAnyTolerance(double number1, double number2,
+                                   double relTol=DBL_EPSILON, double absTol=DBL_EPSILON,
+                                   bool printError=false);
 
     /**
      * Compute the relative or absolute difference between two numbers.

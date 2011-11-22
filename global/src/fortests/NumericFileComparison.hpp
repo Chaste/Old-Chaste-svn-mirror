@@ -105,20 +105,21 @@ public:
     }
 
     /**
-     * Compare the files.
+     * Compare the files under both relative and absolute tolerances.
+     * The comparison only fails if neither tolerance holds.  The
+     * default settings effectively require numbers to match exactly.
      *
-     * @param tolerance  tolerance on difference between numbers
+     * @param absTol  absolute tolerance on difference between numbers
      * @param ignoreFirstFewLines  how many lines to ignore from the comparison
-     * @param toleranceIsAbsolute  whether the tolerance is absolute or relative
+     * @param relTol  relative tolerance on difference between numbers
      */
-    bool CompareFiles(double tolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0,
-                      bool toleranceIsAbsolute=true)
+    bool CompareFiles(double absTol=DBL_EPSILON, unsigned ignoreFirstFewLines=0,
+                      bool relTol=DBL_EPSILON)
     {
         double data1;
         double data2;
         unsigned failures = 0;
-        double max_error = 0.0;
-        unsigned max_failures = 10;
+        unsigned max_display_failures = 10;
 
         for (unsigned line_number=0; line_number<ignoreFirstFewLines; line_number++)
         {
@@ -172,29 +173,22 @@ public:
                 }
             }
 
-            double error = CompareDoubles::Difference(data1, data2, toleranceIsAbsolute);
-            if (error > tolerance)
+            bool ok = CompareDoubles::WithinAnyTolerance(data1, data2, relTol, absTol);
+            if (!ok)
             {
-                failures++;
-                // Display error
-                CompareDoubles::WithinTolerance(data1, data2, tolerance, toleranceIsAbsolute);
-                if (error > max_error)
+                if (failures++ < max_display_failures)
                 {
-                    max_error = error;
+                    // Display error
+                    CompareDoubles::WithinAnyTolerance(data1, data2, relTol, absTol, true);
                 }
-            }
-            if (failures > max_failures)
-            {
-                break; // Don't clog the screen
             }
         }
         while (data1 != NOTHING_TO_READ && data2 != NOTHING_TO_READ); // If either is a NOTHING_TO_READ, then it means that there's nothing to read from the file
 
         // Force CxxTest error if there were any major differences
-        TS_ASSERT_LESS_THAN(max_error, tolerance);
-
+        TS_ASSERT_EQUALS(failures, 0u);
         // If that assertion tripped...
-        if (max_error >= tolerance)
+        if (failures > 0u)
         {
 #define COVERAGE_IGNORE
             // Report the paths to the files
