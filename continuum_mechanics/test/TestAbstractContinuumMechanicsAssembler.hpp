@@ -34,9 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscMatTools.hpp"
 #include "ReplicatableVector.hpp"
+#include "MassMatrixAssembler.hpp"
+#include "TrianglesMeshReader.hpp"
 
 template<unsigned DIM>
-class MyMatrixAssembler : public AbstractContinuumMechanicsAssembler<DIM,true,true>
+class SimpleAssembler : public AbstractContinuumMechanicsAssembler<DIM,true,true>
 {
 private:
     static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
@@ -54,7 +56,7 @@ private:
     double mVal5;
 
 public:
-    MyMatrixAssembler(QuadraticMesh<DIM>* pMesh, double val1, double val2, double val3, double val4=0, double val5=0)
+    SimpleAssembler(QuadraticMesh<DIM>* pMesh, double val1, double val2, double val3, double val4=0, double val5=0)
         : AbstractContinuumMechanicsAssembler<DIM,true,true>(pMesh),
           mVal1(val1),
           mVal2(val2),
@@ -147,6 +149,46 @@ public:
     }
 };
 
+// Doesn't over-ride any methods, so should return a zero matrix. (Note: can't create
+// vectors).
+class ZeroMatrixAssembler : public AbstractContinuumMechanicsAssembler<1,false,true>
+{
+public:
+    ZeroMatrixAssembler(QuadraticMesh<1>* pMesh)
+        : AbstractContinuumMechanicsAssembler<1,false,true>(pMesh)
+    {
+    }
+};
+
+
+
+template<unsigned DIM>
+class MyMatrixAssembler : public AbstractContinuumMechanicsAssembler<DIM,false,true>
+{
+private:
+    static const unsigned NUM_VERTICES_PER_ELEMENT = DIM+1;
+
+    /** Number of nodes per element. */
+    static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
+
+    static const unsigned SPATIAL_BLOCK_SIZE_ELEMENTAL = DIM*NUM_NODES_PER_ELEMENT;
+    static const unsigned PRESSURE_BLOCK_SIZE_ELEMENTAL = NUM_VERTICES_PER_ELEMENT;
+
+public:
+    MyMatrixAssembler(QuadraticMesh<DIM>* pMesh)
+        : AbstractContinuumMechanicsAssembler<DIM,false,true>(pMesh)
+    {
+    }
+
+    c_matrix<double,PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressurePressureMatrixTerm(
+        c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
+        c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
+        ChastePoint<DIM>& rX,
+        Element<DIM,DIM>* pElement)
+    {
+        return outer_prod(rLinearPhi,rLinearPhi);
+    }
+};
 
 class TestAbstractContinuumMechanicsAssembler : public CxxTest::TestSuite
 {
@@ -161,7 +203,7 @@ public:
         Mat mat;
         PetscTools::SetupMat(mat, size, size, size);
 
-        MyMatrixAssembler<1> assembler(&mesh, 2.0, 3.0, 4.0, 111.0, 222.0);
+        SimpleAssembler<1> assembler(&mesh, 2.0, 3.0, 4.0, 111.0, 222.0);
 
         // cover exceptions
         TS_ASSERT_THROWS_THIS(assembler.AssembleVector(), "Vector to be assembled has not been set");
@@ -200,11 +242,23 @@ public:
             }
         }
 
+        ZeroMatrixAssembler zero_matrix_assembler(&mesh);
+        zero_matrix_assembler.SetMatrixToAssemble(mat, true);
+        zero_matrix_assembler.Assemble();
+        PetscMatTools::Finalise(mat);
+        for (unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            for(unsigned j=0; j<5; j++)
+            {
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(mat,i,j), 0.0, 1e-8 );
+            }
+        }
+
         MatDestroy(mat);
         VecDestroy(vec);
     }
 
-    // same as TestAssemblers1d except 2d
+    // same to main part of TestAssemblers1d except 2d
     void TestAssemblers2d() throw (Exception)
     {
         QuadraticMesh<2> mesh;
@@ -215,7 +269,7 @@ public:
         Mat mat;
         PetscTools::SetupMat(mat, 2*mesh.GetNumNodes()+mesh.GetNumVertices(), 2*mesh.GetNumNodes()+mesh.GetNumVertices(), 2*mesh.GetNumNodes()+mesh.GetNumVertices());
 
-        MyMatrixAssembler<2> assembler(&mesh, 2.0, 3.0, 4.0, 111.0, 222.0);
+        SimpleAssembler<2> assembler(&mesh, 2.0, 3.0, 4.0, 111.0, 222.0);
         assembler.SetVectorToAssemble(vec, true);
         assembler.SetMatrixToAssemble(mat, true);
         assembler.Assemble();
@@ -271,7 +325,7 @@ public:
         MatDestroy(mat);
     }
 
-    // same as TestAssemblers1d except 3d
+    // same as main part of TestAssemblers1d except 3d
     void TestAssemblers3d() throw (Exception)
     {
         QuadraticMesh<3> mesh;
@@ -284,7 +338,7 @@ public:
 
         double vol = mesh.GetVolume(); // volume of element equals volume of mesh
 
-        MyMatrixAssembler<3> assembler(&mesh, 5.0/vol, 10.0/vol, 15.0/vol, 111.0/vol, 222.0/vol);
+        SimpleAssembler<3> assembler(&mesh, 5.0/vol, 10.0/vol, 15.0/vol, 111.0/vol, 222.0/vol);
         assembler.SetVectorToAssemble(vec, true);
         assembler.SetMatrixToAssemble(mat, true);
         assembler.Assemble();
@@ -339,6 +393,69 @@ public:
 
         VecDestroy(vec);
         MatDestroy(mat);
+    }
+
+    void TestWithMassMatrixInPressurePressureBlock() throw(Exception)
+    {
+        TrianglesMeshReader<2,2> reader("mesh/test/data/square_2_elements");
+        TetrahedralMesh<2,2> linear_mesh;
+        linear_mesh.ConstructFromMeshReader(reader);
+
+        QuadraticMesh<2> quadratic_mesh;
+        quadratic_mesh.ConstructFromLinearMeshReader(reader);
+
+        assert(quadratic_mesh.GetNumVertices()==linear_mesh.GetNumNodes());
+
+        Mat mat1;
+        PetscTools::SetupMat(mat1, 2*quadratic_mesh.GetNumNodes()+quadratic_mesh.GetNumVertices(), 2*quadratic_mesh.GetNumNodes()+quadratic_mesh.GetNumVertices(), 22);
+        MyMatrixAssembler<2> assembler(&quadratic_mesh);
+        assembler.SetMatrixToAssemble(mat1, true);
+        assembler.Assemble();
+        PetscMatTools::Finalise(mat1);
+
+        Mat mat2;
+        PetscTools::SetupMat(mat2, linear_mesh.GetNumNodes(), linear_mesh.GetNumNodes(), 4);
+        MassMatrixAssembler<2,2> mass_matrix_assembler_linear(&linear_mesh);
+        mass_matrix_assembler_linear.SetMatrixToAssemble(mat2, true);
+        mass_matrix_assembler_linear.Assemble();
+        PetscMatTools::Finalise(mat2);
+
+        // Checking that mat1(2*num_nodes + i, 2*num_nodes + j) = mat2(i,j) directly would be a pain in parallel.
+        // Hardcoded the correct mass matrix here, then check both matrices agree with it.
+        double correct_matrix[4][4] = { { 0.0833333, 0.0416667, 0, 0.0416667 },
+                                        { 0.0416667, 0.166667,  0.0416667, 0.0833333 },
+                                        { 0,  0.0416667,  0.0833333, 0.0416667},
+                                        { 0.0416667, 0.0833333, 0.0416667, 0.166667} };
+
+        // verify the above matrix is correctly typed.
+        int lo, hi;
+        MatGetOwnershipRange(mat2, &lo, &hi);
+        for (unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            for(unsigned j=0; j<4; j++)
+            {
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(mat2,i,j), correct_matrix[i][j], 1e-5 );
+            }
+        }
+
+        MatGetOwnershipRange(mat1, &lo, &hi);
+        for (unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            for(unsigned j=0; j<22; j++)
+            {
+                if(i>=18 && j>=18)
+                {
+                    TS_ASSERT_DELTA( PetscMatTools::GetElement(mat1,i,j), correct_matrix[i-18][j-18], 1e-5 );
+                }
+                else
+                {
+                    TS_ASSERT_DELTA( PetscMatTools::GetElement(mat1,i,j), 0.0, 1e-8 );
+                }
+            }
+        }
+
+        MatDestroy(mat1);
+        MatDestroy(mat2);
     }
 };
 

@@ -109,6 +109,8 @@ protected:
      *  See concrete classes for examples. Needed to be implemented (overridden) if the concrete class
      *  is going to assemble matrices (ie if CAN_ASSEMBLE_MATRIX is true).
      *
+     *  Default implementation returns a zero matrix - ie the block will be zero if this is not over-ridden
+     *
      *  @param rQuadPhi  All the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rX Current location (physical position corresponding to quad point
@@ -120,7 +122,6 @@ protected:
         ChastePoint<DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
-        NEVER_REACHED;
         return zero_matrix<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL);
     }
 
@@ -135,6 +136,8 @@ protected:
      *  For the contribution to A from a given element, this method should return the INTEGRAND in the definition of B.
      *  See concrete classes for examples. Needed to be implemented (overridden) if the concrete class
      *  is going to assemble matrices (ie if CAN_ASSEMBLE_MATRIX is true).
+     *
+     *  Default implementation returns a zero matrix - ie the block will be zero if this is not over-ridden
      *
      *  @param rQuadPhi  All the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
@@ -151,8 +154,7 @@ protected:
         ChastePoint<DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
-        NEVER_REACHED;
-        return zero_matrix<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL);
+        return zero_matrix<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL);
     }
 
 
@@ -167,6 +169,8 @@ protected:
      *  See concrete classes for examples. Needed to be implemented (overridden) if the concrete class
      *  is going to assemble matrices (ie if CAN_ASSEMBLE_MATRIX is true).
      *
+     *  Default implementation returns a zero matrix - ie the block will be zero if this is not over-ridden
+     *
      *  @param rLinearPhi  All the linear basis functions on this element, evaluated at the current quad point
      *  @param rGradLinearPhi  Gradients of all the linear basis functions on this element, evaluated at the current quad point
      *  @param rX Current location (physical position corresponding to quad point
@@ -178,7 +182,6 @@ protected:
         ChastePoint<DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
-        NEVER_REACHED;
         return zero_matrix<double>(PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL);
     }
 
@@ -197,6 +200,8 @@ protected:
      *  See concrete classes for examples. Needed to be implemented (overridden) if the concrete class
      *  is going to assemble vectors (ie if CAN_ASSEMBLE_VECTOR is true).
      *
+     *  Default implementation returns a zero vector - ie the block will be zero if this is not over-ridden
+     *
      *  @param rQuadPhi  All the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rX Current location (physical position corresponding to quad point
@@ -208,7 +213,6 @@ protected:
         ChastePoint<DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
-        NEVER_REACHED;
         return zero_vector<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL);
     }
 
@@ -227,6 +231,8 @@ protected:
      *  See concrete classes for examples. Needed to be implemented (overridden) if the concrete class
      *  is going to assemble vectors (ie if CAN_ASSEMBLE_VECTOR is true).
      *
+     *  Default implementation returns a zero vector - ie the block will be zero if this is not over-ridden
+     *
      *  @param rLinearPhi  All the linear basis functions on this element, evaluated at the current quad point
      *  @param rGradLinearPhi  Gradients of all the linear basis functions on this element, evaluated at the current quad point
      *  @param rX Current location (physical position corresponding to quad point
@@ -238,7 +244,6 @@ protected:
             ChastePoint<DIM>& rX,
             Element<DIM,DIM>* pElement)
     {
-        NEVER_REACHED;
         return zero_vector<double>(PRESSURE_BLOCK_SIZE_ELEMENTAL);
     }
 
