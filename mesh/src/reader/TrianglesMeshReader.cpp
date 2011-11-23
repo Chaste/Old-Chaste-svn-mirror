@@ -25,12 +25,12 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-#include "TrianglesMeshReader.hpp"
-#include "Exception.hpp"
 #include <cassert>
 #include <sstream>
 #include <iostream>
+
+#include "TrianglesMeshReader.hpp"
+#include "Exception.hpp"
 
 static const char* NODES_FILE_EXTENSION = ".node";
 static const char* ELEMENTS_FILE_EXTENSION = ".ele";
@@ -231,11 +231,11 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextCableElementData
     element_data.NodeIndices.resize(2u);
     element_data.AttributeValue = 0; // If an attribute is not read this stays as zero, otherwise overwritten.
 
-    std::vector<unsigned> element_attributes;
-    GetNextItemFromStream(mCableElementsFile, mCableElementsRead, element_data.NodeIndices, mNumCableElementAttributes, element_attributes);
+    std::vector<double> cable_element_attributes;
+    GetNextItemFromStream(mCableElementsFile, mCableElementsRead, element_data.NodeIndices, mNumCableElementAttributes, cable_element_attributes);
     if (mNumCableElementAttributes > 0)
     {
-        element_data.AttributeValue = (unsigned) element_attributes[0];///only one element attribute registered for the moment
+        element_data.AttributeValue = cable_element_attributes[0];///only one element attribute registered for the moment
     }
 
     EnsureIndexingFromZero(element_data.NodeIndices);
@@ -808,19 +808,19 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifs
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-template<class T>
+template<class T_DATA, class T_ATTR>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& rFileStream, unsigned expectedItemNumber,
-                               std::vector<T>& rDataPacket, const unsigned& rNumAttributes, std::vector<T>& rAttributes)
+                               std::vector<T_DATA>& rDataPacket, const unsigned& rNumAttributes, std::vector<T_ATTR>& rAttributes)
 {
     if (mFilesAreBinary)
     {
-        rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
+        rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T_DATA));
         if (rNumAttributes > 0)
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
-                T attribute;
-                rFileStream.read((char*) &attribute, sizeof(T));
+            	T_ATTR attribute;
+                rFileStream.read((char*) &attribute, sizeof(T_ATTR));
                 rAttributes.push_back(attribute);
             }
         }
@@ -856,7 +856,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
-                T attribute;
+            	T_ATTR attribute;
                 buffer_stream >> attribute;
                 if (buffer_stream.fail())
                 {

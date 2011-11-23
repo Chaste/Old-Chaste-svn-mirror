@@ -58,16 +58,16 @@ public:
 
         /*
          * Cables:
-        0       55      56      1
-        1       56      57      2
-        2       57      58      3
-        3       58      59      4
-        4       59      60      5
-        5       60      61      6
-        6       61      62      7
-        7       62      63      8
-        8       63      64      9
-        9       64      65      10
+        0       55      56      1.5
+        1       56      57      2.5
+        2       57      58      3.5
+        3       58      59      4.5
+        4       59      60      5.5
+        5       60      61      6.5
+        6       61      62      7.5
+        7       62      63      8.5
+        8       63      64      9.5
+        9       64      65      10.5
          *
          */
         TS_ASSERT_EQUALS(mesh.GetNumCableElements(), 10u);
@@ -84,7 +84,7 @@ public:
                 TS_ASSERT_EQUALS(p_cable_elt->GetNodeGlobalIndex(1u), 56u + i);
                 TS_ASSERT_EQUALS(p_cable_elt->GetNode(0u), mesh.GetNode(55u + i));
                 TS_ASSERT_EQUALS(p_cable_elt->GetNode(1u), mesh.GetNode(56u + i));
-                TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1);
+                TS_ASSERT_EQUALS(p_cable_elt->GetRegion(), i+1.5);
                 TS_ASSERT( mesh.CalculateDesignatedOwnershipOfCableElement(i) );
             }
 

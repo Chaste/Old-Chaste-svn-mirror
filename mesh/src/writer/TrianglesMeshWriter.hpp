@@ -77,14 +77,27 @@ public:
     /**
      * Write a line (ascii format) to a specific file stream
      * Templated over std::vector dataPacket contents of unsigned or doubles.
+     * Templated over type of attribute.
      *
      * @param pFile Pointer to file stream
      * @param itemNumber Index of the element, node or face
      * @param dataPacket List of unsigneds (for node indices) or doubles (for node locations)
-     * @param attribute An attribute (defaults to UINT_MAX for no attribute when writing elements as faces)
+     * @param attribute An attribute.  Usually unsigned, but double for cable elements
      */
-     template<class  T>
-     void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<T> &dataPacket, unsigned attribute=UINT_MAX);
+
+    template<class  T_DATA, class T_ATTR>
+     void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<T_DATA> &dataPacket, T_ATTR attribute);
+
+     /**
+      * Write a line (ascii format) to a specific file stream
+      * Templated over std::vector dataPacket contents of unsigned or doubles.
+      *
+      * @param pFile Pointer to file stream
+      * @param itemNumber Index of the element, node or face
+      * @param dataPacket List of unsigneds (for node indices) or doubles (for node locations)
+      */
+      template<class  T_DATA>
+      void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<T_DATA> &dataPacket);
 
 
     /**

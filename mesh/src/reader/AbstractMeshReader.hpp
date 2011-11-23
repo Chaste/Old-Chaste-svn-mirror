@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 struct ElementData
 {
     std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the element. */
-    unsigned AttributeValue; /**< Attribute value associated with the element. */
+    double AttributeValue; /**< Attribute value associated with the element. */
     unsigned ContainingElement; /**< Only applies to boundary elements: which element contains this boundary element. Only set if reader called with correct params */
 };
 

@@ -40,7 +40,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
     : mNodes(rNodes),
       mIndex(index),
-      mRegion(0),
+      mRegion(0.0),
       mIsDeleted(false),
       mOwnership(true),
       mFlag(false)
@@ -54,7 +54,7 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index, const s
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index)
     : mIndex(index),
-      mRegion(0),
+      mRegion(0.0),
       mIsDeleted(false),
       mOwnership(true),
       mFlag(false)
@@ -170,13 +170,13 @@ bool AbstractElement<ELEMENT_DIM, SPACE_DIM>::IsFlagged() const
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractElement<ELEMENT_DIM, SPACE_DIM>::SetRegion(unsigned region)
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::SetRegion(double region)
 {
     mRegion = region;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetRegion()
+double AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetRegion()
 {
     return mRegion;
 }

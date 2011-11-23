@@ -55,7 +55,7 @@ protected:
     unsigned mIndex;
 
     /** A region ID. */
-    unsigned mRegion;
+    double mRegion;
 
     /**
      * Whether this element has been deleted, and hence
@@ -218,12 +218,12 @@ public:
      *
      * @param region the element's new region ID
      */
-    void SetRegion(unsigned region);
+    void SetRegion(double region);
 
     /**
      * Get the element's region ID.
      */
-    unsigned GetRegion();
+    double GetRegion();
 };
 
 #endif /*ABSTRACTELEMENT_HPP_*/

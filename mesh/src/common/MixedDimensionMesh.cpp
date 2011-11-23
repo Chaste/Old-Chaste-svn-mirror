@@ -111,8 +111,7 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
             if (rMeshReader.GetNumCableElementAttributes() > 0)
             {
                 assert(rMeshReader.GetNumCableElementAttributes() == 1);
-                unsigned attribute_value = element_data.AttributeValue;
-                p_element->SetRegion(attribute_value);
+                p_element->SetRegion(element_data.AttributeValue);
             }
         }
     }

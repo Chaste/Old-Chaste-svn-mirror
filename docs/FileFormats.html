@@ -11,8 +11,9 @@
 <dl>
   <dt>.cable</dt>
   <dd>
-    File defining 1D elements that can be used in a MixedDimensionMesh.  It has the same format as a .ele file.
-    At present a binary version is not supported.
+    File defining 1D elements that can be used in a MixedDimensionMesh.  It has almost the same format as a .ele file.  
+    The difference is that the attribute field (rightmost column) of the .cab file is a floating point number (rather than a 
+    non-negative integer).  This attribute represents the radius of the cable element.
   </dd>
   <dt>.dat</dt>
   <dd>

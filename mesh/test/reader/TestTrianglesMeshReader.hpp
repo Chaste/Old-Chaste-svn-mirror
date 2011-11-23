@@ -592,7 +592,7 @@ public:
         /*
          * Check faces
          */
-        ///\todo Child ticket of #1899 the binary writer NEVER writes face attributes 
+        ///\todo #1949 the binary writer NEVER writes face attributes
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 0u);
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumFaceAttributes(), 0u);
 		{
