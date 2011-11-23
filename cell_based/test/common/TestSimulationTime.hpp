@@ -80,12 +80,15 @@ public:
         TS_ASSERT_DELTA(p_simulation_time2->GetTime(), 3.33333333, 1e-6);
 
         // Increment the time twice
+        TS_ASSERT(!(p_simulation_time->IsFinished()));
         p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(!(p_simulation_time->IsFinished()));
         p_simulation_time->IncrementTimeOneStep();
 
         // Check the simulation time from the first instance
         TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 10.0);
-
+        TS_ASSERT(p_simulation_time->IsFinished());
+        
         SimulationTime::Destroy();
 
         SimulationTime* p_simulation_time3 = SimulationTime :: Instance();
@@ -157,6 +160,31 @@ public:
         }
 
         TS_ASSERT_DELTA(p_simulation_time->GetTime(), second_end, 1e-9);
+
+        SimulationTime::Destroy();
+    }
+
+    void TestLoopedStepping()
+    {
+        SimulationTime* p_simulation_time = SimulationTime :: Instance();
+        double start = 0.25833333333333330373;
+        double end = 0.5;
+        double dt = 0.0083333333333333332177;
+        //As in the abstract simulation classes...
+        unsigned num_time_steps = (unsigned) ((end-start)/dt+0.5);
+        TS_ASSERT_EQUALS(num_time_steps, 29U);            
+        p_simulation_time->SetStartTime(start);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end, num_time_steps);
+
+        unsigned step = 0;
+        while (!p_simulation_time->IsFinished())
+        {
+            double time_should_be = start + step*dt;
+            TS_ASSERT_DELTA(p_simulation_time->GetTime(), time_should_be, 1e-9);
+            p_simulation_time->IncrementTimeOneStep();
+            step++;
+        }
+        TS_ASSERT_DELTA(p_simulation_time->GetTime(), end, DBL_EPSILON);
 
         SimulationTime::Destroy();
     }

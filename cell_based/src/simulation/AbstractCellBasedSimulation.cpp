@@ -340,7 +340,7 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::SETUP);
 
     // Enter main time loop
-    while ((p_simulation_time->GetTimeStepsElapsed() < num_time_steps) && !(StoppingEventHasOccurred()) )
+    while (!( p_simulation_time->IsFinished() || StoppingEventHasOccurred() ) )
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
 
