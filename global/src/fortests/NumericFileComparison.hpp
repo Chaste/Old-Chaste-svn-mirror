@@ -114,7 +114,7 @@ public:
      * @param relTol  relative tolerance on difference between numbers
      */
     bool CompareFiles(double absTol=DBL_EPSILON, unsigned ignoreFirstFewLines=0,
-                      bool relTol=DBL_EPSILON)
+                      double relTol=DBL_EPSILON)
     {
         double data1;
         double data2;
