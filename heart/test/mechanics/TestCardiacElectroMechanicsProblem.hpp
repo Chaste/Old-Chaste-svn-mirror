@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "Hdf5DataReader.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
+#include "MooneyRivlinMaterialLaw.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
@@ -439,6 +440,67 @@ public:
 
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0465, 0.0002);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](1),-0.0012, 0.0002);
+    }
+
+    void TestCardiacElectroMechanicsHeterogeneousMaterialLaws() throw(Exception)
+    {
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-5000*1000);
+
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(0.02/*stepsize*/, 0.1/*length*/, 0.1/*width*/);
+
+        QuadraticMesh<2> mechanics_mesh;
+        mechanics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1 /*as above with a different stepsize*/);
+
+        std::vector<unsigned> fixed_nodes
+            = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh, 0, 0.0);
+
+        CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                  KERCHOFFS2003,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  fixed_nodes,
+                                                  &cell_factory,
+                                                  20,   // end time
+                                                  0.01, // electrics timestep (ms)
+                                                  1.0,  // mechanics solve timestep
+                                                  0.01,  // contraction model ode timestep
+                                                  "TestCardiacElectroMechanicsHeterogeneousMaterialLaws" /* output directory */);
+
+
+        /* Create two laws to have stiff and soft tissue */
+        std::vector<AbstractMaterialLaw<2>*> law;
+        MooneyRivlinMaterialLaw<2> stiff_law(1.0);
+        MooneyRivlinMaterialLaw<2> soft_law(1.0/5.0);
+        for (TetrahedralMesh<2,2>::ElementIterator iter = mechanics_mesh.GetElementIteratorBegin();
+             iter != mechanics_mesh.GetElementIteratorEnd();
+             ++iter)
+        {
+            if (((iter)->CalculateCentroid()[1] >= 0.04)
+                 && ((iter)->CalculateCentroid()[1] <= 0.06))
+            {
+                law.push_back(&stiff_law);
+            }
+            else
+            {
+                law.push_back(&soft_law);
+            }
+        }
+
+        problem.SetMaterialLaw(law);
+        problem.Solve();
+
+        // test by checking the length of the tissue against hardcoded value
+        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
+
+        // node 5 starts at (1,0)
+        assert(fabs(mechanics_mesh.GetNode(5)->rGetLocation()[0] - 0.1)<1e-6);
+        assert(fabs(mechanics_mesh.GetNode(5)->rGetLocation()[1])<1e-6);
+///\todo #1948
+        // Visualised solution to check heterogeneous stiffnesses are taken into account,
+        // here we just have a hardcoded test to check nothing has changed
+        TS_ASSERT_DELTA(r_deformed_position[5](0),  0.0910, 1e-4);
+        TS_ASSERT_DELTA(r_deformed_position[5](1), -0.0039, 1e-4);
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

@@ -92,6 +92,13 @@ private:
                                           double& rDerivActiveTensionWrtLambda,
                                           double& rDerivActiveTensionWrtDLambdaDt);
 
+    /**
+     * Initialise contraction models for each quadrature point
+     * @param contractionModel The name of the contraction model (from the enumeration ContractionModel
+     * defined in AbstractContactionModel)
+     */
+    void InitialiseContractionModels(ContractionModel contractionModel);
+
 public:
     /**
      * Constructor
@@ -100,14 +107,28 @@ public:
      * @param rQuadMesh A reference to the mesh.
      * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case
-     *   a default material law is used.
+     * @param pMaterialLaw The material law for the tissue.
      */
     ImplicitCardiacMechanicsSolver(ContractionModel contractionModel,
                                    QuadraticMesh<DIM>& rQuadMesh,
                                    SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory,
                                    AbstractMaterialLaw<DIM>* pMaterialLaw);
+
+    /**
+     * Constructor variant for heterogeneous material laws
+     *
+     * @param contractionModel The contraction model.
+     * @param rQuadMesh A reference to the mesh.
+     * @param rProblemDefinition Object defining body force and boundary conditions
+     * @param outputDirectory The output directory, relative to TEST_OUTPUT
+     * @param materialLaws A vector with a material law for each element in the tissue.
+     */
+    ImplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+                                   QuadraticMesh<DIM>& rQuadMesh,
+                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                   std::string outputDirectory,
+                                   std::vector<AbstractMaterialLaw<DIM>*> &materialLaws);
 
     /**
      *  Destructor

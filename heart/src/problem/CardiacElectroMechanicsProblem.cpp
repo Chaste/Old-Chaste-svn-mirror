@@ -310,8 +310,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mpCardiacMechSolver = NULL;
     mpMechanicsSolver = NULL;
 
-    mpMaterialLaw = NULL;
-    mAllocatedMaterialLawMemory = false;
+    mMaterialLaws.clear();
+    mUseDefaultMaterialLaw = false;
 
 
     // Create the Logfile (note we have to do this after the output dir has been
@@ -349,7 +349,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
-{   /**
+{
+    /**
      * NOTE if SetWatchedLocation but not Initialise has been
      * called, mpWatchedLocationFile will be uninitialised and
      * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
@@ -361,14 +362,17 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
     }
 
     delete mpMonodomainProblem;
-
     delete mpCardiacMechSolver;
-
     delete mpMeshPair;
 
-    if(mAllocatedMaterialLawMemory && mpMaterialLaw)
+    if(mUseDefaultMaterialLaw)
     {
-        delete mpMaterialLaw;
+        // All material laws in the vector will be identical in the default case.
+        // If the user supplied material laws then the user is in charge of deleting the
+        // laws, not this destructor.
+        assert(mMaterialLaws[0]);
+        delete mMaterialLaws[0];
+        mMaterialLaws.clear();
     }
 
     if(mpProblemDefinition)
@@ -401,19 +405,25 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpProblemDefinition = new SolidMechanicsProblemDefinition<DIM>(*mpMechanicsMesh);
     mpProblemDefinition->SetZeroDisplacementNodes(mFixedNodes);
 
-    // set up default material law if SetMaterialLaw() hasn't been called
-    if(mpMaterialLaw == NULL)
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    //   Default material laws
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    if(mMaterialLaws.size() == 0)
     {
         if(mCompressibilityType==INCOMPRESSIBLE)
         {
-            mpMaterialLaw = new NashHunterPoleZeroLaw<DIM>();
+            AbstractIncompressibleMaterialLaw<DIM>* p_material_law = new NashHunterPoleZeroLaw<DIM>();
+            mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), p_material_law);
         }
         else
         {
-            mpMaterialLaw = new CompressibleExponentialLaw<DIM>();
+            AbstractCompressibleMaterialLaw<DIM>* p_material_law = new CompressibleExponentialLaw<DIM>();
+            mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), p_material_law);
         }
 
-        mAllocatedMaterialLawMemory = true;
+        mUseDefaultMaterialLaw = true;
     }
 
     // Construct mechanics solver
@@ -424,25 +434,25 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit solver (explicit may be unstable)
             if(mCompressibilityType==INCOMPRESSIBLE)
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
             }
             else
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
             }
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mpMaterialLaw);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

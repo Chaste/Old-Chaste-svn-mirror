@@ -162,13 +162,28 @@ public:
      * @param rQuadMesh A reference to the mesh.
      * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param pMaterialLaw The material law for the tissue. If NULL the default
-     *   (NashHunterPoleZero) law is used.
+     * @param pMaterialLaw The material law for the tissue.
      */
     AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>& rQuadMesh,
                                    SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory,
                                    AbstractMaterialLaw<DIM>* pMaterialLaw);
+
+
+    /**
+     * Constructor variant for heterogeneous material laws
+     *
+     * @param rQuadMesh A reference to the mesh.
+     * @param rProblemDefinition Object defining body force and boundary conditions
+     * @param outputDirectory The output directory, relative to TEST_OUTPUT
+     * @param materialLaws A vector with a material law for each element in the tissue.
+     */
+    AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>& rQuadMesh,
+                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                   std::string outputDirectory,
+                                   std::vector<AbstractMaterialLaw<DIM>*>& materialLaws);
+
+
 
 
     /**
@@ -271,6 +286,36 @@ AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsS
    : ELASTICITY_SOLVER(rQuadMesh,
                        rProblemDefinition,
                        pMaterialLaw,
+                       outputDirectory),
+     mCurrentTime(DBL_MAX),
+     mNextTime(DBL_MAX),
+     mOdeTimestep(DBL_MAX)
+{
+    // compute total num quad points
+    mTotalQuadPoints = rQuadMesh.GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
+
+    // initialise the store of fibre stretches
+    mStretches.resize(mTotalQuadPoints, 1.0);
+
+    // initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
+    mConstantFibreSheetDirections = zero_matrix<double>(DIM,DIM);
+    for(unsigned i=0; i<DIM; i++)
+    {
+        mConstantFibreSheetDirections(i,i) = 1.0;
+    }
+
+    mpVariableFibreSheetDirections = NULL;
+}
+
+
+template<class ELASTICITY_SOLVER,unsigned DIM>
+AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>& rQuadMesh,
+                                                                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                                                                      std::string outputDirectory,
+                                                                                      std::vector<AbstractMaterialLaw<DIM>*>& materialLaws)
+   : ELASTICITY_SOLVER(rQuadMesh,
+                       rProblemDefinition,
+                       materialLaws,
                        outputDirectory),
      mCurrentTime(DBL_MAX),
      mNextTime(DBL_MAX),

@@ -166,11 +166,15 @@ protected :
      */
     bool mCellModelsAffectedByDeformationMef;
 
-    /** The material law to be used. Defaults to NashHunterPoleZero if an incompressible problem is being solved */
-    AbstractMaterialLaw<DIM>* mpMaterialLaw;
+    /** The material laws to be used for each element. Defaults to
+     *  NashHunterPoleZero if an incompressible problem is being
+     *  solved. This will either be of size 1 (same material law for
+     *  all elements, i.e. homogeneous), or size num_elem. 
+     */
+    std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
 
     /** Whether a material law was passed in or the default used */
-    bool mAllocatedMaterialLawMemory;
+    bool mUseDefaultMaterialLaw;
 
 
     /**
@@ -337,15 +341,33 @@ public :
     }
 
     /** Set the material law. If this isn't called the default material law will be used.
-     *  Only call before Initialise() and before Solve()
+     *  Only call before Initialise() and before Solve(). This version uses the same 
+     *  material law for each element.
+     *  
      *  @param pMaterialLaw the material law
      */
     void SetMaterialLaw(AbstractMaterialLaw<DIM>* pMaterialLaw)
     {
+        assert(mpMechanicsMesh);
+
         assert(pMaterialLaw);
-        assert(mpMaterialLaw == NULL); // only call SetMaterialLaw() before both Initialise() or Solve()
-        mpMaterialLaw = pMaterialLaw;
-        mAllocatedMaterialLawMemory = false;
+        assert(mMaterialLaws.size()==0); // only call SetMaterialLaw() before both Initialise() or Solve()
+        mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), pMaterialLaw);
+        mUseDefaultMaterialLaw = false;
+    }
+
+    /** 
+     *  Variant method taking a vector of material laws for heterogeneous problems.
+     *
+     *  Set the material law. If this isn't called the default material law will be used.
+     *  Only call before Initialise() and before Solve()
+     *  @param rMaterialLaws vector of material laws
+     */
+    void SetMaterialLaw(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
+    {
+        assert(mMaterialLaws.size()==0); // only call SetMaterialLaw() before both Initialise() or Solve()
+        mMaterialLaws = rMaterialLaws;
+        mUseDefaultMaterialLaw = false;
     }
 };
 

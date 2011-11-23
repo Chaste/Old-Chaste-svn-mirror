@@ -45,6 +45,27 @@ ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsS
                                                             outputDirectory,
                                                             pMaterialLaw)
 {
+    InitialiseContractionModels(contractionModel);
+}
+
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+                                                                                      QuadraticMesh<DIM>& rQuadMesh,
+                                                                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                                                                      std::string outputDirectory,
+                                                                                      std::vector<AbstractMaterialLaw<DIM>*> &materialLaws)
+    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
+                                                            rProblemDefinition,
+                                                            outputDirectory,
+                                                            materialLaws)
+{
+    InitialiseContractionModels(contractionModel);
+}
+
+
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::InitialiseContractionModels(ContractionModel contractionModel)
+{
     switch(contractionModel)
     {
         case NONPHYSIOL1:

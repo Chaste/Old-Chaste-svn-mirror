@@ -43,6 +43,34 @@ ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsS
                                                             outputDirectory,
                                                             pMaterialLaw)
 {
+    InitialiseContractionModels(contractionModel);
+    // initialise stores
+    mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
+
+}
+
+template<class ELASTICITY_SOLVER,unsigned DIM>
+ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsSolver(
+                                  ContractionModel contractionModel,
+                                  QuadraticMesh<DIM>& rQuadMesh,
+                                  SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
+                                  std::string outputDirectory,
+                                  std::vector<AbstractMaterialLaw<DIM>*> &materialLaws)
+    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
+                                                            rProblemDefinition,
+                                                            outputDirectory,
+                                                            materialLaws)
+{
+    InitialiseContractionModels(contractionModel);
+    // initialise stores
+    mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
+
+}
+
+
+template<class ELASTICITY_SOLVER,unsigned DIM>
+void ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::InitialiseContractionModels(ContractionModel contractionModel)
+{
     switch(contractionModel)
     {
         case NONPHYSIOL1:
@@ -79,9 +107,6 @@ ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsS
             #undef COVERAGE_IGNORE
         }
     }
-
-    // initialise stores
-    mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
 }
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
