@@ -57,7 +57,7 @@ private:
     /** A normal monodomain assembler, on which ComputeMatrixTerm will be called */
     MonodomainAssembler<ELEMENT_DIM, SPACE_DIM> mMonodomainAssembler;
 
-        /**
+    /**
 	 * ComputeMatrixTerm()
 	 *
 	 * This method is called by AssembleOnElement() and tells the assembler

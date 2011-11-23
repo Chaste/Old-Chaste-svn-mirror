@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MonodomainPurkinjeCableAssembler:public AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>
+class MonodomainPurkinjeCableAssembler : public AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>
 {
 private:
 	/**
@@ -88,9 +88,6 @@ private:
 		c_matrix<double,PROBLEM_DIM, SPACE_DIM>& rGradU,
 		Element<1,SPACE_DIM>* pElement)
 	{
-//std::cout << "Element: " << pElement->GetNodeGlobalIndex(0) << " "
-// << pElement->GetNodeGlobalIndex(1) << "\n";
-
 	    c_matrix<double,PROBLEM_DIM*2, PROBLEM_DIM*2> ret = zero_matrix<double>(PROBLEM_DIM*2, PROBLEM_DIM*2);
 
 		for(unsigned i=0; i<2; i++) // 2 = number of basis functions per cable element
@@ -112,14 +109,14 @@ private:
 		return ret;
 	}
 public:
-	/**
-	 * Constructor
-	 * @param pMesh a pointer to a MixedDimensionMesh
-	 */
+    /**
+     * Constructor
+     * @param pMesh a pointer to a MixedDimensionMesh
+     */
 	MonodomainPurkinjeCableAssembler(MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-	        : AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>(pMesh)
-	{
-		mCapacitance=HeartConfig::Instance()->GetCapacitance();
+	    : AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>(pMesh)
+    {
+	    mCapacitance = HeartConfig::Instance()->GetCapacitance();
 		mChi=HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
 		mConductivity=1.75;
 	}

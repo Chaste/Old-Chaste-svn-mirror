@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTMONODOMAINPURKINJEASSEMBLERS_HPP_
-#define TESTMONODOMAINPURKINJEASSEMBLERS_HPP_
+#ifndef TESTMONODOMAINPURKINJEASSEMBLERSANDSOLVER_HPP_
+#define TESTMONODOMAINPURKINJEASSEMBLERSANDSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -37,14 +37,51 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MixedDimensionMesh.hpp"
 #include "PetscTools.hpp"
 #include "LuoRudy1991.hpp"
+#include "DiFrancescoNoble1985.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainPurkinjeCableAssembler.hpp"
 #include "PetscMatTools.hpp"
+#include "MonodomainPurkinjeSolver.hpp"
 
-class TestMonodomainPurkinjeAssemblers : public CxxTest::TestSuite
+
+class PurkinjeCellFactory : public AbstractPurkinjeCellFactory<2>
+{
+private:
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+
+public:
+    PurkinjeCellFactory()
+        : AbstractPurkinjeCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-6000.0, 0.5))
+    {
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
+    {
+        ChastePoint<2> location = GetMesh()->GetNode(node)->GetPoint();
+
+        if (fabs(location[0])<1e-6)
+        {
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        }
+        else
+        {
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        }
+    }
+
+    AbstractCardiacCell* CreatePurkinjeCellForTissueNode(unsigned node)
+    {
+        return new CellDiFrancescoNoble1985FromCellML(mpSolver, mpZeroStimulus);
+    }
+};
+
+
+
+class TestMonodomainPurkinjeAssemblersAndSolvers : public CxxTest::TestSuite
 {
 public:
-    void TestVolumeIntegralPartOfMatrix() throw (Exception)
+    void TestMonodomainPurkinjeVolumeAssembler() throw (Exception)
     {
     	PdeSimulationTime::SetPdeTimeStep(0.01);
 
@@ -54,7 +91,6 @@ public:
     	PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
     	cell_factory.SetMesh(&mesh);
     	MonodomainTissue<2> tissue(&cell_factory);
-
 
     	// Make sure that a 2Nx2N matrix is partitioned in the same place as an NxN matrix.
     	unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
@@ -163,13 +199,35 @@ public:
 					//Other entries are zero
 					TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
 				}
-
 			}
 		}
 
-
 		MatDestroy(purkinje_mat);
 	}
+
+    void TestMonodomainPurkinjeSolver() throw(Exception)
+    {
+        PdeSimulationTime::SetPdeTimeStep(0.01);
+
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> reader(mesh_base);
+
+        MixedDimensionMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        PurkinjeCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
+        MonodomainTissue<2> tissue( &cell_factory );
+
+        // don't
+        BoundaryConditionsContainer<2,2,2> bcc;
+
+        MonodomainPurkinjeSolver<2,2> solver(&mesh,&tissue,&bcc);
+
+        ///\todo #1898 set up initial conditions vector, then call Solve()...
+
+    }
 };
 
-#endif // TESTMONODOMAINPURKINJEASSEMBLERS_HPP_
+#endif // TESTMONODOMAINPURKINJEASSEMBLERSANDSOLVER_HPP_

@@ -632,7 +632,8 @@ public:
         FileFinder archive_dir("monodomain_tissue_purkinje_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_tissue_purkinje.arch";
 
-        { // Save to archive
+        {
+            // Save to archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
@@ -646,7 +647,8 @@ public:
             (*p_arch) << p_archive_tissue;
         }
 
-        { // Load from archive and compare
+        {
+            // Load from archive and compare
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
@@ -685,7 +687,8 @@ public:
         }
 
         const std::string migration_archive_dir("TestMonodomainTissue/purkinje_migration_archive");
-        { // Save via MonodomainProblem so we can migrate
+        {
+            // Save via MonodomainProblem so we can migrate
             // Run the test with b=_hostconfig,boost=1-33-1_5 to save
             MonodomainProblem<2> monodomain_problem( &cell_factory );
             monodomain_problem.SetMesh(&mixed_mesh);
@@ -694,7 +697,8 @@ public:
             CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, migration_archive_dir);
         }
 
-        { // Load from 5-process archive and compare
+        {
+            // Load from 5-process archive and compare
             FileFinder saved_archive_dir("heart/test/data/checkpoints/purkinje_migration_archive",
                                          RelativeTo::ChasteSourceRoot);
             MonodomainProblem<2>* p_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(saved_archive_dir);

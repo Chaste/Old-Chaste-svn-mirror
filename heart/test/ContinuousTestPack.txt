@@ -29,7 +29,7 @@ monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumo.hpp
 monodomain/TestMonodomainMassLumping.hpp
-monodomain/TestMonodomainPurkinjeAssemblers.hpp
+monodomain/TestMonodomainPurkinjeAssemblersAndSolver.hpp
 monodomain/TestMonodomainTissue.hpp
 monodomain/TestMonodomainWithSvi.hpp
 monodomain/TestMonodomainWithTimeAdaptivity.hpp
