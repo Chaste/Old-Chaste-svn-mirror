@@ -559,6 +559,8 @@ public:
         /*
          * Check elements
          */
+		TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+		TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumElementAttributes(), 1u);
         {
             ElementData ascii_node_indices;
             ElementData binary_node_indices;
@@ -590,7 +592,10 @@ public:
         /*
          * Check faces
          */
-        {
+        ///\todo Child ticket of #1899 the binary writer NEVER writes face attributes 
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 0u);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumFaceAttributes(), 0u);
+		{
             ElementData ascii_node_indices;
             ElementData binary_node_indices;
             for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
