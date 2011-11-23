@@ -41,6 +41,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GaussianQuadratureRule.hpp"
 
 
+/**
+ *  Abstract class for assembling volume-integral parts of matrices and vectors in continuum
+ *  mechanics problems.
+ *
+ *  For such problems, the matrix has the form
+ *  [A     B1]
+ *  [B2^T  C ]
+ *  (where often B1=B2 and C=0) and the vector has the form
+ *  [b1]
+ *  [b2]
+ *
+ *  Currently B1=B2 is assumed, this can be changed in the future.
+ *
+ *  This class works in the same way as the volume assembler in pde (AbstractFeVolumeIntegralAssembler),
+ *  except the concrete class has to provide up to 6 methods, for each of the blocks A,B1,B2 and for b1
+ *  and b2.
+ *
+ */
 template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
 class AbstractContinuumMechanicsAssembler : public AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>
 {
