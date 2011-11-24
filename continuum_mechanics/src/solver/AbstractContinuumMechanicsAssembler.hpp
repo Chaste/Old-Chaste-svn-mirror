@@ -62,6 +62,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX>
 class AbstractContinuumMechanicsAssembler : public AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>
 {
+    /** Whether the matrix is block symmetric (B1=B2). Currently fixed to true, in
+     *  the future this may become a template.
+     */
     static const bool BLOCK_SYMMETRIC_MATRIX = true; //generalise to non-block symmetric matrices later (when needed maybe)
 
     /** Number of vertices per element. */
@@ -70,7 +73,9 @@ class AbstractContinuumMechanicsAssembler : public AbstractFeAssemblerInterface<
     /** Number of nodes per element. */
     static const unsigned NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
 
+    /** Size of the spatial-block (the number or rows or columns in the submatrix A), restricted to one element */
     static const unsigned SPATIAL_BLOCK_SIZE_ELEMENTAL = DIM*NUM_NODES_PER_ELEMENT;
+    /** Size of the pressure-block (the number of rows or columns in the submatrix C), restricted to one element */
     static const unsigned PRESSURE_BLOCK_SIZE_ELEMENTAL = NUM_VERTICES_PER_ELEMENT;
 
     /** Stencil size. */
@@ -80,6 +85,7 @@ protected:
     /** The quadratic mesh */
     QuadraticMesh<DIM>* mpMesh;
 
+    /** Quadrature rule for volume integrals */
     GaussianQuadratureRule<DIM>* mpQuadRule;
 
     /**
@@ -258,6 +264,7 @@ protected:
                            c_vector<double, STENCIL_SIZE>& rBElem);
 
 public:
+    /** Constructor */
     AbstractContinuumMechanicsAssembler(QuadraticMesh<DIM>* pMesh, unsigned numQuadPoints = 3)
         : AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>(),
           mpMesh(pMesh)
@@ -267,12 +274,6 @@ public:
     }
 
 
-//    /**
-//     * Set a current solution vector that will be used in AssembleOnElement and can passed
-//     * up to ComputeMatrixTerm() or ComputeVectorTerm().
-//     *
-//     * @param currentSolution Current solution vector.
-//     */
 //    void SetCurrentSolution(Vec currentSolution);
 
 
