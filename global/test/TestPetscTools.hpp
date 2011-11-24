@@ -172,10 +172,10 @@ public:
     void TestBarrier()
     {
         /*
-         * Testing the barrier method is kind of tricky, since we really want
-         * to also check if it works when PETSc isn't set up. So see TestPetscTools2.hpp!
+         * Testing the barrier method is kind of tricky, since we really want to check
+         * if it also works when PETSc isn't set up.  So see TestPetscTools2.hpp!
          */
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestBarrier");
     }
 
     void TestReplicateBool()
@@ -200,6 +200,29 @@ public:
         {
             TS_ASSERT_THROWS_THIS(PetscTools::ReplicateException(false), "Another process threw an exception; bailing out.");
         }
+    }
+
+    void TestProcessIsolation()
+    {
+        PetscTools::IsolateProcesses();
+        TS_ASSERT(PetscTools::AmMaster());
+        // Note: this will deadlock in parallel if IsolateProcesses doesn't work
+        if (PetscTools::AmTopMost())
+        {
+            PetscTools::Barrier("TestProcessIsolation");
+        }
+        bool am_top = PetscTools::AmTopMost();
+        bool any_is_top = PetscTools::ReplicateBool(am_top);
+        TS_ASSERT_EQUALS(am_top, any_is_top);
+        if (PetscTools::AmTopMost())
+        {
+            TS_ASSERT_THROWS_NOTHING(PetscTools::ReplicateException(true));
+        }
+        else
+        {
+            TS_ASSERT_THROWS_NOTHING(PetscTools::ReplicateException(false));
+        }
+        PetscTools::IsolateProcesses(false);
     }
 
     void TestDumpPetscObjects()

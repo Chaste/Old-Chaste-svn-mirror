@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- * Testing some methods is kind of tricky, since we really want
- * to also check if they work when PETSc isn't set up.  Hence this file.
+ * Testing some methods is kind of tricky, since we really want to check
+ * if they work when PETSc isn't set up as well.  Hence this file.
  */
 class TestPetscTools2 : public CxxTest::TestSuite
 {

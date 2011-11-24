@@ -75,6 +75,9 @@ private:
     /** Which processors we are. */
     static unsigned mRank;
 
+    /** Whether to pretend that we're just running many master processes independently. */
+    static bool mIsolateProcesses;
+
     /** Private method makes sure that (if this is the first use within a test) then PETSc has been probed. */
     static inline void CheckCache()
     {
@@ -150,6 +153,17 @@ public:
      * Call at the end of a block of code that should be executed by each process in turn.
      */
     static void EndRoundRobin();
+
+    /**
+     * Where work can be split between isolated processes, it would be nice to be able to do
+     * so easily without worrying about collective calls made inside classes such as OutputFileHandler
+     * leading to deadlock.
+     * This method attempts to enable this behaviour.  If the flag is set then AmMaster always
+     * returns true, Barrier becomes a no-op, and ReplicateBool doesn't replicate.
+     *
+     * @param isolate  whether to consider processes as isolated
+     */
+    static void IsolateProcesses(bool isolate=true);
 
 #ifndef SPECIAL_SERIAL
     /**

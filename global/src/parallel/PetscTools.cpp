@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 bool PetscTools::mPetscIsInitialised = false;
 unsigned PetscTools::mNumProcessors = 0;
 unsigned PetscTools::mRank = 0;
+bool PetscTools::mIsolateProcesses = false;
 //unsigned PetscTools::mMaxNumNonzerosIfMatMpiAij = 54;
 
 #ifdef DEBUG_BARRIERS
@@ -103,7 +104,7 @@ unsigned PetscTools::GetMyRank()
 bool PetscTools::AmMaster()
 {
     CheckCache();
-    return (mRank == MASTER_RANK);
+    return (mRank == MASTER_RANK || mIsolateProcesses);
 }
 
 bool PetscTools::AmTopMost()
@@ -117,7 +118,7 @@ bool PetscTools::AmTopMost()
 void PetscTools::Barrier(const std::string callerId)
 {
     CheckCache();
-    if (mPetscIsInitialised)
+    if (mPetscIsInitialised && !mIsolateProcesses)
     {
 #ifdef DEBUG_BARRIERS
         std::cout << "DEBUG: proc " << PetscTools::GetMyRank() << ": Pre " << callerId << " Barrier " << mNumBarriers << "." << std::endl << std::flush;
@@ -148,6 +149,11 @@ void PetscTools::EndRoundRobin()
     }
 }
 
+void PetscTools::IsolateProcesses(bool isolate)
+{
+    mIsolateProcesses = isolate;
+}
+
 #ifndef SPECIAL_SERIAL
 
 bool PetscTools::ReplicateBool(bool flag)
@@ -155,7 +161,7 @@ bool PetscTools::ReplicateBool(bool flag)
     CheckCache();
     unsigned my_flag = (unsigned) flag;
     unsigned anyones_flag_is_true = my_flag;
-    if (mPetscIsInitialised)
+    if (mPetscIsInitialised && !mIsolateProcesses)
     {
         MPI_Allreduce(&my_flag, &anyones_flag_is_true, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
     }
