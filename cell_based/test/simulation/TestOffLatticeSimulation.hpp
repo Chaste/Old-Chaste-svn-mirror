@@ -245,6 +245,9 @@ public:
         // For coverage of these 'Get' functions
         TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 17u);
+
+        // Note that this test used to take an extra time step
+        TS_ASSERT_EQUALS(SimulationTime::Instance()->GetTime(), 0.5);
     }
 
     /**

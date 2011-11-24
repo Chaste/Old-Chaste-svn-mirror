@@ -167,7 +167,7 @@ public:
     void TestLoopedStepping()
     {
         SimulationTime* p_simulation_time = SimulationTime :: Instance();
-        double start = 0.25833333333333330373;
+        double start = 0.25833333333333330373 - DBL_EPSILON;
         double end = 0.5;
         double dt = 0.0083333333333333332177;
         //As in the abstract simulation classes...
@@ -175,6 +175,7 @@ public:
         TS_ASSERT_EQUALS(num_time_steps, 29U);            
         p_simulation_time->SetStartTime(start);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end, num_time_steps);
+        TS_ASSERT_DELTA( p_simulation_time->GetTimeStep(), (1.0/120.0), DBL_EPSILON);
 
         unsigned step = 0;
         while (!p_simulation_time->IsFinished())

@@ -188,14 +188,7 @@ bool SimulationTime::IsStartTimeSetUp() const
 
 bool SimulationTime::IsFinished() const
 {
-    if(mpTimeStepper->IsTimeAtEnd() != (mCurrentTime>=mEndTime))
-    {
-        assert (mpTimeStepper->IsTimeAtEnd());
-        ///\todo #1885 Delete on coverage failure
-        WARNING("TimeStepper runs past end time in this test");
-    }
     return(mpTimeStepper->IsTimeAtEnd());
-    //return (mCurrentTime>=mEndTime);
 }
 
 unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
