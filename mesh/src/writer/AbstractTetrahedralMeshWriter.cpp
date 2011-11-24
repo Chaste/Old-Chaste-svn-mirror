@@ -328,11 +328,10 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableE
         else
         {
             //Master doesn't own this element.
-            // size is 3 to allow for 2 indices and attribute value too
-            unsigned raw_indices[3];
+            unsigned raw_indices[2];
             MPI_Status status;
             //Get it from elsewhere
-            MPI_Recv(raw_indices, 3, MPI_UNSIGNED, MPI_ANY_SOURCE,
+            MPI_Recv(raw_indices, 2, MPI_UNSIGNED, MPI_ANY_SOURCE,
                      this->mNumNodes + this->mNumElements + this->mNumBoundaryElements + mCableElementCounterForParallelMesh,
                      PETSC_COMM_WORLD, &status);
 
@@ -342,7 +341,11 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextCableE
                 elem_data.NodeIndices[j] = raw_indices[j];
             }
             // Attribute value
-            elem_data.AttributeValue = raw_indices[2];
+            double radius;
+            MPI_Recv(&radius, 1, MPI_DOUBLE, MPI_ANY_SOURCE,
+                     this->mNumNodes + this->mNumElements + this->mNumBoundaryElements + mCableElementCounterForParallelMesh,
+                     PETSC_COMM_WORLD, &status);
+            elem_data.AttributeValue = radius;
         }
         // increment element counter
         mCableElementCounterForParallelMesh++;
@@ -621,19 +624,23 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             // Slaves concentrate the cable elements for which they are owners
             if (mpMixedMesh)
             {
-                unsigned raw_cable_element_indices[3];
                 typedef typename MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>::CableElementIterator CableElementIterType;
                 for (CableElementIterType it = mpMixedMesh->GetCableElementIteratorBegin(); it != mpMixedMesh->GetCableElementIteratorEnd(); ++it)
                 {
                     unsigned index =(*it)->GetIndex();
                     if ( mpMixedMesh->CalculateDesignatedOwnershipOfCableElement( index ) == true )
                     {
+                        unsigned raw_cable_element_indices[2];
                         for (unsigned j=0; j<2; j++)
                         {
                             raw_cable_element_indices[j] = (*it)->GetNodeGlobalIndex(j);
                         }
-                        raw_cable_element_indices[2] = (*it)->GetRegion();
-                        MPI_Send(raw_cable_element_indices, 3, MPI_UNSIGNED, 0,
+                        MPI_Send(raw_cable_element_indices, 2, MPI_UNSIGNED, 0,
+                                 this->mNumNodes + this->mNumElements + this->mNumBoundaryElements + index, //Cable elements sent with tags offset even more
+                                 PETSC_COMM_WORLD);
+                        double cable_radius = (*it)->GetRegion();
+                        //Assume this message doesn't overtake previous
+                        MPI_Send(&cable_radius, 1, MPI_DOUBLE, 0,
                                  this->mNumNodes + this->mNumElements + this->mNumBoundaryElements + index, //Cable elements sent with tags offset even more
                                  PETSC_COMM_WORLD);
                     }
