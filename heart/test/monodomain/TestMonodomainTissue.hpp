@@ -690,26 +690,32 @@ public:
         {
             // Save via MonodomainProblem so we can migrate
             // Run the test with b=_hostconfig,boost=1-33-1_5 to save
+            /*
+               scons b=_hostconfig,boost=1-33-1_5 ts=heart/test/monodomain/TestMonodomainTissue.hpp
+             *
+             */
             MonodomainProblem<2> monodomain_problem( &cell_factory );
             monodomain_problem.SetMesh(&mixed_mesh);
             monodomain_problem.Initialise();
             TS_ASSERT(monodomain_problem.GetMonodomainTissue()->HasPurkinje());
             CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, migration_archive_dir);
         }
+        TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(), 121u);
+    }
+    
+    //Failure of this test may mean that the archive from the previous needs to be regenerated
+    void TestArchiveMigration()
+    { // Load from 5-process archive and compare
+        FileFinder saved_archive_dir("heart/test/data/checkpoints/purkinje_migration_archive",
+                                     RelativeTo::ChasteSourceRoot);
+        MonodomainProblem<2>* p_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(saved_archive_dir);
+        MonodomainTissue<2>* p_tissue = p_problem->GetMonodomainTissue();
 
-        {
-            // Load from 5-process archive and compare
-            FileFinder saved_archive_dir("heart/test/data/checkpoints/purkinje_migration_archive",
-                                         RelativeTo::ChasteSourceRoot);
-            MonodomainProblem<2>* p_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(saved_archive_dir);
-            MonodomainTissue<2>* p_tissue = p_problem->GetMonodomainTissue();
+        TS_ASSERT(p_tissue->HasPurkinje());
+        TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeIionicCacheReplicated().GetSize(), 121u);
 
-            TS_ASSERT(p_tissue->HasPurkinje());
-            TS_ASSERT_EQUALS(p_tissue->rGetPurkinjeIionicCacheReplicated().GetSize(), tissue.rGetPurkinjeIionicCacheReplicated().GetSize());
-
-            delete p_problem;
-        }
-	}
+        delete p_problem;
+    }
 };
 
 
