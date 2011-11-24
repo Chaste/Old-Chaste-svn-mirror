@@ -95,11 +95,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /*
  *
- * EMPTYLINE
- *
  * == Simple incompressible deformation: 2D shape hanging under gravity ==
  *
- * EMPTYLINE
  */
 class TestSolvingElasticityProblemsTutorial : public CxxTest::TestSuite
 {
@@ -107,8 +104,6 @@ public:
     /* In the first test we use INCOMPRESSIBLE nonlinear elasticity. For such problems there is a constraint
      * on the deformation, which results in a pressure field (a Lagrange multiplier) which needs to be solved
      * for together with the deformation.
-     *
-     * EMPTYLINE
      *
      * All the mechanics solvers solve for the deformation using the finite element method with QUADRATIC
      * basis functions for the deformation: this necessitates the use of a `QuadraticMesh` (such meshes have
@@ -148,14 +143,10 @@ public:
          * the displacement (Dirichlet) boundary conditions are specified at nodes, whereas traction (Neumann) boundary
          * conditions are specified on boundary elements.
          *
-         * EMPTYLINE
-         *
          * In this test we apply displacement boundary conditions on one surface of the mesh, the upper (Y=1.0) surface.
          * We are going to specify zero-displacement at these nodes.
          * We do not specify any traction boundary conditions, which means that (effectively) zero-traction boundary
          * conditions (ie zero pressures) are applied on the three other surfaces.
-         *
-         * EMPTYLINE
          *
          * We need to get a `std::vector` of all the node indices that we want to fix. The `NonlinearElasticityTools`
          * has a static method for helping do this: the following gets all the nodes for which Y=1.0. The second
@@ -199,8 +190,6 @@ public:
          * positions. Each file has two columns, the x and y locations of each node. To visualise the solution in say
          * Matlab or Octave, you could do: `x=load('solution.nodes'); plot(x(:,1),x(:,2),'k*')`. For Cmgui output, see below.
          *
-         * EMPTYLINE
-         *
          * To get the actual solution from the solver, use these two methods. Note that the first
          * gets the deformed position (ie the new location, not the displacement), and will be of size
          * num_total_nodes; the second will be of size num_vertices.
@@ -231,11 +220,7 @@ public:
     }
 
     /*
-     * EMPTYLINE
-     *
      * == Incompressible deformation: 2D shape hanging under gravity with a balancing traction ==
-     *
-     * EMPTYLINE
      *
      * We now repeat the above test but include a traction, on the bottom surface (Y=0). We apply this
      * in the inward direction so that is counters (somewhat) the effect of gravity.
@@ -257,8 +242,6 @@ public:
         /* Now the traction boundary conditions. We need to collect all the boundary elements on the surface which we want to
          * apply non-zero tractions, put them in a `std::vector`, and create a corresponding `std::vector` of the tractions
          * for each of the boundary elements. Note that the each traction is a 2D vector with dimensions of pressure.
-         *
-         * EMPTYLINE
          *
          * Declare the data structures
          */
@@ -310,8 +293,6 @@ public:
          * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')`. The effect of the traction should be
          * clear (especially when compared to the results of the first test).
          *
-         * EMPTYLINE
-         *
          * Create Cmgui output
          */
         solver.CreateCmguiOutput();
@@ -323,8 +304,6 @@ public:
 };
     /* More examples are given in the next tutorial
      *
-     * EMPTYLINE
-     *
      * == IMPORTANT: Using HYPRE ==
      *
      * When running '''incompressible''' problems in 3D, or with more elements, it is vital to change the linear solver to use HYPRE, an algebraic multigrid
@@ -333,23 +312,15 @@ public:
      * the default linear solver for mechanics problems, although this will change in the future. HYPRE should be considered
      * a pre-requisite for large mechanics problems.
      *
-     * EMPTYLINE
-     *
      * To use HYRPE in mechanics solves, you need to have Petsc installed with HYPRE. However, if you followed installation
      * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
-     *
-     * EMPTYLINE
      *
      * To switch on HYPRE, open the file `pde/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
      * #define MECH_USE_HYPRE
      * near the top of the file (currently: line 53).
      *
-     * EMPTYLINE
-     *
      * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
      * on larger problems.
-     *
-     * EMPTYLINE
      *
      * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
      *

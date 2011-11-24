@@ -41,8 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In this second solid mechanics tutorial, we illustrate some other possibilities.
  *
- * EMPTYLINE
- *
  * These includes are the same as before
  */
 #include <cxxtest/TestSuite.h>
@@ -94,8 +92,6 @@ public:
          * compressible solver, `CompressibleNonlinearElasticitySolver`. checks at run-time that the passed in law
          * is of type `AbstractCompressibleMaterialLaw`. (This has been implemented this way so that the incompressible
          * and compressible solvers have exactly the same constructor).
-         *
-         * EMPTYLINE
          *
          * Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
         std::vector<unsigned> fixed_nodes;
@@ -153,8 +149,6 @@ public:
          * instead of a vector, although isn't really physically useful, it is only really useful
          * for constructing problems with exact solutions.
          *
-         * EMPTYLINE
-         *
          * Create the solver as before */
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
@@ -169,8 +163,6 @@ public:
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 6u);
         /* Visualise with `x=load('solution.nodes'); plot(x(:,1),x(:,2),'b*')`
          *
-         * EMPTYLINE
-         *
          * '''Advanced:''' Note that the function `MyTraction` takes in time, which it didn't use. In the above it would have been called
          * with t=0. The current time can be set using `SetCurrentTime()`. The idea is that the user may want to solve a
          * sequence of static problems with time-dependent tractions (say), for which they should allow `MyTraction` to
@@ -183,8 +175,6 @@ public:
         //}
         /* In this the current time would be passed through to `MyTraction`
          *
-         * EMPTYLINE
-         *
          * Create Cmgui output
          */
         solver.CreateCmguiOutput();
@@ -194,6 +184,64 @@ public:
         TS_ASSERT_DELTA(solver.rGetDeformedPosition()[98](1), 0.5638, 1e-3);
     }
 
+    /* == Sliding boundary conditions ==
+     *
+     * It is common to require a Dirichlet boundary condition where the displacement/position in one dimension
+     * is fixed, but the displacement/position in the others are free. This can be easily done when
+     * collecting the new locations for the fixed nodes, as shown in the following example. Here, we
+     * take a unit square, apply gravity downward, and suppose the Y=0 surface is like a frictionless boundary,
+     * so that, for the nodes on Y=0, we specify y=0 but leave x free (Here (X,Y)=old position, (x,y)=new position).
+     * Note though that this wouldn't be enough to uniquely specify the final solution - an arbitrary
+     * translation in the Y direction could be added a solution to obtain another valid solution, so we
+     * fully fix the node at the origin.
+     */
+    void TestWithSlidingDirichletBoundaryConditions() throw(Exception)
+    {
+        QuadraticMesh<2> mesh;
+        mesh.ConstructRegularSlabMesh(0.1 /*stepsize*/, 1.0 /*width*/, 1.0 /*height*/);
+
+        ExponentialMaterialLaw<2> law(1.0, 0.5); // First parameter is 'a', second 'b', in W=a*exp(b(I1-3))
+
+        /* Create fixed nodes and locations... */
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > locations;
+
+        /* fix node 0 (the node at the origin) */
+        fixed_nodes.push_back(0);
+        locations.push_back(zero_vector<double>(2));
+
+        /* For the rest, if the node is on the Y=0 surface.. */
+        for (unsigned i=1; i<mesh.GetNumNodes(); i++)
+        {
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[1])<1e-6)
+            {
+                /* ..add it to the list of fixed nodes.. */
+                fixed_nodes.push_back(i);
+                /* ..and define y to be 0 but x is fixed */
+                c_vector<double,2> new_location;
+                new_location(0) = SolidMechanicsProblemDefinition<2>::FREE;
+                new_location(1) = 0.0;
+                locations.push_back(new_location);
+            }
+        }
+
+        /* Set the fixed nodes, add some gravity, and solve */
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetFixedNodes(fixed_nodes, locations);
+        c_vector<double,2> gravity = zero_vector<double>(2);
+        gravity(1) = -0.5;
+        problem_defn.SetBodyForce(gravity);
+
+        IncompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                          problem_defn,
+                                                          &law,
+                                                          "ElasticitySlidingBcsExample");
+        solver.Solve();
+
+        /* Check the node at (1,0) has moved but y=0 */
+        TS_ASSERT_LESS_THAN(1.0, solver.rGetDeformedPosition()[10](0));
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[10](1), 0.0, 1e-3);
+    }
 
     /* == Compressible deformation, and other bits and pieces ==
      *
@@ -202,8 +250,6 @@ public:
      * boundary conditions, we illustrate how a quadratic mesh can be generated using a linear mesh
      * input files, and we also illustrate how `Solve()` can be called repeatedly, with loading
      * changing between the solves.
-     *
-     * EMPTYLINE
      *
      * Note: for other examples of compressible solves, including problems with an exact solution, see the
      * file pde/test/TestCompressibleNonlinearElasticitySolver.hpp
