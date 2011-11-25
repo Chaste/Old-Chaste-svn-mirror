@@ -264,7 +264,9 @@ protected:
                            c_vector<double, STENCIL_SIZE>& rBElem);
 
 public:
-    /** Constructor */
+    /** Constructor
+     *  @param pMesh Pointer to the mesh
+     *  @param numQuadPoints Number of quadrature points in each direction, defaults to 3 */
     AbstractContinuumMechanicsAssembler(QuadraticMesh<DIM>* pMesh, unsigned numQuadPoints = 3)
         : AbstractFeAssemblerInterface<CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX>(),
           mpMesh(pMesh)

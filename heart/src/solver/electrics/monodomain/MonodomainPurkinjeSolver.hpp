@@ -38,7 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainPurkinjeCableAssembler.hpp"
 
 
-
+/**
+ *  ///\todo #1898 add documentation here when class is finished
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainPurkinjeSolver
   : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>
