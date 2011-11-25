@@ -32,7 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "QuadraticMesh.hpp"
 #include "UblasCustomFunctions.hpp"
-#include "AbstractMaterialLaw.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractCompressibleMaterialLaw.hpp"
+#include "CompressibilityType.hpp"
 
 
 
@@ -60,7 +62,7 @@ typedef enum TractionBoundaryConditionType_
 
 /**
  *  A class for specifying various parts of a solid mechanics problem, in particular the material
- *  laws for the deforming body,  fixed nodes information, the body force (per unit mass)
+ *  laws for the deforming body, fixed nodes information, the body force (per unit mass)
  *  (usually acceleration due to gravity or zero), the traction boundary conditions, and the density.
  */
 template<unsigned DIM>
@@ -125,21 +127,42 @@ private:
     // material law
     /////////////////////////////
     /**
-     *  The material law. This vector is either of size 1, representing the homogeneous material, or of
-     *  size num_elements, representing a heterogeneous material, with a material law per element.
+     *  The material law, in the case of incompressible material laws. This vector is either of size 1, representing a
+     *  homogeneous material, or of size num_elements, representing a heterogeneous material, with a material law per element.
+     *  If he material is compressible, this vector will be of size zero.
      */
-    std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
+    std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mIncompressibleMaterialLaws;
+    /**
+     *  The material law, in the case of compressible material laws. This vector is either of size 1, representing a
+     *  homogeneous material, or of size num_elements, representing a heterogeneous material, with a material law per element.
+     *  If the material is incompressible, this vector will be of size zero.
+     */
+    std::vector<AbstractCompressibleMaterialLaw<DIM>*> mCompressibleMaterialLaws;
 
     /** Whether the material is homogeneous (same material law everywhere) or heterogeneous */
-    bool mIsHeterogeneousMaterial;
+    bool mIsHomogeneousMaterial;
+
+    /** Whether the material is incompressible or compressible. (CompressibilityType is an enumeration).  */
+    CompressibilityType mCompressibilityType;
+
+    /**
+     *  Helper function for checking whether a dynamic_cast succeeded or not, and throwing an exception
+     *  if it failed.
+     *
+     *  @param compressibilityType compressibility type
+     *  @param pMaterialLaw material law
+     */
+    void CheckCastSuccess(CompressibilityType compressibilityType,AbstractMaterialLaw<DIM>* pMaterialLaw);
 
 public:
-    /** Constructor initialised the body force to zero and density to 1.0 
+    /**
+     * Constructor initialises the body force to zero and density to 1.0
      * @param rMesh  is the mesh being solved on
      */
     SolidMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh);
 
-    /** Set the density
+    /**
+     *  Set the density
      *  @param density
      */
     void SetDensity(double density);
@@ -265,52 +288,53 @@ public:
     c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& rX, double t);
 
     /**
-     * Set the body to be homogeneous, and set the single material law for the whole of the body.
-     * The material law can be incompressible or compressible. Any previous material information
-     * will be deleted.
-     * @param pMaterialLaw The law for the entire body
+     * Set a material law for the entire body (ie the homogeneous case). If compressibilityType==INCOMPRESSIBLE,
+     * the material law pointer will be checked at run-time that it is of type `AbstractIncompressibleMaterialLaw`,
+     * and similarly for the compressible case. Any previous material information will be deleted.
+     *
+     * @param compressibilityType either 'INCOMPRESSIBLE' or 'COMPRESSIBLE'
+     * @param pMaterialLaw The material law for the entire body
      */
-    void SetHomogenenousMaterial(AbstractMaterialLaw<DIM>* pMaterialLaw);
+    void SetMaterialLaw(CompressibilityType compressibilityType, AbstractMaterialLaw<DIM>* pMaterialLaw);
 
     /**
-     * Set the body to be heterogeneous, and set a vector of material law, one law for each element
-     * in the mesh.
-     * The material laws can be incompressible or compressible. Any previous material information
-     * will be deleted.
+     * Set a vector of material laws for the body, one for each element in the mesh (the heterogeneous case). If
+     * compressibilityType==INCOMPRESSIBLE, the material law pointer will be checked at run-time that it is
+     * of type `AbstractIncompressibleMaterialLaw`, and similarly for the compressible case.
+     * Any previous material information will be deleted.
+     *
+     * @param compressibilityType either 'INCOMPRESSIBLE' or 'COMPRESSIBLE'
      * @param rMaterialLaws Vector of pointers to material laws
      */
-    void SetHeterogeneousMaterial(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws);
+    void SetMaterialLaw(CompressibilityType compressibilityType, std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws);
 
     /**
      * Get whether the material is homogeneous or heterogeneous.
-     * SetHomogenenousMaterial() or SetHeterogeneousMaterial() must have been called beforehand.
+     * SetMaterialLaw() must be called before calling this.
      */
-    bool IsHeterogeneousMaterial();
+    bool IsHomogeneousMaterial();
 
     /**
-     * Get the single material law, when the body is homogeneous. Should only be called if
-     * IsHeterogeneousMaterial() returns false.
+     * Get whether the material is incompressible or compressible.
+     * SetMaterialLaw() must be called before calling this.
      */
-    AbstractMaterialLaw<DIM>* GetLawForHomogeneousMaterial();
+    CompressibilityType GetCompressibilityType();
 
     /**
-     * Get the material law for a given element, when the body is heterogeneous. Should only be called if
-     * IsHeterogeneousMaterial() returns true.
+     * Get the material law for a given element, when the body is incompressible. An assertion will
+     * fail if GetCompressibilityType()!=INCOMPRESSIBLE. If the material is homogeneous, it doesn't matter what
+     * the element index is.
      * @param elementIndex index of element
      */
-    AbstractMaterialLaw<DIM>* GetLawForHeterogeneousMaterial(unsigned elementIndex);
+    AbstractIncompressibleMaterialLaw<DIM>* GetIncompressibleMaterialLaw(unsigned elementIndex);
 
     /**
-     *  This function will be called by the incompressible solver, and checks all the material
-     *  laws placed in this class are incompressible. Throws exception if no laws have been added.
+     * Get the material law for a given element, when the body is compressible. An assertion will
+     * fail if GetCompressibilityType()!=COMPRESSIBLE. If the material is homogeneous, it doesn't matter what
+     * the element index is.
+     * @param elementIndex index of element
      */
-    void VerifyIncompressibleMaterialLaws();
-
-    /**
-     *  This function will be called by the compressible solver, and checks all the material
-     *  laws placed in this class are compressible. Throws exception if no laws have been added.
-     */
-    void VerifyCompressibleMaterialLaws();
+    AbstractCompressibleMaterialLaw<DIM>* GetCompressibleMaterialLaw(unsigned elementIndex);
 };
 
 

@@ -117,12 +117,17 @@ public:
         fixed_nodes.push_back(0);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
 
         IncompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "");
         solver.AssembleSystem(true, true);
+
+        // cover exception
+        CompressibleMooneyRivlinMaterialLaw<3> comp_law(2.0,1.0);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&comp_law);
+        TS_ASSERT_THROWS_THIS(IncompressibleNonlinearElasticitySolver<3> another_solver(mesh,problem_defn,""), "SolidMechanicsProblemDefinition object contains compressible material laws");
     }
 
     void TestAssembleSystem() throw (Exception)
@@ -133,11 +138,12 @@ public:
         fixed_nodes.push_back(0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                          problem_defn,
-                                                         &law,
                                                          "");
         solver.AssembleSystem(true, true);
 
@@ -254,11 +260,11 @@ public:
         fixed_nodes.push_back(0);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         IncompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "");
 
         // compute the residual norm - should be zero as no force or tractions
@@ -309,12 +315,12 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&mooney_rivlin_law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &mooney_rivlin_law,
                                                           "");
 
         // for coverage
@@ -344,18 +350,6 @@ public:
         {
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
-
-
-        // more coverage of exceptions
-        CompressibleMooneyRivlinMaterialLaw<2> compressible_law(1.0,1.0);
-        TS_ASSERT_THROWS_CONTAINS(IncompressibleNonlinearElasticitySolver<2> bad_solver(mesh,problem_defn,&compressible_law,""),  "IncompressibleNonlinearElasticitySolver must take in an incompressible material law");
-
-        std::vector<AbstractMaterialLaw<2>*> compressible_laws;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            compressible_laws.push_back(&compressible_law);
-        }
-        TS_ASSERT_THROWS_CONTAINS(IncompressibleNonlinearElasticitySolver<2> bad_solver(mesh,problem_defn,compressible_laws,""),  "IncompressibleNonlinearElasticitySolver must take in an incompressible material law");
     }
 
     void TestSettingUpHeterogeneousProblem() throw(Exception)
@@ -373,16 +367,12 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,laws);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          laws,
                                                           "");
-
-        TS_ASSERT_EQUALS(solver.mMaterialLaws.size(), 2u);
-        TS_ASSERT_DELTA(solver.mMaterialLaws[0]->GetZeroStrainPressure(), 2.0, 1e-6);
-        TS_ASSERT_DELTA(solver.mMaterialLaws[1]->GetZeroStrainPressure(), 10.0, 1e-6);
 
         unsigned num_nodes = 9;
         // pressure for node 0 (in elem 0)
@@ -406,12 +396,12 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetBodyForce(body_force);
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "simple_nonlin_elas");
 
         solver.Solve();
@@ -523,6 +513,7 @@ public:
 
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
@@ -530,7 +521,6 @@ public:
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "nonlin_elas_non_zero_bcs");
 
 
@@ -613,6 +603,9 @@ public:
         assert(boundary_elems.size()==3*num_elem);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetBodyForce(MyBodyForce);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, MyTraction);
@@ -621,7 +614,6 @@ public:
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "nonlin_elas_functional_data");
 
 
@@ -667,7 +659,7 @@ public:
         // output files created as SetWriteOutputEachNewtonIteration() was called above, and the cmgui files created as
         // CreateCmguiOutput() was called above.
         std::string command
-                = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/initial.nodes > /dev/null";
+           = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/initial.nodes > /dev/null";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         command = "ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "nonlin_elas_functional_data/solution.nodes > /dev/null";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
@@ -740,12 +732,13 @@ public:
         assert(boundary_elems.size()==num_elem);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressure);
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "nonlin_elas_pressure_on_deformed");
 
 
@@ -850,13 +843,14 @@ public:
 
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "TestSlidingBoundaryConditions");
 
 

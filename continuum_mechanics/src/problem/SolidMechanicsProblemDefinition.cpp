@@ -224,82 +224,139 @@ c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunct
 
 
 template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetHomogenenousMaterial(AbstractMaterialLaw<DIM>* pMaterialLaw)
+void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType compressibilityType,
+                                                          AbstractMaterialLaw<DIM>* pMaterialLaw)
 {
-    mIsHeterogeneousMaterial = false;
-    mMaterialLaws.clear();
-    mMaterialLaws.push_back(pMaterialLaw);
+    mIsHomogeneousMaterial = true;
+    mCompressibilityType = compressibilityType;
+
+    mIncompressibleMaterialLaws.clear();
+    mCompressibleMaterialLaws.clear();
+
+    assert(pMaterialLaw);
+
+    if(compressibilityType==INCOMPRESSIBLE)
+    {
+        AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
+        CheckCastSuccess(compressibilityType, p_law);
+        mIncompressibleMaterialLaws.push_back(p_law);
+    }
+    else
+    {
+        AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(pMaterialLaw);
+        CheckCastSuccess(compressibilityType, p_law);
+        mCompressibleMaterialLaws.push_back(p_law);
+    }
 }
 
 template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetHeterogeneousMaterial(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
+void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType compressibilityType,
+                                                          std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
 {
-    mIsHeterogeneousMaterial = true;
-    mMaterialLaws.clear();
+    mIsHomogeneousMaterial = false;
+    mCompressibilityType = compressibilityType;
+
+    mIncompressibleMaterialLaws.clear();
+    mCompressibleMaterialLaws.clear();
+
     assert(mrMesh.GetNumElements()==rMaterialLaws.size());
-    mMaterialLaws = rMaterialLaws;
-}
 
-template<unsigned DIM>
-bool SolidMechanicsProblemDefinition<DIM>::IsHeterogeneousMaterial()
-{
-    assert(mMaterialLaws.size()!=0);
-    return mIsHeterogeneousMaterial;
-}
-
-template<unsigned DIM>
-AbstractMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetLawForHomogeneousMaterial()
-{
-    assert(!mIsHeterogeneousMaterial);
-    assert(mMaterialLaws.size()==1);
-    return mMaterialLaws[0];
-}
-
-template<unsigned DIM>
-AbstractMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetLawForHeterogeneousMaterial(unsigned elementIndex)
-{
-    assert(mIsHeterogeneousMaterial);
-    assert(mMaterialLaws.size()==mrMesh.GetNumElements());
-    assert(elementIndex < mrMesh.GetNumElements());
-    return mMaterialLaws[elementIndex];
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::VerifyIncompressibleMaterialLaws()
-{
-    if(mMaterialLaws.size()==0)
+    if(compressibilityType==INCOMPRESSIBLE)
     {
-        EXCEPTION("No material laws have been set on SolidMechanicsProblemDefinition");
-    }
-
-    for (unsigned i=0; i<mMaterialLaws.size(); i++)
-    {
-        AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(mMaterialLaws[i]);
-        if (!p_law)
+        for(unsigned i=0; i<rMaterialLaws.size(); i++)
         {
-            EXCEPTION("SolidMechanicsProblemDefinition used in incompressible problem but has been given compressible material law(s)");
+            assert(rMaterialLaws[i]);
+            AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
+            CheckCastSuccess(compressibilityType, p_law);
+            mIncompressibleMaterialLaws.push_back(p_law);
+        }
+    }
+    else
+    {
+        for(unsigned i=0; i<rMaterialLaws.size(); i++)
+        {
+            assert(rMaterialLaws[i]);
+            AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
+            CheckCastSuccess(compressibilityType, p_law);
+            mCompressibleMaterialLaws.push_back(p_law);
         }
     }
 }
 
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::VerifyCompressibleMaterialLaws()
-{
-    if(mMaterialLaws.size()==0)
-    {
-        EXCEPTION("No material laws have been set on SolidMechanicsProblemDefinition");
-    }
 
-    for (unsigned i=0; i<mMaterialLaws.size(); i++)
+
+
+template<unsigned DIM>
+bool SolidMechanicsProblemDefinition<DIM>::IsHomogeneousMaterial()
+{
+    // if this fails, SetMaterialLaw() hasn't been called
+    assert(mIncompressibleMaterialLaws.size()!=0  ||  mCompressibleMaterialLaws.size()!=0 );
+    return mIsHomogeneousMaterial;
+}
+
+template<unsigned DIM>
+CompressibilityType SolidMechanicsProblemDefinition<DIM>::GetCompressibilityType()
+{
+    // if this fails, SetMaterialLaw() hasn't been called
+    assert(mIncompressibleMaterialLaws.size()!=0  ||  mCompressibleMaterialLaws.size()!=0 );
+    return mCompressibilityType;
+}
+
+
+
+
+template<unsigned DIM>
+AbstractIncompressibleMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetIncompressibleMaterialLaw(unsigned elementIndex)
+{
+    assert(mCompressibilityType==INCOMPRESSIBLE);
+    assert(mIncompressibleMaterialLaws.size()>0);
+    assert(mCompressibleMaterialLaws.size()==0);
+
+    if(mIsHomogeneousMaterial)
     {
-        AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(mMaterialLaws[i]);
-        if (!p_law)
-        {
-            EXCEPTION("SolidMechanicsProblemDefinition used in compressible problem but has been given incompressible material law(s)");
-        }
+        return mIncompressibleMaterialLaws[0];
+    }
+    else
+    {
+        assert(elementIndex < mrMesh.GetNumNodes());
+        return mIncompressibleMaterialLaws[elementIndex];
     }
 }
 
+template<unsigned DIM>
+AbstractCompressibleMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetCompressibleMaterialLaw(unsigned elementIndex)
+{
+    assert(mCompressibilityType==COMPRESSIBLE);
+    assert(mIncompressibleMaterialLaws.size()==0);
+    assert(mCompressibleMaterialLaws.size()>0);
+
+    if(mIsHomogeneousMaterial)
+    {
+        return mCompressibleMaterialLaws[0];
+    }
+    else
+    {
+        assert(elementIndex < mrMesh.GetNumNodes());
+        return mCompressibleMaterialLaws[elementIndex];
+    }
+}
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::CheckCastSuccess(CompressibilityType compressibilityType,
+                                                            AbstractMaterialLaw<DIM>* pMaterialLaw)
+{
+    if(compressibilityType==INCOMPRESSIBLE && pMaterialLaw==NULL)
+    {
+        // then dynamic_cast to AbstractIncompressibleMaterialLaw failed
+        EXCEPTION("Compressibility type was declared as INCOMPRESSIBLE but a compressible material law was given");
+    }
+
+    if(compressibilityType==COMPRESSIBLE && pMaterialLaw==NULL)
+    {
+        // then dynamic_cast to AbstractCompressibleMaterialLaw failed
+        EXCEPTION("Incompressibility type was declared as COMPRESSIBLE but an incompressible material law was given");
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation

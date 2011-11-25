@@ -426,6 +426,9 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         mUseDefaultMaterialLaw = true;
     }
 
+    mpProblemDefinition->SetMaterialLaw(mCompressibilityType, mMaterialLaws);
+
+
     // Construct mechanics solver
     // Here we pick the best solver for each particular contraction model. Commented out versions are
     // for experimentation.
@@ -434,25 +437,25 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit solver (explicit may be unstable)
             if(mCompressibilityType==INCOMPRESSIBLE)
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             }
             else
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             }
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory,mMaterialLaws);
+                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

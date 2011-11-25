@@ -236,24 +236,21 @@ public:
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](1), 1.5 - mesh.GetNode(10)->rGetLocation()[1], 1e-12);
 
 
-        ///////////////////////
-        // Material law
-        ///////////////////////
-
-        // cover some exceptions
-        TS_ASSERT_THROWS_THIS(problem_defn.VerifyCompressibleMaterialLaws(), "No material laws have been set on SolidMechanicsProblemDefinition");
-        TS_ASSERT_THROWS_THIS(problem_defn.VerifyIncompressibleMaterialLaws(), "No material laws have been set on SolidMechanicsProblemDefinition");
+        ///////////////////////////////////////
+        // Set an incompressible material law
+        ///////////////////////////////////////
 
         // set a homogeneous law
         MooneyRivlinMaterialLaw<2> incomp_mooney_rivlin_law(1.0);
-        problem_defn.SetHomogenenousMaterial(&incomp_mooney_rivlin_law);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&incomp_mooney_rivlin_law);
 
-        TS_ASSERT_EQUALS(problem_defn.IsHeterogeneousMaterial(), false);
-        TS_ASSERT_EQUALS(problem_defn.GetLawForHomogeneousMaterial(), &incomp_mooney_rivlin_law);
+        TS_ASSERT_EQUALS(problem_defn.IsHomogeneousMaterial(), true);
+        TS_ASSERT_EQUALS(problem_defn.GetCompressibilityType(), INCOMPRESSIBLE);
+        TS_ASSERT_EQUALS(problem_defn.GetIncompressibleMaterialLaw(0), &incomp_mooney_rivlin_law);
 
         // set a heterogeneous law
         MooneyRivlinMaterialLaw<2> incomp_mooney_rivlin_law_2(2.0);
-        std::vector<AbstractMaterialLaw<2>*> laws;//(mesh.GetNumElements());
+        std::vector<AbstractMaterialLaw<2>*> laws;
         for(unsigned i=0; i<mesh.GetNumElements()/2; i++)
         {
             laws.push_back(&incomp_mooney_rivlin_law);
@@ -263,29 +260,55 @@ public:
             laws.push_back(&incomp_mooney_rivlin_law_2);
         }
 
-        problem_defn.SetHeterogeneousMaterial(laws);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,laws);
 
-        TS_ASSERT_EQUALS(problem_defn.IsHeterogeneousMaterial(), true);
+        TS_ASSERT_EQUALS(problem_defn.IsHomogeneousMaterial(), false);
         for(unsigned i=0; i<mesh.GetNumElements()/2; i++)
         {
-            TS_ASSERT_EQUALS(problem_defn.GetLawForHeterogeneousMaterial(i), &incomp_mooney_rivlin_law);
+            TS_ASSERT_EQUALS(problem_defn.GetIncompressibleMaterialLaw(i), &incomp_mooney_rivlin_law);
         }
         for(unsigned i=mesh.GetNumElements()/2; i<mesh.GetNumElements(); i++)
         {
-            TS_ASSERT_EQUALS(problem_defn.GetLawForHeterogeneousMaterial(i), &incomp_mooney_rivlin_law_2);
+            TS_ASSERT_EQUALS(problem_defn.GetIncompressibleMaterialLaw(i), &incomp_mooney_rivlin_law_2);
         }
 
-        // as the law that was passed in was incompressible, check VerifyIncompressibleMaterialLaws() passes
-        // but VerifyCmpressibleMaterialLaws throws..
-        TS_ASSERT_THROWS_NOTHING(problem_defn.VerifyIncompressibleMaterialLaws());
-        TS_ASSERT_THROWS_THIS(problem_defn.VerifyCompressibleMaterialLaws(), "SolidMechanicsProblemDefinition used in compressible problem but has been given incompressible material law(s)");
+        /////////////////////////////////////////////////////////////////////////
+        // Set a compressible material law (clears the incompressible laws)
+        /////////////////////////////////////////////////////////////////////////
 
-        // ..now pass in a compressible law and check the opposite holds.
         CompressibleMooneyRivlinMaterialLaw<2> comp_mooney_rivlin_law(2.0, 1.0);
-        problem_defn.SetHomogenenousMaterial(&comp_mooney_rivlin_law);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&comp_mooney_rivlin_law);
 
-        TS_ASSERT_THROWS_NOTHING(problem_defn.VerifyCompressibleMaterialLaws());
-        TS_ASSERT_THROWS_THIS(problem_defn.VerifyIncompressibleMaterialLaws(), "SolidMechanicsProblemDefinition used in incompressible problem but has been given compressible material law(s)");
+        TS_ASSERT_EQUALS(problem_defn.IsHomogeneousMaterial(), true);
+        TS_ASSERT_EQUALS(problem_defn.GetCompressibilityType(), COMPRESSIBLE);
+        TS_ASSERT_EQUALS(problem_defn.GetCompressibleMaterialLaw(0), &comp_mooney_rivlin_law);
+
+        // set a heterogeneous law
+        CompressibleMooneyRivlinMaterialLaw<2> comp_mooney_rivlin_law_2(4.0, 1.0);
+        std::vector<AbstractMaterialLaw<2>*> comp_laws;
+        for(unsigned i=0; i<mesh.GetNumElements()/2; i++)
+        {
+            comp_laws.push_back(&comp_mooney_rivlin_law);
+        }
+        for(unsigned i=mesh.GetNumElements()/2; i<mesh.GetNumElements(); i++)
+        {
+            comp_laws.push_back(&comp_mooney_rivlin_law_2);
+        }
+
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,comp_laws);
+
+        TS_ASSERT_EQUALS(problem_defn.IsHomogeneousMaterial(), false);
+        for(unsigned i=0; i<mesh.GetNumElements()/2; i++)
+        {
+            TS_ASSERT_EQUALS(problem_defn.GetCompressibleMaterialLaw(i), &comp_mooney_rivlin_law);
+        }
+        for(unsigned i=mesh.GetNumElements()/2; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(problem_defn.GetCompressibleMaterialLaw(i), &comp_mooney_rivlin_law_2);
+        }
+
+        TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&comp_mooney_rivlin_law),"Compressibility type was declared as INCOMPRESSIBLE but a compressible material law was given");
+        TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(COMPRESSIBLE,&incomp_mooney_rivlin_law),"Incompressibility type was declared as COMPRESSIBLE but an incompressible material law was given");
     }
 };
 

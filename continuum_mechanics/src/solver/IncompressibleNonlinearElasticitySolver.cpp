@@ -238,19 +238,8 @@ void IncompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
 
     // Get the material law
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if (this->mMaterialLaws.size()==1)
-    {
-        // Homogeneous
-        p_material_law = this->mMaterialLaws[0];
-    }
-    else
-    {
-        // Heterogeneous
-        #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        p_material_law = this->mMaterialLaws[rElement.GetIndex()];
-        #undef COVERAGE_IGNORE
-    }
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law
+        = this->mrProblemDefinition.GetIncompressibleMaterialLaw(rElement.GetIndex());
 
     static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
 
@@ -645,17 +634,9 @@ void IncompressibleNonlinearElasticitySolver<DIM>::FormInitialGuess()
 
     for (unsigned i=0; i<this->mrQuadMesh.GetNumElements(); i++)
     {
-        double zero_strain_pressure;
-        if (this->mMaterialLaws.size()==1)
-        {
-            // Homogeneous
-            zero_strain_pressure = this->mMaterialLaws[0]->GetZeroStrainPressure();
-        }
-        else
-        {
-            // Heterogeneous
-            zero_strain_pressure = this->mMaterialLaws[i]->GetZeroStrainPressure();
-        }
+        double zero_strain_pressure
+           = this->mrProblemDefinition.GetIncompressibleMaterialLaw(i)->GetZeroStrainPressure();
+
 
         // Loop over vertices and set pressure solution to be zero-strain-pressure
         for (unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
@@ -678,60 +659,21 @@ template<size_t DIM>
 IncompressibleNonlinearElasticitySolver<DIM>::IncompressibleNonlinearElasticitySolver(
         QuadraticMesh<DIM>& rQuadMesh,
         SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-        AbstractMaterialLaw<DIM>* pMaterialLaw,
         std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
                                              INCOMPRESSIBLE)
 {
-    assert(pMaterialLaw != NULL);
-
-    AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(pMaterialLaw);
-    if (!p_law)
+    if(rProblemDefinition.GetCompressibilityType() != INCOMPRESSIBLE)
     {
-        EXCEPTION("IncompressibleNonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
-    }
-    mMaterialLaws.push_back(p_law);
-
-    this->Initialise();
-    FormInitialGuess();
-
-
-}
-
-template<size_t DIM>
-IncompressibleNonlinearElasticitySolver<DIM>::IncompressibleNonlinearElasticitySolver(
-         QuadraticMesh<DIM>& rQuadMesh,
-         SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-         std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-         std::string outputDirectory)
-    : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
-                                             rProblemDefinition,
-                                             outputDirectory,
-                                             INCOMPRESSIBLE)
-{
-    mMaterialLaws.resize(rMaterialLaws.size(), NULL);
-    for (unsigned i=0; i<mMaterialLaws.size(); i++)
-    {
-        assert(rMaterialLaws[i] != NULL);
-        AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
-        if (!p_law)
-        {
-            EXCEPTION("IncompressibleNonlinearElasticitySolver must take in an incompressible material law (ie of type AbstractIncompressibleMaterialLaw)");
-        }
-        mMaterialLaws[i] = p_law;
+        EXCEPTION("SolidMechanicsProblemDefinition object contains compressible material laws");
     }
 
-    assert(rMaterialLaws.size()==rQuadMesh.GetNumElements());
     this->Initialise();
     FormInitialGuess();
 }
 
-template<size_t DIM>
-IncompressibleNonlinearElasticitySolver<DIM>::~IncompressibleNonlinearElasticitySolver()
-{
-}
 
 template<size_t DIM>
 std::vector<double>& IncompressibleNonlinearElasticitySolver<DIM>::rGetPressures()

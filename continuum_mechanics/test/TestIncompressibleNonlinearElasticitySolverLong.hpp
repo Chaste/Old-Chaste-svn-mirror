@@ -188,14 +188,13 @@ public:
         assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
-
         IncompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "nonlin_elas_3d");
 
         solver.Solve();
@@ -297,10 +296,6 @@ public:
         // Define pressure boundary conditions X=1 surface
         std::vector<BoundaryElement<2,3>*> boundary_elems;
 
-//        std::vector<c_vector<double,3> > tractions;
-//        c_vector<double,3> traction = zero_vector<double>(3);
-//        traction(0)=2*c1*(pow(lambda,-2)-pow(lambda,4));
-
         double pressure_bc = 2*c1*((pow(lambda,-2)-pow(lambda,4)))/(lambda*lambda);
 
         for (TetrahedralMesh<3,3>::BoundaryElementIterator iter
@@ -312,20 +307,18 @@ public:
             {
                 BoundaryElement<2,3>* p_element = *iter;
                 boundary_elems.push_back(p_element);
-//                tractions.push_back(traction);
             }
         }
         assert(boundary_elems.size()==2*num_elem_each_dir*num_elem_each_dir);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetApplyNormalPressureOnDeformedSurface(boundary_elems, pressure_bc);
-//        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
 
         IncompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "nonlin_elas_3d_pressure_on_deformed");
 
         solver.Solve();

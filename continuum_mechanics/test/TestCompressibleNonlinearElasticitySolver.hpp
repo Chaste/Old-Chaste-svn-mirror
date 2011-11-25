@@ -170,16 +170,19 @@ public:
         fixed_nodes.push_back(0);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,laws);
 
         CompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                         problem_defn,
-                                                        laws,
                                                         "");
-
-
         solver.AssembleSystem(true, true);
 
         TS_ASSERT(PetscMatTools::CheckSymmetry(solver.mJacobianMatrix));
+
+        // cover exception
+        MooneyRivlinMaterialLaw<3> incomp_law(2.0,2.0);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&incomp_law);
+        TS_ASSERT_THROWS_THIS( CompressibleNonlinearElasticitySolver<3> another_solver(mesh,problem_defn,""), "SolidMechanicsProblemDefinition object contains incompressible material laws");
     }
 
 	// compare computed Jacobian against a numerically computed
@@ -191,12 +194,11 @@ public:
         QuadraticMesh<2> mesh(1.0/2, 1.0, 1.0);
         CompressibleExponentialLaw<2> law;
 
-
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "");
         solver.AssembleSystem(true, true);
 
@@ -339,11 +341,11 @@ public:
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "");
 
         solver.Solve();
@@ -358,17 +360,6 @@ public:
             TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[0], r_deformed_position[i](0), 1e-8);
             TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[1], r_deformed_position[i](1), 1e-8);
         }
-
-        // Coverage of exceptions
-        MooneyRivlinMaterialLaw<2> incompressible_law(1.0,1.0);
-        TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(mesh,problem_defn,&incompressible_law,""),  "ompressibleNonlinearElasticitySolver must take in a compressible material law");
-
-        std::vector<AbstractMaterialLaw<2>*> incompressible_laws;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            incompressible_laws.push_back(&incompressible_law);
-        }
-        TS_ASSERT_THROWS_CONTAINS(CompressibleNonlinearElasticitySolver<2> bad_solver(mesh,problem_defn,incompressible_laws,""),  "CompressibleNonlinearElasticitySolver must take in a compressible material law");
     }
 
     /**
@@ -450,13 +441,13 @@ public:
         assert(boundary_elems.size()==num_elem);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "comp_nonlin_compMR_simple");
 
         // Coverage
@@ -532,13 +523,13 @@ public:
 
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetBodyForce(MyBodyForce);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, MyTraction);
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "comp_nonlin_elas_exact_soln");
 
 
@@ -577,10 +568,10 @@ public:
         solver.AssembleOnBoundaryElement(*(boundary_elems[0]), a_elem, b_elem, true, false, 0);
 
         MooneyRivlinMaterialLaw<2> mooney_rivlin_incompressible(1.0);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&mooney_rivlin_incompressible);
 
         IncompressibleNonlinearElasticitySolver<2> incompressible_solver(mesh,
                                                                          problem_defn,
-                                                                         &mooney_rivlin_incompressible,
                                                                          "");
 
         c_matrix<double,8,8> a_elem_incompressible;
@@ -611,11 +602,11 @@ public:
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "");
 
         solver.AssembleSystem(false,true);
@@ -656,6 +647,7 @@ public:
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         // works ok with g1 = -1,1,2,3. Doesn't newton converge for g1=-2, and gets worse as num_elem increases..
@@ -666,7 +658,6 @@ public:
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "CompressibleExponentialLawSolve");
 
 
@@ -749,13 +740,13 @@ public:
         assert(boundary_elems.size()==num_elem);
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
 
 
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "CompressibleMechanicsSlidingBcs2d");
 
         // Coverage
@@ -819,6 +810,7 @@ public:
         }
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes,locations);
 
         // gravity pushing down against the fixed plane
@@ -830,7 +822,6 @@ public:
 
         CompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "CompressibleMechanicsSlidingBcs3d");
 
 

@@ -36,35 +36,15 @@ ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsS
                                   ContractionModel contractionModel,
                                   QuadraticMesh<DIM>& rQuadMesh,
                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                  std::string outputDirectory,
-                                  AbstractMaterialLaw<DIM>* pMaterialLaw)
+                                  std::string outputDirectory)
     : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
                                                             rProblemDefinition,
-                                                            outputDirectory,
-                                                            pMaterialLaw)
+                                                            outputDirectory)
 {
     InitialiseContractionModels(contractionModel);
+
     // initialise stores
     mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
-
-}
-
-template<class ELASTICITY_SOLVER,unsigned DIM>
-ImplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ImplicitCardiacMechanicsSolver(
-                                  ContractionModel contractionModel,
-                                  QuadraticMesh<DIM>& rQuadMesh,
-                                  SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                  std::string outputDirectory,
-                                  std::vector<AbstractMaterialLaw<DIM>*> &materialLaws)
-    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
-                                                            rProblemDefinition,
-                                                            outputDirectory,
-                                                            materialLaws)
-{
-    InitialiseContractionModels(contractionModel);
-    // initialise stores
-    mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
-
 }
 
 

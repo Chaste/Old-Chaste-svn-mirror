@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMaterialLaw.hpp"
 #include "Warnings.hpp"
 #include "PetscException.hpp"
+#include "CompressibilityType.hpp"
 
 #include "SolidMechanicsProblemDefinition.hpp"
 #include "DeformedBoundaryElement.hpp"
@@ -64,11 +65,6 @@ extern PetscErrorCode KSPInitialResidual(KSP,Vec,Vec,Vec,Vec,Vec);
 #include "Timer.hpp"
 #endif
 
-typedef enum CompressibilityType_
-{
-    COMPRESSIBLE,
-    INCOMPRESSIBLE
-} CompressibilityType;
 
 /**
  * Abstract nonlinear elasticity solver.

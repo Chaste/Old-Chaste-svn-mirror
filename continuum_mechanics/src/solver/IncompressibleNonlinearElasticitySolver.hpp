@@ -78,16 +78,9 @@ protected:
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
     /**
-     * The material laws for each element. This will either be of size 1 (same material law for all elements,
-     * i.e. homogeneous), or size num_elem.
-     */
-    std::vector<AbstractIncompressibleMaterialLaw<DIM>*> mMaterialLaws;
-
-    /**
      * The solution pressures. mPressures[i] = pressure at node i (ie vertex i).
      */
     std::vector<double> mPressures;
-
 
     /**
      * Assemble residual or Jacobian on an element, using the current solution
@@ -170,33 +163,21 @@ protected:
 public:
 
     /**
-     * Constructor for homogeneous problems.
+     * Constructor.
      *
      * @param rQuadMesh The quadratic mesh to solve on
      * @param rProblemDefinition an object defining in particular the body force and boundary conditions
-     * @param pMaterialLaw A single material law to use on all elements
      * @param outputDirectory The output directory
      */
     IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                             SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                            AbstractMaterialLaw<DIM>* pMaterialLaw,
                                             std::string outputDirectory);
 
-    /**
-     * Variant constructor taking a vector of material laws for heterogeneous problems.
-     *
-     * @param rQuadMesh The quadratic mesh to solve on
-     * @param rProblemDefinition an object defining in particular the body force and boundary conditions
-     * @param rMaterialLaws Vector of material laws for each element
-     * @param outputDirectory The output directory
-     */
-    IncompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
-                                            SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                            std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                                            std::string outputDirectory);
 
     /** Destructor. */
-    ~IncompressibleNonlinearElasticitySolver();
+    ~IncompressibleNonlinearElasticitySolver()
+    {
+    }
 
     /**
      * Get pressures for each vertex.

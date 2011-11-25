@@ -197,19 +197,9 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnElement(
     static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
 
     // Get the material law
-    AbstractCompressibleMaterialLaw<DIM>* p_material_law;
-    if (this->mMaterialLaws.size() == 1)
-    {
-        // Homogeneous
-        p_material_law = this->mMaterialLaws[0];
-    }
-    else
-    {
-        // Heterogeneous
-        #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        p_material_law = this->mMaterialLaws[rElement.GetIndex()];
-        #undef COVERAGE_IGNORE
-    }
+    AbstractCompressibleMaterialLaw<DIM>* p_material_law
+       = this->mrProblemDefinition.GetCompressibleMaterialLaw(rElement.GetIndex());
+
 
     static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
 
@@ -535,50 +525,20 @@ void CompressibleNonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
 template<size_t DIM>
 CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
                                                                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                                                  AbstractMaterialLaw<DIM>* pMaterialLaw,
                                                                                   std::string outputDirectory)
     : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
                                              rProblemDefinition,
                                              outputDirectory,
                                              COMPRESSIBLE)
 {
-    assert(pMaterialLaw != NULL);
-
-    AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(pMaterialLaw);
-    if (!p_law)
+    if(rProblemDefinition.GetCompressibilityType() != COMPRESSIBLE)
     {
-        EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
+        EXCEPTION("SolidMechanicsProblemDefinition object contains incompressible material laws");
     }
-    mMaterialLaws.push_back(p_law);
 
     this->Initialise();
 }
 
-template<size_t DIM>
-CompressibleNonlinearElasticitySolver<DIM>::CompressibleNonlinearElasticitySolver(QuadraticMesh<DIM>& rQuadMesh,
-                                                                                  SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                                                  std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws,
-                                                                                  std::string outputDirectory)
-    : AbstractNonlinearElasticitySolver<DIM>(rQuadMesh,
-                                             rProblemDefinition,
-                                             outputDirectory,
-                                             COMPRESSIBLE)
-{
-    mMaterialLaws.resize(rMaterialLaws.size(), NULL);
-    for (unsigned i=0; i<mMaterialLaws.size(); i++)
-    {
-        AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(rMaterialLaws[i]);
-        if (!p_law)
-        {
-            EXCEPTION("CompressibleNonlinearElasticitySolver must take in a compressible material law (ie of type AbstractCompressibleMaterialLaw)");
-        }
-        assert(rMaterialLaws[i] != NULL);
-        mMaterialLaws[i] = p_law;
-    }
-
-    assert(rMaterialLaws.size()==rQuadMesh.GetNumElements());
-    this->Initialise();
-}
 
 template<size_t DIM>
 CompressibleNonlinearElasticitySolver<DIM>::~CompressibleNonlinearElasticitySolver()

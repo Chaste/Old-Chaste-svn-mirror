@@ -162,6 +162,9 @@ public:
          */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 
+        /* Set the material problem on the problem definition object */
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
+
         /*
          * Set the fixed nodes, choosing zero displacement for these nodes (see later for how
          * to provide locations for the fixed nodes).
@@ -178,7 +181,6 @@ public:
          */
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "SimpleIncompressibleElasticityTutorial");
 
         /* .. and call `Solve()` */
@@ -268,12 +270,13 @@ public:
         /* A quick check */
         assert(boundary_elems.size() == 8u);
 
-        /* Now create the problem definition object, setting the fixed nodes and body force as
+        /* Now create the problem definition object, setting the material law, fixed nodes and body force as
          * before (this time not calling `SetDensity()`, so using the default density of 1.0,
          * and also calling a method for setting tractions, which takes in the boundary elements
          * and tractions for each of those elements.
          */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetBodyForce(body_force);
         problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
@@ -281,7 +284,6 @@ public:
         /* Create solver as before */
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "IncompressibleElasticityWithTractionsTutorial");
         /* Call `Solve()` */
         solver.Solve();

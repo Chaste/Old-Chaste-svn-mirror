@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
-    void xxxTestDeterminingWatchedNodes() throw(Exception)
+    void TestDeterminingWatchedNodes() throw(Exception)
     {
         HeartEventHandler::Disable();
 
@@ -92,7 +92,7 @@ public:
     }
 
 
-    void xxxTestImplicitNhs2dOneMechanicsElement() throw(Exception)
+    void TestImplicitNhs2dOneMechanicsElement() throw(Exception)
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
@@ -142,7 +142,7 @@ public:
         MechanicsEventHandler::Report();
     }
 
-    void xxxTestWithKerchoffs() throw(Exception)
+    void TestWithKerchoffs() throw(Exception)
     {
         HeartEventHandler::Disable();
 
@@ -184,7 +184,7 @@ public:
     //  the number of elements (whether LR91 or N98 is used). Probably the active tension is too high. 
     //
     //
-    void xxxTestExplicitSolverWithNash2004() throw(Exception)
+    void TestExplicitSolverWithNash2004() throw(Exception)
     {
         HeartEventHandler::Disable();
 
@@ -230,7 +230,7 @@ public:
     // Sets up a short simulation on a square with zero stimulus, but a model with stretch activated channels.
     // Hacks the mechanics initial condition to correspond to some stretch, which should create a bit of 
     // SAC activity and increased voltage
-    void xxxTestWithMechanoElectricFeedback() throw (Exception)
+    void TestWithMechanoElectricFeedback() throw (Exception)
     {
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(0.0);
 
@@ -325,7 +325,7 @@ public:
 
     // Similar to first part of above test, except the deformation isn't just constant stretch here, it is
     // different in the two elements of the mechanics mesh
-    void xxxTestWithMechanoElectricFeedbackHeterogeneousStretch() throw (Exception)
+    void TestWithMechanoElectricFeedbackHeterogeneousStretch() throw (Exception)
     {
         // irrelevant, not going to call solve
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(0.0);
@@ -412,7 +412,7 @@ public:
         }
     }
 
-    void xxxTestWithCompressibleApproach() throw(Exception)
+    void TestWithCompressibleApproach() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 

@@ -85,13 +85,11 @@ public:
          * and there are a few implemented, see `pde/src/problem` */
         ExponentialMaterialLaw<2> law(1.0, 0.5); // First parameter is 'a', second 'b', in W=a*exp(b(I1-3))
         /* It is possible to specify different material laws for each element in the mesh (for example
-         * for using different stiffnesses in different regions). To do this, create a `std::vector<AbstractMaterial<DIM>*>`
-         * and fill it in with the material law for each element, and pass as the first argument of the solver.
-         * Note that this solver (the incompressible solver), takes in objects of type `AbstractMaterialLaw` and then
-         * checks at run-time that the they are actually of type `AbstractIncompressibleMaterialLaw`. Similarly, the
-         * compressible solver, `CompressibleNonlinearElasticitySolver`. checks at run-time that the passed in law
-         * is of type `AbstractCompressibleMaterialLaw`. (This has been implemented this way so that the incompressible
-         * and compressible solvers have exactly the same constructor).
+         * for using different stiffnesses in different regions). To do this, create a
+         * `std::vector<AbstractMaterialLaw<DIM>*>` and fill it in with the material law for each element, and pass
+         * into the problem definition object using the same function as before. (The material laws will be
+         * checked at run-time to see if they are of the correct type, ie `AbstractIncompressibleMaterialLaw`
+         * or `AbstractCompressibleMaterialLaw`
          *
          * Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
         std::vector<unsigned> fixed_nodes;
@@ -133,6 +131,7 @@ public:
          * which takes in the new locations of the fixed nodes.
          */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         /* Now call `SetTractionBoundaryConditions`, which takes in a vector of
          * boundary elements as in the previous test; however this time the second argument
@@ -152,7 +151,6 @@ public:
          * Create the solver as before */
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "IncompressibleElasticityMoreComplicatedExample");
 
 
@@ -225,8 +223,9 @@ public:
             }
         }
 
-        /* Set the fixed nodes, add some gravity, and solve */
+        /* Set the material law and fixed nodes, add some gravity, and solve */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         c_vector<double,2> gravity = zero_vector<double>(2);
         gravity(1) = -0.5;
@@ -234,7 +233,6 @@ public:
 
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
-                                                          &law,
                                                           "ElasticitySlidingBcsExample");
         solver.Solve();
 
@@ -304,16 +302,18 @@ public:
         }
         assert(boundary_elems.size()>0);
 
-        /* Create the problem definition class, and to start off with specify the zero
-         * displacement nodes and an upward body force
+        /* Create the problem definition class, and set the law again, this time
+         * stating that the law is compressible
          */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
+
+        /* Set the fixed nodes and gravity */
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         c_vector<double,2> gravity;
         gravity(0) = 0;
         gravity(1) = 0.1;
-
         problem_defn.SetBodyForce(gravity);
 
         /* Declare the compressible solver, which has the same interface as the incompressible
@@ -321,7 +321,6 @@ public:
          */
         CompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                         problem_defn,
-                                                        &law,
                                                         "CompressibleSolidMechanicsExample");
         solver.Solve();
 

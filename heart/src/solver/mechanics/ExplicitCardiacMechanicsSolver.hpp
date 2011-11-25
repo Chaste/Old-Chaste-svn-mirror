@@ -97,28 +97,12 @@ public:
      * @param rQuadMesh A reference to the mesh.
      * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param pMaterialLaw The material law for the tissue.
      */
     ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
                                    QuadraticMesh<DIM>& rQuadMesh,
                                    SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                   std::string outputDirectory,
-                                   AbstractMaterialLaw<DIM>* pMaterialLaw);
+                                   std::string outputDirectory);
 
-    /**
-     * Constructor variant for heterogeneous material laws
-     *
-     * @param contractionModel The contraction model.
-     * @param rQuadMesh A reference to the mesh.
-     * @param rProblemDefinition Object defining body force and boundary conditions
-     * @param outputDirectory The output directory, relative to TEST_OUTPUT
-     * @param materialLaws A vector with a material law for each element in the tissue.
-     */
-    ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
-                                   QuadraticMesh<DIM>& rQuadMesh,
-                                   SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                   std::string outputDirectory,
-                                   std::vector<AbstractMaterialLaw<DIM>*> &materialLaws);
 
     /**
      *  Destructor

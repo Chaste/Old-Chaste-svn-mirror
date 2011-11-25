@@ -31,36 +31,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "NonPhysiologicalContractionModel.hpp"
 
-//// for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//#include "NhsModelWithBackSolver.hpp"
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
 ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
                                                                                       QuadraticMesh<DIM>& rQuadMesh,
                                                                                       SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                                                      std::string outputDirectory,
-                                                                                      AbstractMaterialLaw<DIM>* pMaterialLaw)
+                                                                                      std::string outputDirectory)
     : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
                                                             rProblemDefinition,
-                                                            outputDirectory,
-                                                            pMaterialLaw)
+                                                            outputDirectory)
 {
     InitialiseContractionModels(contractionModel);
 }
 
-template<class ELASTICITY_SOLVER,unsigned DIM>
-ExplicitCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
-                                                                                      QuadraticMesh<DIM>& rQuadMesh,
-                                                                                      SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
-                                                                                      std::string outputDirectory,
-                                                                                      std::vector<AbstractMaterialLaw<DIM>*> &materialLaws)
-    : AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>(rQuadMesh,
-                                                            rProblemDefinition,
-                                                            outputDirectory,
-                                                            materialLaws)
-{
-    InitialiseContractionModels(contractionModel);
-}
 
 
 template<class ELASTICITY_SOLVER,unsigned DIM>
