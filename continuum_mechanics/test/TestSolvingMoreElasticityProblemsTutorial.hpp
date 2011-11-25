@@ -191,9 +191,9 @@ public:
      * collecting the new locations for the fixed nodes, as shown in the following example. Here, we
      * take a unit square, apply gravity downward, and suppose the Y=0 surface is like a frictionless boundary,
      * so that, for the nodes on Y=0, we specify y=0 but leave x free (Here (X,Y)=old position, (x,y)=new position).
-     * Note though that this wouldn't be enough to uniquely specify the final solution - an arbitrary
+     * (Note though that this wouldn't be enough to uniquely specify the final solution - an arbitrary
      * translation in the Y direction could be added a solution to obtain another valid solution, so we
-     * fully fix the node at the origin.
+     * fully fix the node at the origin.)
      */
     void TestWithSlidingDirichletBoundaryConditions() throw(Exception)
     {
@@ -206,7 +206,7 @@ public:
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
 
-        /* fix node 0 (the node at the origin) */
+        /* Fix node 0 (the node at the origin) */
         fixed_nodes.push_back(0);
         locations.push_back(zero_vector<double>(2));
 

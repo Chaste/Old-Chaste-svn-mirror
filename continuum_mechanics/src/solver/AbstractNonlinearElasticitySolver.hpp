@@ -1011,11 +1011,28 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     // warn if ksp reports failure
     KSPConvergedReason reason;
     KSPGetConvergedReason(solver,&reason);
-    KSPWARNIFFAILED(reason);
 
-/// \todo: bring this back in some form, need to avoid real errors like indefinite preconditioner!!
-//KSPEXCEPT(reason);
-
+    if(reason != KSP_DIVERGED_ITS)
+    {
+        // Throw an exception if the solver failed for any reason other than DIVERGED_ITS.
+        // This is not covered as would be difficult to cover - requires a bad matrix to
+        // assembled, for example.
+        #define COVERAGE_IGNORE
+        KSPEXCEPT(reason);
+        #undef COVERAGE_IGNORE
+    }
+    else
+    {
+        // DIVERGED_ITS just means it didn't converge in the given maximum number of iterations,
+        // which is potentially not a problem, as the nonlinear solver may (and often will) still converge.
+        // Just warn once.
+        // (Very difficult to cover in normal tests, requires relative and absolute ksp tols to be very small, there
+        // is no interface for setting both of these. Could be covered by setting up a problem the solver
+        // finds difficult to solve, but this would be overkill.)
+        #define COVERAGE_IGNORE
+        WARN_ONCE_ONLY("Linear solve (with a mechanics solve) didn't converge, but this may not stop nonlinear solve converging")
+        #undef COVERAGE_IGNORE
+    }
 
     // quit if no ksp iterations were done
     int num_iters;
