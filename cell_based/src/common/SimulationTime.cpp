@@ -98,7 +98,9 @@ void SimulationTime::IncrementTimeOneStep()
 unsigned SimulationTime::GetTimeStepsElapsed() const
 {
     assert(mEndTimeAndNumberOfTimeStepsSet);
-    return mTimeStepsElapsed;
+    assert(mpTimeStepper);
+    assert(mpTimeStepper->GetTotalTimeStepsTaken() == mTimeStepsElapsed);
+    return mpTimeStepper->GetTotalTimeStepsTaken();
 }
 
 double SimulationTime::GetTime() const
@@ -191,7 +193,3 @@ bool SimulationTime::IsFinished() const
     return(mpTimeStepper->IsTimeAtEnd());
 }
 
-unsigned SimulationTime::GetTotalNumberOfTimeSteps() const
-{
-    return mTotalTimeStepsInSimulation;
-}

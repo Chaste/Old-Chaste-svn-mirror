@@ -643,7 +643,8 @@ public:
     void TestInitialise0DBucket()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
+        unsigned num_steps = 60;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, num_steps);
 
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
@@ -683,10 +684,10 @@ public:
         cells.push_back(p_differentiated_cell);
 
         std::vector<CellPtr> newly_born;
-        std::vector<unsigned> stem_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
-        std::vector<unsigned> transit_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
-        std::vector<unsigned> differentiated_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
-        std::vector<double> times(p_simulation_time->GetTotalNumberOfTimeSteps());
+        std::vector<unsigned> stem_cells(num_steps);
+        std::vector<unsigned> transit_cells(num_steps);
+        std::vector<unsigned> differentiated_cells(num_steps);
+        std::vector<double> times(num_steps);
 
         std::vector<CellPtr>::iterator cell_iterator;
 

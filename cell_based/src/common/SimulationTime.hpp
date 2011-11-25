@@ -125,9 +125,9 @@ public:
     bool IsFinished() const;
 
     /**
-     * @return the total number of time steps to be taken in this run.
+     * return the total number of time steps to be taken in this run.
      */
-    unsigned GetTotalNumberOfTimeSteps() const;
+    //unsigned GetTotalNumberOfTimeSteps() const;
 
     /**
      * Set the start time of the simulation
