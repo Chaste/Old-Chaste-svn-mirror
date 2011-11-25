@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "QuadraticMesh.hpp"
 #include "UblasCustomFunctions.hpp"
+#include "AbstractMaterialLaw.hpp"
 
 
 
@@ -58,9 +59,9 @@ typedef enum TractionBoundaryConditionType_
 
 
 /**
- *  A class for specifying various parts of a solid mechanics problem, in particular the
- *  fixed nodes information, the body force (per unit mass) (usually acceleration due to gravity)
- *  or zero, the traction boundary conditions, and the density.
+ *  A class for specifying various parts of a solid mechanics problem, in particular the material
+ *  laws for the deforming body,  fixed nodes information, the body force (per unit mass)
+ *  (usually acceleration due to gravity or zero), the traction boundary conditions, and the density.
  */
 template<unsigned DIM>
 class SolidMechanicsProblemDefinition
@@ -119,6 +120,18 @@ private:
 
     /** The displacements of those nodes with displacement boundary conditions. */
     std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
+
+    /////////////////////////////
+    // material law
+    /////////////////////////////
+    /**
+     *  The material law. This vector is either of size 1, representing the homogeneous material, or of
+     *  size num_elements, representing a heterogeneous material, with a material law per element.
+     */
+    std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
+
+    /** Whether the material is homogeneous (same material law everywhere) or heterogeneous */
+    bool mIsHeterogeneousMaterial;
 
 public:
     /** Constructor initialised the body force to zero and density to 1.0 
@@ -251,6 +264,53 @@ public:
      */
     c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& rX, double t);
 
+    /**
+     * Set the body to be homogeneous, and set the single material law for the whole of the body.
+     * The material law can be incompressible or compressible. Any previous material information
+     * will be deleted.
+     * @param pMaterialLaw The law for the entire body
+     */
+    void SetHomogenenousMaterial(AbstractMaterialLaw<DIM>* pMaterialLaw);
+
+    /**
+     * Set the body to be heterogeneous, and set a vector of material law, one law for each element
+     * in the mesh.
+     * The material laws can be incompressible or compressible. Any previous material information
+     * will be deleted.
+     * @param rMaterialLaws Vector of pointers to material laws
+     */
+    void SetHeterogeneousMaterial(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws);
+
+    /**
+     * Get whether the material is homogeneous or heterogeneous.
+     * SetHomogenenousMaterial() or SetHeterogeneousMaterial() must have been called beforehand.
+     */
+    bool IsHeterogeneousMaterial();
+
+    /**
+     * Get the single material law, when the body is homogeneous. Should only be called if
+     * IsHeterogeneousMaterial() returns false.
+     */
+    AbstractMaterialLaw<DIM>* GetLawForHomogeneousMaterial();
+
+    /**
+     * Get the material law for a given element, when the body is heterogeneous. Should only be called if
+     * IsHeterogeneousMaterial() returns true.
+     * @param elementIndex index of element
+     */
+    AbstractMaterialLaw<DIM>* GetLawForHeterogeneousMaterial(unsigned elementIndex);
+
+    /**
+     *  This function will be called by the incompressible solver, and checks all the material
+     *  laws placed in this class are incompressible. Throws exception if no laws have been added.
+     */
+    void VerifyIncompressibleMaterialLaws();
+
+    /**
+     *  This function will be called by the compressible solver, and checks all the material
+     *  laws placed in this class are compressible. Throws exception if no laws have been added.
+     */
+    void VerifyCompressibleMaterialLaws();
 };
 
 

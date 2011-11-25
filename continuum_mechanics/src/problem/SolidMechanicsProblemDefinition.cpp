@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SolidMechanicsProblemDefinition.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
+#include "AbstractCompressibleMaterialLaw.hpp"
 
 
 template<unsigned DIM>
@@ -217,6 +219,85 @@ c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunct
 {
     assert(mTractionBoundaryConditionType==FUNCTIONAL_TRACTION);
     return (*mpTractionBoundaryConditionFunction)(rX,t);
+}
+
+
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::SetHomogenenousMaterial(AbstractMaterialLaw<DIM>* pMaterialLaw)
+{
+    mIsHeterogeneousMaterial = false;
+    mMaterialLaws.clear();
+    mMaterialLaws.push_back(pMaterialLaw);
+}
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::SetHeterogeneousMaterial(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
+{
+    mIsHeterogeneousMaterial = true;
+    mMaterialLaws.clear();
+    assert(mrMesh.GetNumElements()==rMaterialLaws.size());
+    mMaterialLaws = rMaterialLaws;
+}
+
+template<unsigned DIM>
+bool SolidMechanicsProblemDefinition<DIM>::IsHeterogeneousMaterial()
+{
+    assert(mMaterialLaws.size()!=0);
+    return mIsHeterogeneousMaterial;
+}
+
+template<unsigned DIM>
+AbstractMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetLawForHomogeneousMaterial()
+{
+    assert(!mIsHeterogeneousMaterial);
+    assert(mMaterialLaws.size()==1);
+    return mMaterialLaws[0];
+}
+
+template<unsigned DIM>
+AbstractMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetLawForHeterogeneousMaterial(unsigned elementIndex)
+{
+    assert(mIsHeterogeneousMaterial);
+    assert(mMaterialLaws.size()==mrMesh.GetNumElements());
+    assert(elementIndex < mrMesh.GetNumElements());
+    return mMaterialLaws[elementIndex];
+}
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::VerifyIncompressibleMaterialLaws()
+{
+    if(mMaterialLaws.size()==0)
+    {
+        EXCEPTION("No material laws have been set on SolidMechanicsProblemDefinition");
+    }
+
+    for (unsigned i=0; i<mMaterialLaws.size(); i++)
+    {
+        AbstractIncompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractIncompressibleMaterialLaw<DIM>*>(mMaterialLaws[i]);
+        if (!p_law)
+        {
+            EXCEPTION("SolidMechanicsProblemDefinition used in incompressible problem but has been given compressible material law(s)");
+        }
+    }
+}
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::VerifyCompressibleMaterialLaws()
+{
+    if(mMaterialLaws.size()==0)
+    {
+        EXCEPTION("No material laws have been set on SolidMechanicsProblemDefinition");
+    }
+
+    for (unsigned i=0; i<mMaterialLaws.size(); i++)
+    {
+        AbstractCompressibleMaterialLaw<DIM>* p_law = dynamic_cast<AbstractCompressibleMaterialLaw<DIM>*>(mMaterialLaws[i]);
+        if (!p_law)
+        {
+            EXCEPTION("SolidMechanicsProblemDefinition used in compressible problem but has been given incompressible material law(s)");
+        }
+    }
 }
 
 
