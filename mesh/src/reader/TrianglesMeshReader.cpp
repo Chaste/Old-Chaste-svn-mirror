@@ -878,12 +878,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
 {
     assert(ELEMENT_DIM == 1);
+    mNumFaceAttributes = 0;
     if (!mOneDimBoundary.empty())
     {
         // We have already read this and have reset the reader (probably from the mesh class)
         return;
     }
-
     std::vector<unsigned> node_indices(2);
     std::vector<unsigned>  dummy_attribute; // unused
 
