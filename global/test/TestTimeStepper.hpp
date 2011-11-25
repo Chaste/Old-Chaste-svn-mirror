@@ -369,7 +369,9 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TimeStepper stepper(0.0, 1.0, 0.1, false);
+            std::vector<double> additional_times;
+            additional_times.push_back(0.55);
+            TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times);
             
             //Run for 5 steps
             for (int i=0; i<5; i++)
@@ -378,18 +380,20 @@ public:
             }
             
             TS_ASSERT_DELTA(stepper.GetTime(), 0.5, 1e-10);
-            TS_ASSERT_DELTA(stepper.GetNextTime(), 0.6, 1e-10);
+            TS_ASSERT_DELTA(stepper.GetNextTime(), 0.55, 1e-10);
             
             TimeStepper* const p_stepper_for_archiving = &stepper;
             output_arch << p_stepper_for_archiving;
 
 
-            std::vector<double> additional_times;
-            additional_times.push_back(0.55);
-            TimeStepper stepper2(0.0, 1.0, 0.1, false, additional_times);
+            //Exhibit normal behaviour after archive snapshot
+            stepper.AdvanceOneTimeStep();
+            TS_ASSERT_DELTA(stepper.GetTime(), 0.55, 1e-10);
+            TS_ASSERT_DELTA(stepper.GetNextTime(), 0.6, 1e-10);
+            stepper.AdvanceOneTimeStep();
+            TS_ASSERT_DELTA(stepper.GetTime(), 0.6, 1e-10);
+            TS_ASSERT_DELTA(stepper.GetNextTime(), 0.7, 1e-10);
 
-            TimeStepper* const p_stepper_for_archiving2 = &stepper2;
-            TS_ASSERT_THROWS_THIS(output_arch << p_stepper_for_archiving2, "Cannot archive TimeStepper with additional times yet.");
         }
 
         // Restore
@@ -401,6 +405,10 @@ public:
             input_arch >> p_stepper;
 
             TS_ASSERT_DELTA(p_stepper->GetTime(), 0.5, 1e-10);
+            TS_ASSERT_DELTA(p_stepper->GetNextTime(), 0.55, 1e-10);
+
+            p_stepper->AdvanceOneTimeStep();
+            TS_ASSERT_DELTA(p_stepper->GetTime(), 0.55, 1e-10);
             TS_ASSERT_DELTA(p_stepper->GetNextTime(), 0.6, 1e-10);
 
             p_stepper->AdvanceOneTimeStep();

@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TIMESTEPPER_HPP_
 
 #include <vector>
+#include <boost/serialization/vector.hpp>
+
 #include "ChasteSerialization.hpp"
 #include "Exception.hpp"
 
@@ -170,10 +172,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        if (!mAdditionalTimes.empty())
-        {
-            EXCEPTION("Cannot archive TimeStepper with additional times yet.");
-        }
         archive & mStart;
         archive & mEnd;
         archive & mDt;
@@ -182,7 +180,7 @@ private:
         archive & mNextTime;
         archive & mEpsilon;
         archive & mAdditionalTimesReached;
-        //archive & mAdditionalTimes; //Because older versions of Boost can't do std:vector out of the box
+        archive & mAdditionalTimes;
     }
     
 };
