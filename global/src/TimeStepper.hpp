@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TIMESTEPPER_HPP_
 
 #include <vector>
+#include <climits>
 #include <boost/serialization/vector.hpp>
 
 #include "ChasteSerialization.hpp"
