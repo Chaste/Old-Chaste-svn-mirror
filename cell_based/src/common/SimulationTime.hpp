@@ -125,11 +125,6 @@ public:
     bool IsFinished() const;
 
     /**
-     * return the total number of time steps to be taken in this run.
-     */
-    //unsigned GetTotalNumberOfTimeSteps() const;
-
-    /**
      * Set the start time of the simulation
      *
      * @param startTime the time at which the simulation begins (usually 0.0 hours)
@@ -158,46 +153,10 @@ private:
     static TimeStepper* mpTimeStepper;
 
     /**
-     * The duration of the simulation (time is measured in units of hours).
-     */
-    double mDurationOfSimulation;
-
-    /**
-     * The total number of steps for this simulation.
-     */
-    unsigned mTotalTimeStepsInSimulation;
-
-    /**
-     * The number of time steps which have been taken to date.
-     */
-    unsigned mTimeStepsElapsed;
-
-    /**
-     * A flag allowing us to determine whether the simulation time is ready to
-     * be used.
-     */
-    bool mEndTimeAndNumberOfTimeStepsSet;
-
-    /**
-     * The current time (in hours)
-     */
-    double mCurrentTime;
-
-    /**
-     * The time at which the simulation should stop
-     */
-    double mEndTime;
-
-    /**
      * Stores the time at which the simulation started
      */
     double mStartTime;
 
-    /**
-     * A flag allowing us to determine whether the start time of the simulation
-     * has been set.
-     */
-    bool mStartTimeSet;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -213,22 +172,8 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mDurationOfSimulation;
-        archive & mTotalTimeStepsInSimulation;
-        archive & mTimeStepsElapsed;
-        archive & mEndTimeAndNumberOfTimeStepsSet;
-        archive & mCurrentTime;
-        archive & mEndTime;
-        archive & mStartTimeSet;
         archive & mStartTime;
-
-        ///\todo #1885 Write an archiver for TimeStepper.
-        delete mpTimeStepper;
-        mpTimeStepper = new TimeStepper(mStartTime, mEndTime, (mDurationOfSimulation/mTotalTimeStepsInSimulation), true);
-        mpTimeStepper->mTime = mCurrentTime;
-        mpTimeStepper->mTotalTimeStepsTaken = mTimeStepsElapsed;
-        mpTimeStepper->mNextTime = mpTimeStepper->CalculateNextTime();
-
+        archive & mpTimeStepper;
     }
 };
 

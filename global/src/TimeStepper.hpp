@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TimeStepper
 {
     friend class TestTimeStepper;
-    friend class SimulationTime; ///\todo #1885 remove this when SimulationTime uses archived TimeStepper
 private:
     /*
      * Private default constructor for archiving

@@ -29,12 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cmath>  
 #include "SimulationTime.hpp"
-#include "Warnings.hpp" ///\todo #1885
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
 
-/** Pointer to the delegated (shadow) class \todo #1885*/
+/** Pointer to the delegated class */
 TimeStepper* SimulationTime::mpTimeStepper = NULL;
 
 SimulationTime* SimulationTime::Instance()
@@ -49,11 +48,7 @@ SimulationTime* SimulationTime::Instance()
 
 SimulationTime::SimulationTime()
     :
-      mTimeStepsElapsed(0),
-      mEndTimeAndNumberOfTimeStepsSet(false),
-      mCurrentTime(0.0),
-      mStartTime(0.0),
-      mStartTimeSet(false)
+      mStartTime(DOUBLE_UNSET)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -75,11 +70,8 @@ void SimulationTime::Destroy()
 
 double SimulationTime::GetTimeStep() const
 {
-    assert(mStartTimeSet);
-    assert(mEndTimeAndNumberOfTimeStepsSet);
     assert(mpTimeStepper);
 
-    assert(fabs(mDurationOfSimulation/mTotalTimeStepsInSimulation - mpTimeStepper->GetIdealTimeStep()) <=DBL_EPSILON);
     return mpTimeStepper->GetIdealTimeStep();
 }
 
@@ -87,109 +79,67 @@ void SimulationTime::IncrementTimeOneStep()
 {
     assert(mpTimeStepper);
     mpTimeStepper->AdvanceOneTimeStep(); //This can now throw if the end time has been reached
-    assert(mStartTimeSet);
-    assert(mEndTimeAndNumberOfTimeStepsSet);
-    mTimeStepsElapsed++;
-    double dt = ((double)mTimeStepsElapsed *mDurationOfSimulation);
-    mCurrentTime = mStartTime + dt/(double)mTotalTimeStepsInSimulation;
-    assert( fabs(mCurrentTime - mpTimeStepper->GetTime())<1e-9);
 }
 
 unsigned SimulationTime::GetTimeStepsElapsed() const
 {
-    assert(mEndTimeAndNumberOfTimeStepsSet);
     assert(mpTimeStepper);
-    assert(mpTimeStepper->GetTotalTimeStepsTaken() == mTimeStepsElapsed);
     return mpTimeStepper->GetTotalTimeStepsTaken();
 }
 
 double SimulationTime::GetTime() const
 {
     // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
-    assert(mStartTimeSet);
+    assert(mStartTime != DOUBLE_UNSET);
     //Check if the time stepping has started
     if (mpTimeStepper)
     {
-        if (mCurrentTime != mpTimeStepper->GetTime())
-        {
-            if( mCurrentTime > 1.0)
-            {
-                assert( fabs(mCurrentTime -mpTimeStepper->GetTime()) < 2*DBL_EPSILON*mCurrentTime);
-            }
-            else
-            {
-                assert( fabs(mCurrentTime -mpTimeStepper->GetTime()) < 2*DBL_EPSILON);
-            }
-        }
         return mpTimeStepper->GetTime();
         //return mCurrentTime;
     }
     //If time stepping hasn't started then we are still at start time
-    assert(mCurrentTime == mStartTime);
     return mStartTime;
 }
 
-
-
-
 void SimulationTime::SetStartTime(double startTime)
 {
-    assert(!mStartTimeSet);
+    assert(mStartTime == DOUBLE_UNSET);
     mStartTime = startTime;
-    mCurrentTime = startTime;
-    mStartTimeSet = true;
 }
 
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
 {
     // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
-    assert(mStartTimeSet);
-
-    assert(!mEndTimeAndNumberOfTimeStepsSet);
+    assert(mStartTime != DOUBLE_UNSET);
     assert(!mpTimeStepper);
-    assert(endTime > mCurrentTime);
+    assert(endTime > mStartTime);
 
-    mEndTime = endTime;
-    mDurationOfSimulation = mEndTime - mCurrentTime;
-    mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
-    mEndTimeAndNumberOfTimeStepsSet = true;
-
-    mpTimeStepper = new TimeStepper(mStartTime, endTime, (endTime-mCurrentTime)/totalTimeStepsInSimulation, true);
+    mpTimeStepper = new TimeStepper(mStartTime, endTime, (endTime-mStartTime)/totalTimeStepsInSimulation, true);
 }
 
 void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun)
 {
     // NOTE: if this assertion fails, it may be because Destroy() wasn't called in the previous test
-    assert(mStartTimeSet);
-    assert(rEndTime > mCurrentTime);
-
+    assert(mStartTime != DOUBLE_UNSET);
     // NOTE: If this assertion fails, you should be using set rather than reset
-    assert(mTimeStepsElapsed > 0);
     assert(mpTimeStepper);
+    mStartTime = mpTimeStepper->GetTime();
+
+    assert(rEndTime > mStartTime);
 
     // Reset the machinery that works out the time
-    assert(fabs(mCurrentTime-mpTimeStepper->GetTime())<=DBL_EPSILON);
-    mStartTime = mpTimeStepper->GetTime();
-    //mStartTime = mCurrentTime;
-    mTimeStepsElapsed = 0;
-
-    // Set up the new end time and other member variables
-    mEndTime = rEndTime;
-    mDurationOfSimulation = mEndTime - mCurrentTime;
-    mTotalTimeStepsInSimulation = rNumberOfTimeStepsInThisRun;
-    mEndTimeAndNumberOfTimeStepsSet = true;
-
     delete mpTimeStepper;
-    mpTimeStepper = new TimeStepper(mStartTime, rEndTime, (rEndTime-mCurrentTime)/rNumberOfTimeStepsInThisRun, true);
+    mpTimeStepper = new TimeStepper(mStartTime, rEndTime, (rEndTime-mStartTime)/rNumberOfTimeStepsInThisRun, true);
 }
 
 bool SimulationTime::IsStartTimeSetUp() const
 {
-    return mStartTimeSet;
+    return (mStartTime != DOUBLE_UNSET);
 }
 
 bool SimulationTime::IsFinished() const
 {
+    assert(mpTimeStepper);
     return(mpTimeStepper->IsTimeAtEnd());
 }
 
