@@ -45,11 +45,6 @@ class TestMixedDimensionMesh : public CxxTest::TestSuite
 public:
     void TestReadingSquareMesh() throw (Exception)
     {
-        /**
-         * \todo This test crashes on 4 processes! Due to hitting a NEVER_REACHED at MixedDimensionMesh.cpp:92.
-         *
-         * \todo That may no longer be true...
-         */
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
