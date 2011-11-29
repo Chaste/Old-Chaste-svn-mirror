@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIMULATIONTIME_HPP_
 #define SIMULATIONTIME_HPP_
 
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
 #include "SerializableSingleton.hpp"
 #include "TimeStepper.hpp"
@@ -148,9 +150,9 @@ private:
 
 
     /**
-     * Ghost these variables in a TimeStepper
+     * Delegate all time stepping to a TimeStepper class
      */
-    static TimeStepper* mpTimeStepper;
+    static boost::shared_ptr<TimeStepper> mpTimeStepper;
 
     /**
      * Stores the time at which the simulation started
