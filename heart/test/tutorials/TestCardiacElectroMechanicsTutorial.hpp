@@ -134,20 +134,32 @@ public:
          * factory stimulates the LHS side (X=0) surface. */
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-5000*1000);
 
-        /* The `CardiacElectroMechProbRegularGeom<2>` defines an electro-mechanics problem on a square. Two meshes are created
-         * internally. We use a PDE timestep of 0.01 for the electrics, solving the mechanics every 1ms. */
+        /* Electro-physiology parameters, such as the cell-model ODE timestep, the monodomain PDE timestep,
+         * the conductivities, capacitance etc, are set using `HeartConfig` as in electro-physiological
+         * (ie not mechanical) simulations. We use the defaults for all of these. The one variable that
+         * has to be set on `HeartConfig` is the end time of the simulation.
+         */
+        HeartConfig::Instance()->SetSimulationDuration(40.0);
+
+        /* The main solver class for electro-mechanics, equivalent to `MonodomainProblem` or `BidomainProblem`
+         * is `CardiacElectroMechanicsProblem`. We will show how to use this class in the next test. There
+         * is a subclass of `CardiacElectroMechanicsProblem` called `CardiacElectroMechProbRegularGeom`
+         * which can be used to quickly set up simulations on a square geometry. It is only present for
+         * convenience, and doesn't allow for much flexibility or configurability. The constructor of this
+         * class takes in whether an incompressible or compressible problem should be solved,
+         * information about the geometry to be created, and the some information about the
+         * mechanics: which contraction model to use, what ODE timestep to use with it, and how often
+         * to solve the mechanics.
+         */
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     KERCHOFFS2003,  // The contraction model (see below)
                                                      0.1,  // width of square (cm)
                                                      5,    // Number mechanics elements in each direction
                                                      10,   // Number electrics elements in each direction
                                                      &cell_factory,
-                                                     40.0, // end time
-                                                     0.01, // electrics timestep (ms)
+                                                     KERCHOFFS2003,  // The contraction model (see below)
                                                      1.0,  // mechanics solve timestep
                                                      0.01, // contraction model ode timestep
                                                      "TestCardiacElectroMechanicsExample" /* output directory */);
-
         /* The contraction model chosen above is KERCHOFFS2003 (Kerchoffs, Journal of Engineering Mathematics, 2003). Other possibilities
          * are 'NHS' (Niederer, Hunter, Smith, 2006), and 'NASH2004' (Nash, Progress in biophysics and molecular biology, 2004).
          *
@@ -155,11 +167,12 @@ public:
          * and a finer one for the electrics.
          * 
          * This leaves the material law, fibres direction and fixed nodes from the list above: the material
-         * law is hard-coded to the Pole-zero material law, the fibre direction is by default the X-direction, and the fixed
-         * nodes are automatically set (when `CardiacElectroMechProbRegularGeom` is used) to be those satistying X=0, ie
-         * the left-hand edge. We discuss how to change these in the second test.
+         * law is the default incompressible material law (pole-zero), the fibre direction is by default
+         * the X-direction, and the fixed nodes are automatically setto be those satistying X=0, ie
+         * the left-hand edge. No surface tractions are set. To do something more general, `CardiacElectroMechanicsProblem`
+         * must be used, which is discussed in the second test.
          *
-         * Then all we have to do is call Solve.
+         * All we now have to do is call Solve.
          */
         problem.Solve();
         
@@ -213,18 +226,23 @@ public:
         std::vector<unsigned> fixed_nodes
             = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh, 2, 0.0);
 
+        /* COMMENTS TO BE ADDED */
+        HeartConfig::Instance()->SetSimulationDuration(50.0);
+
+        /* COMMENTS TO BE ADDED */
+        ElectroMechanicsProblemDefinition<3> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+
         /* Create the problem object, which has the same interface as the the child class used
          * in the first test, except it takes in meshes and fixed nodes (as std vectors). */
         CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
-                                                  KERCHOFFS2003,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
-                                                  fixed_nodes,
                                                   &cell_factory,
-                                                  50,   // end time 
-                                                  0.01, // electrics timestep (ms) 
-                                                  1.0,  // mechanics solve timestep
-                                                  1.0,  // contraction model ode timestep 
+                                                  &problem_defn,
                                                   "TestCardiacElectroMech3dTwistingCube" /* output directory */);
 
         /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Here we show

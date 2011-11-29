@@ -250,6 +250,12 @@ void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType co
 }
 
 template<unsigned DIM>
+bool SolidMechanicsProblemDefinition<DIM>::IsMaterialLawSet()
+{
+    return (mIncompressibleMaterialLaws.size()!=0)  ||  (mCompressibleMaterialLaws.size()!=0);
+}
+
+template<unsigned DIM>
 void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType compressibilityType,
                                                           std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
 {

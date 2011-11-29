@@ -87,7 +87,7 @@ private:
      * @param contractionModel The name of the contraction model (from the enumeration ContractionModel
      * defined in AbstractContactionModel)
      */
-    void InitialiseContractionModels(ContractionModel contractionModel);
+    void InitialiseContractionModels(ContractionModelName contractionModel);
 
 public:
     /**
@@ -98,7 +98,7 @@ public:
      * @param rProblemDefinition Object defining body force and boundary conditions
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
      */
-    ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+    ExplicitCardiacMechanicsSolver(ContractionModelName contractionModel,
                                    QuadraticMesh<DIM>& rQuadMesh,
                                    SolidMechanicsProblemDefinition<DIM>& rProblemDefinition,
                                    std::string outputDirectory);

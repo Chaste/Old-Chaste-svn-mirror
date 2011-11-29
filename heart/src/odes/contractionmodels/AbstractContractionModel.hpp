@@ -30,21 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCONTRACTIONMODEL_HPP_
 
 #include <cassert>
+#include "ContractionModelName.hpp"
 
-
-/**
- *  Options for the different contraction models (both stretch-dependent and independent, ditto stretch-rate)
- *  that has been implemented
- */
-typedef enum ContractionModel_
-{
-    NASH2004,
-    KERCHOFFS2003,
-    NHS,
-    NONPHYSIOL1,
-    NONPHYSIOL2,
-    NONPHYSIOL3
-} ContractionModel;
 
 
 /**

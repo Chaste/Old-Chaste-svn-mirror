@@ -45,12 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "ImplicitCardiacMechanicsSolver.hpp"
 #include "ExplicitCardiacMechanicsSolver.hpp"
-#include "MooneyRivlinMaterialLaw.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "VoltageInterpolaterOntoMechanicsMesh.hpp"
-// default material laws
-#include "NashHunterPoleZeroLaw.hpp"
-#include "CompressibleExponentialLaw.hpp"
 
 
 
@@ -76,7 +72,6 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     assert(node_index != UNSIGNED_UNSET); // should def have found something
     c_vector<double,DIM> pos = mpElectricsMesh->GetNode(node_index)->rGetLocation();
 
-    ///\todo remove magic number? (#1884)
     if(min_dist > 1e-8)
     {
         #define COVERAGE_IGNORE
@@ -117,7 +112,6 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     // set up watched node, if close enough
     assert(node_index != UNSIGNED_UNSET); // should def have found something
 
-    ///\todo remove magic number? (#1884)
     if(min_dist > 1e-8)
     {
         #define COVERAGE_IGNORE
@@ -127,7 +121,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
 
         //// the following causes a seg fault for some reason (!!???!!!)
         //EXCEPTION("Could not find a mechanics node very close to requested watched location");
-        assert(0);
+        NEVER_REACHED;
         #undef COVERAGE_IGNORE
     }
     else
@@ -230,20 +224,31 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             CompressibilityType compressibilityType,
-            ContractionModel contractionModel,
             TetrahedralMesh<DIM,DIM>* pElectricsMesh,
             QuadraticMesh<DIM>* pMechanicsMesh,
-            std::vector<unsigned> fixedMechanicsNodes,
             AbstractCardiacCellFactory<DIM>* pCellFactory,
-            double endTime,
-            double electricsPdeTimeStep,
-            double mechanicsSolveTimestep,
-            double contractionModelOdeTimeStep,
-            std::string outputDirectory = "") :
-        mCompressibilityType(compressibilityType),
-        mpProblemDefinition(NULL),
-        mpMeshPair(NULL)
+            ElectroMechanicsProblemDefinition<DIM>* pProblemDefinition,
+            std::string outputDirectory = "")
+      : mCompressibilityType(compressibilityType),
+        mpCardiacMechSolver(NULL),
+        mpMechanicsSolver(NULL),
+        mpElectricsMesh(pElectricsMesh),
+        mpMechanicsMesh(pMechanicsMesh),
+        mpProblemDefinition(pProblemDefinition),
+        mpMeshPair(NULL),
+        mNoElectricsOutput(false),
+        mIsWatchedLocation(false),
+        mWatchedElectricsNodeIndex(UNSIGNED_UNSET),
+        mWatchedMechanicsNodeIndex(UNSIGNED_UNSET),
+        mFibreSheetDirectionsFile("")
 {
+    // Do some initial set up...
+    // However, NOTE, we don't use either the passed in meshes or the problem_definition.
+    // These pointers are allowed to be NULL, in case a child constructor wants to set
+    // them up (eg CardiacElectroMechProbRegularGeom).
+    // The meshes and problem_defn are used for the first time in Initialise().
+
+
     // Start-up mechanics event handler..
     MechanicsEventHandler::Reset();
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL);
@@ -253,31 +258,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // if we didn't disable it.
     HeartEventHandler::Disable();
 
-    mContractionModel = contractionModel;
-
-    // save time infomation
-    assert(endTime > 0);
-    mEndTime = endTime;
-
-    // We need HeartConfig to store the end time so we can make an estimate of the HDF5 file size later.
-    HeartConfig::Instance()->SetSimulationDuration(mEndTime);
-
-    assert(electricsPdeTimeStep>0);
-    mElectricsTimeStep = electricsPdeTimeStep;
-
-    mNumElecTimestepsPerMechTimestep = (unsigned) floor((mechanicsSolveTimestep/electricsPdeTimeStep)+0.5);
-    if(fabs(mNumElecTimestepsPerMechTimestep*electricsPdeTimeStep - mechanicsSolveTimestep) > 1e-6)
-    {
-        EXCEPTION("Electrics PDE timestep does not divide mechanics solve timestep");
-    }
-    mMechanicsTimeStep = mechanicsSolveTimestep;
-
-    // **NOTE** if this assertion trips you may be passing in numElecTimestepsPerMechTimestep as the 8th
-    // parameter of the constructor--this has now changed so you should pass in the mechanics timestep
-    assert(mechanicsSolveTimestep <= 10); // no reason why this should ever be this large
-
-    assert(contractionModelOdeTimeStep <= mMechanicsTimeStep+1e-14);
-    mContractionModelOdeTimeStep = contractionModelOdeTimeStep;
+    assert(HeartConfig::Instance()->GetSimulationDuration()>0.0);
+    assert(HeartConfig::Instance()->GetPdeTimeStep()>0.0);
 
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an solver. We won't
@@ -300,47 +282,6 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     {
         mDeformationOutputDirectory = "";
     }
-    mNoElectricsOutput = false;
-
-    // initialise all the pointers
-    mpElectricsMesh = pElectricsMesh; // note these are allowed to be null, in case a child constructor wants to create them
-    mpMechanicsMesh = pMechanicsMesh;
-    mFixedNodes = fixedMechanicsNodes;
-
-    mpCardiacMechSolver = NULL;
-    mpMechanicsSolver = NULL;
-
-    mMaterialLaws.clear();
-    mUseDefaultMaterialLaw = false;
-
-
-    // Create the Logfile (note we have to do this after the output dir has been
-    // created, else the log file might get cleaned away
-    std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
-    LogFile::Instance()->Set(2, mOutputDirectory);
-    LogFile::Instance()->WriteHeader("Electromechanics");
-    LOG(2, DIM << "d Implicit CardiacElectroMechanics Simulation:");
-    LOG(2, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
-    LOG(2, "Contraction model ode timestep " << mContractionModelOdeTimeStep);
-    LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
-
-    if(mpElectricsMesh != NULL)
-    {
-        LOG(2, "Electrics mesh has " << mpElectricsMesh->GetNumNodes() << " nodes");
-    }
-    if(mpMechanicsMesh != NULL)
-    {
-        LOG(2, "Mechanics mesh has " << mpMechanicsMesh->GetNumNodes() << " nodes");
-    }
-
-    mIsWatchedLocation = false;
-    mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
-    mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
-
-    mFibreSheetDirectionsFile = "";
-
-    mConductivityAffectedByDeformationMef = false;
-    mCellModelsAffectedByDeformationMef = false;
 
     mLastModifiedConductivity.first = UNSIGNED_UNSET; //important
 
@@ -350,12 +291,9 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
 {
-    /**
-     * NOTE if SetWatchedLocation but not Initialise has been
-     * called, mpWatchedLocationFile will be uninitialised and
-     * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
-     * it is true if Initialise has been called.
-     */
+    // NOTE if SetWatchedLocation but not Initialise has been called, mpWatchedLocationFile
+    // will be uninitialised and using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
+    // it is true if Initialise has been called.
     if(mIsWatchedLocation && mpMechanicsMesh)
     {
         mpWatchedLocationFile->close();
@@ -365,32 +303,40 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
     delete mpCardiacMechSolver;
     delete mpMeshPair;
 
-    if(mUseDefaultMaterialLaw)
-    {
-        // All material laws in the vector will be identical in the default case.
-        // If the user supplied material laws then the user is in charge of deleting the
-        // laws, not this destructor.
-        assert(mMaterialLaws[0]);
-        delete mMaterialLaws[0];
-        mMaterialLaws.clear();
-    }
-
-    if(mpProblemDefinition)
-    {
-        delete mpProblemDefinition;
-    }
-
     LogFile::Close();
 }
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Initialise()
 {
-    LOG(2, "Initialising..");
-
     assert(mpElectricsMesh!=NULL);
     assert(mpMechanicsMesh!=NULL);
+    assert(mpProblemDefinition!=NULL);
+
     assert(mpCardiacMechSolver==NULL);
+
+
+    mNumElecTimestepsPerMechTimestep = (unsigned) floor((mpProblemDefinition->GetMechanicsSolveTimestep()/HeartConfig::Instance()->GetPdeTimeStep())+0.5);
+    if(fabs(mNumElecTimestepsPerMechTimestep*HeartConfig::Instance()->GetPdeTimeStep() - mpProblemDefinition->GetMechanicsSolveTimestep()) > 1e-6)
+    {
+        EXCEPTION("Electrics PDE timestep does not divide mechanics solve timestep");
+    }
+
+    // Create the Logfile (note we have to do this after the output dir has been
+    // created, else the log file might get cleaned away
+    std::string log_dir = mOutputDirectory; // just the TESTOUTPUT dir if mOutputDir="";
+    LogFile::Instance()->Set(2, mOutputDirectory);
+    LogFile::Instance()->WriteHeader("Electromechanics");
+    LOG(2, DIM << "d Implicit CardiacElectroMechanics Simulation:");
+    LOG(2, "End time = " << HeartConfig::Instance()->GetSimulationDuration() << ", electrics time step = " << HeartConfig::Instance()->GetPdeTimeStep() << ", mechanics timestep = " << mpProblemDefinition->GetMechanicsSolveTimestep() << "\n");
+    LOG(2, "Contraction model ode timestep " << mpProblemDefinition->GetContractionModelOdeTimestep());
+    LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
+
+    LOG(2, "Electrics mesh has " << mpElectricsMesh->GetNumNodes() << " nodes");
+    LOG(2, "Mechanics mesh has " << mpMechanicsMesh->GetNumNodes() << " nodes");
+
+    LOG(2, "Initialising..");
+
 
     if(mIsWatchedLocation)
     {
@@ -399,66 +345,38 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     // initialise monodomain problem
     mpMonodomainProblem->SetMesh(mpElectricsMesh);
-    HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
     mpMonodomainProblem->Initialise();
-
-    mpProblemDefinition = new SolidMechanicsProblemDefinition<DIM>(*mpMechanicsMesh);
-    mpProblemDefinition->SetZeroDisplacementNodes(mFixedNodes);
-
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //   Default material laws
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    if(mMaterialLaws.size() == 0)
-    {
-        if(mCompressibilityType==INCOMPRESSIBLE)
-        {
-            AbstractIncompressibleMaterialLaw<DIM>* p_material_law = new NashHunterPoleZeroLaw<DIM>();
-            mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), p_material_law);
-        }
-        else
-        {
-            AbstractCompressibleMaterialLaw<DIM>* p_material_law = new CompressibleExponentialLaw<DIM>();
-            mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), p_material_law);
-        }
-
-        mUseDefaultMaterialLaw = true;
-    }
-
-    mpProblemDefinition->SetMaterialLaw(mCompressibilityType, mMaterialLaws);
 
 
     // Construct mechanics solver
-    // Here we pick the best solver for each particular contraction model. Commented out versions are
-    // for experimentation.
-    switch(mContractionModel)
+    // Here we pick the best solver for each particular contraction model.
+    switch(mpProblemDefinition->GetContractionModel())
     {
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+                    mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit solver (explicit may be unstable)
             if(mCompressibilityType==INCOMPRESSIBLE)
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+                        mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             }
             else
             {
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+                        mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             }
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                        mContractionModel,*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+                    mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             break;
         default:
-            EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
+            EXCEPTION("Invalid contraction model, options are: NASH2004, KERCHOFFS2003 or NHS");
     }
 
     mpMechanicsSolver = dynamic_cast<AbstractNonlinearElasticitySolver<DIM>*>(mpCardiacMechSolver);
@@ -478,12 +396,12 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
 
 
-    if(mConductivityAffectedByDeformationMef || mCellModelsAffectedByDeformationMef)
+    if(mpProblemDefinition->GetDeformationAffectsConductivity() || mpProblemDefinition->GetDeformationAffectsCellModels())
     {
         mpMeshPair->SetUpBoxesOnCoarseMesh();
     }
 
-    if(mCellModelsAffectedByDeformationMef)
+    if(mpProblemDefinition->GetDeformationAffectsCellModels())
     {
         // compute the coarse elements which contain each fine node -- for transferring stretch from
         // mechanics solve electrics cell models
@@ -493,7 +411,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
     }
 
-    if(mConductivityAffectedByDeformationMef)
+    if(mpProblemDefinition->GetDeformationAffectsConductivity())
     {
         // compute the coarse elements which contain each fine element centroid -- for transferring F from
         // mechanics solve to electrics mesh elements
@@ -544,7 +462,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     // write the initial position
     unsigned counter = 0;
 
-    TimeStepper stepper(0.0, mEndTime, mMechanicsTimeStep);
+    TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), mpProblemDefinition->GetMechanicsSolveTimestep());
 
     CmguiDeformedSolutionsWriter<DIM>* p_cmgui_writer = NULL;
 
@@ -569,7 +487,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             // the writer inside monodomain problem uses the printing timestep
             // inside HeartConfig to estimate total number of timesteps, so make
             // sure this is set to what we will use.
-            HeartConfig::Instance()->SetPrintingTimeStep(mMechanicsTimeStep);
+            HeartConfig::Instance()->SetPrintingTimeStep(mpProblemDefinition->GetMechanicsSolveTimestep());
             mpMonodomainProblem->InitialiseWriter();
             mpMonodomainProblem->WriteOneStep(stepper.GetTime(), initial_voltage);
         }
@@ -596,7 +514,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         ////  solver (MEF)
         ////
         //////////////////////////////////////////////////////////////////////////////////////
-        if(mCellModelsAffectedByDeformationMef)
+        if(mpProblemDefinition->GetDeformationAffectsCellModels())
         {
             //  Determine the stretch in each mechanics element (later: determine stretch, and
             //  deformation gradient)
@@ -617,7 +535,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             // rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
         }
 
-        p_electrics_solver->SetTimeStep(mElectricsTimeStep);
+        p_electrics_solver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());
 
         /////////////////////////////////////////////////////////////////////////
         ////
@@ -628,8 +546,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::NON_MECH);
         for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
         {
-            double current_time = stepper.GetTime() + i*mElectricsTimeStep;
-            double next_time = stepper.GetTime() + (i+1)*mElectricsTimeStep;
+            double current_time = stepper.GetTime() + i*HeartConfig::Instance()->GetPdeTimeStep();
+            double next_time = stepper.GetTime() + (i+1)*HeartConfig::Instance()->GetPdeTimeStep();
 
             // solve the electrics
             p_electrics_solver->SetTimes(current_time, next_time);
@@ -653,7 +571,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             initial_voltage = voltage;
         }
 
-        if(mConductivityAffectedByDeformationMef)
+        if(mpProblemDefinition->GetDeformationAffectsConductivity())
         {
             p_electrics_solver->SetMatrixIsNotAssembled();
         }
@@ -729,7 +647,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 //        ApplyImpactTractions(stepper.GetTime());
 
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL_MECH);
-        mpCardiacMechSolver->Solve(stepper.GetTime(), stepper.GetNextTime(), mContractionModelOdeTimeStep);
+        mpCardiacMechSolver->Solve(stepper.GetTime(), stepper.GetNextTime(), mpProblemDefinition->GetContractionModelOdeTimestep());
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL_MECH);
 
         LOG(2, "    Number of newton iterations = " << mpMechanicsSolver->GetNumNewtonIterations());

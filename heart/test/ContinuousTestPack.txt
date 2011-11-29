@@ -21,6 +21,7 @@ ionicmodels/TestPyCml.hpp
 ionicmodels/TestRushLarsen.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp
+mechanics/TestElectroMechanicsProblemDefinition.hpp
 mechanics/TestImplicitCardiacMechanicsSolver.hpp
 mechanics/TestExplicitCardiacMechanicsSolver.hpp
 mechanics/TestNhsModelWithBackwardSolver.hpp

@@ -48,15 +48,16 @@ public:
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         // run to 125 ms - about where the width is at its minimum (see figures
-        // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))
+        // in "A numerical method for cardiac mechano–electric simulations", Annals of Biomed. Imaging
+
+        HeartConfig::Instance()->SetSimulationDuration(125.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     NHS,
                                                      1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      60,   /* elec elem each dir */
                                                      &cell_factory,
-                                                     125,  /* end time */
-                                                     0.01, /* electrics timestep (ms) */
+                                                     NHS,
                                                      1.0,  /* mechanics solve timestep */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacEmNhs2dLong");
@@ -76,14 +77,14 @@ public:
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(125.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     NHS,
                                                      1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      96,   /* elec elem each dir */
                                                      &cell_factory,
-                                                     125,  /* end time */
-                                                     0.01, /* electrics timestep (ms) */
+                                                     NHS,
                                                      1.0,  /* mechanics solve timestep */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacEmVaryingFibres");
@@ -131,16 +132,20 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
+
+        HeartConfig::Instance()->SetSimulationDuration(50.0);
+
+        ElectroMechanicsProblemDefinition<3> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(NHS,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+
         CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
-                                                  NHS,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
-                                                  fixed_nodes,
                                                   &cell_factory,
-                                                  50,   /* end time */
-                                                  0.01, /* electrics timestep (ms) */
-                                                  1.0,  /* mechanics solve timestep */
-                                                  1.0,  /* contraction model ode dt */
+                                                  &problem_defn,
                                                   "TestCardiacElectroMech3d");
 
         problem.SetNoElectricsOutput();
@@ -168,16 +173,19 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,2,0.0);
 
+        HeartConfig::Instance()->SetSimulationDuration(50.0);
+
+        ElectroMechanicsProblemDefinition<3> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+
         CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
-                                                  KERCHOFFS2003,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
-                                                  fixed_nodes,
                                                   &cell_factory,
-                                                  50,   /* end time */
-                                                  0.01, /* electrics timestep (ms) */
-                                                  1.0,  /* mechanics solve timestep */
-                                                  1.0,  /* contraction model ode dt */
+                                                  &problem_defn,
                                                   "TestCardiacElectroMech3dTwistingCube");
 
 
@@ -226,14 +234,14 @@ public:
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(50.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
-                                                     KERCHOFFS2003,
                                                      0.05, /* width (cm) */
-                                                     20,    /* mech mesh size*/
+                                                     20,   /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     50,    /* end time */
-                                                     0.01,  /* electrics timestep (ms) */
+                                                     KERCHOFFS2003,
                                                      1.0,   /* mechanics solve timestep */
                                                      0.01,  /* Kerchoffs ode timestep */
                                                      "TestCompressibleWithKerchoffsLong");

@@ -170,8 +170,10 @@ public:
         fixed_nodes.push_back(0);
 
         SolidMechanicsProblemDefinition<3> problem_defn(mesh);
-        problem_defn.SetMaterialLaw(COMPRESSIBLE,laws);
 
+        TS_ASSERT_THROWS_THIS(CompressibleNonlinearElasticitySolver<3> solver(mesh,problem_defn,""),"No material law has been set");
+
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,laws);
         CompressibleNonlinearElasticitySolver<3> solver(mesh,
                                                         problem_defn,
                                                         "");

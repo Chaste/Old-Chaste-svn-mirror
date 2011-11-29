@@ -1026,7 +1026,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         // is no interface for setting both of these. Could be covered by setting up a problem the solver
         // finds difficult to solve, but this would be overkill.)
         #define COVERAGE_IGNORE
-        WARN_ONCE_ONLY("Linear solve (with a mechanics solve) didn't converge, but this may not stop nonlinear solve converging")
+        WARN_ONCE_ONLY("Linear solve (within a mechanics solve) didn't converge, but this may not stop nonlinear solve converging")
         #undef COVERAGE_IGNORE
     }
 
@@ -1040,13 +1040,6 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         EXCEPTION("KSP Absolute tolerance was too high, linear system wasn't solved - there will be no decrease in Newton residual. Decrease KspAbsoluteTolerance");
     }
 
-    // warn if max ksp iterations was done
-    if (num_iters==1000) // See comment on max_iters above
-    {
-        #define COVERAGE_IGNORE
-        WARNING("Linear solver in mechanics solve may not have converged");
-        #undef COVERAGE_IGNORE
-    }
 
     #ifdef MECH_VERBOSE
     Timer::PrintAndReset("KSP Solve");
@@ -1220,6 +1213,11 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
     if (mWriteOutput)
     {
         mpOutputFileHandler = new OutputFileHandler(mOutputDirectory);
+    }
+
+    if( !(mrProblemDefinition.IsMaterialLawSet()))
+    {
+        EXCEPTION("No material law has been set");
     }
 }
 

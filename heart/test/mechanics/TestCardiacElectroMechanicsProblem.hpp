@@ -49,18 +49,16 @@ class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 public:
     void TestDeterminingWatchedNodes() throw(Exception)
     {
-        HeartEventHandler::Disable();
-
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(1.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     NHS,
                                                      1.0, /* width (cm) */
                                                      1,   /* mech elem each dir */
                                                      96,  /* elec elem each dir */
                                                      &cell_factory,
-                                                     1.0,  /* end time */
-                                                     0.01, /* electrics timestep (ms) */
+                                                     NHS,
                                                      1.0,  /* mechanics solve timestep */
                                                      0.01, /* contraction model ode timestep */
                                                      "");
@@ -86,9 +84,7 @@ public:
         //TS_ASSERT_THROWS_THIS(problem2.Initialise(), "");
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
-        
-        // coverage
-        TS_ASSERT_EQUALS( problem.GetSolidMechanicsProblemDefinition()->rGetFixedNodes()[0], 0u);
+
     }
 
 
@@ -96,24 +92,20 @@ public:
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(10.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     NHS,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     10.0, /* end time */
-                                                     0.01, /* electrics timestep (ms) */
+                                                     NHS,
                                                      1.0,  /* mechanics solve timestep */
                                                      0.01, /* contraction model ode timestep */
                                                      "TestCardiacElectroMechOneElement");
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
-
-        // cover SetMaterialLaw() - pass in the law that would be used anyway.
-        NashHunterPoleZeroLaw<2> law;
-        problem.SetMaterialLaw(&law);
 
         problem.SetWatchedPosition(pos);
         problem.Solve();
@@ -131,11 +123,16 @@ public:
         std::string command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
+
         // coverage
-        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,1,0.01,"");
+
+        HeartConfig::Instance()->SetSimulationDuration(10.0); // has to be reset after a solve, it seems..
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,0.05,1,5,&cell_factory,NONPHYSIOL1,1,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid contraction model");
 
-        TS_ASSERT_THROWS_CONTAINS(CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,NHS,0.05,1,5,&cell_factory,1,0.01,0.025,0.01,""),"does not divide");
+        HeartConfig::Instance()->SetSimulationDuration(10.0);
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_timesteps(INCOMPRESSIBLE,0.05,1,5,&cell_factory,NHS,0.025,0.01,"");
+        TS_ASSERT_THROWS_CONTAINS(prob_with_bad_timesteps.Initialise(),"does not divide");
 
 
         MechanicsEventHandler::Headings();
@@ -144,18 +141,16 @@ public:
 
     void TestWithKerchoffs() throw(Exception)
     {
-        HeartEventHandler::Disable();
-
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     KERCHOFFS2003,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     20,    /* end time */     // dies at 7.28 with explicit (now using implicit)
-                                                     0.01,  /* electrics timestep (ms) */
+                                                     KERCHOFFS2003,
                                                      1.0,   /* mechanics solve timestep */
                                                      0.01,  /* Kerchoffs ode timestep */
                                                      "TestCardiacEmWithKerchoffs");
@@ -179,15 +174,13 @@ public:
     }
 
     //
-    //  BAD test - fails with HYPRE (for some reason HYPRE can't solve the one of the linear systems, and 
+    //  BAD test - fails with HYPRE (for some reason HYPRE can't solve the one of the linear systems, and
     //  the search direction in the end doesn't decrease the residual), and also with ILU if you increase
-    //  the number of elements (whether LR91 or N98 is used). Probably the active tension is too high. 
+    //  the number of elements (whether LR91 or N98 is used). Probably the active tension is too high.
     //
     //
     void TestExplicitSolverWithNash2004() throw(Exception)
     {
-        HeartEventHandler::Disable();
-
 #ifdef MECH_USE_HYPRE
         TS_FAIL("This test is known to fail with HYPRE - see comments in test");
         return;
@@ -195,14 +188,14 @@ public:
 
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     NASH2004,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     20,    /* end time */
-                                                     0.01,  /* electrics timestep (ms) */
+                                                     NASH2004,
                                                      1.0,   /* mechanics solve timestep */
                                                      0.01,  /* nash ode timestep */
                                                      "TestExplicitWithNash");
@@ -226,9 +219,9 @@ public:
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0419, 0.0002);
     }
-    
+
     // Sets up a short simulation on a square with zero stimulus, but a model with stretch activated channels.
-    // Hacks the mechanics initial condition to correspond to some stretch, which should create a bit of 
+    // Hacks the mechanics initial condition to correspond to some stretch, which should create a bit of
     // SAC activity and increased voltage
     void TestWithMechanoElectricFeedback() throw (Exception)
     {
@@ -237,27 +230,28 @@ public:
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<2,2> electrics_mesh;
         electrics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1);
- 
+
         QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 0.1);
 
         // fix the nodes on x=0
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
+        HeartConfig::Instance()->SetSimulationDuration(1.0);
+
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(NASH2004,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetDeformationAffectsElectrophysiology(true,true);
+
         CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
-                                                  NASH2004,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
-                                                  fixed_nodes,
                                                   &cell_factory,
-                                                  1,    /* end time */
-                                                  0.01, /* electrics timestep (ms) */
-                                                  1.0,  /* mechanics solve timestep */
-                                                  1.0,  /* contraction model ode dt */
+                                                  &problem_defn,
                                                   "TestNobleSacActivatedByStretchTissue");
-
-        // use MEF
-        problem.UseMechanoElectricFeedback();
 
         problem.Initialise();
 
@@ -293,19 +287,19 @@ public:
             TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity*(1.2*1.2), 1e-9);
         }
 
-                
+
         // Note after one timestep the tissue will have returned to the resting state as there are no
         // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
         // solver.
         problem.Solve();
-        
-        // Get the voltage at the start and end of the simulation, check the stretch was passed down to the 
+
+        // Get the voltage at the start and end of the simulation, check the stretch was passed down to the
         // cell model and caused increased voltage
-        
+
         Hdf5DataReader reader("TestNobleSacActivatedByStretchTissue/electrics", "voltage");
         unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
         TS_ASSERT_EQUALS(num_timesteps, 2u);
-        
+
         Vec start_voltage = PetscTools::CreateVec(36);
         Vec end_voltage = PetscTools::CreateVec(36);
         reader.GetVariableOverNodes(start_voltage, "V", 0);
@@ -318,9 +312,9 @@ public:
             TS_ASSERT_LESS_THAN(start_voltage_repl[i], -90.0);
             TS_ASSERT_LESS_THAN(-90, end_voltage_repl[i]);
         }
-        
-        VecDestroy(start_voltage);         
-        VecDestroy(end_voltage);         
+
+        VecDestroy(start_voltage);
+        VecDestroy(end_voltage);
     }
 
     // Similar to first part of above test, except the deformation isn't just constant stretch here, it is
@@ -342,20 +336,25 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
+
+
+        HeartConfig::Instance()->SetSimulationDuration(1.0);
+
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(NASH2004,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetDeformationAffectsElectrophysiology(true,true);
+
+
         CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
-                                                  NASH2004,
                                                   &electrics_mesh,
                                                   &mechanics_mesh,
-                                                  fixed_nodes,
                                                   &cell_factory,
-                                                  1,    /* end time */
-                                                  0.01, /* electrics timestep (ms) */
-                                                  1.0,  /* mechanics solve timestep */
-                                                  1.0,  /* contraction model ode dt */
+                                                  &problem_defn,
                                                   "");
 
-        // use MEF
-        problem.UseMechanoElectricFeedback();
 
         problem.Initialise();
 
@@ -416,18 +415,16 @@ public:
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
-        HeartEventHandler::Disable();
-
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
         CardiacElectroMechProbRegularGeom<2> problem(COMPRESSIBLE,
-                                                     KERCHOFFS2003,
                                                      0.05, /* width (cm) */
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     20,    /* end time */
-                                                     0.01,  /* electrics timestep (ms) */
+                                                     KERCHOFFS2003,
                                                      1.0,   /* mechanics solve timestep */
                                                      0.01,  /* Kerchoffs ode timestep */
                                                      "TestCompressibleWithKerchoffs");
@@ -457,21 +454,16 @@ public:
         std::vector<unsigned> fixed_nodes
             = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh, 0, 0.0);
 
-        CardiacElectroMechanicsProblem<2> problem(COMPRESSIBLE,
-                                                  KERCHOFFS2003,
-                                                  &electrics_mesh,
-                                                  &mechanics_mesh,
-                                                  fixed_nodes,
-                                                  &cell_factory,
-                                                  20,   // end time
-                                                  0.01, // electrics timestep (ms)
-                                                  1.0,  // mechanics solve timestep
-                                                  0.01,  // contraction model ode timestep
-                                                  "TestCardiacElectroMechanicsHeterogeneousMaterialLaws" /* output directory */);
 
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,0.01);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
 
         // Create two laws to have stiff and soft tissue
-        std::vector<AbstractMaterialLaw<2>*> law;
+        std::vector<AbstractMaterialLaw<2>*> laws;
         CompressibleMooneyRivlinMaterialLaw<2> stiff_law(1.0/*effects stiffness*/, 1.0/*affects amount of compressibility*/);
         CompressibleMooneyRivlinMaterialLaw<2> soft_law(1.0/5.0/*effects stiffness*/, 1.0/*affects amount of compressibility*/);
         for (TetrahedralMesh<2,2>::ElementIterator iter = mechanics_mesh.GetElementIteratorBegin();
@@ -481,15 +473,24 @@ public:
             if (((iter)->CalculateCentroid()[1] >= 0.04)
                  && ((iter)->CalculateCentroid()[1] <= 0.06))
             {
-                law.push_back(&soft_law);
+                laws.push_back(&soft_law);
             }
             else
             {
-                law.push_back(&stiff_law);
+                laws.push_back(&stiff_law);
             }
         }
 
-        problem.SetMaterialLaw(law);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,laws);
+
+
+        CardiacElectroMechanicsProblem<2> problem(COMPRESSIBLE,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  &cell_factory,
+                                                  &problem_defn,
+                                                  "TestCardiacElectroMechanicsHeterogeneousMaterialLaws" /* output directory */);
+
 
         problem.Solve();
 

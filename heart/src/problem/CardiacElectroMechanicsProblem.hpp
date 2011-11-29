@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacMechanicsSolverInterface.hpp"
 #include "FineCoarseMeshPair.hpp"
 #include "AbstractConductivityModifier.hpp"
+#include "ElectroMechanicsProblemDefinition.hpp"
 
 /**
  *  CardiacElectroMechanicsProblem
@@ -81,8 +82,6 @@ protected :
     /** Either COMPRESSIBLE or INCOMPRESSIBLE */
     CompressibilityType mCompressibilityType;
 
-    /** Contraction model (from enumeration) */
-    ContractionModel mContractionModel;
     /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
 
@@ -93,27 +92,18 @@ protected :
      * (Object pointed to is the same as with mpCardiacMechSolver) */
     AbstractNonlinearElasticitySolver<DIM>* mpMechanicsSolver;
 
-    /** End time. The start time is assumed to be 0.0 */
-    double mEndTime;
-    /** The electrics timestep. */
-    double mElectricsTimeStep;
-    /** The mechanics timestep. Needs to be a multiple of the electrics timestep */
-    double mMechanicsTimeStep;
     /** The number of electrics timesteps per mechanics timestep */
     unsigned mNumElecTimestepsPerMechTimestep;
-    /** Timestep to use when solving contraction models */
-    double mContractionModelOdeTimeStep;
+
 
     /** The mesh for the electrics */
     TetrahedralMesh<DIM,DIM>* mpElectricsMesh;
     /** The mesh for the mechanics */
     QuadraticMesh<DIM>* mpMechanicsMesh;
 
-    /**
-     *  Object containing body force and boundary conditions info for
-     *  solid mechanics problems.
-     */
-    SolidMechanicsProblemDefinition<DIM>* mpProblemDefinition;
+    /** Object containing information about the problem to be solved */
+    ElectroMechanicsProblemDefinition<DIM>* mpProblemDefinition;
+
 
     /** Class wrapping both meshes, useful for transferring information */
     FineCoarseMeshPair<DIM>* mpMeshPair;
@@ -141,8 +131,6 @@ protected :
     /** File where watched location info is written */
     out_stream mpWatchedLocationFile;
 
-    /** Nodes for which the deformation is fixed to zero */
-    std::vector<unsigned> mFixedNodes;
     /** .ortho/.orthoquad file from which to read element-wise/quadpoint-wise fibre-sheet-normal-directions */
     std::string mFibreSheetDirectionsFile;
     /** Whether the mFibreSheetDirectionsFile file gives the fibre info at each element, or each quadrature point */
@@ -157,24 +145,6 @@ protected :
      *  sigma_def = F^{-1} sigma_undef F^{-T} has been computed. Used in rGetModifiedConductivityTensor().
      */
     std::pair<unsigned, c_matrix<double,DIM,DIM> > mLastModifiedConductivity;
-
-    /** Whether the deformation is always to alter the conductivities (ie one part of MEF) */
-    bool mConductivityAffectedByDeformationMef;
-
-    /** Whether the deformation is always to affect the cell models (for example, for use in stretch-activated channels)
-     *  (ie one part of MEF)
-     */
-    bool mCellModelsAffectedByDeformationMef;
-
-    /** The material laws to be used for each element. Defaults to
-     *  NashHunterPoleZero if an incompressible problem is being
-     *  solved. This will either be of size 1 (same material law for
-     *  all elements, i.e. homogeneous), or size num_elem. 
-     */
-    std::vector<AbstractMaterialLaw<DIM>*> mMaterialLaws;
-
-    /** Whether a material law was passed in or the default used */
-    bool mUseDefaultMaterialLaw;
 
 
     /**
@@ -202,27 +172,17 @@ public :
     /**
      * Constructor.
      * @param compressibilityType Should be either INCOMPRESSIBLE or COMPRESSIBLE
-     * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param pElectricsMesh  Mesh on which to solve electrics (Monodomain)
      * @param pMechanicsMesh  Mesh (2nd order) on which to solve mechanics
-     * @param fixedMechanicsNodes  Indices of those nodes which a pinned in space
      * @param pCellFactory factory to use to create cells
-     * @param endTime the end time to use
-     * @param electricsPdeTimeStep timestep used in solving for the electrical activity
-     * @param mechanicsSolveTimestep how often the mechanics is solved for (should be a multiple of electrics PDE timestep)
-     * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
+     * @param pProblemDefinition electro-mechanics problem definition
      * @param outputDirectory the output directory
      */
     CardiacElectroMechanicsProblem(CompressibilityType compressibilityType,
-                                   ContractionModel contractionModel,
                                    TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
-                                   std::vector<unsigned> fixedMechanicsNodes,
                                    AbstractCardiacCellFactory<DIM>* pCellFactory,
-                                   double endTime,
-                                   double electricsPdeTimeStep,
-                                   double mechanicsSolveTimestep,
-                                   double contractionModelOdeTimeStep,
+                                   ElectroMechanicsProblemDefinition<DIM>* pProblemDefinition,
                                    std::string outputDirectory);
 
     /**
@@ -283,25 +243,6 @@ public :
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 
-    /**
-     *  By default (at the moment), the deformation does not affect the electrophysiology in any way. 
-     *  Call this to allow it to, then
-     *   (i)  The stretch will be passed back to the cell models for use stretch-activated channels etc
-     *   (ii) The deformation to alter the conductivity
-     * 
-//EMTODO - check these
-     *  Two things to note:
-     *   (i) this can't be called if fibre-sheet directions have been defined from file for each quadrature
-     *  point (as opposed to each mechanics element) - this is because if the stretch is to be passed back to
-     *  the electric mesh nodes, the fibre direction has to be defined at those nodes
-     *   (ii) currently the set-up stage (computing mechanics mesh elements and weights for electrics mesh 
-     *  nodes) is inefficiently implemented - setup will be very slow for big meshes
-     */
-    void UseMechanoElectricFeedback()
-    {
-    	mConductivityAffectedByDeformationMef = true;
-    	mCellModelsAffectedByDeformationMef = true;
-    }
 
     /**
      *  The implementation of the pure method defined in the base class AbstractConductivityModifier. The tissue class will
@@ -324,50 +265,8 @@ public :
      * Called in Solve() at the end of every time step
      * @param counter time step
      */
-    virtual void OnEndOfTimeStep(unsigned counter){}
-
-    /**
-     *  Get a pointer to the object which contains the mechanics problem definition (which includes
-     *  boundary conditions, both fixed node or traction). The user can call this to say
-     *  then set traction boundary conditions for the mechanics problem by calling methods on
-     *  this object.
-     *
-     *  Needs to be called after Initialise().
-     */
-    SolidMechanicsProblemDefinition<DIM>* GetSolidMechanicsProblemDefinition()
+    virtual void OnEndOfTimeStep(unsigned counter)
     {
-        assert(mpProblemDefinition);
-        return mpProblemDefinition;
-    }
-
-    /** Set the material law. If this isn't called the default material law will be used.
-     *  Only call before Initialise() and before Solve(). This version uses the same 
-     *  material law for each element.
-     *  
-     *  @param pMaterialLaw the material law
-     */
-    void SetMaterialLaw(AbstractMaterialLaw<DIM>* pMaterialLaw)
-    {
-        assert(mpMechanicsMesh);
-
-        assert(pMaterialLaw);
-        assert(mMaterialLaws.size()==0); // only call SetMaterialLaw() before both Initialise() or Solve()
-        mMaterialLaws.resize(mpMechanicsMesh->GetNumElements(), pMaterialLaw);
-        mUseDefaultMaterialLaw = false;
-    }
-
-    /** 
-     *  Variant method taking a vector of material laws for heterogeneous problems.
-     *
-     *  Set the material law. If this isn't called the default material law will be used.
-     *  Only call before Initialise() and before Solve()
-     *  @param rMaterialLaws vector of material laws
-     */
-    void SetMaterialLaw(std::vector<AbstractMaterialLaw<DIM>*>& rMaterialLaws)
-    {
-        assert(mMaterialLaws.size()==0); // only call SetMaterialLaw() before both Initialise() or Solve()
-        mMaterialLaws = rMaterialLaws;
-        mUseDefaultMaterialLaw = false;
     }
 };
 

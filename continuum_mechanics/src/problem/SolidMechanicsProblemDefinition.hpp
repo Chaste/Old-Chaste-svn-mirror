@@ -314,9 +314,13 @@ public:
      */
     bool IsHomogeneousMaterial();
 
+    /** Whether any material laws have been set. */
+    bool IsMaterialLawSet();
+
     /**
      * Get whether the material is incompressible or compressible.
-     * SetMaterialLaw() must be called before calling this.
+     * SetMaterialLaw() must be called before calling this. (This can be
+     * be checked by calling IsMaterialLawSet()).
      */
     CompressibilityType GetCompressibilityType();
 

@@ -34,7 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Child class of CardiacElectroMechanicsProblem for setting up cardiac electromechanics
  *  problems on a square (currently just 2d). The user just has to specify the number
- *  of elements in each direction. Note: the X=0 surface is fixed in the deformation.
+ *  of elements in each direction.
+ *
+ *  This class can only be used to set up highly-restricted problems (square geometry, fibres
+ *  in X-direction, X=0 side fixed in space, no tractions, pressures or MEF) - use the more general class
+ *  CardiacElectroMechanicsProblem if you want to do anything more complex.
+ *
+ *  Note: the X=0 surface is fixed in the deformation.
  */
 template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
@@ -45,35 +51,28 @@ public:
      * Constructor.
      *
      * @param compressibilityType Should be either INCOMPRESSIBLE or COMPRESSIBLE
-     * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param width Width and height of the square
      * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
      * @param pCellFactory factory to use to create cells
-     * @param endTime the end time to use
-     * @param electricsPdeTimeStep timestep used in solving for the electrical activity
+     * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param mechanicsSolveTimestep how often the mechanics is solved for (should be a multiple of electrics PDE timestep)
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
     CardiacElectroMechProbRegularGeom(CompressibilityType compressibilityType,
-                                      ContractionModel contractionModel,
                                       double width,
                                       unsigned numMechanicsElementsEachDir,
                                       unsigned numElectricsElementsEachDir,
                                       AbstractCardiacCellFactory<DIM>* pCellFactory,
-                                      double endTime,
-                                      double electricsPdeTimeStep,
+                                      ContractionModelName contractionModel,
                                       double mechanicsSolveTimestep,
                                       double contractionModelOdeTimeStep,
                                       std::string outputDirectory = "")
         : CardiacElectroMechanicsProblem<DIM>(compressibilityType,
-                                              contractionModel,
-                                              NULL, NULL, std::vector<unsigned>(), // all these set below
-                                              pCellFactory, endTime,
-                                              electricsPdeTimeStep,
-                                              mechanicsSolveTimestep,
-                                              contractionModelOdeTimeStep,
+                                              NULL, NULL,
+                                              pCellFactory,
+                                              NULL,
                                               outputDirectory)
     {
         assert(DIM==2); // the below assumes DIM==2
@@ -92,23 +91,31 @@ public:
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->GetNumNodes() << "\n");
 
+        this->mpProblemDefinition = new ElectroMechanicsProblemDefinition<DIM>(*(this->mpMechanicsMesh));
+
         // fix the nodes on x=0
-        this->mFixedNodes.clear();
+        std::vector<unsigned> fixed_nodes;
         for(unsigned i=0; i<this->mpMechanicsMesh->GetNumNodes(); i++)
         {
             if( fabs(this->mpMechanicsMesh->GetNode(i)->rGetLocation()[0])<1e-6)
             {
-                this->mFixedNodes.push_back(i);
+                fixed_nodes.push_back(i);
             }
         }
+        this->mpProblemDefinition->SetZeroDisplacementNodes(fixed_nodes);
 
-        LOG(2, "Fixed the " << this->mFixedNodes.size() << " nodes on x=0");
+        LOG(2, "Fixed the " << fixed_nodes.size() << " nodes on x=0");
+
+        this->mpProblemDefinition->SetUseDefaultCardiacMaterialLaw(compressibilityType);
+        this->mpProblemDefinition->SetContractionModel(contractionModel,contractionModelOdeTimeStep);
+        this->mpProblemDefinition->SetMechanicsSolveTimestep(mechanicsSolveTimestep);
     }
 
     ~CardiacElectroMechProbRegularGeom()
     {
         delete this->mpElectricsMesh;
         delete this->mpMechanicsMesh;
+        delete this->mpProblemDefinition;
     }
 };
 
