@@ -348,35 +348,48 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMonodomainProblem->Initialise();
 
 
-    // Construct mechanics solver
-    // Here we pick the best solver for each particular contraction model.
-    switch(mpProblemDefinition->GetContractionModel())
+    if(mCompressibilityType==INCOMPRESSIBLE)
     {
-        case NASH2004:
-            // stretch and stretch-rate independent, so should use explicit
-            mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                    mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+        // NOTE: if adding to this, do below as well for compressible option.
+        switch(mpProblemDefinition->GetContractionModel())
+        {
+            case NASH2004:
+                // Create an EXPLICIT, INCOMPRESSIBLE solver
+                mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
+                        mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
             break;
-        case KERCHOFFS2003:
-            // stretch independent, so should use implicit solver (explicit may be unstable)
-            if(mCompressibilityType==INCOMPRESSIBLE)
-            {
+
+            case KERCHOFFS2003:
+            case NHS:
+                // Create an IMPLICIT, INCOMPRESSIBLE solver
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
                         mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
-            }
-            else
-            {
+            break;
+            default:
+                EXCEPTION("Invalid contraction model, options are: NASH2004, KERCHOFFS2003 or NHS");
+        }
+    }
+    else
+    {
+        // repeat above with Compressible solver rather than incompressible - not the neatest but avoids having to template
+        // this class.
+        switch(mpProblemDefinition->GetContractionModel())
+        {
+            case NASH2004:
+                // Create an EXPLICIT, COMPRESSIBLE solver
+                mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
+                        mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
+            break;
+
+            case KERCHOFFS2003:
+            case NHS:
+                // Create an IMPLICIT, COMPRESSIBLE solver
                 mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<CompressibleNonlinearElasticitySolver<DIM>,DIM>(
                         mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
-            }
             break;
-        case NHS:
-            // stretch and stretch-rate independent, so should definitely use implicit
-            mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<IncompressibleNonlinearElasticitySolver<DIM>,DIM>(
-                    mpProblemDefinition->GetContractionModel(),*mpMechanicsMesh,*mpProblemDefinition,mDeformationOutputDirectory);
-            break;
-        default:
-            EXCEPTION("Invalid contraction model, options are: NASH2004, KERCHOFFS2003 or NHS");
+            default:
+                EXCEPTION("Invalid contraction model, options are: NASH2004, KERCHOFFS2003 or NHS");
+        }
     }
 
     mpMechanicsSolver = dynamic_cast<AbstractNonlinearElasticitySolver<DIM>*>(mpCardiacMechSolver);
