@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define SIMULATIONTIME_HPP_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
+#include <boost/serialization/shared_ptr.hpp>
 #include "SerializableSingleton.hpp"
 #include "TimeStepper.hpp"
 
