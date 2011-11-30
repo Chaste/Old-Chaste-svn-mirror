@@ -130,7 +130,10 @@ public:
         CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(INCOMPRESSIBLE,0.05,1,5,&cell_factory,NONPHYSIOL1,1,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid contraction model");
 
-        HeartConfig::Instance()->SetSimulationDuration(10.0);
+
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model_comp(COMPRESSIBLE,0.05,1,5,&cell_factory,NONPHYSIOL1,1,0.01,"");
+        TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model_comp.Solve(),"Invalid contraction model");
+
         CardiacElectroMechProbRegularGeom<2> prob_with_bad_timesteps(INCOMPRESSIBLE,0.05,1,5,&cell_factory,NHS,0.025,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_timesteps.Initialise(),"does not divide");
 
@@ -437,6 +440,13 @@ public:
 
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0465, 0.0002);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](1),-0.0012, 0.0002);
+
+        // create and initialise an incompressible NASH2004 problem, just for coverage..
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+        CardiacElectroMechProbRegularGeom<2> problem2(COMPRESSIBLE,0.05,1,5,&cell_factory,
+                                                      NASH2004,
+                                                      1.0, 0.01,"");
+        problem2.Initialise();
     }
 
     void TestCardiacElectroMechanicsHeterogeneousMaterialLaws() throw(Exception)
