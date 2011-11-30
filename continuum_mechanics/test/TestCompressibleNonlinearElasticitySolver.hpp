@@ -904,6 +904,69 @@ public:
                               + "/TestWritingStrain/shear_2d_0.strain continuum_mechanics/test/data/shear_2d_0.strain";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
+
+    void TestWritingStrain3d() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        QuadraticMesh<3> mesh(1.0, 1.0, 1.0, 1.0);
+
+        CompressibleMooneyRivlinMaterialLaw<3> law(1.0, 1.0);
+
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+        SolidMechanicsProblemDefinition<3> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
+        CompressibleNonlinearElasticitySolver<3> solver(mesh,
+                                                        problem_defn,
+                                                        "");
+
+
+        double alpha = 1.1;
+        double beta = 0.15;
+        double gamma = 0.53;
+
+        // Apply a deformation
+        //
+        // (x,y,z) = (aX, bY-cX, cZ+aY)
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double X = mesh.GetNode(i)->rGetLocation()[0];
+            double Y = mesh.GetNode(i)->rGetLocation()[1];
+            double Z = mesh.GetNode(i)->rGetLocation()[2];
+
+
+            solver.mCurrentSolution[3*i]   = alpha*X - X;
+            solver.mCurrentSolution[3*i+1] = beta*Y - gamma*X - Y;
+            solver.mCurrentSolution[3*i+2] = gamma*Z + alpha*Y - Z;
+        }
+
+        // so deformation gradient should be
+        // F = [a  0  0]
+        //     [-c b  0]
+        //     [0  a  c]
+        c_matrix<double,3,3> F;
+
+        for(unsigned i=0; i<1 /*mesh.GetNumElements()*/; i++)
+        {
+            solver.GetElementCentroidDeformationGradient(*(mesh.GetElement(i)), F);
+
+            TS_ASSERT_DELTA(F(0,0), alpha, 1e-8);
+            TS_ASSERT_DELTA(F(0,1), 0.0, 1e-8);
+            TS_ASSERT_DELTA(F(0,2), 0.0, 1e-8);
+            TS_ASSERT_DELTA(F(1,0), -gamma, 1e-8);
+            TS_ASSERT_DELTA(F(1,1), beta, 1e-8);
+            TS_ASSERT_DELTA(F(1,2), 0.0, 1e-8);
+            TS_ASSERT_DELTA(F(2,0), 0.0, 1e-8);
+            TS_ASSERT_DELTA(F(2,1), alpha, 1e-8);
+            TS_ASSERT_DELTA(F(2,2), gamma, 1e-8);
+        }
+
+        // no output directory given, cover a return statement in WriteCurrentDeformationGradients()
+        solver.WriteCurrentDeformationGradients("wont_be_written",0);
+    }
 };
 
 #endif /* TESTCOMPRESSIBLENONLINEARELASTICITYSOLVER_HPP_ */
