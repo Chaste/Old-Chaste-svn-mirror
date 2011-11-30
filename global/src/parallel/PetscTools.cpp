@@ -46,11 +46,6 @@ unsigned PetscTools::mNumBarriers = 0u;
 
 void PetscTools::ResetCache()
 {
-#ifdef SPECIAL_SERIAL
-    mPetscIsInitialised = false;
-    mNumProcessors = 1;
-    mRank = 0;
-#else
     PetscTruth is_there;
     PetscInitialized(&is_there);
     if (is_there)
@@ -72,7 +67,6 @@ void PetscTools::ResetCache()
         mNumProcessors = 1;
         mRank = 0;
     }
-#endif
 }
 
 // Information methods
@@ -153,8 +147,6 @@ void PetscTools::IsolateProcesses(bool isolate)
 {
     mIsolateProcesses = isolate;
 }
-
-#ifndef SPECIAL_SERIAL
 
 bool PetscTools::ReplicateBool(bool flag)
 {
@@ -390,4 +382,3 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
     }
     PetscViewerDestroy(view);
 }
-#endif //SPECIAL_SERIAL (ifndef)

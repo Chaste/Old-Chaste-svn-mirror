@@ -38,11 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cstdlib> // For EXIT_FAILURE
 
-#ifndef SPECIAL_SERIAL
 #include <petsc.h>
 #include <petscvec.h>
 #include <petscmat.h>
-#endif //SPECIAL_SERIAL
 
 /** For use in tests that do not work when run in parallel. */
 #define EXIT_IF_PARALLEL if(PetscTools::IsParallel()){TS_TRACE("This test does not pass in parallel yet.");return;}
@@ -165,7 +163,6 @@ public:
      */
     static void IsolateProcesses(bool isolate=true);
 
-#ifndef SPECIAL_SERIAL
     /**
      * Create a vector of the specified size. SetFromOptions is called.
      *
@@ -260,8 +257,6 @@ public:
      * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant.
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
-
-#endif //SPECIAL_SERIAL (ifndef)
 };
 
 #endif /*PETSCTOOLS_HPP_*/
