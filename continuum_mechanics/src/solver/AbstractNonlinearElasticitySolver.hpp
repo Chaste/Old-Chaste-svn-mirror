@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 extern PetscErrorCode KSPInitialResidual(KSP,Vec,Vec,Vec,Vec,Vec);
 #endif
 
-#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
+//#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
 //#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
 //#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
 //#define MECH_KSP_MONITOR  // Print residual norm each iteration in linear solve (ie -ksp_monitor).

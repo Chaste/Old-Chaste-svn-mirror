@@ -153,7 +153,7 @@ public:
      * This is purely for coverage of assembling a 3D system (and also uses
      * alternative, heterogeneous constructor, also for coverage).
      */
-    void zzzTestAssembleSystem3D() throw (Exception)
+    void TestAssembleSystem3D() throw (Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -189,7 +189,7 @@ public:
 
 	// compare computed Jacobian against a numerically computed
 	// Jacobian
-    void zzzTestAssembleSystem() throw (Exception)
+    void TestAssembleSystem() throw (Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -330,7 +330,7 @@ public:
 
 
     // It just tests that nothing happens if zero force and tractions are given
-    void zzzTestWithZeroDisplacement() throw(Exception)
+    void TestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -389,7 +389,7 @@ public:
      *    -0.608190204001744 - 0.890314286611269i
      *     0.955749406631746
      */
-    void zzzTestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
+    void TestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -497,7 +497,7 @@ public:
      *
      * The calculation is written out fully in the FiniteElementImplementations document.
      */
-    void zzzTestAgainstExactNonlinearSolution() throw(Exception)
+    void TestAgainstExactNonlinearSolution() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -591,7 +591,7 @@ public:
     }
 
 
-    void zzzTestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
+    void TestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -637,7 +637,7 @@ public:
 
     // Solve using an exponential material law. Doesn't test against an exact solution, just that check that the
     // solver converges. Doesn't seem very robust.
-    void zzzTestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
+    void TestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -683,7 +683,7 @@ public:
      * except the y position of the fixed nodes is left free, i.e. sliding boundary conditions
      * are given
      */
-    void zzzTestSolveUsingSlidingBoundaryConditions2d() throw(Exception)
+    void TestSolveUsingSlidingBoundaryConditions2d() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -781,7 +781,7 @@ public:
     }
 
     // 3d sliding boundary conditions test
-    void zzzTestSolveUsingSlidingBoundaryConditions3d() throw(Exception)
+    void TestSolveUsingSlidingBoundaryConditions3d() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
