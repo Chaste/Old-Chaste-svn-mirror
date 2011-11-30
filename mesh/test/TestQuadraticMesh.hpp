@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include "ArchiveOpener.hpp"
+#include "Warnings.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestQuadraticMesh : public CxxTest::TestSuite
@@ -513,16 +514,6 @@ public:
         }
     }
 
-    void TestExceptions() throw(Exception)
-    {
-        QuadraticMesh<1> mesh;
-
-        // Linear mesh
-        TrianglesMeshReader<1,1> mesh_reader2("mesh/test/data/1D_0_to_1_10_elements");
-        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader2),
-                "Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
-    }
-
     void TestArchiving() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
@@ -808,9 +799,9 @@ public:
 
 
     /**
-     * Check that we can build a QuadraticMesh using the mesh reader.
+     * Check that we can build a QuadraticMesh using the VTK mesh reader.
      */
-    void TestBuildTetrahedralMeshFromMeshReader(void) throw(Exception)
+    void TestBuildQuadraticMeshFromVtkMeshReader(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
         VtkMeshReader<3,3> mesh_reader("mesh/test/data/heart_decimation.vtu");
@@ -852,11 +843,15 @@ public:
         TS_ASSERT_DELTA(quad_mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
         TS_ASSERT_DELTA(quad_mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
 
-        //Use ordinary functionality
+        //Use ordinary functionality - using the "wrong" method gives back a warning
         quad_mesh.Clear();
         mesh_reader.Reset();
-        TS_ASSERT_THROWS_THIS(quad_mesh.ConstructFromMeshReader(mesh_reader),"Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
-
+        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 0u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
+        quad_mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Reading a (linear) tetrahedral mesh and converting it to a QuadraticMesh.  This involves making an external library call to Triangle/Tetgen in order to compute in internal nodes");
+        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 1110u);
 
 #endif //CHASTE_VTK
     }

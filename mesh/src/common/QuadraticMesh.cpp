@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "Warnings.hpp"
 
 //Jonathan Shewchuk's triangle and Hang Si's tetgen
 #define REAL double
@@ -277,7 +278,9 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
     // If it is a linear TrianglesMeshReader or any other reader (which are all linear)
     if (order_of_elements == 1)
     {
-        EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
+    	WARNING("Reading a (linear) tetrahedral mesh and converting it to a QuadraticMesh.  This involves making an external library call to Triangle/Tetgen in order to compute in internal nodes");
+    	ConstructFromLinearMeshReader(rAbsMeshReader);
+    	return;
     }
 
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);
