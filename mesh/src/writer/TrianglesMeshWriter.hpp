@@ -85,7 +85,7 @@ public:
      * @param attribute An attribute.  Usually unsigned, but double for cable elements
      */
 
-    template<class  T_DATA, class T_ATTR>
+     template<class  T_DATA, class T_ATTR>
      void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<T_DATA> &dataPacket, T_ATTR attribute);
 
      /**

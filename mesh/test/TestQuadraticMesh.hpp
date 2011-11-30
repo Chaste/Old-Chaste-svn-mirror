@@ -807,6 +807,60 @@ public:
     }
 
 
+    /**
+     * Check that we can build a QuadraticMesh using the mesh reader.
+     */
+    void TestBuildTetrahedralMeshFromMeshReader(void) throw(Exception)
+    {
+#ifdef CHASTE_VTK
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/heart_decimation.vtu");
+
+        TetrahedralMesh<3,3> tet_mesh;
+        tet_mesh.ConstructFromMeshReader(mesh_reader);
+        mesh_reader.Reset();
+
+        QuadraticMesh<3> quad_mesh;
+        quad_mesh.ConstructFromLinearMeshReader(mesh_reader);
+
+
+        // Check we have the right number of nodes & elements
+        TS_ASSERT_EQUALS(tet_mesh.GetNumNodes(), 173u);
+        TS_ASSERT_EQUALS(tet_mesh.GetNumElements(), 610u);
+        TS_ASSERT_EQUALS(tet_mesh.GetNumBoundaryElements(), 312u);
+        TS_ASSERT_EQUALS(tet_mesh.GetNumBoundaryNodes(), 158u);
+
+        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 1110u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumVertices(), 173u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 610u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumBoundaryElements(), 312u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumBoundaryNodes(), 626u);
+
+        // Check some node co-ordinates
+		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
+		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);
+		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[2], 0.9925, 1e-4);
+
+		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[0], 1.0969, 1e-4);
+		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
+		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
+
+        TS_ASSERT_DELTA(quad_mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
+        TS_ASSERT_DELTA(quad_mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);
+        TS_ASSERT_DELTA(quad_mesh.GetNode(0)->GetPoint()[2], 0.9925, 1e-4);
+
+        TS_ASSERT_DELTA(quad_mesh.GetNode(8)->GetPoint()[0], 1.0969, 1e-4);
+        TS_ASSERT_DELTA(quad_mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
+        TS_ASSERT_DELTA(quad_mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
+
+        //Use ordinary functionality
+        quad_mesh.Clear();
+        mesh_reader.Reset();
+        TS_ASSERT_THROWS_THIS(quad_mesh.ConstructFromMeshReader(mesh_reader),"Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
+
+
+#endif //CHASTE_VTK
+    }
+
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

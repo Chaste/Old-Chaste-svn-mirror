@@ -266,10 +266,16 @@ template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rAbsMeshReader)
 {
     TrianglesMeshReader<DIM, DIM>* p_mesh_reader=dynamic_cast<TrianglesMeshReader<DIM, DIM>*>(&rAbsMeshReader);
-    assert(p_mesh_reader != NULL);
 
+    unsigned order_of_elements = 1;
+    if (p_mesh_reader)
+    {
+    	//A triangles mesh reader will let you read with non-linear elements
+    	order_of_elements = p_mesh_reader->GetOrderOfElements();
+    }
 
-    if (p_mesh_reader->GetOrderOfElements() == 1)
+    // If it is a linear TrianglesMeshReader or any other reader (which are all linear)
+    if (order_of_elements == 1)
     {
         EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
     }
