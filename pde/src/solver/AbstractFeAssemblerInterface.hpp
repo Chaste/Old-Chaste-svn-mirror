@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTFEASSEMBLERINTERFACE_HPP_
 
 #include <cassert>
+#include "UblasCustomFunctions.hpp"
 #include "PetscTools.hpp"
-#include "UblasCustomFunctions.hpp" //boost
 
 /**
  *   A common bass class for AbstractFeVolumeIntegralAssembler (the main abstract assembler class), and other assembler classes

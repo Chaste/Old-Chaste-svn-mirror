@@ -40,8 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CardiacSimulationArchiver.hpp"
 
-#include "Exception.hpp"
-#include "PetscTools.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "RegularStimulus.hpp"
@@ -49,6 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "MonodomainProblem.hpp"
 #include "TetrahedralMesh.hpp"
+#include "Exception.hpp"
+#include "PetscTools.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
