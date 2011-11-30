@@ -153,7 +153,7 @@ public:
      * This is purely for coverage of assembling a 3D system (and also uses
      * alternative, heterogeneous constructor, also for coverage).
      */
-    void TestAssembleSystem3D() throw (Exception)
+    void zzzTestAssembleSystem3D() throw (Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -189,7 +189,7 @@ public:
 
 	// compare computed Jacobian against a numerically computed
 	// Jacobian
-    void TestAssembleSystem() throw (Exception)
+    void zzzTestAssembleSystem() throw (Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -330,7 +330,7 @@ public:
 
 
     // It just tests that nothing happens if zero force and tractions are given
-    void TestWithZeroDisplacement() throw(Exception)
+    void zzzTestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -389,7 +389,7 @@ public:
      *    -0.608190204001744 - 0.890314286611269i
      *     0.955749406631746
      */
-    void TestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
+    void zzzTestSolveForSimpleDeformationWithCompMooneyRivlin() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -497,7 +497,7 @@ public:
      *
      * The calculation is written out fully in the FiniteElementImplementations document.
      */
-    void TestAgainstExactNonlinearSolution() throw(Exception)
+    void zzzTestAgainstExactNonlinearSolution() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -591,7 +591,7 @@ public:
     }
 
 
-    void TestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
+    void zzzTestCheckPositiveDefinitenessOfJacobianMatrix() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -637,7 +637,7 @@ public:
 
     // Solve using an exponential material law. Doesn't test against an exact solution, just that check that the
     // solver converges. Doesn't seem very robust.
-    void TestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
+    void zzzTestSolveForSimpleDeformationWithExponentialLaw() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -683,7 +683,7 @@ public:
      * except the y position of the fixed nodes is left free, i.e. sliding boundary conditions
      * are given
      */
-    void TestSolveUsingSlidingBoundaryConditions2d() throw(Exception)
+    void zzzTestSolveUsingSlidingBoundaryConditions2d() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -781,7 +781,7 @@ public:
     }
 
     // 3d sliding boundary conditions test
-    void TestSolveUsingSlidingBoundaryConditions3d() throw(Exception)
+    void zzzTestSolveUsingSlidingBoundaryConditions3d() throw(Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
 
@@ -807,7 +807,7 @@ public:
                 new_position(0) = SolidMechanicsProblemDefinition<3>::FREE;
                 new_position(1) = 0;
                 new_position(2) = SolidMechanicsProblemDefinition<3>::FREE;
-               locations.push_back(new_position);
+                locations.push_back(new_position);
             }
         }
 
@@ -841,6 +841,68 @@ public:
                 TS_ASSERT_DIFFERS(r_solution[i](2), mesh.GetNode(i)->rGetLocation()[2]);
             }
         }
+    }
+
+    void TestWritingStrain() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential
+
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
+
+        CompressibleMooneyRivlinMaterialLaw<2> law(1.0, 1.0);
+
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+
+        CompressibleNonlinearElasticitySolver<2> solver(mesh,
+                                                        problem_defn,
+                                                        "TestWritingStrain");
+
+        c_matrix<double,2,2> F;
+        solver.GetElementCentroidDeformationGradient(*(mesh.GetElement(0)), F);
+
+        TS_ASSERT_DELTA(F(0,0), 1.0, 1e-8);
+        TS_ASSERT_DELTA(F(0,1), 0.0, 1e-8);
+        TS_ASSERT_DELTA(F(1,0), 0.0, 1e-8);
+        TS_ASSERT_DELTA(F(1,1), 1.0, 1e-8);
+
+        double alpha = 0.324;
+
+        // Apply a shear to the mesh:
+        // move the nodes on Y=1, nodes, 2, 8, 3, across to the right
+        solver.mCurrentSolution[4]  = alpha;
+        solver.mCurrentSolution[16] = alpha;
+        solver.mCurrentSolution[6]  = alpha;
+        // move the nodes on Y=0.5, nodes, 4, 6, 7, across to the right by half as much
+        solver.mCurrentSolution[8]  = alpha/2.0;
+        solver.mCurrentSolution[12] = alpha/2.0;
+        solver.mCurrentSolution[14] = alpha/2.0;
+
+        solver.GetElementCentroidDeformationGradient(*(mesh.GetElement(0)), F);
+
+        TS_ASSERT_DELTA(F(0,0), 1.0, 1e-8);
+        TS_ASSERT_DELTA(F(0,1), alpha, 1e-8);
+        TS_ASSERT_DELTA(F(1,0), 0.0, 1e-8);
+        TS_ASSERT_DELTA(F(1,1), 1.0, 1e-8);
+
+        solver.GetElementCentroidDeformationGradient(*(mesh.GetElement(1)), F);
+
+        TS_ASSERT_DELTA(F(0,0), 1.0, 1e-8);
+        TS_ASSERT_DELTA(F(0,1), alpha, 1e-8);
+        TS_ASSERT_DELTA(F(1,0), 0.0, 1e-8);
+        TS_ASSERT_DELTA(F(1,1), 1.0, 1e-8);
+
+        solver.WriteCurrentDeformationGradients("shear_2d",0);
+
+
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "diff " + test_output_directory
+                              + "/TestWritingStrain/shear_2d_0.strain continuum_mechanics/test/data/shear_2d_0.strain";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 };
 

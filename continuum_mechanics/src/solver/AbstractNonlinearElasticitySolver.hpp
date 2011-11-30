@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Warnings.hpp"
 #include "PetscException.hpp"
 #include "CompressibilityType.hpp"
+#include "QuadraticBasisFunction.hpp"
 
 #include "SolidMechanicsProblemDefinition.hpp"
 #include "DeformedBoundaryElement.hpp"
@@ -54,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 extern PetscErrorCode KSPInitialResidual(KSP,Vec,Vec,Vec,Vec,Vec);
 #endif
 
-//#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
+#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
 //#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
 //#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
 //#define MECH_KSP_MONITOR  // Print residual norm each iteration in linear solve (ie -ksp_monitor).
@@ -362,6 +363,15 @@ protected:
     virtual void PostNewtonStep(unsigned counter, double normResidual);
 
     /**
+     * Compute the deformation gradient at the centroid at an element
+     * @param rElement The element
+     * @param rDeformationGradient Reference to a matrix, which will be filled in
+     * by this method.
+     */
+    void GetElementCentroidDeformationGradient(Element<DIM,DIM>& rElement,
+                                               c_matrix<double,DIM,DIM>& rDeformationGradient);
+
+    /**
      * Simple (one-line function which just calls ComputeStressAndStressDerivative() on the
      * material law given, using C,  inv(C), and p as the input and with rT and rDTdE as the
      * output. Overloaded by other assemblers (eg cardiac mechanics) which need to add extra
@@ -507,6 +517,20 @@ public:
      * Writes the original mesh as solution_0.exnode and the (current) solution as solution_1.exnode.
      */
     void CreateCmguiOutput();
+
+
+    /**
+     * Write the deformation gradients for each element (evaluated at the centroids of each element)
+     * Each line of the output file corresponds to one element: the DIM*DIM matrix will be written
+     * as one line, using the ordering:
+     * F00 F01 F02 F10 F11 F12 F20 F21 F22.
+     *
+     * @param fileName The file name stem
+     * @param counterToAppend Number to append in the filename.
+     *
+     * The final file is [fileName]_[counterToAppend].strain
+     */
+    void WriteCurrentDeformationGradients(std::string fileName, int counterToAppend);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -861,6 +885,7 @@ void AbstractNonlinearElasticitySolver<DIM>::VectorSum(std::vector<double>& rX,
         rZ[i] = rX[i] + a*rY[i];
     }
 }
+
 
 template<unsigned DIM>
 double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
@@ -1368,9 +1393,46 @@ void AbstractNonlinearElasticitySolver<DIM>::WriteCurrentDeformation(std::string
     {
         for (unsigned j=0; j<DIM; j++)
         {
-           * p_file << r_deformed_position[i](j) << " ";
+            *p_file << r_deformed_position[i](j) << " ";
         }
-       * p_file << "\n";
+        *p_file << "\n";
+    }
+    p_file->close();
+}
+
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::WriteCurrentDeformationGradients(std::string fileName, int counterToAppend)
+{
+    if (!mWriteOutput)
+    {
+        return;
+    }
+
+    std::stringstream file_name;
+    file_name << fileName;
+    if (counterToAppend >= 0)
+    {
+        file_name << "_" << counterToAppend;
+    }
+    file_name << ".strain";
+
+    out_stream p_file = mpOutputFileHandler->OpenOutputFile(file_name.str());
+
+    c_matrix<double,DIM,DIM> deformation_gradient;
+
+    for (typename AbstractTetrahedralMesh<DIM,DIM>::ElementIterator iter = mrQuadMesh.GetElementIteratorBegin();
+         iter != mrQuadMesh.GetElementIteratorEnd();
+         ++iter)
+    {
+        GetElementCentroidDeformationGradient(*iter, deformation_gradient);
+        for(unsigned i=0; i<DIM; i++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                *p_file << deformation_gradient(i,j) << " ";
+            }
+        }
+        *p_file << "\n";
     }
     p_file->close();
 }
@@ -1422,6 +1484,82 @@ void AbstractNonlinearElasticitySolver<DIM>::CreateCmguiOutput()
     writer.WriteInitialMesh(); // this writes solution_0.exnode and .exelem
     writer.WriteDeformationPositions(r_deformed_positions, 1); // this writes the final solution as solution_1.exnode
     writer.WriteCmguiScript(); // writes LoadSolutions.com
+}
+
+template<unsigned DIM>
+void AbstractNonlinearElasticitySolver<DIM>::GetElementCentroidDeformationGradient(Element<DIM,DIM>& rElement,
+                                                                                   c_matrix<double,DIM,DIM>& rDeformationGradient)
+{
+    static c_matrix<double,DIM,DIM> jacobian;
+    static c_matrix<double,DIM,DIM> inverse_jacobian;
+    double jacobian_determinant;
+
+    this->mrQuadMesh.GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
+
+    // Get the current displacement at the nodes
+    static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> element_current_displacements;
+    for (unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
+    {
+        for (unsigned JJ=0; JJ<DIM; JJ++)
+        {
+            element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
+        }
+    }
+
+    // Allocate memory for the basis functions values and derivative values
+    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
+
+//    // Get the material law
+//    AbstractCompressibleMaterialLaw<DIM>* p_material_law
+//       = this->mrProblemDefinition.GetCompressibleMaterialLaw(rElement.GetIndex());
+
+    static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
+
+    // we need the point in the canonical element which corresponds to the centroid of the
+    // version of the element in physical space. This point can be shown to be (1/3,1/3).
+    ChastePoint<DIM> quadrature_point;
+    if(DIM==2)
+    {
+        quadrature_point.rGetLocation()(0) = 1.0/3.0;
+        quadrature_point.rGetLocation()(1) = 1.0/3.0;
+    }
+    else
+    {
+        assert(DIM==3);
+        quadrature_point.rGetLocation()(0) = 1.0/4.0;
+        quadrature_point.rGetLocation()(1) = 1.0/4.0;
+        quadrature_point.rGetLocation()(2) = 1.0/4.0;
+    }
+
+    QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
+
+    // Interpolate grad_u
+    grad_u = zero_matrix<double>(DIM,DIM);
+    for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
+    {
+        for (unsigned i=0; i<DIM; i++)
+        {
+            for (unsigned M=0; M<DIM; M++)
+            {
+                grad_u(i,M) += grad_quad_phi(M,node_index)*element_current_displacements(i,node_index);
+            }
+        }
+    }
+
+    for (unsigned i=0; i<DIM; i++)
+    {
+        for (unsigned M=0; M<DIM; M++)
+        {
+            rDeformationGradient(i,M) = (i==M?1:0) + grad_u(i,M);
+        }
+    }
+//
+//        C = prod(trans(F),F);
+//        inv_C = Inverse(C);
+//        inv_F = Inverse(F);
+//
+//        this->ComputeStressAndStressDerivative(p_material_law, C, inv_C, 0.0, rElement.GetIndex(), current_quad_point_global_index,
+//                                               T, dTdE, assembleJacobian);
 }
 
 // Constant setting definitions
