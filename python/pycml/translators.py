@@ -2044,12 +2044,23 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln('const ', self.TYPE_VECTOR_REF, 'rY = *', pointer, self.STMT_END)
             else:
                 self.writeln(self.TYPE_VECTOR_REF, 'rY = rGetStateVariables();')
+        if self.options.protocol:
+            low_prop = ('pycml:range-low', NSS['pycml'])
+            high_prop = ('pycml:range-high', NSS['pycml'])
+            def check_bound(prop, reln, var, value):
+                prop_value = var.get_rdf_annotation(prop)
+                if prop_value:
+                    value = '(%s %s %s ? %s : %s)' % (value, reln, prop_value, prop_value, value)
+                return value
         for i, var in enumerate(self.state_vars):
             if var in used_vars:
                 if self.use_modifiers and var in self.modifier_vars:
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
                     value = self.vector_index('rY', i)
+                if self.options.protocol:
+                    value = check_bound(low_prop, '<', var, value)
+                    value = check_bound(high_prop, '>', var, value)
                 self.writeln(self.TYPE_DOUBLE, self.code_name(var),
                              self.EQ_ASSIGN, value, self.STMT_END)
                 self.writeln(self.COMMENT_START, 'Units: ', var.units,
