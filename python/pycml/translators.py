@@ -5245,6 +5245,9 @@ def run():
             class_name += '_be'
         if options.use_modifiers:
             class_name += '_sens'
+    if options.protocol:
+        # Try to avoid OdeSystemInformation conflicts
+        class_name += "_Proto_" + os.path.splitext(os.path.basename(options.protocol))[0]
 
     output_filename = getattr(options, 'outfilename', None)
     if not options.translate and not output_filename:
