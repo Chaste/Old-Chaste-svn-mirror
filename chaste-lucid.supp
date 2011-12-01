@@ -86,12 +86,6 @@
    obj:*/libmpi.so*
    fun:PMPI_Init
    fun:*PetscInitialize*
-   fun:_ZN10PetscSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 {
    mpi_init (realloc)
@@ -101,12 +95,6 @@
    obj:*/libmpi.so*
    fun:PMPI_Init
    fun:*PetscInitialize*
-   fun:_ZN10PetscSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 {
    mpi_init (calloc)
@@ -116,12 +104,6 @@
    obj:*/libmpi.so*
    fun:PMPI_Init
    fun:*PetscInitialize*
-   fun:_ZN10PetscSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 {
    mpi_init (sched)
@@ -131,12 +113,6 @@
    obj:*/libmpi.so*
    fun:PMPI_Init
    fun:*PetscInitialize*
-   fun:_ZN10PetscSetup10setUpWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription5setUpEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
 
 {
@@ -147,13 +123,21 @@
    obj:*/libmpi.so*
    ...
    fun:*PetscFinalize*
-   fun:_ZN10PetscSetup13tearDownWorldEv
-   fun:_ZN7CxxTest20RealWorldDescription8tearDownEv
-   fun:_ZN7CxxTest10TestRunner8runWorldEv
-   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
-   fun:_ZN7CxxTest14ErrorFormatter3runEv
-   fun:main
 }
+
+
+{
+   Unset filename in HYPRE_BoomerAMG todo: should this be set?
+   Memcheck:Cond
+   ...
+   fun:hypre_BoomerAMGSetPlotFileName
+   fun:hypre_BoomerAMGCreate
+   fun:HYPRE_BoomerAMGCreate
+   fun:PCHYPRESetType_HYPRE
+   fun:PCSetFromOptions_HYPRE
+   fun:PCSetFromOptions
+}
+
 
 # This last one is perhaps a little more dubious...
 {
@@ -164,11 +148,14 @@
    obj:*/libmpi.so*
    fun:ompi_attr_create_keyval
    fun:PMPI_Keyval_create
-   fun:_Z18PetscCommDuplicateP19ompi_communicator_tPS0_Pi
-   fun:_Z25PetscHeaderCreate_PrivateP14_p_PetscObjectiiPKcP19ompi_communicator_tPFiS0_EPFiS0_P14_p_PetscViewerE
-   fun:_Z9VecCreateP19ompi_communicator_tPP6_p_Vec
-   fun:_ZN10PetscTools9CreateVecEiib
 }
+#   fun:*PetscCommDuplicate*
+#   fun:*PetscHeaderCreate_Private*
+#   fun:*VecCreate*
+
+
+
+
 
 
 # VTK
@@ -264,3 +251,4 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN13VtkMeshReader*
 }
+

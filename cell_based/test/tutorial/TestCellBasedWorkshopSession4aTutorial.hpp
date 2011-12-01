@@ -69,7 +69,8 @@ public:
 
     void TestVertexBasedMonolayer() throw (Exception)
     {
-        HoneycombVertexMeshGenerator generator(2, 2);
+        TS_FAIL("This test suite is currently too long for the continuous test pack.");
+    	HoneycombVertexMeshGenerator generator(2, 2);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
