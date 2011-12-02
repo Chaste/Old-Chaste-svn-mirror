@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include "ContinuumMechanicsProblemDefinition.hpp"
+
 template<unsigned DIM>
 class StokesFlowProblemDefinition : public ContinuumMechanicsProblemDefinition<DIM>
 {
