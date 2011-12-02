@@ -3,5 +3,5 @@ TestCompressibleNonlinearElasticitySolver.hpp
 TestIncompressibleNonlinearElasticitySolver.hpp
 TestMaterialLaws.hpp
 TestNonlinearElasticityTools.hpp
-TestSolidMechanicsProblemDefinition.hpp
+TestProblemDefinitions.hpp
 TestStokesFlow.hpp

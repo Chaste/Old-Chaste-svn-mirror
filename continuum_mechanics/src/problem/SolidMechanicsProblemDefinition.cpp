@@ -33,194 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-const double SolidMechanicsProblemDefinition<DIM>::FREE = DBL_MAX;
-
-template<unsigned DIM>
 SolidMechanicsProblemDefinition<DIM>::SolidMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh)
-    : mrMesh(rMesh),
-      mDensity(1.0),
-      mBodyForceType(CONSTANT_BODY_FORCE),
-      mConstantBodyForce(zero_vector<double>(DIM)),
-      mTractionBoundaryConditionType(NO_TRACTIONS)
+    : ContinuumMechanicsProblemDefinition<DIM>(rMesh)
 {
 }
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetDensity(double density)
-{
-    assert(density>0.0);
-    mDensity = density;
-}
-
-template<unsigned DIM>
-double SolidMechanicsProblemDefinition<DIM>::GetDensity()
-{
-    return mDensity;
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM> bodyForce)
-{
-    mBodyForceType = CONSTANT_BODY_FORCE;
-    mConstantBodyForce = bodyForce;
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t))
-{
-    mBodyForceType = FUNCTIONAL_BODY_FORCE;
-    mpBodyForceFunction = pFunction;
-}
-
-template<unsigned DIM>
-BodyForceType SolidMechanicsProblemDefinition<DIM>::GetBodyForceType()
-{
-    return mBodyForceType;
-}
-
-template<unsigned DIM>
-c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::GetConstantBodyForce()
-{
-    assert(mBodyForceType==CONSTANT_BODY_FORCE);
-    return mConstantBodyForce;
-}
-
-template<unsigned DIM>
-c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateBodyForceFunction(c_vector<double,DIM>& rX, double t)
-{
-    assert(mBodyForceType==FUNCTIONAL_BODY_FORCE);
-    return (*mpBodyForceFunction)(rX,t);
-}
-
-
-template<unsigned DIM>
-TractionBoundaryConditionType SolidMechanicsProblemDefinition<DIM>::GetTractionBoundaryConditionType()
-{
-    return mTractionBoundaryConditionType;
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rTractionBoundaryElements,
-                                                                         std::vector<c_vector<double,DIM> >& rElementwiseTractions)
-{
-
-    assert(rTractionBoundaryElements.size()==rElementwiseTractions.size());
-    mTractionBoundaryConditionType = ELEMENTWISE_TRACTION;
-    mTractionBoundaryElements = rTractionBoundaryElements;
-    mElementwiseTractions = rElementwiseTractions;
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                                                         c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t))
-{
-    mTractionBoundaryConditionType=FUNCTIONAL_TRACTION;
-    mTractionBoundaryElements = rTractionBoundaryElements;
-    mpTractionBoundaryConditionFunction = pFunction;
-}
-
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetApplyNormalPressureOnDeformedSurface(std::vector<BoundaryElement<DIM-1,DIM>*> rTractionBoundaryElements,
-                                                                                   double normalPressure)
-{
-    mTractionBoundaryConditionType = PRESSURE_ON_DEFORMED;
-    mTractionBoundaryElements = rTractionBoundaryElements;
-    mNormalPressure = normalPressure;
-
-}
-
-
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetZeroDisplacementNodes(std::vector<unsigned>& rFixedNodes)
-{
-    mFixedNodes = rFixedNodes;
-
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {
-        assert(mFixedNodes[i] < mrMesh.GetNumNodes());
-    }
-
-    mFixedNodeDisplacements.clear();
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {
-        mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
-    }
-}
-
-template<unsigned DIM>
-void SolidMechanicsProblemDefinition<DIM>::SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocations)
-{
-    assert(rFixedNodes.size()==rFixedNodeLocations.size());
-    mFixedNodes = rFixedNodes;
-
-    mFixedNodeDisplacements.clear();
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {
-        unsigned index = mFixedNodes[i];
-        c_vector<double,DIM> displacement;
-        for(unsigned j=0; j<DIM; j++)
-        {
-        	double location = rFixedNodeLocations[i](j);
-
-			// compute the displacement, assuming the node
-			// is not free in this direction
-        	if(location != FREE)
-        	{
-        		displacement(j) = location - mrMesh.GetNode(index)->rGetLocation()[j];
-            }
-            else
-            {
-            	displacement(j) = FREE;
-            }
-        }
-    	mFixedNodeDisplacements.push_back(displacement);
-    }
-}
-
-
-template<unsigned DIM>
-std::vector<unsigned>& SolidMechanicsProblemDefinition<DIM>::rGetFixedNodes()
-{
-    return mFixedNodes;
-}
-
-template<unsigned DIM>
-std::vector<c_vector<double,DIM> >& SolidMechanicsProblemDefinition<DIM>::rGetFixedNodeDisplacements()
-{
-    return mFixedNodeDisplacements;
-}
-
-template<unsigned DIM>
-std::vector<BoundaryElement<DIM-1,DIM>*>& SolidMechanicsProblemDefinition<DIM>::rGetTractionBoundaryElements()
-{
-    return mTractionBoundaryElements;
-}
-
-
-template<unsigned DIM>
-std::vector<c_vector<double,DIM> >& SolidMechanicsProblemDefinition<DIM>::rGetElementwiseTractions()
-{
-    assert(mTractionBoundaryConditionType==ELEMENTWISE_TRACTION);
-    return mElementwiseTractions;
-}
-
-
-template<unsigned DIM>
-double SolidMechanicsProblemDefinition<DIM>::GetNormalPressure()
-{
-    assert(mTractionBoundaryConditionType==PRESSURE_ON_DEFORMED);
-    return mNormalPressure;
-}
-
-template<unsigned DIM>
-c_vector<double,DIM> SolidMechanicsProblemDefinition<DIM>::EvaluateTractionFunction(c_vector<double,DIM>& rX, double t)
-{
-    assert(mTractionBoundaryConditionType==FUNCTIONAL_TRACTION);
-    return (*mpTractionBoundaryConditionFunction)(rX,t);
-}
-
 
 
 template<unsigned DIM>
@@ -265,7 +81,7 @@ void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType co
     mIncompressibleMaterialLaws.clear();
     mCompressibleMaterialLaws.clear();
 
-    assert(mrMesh.GetNumElements()==rMaterialLaws.size());
+    assert(this->mrMesh.GetNumElements()==rMaterialLaws.size());
 
     if(compressibilityType==INCOMPRESSIBLE)
     {
@@ -324,7 +140,7 @@ AbstractIncompressibleMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::Ge
     }
     else
     {
-        assert(elementIndex < mrMesh.GetNumNodes());
+        assert(elementIndex < this->mrMesh.GetNumNodes());
         return mIncompressibleMaterialLaws[elementIndex];
     }
 }
@@ -342,7 +158,7 @@ AbstractCompressibleMaterialLaw<DIM>* SolidMechanicsProblemDefinition<DIM>::GetC
     }
     else
     {
-        assert(elementIndex < mrMesh.GetNumNodes());
+        assert(elementIndex < this->mrMesh.GetNumNodes());
         return mCompressibleMaterialLaws[elementIndex];
     }
 }

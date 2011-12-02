@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "SolidMechanicsProblemDefinition.hpp"
+#include "StokesFlowProblemDefinition.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
 
@@ -68,14 +69,16 @@ std::vector<T> MakeStdVec(unsigned size, T value0=0, T value1=0, T value2=0, T v
 }
 
 
-class TestSolidMechanicsProblemDefinition : public CxxTest::TestSuite
+class TestProblemDefinitions : public CxxTest::TestSuite
 {
 public:
-    void TestDefinition() throw(Exception)
+    // Test all the functionality inside ContinuumMechanicsProblemDefinition,
+    // which will be common to other problem definition classes
+    void TestContinuumMechanicsProblemDefinition() throw(Exception)
     {
         QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
 
-        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
+        ContinuumMechanicsProblemDefinition<2> problem_defn(mesh);
 
         TS_ASSERT_DELTA(problem_defn.GetDensity(), 1.0, 1e-12);
 
@@ -234,7 +237,14 @@ public:
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[3](1), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](0), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
         TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](1), 1.5 - mesh.GetNode(10)->rGetLocation()[1], 1e-12);
+    }
 
+    // Test the functionality specific to SolidMechanicsProblemDefinition
+    void TestSolidMechanicsProblemDefinition() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 
         ///////////////////////////////////////
         // Set an incompressible material law
@@ -309,6 +319,18 @@ public:
 
         TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&comp_mooney_rivlin_law),"Compressibility type was declared as INCOMPRESSIBLE but a compressible material law was given");
         TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(COMPRESSIBLE,&incomp_mooney_rivlin_law),"Incompressibility type was declared as COMPRESSIBLE but an incompressible material law was given");
+    }
+
+    void TestStokesFlowProblemDefinition() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
+
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+
+        TS_ASSERT_THROWS_THIS(problem_defn.GetViscosity(), "Viscosity hasn't been set yet (for the Stokes' flow problem)");
+
+        problem_defn.SetViscosity(1.3423423);
+        TS_ASSERT_EQUALS(problem_defn.GetViscosity(),1.3423423);
     }
 };
 
