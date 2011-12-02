@@ -149,10 +149,6 @@
    fun:ompi_attr_create_keyval
    fun:PMPI_Keyval_create
 }
-#   fun:*PetscCommDuplicate*
-#   fun:*PetscHeaderCreate_Private*
-#   fun:*VecCreate*
-
 
 
 
@@ -167,11 +163,19 @@
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
    ...
-   fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
-   ...
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:*MeshWriter*
+}
+{
+   VTK-ExpandTable 4
+   Memcheck:Cond
+   fun:_ZN14vtkInformation11ExpandTableEv
+   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
+   ...
+   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN12vtkXMLWriter5WriteEv
+   fun:_ZN13VtkMeshWriterILj2ELj2EE10WriteFilesEv
 }
 
 {
@@ -194,9 +198,6 @@
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
    ...
-   fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
-   ...
-   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN13VtkMeshReader*
 }
 
@@ -223,7 +224,19 @@
    fun:_ZN13vtkDataObjectD2Ev
    fun:_ZN19vtkUnstructuredGridD0Ev
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:_ZN16VertexMeshWriter*
+   fun:*VertexMeshWriter*
+}
+
+{
+   VTK-information VTK (not Vertex)
+   Memcheck:Cond
+   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:_ZN13vtkDataObject14SetInformationEP14vtkInformation
+   fun:_ZN13vtkDataObjectD2Ev
+   fun:_ZN19vtkUnstructuredGridD0Ev
+   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   fun:*VtkMeshWriter*
 }
 
 {
@@ -252,3 +265,21 @@
    fun:_ZN13VtkMeshReader*
 }
 
+{   
+   VTK-information leak
+   Memcheck:Addr8
+   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
+   fun:_ZN24vtkInformationIntegerKey3SetEP14vtkInformationi
+   fun:_ZN32vtkStreamingDemandDrivenPipeline21PropagateUpdateExtentEi
+   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN12vtkXMLWriter5WriteEv
+}
+# CVODE
+#######
+{
+   CVode stopping event todo - check this
+   Memcheck:Cond
+   fun:CVode
+   fun:_ZN12CvodeAdaptor5SolveEP17AbstractOdeSystemRSt6vectorIdSaIdEEdddd
+   fun:_ZN16TestCvodeAdaptor*
+}
